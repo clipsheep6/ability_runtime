@@ -134,16 +134,16 @@ void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
         bool flag = true;
         for (auto &callBack : iter->second->GetCallers()) {
             if (callBack != nullptr && !callBack->IsCallBack()) {
-                HILOG_INFO("%{public}s call back is not called.", __func__);
+                HILOG_DEBUG("%{public}s call back is not called.", __func__);
                 flag = false;
                 break;
             }
         }
         if (flag) {
-            HILOG_INFO("%{public}s state is REQUESTEND.", __func__);
+            HILOG_DEBUG("%{public}s state is REQUESTEND.", __func__);
             tempstr += "  state #REQUESTEND";
         } else {
-            HILOG_INFO("%{public}s state is REQUESTING.", __func__);
+            HILOG_DEBUG("%{public}s state is REQUESTING.", __func__);
             tempstr += "  state #REQUESTING";
         }
         info.emplace_back(tempstr);

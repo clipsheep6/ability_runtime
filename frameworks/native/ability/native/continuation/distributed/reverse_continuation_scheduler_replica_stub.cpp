@@ -33,35 +33,35 @@ ReverseContinuationSchedulerReplicaStub::~ReverseContinuationSchedulerReplicaStu
 }
 int32_t ReverseContinuationSchedulerReplicaStub::PassPrimaryInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     sptr<IRemoteObject> primary = nullptr;
     if (data.ReadBool()) {
         primary = data.ReadRemoteObject();
     }
     PassPrimary(primary);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 int32_t ReverseContinuationSchedulerReplicaStub::ReverseContinuationInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     ReverseContinuation();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 int32_t ReverseContinuationSchedulerReplicaStub::NotifyReverseResultInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     int reverseResult = data.ReadInt32();
     NotifyReverseResult(reverseResult);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int ReverseContinuationSchedulerReplicaStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("%{public}s called begin, code = %{public}u, flags= %{public}d.", __func__, code, option.GetFlags());
+    HILOG_DEBUG("%{public}s called begin, code = %{public}u, flags= %{public}d.", __func__, code, option.GetFlags());
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (remoteDescriptor != ReverseContinuationSchedulerReplicaStub::GetDescriptor()) {
         HILOG_ERROR("ReverseContinuationSchedulerReplicaStub::OnRemoteRequest token is invalid");
@@ -75,7 +75,7 @@ int ReverseContinuationSchedulerReplicaStub::OnRemoteRequest(
             return (this->*continuationFunc)(data, reply);
         }
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk

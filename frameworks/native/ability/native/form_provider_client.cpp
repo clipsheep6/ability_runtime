@@ -35,7 +35,7 @@ int FormProviderClient::AcquireProviderFormInfo(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     Want newWant(want);
     newWant.SetParam(Constants::ACQUIRE_TYPE, want.GetIntParam(Constants::ACQUIRE_TYPE, 0));
@@ -84,11 +84,11 @@ int FormProviderClient::AcquireProviderFormInfo(
  */
 int FormProviderClient::NotifyFormDelete(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("NotifyFormDelete called.");
+    HILOG_DEBUG("NotifyFormDelete called.");
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
-        HILOG_INFO("NotifyFormDelete called.");
+        HILOG_DEBUG("NotifyFormDelete called.");
         auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
         if (hostToken != nullptr) {
             FormCallerMgr::GetInstance().RemoveFormProviderCaller(formId, hostToken);
@@ -137,11 +137,11 @@ int FormProviderClient::NotifyFormsDelete(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("NotifyFormsDelete called.");
+    HILOG_DEBUG("NotifyFormsDelete called.");
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
-        HILOG_INFO("NotifyFormsDelete called.");
+        HILOG_DEBUG("NotifyFormsDelete called.");
         std::shared_ptr<Ability> ownerAbility = GetOwner();
         if (ownerAbility == nullptr) {
             HILOG_ERROR("NotifyFormsDelete error, ownerAbility is nullptr.");
@@ -188,7 +188,7 @@ int FormProviderClient::NotifyFormUpdate(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     // The error code for business operation.
     int errorCode = ERR_OK;
@@ -242,7 +242,7 @@ int FormProviderClient::EventNotify(
     const int32_t formVisibleType, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     // The error code for business operation.
     int errorCode = ERR_OK;
@@ -295,7 +295,7 @@ int FormProviderClient::NotifyFormCastTempForm(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
@@ -342,7 +342,7 @@ int FormProviderClient::FireFormEvent(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
@@ -391,7 +391,7 @@ int FormProviderClient::FireFormEvent(
 int FormProviderClient::AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                      const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     // The error code for business operation.
     int errorCode = ERR_OK;
     FormState state = FormState::UNKNOWN;
@@ -469,7 +469,7 @@ std::shared_ptr<Ability> FormProviderClient::GetOwner()
 
 bool FormProviderClient::CheckIsSystemApp() const
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid > Constants::MAX_SYSTEM_APP_UID) {
@@ -487,7 +487,7 @@ int FormProviderClient::HandleAcquire(
     const Want &newWant,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s start, image state is %{public}d",
+    HILOG_DEBUG("%{public}s start, image state is %{public}d",
         __func__, formProviderInfo.GetFormData().GetImageDataState());
 
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
@@ -496,7 +496,7 @@ int FormProviderClient::HandleAcquire(
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
     formSupplyClient->OnAcquire(formProviderInfo, newWant);
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_DEBUG("%{public}s end", __func__);
     return ERR_OK;
 }
 
@@ -518,7 +518,7 @@ int  FormProviderClient::HandleDisconnect(const Want &want, const sptr<IRemoteOb
 int FormProviderClient::HandleAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
                                                  const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s start, form state is %{public}d", __func__, state);
+    HILOG_DEBUG("%{public}s start, form state is %{public}d", __func__, state);
 
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
@@ -526,7 +526,7 @@ int FormProviderClient::HandleAcquireStateResult(FormState state, const std::str
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
     formSupplyClient->OnAcquireStateResult(state, provider, wantArg, want);
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_DEBUG("%{public}s end", __func__);
     return ERR_OK;
 }
 
@@ -569,7 +569,7 @@ int32_t FormProviderClient::AcquireShareFormData(int64_t formId, const std::stri
 void FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
     const Want &want, const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
     if (hostToken == nullptr) {
         return;

@@ -29,7 +29,7 @@ FormExtension* FormExtension::Create(const std::unique_ptr<Runtime>& runtime)
     if (!runtime) {
         return new FormExtension();
     }
-    HILOG_INFO("FormExtension::Create runtime");
+    HILOG_DEBUG("FormExtension::Create runtime");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsFormExtension::Create(runtime);
@@ -44,7 +44,7 @@ void FormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<FormExtensionContext>::Init(record, application, handler, token);
-    HILOG_INFO("FormExtension begin init");
+    HILOG_DEBUG("FormExtension begin init");
 }
 
 std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
@@ -65,39 +65,39 @@ std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
 
 OHOS::AppExecFwk::FormProviderInfo FormExtension::OnCreate(const OHOS::AAFwk::Want& want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
     return formProviderInfo;
 }
 
 void FormExtension::OnDestroy(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void FormExtension::OnEvent(const int64_t formId, const std::string& message)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void FormExtension::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void FormExtension::OnCastToNormal(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void FormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formEventsMap)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 FormState FormExtension::OnAcquireFormState(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     return FormState::DEFAULT;
 }
 

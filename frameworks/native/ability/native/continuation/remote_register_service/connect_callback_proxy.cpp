@@ -28,7 +28,7 @@ namespace AppExecFwk {
  */
 void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceType)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId) ||
         data.WriteString(deviceType)) {
@@ -36,7 +36,7 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
         return;
     }
     RemoteRequest(data, COMMAND_CONNECT);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 /**
  * @brief Remote device sends disconnection request.
@@ -45,25 +45,25 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
  */
 void ConnectCallbackProxy::Disconnect(const string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId)) {
         HILOG_ERROR("%{public}s params is wrong", __func__);
         return;
     }
     RemoteRequest(data, COMMAND_DISCONNECT);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 void ConnectCallbackProxy::RemoteRequest(MessageParcel &data, int commandDisconnect)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     MessageParcel reply;
     MessageOption option;
     if (Remote() == nullptr) {
         return;
     }
     Remote()->SendRequest(commandDisconnect, data, reply, option);
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

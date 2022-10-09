@@ -58,7 +58,7 @@ public:
 
 void JsAbilityContext::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
-    HILOG_INFO("JsAbilityContext::Finalizer is called");
+    HILOG_DEBUG("JsAbilityContext::Finalizer is called");
     std::unique_ptr<JsAbilityContext>(static_cast<JsAbilityContext*>(data));
 }
 
@@ -170,7 +170,7 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnStartAbility is called.");
+    HILOG_DEBUG("OnStartAbility is called.");
 
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
@@ -183,7 +183,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     HILOG_INFO("Start ability, ability name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_INFO("OnStartAbility start options is used.");
+        HILOG_DEBUG("OnStartAbility start options is used.");
         AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[1]), startOptions);
         unwrapArgc++;
@@ -215,7 +215,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
 
 NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartAbilityWithAccount is called");
+    HILOG_DEBUG("OnStartAbilityWithAccount is called");
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
         return engine.CreateUndefined();
@@ -228,13 +228,13 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-        HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+        HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
         return engine.CreateUndefined();
     }
     unwrapArgc++;
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_TWO && info.argv[INDEX_TWO]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_INFO("OnStartAbilityWithAccount start options is used.");
+        HILOG_DEBUG("OnStartAbilityWithAccount start options is used.");
         AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[ARGC_TWO]), startOptions);
         unwrapArgc++;
@@ -299,7 +299,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
         calldata->remoteCallee = obj;
         calldata->condition.notify_all();
-        HILOG_INFO("OnStartAbilityByCall callBackDone is called end");
+        HILOG_DEBUG("OnStartAbilityByCall callBackDone is called end");
     };
 
     auto releaseListen = [](const std::string &str) {
@@ -310,7 +310,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         constexpr int CALLER_TIME_OUT = 10; // 10s
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
         if (calldata->remoteCallee != nullptr) {
-            HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
+            HILOG_DEBUG("OnStartAbilityByCall callExecute callee isn`t nullptr");
             return;
         }
 
@@ -368,13 +368,13 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     }
 
     if (calls->remoteCallee == nullptr) {
-        HILOG_INFO("OnStartAbilityByCall async wait execute");
+        HILOG_DEBUG("OnStartAbilityByCall async wait execute");
         AsyncTask::Schedule("JsAbilityContext::OnStartAbilityByCall",
             engine,
             CreateAsyncTaskWithLastParam(
                 engine, lastParam, std::move(callExecute), std::move(callComplete), &retsult));
     } else {
-        HILOG_INFO("OnStartAbilityByCall promiss return result execute");
+        HILOG_DEBUG("OnStartAbilityByCall promiss return result execute");
         AsyncTask::Schedule("JsAbilityContext::OnStartAbilityByCall", engine,
             CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(callComplete), &retsult));
     }
@@ -385,7 +385,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
 
 NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartAbilityForResult is called");
+    HILOG_DEBUG("OnStartAbilityForResult is called");
 
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
@@ -401,7 +401,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
     decltype(info.argc) unwrapArgc = 1;
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_INFO("OnStartAbilityForResult start options is used.");
+        HILOG_DEBUG("OnStartAbilityForResult start options is used.");
         AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[1]), startOptions);
         unwrapArgc++;
@@ -413,7 +413,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want& want) {
-        HILOG_INFO("OnStartAbilityForResult async callback is called");
+        HILOG_DEBUG("OnStartAbilityForResult async callback is called");
         NativeValue* abilityResult = JsAbilityContext::WrapAbilityResult(engine, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed");
@@ -421,7 +421,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
         } else {
             asyncTask->Resolve(engine, abilityResult);
         }
-        HILOG_INFO("OnStartAbilityForResult async callback is called end");
+        HILOG_DEBUG("OnStartAbilityForResult async callback is called end");
     };
     auto context = context_.lock();
     if (context == nullptr) {
@@ -433,13 +433,13 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
         (unwrapArgc == 1) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task)) :
             context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnStartAbilityForResult is called end");
+    HILOG_DEBUG("OnStartAbilityForResult is called end");
     return result;
 }
 
 NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartAbilityForResultWithAccount is called");
+    HILOG_DEBUG("OnStartAbilityForResultWithAccount is called");
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
         return engine.CreateUndefined();
@@ -454,13 +454,13 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-        HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+        HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
         return engine.CreateUndefined();
     }
     unwrapArgc++;
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_TWO && info.argv[INDEX_TWO]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_INFO("OnStartAbilityForResultWithAccount start options is used.");
+        HILOG_DEBUG("OnStartAbilityForResultWithAccount start options is used.");
         AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_TWO]), startOptions);
         unwrapArgc++;
@@ -471,7 +471,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want& want) {
-        HILOG_INFO("OnStartAbilityForResultWithAccount async callback is called");
+        HILOG_DEBUG("OnStartAbilityForResultWithAccount async callback is called");
         NativeValue* abilityResult = JsAbilityContext::WrapAbilityResult(engine, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed");
@@ -479,7 +479,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
         } else {
             asyncTask->Resolve(engine, abilityResult);
         }
-        HILOG_INFO("OnStartAbilityForResultWithAccount async callback is called end");
+        HILOG_DEBUG("OnStartAbilityForResultWithAccount async callback is called end");
     };
     auto context = context_.lock();
     if (context == nullptr) {
@@ -491,13 +491,13 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
             want, accountId, curRequestCode_, std::move(task)) : context->StartAbilityForResultWithAccount(
                 want, accountId, startOptions, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnStartAbilityForResultWithAccount is called end");
+    HILOG_DEBUG("OnStartAbilityForResultWithAccount is called end");
     return result;
 }
 
 NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartExtensionAbility is called.");
+    HILOG_DEBUG("OnStartExtensionAbility is called.");
     int32_t argErrorCode = 0;
     AAFwk::Want want;
 
@@ -538,7 +538,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
 
 NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
+    HILOG_DEBUG("OnStartExtensionAbilityWithAccount is called.");
     int32_t argErrorCode = 0;
     AAFwk::Want want;
     int32_t accountId = -1;
@@ -552,7 +552,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
 
         if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-            HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+            HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
             argErrorCode = ERR_NOT_OK;
         }
     }
@@ -586,7 +586,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
 
 NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStopExtensionAbility is called.");
+    HILOG_DEBUG("OnStopExtensionAbility is called.");
     int32_t argErrorCode = 0;
     AAFwk::Want want;
 
@@ -627,7 +627,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, Nati
 
 NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
+    HILOG_DEBUG("OnStartExtensionAbilityWithAccount is called.");
     int32_t argErrorCode = 0;
     AAFwk::Want want;
     int32_t accountId = -1;
@@ -640,7 +640,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
 
         if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-            HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+            HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
             argErrorCode = ERR_NOT_OK;
         }
     }
@@ -674,7 +674,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
 
 NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnTerminateSelfWithResult is called");
+    HILOG_DEBUG("OnTerminateSelfWithResult is called");
 
     if (info.argc == 0) {
         HILOG_ERROR("Not enough params");
@@ -710,14 +710,14 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnTerminateSelfWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    HILOG_INFO("OnTerminateSelfWithResult is called end");
+    HILOG_DEBUG("OnTerminateSelfWithResult is called end");
     return result;
 }
 
 NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called.");
+    HILOG_DEBUG("Connect ability called.");
     // only support two params
     if (info.argc != ARGC_TWO) {
         HILOG_ERROR("Connect ability failed, not enough params.");
@@ -746,10 +746,10 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     } else {
         g_serialNumber = 0;
     }
-    HILOG_INFO("%{public}s not find connection, make new one", __func__);
+    HILOG_DEBUG("%{public}s not find connection, make new one", __func__);
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            HILOG_INFO("OnConnectAbility begin");
+            HILOG_DEBUG("OnConnectAbility begin");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("Connect ability failed, context is released.");
@@ -769,7 +769,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
 
 NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnConnectAbility is called");
+    HILOG_DEBUG("OnConnectAbility is called");
     // only support three params
     if (info.argc != ARGC_THREE) {
         HILOG_ERROR("Not enough params");
@@ -788,7 +788,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-        HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+        HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
         return engine.CreateUndefined();
     }
 
@@ -806,11 +806,11 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     } else {
         g_serialNumber = 0;
     }
-    HILOG_INFO("%{public}s not find connection, make new one", __func__);
+    HILOG_DEBUG("%{public}s not find connection, make new one", __func__);
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId, connection, connectId](
             NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnConnectAbilityWithAccount begin");
+                HILOG_DEBUG("OnConnectAbilityWithAccount begin");
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -831,7 +831,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
 
 NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnDisconnectAbility is called");
+    HILOG_DEBUG("OnDisconnectAbility is called");
     // only support one or two params
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params");
@@ -845,7 +845,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
     sptr<JSAbilityConnection> connection = nullptr;
     napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[0]), &connectId);
-    HILOG_INFO("Disconnect ability begin, connection:%{public}d.", (int32_t)connectId);
+    HILOG_DEBUG("Disconnect ability begin, connection:%{public}d.", (int32_t)connectId);
     auto item = std::find_if(abilityConnects_.begin(),
         abilityConnects_.end(),
         [&connectId](const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
@@ -855,15 +855,15 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
         // match id
         want = item->first.want;
         connection = item->second;
-        HILOG_INFO("%{public}s find conn ability exist", __func__);
+        HILOG_DEBUG("%{public}s find conn ability exist", __func__);
     } else {
-        HILOG_INFO("%{public}s not find conn exist.", __func__);
+        HILOG_DEBUG("%{public}s not find conn exist.", __func__);
     }
     // begin disconnect
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, connection](
             NativeEngine& engine, AsyncTask& task, int32_t status) {
-            HILOG_INFO("OnDisconnectAbility begin");
+            HILOG_DEBUG("OnDisconnectAbility begin");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -875,7 +875,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
                 task.Reject(engine, CreateJsError(engine, 2, "not found connection"));
                 return;
             }
-            HILOG_INFO("context->DisconnectAbility");
+            HILOG_DEBUG("context->DisconnectAbility");
             context->DisconnectAbility(want, connection);
             task.Resolve(engine, engine.CreateUndefined());
         };
@@ -889,7 +889,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
 
 NativeValue* JsAbilityContext::OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnTerminateSelf is called");
+    HILOG_DEBUG("OnTerminateSelf is called");
 
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params");
@@ -927,7 +927,7 @@ NativeValue* JsAbilityContext::OnTerminateSelf(NativeEngine& engine, NativeCallb
 
 NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnRequestPermissionsFromUser is called");
+    HILOG_DEBUG("OnRequestPermissionsFromUser is called");
 
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params");
@@ -951,7 +951,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     PermissionRequestTask task =
         [&engine, asyncTask](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
-        HILOG_INFO("OnRequestPermissionsFromUser async callback is called");
+        HILOG_DEBUG("OnRequestPermissionsFromUser async callback is called");
         NativeValue* requestResult = JsAbilityContext::WrapPermissionRequestResult(engine, permissions, grantResults);
         if (requestResult == nullptr) {
             HILOG_WARN("wrap requestResult failed");
@@ -959,7 +959,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
         } else {
             asyncTask->Resolve(engine, requestResult);
         }
-        HILOG_INFO("OnRequestPermissionsFromUser async callback is called end");
+        HILOG_DEBUG("OnRequestPermissionsFromUser async callback is called end");
     };
     auto context = context_.lock();
     if (context == nullptr) {
@@ -969,7 +969,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
         context->RequestPermissionsFromUser(engine, permissionList, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnRequestPermissionsFromUser is called end");
+    HILOG_DEBUG("OnRequestPermissionsFromUser is called end");
     return result;
 }
 
@@ -994,7 +994,7 @@ NativeValue* JsAbilityContext::OnRestoreWindowStage(NativeEngine& engine, Native
 
 NativeValue* JsAbilityContext::OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnIsTerminating is called");
+    HILOG_DEBUG("OnIsTerminating is called");
     auto context = context_.lock();
     if (context == nullptr) {
         HILOG_ERROR("OnIsTerminating context is nullptr");
@@ -1071,7 +1071,7 @@ NativeValue* JsAbilityContext::WrapPermissionRequestResult(NativeEngine& engine,
 
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 #ifdef SUPPORT_GRAPHICS
     // only split mode need inherit
     auto context = context_.lock();
@@ -1084,23 +1084,23 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
         windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
     }
-    HILOG_INFO("%{public}s called end. window mode is %{public}d", __func__, windowMode);
+    HILOG_DEBUG("%{public}s called end. window mode is %{public}d", __func__, windowMode);
 #endif
 }
 
 void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("ConfigurationUpdated begin.");
+    HILOG_DEBUG("ConfigurationUpdated begin.");
     if (jsContext == nullptr || config == nullptr) {
-        HILOG_INFO("jsContext is nullptr.");
+        HILOG_DEBUG("jsContext is nullptr.");
         return;
     }
 
     NativeValue* value = jsContext->Get();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
     if (object == nullptr) {
-        HILOG_INFO("object is nullptr.");
+        HILOG_DEBUG("object is nullptr.");
         return;
     }
 
@@ -1109,9 +1109,9 @@ void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_pt
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
-    HILOG_INFO("JSAbilityConnection::CallFunction onUpdateConfiguration, success");
+    HILOG_DEBUG("JSAbilityConnection::CallFunction onUpdateConfiguration, success");
 
-    HILOG_INFO("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
+    HILOG_DEBUG("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
     NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
     engine->CallFunction(value, method, argv, ARGC_ONE);
 }
@@ -1235,9 +1235,9 @@ void JSAbilityConnection::SetConnectionId(int64_t id)
 void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("OnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("OnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
-        HILOG_INFO("handler_ nullptr");
+        HILOG_DEBUG("handler_ nullptr");
         return;
     }
 
@@ -1245,7 +1245,7 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
     auto task = [connection, element, remoteObject, resultCode] {
         sptr<JSAbilityConnection> connectionSptr = connection.promote();
         if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
+            HILOG_DEBUG("connectionSptr nullptr");
             return;
         }
         connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
@@ -1256,7 +1256,7 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
 void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1272,23 +1272,23 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
         HILOG_ERROR("Failed to get onConnect from object");
         return;
     }
-    HILOG_INFO("JSAbilityConnection::CallFunction onConnect, success");
+    HILOG_DEBUG("JSAbilityConnection::CallFunction onConnect, success");
 
     // wrap RemoteObject
-    HILOG_INFO("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
+    HILOG_DEBUG("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
     napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
         reinterpret_cast<napi_env>(&engine_), remoteObject);
     NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
     NativeValue* argv[] = { ConvertElement(element), nativeRemoteObject };
     engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
-    HILOG_INFO("OnAbilityConnectDone end");
+    HILOG_DEBUG("OnAbilityConnectDone end");
 }
 
 void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_INFO("OnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("OnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
-        HILOG_INFO("handler_ nullptr");
+        HILOG_DEBUG("handler_ nullptr");
         return;
     }
 
@@ -1296,7 +1296,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
     auto task = [connection, element, resultCode] {
         sptr<JSAbilityConnection> connectionSptr = connection.promote();
         if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
+            HILOG_DEBUG("connectionSptr nullptr");
             return;
         }
         connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
@@ -1307,7 +1307,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("HandleOnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1343,13 +1343,13 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     }
 
     NativeValue* argv[] = { ConvertElement(element) };
-    HILOG_INFO("OnAbilityDisconnectDone CallFunction success");
+    HILOG_DEBUG("OnAbilityDisconnectDone CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
 }
 
 void JSAbilityConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_INFO("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed begin");
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1368,9 +1368,9 @@ void JSAbilityConnection::CallJsFailed(int32_t errorCode)
     }
 
     NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
-    HILOG_INFO("CallJsFailed CallFunction success");
+    HILOG_DEBUG("CallJsFailed CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_INFO("CallJsFailed end");
+    HILOG_DEBUG("CallJsFailed end");
 }
 
 NativeValue* JSAbilityConnection::ConvertElement(const AppExecFwk::ElementName &element)

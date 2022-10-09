@@ -30,7 +30,7 @@ ServiceExtension* ServiceExtension::Create(const std::unique_ptr<Runtime>& runti
     if (!runtime) {
         return new ServiceExtension();
     }
-    HILOG_INFO("ServiceExtension::Create runtime");
+    HILOG_DEBUG("ServiceExtension::Create runtime");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsServiceExtension::Create(runtime);
@@ -46,7 +46,7 @@ void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<ServiceExtensionContext>::Init(record, application, handler, token);
-    HILOG_INFO("ServiceExtension begin init context");
+    HILOG_DEBUG("ServiceExtension begin init context");
 }
 
 std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(

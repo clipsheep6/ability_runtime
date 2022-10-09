@@ -26,7 +26,7 @@ FormJsEventHandler::FormJsEventHandler(
     const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<Ability> &ability, const FormJsInfo &formJsInfo)
     : EventHandler(runner), formJsInfo_(formJsInfo), ability_(ability)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 /**
@@ -36,7 +36,7 @@ FormJsEventHandler::FormJsEventHandler(
  */
 void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     if (!event) {
         HILOG_ERROR("%{public}s, param illegal, event is nullptr", __func__);
         return;
@@ -69,7 +69,7 @@ void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
  */
 void FormJsEventHandler::ProcessRouterEvent(Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     if (!IsSystemApp()) {
         HILOG_WARN("%{public}s, not system application, cannot mixture package router", __func__);
@@ -91,7 +91,7 @@ void FormJsEventHandler::ProcessRouterEvent(Want &want)
  */
 void FormJsEventHandler::ProcessMessageEvent(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     if (!want.HasParameter(Constants::PARAM_FORM_IDENTITY_KEY)) {
         HILOG_ERROR("%{public}s, formid is not exist", __func__);
@@ -128,7 +128,7 @@ void FormJsEventHandler::ProcessMessageEvent(const Want &want)
 
 bool FormJsEventHandler::IsSystemApp() const
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid > Constants::MAX_SYSTEM_APP_UID) {

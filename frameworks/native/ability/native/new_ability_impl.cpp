@@ -29,7 +29,7 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 
 void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+    HILOG_DEBUG("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_,
         targetState.state,
@@ -67,7 +67,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
 
 void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    HILOG_INFO("Handle ability transaction done, notify ability manager service.");
+    HILOG_DEBUG("Handle ability transaction done, notify ability manager service.");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 

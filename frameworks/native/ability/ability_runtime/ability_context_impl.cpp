@@ -102,7 +102,7 @@ bool AbilityContextImpl::PrintDrawnCompleted()
 
 void AbilityContextImpl::SwitchArea(int mode)
 {
-    HILOG_INFO("AbilityContextImpl::SwitchArea to %{public}d.", mode);
+    HILOG_DEBUG("AbilityContextImpl::SwitchArea to %{public}d.", mode);
     if (stageContext_ != nullptr) {
         stageContext_->SwitchArea(mode);
     }
@@ -148,7 +148,7 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::S
 ErrCode AbilityContextImpl::StartAbilityWithAccount(
     const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode)
 {
-    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_DEBUG("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, startOptions, token_, requestCode, accountId);
@@ -199,7 +199,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
 
 ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId)
 {
-    HILOG_INFO("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_DEBUG("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
@@ -211,7 +211,7 @@ ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want
 
 ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
-    HILOG_INFO("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_DEBUG("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopExtensionAbility(
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
@@ -240,7 +240,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
         }
         resultCallbacks_.erase(requestCode);
     }
-    HILOG_INFO("%{public}s. End calling OnAbilityResult.", __func__);
+    HILOG_DEBUG("%{public}s. End calling OnAbilityResult.", __func__);
 }
 
 bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback)
@@ -383,7 +383,7 @@ sptr<IRemoteObject> AbilityContextImpl::GetToken()
 void AbilityContextImpl::RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions,
     int requestCode, PermissionRequestTask &&task)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     if (permissions.empty()) {
         HILOG_ERROR("%{public}s. The params are invalid.", __func__);
         return;
@@ -511,7 +511,7 @@ void AbilityContextImpl::ResultCallbackJSThreadWorker(uv_work_t* work, int statu
 
 ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     contentStorage_ = std::unique_ptr<NativeReference>(engine.CreateReference(contentStorage, 1));
     return ERR_OK;
 }
@@ -542,19 +542,19 @@ ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack> &c
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     abilityCallback_ = abilityCallback;
 }
 
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 {
-    HILOG_INFO("%{public}s begin. label = %{public}s", __func__, label.c_str());
+    HILOG_DEBUG("%{public}s begin. label = %{public}s", __func__, label.c_str());
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionLabel(token_, label);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContextImpl::SetMissionLabel is failed %{public}d", err);
     } else {
-        HILOG_INFO("AbilityContextImpl::SetMissionLabel success.");
+        HILOG_DEBUG("AbilityContextImpl::SetMissionLabel success.");
         auto abilityCallback = abilityCallback_.lock();
         if (abilityCallback) {
             abilityCallback->SetMissionLabel(label);
@@ -565,12 +565,12 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 
 ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionIcon(token_, icon);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContextImpl::SetMissionIcon is failed %{public}d", err);
     } else {
-        HILOG_INFO("AbilityContextImpl::SetMissionIcon success.");
+        HILOG_DEBUG("AbilityContextImpl::SetMissionIcon success.");
         auto abilityCallback = abilityCallback_.lock();
         if (abilityCallback) {
             abilityCallback->SetMissionIcon(icon);
@@ -581,7 +581,7 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
 
 int AbilityContextImpl::GetCurrentWindowMode()
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     auto abilityCallback = abilityCallback_.lock();
     if (abilityCallback == nullptr) {
         return AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;

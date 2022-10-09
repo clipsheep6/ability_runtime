@@ -30,7 +30,7 @@ ReverseContinuationSchedulerPrimary::ReverseContinuationSchedulerPrimary(
  */
 void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerPrimary = this]() {
         reverseContinuationSchedulerPrimary->HandlerNotifyReplicaTerminated();
     };
@@ -45,7 +45,7 @@ void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
         HILOG_ERROR("ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated PostTask error");
         return;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 /**
@@ -56,7 +56,7 @@ void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
  */
 bool ReverseContinuationSchedulerPrimary::ContinuationBack(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerPrimary = this, want]() {
         reverseContinuationSchedulerPrimary->HandlerContinuationBack(want);
     };
@@ -71,13 +71,13 @@ bool ReverseContinuationSchedulerPrimary::ContinuationBack(const AAFwk::Want &wa
         HILOG_ERROR("ReverseContinuationSchedulerPrimary::ContinuationBack PostTask error");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerPrimary::HandlerNotifyReplicaTerminated()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
@@ -86,12 +86,12 @@ void ReverseContinuationSchedulerPrimary::HandlerNotifyReplicaTerminated()
         return;
     }
     continuationHandler->NotifyReplicaTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ReverseContinuationSchedulerPrimary::HandlerContinuationBack(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
@@ -99,7 +99,7 @@ void ReverseContinuationSchedulerPrimary::HandlerContinuationBack(const AAFwk::W
         return;
     }
     continuationHandler->ContinuationBack(want);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -30,7 +30,7 @@ ContinuationDeviceCallbackProxy::~ContinuationDeviceCallbackProxy()
 {}
 void ContinuationDeviceCallbackProxy::Connect(const std::string &deviceId, const std::string &deviceType)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IContinuationDeviceCallback> callback = nullptr;
     callback = callback_.lock();
     if (callback == nullptr) {
@@ -38,12 +38,12 @@ void ContinuationDeviceCallbackProxy::Connect(const std::string &deviceId, const
         return;
     }
     callback->OnDeviceConnectDone(deviceId, deviceType);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationDeviceCallbackProxy::Disconnect(const std::string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IContinuationDeviceCallback> callback = nullptr;
     callback = callback_.lock();
     if (callback == nullptr) {
@@ -51,7 +51,7 @@ void ContinuationDeviceCallbackProxy::Disconnect(const std::string &deviceId)
         return;
     }
     callback->OnDeviceDisconnectDone(deviceId);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

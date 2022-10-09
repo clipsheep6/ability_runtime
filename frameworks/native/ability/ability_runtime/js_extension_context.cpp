@@ -26,7 +26,7 @@ namespace AbilityRuntime {
 void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     if (engine == nullptr || jsContext == nullptr || config == nullptr) {
         HILOG_ERROR("engine or jsContext or config is nullptr.");
         return;
@@ -45,7 +45,7 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::s
         return;
     }
 
-    HILOG_INFO("JsExtensionContext call onUpdateConfiguration.");
+    HILOG_DEBUG("JsExtensionContext call onUpdateConfiguration.");
     NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
     engine->CallFunction(value, method, argv, 1);
 }
@@ -53,7 +53,7 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::s
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext> &context,
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo, DetachCallback detach, AttachCallback attach)
 {
-    HILOG_INFO("CreateJsExtensionContext begin");
+    HILOG_DEBUG("CreateJsExtensionContext begin");
     NativeValue* objValue = CreateJsBaseContext(engine, context, detach, attach);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");

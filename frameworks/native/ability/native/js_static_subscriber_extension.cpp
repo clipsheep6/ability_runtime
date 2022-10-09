@@ -37,7 +37,7 @@ using namespace OHOS::AppExecFwk;
 
 NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *value, void *)
 {
-    HILOG_INFO("AttachStaticSubscriberExtensionContext");
+    HILOG_DEBUG("AttachStaticSubscriberExtensionContext");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -56,7 +56,7 @@ NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *
     auto workContext = new (std::nothrow) std::weak_ptr<StaticSubscriberExtensionContext>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr static subscriber extension context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr static subscriber extension context is called");
             delete static_cast<std::weak_ptr<StaticSubscriberExtensionContext> *>(data);
         }, nullptr);
     return contextObj;
@@ -98,7 +98,7 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         HILOG_ERROR("Failed to get jsObj_");
         return;
     }
-    HILOG_INFO("JsStaticSubscriberExtension::Init ConvertNativeValueTo.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::Init ConvertNativeValueTo.");
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get JsStaticSubscriberExtension object");
@@ -110,7 +110,7 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         HILOG_ERROR("Failed to get context");
         return;
     }
-    HILOG_INFO("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
     NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context, nullptr, nullptr);
     auto shellContextRef = JsRuntime::LoadSystemModuleByEngine(&engine, "application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
@@ -123,55 +123,55 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
     auto workContext = new (std::nothrow) std::weak_ptr<StaticSubscriberExtensionContext>(context);
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc,
         AttachStaticSubscriberExtensionContext, workContext, nullptr);
-    HILOG_INFO("JsStaticSubscriberExtension::Init Bind.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
-    HILOG_INFO("JsStaticSubscriberExtension::SetProperty.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::SetProperty.");
     obj->SetProperty("context", contextObj);
 
-    HILOG_INFO("Set static subscriber extension context");
+    HILOG_DEBUG("Set static subscriber extension context");
 
     nativeObj->SetNativePointer(workContext,
         [](NativeEngine*, void* data, void*) {
-            HILOG_INFO("Finalizer for weak_ptr static subscriber extension context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr static subscriber extension context is called");
             delete static_cast<std::weak_ptr<StaticSubscriberExtensionContext>*>(data);
         }, nullptr);
 
-    HILOG_INFO("JsStaticSubscriberExtension::Init end.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::Init end.");
 }
 
 void JsStaticSubscriberExtension::OnStart(const AAFwk::Want& want)
 {
     Extension::OnStart(want);
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void JsStaticSubscriberExtension::OnStop()
 {
     Extension::OnStop();
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 sptr<IRemoteObject> JsStaticSubscriberExtension::OnConnect(const AAFwk::Want& want)
 {
     Extension::OnConnect(want);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     sptr<StaticSubscriberStubImp> remoteObject = new (std::nothrow) StaticSubscriberStubImp(
         std::static_pointer_cast<JsStaticSubscriberExtension>(shared_from_this()));
-    HILOG_INFO("%{public}s end. ", __func__);
+    HILOG_DEBUG("%{public}s end. ", __func__);
     return remoteObject->AsObject();
 }
 
 void JsStaticSubscriberExtension::OnDisconnect(const AAFwk::Want& want)
 {
     Extension::OnDisconnect(want);
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void JsStaticSubscriberExtension::OnReceiveEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
 
     if (handler_ == nullptr) {
         return;
@@ -218,7 +218,7 @@ void JsStaticSubscriberExtension::OnReceiveEvent(std::shared_ptr<EventFwk::Commo
             return;
         }
         nativeEngine.CallFunction(value, method, argv, ARGC_ONE);
-        HILOG_INFO("JsStaticSubscriberExtension js receive event called.");
+        HILOG_DEBUG("JsStaticSubscriberExtension js receive event called.");
     };
     handler_->PostTask(task);
 }

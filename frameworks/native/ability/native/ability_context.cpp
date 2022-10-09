@@ -163,7 +163,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
         return false;
     }
 
-    HILOG_INFO("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
+    HILOG_DEBUG("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
 
     if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
         HILOG_ERROR("AbilityContext::ConnectAbility AbilityType = %{public}d", type);
@@ -184,7 +184,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
-    HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
+    HILOG_DEBUG("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
@@ -343,7 +343,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
 
 int AbilityContext::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    HILOG_INFO("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
+    HILOG_DEBUG("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
         __func__,
         permission.c_str(),
         pid,
