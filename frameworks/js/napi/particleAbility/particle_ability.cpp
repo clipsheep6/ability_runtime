@@ -245,7 +245,6 @@ napi_value ParticleAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("connectAbility", NAPI_PAConnectAbility),
         DECLARE_NAPI_FUNCTION("disconnectAbility", NAPI_PADisConnectAbility),
         DECLARE_NAPI_FUNCTION("acquireDataAbilityHelper", NAPI_PAAcquireDataAbilityHelper),
-        DECLARE_NAPI_FUNCTION("startBackgroundRunning", NAPI_PAStartBackgroundRunning),
         DECLARE_NAPI_FUNCTION("terminateSelf", NAPI_PATerminateAbility),
     };
     napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties);
