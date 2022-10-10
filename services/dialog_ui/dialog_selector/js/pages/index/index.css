@@ -1,3 +1,15 @@
+.black-overlay{
+    width: 100%;
+    height: 100%;
+    margin-left: 0vp;
+    margin-bottom: 0vp;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: rgba(51, 24, 36, 0.2);
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -7,6 +19,7 @@
     border-width: 1vp;
     border-color: #e9e9e9;
     background-color: #ffffff;
+    overflow: hidden;
 }
 .selector {
     flex-direction: column;
@@ -16,7 +29,7 @@
 }
 .title {
     font-size: 20vp;
-    font-weight: medium;
+    font-weight: "HwChinese-medium";
     text-align: left;
     margin-top: 8vp;
     margin-left: 15vp;
@@ -85,8 +98,8 @@
 }
 .text-cancel {
     font-size: 16fp;
-    color: #0A59F7;
-    font-weight: regular;
+    color: #ff007dff;
+    font-weight: "sans-serif";
 }
 
 .selector-listback {

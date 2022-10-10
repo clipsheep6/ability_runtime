@@ -79,13 +79,14 @@ public:
     }
 
 private:
+    const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos, DialogPosition position) const;
+    const std::string GetTipParams(DialogPosition position) const;
     const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
-    const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
-    
+
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-    
+
     void ScheduleShowDialog(const std::string &name, const DialogPosition &position,
         const std::string &params, DialogCallback callback) const;
 
