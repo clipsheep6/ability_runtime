@@ -34,7 +34,6 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "securec.h"
-#include "hitrace_meter.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -66,7 +65,6 @@ napi_value FeatureAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("terminateSelfWithResult", NAPI_SetResult),
         DECLARE_NAPI_FUNCTION("terminateSelf", NAPI_TerminateAbility),
         DECLARE_NAPI_FUNCTION("getContext", NAPI_GetContext),
-        DECLARE_NAPI_FUNCTION("getWant", NAPI_GetWant),
         DECLARE_NAPI_FUNCTION("getAppType", NAPI_GetAppType),
         DECLARE_NAPI_FUNCTION("getAbilityName", NAPI_GetAbilityName),
         DECLARE_NAPI_FUNCTION("getAbilityInfo", NAPI_GetAbilityInfo),
@@ -93,6 +91,7 @@ public:
     static NativeValue* HasWindowFocus(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* ConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* DisconnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetWant(NativeEngine *engine, NativeCallbackInfo *info);
 private:
 #ifdef SUPPORT_GRAPHICS
     NativeValue* OnHasWindowFocus(NativeEngine &engine, NativeCallbackInfo &info);
@@ -124,11 +123,18 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
     object->SetNativePointer(jsFeatureAbility.release(), JsFeatureAbility::Finalizer, nullptr);
 
     const char *moduleName = "JsFeatureAbility";
+    BindNativeFunction(*engine, *object, "getWant", moduleName, JsFeatureAbility::GetWant);
     BindNativeFunction(*engine, *object, "hasWindowFocus", moduleName, JsFeatureAbility::HasWindowFocus);
     BindNativeFunction(*engine, *object, "connectAbility", moduleName, JsFeatureAbility::ConnectAbility);
     BindNativeFunction(*engine, *object, "disconnectAbility", moduleName, JsFeatureAbility::DisconnectAbility);
 
     return exports;
+}
+
+NativeValue* JsFeatureAbility::GetWant(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsFeatureAbility *me = CheckParamsAndGetThis<JsFeatureAbility>(engine, info);
+    return (me != nullptr) ? me->JsGetWant(*engine, *info, AbilityType::PAGE) : nullptr;
 }
 
 NativeValue *JsFeatureAbility::HasWindowFocus(NativeEngine *engine, NativeCallbackInfo *info)

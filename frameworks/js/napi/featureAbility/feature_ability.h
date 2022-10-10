@@ -20,6 +20,7 @@ using Want = OHOS::AAFwk::Want;
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::AbilityRuntime;
 /**
  * @brief FeatureAbility NAPI module registration.
  *

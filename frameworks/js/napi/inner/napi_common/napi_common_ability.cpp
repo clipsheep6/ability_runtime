@@ -5802,5 +5802,65 @@ std::string JsNapiCommon::ConvertErrorCode(int32_t errCode)
 
     return findECode->second;
 }
+
+NativeValue* JsNapiCommon::JsGetWant(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+
+    std::shared_ptr<JsWant> pwant = std::make_shared<JsWant>();
+    auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
+    auto execute = [obj = this, want = pwant, value = errorVal, abilityType] () {
+        if (obj->ability_ == nullptr) {
+            *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+            HILOG_ERROR("task execute error, the ability is nullptr");
+            return;
+        }
+        if (!obj->CheckAbilityType(abilityType)) {
+            HILOG_ERROR("task execute error, the abilityType is error");
+            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+            return;
+        }
+
+        auto wantData = obj->ability_->GetWant();
+        if (wantData == nullptr || want == nullptr) {
+            HILOG_ERROR("wantData or want is nullptr!");
+            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
+            return;
+        }
+        want->want = *wantData;
+    };
+
+    auto complete = [obj = this, value = errorVal, pwant]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (*value == NAPI_ERR_NO_ERROR && pwant != nullptr) {
+            task.Resolve(engine, obj->CreateWant(engine, pwant));
+        } else {
+            auto error = (pwant == nullptr) ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
+            task.Reject(engine, CreateJsError(engine, error, "GetAbilityInfo return nullptr"));
+        }
+    };
+
+    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsGetWant",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_ptr<JsWant> &want)
+{
+    HILOG_DEBUG("%{public}s,called", __func__);
+    if (want == nullptr) {
+        HILOG_DEBUG("%{public}s,called", __func__);
+        return engine.CreateUndefined();
+    }
+
+    return CreateJsWant(engine, want->want);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
