@@ -281,6 +281,12 @@ void JsParticleAbility::Finalizer(NativeEngine *engine, void *data, void *hint)
     std::unique_ptr<JsParticleAbility>(static_cast<JsParticleAbility*>(data));
 }
 
+NativeValue* JsParticleAbility::PAStartBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsParticleAbility *me = CheckParamsAndGetThis<JsParticleAbility>(engine, info);
+    return (me != nullptr) ? me->OnPAStartBackgroundRunning(*engine, *info) : nullptr;
+}
+
 NativeValue* JsParticleAbility::PACancelBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JsParticleAbility *me = CheckParamsAndGetThis<JsParticleAbility>(engine, info);
@@ -314,6 +320,61 @@ Ability* JsParticleAbility::GetAbility(napi_env env)
     }
     return ability;
 }
+
+NativeValue* JsParticleAbility::OnPAStartBackgroundRunning(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    if (info.argc < ARGC_TWO || info.argc > ARGC_THREE) {
+        HILOG_ERROR("Wrong argument count");
+        return engine.CreateUndefined();
+    }
+    auto errorVal = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
+    auto env = reinterpret_cast<napi_env>(&engine);
+    auto arg1 = reinterpret_cast<napi_value>(info.argv[1]);
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
+    if (UnwrapParamForWantAgent(env, arg1, wantAgent) == nullptr) {
+        errorVal = static_cast<int32_t>(NAPI_ERR_PARAM_INVALID);
+    }
+
+    if (ability_ == nullptr) {
+        errorVal = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+    }
+
+    const std::shared_ptr<AbilityInfo> abilityinfo = ability_->GetAbilityInfo();
+    if (abilityinfo == nullptr) {
+        HILOG_ERROR("abilityinfo is null");
+        errorVal = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+    }
+
+    AbilityRuntime::WantAgent::WantAgent wantAgentObj;
+    if(!wantAgent) {
+        HILOG_WARN("input param without wantAgent");
+        wantAgentObj = AbilityRuntime::WantAgent::WantAgent();
+    } else {
+        wantAgentObj = *wantAgent;
+    }
+    AsyncTask::CompleteCallback complete =
+        [wantAgentObj, obj = this, errorVal] (NativeEngine &engine, AsyncTask &task, int32_t status) {
+            if (errorVal != static_cast<int32_t>(NAPI_ERR_NO_ERROR)) {
+                task.Reject(engine, CreateJsError(engine, errorVal, "calling interface failed."));
+                return;
+            }
+            auto ret = obj->ability_->StartBackgroundRunning(wantAgentObj);;
+            if(ret != NAPI_ERR_NO_ERROR){
+                task.Reject(engine, CreateJsError(engine, errorVal, "StartBackgroundRunning failed."));
+                return;
+            }
+            task.Resolve(engine, CreateJsValue(engine, ret));
+        };
+
+    NativeValue *lastParam = (info.argc >= ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsParticleAbility::OnPAStartBackgroundRunning",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 NativeValue* JsParticleAbility::OnPACancelBackgroundRunning(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
@@ -361,6 +422,8 @@ NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj)
 
     HILOG_DEBUG("JsParticleAbility BindNativeFunction called");
     const char *moduleName = "JsParticleAbility";
+    BindNativeFunction(*engine, *object, "startBackgroundRunning", moduleName,
+        JsParticleAbility::PAStartBackgroundRunning);
     BindNativeFunction(*engine, *object, "cancelBackgroundRunning", moduleName,
         JsParticleAbility::PACancelBackgroundRunning);
 

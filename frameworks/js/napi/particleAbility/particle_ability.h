@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H
 
+#include "ability_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -39,6 +40,7 @@ public:
     ~JsParticleAbility() = default;
     Ability* GetAbility(napi_env env);
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
+    static NativeValue* PAStartBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* PACancelBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info);
 
 private:
