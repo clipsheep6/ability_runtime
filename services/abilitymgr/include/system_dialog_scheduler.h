@@ -60,19 +60,14 @@ struct DialogAppInfo {
  */
 class SystemDialogScheduler : public DelayedSingleton<SystemDialogScheduler> {
 public:
-    using DialogCallback = std::function<void(int32_t id, const std::string& event, const std::string& param)>;
-    using Closure = std::function<void()>;
-    using SelectorClosure = std::function<void(const std::string& bundle, const std::string& abilityName)>;
 
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    int32_t ShowANRDialog(const std::string &appName, const Closure &anrCallBack);
-    int32_t ShowSelectorDialog(const std::vector<DialogAppInfo> &infos, const SelectorClosure &startAbilityCallBack);
-    int32_t ShowTipsDialog();
+    bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
+    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos);
+    Want GetTipsDialogWant();
 
-    void GetAppNameFromResource(int32_t labelId,
-        const std::string &bundleName, int32_t userId, std::string &appName);
     void SetDeviceType(const std::string &deviceType)
     {
         deviceType_ = deviceType;
@@ -81,15 +76,16 @@ public:
 private:
     const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
+    const std::string GetDialogPositionParams(const DialogPosition position) const;
     
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-    
-    void ScheduleShowDialog(const std::string &name, const DialogPosition &position,
-        const std::string &params, DialogCallback callback) const;
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+
+    void GetAppNameFromResource(int32_t labelId,
+        const std::string &bundleName, int32_t userId, std::string &appName);
 
 private:
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
