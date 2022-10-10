@@ -872,7 +872,7 @@ private:
         const AbilityRequest &abilityRequest) const;
     void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want) const;
-    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility);
+    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool flag);
 
     void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions);
