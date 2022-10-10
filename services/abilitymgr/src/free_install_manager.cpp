@@ -156,7 +156,7 @@ FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32
         .want = want,
         .userId = userId,
         .requestCode = requestCode,
-        .startInstallTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        .startInstallTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count(),
         .callerToken = callerToken,
         .promise = promise
@@ -243,7 +243,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
-            want.GetElement().GetAbilityName().compare(abilityName) != 0) {
+            want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
+            (*it).startInstallTime != startInstallTime) {
             it++;
             continue;
         }
@@ -254,6 +255,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         }
 
         if ((*it).promise == nullptr) {
+            it++;
             continue;
         }
         
@@ -261,7 +263,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             HILOG_INFO("FreeInstall success.");
             (*it).promise->set_value(resultCode);
             (*it).isInstalled = true;
-        } else if ((*it).startInstallTime == startInstallTime) {
+        } else {
             HILOG_INFO("FreeInstall failed.");
             (*it).promise->set_value(resultCode);
         }
@@ -321,7 +323,6 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
     if (!isSaCall) {
         std::string wantAbilityName = want.GetElement().GetAbilityName();
         std::string wantBundleName = want.GetElement().GetBundleName();
-        std::string wantModuleName = want.GetElement().GetModuleName();
         if (wantBundleName.empty() || wantAbilityName.empty()) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName or wantAbilityName is empty");
             return ERR_INVALID_VALUE;

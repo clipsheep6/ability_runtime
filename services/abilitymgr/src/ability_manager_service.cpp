@@ -1521,16 +1521,16 @@ int AbilityManagerService::ConnectAbilityCommon(
     }
 
     int32_t validUserId = GetValidUserId(userId);
-    std::string localDeviceId;
-    if (!GetLocalDeviceId(localDeviceId)) {
-        HILOG_ERROR("%{public}s: Get Local DeviceId failed", __func__);
-        eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
-    }
-
+    
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+        std::string localDeviceId;
+        if (!GetLocalDeviceId(localDeviceId)) {
+            HILOG_ERROR("%{public}s: Get Local DeviceId failed", __func__);
+            eventInfo.errCode = ERR_INVALID_VALUE;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return ERR_INVALID_VALUE;
+        }
         result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
         if (result != ERR_OK) {
             eventInfo.errCode = result;
