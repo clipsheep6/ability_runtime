@@ -333,8 +333,7 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     StartingWindowHot();
-    auto flag = !IsForeground();
-    NotifyAnimationFromTerminatingAbility(callerAbility, flag);
+    NotifyAnimationFromTerminatingAbility(callerAbility);
     PostCancelStartingWindowHotTask();
 
     if (IsAbilityState(AbilityState::FOREGROUND)) {
@@ -348,8 +347,7 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     }
 }
 
-void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord>& callerAbility,
-    bool flag)
+void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord>& callerAbility)
 {
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
@@ -364,12 +362,7 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<
         fromInfo->abilityToken_ = callerAbility->GetToken();
     }
 
-    if (flag) {
-        fromInfo->reason_ = TransitionReason::BACK_TRANSITION;
-    } else {
-        fromInfo->reason_ = TransitionReason::CLOSE;
-    }
-
+    fromInfo->reason_ = TransitionReason::BACK_TRANSITION;
     auto toInfo = CreateAbilityTransitionInfo();
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
 
@@ -385,7 +378,7 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility() const
     }
 
     sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
-    SetAbilityTransitionInfo(abilityInfo_, fromInfo);
+    SetAbilityTransitionInfo(fromInfo);
     fromInfo->reason_ = TransitionReason::CLOSE;
     windowHandler->NotifyWindowTransition(fromInfo, nullptr);
 }
