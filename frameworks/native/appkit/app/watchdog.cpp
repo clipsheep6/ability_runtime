@@ -53,7 +53,6 @@ void Watchdog::Stop()
     HILOG_DEBUG("Watchdog is stop !");
     stopWatchdog_.store(true);
     cvWatchdog_.notify_all();
-    OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
 
     if (appMainHandler_) {
         appMainHandler_.reset();

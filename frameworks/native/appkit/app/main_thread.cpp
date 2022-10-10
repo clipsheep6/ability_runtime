@@ -1458,7 +1458,6 @@ void MainThread::HandleTerminateApplication()
         signalRunner->Stop();
     }
 
-    appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::handleTerminateApplication get manHandler error");
@@ -1484,6 +1483,7 @@ void MainThread::HandleTerminateApplication()
         handleAppLib_ = nullptr;
     }
 #endif  // APPLICATION_LIBRARY_LOADER
+    appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     HILOG_DEBUG("MainThread::handleTerminateApplication called end.");
 }
 
