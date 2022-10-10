@@ -1199,9 +1199,9 @@ bool CheckContinueKeyExist(napi_env env, const napi_value &value)
     napi_has_named_property(env, value, "dstDeviceId", &isDstDeviceId);
     bool isMissionId = false;
     napi_has_named_property(env, value, "missionId", &isMissionId);
-    bool isWantParam = false;
-    napi_has_named_property(env, value, "wantParam", &isWantParam);
-    if (!isSrcDeviceId && !isDstDeviceId && !isMissionId && !isWantParam) {
+    bool isWantParams = false;
+    napi_has_named_property(env, value, "wantParams", &isWantParams);
+    if (!isSrcDeviceId && !isDstDeviceId && !isMissionId && !isWantParams) {
         HILOG_ERROR("%{public}s, Wrong argument key.", __func__);
         return false;
     }
@@ -1229,7 +1229,7 @@ bool CheckContinueFirstArgs(napi_env env, const napi_value &value,
     napi_get_named_property(env, value, "srcDeviceId", &firstNApi);
     napi_get_named_property(env, value, "dstDeviceId", &secondNApi);
     napi_get_named_property(env, value, "missionId", &thirdNApi);
-    napi_get_named_property(env, value, "wantParam", &fourthNApi);
+    napi_get_named_property(env, value, "wantParams", &fourthNApi);
     if (firstNApi == nullptr || secondNApi == nullptr || thirdNApi == nullptr || fourthNApi == nullptr) {
         errInfo = "Parameter error. The number of \"ContinueMission\" must be 4";
         return false;
