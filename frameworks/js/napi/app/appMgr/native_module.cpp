@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "app_mgr.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "native_engine/native_engine.h"
 
 EXTERN_C_START
 /*
@@ -29,16 +30,8 @@ EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports)
 {
     HILOG_INFO("native_module Init start...");
-    /*
-     * Propertise define
-     */
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("killProcessesByBundleName", NAPI_KillProcessesByBundleName),
-    };
-
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-    HILOG_INFO("native_module Init end...");
-    return exports;
+    return reinterpret_cast<napi_value>(OHOS::AbilityRuntime::JsAppMgrInit(reinterpret_cast<NativeEngine*>(env),
+        reinterpret_cast<NativeValue*>(exports)));
 }
 EXTERN_C_END
 

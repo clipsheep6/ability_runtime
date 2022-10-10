@@ -82,6 +82,11 @@ public:
         Want want;
     };
 
+    NativeValue* JsConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+    NativeValue* JsDisConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+
+    sptr<NAPIAbilityConnection> BuildWant(const Want &want, int64_t &id);
+    void ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1);
     NativeValue* JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsIsUpdatingConfigurations(
