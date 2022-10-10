@@ -55,6 +55,11 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 
+#if defined(NWEB)
+#include <thread>
+#include "nweb_pre_dns_adapter.h"
+#endif
+
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -1044,6 +1049,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     } else {
         HILOG_ERROR("HandleLaunchApplication::application pAppEvnIml is null");
     }
+
+#if defined(NWEB)
+    // pre dns for nweb
+    std::thread(&OHOS::NWeb::PreDnsInThread).detach();
+#endif
 
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }
