@@ -185,6 +185,7 @@ private:
     int BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply);
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
     int BlockAppServiceInner(MessageParcel &data, MessageParcel &reply);
+    int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     #endif
 
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);

@@ -14,6 +14,8 @@
  */
 
 #include "application_data_manager.h"
+
+#include "app_recovery.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -42,7 +44,9 @@ bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
         return true;
     }
 
-    return false;
+    // if apprecovery is enabled, we could callback to save current state
+    // and restart as developer wants
+    return AppRecovery::GetInstance().TryRecoverApp(StateReason::JS_ERROR);
 }
 
 void ApplicationDataManager::RemoveErrorObserver()

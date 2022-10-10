@@ -803,6 +803,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject>& token,
+        int32_t reason, int32_t savedStateId) override;
 
     bool GetStartUpNewRuleFlag() const;
 
@@ -1148,6 +1150,8 @@ private:
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
+    void RecoverAbilityRestart(AAFwk::Want& want);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1208,6 +1212,7 @@ private:
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
+    std::unordered_map<int32_t, int64_t> appRecoverHistory_; // uid:time
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -17,6 +17,8 @@
 
 #include <parameter.h>
 #include <unistd.h>
+
+#include "app_recovery.h"
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
 #include "xcollie/watchdog.h"
@@ -154,7 +156,7 @@ void Watchdog::reportEvent()
         HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
         return;
     }
-    
+
     if (!needReport_) {
         return;
     }
@@ -177,6 +179,12 @@ void Watchdog::reportEvent()
         EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
         EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent);
     HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
+
+    // should call error manager-> appRecovery
+    if (isSixSecondEvent_) {
+        AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+        AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
+    }
 }
 
 void MainHandlerDumper::Dump(const std::string &message)

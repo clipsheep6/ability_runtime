@@ -81,6 +81,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
   ]

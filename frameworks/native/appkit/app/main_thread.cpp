@@ -26,6 +26,7 @@
 #include "ability_thread.h"
 #include "ability_util.h"
 #include "app_loader.h"
+#include "app_recovery.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "hitrace_meter.h"
@@ -919,6 +920,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
     }
 
+    if (isStageBased) {
+        AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
+    }
     HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
         isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 

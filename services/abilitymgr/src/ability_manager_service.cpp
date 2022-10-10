@@ -4124,6 +4124,79 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
+void AbilityManagerService::RecoverAbilityRestart(AAFwk::Want& want)
+{
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+    std::string wantStr = want.ToString();
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    int32_t ret = StartAbility(want, userId, 0);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s AppRecovery::failed to restart ability.  %{public}d", __func__, ret);
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
+}
+
+void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token,
+    int32_t reason, int32_t savedStateId)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record != nullptr) {
+        HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
+        return;
+    }
+
+    AAFwk::Want want;
+    {
+        std::lock_guard<std::recursive_mutex> guard(globalLock_);
+        auto type = record->GetAbilityInfo().type;
+        if (type != AppExecFwk::AbilityType::PAGE) {
+            HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability?.", __func__);
+            return;
+        }
+
+        // next to add ability state and check
+        constexpr int64_t MIN_RECOVERY_TIME = 60;
+        auto now = time(nullptr);
+        auto it = appRecoverHistory_.find(record->GetUid());
+        if ((it != appRecoverHistory_.end()) &&
+            (it->second + MIN_RECOVERY_TIME > static_cast<int64_t>(now))) {
+            HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
+                __func__, record->GetPid());
+            kill(record->GetPid(), SIGKILL);
+            return;
+        }
+    
+        auto appInfo = record->GetApplicationInfo();
+        auto abilityInfo = record->GetAbilityInfo();
+        appRecoverHistory_.emplace(record->GetUid(),
+            static_cast<int64_t>(now)).first->second = static_cast<int64_t>(now);
+        want = record->GetWant();
+        HiSysEvent::Write(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
+            "APP_UID", record->GetUid(),
+            "VERSION_CODE", std::to_string(appInfo.versionCode),
+            "VERSION_NAME", appInfo.versionName,
+            "BUNDLE_NAME", appInfo.bundleName,
+            "ABILITY_NAME", abilityInfo.name);
+        kill(record->GetPid(), SIGKILL);
+    }
+
+    constexpr int delaytime = 2000;
+    std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
+    auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, want);
+    handler_->PostTask(task, taskName, delaytime);
+}
+
 int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot)
 {
