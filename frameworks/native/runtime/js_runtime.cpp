@@ -533,13 +533,16 @@ bool JsRuntime::Initialize(const Options& options)
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
 
         codePath_ = options.codePath;
+    }
 
-        auto moduleManager = NativeModuleManager::GetInstance();
-        std::string packagePath = options.packagePath;
-        if (moduleManager && !packagePath.empty()) {
-            moduleManager->SetAppLibPath(std::vector<std::string>(1, packagePath));
+    auto moduleManager = NativeModuleManager::GetInstance();
+    if (moduleManager != nullptr) {
+        for (const auto &appLibPath : options.appLibPaths) {
+            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
         }
+    }
 
+    if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
         InitWorkerModule(*nativeEngine_, codePath_);
     }

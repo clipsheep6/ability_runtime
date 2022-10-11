@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_RUNTIME_H
 #define OHOS_ABILITY_RUNTIME_RUNTIME_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -41,7 +42,7 @@ public:
         Language lang = Language::JS;
         std::string bundleName;
         std::string codePath;
-        std::string packagePath;
+        std::map<std::string, std::vector<std::string>> appLibPaths {};
         std::string hapPath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;

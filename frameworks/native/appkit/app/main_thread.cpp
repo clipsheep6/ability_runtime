@@ -965,7 +965,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string libPath = LOCAL_CODE_PATH;
             libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
             HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
-            options.packagePath = libPath;
+            options.appLibPaths["default"].emplace_back(libPath);
+        }
+        for (auto &hapInfo : bundleInfo.hapModuleInfos) {
+            HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
+                hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
+            if (!hapInfo.isLibIsolated) {
+                continue;
+            }
+            std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
+            std::string libPath = LOCAL_CODE_PATH;
+            libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+            options.appLibPaths[appLibPathKey].emplace_back(libPath);
         }
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
