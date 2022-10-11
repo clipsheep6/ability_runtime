@@ -40,7 +40,10 @@ namespace AppExecFwk {
  */
 
 constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_THREE = 3;
 constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_TWO = 2;
 
 napi_value NAPI_PAGetAppType(napi_env env, napi_callback_info info)
 {
