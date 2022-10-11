@@ -1180,7 +1180,7 @@ private:
 #endif
 
 #ifdef SUPPORT_GRAPHICS
-    int32_t ShowPickerDialog(const Want& want, int32_t userId);
+    int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);
     bool CheckWindowMode(int32_t windowMode, const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;

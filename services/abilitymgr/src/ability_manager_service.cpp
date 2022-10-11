@@ -3019,7 +3019,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
 #ifdef SUPPORT_GRAPHICS
     if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
-        return ShowPickerDialog(want, userId);
+        return ShowPickerDialog(want, userId, callerToken);
     }
 #endif
     auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
@@ -5034,17 +5034,19 @@ void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> 
     }
 }
 
-int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId)
+int32_t AbilityManagerService::ShowPickerDialog(
+    const Want& want, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    HILOG_INFO("share content: ShowPickerDialog, userId is %{public}d", userId);
-    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-    IN_PROCESS_CALL_WITHOUT_RET(
-        bms->QueryAbilityInfos(
-            want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos)
-    );
-    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+    AAFwk::Want newWant = want;
+    constexpr char PICKER_DIALOG_ABILITY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
+    constexpr char PICKER_DIALOG_ABILITY_NAME[] = "PickerDialog";
+    constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
+    
+    newWant.SetElementName(PICKER_DIALOG_ABILITY_BUNDLE_NAME, PICKER_DIALOG_ABILITY_NAME);
+    newWant.SetParam(TOKEN_KEY, callerToken);
+    // note: clear actions
+    newWant.SetAction("");
+    return IN_PROCESS_CALL(StartAbility(newWant, DEFAULT_INVAL_VALUE, userId));
 }
 #endif
 
