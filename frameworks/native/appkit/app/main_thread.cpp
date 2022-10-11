@@ -762,23 +762,24 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     BundleInfo& bundleInfo, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-            continue;
-        }
-        std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
-        loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
-        HILOG_DEBUG("ModuleResPath: %{public}s", loadPath.c_str());
-        if (!resourceManager->AddResource(loadPath.c_str())) {
-            HILOG_ERROR("AddResource failed");
+    bool isStageBased = bundleInfo.hapModuleInfos.empty() ? false : bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    if (isStageBased && bundleInfo.applicationInfo.multiProjects) {
+        HILOG_INFO("MainThread::InitResourceManager for multiProjects.");
+    } else {
+        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+                continue;
+            }
+            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
+            HILOG_DEBUG("ModuleResPath: %{public}s", loadPath.c_str());
+            if (!resourceManager->AddResource(loadPath.c_str())) {
+                HILOG_ERROR("AddResource failed");
+            }
         }
     }
+
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
@@ -787,9 +788,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
         HILOG_INFO("Language: %{public}s, script: %{public}s, region: %{public}s",
-            localeInfo->getLanguage(),
-            localeInfo->getScript(),
-            localeInfo->getCountry());
+            localeInfo->getLanguage(), localeInfo->getScript(), localeInfo->getCountry());
     } else {
         HILOG_INFO("LocaleInfo is nullptr.");
     }

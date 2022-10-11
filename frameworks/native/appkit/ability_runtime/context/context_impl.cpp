@@ -223,7 +223,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     bundleInfo.moduleResPaths.swap(moduleResPaths);
     appContext->SetConfiguration(config_);
-    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
+    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, true);
     appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
@@ -339,44 +339,38 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     appContext->SetConfiguration(config_);
 
     // init resourceManager.
-    InitResourceManager(bundleInfo, appContext, false);
+    InitResourceManager(bundleInfo, appContext);
     appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
 
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const
+    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, bool moduleContext) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
-        HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+        HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }
+    if (moduleContext || !bundleInfo.applicationInfo.multiProjects) {
+        HILOG_DEBUG("InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
+        std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
+        std::regex outer_pattern(ABS_CODE_PATH);
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+                continue;
+            }
+            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            if (currentBundle) {
+                loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+            } else {
+                loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
+            }
 
-    HILOG_DEBUG("ContextImpl::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
-    std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
-    std::regex outer_pattern(ABS_CODE_PATH);
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-            continue;
-        }
-        std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
-
-        if (currentBundle) {
-            loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
-        } else {
-            loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
-        }
-        HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
-
-        if (!resourceManager->AddResource(loadPath.c_str())) {
-            HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
-                loadPath.c_str());
+            HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+            if (!resourceManager->AddResource(loadPath.c_str())) {
+                HILOG_ERROR("InitResourceManager AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+            }
         }
     }
 
@@ -391,8 +385,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     resConfig->SetLocaleInfo(locale);
     if (resConfig->GetLocaleInfo() != nullptr) {
         HILOG_DEBUG("ContextImpl::InitResourceManager language: %{public}s, script: %{public}s, region: %{public}s,",
-            resConfig->GetLocaleInfo()->getLanguage(),
-            resConfig->GetLocaleInfo()->getScript(),
+            resConfig->GetLocaleInfo()->getLanguage(), resConfig->GetLocaleInfo()->getScript(),
             resConfig->GetLocaleInfo()->getCountry());
     } else {
         HILOG_ERROR("ContextImpl::InitResourceManager language: GetLocaleInfo is null.");
