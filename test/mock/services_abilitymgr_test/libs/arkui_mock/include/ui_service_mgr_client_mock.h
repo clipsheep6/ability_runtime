@@ -19,7 +19,6 @@
 #include <mutex>
 
 #include "ability_info.h"
-#include "dialog_callback_interface.h"
 #include "iremote_object.h"
 #include "ui_service_interface.h"
 #include "ui_service_mgr_errors.h"
@@ -32,6 +31,7 @@ enum class WindowType : uint32_t;
 
 namespace OHOS {
 namespace Ace {
+using DialogCallback = std::function<void(int32_t id, const std::string& event, const std::string& param)>;
 class UIServiceMgrClient {
 public:
     UIServiceMgrClient();
