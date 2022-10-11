@@ -368,13 +368,9 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     }
     appRecord->PopForegroundingAbilityTokens();
     ApplicationState appState = appRecord->GetState();
-    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND ||
-        appState == ApplicationState::APP_STATE_FOCUS) {
-        if (appState != ApplicationState::APP_STATE_FOCUS) {
-            appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
-        } else {
-            appRecord->SetLastState(ApplicationState::APP_STATE_FOREGROUND);
-        }
+    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
+        appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
+        appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
@@ -406,8 +402,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         HILOG_ERROR("get app record failed");
         return;
     }
-    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND ||
-        appRecord->GetState() == ApplicationState::APP_STATE_FOCUS) {
+    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
@@ -766,6 +761,7 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
     runningProcessInfo.state_ = static_cast<AppProcessState>(appRecord->GetState());
     runningProcessInfo.isContinuousTask = appRecord->IsContinuousTask();
     runningProcessInfo.isKeepAlive = appRecord->IsKeepAliveApp();
+    runningProcessInfo.isFocused = appRecord->GetFocusFlag();
     appRecord->GetBundleNames(runningProcessInfo.bundleNames);
     info.emplace_back(runningProcessInfo);
 }
@@ -1248,6 +1244,7 @@ AppProcessData AppMgrServiceInner::WrapAppProcessData(const std::shared_ptr<AppR
     processData.processName = appRecord->GetProcessName();
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.appState = state;
+    processData.isFocused = appRecord->GetFocusFlag();
     return processData;
 }
 
@@ -2694,22 +2691,14 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
         return;
     }
 
-    auto state = appRecord->GetState();
-    if (state < ApplicationState::APP_STATE_FOREGROUND || state > ApplicationState::APP_STATE_BACKGROUND) {
-        HILOG_WARN("invalid state.");
+    if (!appRecord->UpdateAbilityFocusState(focusChangeInfo->abilityToken_, true)) {
+        HILOG_DEBUG("only change ability focus state, do not change process or application focus state.");
         return;
     }
 
-    appRecord->SetState(ApplicationState::APP_STATE_FOCUS);
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOCUS, false);
+    bool needNotifyApp = appRunningManager_->IsApplicationFirstFocused(*appRecord);
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
-
-    auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(focusChangeInfo->abilityToken_);
-    if (!abilityRecord || abilityRecord->GetAbilityInfo() == nullptr ||
-        abilityRecord->GetAbilityInfo()->type != AbilityType::PAGE) {
-        return;
-    }
-    appRecord->UpdateAbilityState(focusChangeInfo->abilityToken_, AbilityState::ABILITY_STATE_FOCUS);
 }
 
 void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
@@ -2730,13 +2719,13 @@ void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo
         return;
     }
 
-    if (appRecord->GetState() != ApplicationState::APP_STATE_FOCUS) {
-        HILOG_WARN("invalid state, not focus, handle nothing.");
+    if (!appRecord->UpdateAbilityFocusState(focusChangeInfo->abilityToken_, false)) {
+        HILOG_DEBUG("only change ability from focus to unfocus, do not change process or application focus state.");
         return;
     }
 
-    appRecord->Unfocused(focusChangeInfo->abilityToken_);
-    OnAppStateChanged(appRecord, appRecord->GetState(), false);
+    bool needNotifyApp = appRunningManager_->IsApplicationUnfocused(appRecord->GetBundleName());
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
