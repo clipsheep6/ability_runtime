@@ -298,7 +298,7 @@ bool AbilityManagerService::Init()
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<DisposedInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
 
     HILOG_INFO("Init success.");
     return true;
@@ -2291,6 +2291,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         return nullptr;
     }
 
+    auto result = DataAbilityIntercept(abilityRequest.abilityInfo.bundleName, GetUserId());
+    if (result != ERR_OK) {
+        return nullptr;
+    }
+
     abilityRequest.callerToken = callerToken;
     if (CheckCallDataAbilityPermission(abilityRequest) != ERR_OK) {
         HILOG_ERROR("Invalid ability request info for data ability acquiring.");
@@ -2298,8 +2303,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
-        abilityRequest.appInfo.name.c_str(),
-        abilityRequest.appInfo.bundleName.c_str(),
+        abilityRequest.appInfo.name.c_str(), abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
 
     if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
@@ -5480,6 +5484,15 @@ int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteOb
     }
     want.SetParam(DMS_IS_CALLER_BACKGROUND, isCallerBackground);
     return ERR_OK;
+}
+
+int AbilityManagerService::DataAbilityIntercept(const std::string &bundleName, int32_t userId)
+{
+    Want want;
+    ElementName element("", bundleName, "");
+    want.SetElement(element);
+    return interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, userId, false);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

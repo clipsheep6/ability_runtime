@@ -42,13 +42,13 @@ private:
     bool CheckCrowdtest(const Want &want, int32_t userId);
 };
 
-class DisposedInterceptor : public AbilityInterceptor {
+class ControlInterceptor : public AbilityInterceptor {
 public:
-    DisposedInterceptor();
-    ~DisposedInterceptor();
+    ControlInterceptor();
+    ~ControlInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
-    bool CheckDisposed(const Want &want);
+    bool CheckControl(const Want &want, int32_t userId, AppExecFwk::AppRunningControlRuleResult &controlRule);
 };
 } // namespace AAFwk
 } // namespace OHOS
