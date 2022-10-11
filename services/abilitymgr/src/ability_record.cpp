@@ -595,9 +595,10 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
     CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
 
     auto abilityRecord(shared_from_this());
-    auto delayTask = [windowHandler, abilityRecord] {
+    auto delayTask = [windowHandler, abilityRecord, want_] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
-            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING &&
+            want_.GetBoolParam(DEBUG_APP, false)) {
             HILOG_INFO("PostCancelStartingWindowHotTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
@@ -617,10 +618,11 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
     CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
 
     auto abilityRecord(shared_from_this());
-    auto delayTask = [windowHandler, abilityRecord] {
+    auto delayTask = [windowHandler, abilityRecord, want_] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
             (abilityRecord->GetScheduler() == nullptr ||
-            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) &&
+            want_.GetBoolParam(DEBUG_APP, false)) {
             HILOG_INFO("PostCancelStartingWindowColdTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
