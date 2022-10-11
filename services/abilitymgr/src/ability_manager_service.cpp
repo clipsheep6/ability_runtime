@@ -1190,6 +1190,13 @@ void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUs
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     AAFWK::EventInfo eventInfo;
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is Null.");
+        return -1;
+    }
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
     AAFWK::EventReport::SendAbilityEvent(AAFWK::TERMINATE_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = TerminateAbilityWithFlag(token, resultCode, resultWant, true);
