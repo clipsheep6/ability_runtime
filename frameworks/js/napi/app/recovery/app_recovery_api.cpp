@@ -83,7 +83,7 @@ private:
             napi_valuetype paramType;
             napi_typeof(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[i]), &paramType);
             if (paramType != napi_number) {
-                HILOG_ERROR("AppRecoveryApi info.argv[%{public}d] type isn't number", i);
+                HILOG_ERROR("AppRecoveryApi info.argv[%{public}s] type isn't number", std::to_string(i).c_str());
                 return result;
             }
             int32_t tmp = 0;

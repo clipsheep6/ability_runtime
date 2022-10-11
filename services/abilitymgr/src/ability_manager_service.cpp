@@ -4128,7 +4128,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         return;
     }
     auto record = Token::GetAbilityRecordByToken(token);
-    if (record != nullptr) {
+    if (record == nullptr) {
         HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
         return;
     }
