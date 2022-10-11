@@ -300,6 +300,16 @@ private:
 
     static bool TransferScheme(const Uri &uri, Uri &dataShareUri);
 
+    inline auto GetDataAbilityHelperImpl() const
+    {
+        return dataAbilityHelperImpl_;
+    }
+
+    inline auto GetDataShareHelper() const
+    {
+        return dataShareHelper_;
+    }
+
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_ = nullptr;
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_ = nullptr;
 
