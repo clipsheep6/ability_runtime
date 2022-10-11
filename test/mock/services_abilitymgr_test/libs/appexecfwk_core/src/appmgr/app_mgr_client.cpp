@@ -33,6 +33,9 @@ AppMgrClient::AppMgrClient()
 AppMgrClient::~AppMgrClient()
 {}
 
+void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, RunningProcessInfo &info)
+{}
+
 AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want)
 {

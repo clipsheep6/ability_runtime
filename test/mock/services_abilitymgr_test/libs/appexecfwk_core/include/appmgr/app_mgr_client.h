@@ -163,6 +163,8 @@ public:
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
+    void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
 
