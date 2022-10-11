@@ -60,7 +60,7 @@ std::shared_ptr<RuntimeExtractor> RuntimeExtractor::Create(const std::string& ha
     }
     std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(loadPath);
     if (!runtimeExtractor->Init()) {
-        HILOG_ERROR("RuntimeExtractor create failed");
+        HILOG_ERROR("RuntimeExtractor create failed for %{public}s", loadPath.c_str());
         return nullptr;
     }
 

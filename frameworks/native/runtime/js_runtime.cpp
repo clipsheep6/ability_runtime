@@ -562,7 +562,7 @@ void JsRuntime::Deinitialize()
 
     auto uvLoop = nativeEngine_->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd >= 0) {
+    if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
     RemoveTask(TIMER_TASK);
