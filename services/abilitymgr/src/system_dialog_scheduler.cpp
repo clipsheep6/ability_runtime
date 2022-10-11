@@ -14,8 +14,9 @@
  */
 #include "system_dialog_scheduler.h"
 
-#include <csignal>
+#include <regex>
 
+#include "ability_constants.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "display_manager.h"
@@ -325,16 +326,25 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     resConfig->SetLocaleInfo(locale);
     resourceManager->UpdateResConfig(*resConfig);
 
-    for (auto resPath = bundleInfo.moduleResPaths.begin(); resPath != bundleInfo.moduleResPaths.end(); resPath++) {
-        if (resPath->empty()) {
+    std::regex pattern(std::string(AbilityRuntime::Constants::ABS_CODE_PATH) +
+        std::string(AbilityRuntime::Constants::FILE_SEPARATOR) + bundleInfo.name);
+    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
             continue;
         }
-        if (!resourceManager->AddResource(resPath->c_str())) {
-            HILOG_INFO("resourceManager add %{public}s resource path failed!", bundleInfo.name.c_str());
+        std::string loadPath;
+        if (!hapModuleInfo.hapPath.empty()) {
+            loadPath = hapModuleInfo.hapPath;
+        } else {
+            loadPath = hapModuleInfo.resourcePath;
+        }
+        HILOG_DEBUG("GetAppNameFromResource loadPath: %{public}s", loadPath.c_str());
+        if (!resourceManager->AddResource(loadPath.c_str())) {
+            HILOG_ERROR("ResourceManager add %{public}s resource path failed!", bundleInfo.name.c_str());
         }
     }
     resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
-    HILOG_INFO("get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
+    HILOG_DEBUG("Get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
 }
 
 sptr<AppExecFwk::IBundleMgr> SystemDialogScheduler::GetBundleManager()
