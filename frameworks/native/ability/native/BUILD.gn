@@ -289,6 +289,7 @@ ohos_shared_library("form_extension") {
       ":abilitykit_native",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/appkit:app_context",
+      "${form_fwk_napi_path}:formutil_napi",
     ]
 
     external_deps = [

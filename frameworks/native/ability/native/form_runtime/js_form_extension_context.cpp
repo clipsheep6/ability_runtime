@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "hilog_wrapper.h"
+#include "form_mgr_errors.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -27,12 +28,12 @@
 #include "napi_common_start_options.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "napi_form_util.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
-constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 const int UPDATE_FORM_PARAMS_SIZE = 2;
@@ -117,6 +118,7 @@ private:
         // only support one or two params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
+            NapiFormUtil::ThrowParamNumError(engine, std::to_string(info.argc), "1 or 2");
             return engine.CreateUndefined();
         }
 
@@ -136,17 +138,19 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine,
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
                     return;
                 }
 
                 // entry to the core functionality.
                 ErrCode innerErrorCode = context->StartAbility(want);
                 ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
-                if (errcode == 0) {
+                if (errcode == ERR_OK) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start Ability failed."));
+                    task.Reject(engine,
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, errcode));
                 }
             };
 
