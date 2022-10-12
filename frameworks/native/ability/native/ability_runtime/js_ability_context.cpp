@@ -210,6 +210,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    HILOG_INFO("[DEBUG] StartAbility end , wait callback");
     return result;
 }
 
