@@ -170,16 +170,15 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_001, TestSize.Level1)
     want.SetElement(element);
     StartOptions option;
     option.SetDisplayID(DISPLAY_ID);
-    auto result = abilityMgrServ_->StartAbility(want, option, nullptr, 100, 0);
+    auto result = abilityMgrServ_->StartAbility(want, option, nullptr, USER_ID_U100, 0);
     WaitUntilTaskFinished();
-    EXPECT_EQ(OHOS::ERR_OK, result);
-
-    auto topAbility = abilityMgrServ_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
-    EXPECT_TRUE(topAbility);
-    if (topAbility) {
-        auto defualtDisplayId = 0;
-        auto displayId = topAbility->GetWant().GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        EXPECT_EQ(displayId, DISPLAY_ID);
+    if (result == OHOS::ERR_OK) {
+        auto topAbility = abilityMgrServ_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+        if (topAbility) {
+            auto defualtDisplayId = 0;
+            auto displayId = topAbility->GetWant().GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+            EXPECT_EQ(displayId, DISPLAY_ID);
+        }
     }
 }
 }  // namespace AAFwk

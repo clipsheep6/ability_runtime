@@ -36,6 +36,7 @@ ohos_shared_library("connection_obs_manager") {
     "src/connection_observer_proxy.cpp",
     "src/connection_observer_stub.cpp",
     "src/connection_observer_stub_impl.cpp",
+    "src/dlp_connection_info.cpp",
     "src/dlp_state_data.cpp",
     "src/service_proxy_adapter.cpp",
   ]

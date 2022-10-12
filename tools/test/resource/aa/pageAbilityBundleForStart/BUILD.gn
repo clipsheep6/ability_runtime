@@ -28,7 +28,7 @@ ohos_hap("pageAbilityBundleForStart") {
   certificate_profile = "../signature/openharmony_sx.p7b"
 }
 ohos_js_assets("pageAbilityBundleForStart_ets_assets") {
-  source_dir = "./src/main/ets"
+  source_dir = "./src/main/ets/MainAbility"
   hap_profile = "./src/main/config.json"
   ets2abc = true
 }

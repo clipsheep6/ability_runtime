@@ -44,6 +44,7 @@ ohos_unittest("AmsMgrProxyTest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
   ]
 }
 

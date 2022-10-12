@@ -27,7 +27,13 @@ namespace OHOS {
 namespace AppExecFwk {
 constexpr uint32_t MAIN_THREAD_IS_ALIVE = 0;
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
+
+#ifdef SUPPORT_ASAN
+constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
+#else
 constexpr uint32_t CHECK_INTERVAL_TIME = 3000;
+#endif
+
 constexpr uint32_t INI_TIMER_FIRST_SECOND = 10000;
 constexpr const char* MAIN_THREAD_TIMEOUT_TASK = "MAIN_THREAD_TIMEOUT_TASK";
 class Watchdog {
@@ -68,6 +74,13 @@ public:
 
     /**
      *
+     * @brief Set whether app is in the background or not
+     *
+     */
+    void SetBackgroundStatus(const bool isInBackground);
+
+    /**
+     *
      * @brief Allow report the main thread timeout event.
      *
      */
@@ -96,10 +109,12 @@ private:
     std::atomic_bool stopWatchdog_ = false;
     std::atomic_bool needReport_ = true;
     std::atomic_bool isSixSecondEvent_ = false;
+    std::atomic_bool isInBackground_ = false;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;
     static std::shared_ptr<EventHandler> appMainHandler_;
+    uint64_t lastWatchTime_ = 0;
 };
 
 class MainHandlerDumper : public Dumper {

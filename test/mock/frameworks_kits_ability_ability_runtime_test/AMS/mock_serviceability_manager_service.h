@@ -200,12 +200,12 @@ public:
     int SetMissionIcon(const sptr<IRemoteObject> &abilityToken,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon)
     {
-        return 0;
+        return commonMockResultFlag_ ? 0 : -1;
     }
 
     int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label)
     {
-        return 0;
+        return commonMockResultFlag_ ? 0 : -1;
     }
 
     int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override
@@ -284,9 +284,15 @@ public:
     }
 #endif
 
+    void SetCommonMockResult(bool flag)
+    {
+        commonMockResultFlag_ = flag;
+    }
+
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;
     bool startAbility = false;
+    bool commonMockResultFlag_ = true;
 };
 } // namespace AAFwk
 } // namespace OHOS

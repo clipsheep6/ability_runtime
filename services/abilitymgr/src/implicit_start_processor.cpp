@@ -74,10 +74,11 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         };
         return imp->CallStartAbilityInner(userId, targetWant, callBack, request.callType);
     };
-
     if (dialogAppInfos.size() == 0) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
-        sysDialogScheduler->ShowTipsDialog();
+        Want want = sysDialogScheduler->GetTipsDialogWant();
+        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
@@ -88,7 +89,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-    return sysDialogScheduler->ShowSelectorDialog(dialogAppInfos, startAbilityTask);
+    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos);
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    return abilityMgr->StartAbility(want);
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,

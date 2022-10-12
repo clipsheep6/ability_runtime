@@ -267,6 +267,28 @@ public:
      */
     virtual int32_t NotifyHotReloadPage(const std::string &bundleName) = 0;
 
+    /**
+     * @brief Notify application unload patch.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t NotifyUnLoadRepairPatch(const std::string &bundleName) = 0;
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    /**
+     * @brief Set whether the process is continuousTask.
+     *
+     * @param pid Process id.
+     * @param isContinuousTask whether the process is continuousTask.
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
+    {
+        return 0;
+    };
+#endif
+
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
@@ -299,6 +321,8 @@ public:
         GET_APP_RUNNING_STATE,
         NOTIFY_LOAD_REPAIR_PATCH,
         NOTIFY_HOT_RELOAD_PAGE,
+        SET_CONTINUOUSTASK_PROCESS,
+        NOTIFY_UNLOAD_REPAIR_PATCH,
     };
 };
 }  // namespace AppExecFwk

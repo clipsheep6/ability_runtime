@@ -146,7 +146,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
     std::string value;
     int32_t result;
 
-    appMgrServiceInner->GetGlobalConfiguration();
+    appMgrServiceInner->InitGlobalConfiguration();
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
     value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);

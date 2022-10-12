@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ability_transaction_callback_info.h"
+#include "napi_remote_object.h"
 #include "iremote_object.h"
 #include "want.h"
 
@@ -66,6 +67,18 @@ public:
      * @param Want information of other ability or extension.
      */
     void SetLastRequestWant(const AAFwk::Want &want);
+
+    /**
+     * @brief Sets the callingInfo from IPC.
+     *
+     * @param CallingInfo information of caller.
+     */
+    void SetCallingInfo(const CallingInfo &callingInfo);
+
+    /**
+     * @return std::shared_ptr<CallingInfo> the pointer of callingInfo.
+     */
+    std::shared_ptr<CallingInfo> GetCallingInfo();
 
     /**
      * @brief Called when this extension is started. You must override this function if you want to perform some
@@ -156,6 +169,7 @@ private:
     std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
     std::shared_ptr<AAFwk::Want> launchWant_ = nullptr;
     std::shared_ptr<AAFwk::Want> lastRequestWant_ = nullptr;
+    std::shared_ptr<CallingInfo> callingInfo_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

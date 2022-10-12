@@ -77,6 +77,7 @@ void AbilityManagerStub::FirstStepInit()
 #endif
     requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
+    requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -141,6 +142,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
     requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
+    requestFuncMap_[GET_DLP_CONNECTION_INFOS] = &AbilityManagerStub::GetDlpConnectionInfosInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
@@ -1359,6 +1361,12 @@ int AbilityManagerStub::UnregisterObserver(const sptr<AbilityRuntime::IConnectio
     return NO_ERROR;
 }
 
+int AbilityManagerStub::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -1453,6 +1461,20 @@ int AbilityManagerStub::UpdateMissionSnapShotInner(MessageParcel &data, MessageP
     return NO_ERROR;
 }
 
+int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("ScheduleRecoverAbility read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int reason = data.ReadInt32();
+    int savedStateId = data.ReadInt32();
+    ScheduleRecoverAbility(token, reason, savedStateId);
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<AbilityRuntime::IConnectionObserver> observer = iface_cast<AbilityRuntime::IConnectionObserver>(
@@ -1475,6 +1497,30 @@ int AbilityManagerStub::UnregisterConnectionObserverInner(MessageParcel &data, M
     }
 
     return UnregisterObserver(observer);
+}
+
+int AbilityManagerStub::GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AbilityRuntime::DlpConnectionInfo> infos;
+    auto result = GetDlpConnectionInfos(infos);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(infos.size())) {
+        HILOG_ERROR("write infos size failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (auto &item : infos) {
+        if (!reply.WriteParcelable(&item)) {
+            HILOG_ERROR("write info item failed");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    return ERR_OK;
 }
 
 #ifdef SUPPORT_GRAPHICS

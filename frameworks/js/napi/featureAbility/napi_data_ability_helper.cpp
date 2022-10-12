@@ -73,7 +73,6 @@ napi_value DataAbilityHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getFileTypes", NAPI_GetFileTypes),
         DECLARE_NAPI_FUNCTION("normalizeUri", NAPI_NormalizeUri),
         DECLARE_NAPI_FUNCTION("denormalizeUri", NAPI_DenormalizeUri),
-        DECLARE_NAPI_FUNCTION("release", NAPI_Release),
         DECLARE_NAPI_FUNCTION("executeBatch", NAPI_ExecuteBatch),
         DECLARE_NAPI_FUNCTION("call", NAPI_Call),
     };
@@ -1046,23 +1045,32 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         loop, work, [](uv_work_t* work) {},
         [](uv_work_t* work, int status) {
             // JS Thread
-            DelRefCallbackInfo* delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
-            napi_delete_reference(delRefCallbackInfo->env_, delRefCallbackInfo->ref_);
-            if (delRefCallbackInfo != nullptr) {
-                delete delRefCallbackInfo;
-                delRefCallbackInfo = nullptr;
+            if (work == nullptr) {
+                HILOG_ERROR("uv_queue_work input work is nullptr");
+                return;
             }
-            if (work != nullptr) {
+            auto delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
+            if (delRefCallbackInfo == nullptr) {
+                HILOG_ERROR("uv_queue_work delRefCallbackInfo is nullptr");
                 delete work;
                 work = nullptr;
+                return;
             }
+
+            napi_delete_reference(delRefCallbackInfo->env_, delRefCallbackInfo->ref_);
+            delete delRefCallbackInfo;
+            delRefCallbackInfo = nullptr;
+            delete work;
+            work = nullptr;
         });
     if (ret != 0) {
         if (delRefCallbackInfo != nullptr) {
             delete delRefCallbackInfo;
+            delRefCallbackInfo = nullptr;
         }
         if (work != nullptr) {
             delete work;
+            work = nullptr;
         }
     }
     ref_ = nullptr;
@@ -1090,6 +1098,8 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     DAHelperOnOffCB *onCB = (DAHelperOnOffCB *)work->data;
     if (onCB == nullptr) {
         HILOG_ERROR("OnChange, uv_queue_work onCB is nullptr");
+        delete work;
+        work = nullptr;
         return;
     }
 
@@ -3311,166 +3321,6 @@ napi_value WrapResultSet(napi_env env, const std::shared_ptr<NativeRdb::AbsShare
     }
 
     return RdbJsKit::ResultSetProxy::NewInstance(env, resultSet);
-}
-
-napi_value NAPI_Release(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    DAHelperReleaseCB *releaseCB = new (std::nothrow) DAHelperReleaseCB;
-    if (releaseCB == nullptr) {
-        HILOG_ERROR("%{public}s, releaseCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
-    releaseCB->cbBase.cbInfo.env = env;
-    releaseCB->cbBase.asyncWork = nullptr;
-    releaseCB->cbBase.deferred = nullptr;
-
-    napi_value ret = ReleaseWrap(env, info, releaseCB);
-    if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        delete releaseCB;
-        releaseCB = nullptr;
-        ret = WrapVoidToJS(env);
-    }
-    HILOG_INFO("%{public}s,end", __func__);
-    return ret;
-}
-
-napi_value ReleaseWrap(napi_env env, napi_callback_info info, DAHelperReleaseCB *releaseCB)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    size_t argcAsync = ARGS_ONE;
-    const size_t argcPromise = ARGS_ZERO;
-    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value ret = nullptr;
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        return nullptr;
-    }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
-    HILOG_INFO("DataAbilityHelper ReleaseWrap objectInfo");
-    releaseCB->dataAbilityHelper = objectInfo;
-
-    if (argcAsync > argcPromise) {
-        ret = ReleaseAsync(env, args, PARAM0, releaseCB);
-    } else {
-        ret = ReleasePromise(env, releaseCB);
-    }
-    HILOG_INFO("%{public}s,end", __func__);
-    return ret;
-}
-
-napi_value ReleaseAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperReleaseCB *releaseCB)
-{
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (args == nullptr || releaseCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName = 0;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-
-    napi_valuetype valuetype = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
-    if (valuetype == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &releaseCB->cbBase.cbInfo.callback));
-    }
-
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            ReleaseExecuteCB,
-            ReleaseAsyncCompleteCB,
-            (void *)releaseCB,
-            &releaseCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, releaseCB->cbBase.asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
-    return result;
-}
-
-napi_value ReleasePromise(napi_env env, DAHelperReleaseCB *releaseCB)
-{
-    HILOG_INFO("%{public}s, promise.", __func__);
-    if (releaseCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-    napi_deferred deferred;
-    napi_value promise = 0;
-    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-    releaseCB->cbBase.deferred = deferred;
-
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            ReleaseExecuteCB,
-            ReleasePromiseCompleteCB,
-            (void *)releaseCB,
-            &releaseCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, releaseCB->cbBase.asyncWork));
-    HILOG_INFO("%{public}s, promise end.", __func__);
-    return promise;
-}
-
-void ReleaseExecuteCB(napi_env env, void *data)
-{
-    HILOG_INFO("NAPI_Release, worker pool thread execute.");
-    DAHelperReleaseCB *releaseCB = static_cast<DAHelperReleaseCB *>(data);
-    if (releaseCB->dataAbilityHelper != nullptr) {
-        releaseCB->result = releaseCB->dataAbilityHelper->Release();
-    } else {
-        HILOG_ERROR("NAPI_Release, dataAbilityHelper == nullptr");
-    }
-    HILOG_INFO("NAPI_Release, worker pool thread execute end.");
-}
-
-void ReleaseAsyncCompleteCB(napi_env env, napi_status status, void *data)
-{
-    HILOG_INFO("NAPI_Release, main event thread complete.");
-    DAHelperReleaseCB *releaseCB = static_cast<DAHelperReleaseCB *>(data);
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value result[ARGS_TWO] = {nullptr};
-    napi_value callResult = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, releaseCB->cbBase.cbInfo.callback, &callback));
-
-    result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
-    napi_get_boolean(env, releaseCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
-
-    if (releaseCB->cbBase.cbInfo.callback != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, releaseCB->cbBase.cbInfo.callback));
-    }
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, releaseCB->cbBase.asyncWork));
-    delete releaseCB;
-    releaseCB = nullptr;
-    HILOG_INFO("NAPI_Release, main event thread complete end.");
-}
-
-void ReleasePromiseCompleteCB(napi_env env, napi_status status, void *data)
-{
-    HILOG_INFO("NAPI_Release,  main event thread complete.");
-    DAHelperReleaseCB *releaseCB = static_cast<DAHelperReleaseCB *>(data);
-    napi_value result = nullptr;
-    napi_get_boolean(env, releaseCB->result, &result);
-    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, releaseCB->cbBase.deferred, result));
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, releaseCB->cbBase.asyncWork));
-    delete releaseCB;
-    releaseCB = nullptr;
-    HILOG_INFO("NAPI_Release,  main event thread complete end.");
 }
 
 napi_value NAPI_ExecuteBatch(napi_env env, napi_callback_info info)

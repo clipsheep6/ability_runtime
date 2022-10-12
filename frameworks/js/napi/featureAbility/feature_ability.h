@@ -20,6 +20,7 @@ using Want = OHOS::AAFwk::Want;
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::AbilityRuntime;
 /**
  * @brief FeatureAbility NAPI module registration.
  *
@@ -353,6 +354,8 @@ napi_value NAPI_FADisConnectAbility(napi_env env, napi_callback_info info);
  * @return The return value from NAPI C++ to JS for the module.
  */
 napi_value NAPI_FAContinueAbility(napi_env env, napi_callback_info info);
+
+NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exportObj);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H */

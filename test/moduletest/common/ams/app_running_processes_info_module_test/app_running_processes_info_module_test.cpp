@@ -31,6 +31,7 @@
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "mock_native_token.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -155,7 +156,9 @@ private:
 };
 
 void AppRunningProcessesInfoModuleTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AppRunningProcessesInfoModuleTest::TearDownTestCase()
 {}

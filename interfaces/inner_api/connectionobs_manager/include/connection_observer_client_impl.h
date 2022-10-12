@@ -20,6 +20,7 @@
 #include <unordered_set>
 
 #include "connection_observer.h"
+#include "dlp_connection_info.h"
 #include "service_proxy_adapter.h"
 
 namespace OHOS {
@@ -35,6 +36,7 @@ public:
 
     int32_t RegisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
     int32_t UnregisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
+    int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
     void HandleExtensionConnected(const ConnectionData &data);
     void HandleExtensionDisconnected(const ConnectionData &data);
     void HandleDlpAbilityOpened(const DlpStateData &data);

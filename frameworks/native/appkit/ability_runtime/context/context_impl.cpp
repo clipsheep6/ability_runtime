@@ -15,10 +15,12 @@
 
 #include "context_impl.h"
 
+#include <cerrno>
 #include <regex>
 
 #include "ability_constants.h"
-#include "file_util.h"
+#include "directory_ex.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
@@ -29,6 +31,7 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
+#include "configuration_convertor.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -36,6 +39,7 @@ using namespace OHOS::AbilityRuntime::Constants;
 
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
+const mode_t MODE = 0770;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
@@ -52,6 +56,7 @@ const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
+Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -74,7 +79,7 @@ std::string ContextImpl::GetBundleCodeDir()
     } else {
         dir = LOCAL_CODE_PATH;
     }
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetBundleCodeDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -82,7 +87,7 @@ std::string ContextImpl::GetBundleCodeDir()
 std::string ContextImpl::GetCacheDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_CACHE;
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetCacheDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -109,7 +114,7 @@ std::string ContextImpl::GetDatabaseDir()
     if (parentContext_ != nullptr) {
         dir = dir + CONTEXT_FILE_SEPARATOR + ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
     }
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, 0);
     HILOG_DEBUG("ContextImpl::GetDatabaseDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -117,7 +122,7 @@ std::string ContextImpl::GetDatabaseDir()
 std::string ContextImpl::GetPreferencesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetPreferencesDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -125,7 +130,7 @@ std::string ContextImpl::GetPreferencesDir()
 std::string ContextImpl::GetTempDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_TEMP;
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetTempDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -133,7 +138,7 @@ std::string ContextImpl::GetTempDir()
 std::string ContextImpl::GetFilesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILES;
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetFilesDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -148,7 +153,7 @@ std::string ContextImpl::GetDistributedFilesDir()
     } else {
         dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
     }
-    CreateDirIfNotExist(dir);
+    CreateDirIfNotExist(dir, 0);
     HILOG_DEBUG("ContextImpl::GetDistributedFilesDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -201,10 +206,12 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
+    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     std::vector<std::string> moduleResPaths;
     for (auto &info : bundleInfo.hapModuleInfos) {
         if (info.moduleName == moduleName) {
             moduleResPaths.emplace_back(info.resourcePath);
+            appContext->InitHapModuleInfo(info);
             break;
         }
     }
@@ -215,9 +222,9 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
 
     bundleInfo.moduleResPaths.swap(moduleResPaths);
-    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
-    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
+    appContext->SetConfiguration(config_);
+    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, true);
+    appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
 
@@ -329,44 +336,40 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     appContext->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    appContext->SetConfiguration(config_);
 
     // init resourceManager.
-    InitResourceManager(bundleInfo, appContext, false);
-
-    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
+    InitResourceManager(bundleInfo, appContext);
+    appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
 
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const
+    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, bool moduleContext) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
-        HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+        HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }
+    if (moduleContext || !bundleInfo.applicationInfo.multiProjects) {
+        HILOG_DEBUG("InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
+        std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
+        std::regex outer_pattern(ABS_CODE_PATH);
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+                continue;
+            }
+            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            if (currentBundle) {
+                loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+            } else {
+                loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
+            }
 
-    HILOG_DEBUG("ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
-    std::vector<std::string> moduleResPaths;
-    std::string inner(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
-    std::string outer(ABS_CODE_PATH);
-    for (auto item : bundleInfo.moduleResPaths) {
-        if (item.empty()) {
-            continue;
-        }
-        if (currentBundle) {
-            item.replace(0, inner.size(), LOCAL_CODE_PATH);
-        } else {
-            item.replace(0, outer.size(), LOCAL_BUNDLES);
-        }
-        moduleResPaths.emplace_back(item);
-    }
-
-    for (auto moduleResPath : moduleResPaths) {
-        if (!moduleResPath.empty()) {
-            if (!resourceManager->AddResource(moduleResPath.c_str())) {
-                HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
-                    moduleResPath.c_str());
+            HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+            if (!resourceManager->AddResource(loadPath.c_str())) {
+                HILOG_ERROR("InitResourceManager AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
             }
         }
     }
@@ -382,13 +385,13 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     resConfig->SetLocaleInfo(locale);
     if (resConfig->GetLocaleInfo() != nullptr) {
         HILOG_DEBUG("ContextImpl::InitResourceManager language: %{public}s, script: %{public}s, region: %{public}s,",
-            resConfig->GetLocaleInfo()->getLanguage(),
-            resConfig->GetLocaleInfo()->getScript(),
+            resConfig->GetLocaleInfo()->getLanguage(), resConfig->GetLocaleInfo()->getScript(),
             resConfig->GetLocaleInfo()->getCountry());
     } else {
         HILOG_ERROR("ContextImpl::InitResourceManager language: GetLocaleInfo is null.");
     }
 #endif
+    resConfig->SetDeviceType(GetDeviceType());
     resourceManager->UpdateResConfig(*resConfig);
     appContext->SetResourceManager(resourceManager);
 }
@@ -520,14 +523,17 @@ sptr<IRemoteObject> ContextImpl::GetToken()
     return token_;
 }
 
-void ContextImpl::CreateDirIfNotExist(const std::string& dirPath) const
+void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const
 {
     HILOG_DEBUG("createDir: create directory if not exists.");
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
-        bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
+    if (!OHOS::FileExists(dirPath)) {
+        bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("createDir: create dir %{public}s failed.", dirPath.c_str());
+            HILOG_ERROR("createDir: create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
             return;
+        }
+        if (mode != 0) {
+            chmod(dirPath.c_str(), mode);
         }
     }
 }
@@ -540,6 +546,26 @@ void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configurati
 std::shared_ptr<AppExecFwk::Configuration> ContextImpl::GetConfiguration() const
 {
     return config_;
+}
+
+Global::Resource::DeviceType ContextImpl::GetDeviceType() const
+{
+    if (deviceType_ != Global::Resource::DeviceType::DEVICE_NOT_SET) {
+        return deviceType_;
+    }
+
+    auto config = GetConfiguration();
+    if (config != nullptr) {
+        auto deviceType = config->GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
+        HILOG_INFO("deviceType is %{public}s.", deviceType.c_str());
+        deviceType_ = AppExecFwk::ConvertDeviceType(deviceType);
+    }
+
+    if (deviceType_ == Global::Resource::DeviceType::DEVICE_NOT_SET) {
+        deviceType_ = Global::Resource::DeviceType::DEVICE_PHONE;
+    }
+    HILOG_DEBUG("deviceType is %{public}d.", deviceType_);
+    return deviceType_;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

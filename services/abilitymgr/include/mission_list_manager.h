@@ -371,8 +371,8 @@ public:
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const;
 
 private:
-    Closure GetCancelStartingWindow(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
-    void CancelStartingWindow(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
+    Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
+    void PostCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
 #endif
 
 private:

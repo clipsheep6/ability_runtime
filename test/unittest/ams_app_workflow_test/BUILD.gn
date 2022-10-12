@@ -40,6 +40,7 @@ ohos_unittest("AmsWorkFlowTest") {
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/window_focus_changed_listener.cpp",
   ]
 
   sources += [ "ams_workflow_test.cpp" ]
@@ -67,6 +68,7 @@ ohos_unittest("AmsWorkFlowTest") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "window_manager:libwm",
   ]
 }
 

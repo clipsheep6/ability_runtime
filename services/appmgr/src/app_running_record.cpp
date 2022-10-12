@@ -304,14 +304,14 @@ void AppRunningRecord::ClearAbility(const std::shared_ptr<AbilityRunningRecord> 
     }
 }
 
-void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &moudleRecord)
+void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &moduleRecord)
 {
     HILOG_INFO("Remove module record.");
 
     for (auto &item : hapModules_) {
         auto iter = std::find_if(item.second.begin(),
             item.second.end(),
-            [&moudleRecord](const std::shared_ptr<ModuleRunningRecord> &record) { return moudleRecord == record; });
+            [&moduleRecord](const std::shared_ptr<ModuleRunningRecord> &record) { return moduleRecord == record; });
         if (iter != item.second.end()) {
             iter = item.second.erase(iter);
             if (item.second.empty()) {
@@ -551,7 +551,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     }
 
     if (!abilityInfo || !token) {
-        HILOG_ERROR("abilityinfo or token is nullptr");
+        HILOG_ERROR("abilityInfo or token is nullptr");
         return;
     }
     moduleRecord->AddAbility(token, abilityInfo, want);
@@ -591,6 +591,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.uid = ability->GetAbilityInfo()->applicationInfo.uid;
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
+    abilityStateData.isFocused = ability->GetFocusFlag();
 
     if (isAbility && ability->GetAbilityInfo() != nullptr &&
         ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
@@ -659,6 +660,28 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityByTerminateLis
     return moduleRecord->GetAbilityByTerminateLists(token);
 }
 
+bool AppRunningRecord::UpdateAbilityFocusState(const sptr<IRemoteObject> &token, bool isFocus)
+{
+    HILOG_INFO("focus state is :%{public}d", isFocus);
+    auto abilityRecord = GetAbilityRunningRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("can not find ability record");
+        return false;
+    }
+
+    bool lastFocusState = abilityRecord->GetFocusFlag();
+    if (lastFocusState == isFocus) {
+        HILOG_ERROR("focus state not change, no need update");
+        return false;
+    }
+
+    if (isFocus) {
+        return AbilityFocused(abilityRecord);
+    } else {
+        return AbilityUnfocused(abilityRecord);
+    }
+}
+
 void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     HILOG_INFO("state is :%{public}d", static_cast<int32_t>(state));
@@ -703,13 +726,13 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         foregroundingAbilityTokens_.push_back(ability->GetToken());
         return;
     } else if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
-        // Just change ability to foreground if current application state is foreground.
+        // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
-            serviceInner->OnAppStateChanged(shared_from_this(), curState_);
+            serviceInner->OnAppStateChanged(shared_from_this(), curState_, false);
         }
     } else {
         HILOG_WARN("wrong application state");
@@ -724,7 +747,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         return;
     }
     if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND) {
-        HILOG_ERROR("ability state is not foreground");
+        HILOG_ERROR("ability state is not foreground or focus");
         return;
     }
 
@@ -734,8 +757,8 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true);
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         int32_t foregroundSize = 0;
-        auto abilitysMap = GetAbilities();
-        for (const auto &item : abilitysMap) {
+        auto abilitiesMap = GetAbilities();
+        for (const auto &item : abilitiesMap) {
             const auto &abilityRecord = item.second;
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
@@ -752,6 +775,70 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     } else {
         HILOG_WARN("wrong application state");
     }
+}
+
+bool AppRunningRecord::AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (!ability) {
+        HILOG_ERROR("ability is null");
+        return false;
+    }
+    ability->UpdateFocusState(true);
+
+    // update ability state
+    int32_t abilityState = static_cast<int32_t>(ability->GetState());
+    bool isAbility = true;
+    if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
+        isAbility = false;
+    }
+    StateChangedNotifyObserver(ability, abilityState, isAbility);
+
+    if (isFocused_) {
+        // process state is already focused, no need update process state.
+        return false;
+    }
+
+    // update process focus state to true.
+    isFocused_ = true;
+    return true;
+}
+
+bool AppRunningRecord::AbilityUnfocused(const std::shared_ptr<AbilityRunningRecord> &ability)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (!ability) {
+        HILOG_ERROR("ability is null");
+        return false;
+    }
+    ability->UpdateFocusState(false);
+
+    // update ability state to unfocused.
+    int32_t abilityState = static_cast<int32_t>(ability->GetState());
+    bool isAbility = true;
+    if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
+        isAbility = false;
+    }
+    StateChangedNotifyObserver(ability, abilityState, isAbility);
+
+    if (!isFocused_) {
+        return false; // invalid process focus state, already unfocused, process state not change.
+    }
+
+    bool changeProcessToUnfocused = true;
+    auto abilitysMap = GetAbilities();
+    for (const auto &item : abilitysMap) {
+        const auto &abilityRecord = item.second;
+        if (abilityRecord && abilityRecord->GetFocusFlag()) {
+            changeProcessToUnfocused = false;
+            break;
+        }
+    }
+
+    if (changeProcessToUnfocused) {
+        isFocused_ = false; // process focus state : from focus to unfocus.
+    }
+    return changeProcessToUnfocused;
 }
 
 void AppRunningRecord::PopForegroundingAbilityTokens()
@@ -1190,6 +1277,17 @@ int32_t AppRunningRecord::NotifyHotReloadPage()
     return appLifeCycleDeal_->NotifyHotReloadPage();
 }
 
+int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName);
+}
+
 bool AppRunningRecord::IsContinuousTask()
 {
     return isContinuousTask_;
@@ -1198,6 +1296,11 @@ bool AppRunningRecord::IsContinuousTask()
 void AppRunningRecord::SetContinuousTaskAppState(bool isContinuousTask)
 {
     isContinuousTask_ = isContinuousTask;
+}
+
+bool AppRunningRecord::GetFocusFlag() const
+{
+    return isFocused_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

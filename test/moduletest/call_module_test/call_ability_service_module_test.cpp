@@ -29,6 +29,8 @@
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
 #include "mock_bundle_mgr.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 
@@ -67,6 +69,30 @@ static void WaitUntilTaskFinished()
 
 namespace {
 const std::string WaitUntilTaskFinishedByTimer = "BundleMgrService";
+
+void SetNativeToken()
+{
+    uint64_t tokenId;
+    const char *perms[] = {
+        "ohos.permission.START_INVISIBLE_ABILITY",
+        "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
+        "ohos.permission.START_ABILIIES_FROM_BACKGROUND",
+        "ohos.permission.ABILITY_BACKGROUND_COMMUNICATION"
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 4,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_core",
+    };
+
+    infoInstance.processName = "SetUpTestCase";
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+}
 }  // namespace
 
 class AbilityManagerServiceTest : public testing::Test {
@@ -139,6 +165,7 @@ void AbilityManagerServiceTest::SetUpTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+    SetNativeToken();
 }
 
 void AbilityManagerServiceTest::TearDownTestCase()

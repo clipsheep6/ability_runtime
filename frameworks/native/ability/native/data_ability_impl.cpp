@@ -486,6 +486,8 @@ std::string DataAbilityImpl::GetPermissionInfo(const std::string &permissionType
     } else if (permissionType == WRITE) {
         return abilityInfo->writePermission;
     } else {
+        HILOG_INFO("%{public}s permissionType is not read or write, permissionType:%{public}s", __func__,
+            permissionType.c_str());
         return "";
     }
 }

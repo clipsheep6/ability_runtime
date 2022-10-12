@@ -19,10 +19,15 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsAppLifeCycleModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
 
-  sources = [ "ams_app_life_cycle_module_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "ams_app_life_cycle_module_test.cpp",
+  ]
 
   deps = [
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
@@ -32,6 +37,8 @@ ohos_moduletest("AmsAppLifeCycleModuleTest") {
 
   external_deps = [
     "ability_base:configuration",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

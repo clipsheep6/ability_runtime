@@ -300,6 +300,28 @@ ohos_unittest("watchdog_test") {
   ]
 }
 
+ohos_unittest("mix_stack_dumper_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_test_path}/mock/frameworks_kits_runtime_test/",
+  ]
+
+  sources = [ "mix_stack_dumper_test.cpp" ]
+
+  deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:runtime",
+    "faultloggerd:lib_dfx_dump_catcher",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -312,6 +334,7 @@ group("unittest") {
     ":application_test",
     ":context_container_test",
     ":context_deal_test",
+    ":mix_stack_dumper_test",
     ":watchdog_test",
   ]
 

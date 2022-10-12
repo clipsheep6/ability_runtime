@@ -275,20 +275,6 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data);
  */
 napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args);
 
-napi_value NAPI_Release(napi_env env, napi_callback_info info);
-
-napi_value ReleaseWrap(napi_env env, napi_callback_info info, DAHelperReleaseCB *releaseCB);
-
-napi_value ReleaseAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperReleaseCB *releaseCB);
-
-napi_value ReleasePromise(napi_env env, DAHelperReleaseCB *releaseCB);
-
-void ReleaseExecuteCB(napi_env env, void *data);
-
-void ReleaseAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-void ReleasePromiseCompleteCB(napi_env env, napi_status status, void *data);
-
 napi_value NAPI_GetType(napi_env env, napi_callback_info info);
 napi_value NAPI_GetType(napi_env env, napi_callback_info info);
 napi_value GetTypeWrap(napi_env env, napi_callback_info info, DAHelperGetTypeCB *gettypeCB);

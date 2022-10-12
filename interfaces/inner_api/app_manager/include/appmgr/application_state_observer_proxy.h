@@ -77,6 +77,8 @@ public:
      */
     virtual void OnApplicationStateChanged(const AppStateData &appStateData) override;
 
+    virtual void OnAppStateChanged(const AppStateData &appStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;

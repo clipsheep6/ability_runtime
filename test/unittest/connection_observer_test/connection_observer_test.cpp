@@ -199,6 +199,32 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.name: ConnectionObserver_Data_0300
+ * @tc.desc: DlpState data test.
+ * @tc.type: FUNC
+ * @tc.require: issueI58213
+ */
+HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0300, TestSize.Level1)
+{
+    HILOG_INFO("ConnectionObserver_Data_0300 start");
+
+    DlpConnectionInfo info;
+    info.dlpUid = TEST_UID;
+    info.openedAbilityCount = 1;
+
+    Parcel data;
+    EXPECT_TRUE(info.Marshalling(data));
+
+    std::shared_ptr<DlpConnectionInfo> readedData(DlpConnectionInfo::Unmarshalling(data));
+    EXPECT_TRUE(readedData);
+
+    EXPECT_EQ(info.dlpUid, readedData->dlpUid);
+    EXPECT_EQ(info.openedAbilityCount, readedData->openedAbilityCount);
+
+    HILOG_INFO("ConnectionObserver_Data_0300 end");
+}
+
+/**
  * @tc.name: ConnectionObserver_Observer_0100
  * @tc.desc: test observer callback.
  * @tc.type: FUNC
@@ -210,6 +236,9 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Leve
 
     auto clientImpl = ConnectionObserverClient::GetInstance().clientImpl_;
     EXPECT_TRUE(clientImpl);
+
+    std::vector<DlpConnectionInfo> infos;
+    ConnectionObserverClient::GetInstance().GetDlpConnectionInfos(infos);
 
     std::shared_ptr<MyConnectionObserver> myObserver = std::make_shared<MyConnectionObserver>();
     clientImpl->userObservers_.emplace(myObserver);

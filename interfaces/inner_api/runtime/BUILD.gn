@@ -83,7 +83,7 @@ ohos_shared_library("runtime") {
   if (is_standard_system) {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
-      "hitrace_native:libhitrace",
+      "hitrace_native:libhitracechain",
       "init:libbegetutil",
     ]
   }

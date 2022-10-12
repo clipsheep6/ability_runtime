@@ -616,6 +616,45 @@ ohos_unittest("form_provider_client_test") {
   }
 }
 
+ohos_unittest("form_extension_provider_client_test") {
+  module_out_path = module_output_path
+  if (ability_runtime_graphics) {
+    include_dirs = []
+
+    sources = [
+      "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_form_supply_callback.cpp",
+      "form_extension_provider_client_test.cpp",
+    ]
+
+    configs = [ ":module_private_config" ]
+
+    deps = [
+      "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+      "${ability_runtime_innerkits_path}/app_manager:app_manager",
+      "${ability_runtime_native_path}/ability/native:abilitykit_native",
+      "${ability_runtime_native_path}/ability/native:form_extension",
+      "${ability_runtime_native_path}/appkit:app_context",
+      "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+      "//third_party/googletest:gtest_main",
+    ]
+
+    external_deps = [
+      "ability_base:want",
+      "access_token:libaccesstoken_sdk",
+      "bundle_framework:appexecfwk_base",
+      "bundle_framework:appexecfwk_core",
+      "c_utils:utils",
+      "eventhandler:libeventhandler",
+      "form_fwk:fmskit_native",
+      "form_fwk:form_manager",
+      "hiviewdfx_hilog_native:libhilog",
+      "input:libmmi-client",
+      "ipc:ipc_core",
+    ]
+  }
+}
+
 ohos_unittest("data_ability_impl_test") {
   module_out_path = module_output_path
   sources = [
@@ -1063,6 +1102,34 @@ ohos_unittest("continuation_test") {
   }
 }
 
+ohos_unittest("ability_transaction_callback_info_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_transaction_callback_info.cpp",
+    "ability_transaction_callback_info_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+}
+
 ohos_unittest("new_ability_impl_test") {
   module_out_path = module_output_path
   if (ability_runtime_graphics) {
@@ -1129,6 +1196,7 @@ group("unittest") {
 
   if (ability_runtime_graphics) {
     deps += [
+      ":form_extension_provider_client_test",
       ":form_host_client_test",
       ":form_provider_client_test",
       ":page_ability_impl_test",

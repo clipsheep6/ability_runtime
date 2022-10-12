@@ -21,8 +21,10 @@
 #include "ability_impl.h"
 #include "ability_loader.h"
 #include "ability_post_event_timeout.h"
+#include "ability_recovery.h"
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
+#include "app_recovery.h"
 #include "hitrace_meter.h"
 #include "configuration_convertor.h"
 #include "connection_manager.h"
@@ -113,6 +115,8 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         if (!abilityInfo_->isStageBasedModel) {
             abilityWindow_ = std::make_shared<AbilityWindow>();
             abilityWindow_->Init(handler_, shared_from_this());
+        } else {
+            AppRecovery::GetInstance().AddAbility(shared_from_this(), GetAbilityInfo(), GetToken());
         }
         continuationManager_ = std::make_shared<ContinuationManager>();
         std::weak_ptr<Ability> ability = shared_from_this();
@@ -289,11 +293,13 @@ void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (abilityRecovery_ != nullptr) {
+        abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
+    }
 #ifdef SUPPORT_GRAPHICS
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();
-        scene_ = nullptr;
         onSceneDestroyed();
     }
 #endif
@@ -392,6 +398,31 @@ bool Ability::IsRestoredInContinuation() const
     }
 
     HILOG_DEBUG("Is Restored In Continuation");
+    return true;
+}
+
+bool Ability::ShouldRecoverState(const Want& want)
+{
+    if (abilityRecovery_ == nullptr) {
+        HILOG_ERROR("AppRecovery Not enable");
+        return false;
+    }
+
+    if (abilityContext_ == nullptr) {
+        HILOG_ERROR("AppRecovery abilityContext_ is null");
+        return false;
+    }
+
+    if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
+        HILOG_ERROR("AppRecovery not recovery restart");
+        return false;
+    }
+
+    std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::LIFECYCLE);
+    if (pageStack.empty()) {
+        HILOG_ERROR("AppRecovery pageStack is not exist, no need to restore window state.");
+        return false;
+    }
     return true;
 }
 
@@ -923,6 +954,16 @@ bool Ability::OnRestoreData(WantParams &restoreData)
     return false;
 }
 
+int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
+{
+    return 0;
+}
+
+void Ability::OnRestoreState(int32_t reason, WantParams &wantParams)
+{
+    return;
+}
+
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
@@ -994,6 +1035,19 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
+
+void Ability::HandleCreateAsRecovery(const Want &want)
+{
+    if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
+        HILOG_ERROR("AppRecovery not recovery restart");
+        return;
+    }
+
+    if (abilityRecovery_ != nullptr) {
+        abilityRecovery_->ScheduleRestoreAbilityState(StateReason::LIFECYCLE);
+    }
+}
+
 bool Ability::IsFlagExists(unsigned int flag, unsigned int flagSet)
 {
     return (flag & flagSet) == flag;
@@ -1461,6 +1515,11 @@ bool Ability::IsUseNewStartUpRule()
     return startUpNewRule_;
 }
 
+void Ability::EnableAbilityRecovery(const std::shared_ptr<AbilityRecovery>& abilityRecovery)
+{
+    abilityRecovery_ = abilityRecovery;
+}
+
 #ifdef SUPPORT_GRAPHICS
 bool Ability::PrintDrawnCompleted()
 {
@@ -1513,6 +1572,9 @@ void Ability::OnBackground()
             }
             HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
             scene_->GoBackground(sceneFlag_);
+            if (abilityRecovery_ != nullptr) {
+                abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
+            }
         } else {
             if (abilityWindow_ == nullptr) {
                 HILOG_ERROR("Ability::OnBackground error. abilityWindow_ == nullptr.");

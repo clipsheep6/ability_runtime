@@ -40,6 +40,18 @@ public:
      * @StageModelOnly
      */
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration &config) = 0;
+
+    /**
+     * Called when the system has determined to trim the memory, for example,
+     * when the ability is running in the background and there is no enough memory for
+     * running as many background processes as possible.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param level: Indicates the memory trim level, which shows the current memory usage status.
+     * @StageModelOnly
+     */
+    virtual void OnMemoryLevel(const int level) = 0;
 };
 
 class JsEnvironmentCallback : public EnvironmentCallback,
@@ -47,6 +59,7 @@ class JsEnvironmentCallback : public EnvironmentCallback,
 public:
     explicit JsEnvironmentCallback(NativeEngine* engine);
     void OnConfigurationUpdated(const AppExecFwk::Configuration &config) override;
+    void OnMemoryLevel(const int level) override;
     int32_t Register(NativeValue *jsCallback);
     bool UnRegister(int32_t callbackId);
     bool IsEmpty() const;
@@ -56,8 +69,9 @@ private:
     NativeEngine* engine_ = nullptr;
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
-    void CallJsMethod(const std::string &methodName, const AppExecFwk::Configuration &config);
-    void CallJsMethodInner(const std::string &methodName, const AppExecFwk::Configuration &config);
+    void CallConfigurationUpdatedInner(
+        const std::string &methodName, const AppExecFwk::Configuration &config);
+    void CallMemoryLevelInner(const std::string &methodName, const int level);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

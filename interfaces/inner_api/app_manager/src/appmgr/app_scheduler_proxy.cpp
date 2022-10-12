@@ -253,8 +253,23 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage start");
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    constexpr int32_t max = 10000;
+    constexpr int32_t large = 60;
+    constexpr int32_t mid = 20;
+    auto abilityInfoSize = static_cast<int32_t>(abilityStage.abilityInfos.size());
+    auto extensionInfoSize = static_cast<int32_t>(abilityStage.extensionInfos.size());
+    if (abilityInfoSize > max || extensionInfoSize > max) {
+        HILOG_ERROR("size exceeds max");
+        return;
+    }
+    auto componentSize = abilityInfoSize + extensionInfoSize;
+    if (componentSize > large) {
+        constexpr int32_t size = 2 * 1024 * 1024; // 1.6 M
+        data.SetDataCapacity(size);
+    } else if (componentSize > mid) {
+        constexpr int32_t size = 800 * 1024; // 800 kb
+        data.SetDataCapacity(size);
+    }
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -268,6 +283,9 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
         HILOG_ERROR("Remote() is NULL");
         return;
     }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO), data, reply, option);
     if (ret != NO_ERROR) {
@@ -415,6 +433,38 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage()
         data, reply, option);
     if (ret != 0) {
         HILOG_ERROR("Send request failed with errno %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Schedule notify unload patch, Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Schedule notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Schedule notify unload patch, Remote is nullptr");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
+    if (ret != 0) {
+        HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
         return ret;
     }
 

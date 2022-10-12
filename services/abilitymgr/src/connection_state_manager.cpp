@@ -280,6 +280,22 @@ void ConnectionStateManager::HandleAppDied(int32_t pid)
     HandleCallerDied(pid);
 }
 
+void ConnectionStateManager::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
+{
+    std::lock_guard<std::recursive_mutex> guard(dlpLock_);
+    for (auto it = dlpItems_.begin(); it != dlpItems_.end(); it++) {
+        auto item = it->second;
+        if (!item) {
+            continue;
+        }
+
+        AbilityRuntime::DlpConnectionInfo info;
+        info.dlpUid = item->GetDlpUid();
+        info.openedAbilityCount = item->GetOpenedAbilitySize();
+        infos.emplace_back(info);
+    }
+}
+
 bool ConnectionStateManager::AddConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
     AbilityRuntime::ConnectionData &data)
 {

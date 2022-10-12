@@ -36,7 +36,6 @@ AppRunningManager::~AppRunningManager()
 std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName, const BundleInfo &bundleInfo)
 {
-    std::lock_guard<std::recursive_mutex> guard(lock_);
     if (!appInfo) {
         HILOG_ERROR("param error");
         return nullptr;
@@ -66,6 +65,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     appRecord->SetStageModelState(isStageBasedModel);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
+    std::lock_guard<std::recursive_mutex> guard(lock_);
     appRunningRecordMap_.emplace(recordId, appRecord);
     return appRecord;
 }
@@ -75,7 +75,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
 {
     HILOG_INFO("appName: %{public}s, processName: %{public}s, uid : %{public}d",
         appName.c_str(), processName.c_str(), uid);
-    std::lock_guard<std::recursive_mutex> guard(lock_);
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
@@ -92,6 +91,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     };
 
     // If it is not empty, look for whether it can come in the same process
+    std::lock_guard<std::recursive_mutex> guard(lock_);
     if (jointUserId.empty()) {
         for (const auto &item : appRunningRecordMap_) {
             const auto &appRecord = item.second;
@@ -229,7 +229,6 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    std::lock_guard<std::recursive_mutex> guard(lock_);
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -239,6 +238,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         HILOG_ERROR("object is null");
         return nullptr;
     }
+    std::lock_guard<std::recursive_mutex> guard(lock_);
     const auto &iter =
         std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
             if (pair.second && pair.second->GetApplicationClient() != nullptr) {
@@ -437,6 +437,9 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.uid_ = appRecord->GetUid();
     info.bundleNames.emplace_back(appRecord->GetBundleName());
     info.state_ = static_cast<AppExecFwk::AppProcessState>(appRecord->GetState());
+    info.isContinuousTask = appRecord->IsContinuousTask();
+    info.isKeepAlive = appRecord->IsKeepAliveApp();
+    info.isFocused = appRecord->GetFocusFlag();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
@@ -453,11 +456,17 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+        if (!appRecord) {
+            HILOG_ERROR("appRecord is nullptr");
+            return;
+        }
+        auto state = appRecord->GetState();
+        if (state == ApplicationState::APP_STATE_FOREGROUND) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
+            appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
             HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
         }
@@ -520,8 +529,8 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
-    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     std::lock_guard<std::recursive_mutex> guard(lock_);
+    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
@@ -542,7 +551,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
 
 std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
 {
-    std::lock_guard<std::recursive_mutex> guard(lock_);
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -553,6 +561,7 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
         return nullptr;
     }
 
+    std::lock_guard<std::recursive_mutex> guard(lock_);
     const auto &it =
         std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
             if (!pair.second) {
@@ -598,14 +607,18 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
     HILOG_DEBUG("function called.");
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t result = ERR_OK;
+    bool loadSucceed = false;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
             result = appRecord->NotifyLoadRepairPatch(bundleName);
+            if (result == ERR_OK) {
+                loadSucceed = true;
+            }
         }
     }
-    return result;
+    return loadSucceed == true ? ERR_OK : result;
 }
 
 int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
@@ -622,6 +635,88 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
         }
     }
     return result;
+}
+
+int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    bool unLoadSucceed = false;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("Notify application [%{public}s] unload patch.", appRecord->GetProcessName().c_str());
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName);
+            if (result == ERR_OK) {
+                unLoadSucceed = true;
+            }
+        }
+    }
+    return unLoadSucceed == true ? ERR_OK : result;
+}
+
+bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
+{
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()) {
+            continue;
+        }
+        auto state = appRecord->GetState();
+        if (state == ApplicationState::APP_STATE_FOREGROUND &&
+            appRecord->GetRecordId() != foregroundingRecord.GetRecordId()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
+{
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        auto state = appRecord->GetState();
+        if (appRecord && appRecord->GetBundleName() == bundleName &&
+            state == ApplicationState::APP_STATE_FOREGROUND) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
+{
+    HILOG_DEBUG("check focus function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != focusedRecord.GetBundleName()) {
+            continue;
+        }
+        if (appRecord->GetFocusFlag() && appRecord->GetRecordId() != focusedRecord.GetRecordId()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
+{
+    HILOG_DEBUG("check is application unfocused.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName && appRecord->GetFocusFlag()) {
+            return false;
+        }
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

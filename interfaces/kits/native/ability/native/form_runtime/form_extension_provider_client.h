@@ -147,7 +147,8 @@ public:
 
 private:
     std::shared_ptr<FormExtension> GetOwner();
-    std::pair<int, int> CheckParam(const Want &want, const sptr<IRemoteObject> &callerToken);
+    std::pair<int, int> CheckParam(const Want &want,
+        const sptr<IRemoteObject> &callerToken);
     int HandleResultCode(int errorCode, const Want &want, const sptr<IRemoteObject> &callerToken);
     void AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
         const sptr<IRemoteObject> &callerToken);

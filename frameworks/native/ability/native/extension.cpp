@@ -96,6 +96,16 @@ void Extension::SetLastRequestWant(const AAFwk::Want &want)
     lastRequestWant_ = std::make_shared<AAFwk::Want>(want);
 }
 
+void Extension::SetCallingInfo(const CallingInfo &callingInfo)
+{
+    callingInfo_ = std::make_shared<CallingInfo>(callingInfo);
+}
+
+std::shared_ptr<CallingInfo> Extension::GetCallingInfo()
+{
+    return callingInfo_;
+}
+
 void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
     HILOG_INFO("%{public}s called.", __func__);

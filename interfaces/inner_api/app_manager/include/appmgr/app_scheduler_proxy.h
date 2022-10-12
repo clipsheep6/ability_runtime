@@ -146,6 +146,8 @@ public:
 
     int32_t ScheduleNotifyHotReloadPage() override;
 
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

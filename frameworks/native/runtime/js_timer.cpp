@@ -44,14 +44,14 @@ public:
     explicit TraceIdScope(const OHOS::HiviewDFX::HiTraceId& traceId) : valid_(traceId.IsValid())
     {
         if (valid_) {
-            OHOS::HiviewDFX::HiTrace::SetId(traceId);
+            OHOS::HiviewDFX::HiTraceChain::SetId(traceId);
         }
     }
 
     ~TraceIdScope()
     {
         if (valid_) {
-            OHOS::HiviewDFX::HiTrace::ClearId();
+            OHOS::HiviewDFX::HiTraceChain::ClearId();
         }
     }
 
@@ -113,7 +113,7 @@ private:
     int32_t containerScopeId_ = ContainerScope::CurrentId();
 #endif
 #ifdef ENABLE_HITRACE
-    OHOS::HiviewDFX::HiTraceId traceId_ = OHOS::HiviewDFX::HiTrace::GetId();
+    OHOS::HiviewDFX::HiTraceId traceId_ = OHOS::HiviewDFX::HiTraceChain::GetId();
 #endif
 };
 

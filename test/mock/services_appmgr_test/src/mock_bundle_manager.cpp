@@ -18,9 +18,49 @@
 
 #include "ability_info.h"
 #include "application_info.h"
+#include "hilog_wrapper.h"
+namespace {
+const int32_t HQF_VERSION_CODE = 1000;
+}
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+void ConstructHqfInfo(BundleInfo &bundleInfo)
+{
+    std::vector<HqfInfo> hqfInfos;
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = HQF_VERSION_CODE;
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionName = "1.0.0";
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.cpuAbi = "armeabi-v7a";
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "/data/testQuickFix/native-path";
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.type = QuickFixType::PATCH;
+    HqfInfo hqfInfo1;
+    hqfInfo1.moduleName = "entry1";
+    hqfInfo1.hapSha256 = "12345678";
+    hqfInfo1.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry1.hqf";
+    HqfInfo hqfInfo2;
+    hqfInfo2.moduleName = "entry2";
+    hqfInfo2.hapSha256 = "12345678";
+    hqfInfo2.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry2.hqf";
+    hqfInfos.push_back(hqfInfo1);
+    hqfInfos.push_back(hqfInfo2);
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos = hqfInfos;
+
+    std::vector<HapModuleInfo> hapModuleInfos;
+    HapModuleInfo moduleInfo1;
+    moduleInfo1.moduleName = "entry1";
+    moduleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry1";
+    HapModuleInfo moduleInfo2;
+    moduleInfo2.moduleName = "entry2";
+    moduleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry2";
+    hapModuleInfos.push_back(moduleInfo1);
+    hapModuleInfos.push_back(moduleInfo2);
+    bundleInfo.hapModuleInfos = hapModuleInfos;
+    bundleInfo.versionCode = HQF_VERSION_CODE;
+    bundleInfo.versionName = "1.0.0";
+}
+} // namespace
+
 bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
 {
     ElementName eleName = want.GetElement();
@@ -176,6 +216,10 @@ bool BundleMgrService::GetBundleInfo(
         bundleInfo.applicationInfo = appInfo;
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
     }
+    if (bundleName == "com.ohos.quickfix") {
+        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        ConstructHqfInfo(bundleInfo);
+    }
     return true;
 }
 bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
@@ -291,6 +335,18 @@ void BundleMgrService::MakingResidentProcData()
 
     bundleInfos_.emplace_back(bundleInfo);
     bundleInfos_.emplace_back(bundleInfo1);
+}
+
+sptr<IQuickFixManager> BundleMgrService::GetQuickFixManagerProxy()
+{
+    if (quickFixManager_ == nullptr) {
+        quickFixManager_ = new (std::nothrow) QuickFixManagerHostImpl();
+        if (quickFixManager_ == nullptr) {
+            GTEST_LOG_(ERROR) << "new quick fix manager failed.";
+            return nullptr;
+        }
+    }
+    return quickFixManager_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

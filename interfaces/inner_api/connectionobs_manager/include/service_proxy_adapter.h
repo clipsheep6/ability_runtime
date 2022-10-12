@@ -16,6 +16,7 @@
 #ifndef ABILITY_RUNTIME_SERVICE_PROXY_ADAPTER_H
 #define ABILITY_RUNTIME_SERVICE_PROXY_ADAPTER_H
 
+#include "dlp_connection_info.h"
 #include "iconnection_observer.h"
 
 namespace OHOS {
@@ -37,6 +38,8 @@ public:
     int32_t RegisterObserver(const sptr<IConnectionObserver> &observer);
 
     int32_t UnregisterObserver(const sptr<IConnectionObserver> &observer);
+
+    int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
 
     sptr<IRemoteObject> GetProxyObject() const;
 

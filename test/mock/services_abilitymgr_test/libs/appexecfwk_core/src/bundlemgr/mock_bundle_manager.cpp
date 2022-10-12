@@ -24,13 +24,9 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const int32_t ERROR_USER_ID_U256 = 256;
+const int32_t USER_ID_U1000 = 1000;
 }
 using namespace OHOS::AAFwk;
-int BundleMgrProxy::QueryWantAbility(
-    const AAFwk::Want &__attribute__((unused)) want, std::vector<AbilityInfo> &__attribute__((unused)) abilityInfos)
-{
-    return 0;
-}
 
 bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
 {
@@ -54,11 +50,6 @@ bool BundleMgrProxy::GetBundleInfo(
     return true;
 }
 
-bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
-{
-    return false;
-}
-
 bool BundleMgrProxy::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
 {
@@ -67,7 +58,19 @@ bool BundleMgrProxy::GetApplicationInfo(
     }
     appInfo.name = "Helloworld";
     appInfo.bundleName = "com.ix.hiworld";
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
+}
+
+int32_t BundleMgrProxy::GetDisposedStatus(const std::string &bundleName)
+{
+    if (bundleName.compare("com.test.disposed") == 0) {
+        return -1;
+    }
+    return 0;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -160,11 +163,6 @@ bool BundleMgrService::QueryAbilityInfo(const Want &want, int32_t flags, int32_t
     return flag;
 }
 
-bool BundleMgrService::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
-{
-    return false;
-}
-
 bool BundleMgrService::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
 {
@@ -174,6 +172,10 @@ bool BundleMgrService::GetApplicationInfo(
     appInfo.name = appName;
     appInfo.bundleName = appName;
     appInfo.uid = userId * BASE_USER_RANGE;
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
 }
 
@@ -208,7 +210,7 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
 
 int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const int userId)
 {
-    return 1000;
+    return USER_ID_U1000;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -294,10 +294,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
             ConnectAbility(targetService);
         }
     } else {
-        HILOG_ERROR("Target service ability is activating, connect failed");
-        targetService->RemoveConnectRecordFromList(connectRecord);
-        RemoveConnectionRecordFromMap(connectRecord);
-        ret = START_SERVICE_ABILITY_ACTIVATING;
+        HILOG_INFO("Target service ability is activating, just wait for callback");
     }
 
     auto token = targetService->GetToken();
@@ -780,11 +777,9 @@ void AbilityConnectManager::HandleDisconnectTask(const ConnectListType &connectl
             continue;
         }
         auto targetService = connectRecord->GetAbilityRecord();
-        if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED &&
-            targetService->GetConnectRecordList().size() > 1) {
+        if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
             HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
             connectRecord->CompleteDisconnect(ERR_OK, false);
-            targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
     }

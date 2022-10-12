@@ -53,7 +53,7 @@ public:
     const std::string &GetModuleName() const;
 
     /**
-     * @param name, the module mainability name.
+     * @param name, the module main ability name.
      *
      * @return
      */
@@ -81,9 +81,9 @@ public:
 
     // Get abilities_ for this process
     /**
-     * @brief Obtains the abilitys info for the application record.
+     * @brief Obtains the abilities info for the application record.
      *
-     * @return Returns the abilitys info for the application record.
+     * @return Returns the abilities info for the application record.
      */
     const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> &GetAbilities() const;
 
@@ -186,7 +186,7 @@ private:
 
 private:
     std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> abilities_;
-    std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> terminateAbilitys_;
+    std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> terminateAbilities_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     std::weak_ptr<AppRunningRecord> appRunningRecord_;
     std::shared_ptr<AppLifeCycleDeal> appLifeCycleDeal_;

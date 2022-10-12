@@ -21,12 +21,13 @@
 
 namespace OHOS {
 namespace AAFwk {
-namespace QuickFixUtil {
-sptr<IRemoteObject> GetRemoteObjectOfSystemAbility(const int32_t systemAbilityId);
-sptr<AppExecFwk::IAppMgr> GetAppManagerProxy();
-sptr<AppExecFwk::IBundleMgr> GetBundleManagerProxy();
-sptr<AppExecFwk::IQuickFixManager> GetBundleQuickFixMgrProxy();
-} // namespace QuickFixUtil
+class QuickFixUtil {
+public:
+    static sptr<IRemoteObject> GetRemoteObjectOfSystemAbility(const int32_t systemAbilityId);
+    static sptr<AppExecFwk::IAppMgr> GetAppManagerProxy();
+    static sptr<AppExecFwk::IBundleMgr> GetBundleManagerProxy();
+    static sptr<AppExecFwk::IQuickFixManager> GetBundleQuickFixMgrProxy();
+};
 } // namespace AAFwk
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_QUICK_FIX_UTIL_H

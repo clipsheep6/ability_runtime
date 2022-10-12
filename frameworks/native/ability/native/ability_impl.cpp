@@ -74,6 +74,11 @@ void AbilityImpl::Start(const Want &want)
         (!ability_->GetAbilityInfo()->isStageBasedModel)) {
         ability_->HandleCreateAsContinuation(want);
     }
+
+    if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) &&
+        (ability_->GetAbilityInfo()->isStageBasedModel)) {
+        ability_->HandleCreateAsRecovery(want);
+    }
 #endif
     HILOG_DEBUG("AbilityImpl::Start");
     ability_->OnStart(want);

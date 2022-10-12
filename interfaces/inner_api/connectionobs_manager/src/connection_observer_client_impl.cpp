@@ -59,6 +59,17 @@ int32_t ConnectionObserverClientImpl::UnregisterObserver(const std::shared_ptr<C
     return ret;
 }
 
+int32_t ConnectionObserverClientImpl::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
+{
+    auto proxy = GetServiceProxy();
+    if (!proxy) {
+        HILOG_ERROR("unregister, observer is invalid.");
+        return ERR_NO_PROXY;
+    }
+
+    return proxy->GetDlpConnectionInfos(infos);
+}
+
 void ConnectionObserverClientImpl::HandleExtensionConnected(const ConnectionData &data)
 {
     auto observers = GetObservers();
@@ -232,11 +243,13 @@ void ConnectionObserverClientImpl::ResetStatus()
 {
     std::lock_guard<std::recursive_mutex> guard(observerLock_);
     isRegistered_ = false;
+    userObservers_.clear();
 }
 
 void ConnectionObserverClientImpl::NotifyServiceDiedToObservers()
 {
     auto observers = GetObservers();
+    ResetStatus();
     for (auto it = observers.begin(); it != observers.end(); ++it) {
         auto observer = *it;
         if (observer) {

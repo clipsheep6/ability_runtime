@@ -28,6 +28,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app/application_context:applicationcontext_napi",
     "${ability_runtime_napi_path}/app/context:context_napi",
     "${ability_runtime_napi_path}/app/error_manager:errormanager_napi",
+    "${ability_runtime_napi_path}/app/recovery:apprecovery_napi",
     "${ability_runtime_napi_path}/app/test_runner:testrunner_napi",
     "${ability_runtime_napi_path}/application_context_constant:contextconstant_napi",
     "${ability_runtime_napi_path}/callee:callee_napi",
