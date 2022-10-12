@@ -124,8 +124,13 @@ private:
 
         decltype(info.argc) unwrapArgc = 0;
         AAFwk::Want want;
-        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+        bool unwrapResult = OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), want);
+        if (!unwrapResult) {
+            HILOG_ERROR("Failed to unwrap want.");
+            NapiFormUtil::ThrowParamTypeError(engine, "want", "Want");
+            return engine.CreateUndefined();
+        }
         HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
             __func__,
             want.GetBundle().c_str(),
@@ -133,7 +138,7 @@ private:
         unwrapArgc++;
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("startAbility begin");
                 auto context = weak.lock();
                 if (!context) {
@@ -145,12 +150,12 @@ private:
 
                 // entry to the core functionality.
                 ErrCode innerErrorCode = context->StartAbility(want);
-                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
-                if (errcode == ERR_OK) {
+                if (innerErrorCode == ERR_OK) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
+                    HILOG_ERROR("Failed to StartAbility, errorCode: %{public}d.", innerErrorCode);
                     task.Reject(engine,
-                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, errcode));
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
                 }
             };
 
