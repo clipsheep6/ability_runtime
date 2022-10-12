@@ -298,7 +298,7 @@ bool AbilityManagerService::Init()
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<DisposedInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
 
     HILOG_INFO("Init success.");
     return true;
@@ -2298,8 +2298,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
-        abilityRequest.appInfo.name.c_str(),
-        abilityRequest.appInfo.bundleName.c_str(),
+        abilityRequest.appInfo.name.c_str(), abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
 
     if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
