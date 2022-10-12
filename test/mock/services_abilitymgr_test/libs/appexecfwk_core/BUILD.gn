@@ -56,10 +56,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
 }
 
 ohos_source_set("appexecfwk_bundlemgr_mock") {
-  sources = [
-    "src/bundlemgr/mock_app_control_manager.cpp",
-    "src/bundlemgr/mock_bundle_manager.cpp",
-  ]
+  sources = [ "src/bundlemgr/mock_bundle_manager.cpp" ]
   testonly = true
   configs = [
     ":appexecfwk_core_mock_config",
