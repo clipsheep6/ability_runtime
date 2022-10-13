@@ -295,21 +295,24 @@ Ability* JsParticleAbility::GetAbility(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_global=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
     napi_value abilityObj = 0;
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_named_property=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
     Ability* ability = nullptr;
     ret = napi_get_value_external(env, abilityObj, (void **)&ability);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
     return ability;
