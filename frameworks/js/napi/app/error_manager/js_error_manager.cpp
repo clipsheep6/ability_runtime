@@ -30,8 +30,6 @@ namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr int32_t ERROR_CODE = -1;
-constexpr int32_t INVALID_PARAM = -2;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 

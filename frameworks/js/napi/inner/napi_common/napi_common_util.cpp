@@ -17,9 +17,12 @@
 #include <cstring>
 
 #include "hilog_wrapper.h"
+#include "js_error_util.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
 #include "securec.h"
+
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {

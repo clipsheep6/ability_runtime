@@ -104,14 +104,14 @@ NativeValue* JsFeatureAbility::OnStartAbility(NativeEngine &engine, NativeCallba
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
         HILOG_ERROR("Params not match");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
     Ability* ability = GetAbility(reinterpret_cast<napi_env>(&engine));
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
-        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_CODE_CONTEXT_EMPTY);
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
         return engine.CreateUndefined();
     }
 
@@ -119,7 +119,7 @@ NativeValue* JsFeatureAbility::OnStartAbility(NativeEngine &engine, NativeCallba
     if (!UnWrapRequestParams(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]),
         requestParam)) {
         HILOG_ERROR("unwrap request params failed");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
@@ -141,13 +141,13 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
         HILOG_ERROR("Params not match");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
     Ability* ability = GetAbility(reinterpret_cast<napi_env>(&engine));
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
-        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_CODE_CONTEXT_EMPTY);
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
         return engine.CreateUndefined();
     }
 
@@ -155,7 +155,7 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
     if (!UnWrapRequestParams(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]),
         requestParam)) {
         HILOG_ERROR("unwrap request params failed");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID)
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
@@ -191,14 +191,14 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
         HILOG_ERROR("Params not match");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
     Ability *ability = GetAbility(reinterpret_cast<napi_env>(&engine));
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
-        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_CODE_CONTEXT_EMPTY);
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
         return engine.CreateUndefined();
     }
 
@@ -206,21 +206,21 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     auto arg0 = reinterpret_cast<napi_value>(info.argv[0]);
     if (!IsTypeForNapiValue(env, arg0, napi_object)) {
         HILOG_ERROR("Params is invalid.");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
     int32_t code = ERR_OK;
     if (!UnwrapInt32ByPropertyName(env, arg0, "code", code)) {
         HILOG_ERROR("Failed to get code.");
-        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_CODE_PARAM_INVALID);
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
     napi_value jsResultObj = GetPropertyValueByPropertyName(env, arg0, "result", napi_object);
     if (jsResultObj == nullptr) {
         HILOG_ERROR("Failed to get result.");
-        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_CODE_CONTEXT_EMPTY);
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
         return engine.CreateUndefined();
     }
 

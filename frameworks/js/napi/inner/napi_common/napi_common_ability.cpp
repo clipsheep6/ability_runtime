@@ -20,12 +20,9 @@
 
 #include "ability_util.h"
 #include "hilog_wrapper.h"
-<<<<<<< HEAD
 #include "js_error_utils.h"
-=======
 #include "js_napi_common_ability.h"
 #include "js_runtime_utils.h"
->>>>>>> ffe022b05f21ced076a1363b0652a681a3c58afe
 #include "napi_common_util.h"
 #include "napi_context.h"
 #include "napi_base_context.h"
