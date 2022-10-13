@@ -55,7 +55,7 @@ public:
 private:
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
 
-    NativeValue* OnKillProcessByBundleName(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnKillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_DEBUG("%{public}s is called", __FUNCTION__);
         std::string bundleName;

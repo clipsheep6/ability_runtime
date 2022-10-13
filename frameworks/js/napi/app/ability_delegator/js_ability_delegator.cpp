@@ -811,11 +811,6 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
     abilityMonitor->SetJsAbilityMonitor(value);
 
     monitor = std::make_shared<AbilityMonitor>(abilityName, abilityMonitor);
-    if (!monitor) {
-        HILOG_ERROR("Failed to create monitor");
-        return nullptr;
-    }
-
     std::shared_ptr<NativeReference> reference = nullptr;
     reference.reset(engine.CreateReference(value, 1));
     g_monitorRecord.emplace(reference, monitor);
@@ -865,10 +860,6 @@ NativeValue *JSAbilityDelegator::ParseStageMonitorPara(
     }
 
     monitor = std::make_shared<AbilityStageMonitor>(moduleName, srcEntrance);
-    if (!monitor) {
-        HILOG_ERROR("Failed to create stage monitor");
-        return nullptr;
-    }
     return engine.CreateNull();
 }
 

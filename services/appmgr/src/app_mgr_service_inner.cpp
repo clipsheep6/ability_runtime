@@ -2044,10 +2044,6 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
-    if (!appInfo) {
-        HILOG_ERROR("appInfo is nullptr.");
-        return;
-    }
 
     int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {

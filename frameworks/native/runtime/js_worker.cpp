@@ -158,8 +158,11 @@ struct AssetHelper final {
 int32_t GetContainerId()
 {
 #ifdef SUPPORT_GRAPHICS
-int32_t scopeId = ContainerScope::CurrentId();
-return scopeId;
+    int32_t scopeId = ContainerScope::CurrentId();
+    return scopeId;
+#else
+    constexpr int32_t containerScopeDefaultId = 0;
+    return containerScopeDefaultId;
 #endif
 }
 void UpdateContainerScope(int32_t id)

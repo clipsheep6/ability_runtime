@@ -120,7 +120,7 @@ public:
     bool CheckAbilityType(const AbilityType typeWant);
     bool UnwarpVerifyPermissionParams(NativeEngine &engine, NativeCallbackInfo &info, JsPermissionOptions &options);
     bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
-    bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &strVal);
+    bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options);
     std::string ConvertErrorCode(int32_t errCode);
 
     Ability *ability_;

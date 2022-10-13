@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    NativeValue* OnGetAbilityRunningInfos(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnGetAbilityRunningInfos(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         AsyncTask::CompleteCallback complete =

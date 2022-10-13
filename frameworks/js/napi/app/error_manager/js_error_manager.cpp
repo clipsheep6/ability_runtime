@@ -58,7 +58,7 @@ public:
     }
 
 private:
-    NativeValue* OnRegisterErrorObserver(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnRegisterErrorObserver(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("Register errorObserver is called.");
         // only support one
