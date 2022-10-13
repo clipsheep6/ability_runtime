@@ -88,7 +88,6 @@ napi_value DataAbilityHelperInit(napi_env env, napi_value exports)
             properties,
             &constructor));
     NAPI_CALL(env, SaveGlobalDataAbilityHelper(env, constructor));
-    g_dataAbilityHelperList.clear();
     return exports;
 }
 
