@@ -64,62 +64,6 @@ struct AsyncGetWantAgentCallbackInfo {
     std::shared_ptr<WantAgent> wantAgent;
 };
 
-struct AsyncGetBundleNameCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::shared_ptr<WantAgent> wantAgent;
-    std::string bundleName;
-};
-
-struct AsyncGetUidCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::shared_ptr<WantAgent> wantAgent;
-    int32_t uid;
-};
-
-struct AsyncGetWantCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::shared_ptr<WantAgent> wantAgent;
-    std::shared_ptr<AAFwk::Want> want;
-};
-
-struct AsyncEqualCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::shared_ptr<WantAgent> wantAgentFirst;
-    std::shared_ptr<WantAgent> wantAgentSecond;
-    bool result;
-};
-
-struct AsyncCancelCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::shared_ptr<WantAgent> wantAgent;
-};
-
-struct AsyncTriggerCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    bool callBackMode = false;
-    std::shared_ptr<TriggerCompleteCallBack> triggerObj;
-    std::shared_ptr<WantAgent> wantAgent;
-    TriggerInfo triggerInfo;
-};
-
 struct CallbackInfo {
     std::shared_ptr<WantAgent> wantAgent = nullptr;
     napi_env env = nullptr;
@@ -153,6 +97,33 @@ struct AsyncGetOperationTypeCallbackInfo {
     int32_t operationType;
 };
 
+class JsWantAgent final {
+public:
+    JsWantAgent() = default;
+    ~JsWantAgent() = default;
+    static void Finalizer(NativeEngine* engine, void* data, void* hint);
+    static NativeValue* Equal(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetWant(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetOperationType(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetBundleName(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetUid(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* Cancel(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* Trigger(NativeEngine *engine, NativeCallbackInfo *info);
+
+private:
+    NativeValue* OnEqual(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetWant(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetOperationType(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetBundleName(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetUid(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnCancel(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnTrigger(NativeEngine &engine, NativeCallbackInfo &info);
+    int32_t UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallbackInfo &info,
+    std::shared_ptr<WantAgent> &wantAgent, TriggerInfo &triggerInfo,
+    std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
+    int32_t GetTriggerInfo(NativeEngine &engine, NativeValue *param, TriggerInfo &triggerInfo);
+};
+
 class TriggerCompleteCallBack : public CompletedCallback {
 public:
     TriggerCompleteCallBack();
@@ -167,27 +138,19 @@ public:
 private:
     CallbackInfo triggerCompleteInfo_;
 };
-
+NativeValue* JsWantAgentInit(NativeEngine* engine, NativeValue* exportObj);
 napi_value WantAgentInit(napi_env env, napi_value exports);
 
 void SetNamedPropertyByInteger(napi_env env, napi_value dstObj, int32_t objName, const std::string &propName);
 napi_value WantAgentFlagsInit(napi_env env, napi_value exports);
 napi_value WantAgentOperationTypeInit(napi_env env, napi_value exports);
 
-napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info);
-napi_value NAPI_GetUid(napi_env env, napi_callback_info info);
-napi_value NAPI_GetWant(napi_env env, napi_callback_info info);
-napi_value NAPI_Cancel(napi_env env, napi_callback_info info);
-napi_value NAPI_Trigger(napi_env env, napi_callback_info info);
-napi_value NAPI_Equal(napi_env env, napi_callback_info info);
 napi_value NAPI_GetWantAgent(napi_env env, napi_callback_info info);
 napi_value NAPI_GetOperationType(napi_env env, napi_callback_info info);
-
 napi_value GetCallbackErrorResult(napi_env env, int errCode);
 napi_value NapiGetNull(napi_env env);
 napi_value JSParaError(const napi_env &env, const bool bCallback);
 
-void DeleteRecordByCode(const int32_t code);
 static std::unique_ptr<std::map<AsyncGetWantAgentCallbackInfo *, const int32_t>,
     std::function<void(std::map<AsyncGetWantAgentCallbackInfo *, const int32_t> *)>>
     g_WantAgentMap(new std::map<AsyncGetWantAgentCallbackInfo *, const int32_t>,
