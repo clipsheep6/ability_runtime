@@ -51,7 +51,6 @@ private:
     void PostDeleteQuickFixTask();
 
     void PostTimeOutTask();
-    std::string GetApplyResultInfo(int32_t applyResult);
 
     sptr<AppExecFwk::IQuickFixManager> bundleQfMgr_ = nullptr;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
