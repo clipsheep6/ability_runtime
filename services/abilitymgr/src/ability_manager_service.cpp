@@ -286,17 +286,11 @@ bool AbilityManagerService::Init()
         amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
-
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
-
     SubscribeBackgroundTask();
-
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-
-    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
-    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
-    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    InitStartUpRuleFlag();
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -304,6 +298,14 @@ bool AbilityManagerService::Init()
 
     HILOG_INFO("Init success.");
     return true;
+}
+
+void AbilityManagerService::InitStartUpRuleFlag()
+{
+    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
+    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
+    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    return;
 }
 
 void AbilityManagerService::OnStop()
@@ -427,7 +429,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -566,10 +568,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        eventInfo.errCode = ERR_INVALID_VALUE;
+        eventInfo.errCode = INVALID_USERID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -725,10 +727,10 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        eventInfo.errCode = ERR_INVALID_VALUE;
+        eventInfo.errCode = INVALID_USERID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -986,10 +988,10 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        eventInfo.errCode = ERR_INVALID_VALUE;
+        eventInfo.errCode = INVALID_USERID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -1083,11 +1085,11 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        eventInfo.errCode = ERR_INVALID_VALUE;
+        eventInfo.errCode = INVALID_USERID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
             HiSysEventType::FAULT,
             eventInfo);
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -1613,7 +1615,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     HILOG_INFO("Connect local ability begin.");
     if (!JudgeMultiUserConcurrency(userId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -3221,7 +3223,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
@@ -3812,7 +3814,7 @@ int AbilityManagerService::StartAbilityByCall(
     int32_t callerUserId = GetValidUserId(DEFAULT_INVAL_VALUE);
     if (!JudgeMultiUserConcurrency(callerUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return INVALID_USERID_VALUE;
     }
 
     AbilityRequest abilityRequest;
