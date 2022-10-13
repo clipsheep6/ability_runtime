@@ -17,6 +17,7 @@
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_scheduler_mock.h"
+#include "pac_map.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -343,6 +344,139 @@ HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_016, TestS
     abilitySchedulerProxy_->DumpAbilityInfo(params, info);
 
     EXPECT_EQ(IAbilityScheduler::DUMP_ABILITY_RUNNER_INNER, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ScheduleSaveAbilityState
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ScheduleSaveAbilityState
+ * EnvConditions: NA
+ * CaseDescription: verify ScheduleSaveAbilityState Normal case
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_017, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    abilitySchedulerProxy_->ScheduleSaveAbilityState();
+
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_SAVE_ABILITY_STATE, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ScheduleRestoreAbilityState
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ScheduleRestoreAbilityState
+ * EnvConditions: NA
+ * CaseDescription: verify ScheduleRestoreAbilityState Normal case
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_018, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    PacMap pacmap;
+    abilitySchedulerProxy_->ScheduleRestoreAbilityState(pacmap);
+
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_RESTORE_ABILITY_STATE, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: Call
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy Call
+ * EnvConditions: NA
+ * CaseDescription: verify Call Normal case
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_019, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    Uri uri("nullptr");
+    PacMap pacmap;
+    abilitySchedulerProxy_->Call(uri, "", "", pacmap);
+
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_CALL, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ScheduleNotifyChange
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ScheduleNotifyChange
+ * EnvConditions: NA
+ * CaseDescription: verify ScheduleNotifyChange Return value exception
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_020, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    Uri uri("");
+
+    abilitySchedulerProxy_->ScheduleNotifyChange(uri);
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_NOTIFYCHANGE, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ExecuteBatch
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ExecuteBatch
+ * EnvConditions: NA
+ * CaseDescription: verify ExecuteBatch Return value exception
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_021, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> operations;
+
+    abilitySchedulerProxy_->ExecuteBatch(operations);
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_EXECUTEBATCH, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ContinueAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ContinueAbility
+ * EnvConditions: NA
+ * CaseDescription: verify ContinueAbility Return value exception
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_022, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    std::string deviceId = "";
+    uint32_t versionCode = 0;
+
+    abilitySchedulerProxy_->ContinueAbility(deviceId, versionCode);
+    EXPECT_EQ(IAbilityScheduler::CONTINUE_ABILITY, mock_->code_);
+}
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: BlockAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy BlockAbility
+ * EnvConditions: NA
+ * CaseDescription: verify BlockAbility Normal case
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_023, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+
+    abilitySchedulerProxy_->BlockAbility();
+    EXPECT_EQ(IAbilityScheduler::BLOCK_ABILITY_INNER, mock_->code_);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
