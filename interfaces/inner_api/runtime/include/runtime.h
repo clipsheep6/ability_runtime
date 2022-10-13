@@ -47,6 +47,7 @@ public:
         bool loadAce = true;
         bool preload = false;
         bool isBundle = true;
+        bool isDebugVersion = false;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);

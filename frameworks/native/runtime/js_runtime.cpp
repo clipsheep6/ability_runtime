@@ -533,7 +533,7 @@ bool JsRuntime::Initialize(const Options& options)
         }
 
         InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
     preloaded_ = options.preload;
