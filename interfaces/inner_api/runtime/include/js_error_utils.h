@@ -1,0 +1,180 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "ability_manager_errors.h"
+#include "napi_common_error.h"
+
+#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
+
+namespace OHOS {
+namespace AbilityRuntime {
+// Common error code
+#define ERROR_CODE_NO_ERROR (0)
+#define ERROR_CODE_QUERY_FAILED (1)                  // Can't match any other error code.
+#define ERROR_CODE_PERMISSION_DENIED (201)           // The application does not have permission to call the interface.
+#define ERROR_CODE_PARAM_INVALID (401)               // Invalid input parameter.
+#define ERROR_CODE_SYSTEMCAP_ERROR (801)             // The specified SystemCapability names was not found.
+
+// AbilityRuntime.Core error code
+#define ERROR_CODE_ABILITY_NOT_EXIST (16000001)      // The specified ability name does not exit.
+#define ERROR_CODE_ABILITY_VISIBLE (16000004)        // Visibility verification failed.
+#define ERROR_CODE_CONTEXT_EMPTY (16000011)          // Context does not exist.
+#define ERROR_CODE_ABILITY_EXISTED (16000012)        // Ability existed.
+#define ERROR_CODE_CONNECTION_NOT_EXISTED (16000013) // Connection not exist.
+#define ERROR_CODE_CONNECTION_INVALID_STATE (16000014) // Connection is invalid state.
+#define ERROR_CODE_SERVICE_TIMEOUT (16000015)        // Service timeout.
+#define ERROR_CODE_APP_CONTROL (16000016)            // App is under control.
+#define ERROR_CODE_CALLEE_INVALID (16200002)         // Callee invalied.
+#define ERROR_CODE_ABILITY_TYPE (16000002)           // Ability type error.
+#define ERROR_CODE_SERVICE_BUSY (16000007)           // Service busyness.
+#define ERROR_CODE_APP_CROWDTEST (16000008)          // Crowdtest app expired.
+#define ERROR_CODE_INTERNAL_ERROR (16000050)         // Internal error.
+#define ERROR_CODE_NETWORK_UNAVAILABLE (16000051)    // Network error.
+#define ERROR_CODE_FREE_INSTALL_SUPPORT (16000052)   // Free install not support.
+#define ERROR_CODE_TOP_ABILITY (16000053)            // Not top ability.
+#define ERROR_CODE_FREE_INSTALL_BUSY (16000054)      // Free install busyness.
+#define ERROR_CODE_FREE_INSTALL_TIMEOUT (16000055)   // Free install timeout.
+#define ERROR_CODE_FREE_INSTALL_OTHER (16000056)     // Can not free install other ability.
+#define ERROR_CODE_FREE_INSTALL_DEVICE (16000057)     // Not support cross device free install.
+
+// Common error message
+constexpr const char* ERROR_MSG_PERMISSION_DENIED = "The application does not have permission to call the interface.";
+constexpr const char* ERROR_MSG_PARAM_INVALID = "Invalid input parameter.";
+constexpr const char* ERROR_MSG_SYSTEMCAP_ERROR = "The specified SystemCapability names was not found.";
+
+//AbilityRuntime.Core error message
+constexpr const char* ERROR_MSG_ABILITY_NOT_EXIST = "The specified ability name does not exit.";
+constexpr const char* ERROR_MSG_CONTEXT_EMPTY = "Context does not exist, please check the context is available.";
+constexpr const char* ERROR_MSG_ABILITY_EXISTED = "The specified ability is already started";
+constexpr const char* ERROR_MSG_CALLEE_INVALID = "Callee invalid, the callee does not exist.";
+constexpr const char* ERROR_MSG_ABILITY_TYPE = "The specified ability type is wrong.";
+constexpr const char* ERROR_MSG_SERVICE_BUSY = "There are concurrent tasks, waiting for retry";
+constexpr const char* ERROR_MSG_CROWDTEST_EXPIRED = "The crowdtest application is expired.";
+constexpr const char* ERROR_MSG_INTERNAL_ERROR = "Internal error.";
+constexpr const char* ERROR_MSG_NETWORK_UNAVAILABLE = "The network is abnormal.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_SUPPORT = "The application does not support free install.";
+constexpr const char* ERROR_MSG_TOP_ABILITY = "The application is not top ability.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_BUSY = "There are concurrent task, wait for retry.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_TIMEOUT = "Free install timeout.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_OTHER = "Can not free install other ability.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_DEVICE = "The device does not support free install.";
+
+// map inner error code to js error code
+const std::map<int32_t, int32_t> ERROR_CODE_MAP = {
+    // ability manager error code
+    { ERR_OK, ERROR_CODE_NO_ERROR },
+    { RESOLVE_ABILITY_ERR, ERROR_CODE_ABILITY_NOT_EXIST },
+    { GET_ABILITY_SERVICE_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { ABILITY_SERVICE_NOT_CONNECTED, ERROR_CODE_INTERNAL_ERROR },
+    { RESOLVE_APP_ERR, ERROR_CODE_ABILITY_NOT_EXIST },
+    { ABILITY_EXISTED, ERROR_CODE_ABILITY_EXISTED },
+    { CREATE_MISSION_STACK_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { CREATE_ABILITY_RECORD_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { START_ABILITY_WAITING, ERROR_CODE_SERVICE_BUSY },
+    { TERMINATE_LAUNCHER_DENIED, ERROR_CODE_PERMISSION_DENIED },
+    { CONNECTION_NOT_EXIST, ERROR_CODE_CONNECTION_NOT_EXISTED },
+    { INVALID_CONNECTION_STATE, ERROR_CODE_CONNECTION_INVALID_STATE },
+    { LOAD_ABILITY_TIMEOUT, ERROR_CODE_SERVICE_TIMEOUT },
+    { CONNECTION_TIMEOUT, ERROR_CODE_SERVICE_TIMEOUT },
+    { GET_BUNDLE_MANAGER_SERVICE_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { REMOVE_MISSION_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { INNER_ERR, ERROR_CODE_INTERNAL_ERROR },
+    { GET_RECENT_MISSIONS_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { REMOVE_STACK_LAUNCHER_DENIED, ERROR_CODE_PERMISSION_DENIED },
+    { TARGET_ABILITY_NOT_SERVICE, ERROR_CODE_ABILITY_TYPE },
+    { TERMINATE_SERVICE_IS_CONNECTED, ERROR_CODE_CONNECTION_INVALID_STATE },
+    { START_SERVICE_ABILITY_ACTIVATING, ERROR_CODE_ABILITY_EXISTED },
+    { MOVE_MISSION_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { KILL_PROCESS_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { UNINSTALL_APP_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { TERMINATE_ABILITY_RESULT_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { CHECK_PERMISSION_FAILED, ERROR_CODE_PERMISSION_DENIED },
+    { NO_FOUND_ABILITY_BY_CALLER, ERROR_CODE_ABILITY_NOT_EXIST },
+    { ABILITY_VISIBLE_FALSE_DENY_REQUEST, ERROR_CODE_ABILITY_VISIBLE },
+    { CALLER_ISNOT_SYSTEMAPP, ERROR_CODE_PERMISSION_DENIED },
+    { GET_BUNDLENAME_BY_UID_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { MISSION_NOT_FOUND, ERROR_CODE_INTERNAL_ERROR },
+    { GET_BUNDLE_INFO_FAILED, ERROR_CODE_INTERNAL_ERROR },
+    { KILL_PROCESS_KEEP_ALIVE, ERROR_CODE_INTERNAL_ERROR },
+    { CLEAR_APPLICATION_DATA_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { RESOLVE_CALL_NO_PERMISSIONS, ERROR_CODE_PERMISSION_DENIED },
+    { RESOLVE_CALL_ABILITY_TYPE_ERR, ERROR_CODE_ABILITY_TYPE },
+    { RESOLVE_CALL_ABILITY_INNER_ERR, ERROR_CODE_INTERNAL_ERROR },
+    { RESOLVE_CALL_ABILITY_VERSION_ERR, ERROR_CODE_INTERNAL_ERROR },
+    { RELEASE_CALL_ABILITY_INNER_ERR, ERROR_CODE_INTERNAL_ERROR },
+    { REGISTER_REMOTE_MISSION_LISTENER_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { UNREGISTER_REMOTE_MISSION_LISTENER_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { INVALID_USERID_VALUE, ERROR_CODE_INTERNAL_ERROR },
+    { START_USER_TEST_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { SEND_USR1_SIG_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_AAFWK_HIDUMP_ERROR, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_AAFWK_HIDUMP_INVALID_ARGS, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_AAFWK_PARCEL_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_IMPLICIT_START_ABILITY_FAIL, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_REACH_UPPER_LIMIT, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_AAFWK_INVALID_WINDOW_MODE, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_WRONG_INTERFACE_CALL, ERROR_CODE_INTERNAL_ERROR },
+    { ERR_CROWDTEST_EXPIRED, ERROR_CODE_APP_CROWDTEST },
+    { ERR_DISPOSED_STATUS, ERROR_CODE_APP_CONTROL },
+    { FA_FREE_INSTALL_QUERY_ERROR, ERROR_CODE_ABILITY_INPUT },
+    { HAG_QUERY_TIMEOUT, ERROR_CODE_ABILITY_INPUT },
+    { FA_NETWORK_UNAVAILABLE, ERROR_CODE_NETWORK_UNAVAILABLE },
+    { FA_FREE_INSTALL_SERVICE_ERROR, ERROR_CODE_INTERNAL_ERROR },
+    { FA_CRASH, ERROR_CODE_INTERNAL_ERROR },
+    { FA_TIMEOUT, ERROR_CODE_SERVICE_TIMEOUT },
+    { UNKNOWN_EXCEPTION, ERROR_CODE_INTERNAL_ERROR },
+    { NOT_SUPPORT_PA_ON_SAME_DEVICE, ERROR_CODE_ABILITY_TYPE },
+    { FA_INTERNET_ERROR, ERROR_CODE_FREE_INSTALL_BUSY },
+    { JUMP_TO_THE_APPLICATION_MARKET_UPGRADE, ERROR_CODE_INTERNAL_ERROR },
+    { USER_GIVES_UP, ERROR_CODE_CONTEXT_EMPTY },
+    { INSTALLATION_ERROR_IN_FREE_INSTALL, ERROR_CODE_INTERNAL_ERROR },
+    { HAP_PACKAGE_DOWNLOAD_TIMED_OUT, ERROR_CODE_INTERNAL_ERROR },
+    { CONCURRENT_TASKS_WAITING_FOR_RETRY, ERROR_CODE_FREE_INSTALL_BUSY },
+    { FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL, ERROR_CODE_FREE_INSTALL_SUPPORT },
+    { NOT_ALLOWED_TO_PULL_THIS_FA, ERROR_CODE_PERMISSION_DENIED },
+    { NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA, ERROR_CODE_FREE_INSTALL_SUPPORT },
+    { DMS_PERMISSION_DENIED, ERROR_CODE_PERMISSION_DENIED },
+    { DMS_COMPONENT_ACCESS_PERMISSION_DENIED, ERROR_CODE_PERMISSION_DENIED },
+    { DMS_ACCOUNT_ACCESS_PERMISSION_DENIED, ERROR_CODE_PERMISSION_DENIED },
+    { INVALID_PARAMETERS_ERR, ERROR_CODE_PARAM_INVALID },
+    { INVALID_REMOTE_PARAMETERS_ERR, ERROR_CODE_PARAM_INVALID },
+    { REMOTE_DEVICE_NOT_COMPATIBLE, ERROR_CODE_FREE_INSTALL_DEVICE },
+    { DEVICE_OFFLINE_ERR, ERROR_CODE_FREE_INSTALL_DEVICE },
+    { FREE_INSTALL_TIMEOUT, ERROR_CODE_FREE_INSTALL_TIMEOUT },
+    { NOT_TOP_ABILITY, ERROR_CODE_TOP_ABILITY },
+    { TARGET_BUNDLE_NOT_EXIST, ERROR_CODE_FREE_INSTALL_OTHER },
+    { CONTINUE_FREE_INSTALL_FAILED, ERROR_CODE_FREE_INSTALL_BUSY },
+    // NAPI error code
+    { NAPI_ERR_NO_PERMISSION, ERROR_CODE_PERMISSION_DENIED },
+    { NAPI_ERR_INNER_DATA, ERROR_CODE_INTERNAL_ERROR },
+    { NAPI_ERR_ACE_ABILITY, ERROR_CODE_ABILITY_NOT_EXIST },
+    { NAPI_ERR_LONG_CALLBACK, ERROR_CODE_INTERNAL_ERROR },
+    { NAPI_ERR_PARAM_INVALID, ERROR_CODE_PARAM_INVALID },
+    { NAPI_ERR_ABILITY_TYPE_INVALID, ERROR_CODE_ABILITY_TYPE },
+    { NAPI_ERR_ABILITY_CALL_INVALID, ERROR_CODE_ABILITY_NOT_EXIST },
+}
+
+static const int32_t GetErrorCode(ErrCode innerErrorCode)
+{
+    auto iter = ERROR_CODE_MAP.find(innerErrorCode);
+    if (iter != ERROR_CODE_MAP.end()) {
+        return iter->second;
+    }
+    return ERROR_CODE_QUERY_FAILED;
+}
+}  // namespace AbilityRuntime
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H

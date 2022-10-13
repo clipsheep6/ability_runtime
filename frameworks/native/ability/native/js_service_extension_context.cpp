@@ -388,6 +388,7 @@ private:
         // only support one or zero params
         if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
             HILOG_ERROR("Not enough params");
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
             return engine.CreateUndefined();
         }
 
@@ -397,7 +398,7 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
 
@@ -405,7 +406,7 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Terminate Ability failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "Terminate Ability failed."));
                 }
             };
 
@@ -422,6 +423,7 @@ private:
         // only support two params
         if (info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
             return engine.CreateUndefined();
         }
 
@@ -454,12 +456,12 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
                 HILOG_INFO("context->ConnectAbility connection:%{public}d", (int32_t)connectId);
                 if (!context->ConnectAbility(want, connection)) {
-                    connection->CallJsFailed(ERROR_CODE_ONE);
+                    connection->CallJsFailed(ERROR_CODE_CONNECTION_INVALID_STATE);
                 }
                 task.Resolve(engine, engine.CreateUndefined());
             };
@@ -475,6 +477,7 @@ private:
         // only support three params
         if (info.argc != ARGC_THREE) {
             HILOG_ERROR("Not enough params");
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
             return engine.CreateUndefined();
         }
 
@@ -516,12 +519,12 @@ private:
                     auto context = weak.lock();
                     if (!context) {
                         HILOG_WARN("context is released");
-                        task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                        task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                         return;
                     }
                     HILOG_INFO("context->ConnectAbilityWithAccount connection:%{public}d", (int32_t)connectId);
                     if (!context->ConnectAbilityWithAccount(want, accountId, connection)) {
-                        connection->CallJsFailed(ERROR_CODE_ONE);
+                        connection->CallJsFailed(ERROR_CODE_CONNECTION_INVALID_STATE);
                     }
                     task.Resolve(engine, engine.CreateUndefined());
                 };
@@ -537,6 +540,7 @@ private:
         // only support one or two params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
             return engine.CreateUndefined();
         }
 
@@ -569,18 +573,18 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
                 if (connection == nullptr) {
                     HILOG_WARN("connection nullptr");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_TWO, "not found connection"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONNECTION_NOT_EXISTED, "not found connection"));
                     return;
                 }
                 HILOG_INFO("context->DisconnectAbility");
                 auto errcode = context->DisconnectAbility(want, connection);
                 errcode == 0 ? task.Resolve(engine, engine.CreateUndefined()) :
-                    task.Reject(engine, CreateJsError(engine, errcode, "Disconnect Ability failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "Disconnect Ability failed."));
             };
 
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
@@ -593,33 +597,29 @@ private:
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartExtensionAbility is called.");
-        int32_t argErrorCode = 0;
         AAFwk::Want want;
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+            return engine.CreateUndefined();
         } else {
             OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[0]), want);
         }
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
                 auto errcode = context->StartServiceExtensionAbility(want);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "Start extensionAbility failed."));
                 }
             };
 
@@ -633,12 +633,12 @@ private:
     NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
-        int32_t argErrorCode = 0;
         AAFwk::Want want;
         int32_t accountId = -1;
         if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+            return engine.CreateUndefined();
         } else {
             OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[0]), want);
@@ -646,27 +646,24 @@ private:
             if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
                 HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
-                argErrorCode = ERR_NOT_OK;
+                Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+                return engine.CreateUndefined();
             }
         }
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
                 auto errcode = context->StartServiceExtensionAbility(want, accountId);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "Start extensionAbility failed."));
                 }
             };
 
@@ -680,23 +677,19 @@ private:
     NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStopExtensionAbility is called.");
-        int32_t argErrorCode = 0;
         AAFwk::Want want;
 
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+            return engine.CreateUndefined()
         } else {
             OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[0]), want);
         }
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -707,7 +700,7 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "stop extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "stop extensionAbility failed."));
                 }
             };
 
@@ -721,12 +714,12 @@ private:
     NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStopExtensionAbilityWithAccount is called.");
-        int32_t argErrorCode = 0;
         AAFwk::Want want;
         int32_t accountId = -1;
         if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
+            Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+            return engine.CreateUndefined()
         } else {
             OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[0]), want);
@@ -734,27 +727,24 @@ private:
             if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
                 HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
-                argErrorCode = ERR_NOT_OK;
+                Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+                return engine.CreateUndefined()
             }
         }
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_CONTEXT_EMPTY, "Context is released"));
                     return;
                 }
                 auto errcode = context->StopServiceExtensionAbility(want, accountId);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Stop extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, GetErrorCode(errcode), "Stop extensionAbility failed."));
                 }
             };
 

@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 class EventHub {
+    ERROR_CODE_PARAM_INVALID = "401";
     constructor() {
         this.eventMap = {};
     }
 
     on(event, callback) {
         if ((typeof(event) != 'string') || (typeof(callback) != 'function')) {
+            throw new Error(ERROR_CODE_PARAM_INVALID);
             return;
         }
         if (!this.eventMap[event]) {
@@ -31,6 +33,7 @@ class EventHub {
 
     off(event, callback) {
         if (typeof(event) != 'string') {
+            throw new Error(ERROR_CODE_PARAM_INVALID);
             return;
         }
         if (this.eventMap[event]) {
@@ -47,6 +50,7 @@ class EventHub {
 
     emit(event, ...args) {
         if (typeof(event) != 'string') {
+            throw new Error(ERROR_CODE_PARAM_INVALID);
             return;
         }
         if (this.eventMap[event]) {
