@@ -195,7 +195,7 @@ private:
 
     static unsigned int FlagsTransformer(const std::vector<WantAgentConstant::Flags> &flags);
 
-    static std::vector<WantAgentConstant::Flags> parseFlags(nlohmann::json jsonObject);
+    static std::vector<WantAgentConstant::Flags> ParseFlags(nlohmann::json jsonObject);
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
 #endif  // OHOS_ABILITY_RUNTIME_WANT_AGENT_HELPER_H

@@ -31,15 +31,26 @@ namespace AppExecFwk {
 std::weak_ptr<EventHandler> MixStackDumper::signalHandler_;
 std::weak_ptr<OHOSApplication> MixStackDumper::application_;
 namespace {
-constexpr int SIGDUMP = 35;
-constexpr int FRAME_BUF_LEN = 1024;
-constexpr int NATIVE_DUMP = -1;
-constexpr int MIX_DUMP = -2;
+static const char PID_STR_NAME[] = "Pid:";
+static const char PPID_STR_NAME[] = "PPid:";
+static const char NSPID_STR_NAME[] = "NSpid:";
+static const char PROC_SELF_STATUS_PATH[] = "/proc/self/status";
+static constexpr int STATUS_LINE_SIZE = 1024;
+static constexpr int FRAME_BUF_LEN = 1024;
+static constexpr int NATIVE_DUMP = -1;
+static constexpr int MIX_DUMP = -2;
+typedef struct ProcInfo {
+    int tid;
+    int pid;
+    int ppid;
+    bool ns;
+} ProcInfo;
 }
 
 typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
 static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
+static struct ProcInfo g_procInfo;
 
 static std::string PrintJsFrame(JsFrames& jsFrame)
 {
@@ -81,6 +92,101 @@ static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> f
         HILOG_ERROR("DfxMixStackDumper::PrintNativeFrame snprintf_s failed.");
     }
     return std::string(buf);
+}
+
+static pid_t GetPid()
+{
+    return g_procInfo.pid;
+}
+
+static bool HasNameSpace()
+{
+    return g_procInfo.ns;
+}
+
+static int GetProcStatus(struct ProcInfo* procInfo)
+{
+    procInfo->pid = getpid();
+    procInfo->tid = gettid();
+    procInfo->ppid = getppid();
+    procInfo->ns = false;
+    char buf[STATUS_LINE_SIZE];
+    FILE *fp = fopen(PROC_SELF_STATUS_PATH, "r");
+    if (fp == NULL) {
+        return -1;
+    }
+    int p = 0, pp = 0, t = 0;
+    while (!feof(fp)) {
+        if (fgets(buf, STATUS_LINE_SIZE, fp) == NULL) {
+            fclose(fp);
+            return -1;
+        }
+        if (strncmp(buf, PID_STR_NAME, strlen(PID_STR_NAME)) == 0) {
+            // Pid:    1892
+            if (sscanf_s(buf, "%*[^0-9]%d", &p) != 1) {
+                perror("sscanf_s failed.");
+            }
+            procInfo->pid = p;
+            if (procInfo->pid == getpid()) {
+                procInfo->ns = false;
+                break;
+            }
+            procInfo->ns = true;
+            continue;
+        }
+        if (strncmp(buf, PPID_STR_NAME, strlen(PPID_STR_NAME)) == 0) {
+            // PPid:   240
+            if (sscanf_s(buf, "%*[^0-9]%d", &pp) != 1) {
+                perror("sscanf_s failed.");
+            }
+            procInfo->ppid = pp;
+            continue;
+        }
+        // NSpid:  1892    1
+        if (strncmp(buf, NSPID_STR_NAME, strlen(NSPID_STR_NAME)) == 0) {
+            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != 2) {
+                perror("sscanf_s failed.");
+            }
+            procInfo->tid = t;
+            break;
+        }
+    }
+    (void)fclose(fp);
+    return 0;
+}
+
+static void TidToNstid(const int tid, int& nstid)
+{
+    char path[NAME_LEN];
+    (void)memset_s(path, sizeof(path), '\0', sizeof(path));
+    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "/proc/%d/task/%d/status", GetPid(), tid) <= 0) {
+        HILOG_WARN("snprintf_s error.");
+        return;
+    }
+
+    char buf[STATUS_LINE_SIZE];
+    FILE *fp = fopen(path, "r");
+    if (fp == NULL) {
+        return;
+    }
+
+    int p = 0, t = 0;
+    while (!feof(fp)) {
+        if (fgets(buf, STATUS_LINE_SIZE, fp) == NULL) {
+            fclose(fp);
+            return;
+        }
+
+        // NSpid:  1892    1
+        if (strncmp(buf, NSPID_STR_NAME, strlen(NSPID_STR_NAME)) == 0) {
+            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != 2) {
+                HILOG_ERROR("sscanf_s failed.");
+            }
+            nstid = t;
+            break;
+        }
+    }
+    (void)fclose(fp);
 }
 
 void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
@@ -189,44 +295,45 @@ void MixStackDumper::PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS:
     }
 }
 
-void MixStackDumper::DumpMixFrame(int fd, pid_t tid)
+bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
 {
     if (catcher_ == nullptr) {
         HILOG_ERROR("No FrameCatcher? call init first.");
-        return;
+        return false;
     }
 
     std::string threadComm = GetThreadStackTraceLabel(tid);
     write(fd, threadComm.c_str(), threadComm.size());
-    if (!catcher_->RequestCatchFrame(tid)) {
-        std::string result = "Failed to suspend thread(" + std::to_string(tid) + ").\n";
+    if (!catcher_->RequestCatchFrame(nstid)) {
+        std::string result = "Failed to suspend thread(" + std::to_string(nstid) + ").\n";
         HILOG_ERROR("%{public}s", result.c_str());
         write(fd, result.c_str(), result.size());
-        return;
+        return false;
     }
 
     bool onlyDumpNative = false;
     std::vector<JsFrames> jsFrames;
     auto application = application_.lock();
     if (application != nullptr && application->GetRuntime() != nullptr) {
-        bool ret = application->GetRuntime()->BuildJsStackInfoList(tid, jsFrames);
+        bool ret = application->GetRuntime()->BuildJsStackInfoList(nstid, jsFrames);
         if (!ret || jsFrames.size() == 0) {
             onlyDumpNative = true;
         }
     }
 
     std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
-    if (catcher_->CatchFrame(tid, nativeFrames) == false) {
-        HILOG_ERROR("DfxMixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", tid);
+    if (catcher_->CatchFrame(nstid, nativeFrames) == false) {
+        HILOG_ERROR("DfxMixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", nstid);
     }
 
     if (onlyDumpNative) {
         PrintNativeFrames(fd, nativeFrames);
-        return;
+        return true;
     }
 
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);
     write(fd, "\n", 1);
+    return true;
 }
 
 void MixStackDumper::GetThreadList(std::vector<pid_t>& threadList)
@@ -257,10 +364,12 @@ void MixStackDumper::GetThreadList(std::vector<pid_t>& threadList)
     }
 }
 
-void MixStackDumper::Init()
+void MixStackDumper::Init(pid_t pid)
 {
-    catcher_ = std::make_unique<OHOS::HiviewDFX::DfxDumpCatcher>(getpid());
-    catcher_->InitFrameCatcher();
+    catcher_ = std::make_unique<OHOS::HiviewDFX::DfxDumpCatcher>(pid);
+    if (!catcher_->InitFrameCatcher()) {
+        HILOG_ERROR("Init DumpCatcher Failed.");
+    }
 }
 
 void MixStackDumper::Destroy()
@@ -276,18 +385,24 @@ void MixStackDumper::HandleMixDumpRequest()
     int fd = -1;
     int resFd = -1;
     int dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_ESUCCESS;
+    (void)memset_s(&g_procInfo, sizeof(g_procInfo), 0, sizeof(g_procInfo));
+    (void)GetProcStatus(&g_procInfo);
     do {
-        fd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
-        resFd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
+        fd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
+        resFd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
         if (fd < 0 || resFd < 0) {
-            HILOG_ERROR("DfxMixStackDumper::HandleProcessMixDumpRequest request pipe fd failed");
+            HILOG_ERROR("request pid(%{public}d) pipe fd failed", GetPid());
             dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_EGETFD;
             break;
         }
         MixStackDumper mixDumper;
-        mixDumper.Init();
+        mixDumper.Init(GetPid());
         if (g_targetDumpTid > 0) {
-            mixDumper.DumpMixFrame(fd, g_targetDumpTid);
+            pid_t targetNsTid = g_targetDumpTid;
+            if (HasNameSpace()) {
+                TidToNstid(g_targetDumpTid, targetNsTid);
+            }
+            mixDumper.DumpMixFrame(fd, targetNsTid, g_targetDumpTid);
             g_targetDumpTid = -1;
             mixDumper.Destroy();
             break;
@@ -295,10 +410,14 @@ void MixStackDumper::HandleMixDumpRequest()
         std::vector<pid_t> threads;
         mixDumper.GetThreadList(threads);
         for (auto& tid : threads) {
-            if (tid == gettid()) {
+            pid_t nstid = tid;
+            if (HasNameSpace()) {
+                TidToNstid(tid, nstid);
+            }
+            if (nstid == gettid()) {
                 continue;
             }
-            mixDumper.DumpMixFrame(fd, tid);
+            mixDumper.DumpMixFrame(fd, nstid, tid);
         }
         mixDumper.Destroy();
     } while (false);

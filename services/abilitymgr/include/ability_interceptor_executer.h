@@ -20,7 +20,7 @@
 #include "ability_interceptor.h"
 
 namespace OHOS {
-namespace AAFwk{
+namespace AAFwk {
 /**
  * @class AbilityInterceptorExecuter
  * AbilityInterceptorExecuter excute the interceptors.

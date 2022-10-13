@@ -110,7 +110,7 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName) override;
 
@@ -119,7 +119,7 @@ public:
      * Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
@@ -130,7 +130,7 @@ public:
      * @param info, app name in Application record.
      * @param userId, userId.
      *
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
 
@@ -139,7 +139,7 @@ public:
      * Notify applications background the current memory level.
      *
      * @param level, current memory level.
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
@@ -149,7 +149,7 @@ public:
      *
      * @param recordId, a unique record that identifies this Application from others.
      * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
 

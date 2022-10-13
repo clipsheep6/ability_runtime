@@ -56,6 +56,7 @@ struct AppProcessData : public Parcelable {
     ApplicationState appState = ApplicationState::APP_STATE_CREATE;
     pid_t pid = 0;
     std::vector<AppData> appDatas;
+    bool isFocused = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

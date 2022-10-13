@@ -18,6 +18,7 @@
 #include "launch_param.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "recovery_param.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -51,6 +52,7 @@ static napi_value InitLaunchReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "START_ABILITY", LAUNCHREASON_START_ABILITY));
     NAPI_CALL(env, SetEnumItem(env, object, "CALL", LAUNCHREASON_CALL));
     NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION", LAUNCHREASON_CONTINUATION));
+    NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", LAUNCHREASON_APP_RECOVERY));
 
     return object;
 }
@@ -90,6 +92,30 @@ static napi_value InitWindowModeObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_SPLIT_SECONDARY", MULTI_WINDOW_DISPLAY_SECONDARY));
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_FLOATING", MULTI_WINDOW_DISPLAY_FLOATING));
 
+    return object;
+}
+
+// ohos.application.AbilityConstant.OnSaveResult
+static napi_value InitOnSaveResultEnum(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+    NAPI_CALL(env, SetEnumItem(env, object, "ALL_AGREE", AppExecFwk::ALL_AGREE));
+    NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION_REJECT", AppExecFwk::CONTINUATION_REJECT));
+    NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION_MISMATCH", AppExecFwk::CONTINUATION_MISMATCH));
+    NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_AGREE", AppExecFwk::RECOVERY_AGREE));
+    NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_REJECT", AppExecFwk::RECOVERY_REJECT));
+    NAPI_CALL(env, SetEnumItem(env, object, "ALL_REJECT", AppExecFwk::ALL_REJECT));
+    return object;
+}
+
+// ohos.application.AbilityConstant.StateType
+static napi_value InitStateTypeEnum(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+    NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION", AppExecFwk::CONTINUATION));
+    NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", AppExecFwk::APP_RECOVERY));
     return object;
 }
 
@@ -143,12 +169,26 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
         return nullptr;
     }
 
+    napi_value stateType = InitStateTypeEnum(env);
+    if (stateType == nullptr) {
+        HILOG_ERROR("failed to create state type object");
+        return nullptr;
+    }
+
+    napi_value saveResult = InitOnSaveResultEnum(env);
+    if (saveResult == nullptr) {
+        HILOG_ERROR("failed to create save result object");
+        return nullptr;
+    }
+
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("LaunchReason", launchReason),
         DECLARE_NAPI_PROPERTY("LastExitReason", lastExitReason),
         DECLARE_NAPI_PROPERTY("OnContinueResult", onContinueResult),
         DECLARE_NAPI_PROPERTY("WindowMode", windowMode),
         DECLARE_NAPI_PROPERTY("MemoryLevel", memoryLevel),
+        DECLARE_NAPI_PROPERTY("OnSaveResult", saveResult),
+        DECLARE_NAPI_PROPERTY("StateType", stateType),
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
     if (status != napi_ok) {

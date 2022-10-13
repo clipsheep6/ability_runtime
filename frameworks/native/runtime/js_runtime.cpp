@@ -58,6 +58,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
 constexpr char TIMER_TASK[] = "uv_timer_task";
+static constexpr char MERGE_ABC_PATH[] = "/data/storage/el1/bundle/entry/ets/modules.abc";
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -116,7 +117,7 @@ public:
     bool RunScript(const std::string& srcPath, const std::string& hapPath) override
     {
         bool result = false;
-        if (isBundle_ && !hapPath.empty()) {
+        if (!hapPath.empty()) {
             std::ostringstream outStream;
             std::shared_ptr<RuntimeExtractor> runtimeExtractor;
             if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
@@ -129,16 +130,23 @@ public:
             } else {
                 runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
-            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-                HILOG_ERROR("RunScript, Get abc file failed");
-                return result;
+            if (isBundle_) {
+                if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+                    HILOG_ERROR("Get abc file failed");
+                    return result;
+                }
+            } else {
+                if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
+                    HILOG_ERROR("Get Module abc file failed");
+                    return result;
+                }
             }
 
             const auto& outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
 
-            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
+            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
         } else {
             result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
         }
@@ -164,22 +172,22 @@ public:
 
     void LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
     {
-        HILOG_DEBUG("function called.");
+        HILOG_DEBUG("LoadRepairPatch function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("LoadRepairPatch, vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("LoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
@@ -188,54 +196,54 @@ public:
             std::string baseFile = hapPath + "/" + fileName;
             std::ostringstream outStream;
             if (!extractor.ExtractByName(fileName, outStream)) {
-                HILOG_ERROR("Extract %{public}s failed.", patchFile.c_str());
+                HILOG_ERROR("LoadRepairPatch, Extract %{public}s failed.", patchFile.c_str());
                 return;
             }
 
             const auto &outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
-            HILOG_DEBUG("LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+            HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
                 patchFile.c_str(), baseFile.c_str());
             bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
             if (!ret) {
-                HILOG_ERROR("LoadPatch failed.");
+                HILOG_ERROR("LoadRepairPatch, LoadPatch failed.");
                 return;
             }
-            HILOG_DEBUG("Load patch %{private}s succeed.", patchFile.c_str());
+            HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
         }
     }
 
     void UnLoadRepairPatch(const std::string& hqfFile) override
     {
-        HILOG_DEBUG("function called.");
+        HILOG_DEBUG("UnLoadRepairPatch function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("UnLoadRepairPatch vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
         for (const auto &fileName : fileNames) {
             std::string patchFile = hqfFile + "/" + fileName;
-            HILOG_DEBUG("UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
+            HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
             bool ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
             if (!ret) {
-                HILOG_ERROR("UnLoadPatch failed.");
+                HILOG_ERROR("UnLoadRepairPatch, UnLoadPatch failed.");
                 return;
             }
-            HILOG_DEBUG("UnLoad patch %{private}s succeed.", patchFile.c_str());
+            HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
         }
     }
 
@@ -525,15 +533,18 @@ bool JsRuntime::Initialize(const Options& options)
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
 
         codePath_ = options.codePath;
+    }
 
-        auto moduleManager = NativeModuleManager::GetInstance();
-        std::string packagePath = options.packagePath;
-        if (moduleManager && !packagePath.empty()) {
-            moduleManager->SetAppLibPath(std::vector<std::string>(1, packagePath));
+    auto moduleManager = NativeModuleManager::GetInstance();
+    if (moduleManager != nullptr) {
+        for (const auto &appLibPath : options.appLibPaths) {
+            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
         }
+    }
 
+    if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
     preloaded_ = options.preload;
@@ -551,7 +562,7 @@ void JsRuntime::Deinitialize()
 
     auto uvLoop = nativeEngine_->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd >= 0) {
+    if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
     RemoveTask(TIMER_TASK);
@@ -649,7 +660,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
 {
     bool result = false;
-    if (isBundle_ && !hapPath.empty()) {
+    if (!hapPath.empty()) {
         std::ostringstream outStream;
         std::shared_ptr<RuntimeExtractor> runtimeExtractor;
         if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
@@ -662,16 +673,23 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         } else {
             runtimeExtractor = runtimeExtractorMap_.at(hapPath);
         }
-        if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-            HILOG_ERROR("Get abc file failed");
-            return result;
+        if (isBundle_) {
+            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return result;
+            }
+        } else {
+            if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
+                HILOG_ERROR("Get Module abc file failed");
+                return result;
+            }
         }
 
         const auto& outStr = outStream.str();
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
 
-        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
+        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
     } else {
         result = nativeEngine_->RunScript(srcPath.c_str()) != nullptr;
     }

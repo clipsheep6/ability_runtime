@@ -15,8 +15,6 @@
 
 #include "ability_running_record.h"
 
-#include "iremote_object.h"
-
 namespace OHOS {
 namespace AppExecFwk {
 AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)
@@ -53,9 +51,6 @@ const sptr<IRemoteObject> &AbilityRunningRecord::GetToken() const
 
 void AbilityRunningRecord::SetState(const AbilityState state)
 {
-    if (state_ != AbilityState::ABILITY_STATE_FOCUS) {
-        lastState_ = state_;
-    }
     state_ = state;
 }
 
@@ -154,12 +149,14 @@ bool AbilityRunningRecord::IsSingleUser() const
     return isSingleUser_;
 }
 
-void AbilityRunningRecord::Unfocused()
+void AbilityRunningRecord::UpdateFocusState(bool isFocus)
 {
-    if (state_ != AbilityState::ABILITY_STATE_FOCUS) {
-        return;
-    }
-    state_ = lastState_;
+    isFocused_ = isFocus;
+}
+
+bool AbilityRunningRecord::GetFocusFlag() const
+{
+    return isFocused_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

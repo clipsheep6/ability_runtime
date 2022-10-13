@@ -77,6 +77,7 @@ void AbilityManagerStub::FirstStepInit()
 #endif
     requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
+    requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -1457,6 +1458,20 @@ int AbilityManagerStub::UpdateMissionSnapShotInner(MessageParcel &data, MessageP
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("ScheduleRecoverAbility read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int reason = data.ReadInt32();
+    int savedStateId = data.ReadInt32();
+    ScheduleRecoverAbility(token, reason, savedStateId);
     return NO_ERROR;
 }
 

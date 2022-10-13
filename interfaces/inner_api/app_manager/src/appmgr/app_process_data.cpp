@@ -55,6 +55,8 @@ bool AppProcessData::Marshalling(Parcel &parcel) const
         WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, appDatas[i].uid);
     }
 
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isFocused);
+
     return true;
 }
 
@@ -67,6 +69,8 @@ bool AppProcessData::ReadFromParcel(Parcel &parcel)
     pid = parcel.ReadInt32();
 
     ReadFromParcelAppData(appDatas, parcel);
+
+    isFocused = parcel.ReadBool();
 
     return true;
 }

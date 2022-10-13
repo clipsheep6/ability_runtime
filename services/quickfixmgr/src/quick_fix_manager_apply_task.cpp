@@ -21,7 +21,7 @@
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #include "quick_fix_manager_service.h"
 #include "quick_fix/quick_fix_status_callback_host.h"
 #include "want.h"
@@ -456,48 +456,20 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
 
     Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_QUICK_FIX_APPLY_RESULT);
-    want.SetParam(APPLY_RESULT, applyResult);
-    want.SetParam(APPLY_RESULT_INFO, GetApplyResultInfo(applyResult));
+    want.SetParam(APPLY_RESULT, QuickFixErrorUtil::GetErrorCode(applyResult));
+    want.SetParam(APPLY_RESULT_INFO, QuickFixErrorUtil::GetErrorMessage(applyResult));
     want.SetParam(BUNDLE_NAME, bundleName_);
     want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
     want.SetParam(PATCH_VERSION, patchVersionCode_);
 
     std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
-        [moduleName = moduleNames_](std::string name, const std::string &str) {
+        [moduleName = moduleNames_](const std::string &name, const std::string &str) {
             return (str == moduleName.front()) ? (name + str) : (name + "," + str);
         });
     want.SetModuleName(moduleName);
 
     EventFwk::CommonEventData commonData {want};
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
-}
-
-std::string QuickFixManagerApplyTask::GetApplyResultInfo(int32_t applyResult)
-{
-    std::string info = "invalid result";
-    static const std::vector<std::pair<int32_t, std::string>> resolutions = {
-        { QUICK_FIX_OK, "apply succeed" },
-        { QUICK_FIX_DEPLOY_FAILED, "deploy failed" },
-        { QUICK_FIX_SWICH_FAILED, "switch failed" },
-        { QUICK_FIX_DELETE_FAILED, "delete failed" },
-        { QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED, "load patch failed" },
-        { QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED, "reload page failed" },
-        { QUICK_FIX_REGISTER_OBSERVER_FAILED, "register observer failed" },
-        { QUICK_FIX_APPMGR_INVALID, "appmgr is invalid" },
-        { QUICK_FIX_BUNDLEMGR_INVALID, "bundlemgr is invalid" },
-        { QUICK_FIX_SET_INFO_FAILED, "set quick fix info failed" },
-        { QUICK_FIX_PROCESS_TIMEOUT, "process apply timeout" },
-        { QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED, "unload patch failed" },
-    };
-
-    for (const auto &[temp, value] : resolutions) {
-        if (temp == applyResult) {
-            info = value;
-            break;
-        }
-    }
-
-    return info;
 }
 
 void QuickFixManagerApplyTask::RemoveSelf()

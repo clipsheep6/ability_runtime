@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_info.h"
+#include "ability_manager_service.h"
 #include "mission.h"
 #include "mission_list_manager.h"
 #undef private
@@ -43,6 +44,37 @@ void MissionListManagerTest::SetUp(void)
 {}
 void MissionListManagerTest::TearDown(void)
 {}
+
+bool g_notifyWindowTransitionCalled = false;
+bool g_cancelStartingWindowCalled = false;
+
+class MockWMSHandler : public IWindowManagerServiceHandler {
+public:
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo)
+    {
+        g_notifyWindowTransitionCalled = true;
+    }
+
+    virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken)
+    {
+        return 0;
+    }
+
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info,
+        std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor) {}
+
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap) {}
+
+    virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken)
+    {
+        g_cancelStartingWindowCalled = true;
+    }
+
+    virtual sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    }
+};
 
 /*
  * Feature: MissionListManager
@@ -244,6 +276,162 @@ HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_002, TestSize.Level1)
     missionListManager->OnAcceptWantResponse(want, "flag");
     EXPECT_EQ(ability->IsNewWant(), false);
     missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: SetMissionLabel
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager SetMissionLabel
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMissionLabel
+ */
+HWTEST_F(MissionListManagerTest, SetMissionLabel_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto ability = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(11, ability, "missionName");
+    mission->abilityRecord_ = ability;
+
+    EXPECT_EQ(missionListManager->SetMissionLabel(nullptr, "label"), -1);
+    EXPECT_EQ(missionListManager->SetMissionLabel(ability->GetToken(), "label"), -1);
+
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: NA
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: The back event supports transition animation.
+ */
+HWTEST_F(MissionListManagerTest, BackAnimation_001, TestSize.Level1)
+{
+    g_notifyWindowTransitionCalled = false;
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+
+    auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+    sptr<MockWMSHandler> wmsHandler = new MockWMSHandler();
+    abilityMs->wmsHandler_ = wmsHandler;
+
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityA = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto abilityB = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityB->SetAbilityState(AbilityState::FOREGROUND);
+    abilityB->SetNextAbilityRecord(abilityA);
+    missionListManager->TerminateAbilityLocked(abilityB, false);
+    EXPECT_EQ(g_notifyWindowTransitionCalled, true);
+
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: NA
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: The back event supports closing animation.
+ */
+HWTEST_F(MissionListManagerTest, BackAnimation_002, TestSize.Level1)
+{
+    g_notifyWindowTransitionCalled = false;
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+
+    auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+    sptr<MockWMSHandler> wmsHandler = new MockWMSHandler();
+    abilityMs->wmsHandler_ = wmsHandler;
+
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityB = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityB->SetAbilityState(AbilityState::FOREGROUND);
+    missionListManager->TerminateAbilityLocked(abilityB, false);
+    EXPECT_EQ(g_notifyWindowTransitionCalled, true);
+
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: NA
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Load timeout cancel startingWindow.
+ */
+HWTEST_F(MissionListManagerTest, CancelStartingWindow_001, TestSize.Level1)
+{
+    g_cancelStartingWindowCalled = false;
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityRecord->SetStartingWindow(true);
+    auto windowHandler = std::make_shared<MockWMSHandler>();
+
+    auto task = [windowHandler, abilityRecord] {
+        if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
+            (abilityRecord->GetScheduler() == nullptr ||
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
+            HILOG_INFO("PostCancelStartingWindowColdTask, call windowHandler CancelStartingWindow.");
+            windowHandler->CancelStartingWindow(abilityRecord->GetToken());
+            abilityRecord->SetStartingWindow(false);
+        }
+    };
+    task();
+    EXPECT_EQ(g_cancelStartingWindowCalled, true);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: NA
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Foreground timeout cancel startingWindow.
+ */
+HWTEST_F(MissionListManagerTest, CancelStartingWindow_002, TestSize.Level1)
+{
+    g_cancelStartingWindowCalled = false;
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityRecord->SetStartingWindow(true);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    auto windowHandler = std::make_shared<MockWMSHandler>();
+
+    auto task = [windowHandler, abilityRecord] {
+        if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
+            HILOG_INFO("PostCancelStartingWindowHotTask, call windowHandler CancelStartingWindow.");
+            windowHandler->CancelStartingWindow(abilityRecord->GetToken());
+            abilityRecord->SetStartingWindow(false);
+        }
+    };
+    task();
+    EXPECT_EQ(g_cancelStartingWindowCalled, true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

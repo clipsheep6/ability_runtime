@@ -59,7 +59,7 @@
             "input",
             "ipc",
             "ipc_js",
-            "multimedia_image_standard",
+            "multimedia_image_framework",
             "napi",
             "os_account",
             "relational_store",

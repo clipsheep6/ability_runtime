@@ -38,9 +38,12 @@ ohos_shared_library("particleability") {
     "particle_ability.cpp",
   ]
 
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
     "//third_party/libuv:uv",
   ]
@@ -52,6 +55,8 @@ ohos_shared_library("particleability") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:data_ability_helper",
     "ability_runtime:napi_base_context",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",

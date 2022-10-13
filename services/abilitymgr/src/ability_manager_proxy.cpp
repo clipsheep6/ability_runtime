@@ -911,6 +911,37 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token
     return;
 }
 
+void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, int32_t savedStateId)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
+        return;
+    }
+
+    data.WriteInt32(reason);
+    data.WriteInt32(savedStateId);
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::ABILITY_RECOVERY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AppRecovery Send request error: %{public}d", error);
+        return;
+    }
+    return;
+}
+
 int AbilityManagerProxy::KillProcess(const std::string &bundleName)
 {
     MessageParcel data;

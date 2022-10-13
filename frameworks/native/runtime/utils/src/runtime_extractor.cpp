@@ -60,7 +60,7 @@ std::shared_ptr<RuntimeExtractor> RuntimeExtractor::Create(const std::string& ha
     }
     std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(loadPath);
     if (!runtimeExtractor->Init()) {
-        HILOG_ERROR("RuntimeExtractor create failed");
+        HILOG_ERROR("RuntimeExtractor create failed for %{public}s", loadPath.c_str());
         return nullptr;
     }
 
@@ -108,11 +108,8 @@ bool RuntimeExtractor::GetFileList(const std::string& srcPath, std::vector<std::
 
     std::regex replacePattern(srcPath);
     for (auto value : fileList) {
-        if (StringStartWith(value, srcPath.c_str(), sizeof(srcPath.c_str()) - 1)) {
+        if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
             std::string realpath = std::regex_replace(value, replacePattern, "");
-            if (realpath.find(Constants::FILE_SEPARATOR) != std::string::npos) {
-                continue;
-            }
             assetList.emplace_back(value);
         }
     }
@@ -181,6 +178,11 @@ bool RuntimeExtractor::ExtractFile(const std::string &fileName, const std::strin
 bool RuntimeExtractor::GetZipFileNames(std::vector<std::string> &fileNames)
 {
     auto &entryMap = zipFile_.GetAllEntries();
+    if (entryMap.empty()) {
+        HILOG_ERROR("Zip file is empty");
+        return false;
+    }
+
     for (auto &entry : entryMap) {
         fileNames.emplace_back(entry.first);
     }
@@ -195,7 +197,7 @@ void RuntimeExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames
         auto position = fileName.rfind('.');
         if (position != std::string::npos) {
             std::string suffixStr = fileName.substr(position);
-            if (LowerStr(suffixStr) == ".abc") {
+            if (LowerStr(suffixStr) == suffix) {
                 fileNames.emplace_back(fileName);
             }
         }

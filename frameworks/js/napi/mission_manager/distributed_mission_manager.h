@@ -131,12 +131,14 @@ struct SyncRemoteMissionsContext {
     napi_ref callbackRef;
 };
 
-bool SetSyncRemoteMissionsContext(
-    const napi_env &env, const napi_value &value, SyncRemoteMissionsContext* context);
+int32_t ErrorCodeReturn(int32_t code);
+bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
+    SyncRemoteMissionsContext* context, std::string &errInfo);
 bool ProcessSyncInput(napi_env env, napi_callback_info info, bool isStart,
-    SyncRemoteMissionsContext* syncContext);
+    SyncRemoteMissionsContext* syncContext, std::string &errInfo);
 void ReturnValueToApplication(napi_env env, napi_value *result, RegisterMissionCB *registerMissionCB);
 void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB);
+napi_value GetUndefined();
 mutex registrationLock_;
 map<std::string, sptr<NAPIRemoteMissionListener>> registration_;
 
@@ -146,6 +148,49 @@ enum ErrorCode {
     REMOTE_MISSION_NOT_FOUND = -2,
     PERMISSION_DENY = -3,
     REGISTRATION_NOT_FOUND = -4,
+    /*
+     * Result(29360203) for continue remote not install and not support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL = 29360203,
+    /*
+     * Result(29360202) for continue remote not install and support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL = 29360202,
+    /**
+     * Result(201) for permission denied.
+     */
+    PERMISSION_DENIED = 201,
+    /**
+     * Result(401) for parameter check failed.
+     */
+    PARAMETER_CHECK_FAILED = 401,
+    /**
+     * Result(16300501) for the system ability work abnormally.
+     */
+    SYSTEM_WORK_ABNORMALLY = 16300501,
+    /**
+     * Result(16300502) for failed to get the missionInfo of the specified missionId.
+     */
+    NO_MISSION_INFO_FOR_MISSION_ID = 16300502,
+    /**
+     * Result(16300503) for the application is not installed on the remote end and installation-free is
+     * not supported.
+     */
+    REMOTE_UNINSTALLED_AND_UNSUPPORT_FREEINSTALL_FOR_CONTINUE = 16300503,
+    /**
+     * Result(16300504) for the application is not installed on the remote end but installation-free is
+     * supported, try again with freeInstall flag.
+     */
+    CONTINUE_WITHOUT_FREEINSTALL_FLAG = 16300504,
+    /**
+     * Result(16300505) for the operation device must be the device where the application to be continued
+     * is located or the target device to be continued.
+     */
+    OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET = 16300505,
+    /**
+     * Result(16300506) for the local continuation task is already in progress.
+     */
+    CONTINUE_ALREADY_IN_PROGRESS = 16300506,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

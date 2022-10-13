@@ -53,6 +53,7 @@ struct ProcessData : public Parcelable {
     AppProcessState state;
     bool isContinuousTask = false;
     bool isKeepAlive = false;
+    bool isFocused = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -22,6 +22,7 @@
 #include "ability_runtime/js_ability.h"
 
 #include "ability_runtime/js_ability_context.h"
+#include "ability_recovery.h"
 #include "ability_start_setting.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
@@ -221,8 +222,11 @@ void JsAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStop begin.");
+    if (abilityContext_) {
+        HILOG_DEBUG("OnStop, set terminating true.");
+        abilityContext_->SetTerminating(true);
+    }
     Ability::OnStop();
-
     CallObjectMethod("onDestroy");
     OnStopCallback();
     HILOG_DEBUG("OnStop end.");
@@ -238,6 +242,11 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStop begin.");
+    if (abilityContext_) {
+        HILOG_DEBUG("OnStop, set terminating true.");
+        abilityContext_->SetTerminating(true);
+    }
+
     Ability::OnStop();
 
     HandleScope handleScope(jsRuntime_);
@@ -436,6 +445,39 @@ void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
     }
 }
 
+void JsAbility::AbilityContinuationOrRecover(const Want &want)
+{
+    // multi-instance ability continuation
+    HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
+    if (IsRestoredInContinuation()) {
+        std::string pageStack;
+        GetPageStackFromWant(want, pageStack);
+        HandleScope handleScope(jsRuntime_);
+        auto &engine = jsRuntime_.GetNativeEngine();
+        if (abilityContext_->GetContentStorage()) {
+            scene_->GetMainWindow()->SetUIContent(pageStack, &engine,
+                abilityContext_->GetContentStorage()->Get(), true);
+        } else {
+            HILOG_ERROR("restore: content storage is nullptr");
+        }
+        OnSceneRestored();
+        NotifyContinuationResult(want, true);
+    } else if (ShouldRecoverState(want)) {
+        if (abilityRecovery_ != nullptr) {
+            std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::LIFECYCLE);
+            HandleScope handleScope(jsRuntime_);
+            auto &engine = jsRuntime_.GetNativeEngine();
+            auto mainWindow = scene_->GetMainWindow();
+            if (mainWindow != nullptr) {
+                mainWindow->SetUIContent(pageStack, &engine, nullptr, true);
+            }
+        }
+        OnSceneRestored();
+    } else {
+        OnSceneCreated();
+    }
+}
+
 void JsAbility::DoOnForeground(const Want &want)
 {
     if (scene_ == nullptr) {
@@ -466,24 +508,7 @@ void JsAbility::DoOnForeground(const Want &want)
             return;
         }
 
-        // multi-instance ability continuation
-        HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
-        if (IsRestoredInContinuation()) {
-            std::string pageStack;
-            GetPageStackFromWant(want, pageStack);
-            HandleScope handleScope(jsRuntime_);
-            auto &engine = jsRuntime_.GetNativeEngine();
-            if (abilityContext_->GetContentStorage()) {
-                scene_->GetMainWindow()->SetUIContent(pageStack, &engine,
-                    abilityContext_->GetContentStorage()->Get(), true);
-            } else {
-                HILOG_ERROR("restore: content storage is nullptr");
-            }
-            OnSceneRestored();
-            NotifyContinuationResult(want, true);
-        } else {
-            OnSceneCreated();
-        }
+        AbilityContinuationOrRecover(want);
     } else {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
@@ -596,6 +621,71 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     }
 
     return *numberResult;
+}
+
+int32_t JsAbility::OnSaveState(int32_t reason, WantParams &wantParams)
+{
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("AppRecoveryFailed to get AbilityStage object");
+        return -1;
+    }
+    NativeValue *value = jsAbilityObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("AppRecovery Failed to get Ability object");
+        return -1;
+    }
+
+    NativeValue *methodOnSaveState = obj->GetProperty("onSaveState");
+    if (methodOnSaveState == nullptr) {
+        HILOG_ERROR("AppRecovery Failed to get 'onSaveState' from Ability object");
+        return -1;
+    }
+
+    napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
+    NativeValue* jsReason = CreateJsValue(nativeEngine, reason);
+    NativeValue* jsWantParams = reinterpret_cast<NativeValue *>(napiWantParams);
+    NativeValue* args[] = { jsReason, jsWantParams };
+    NativeValue* result = nativeEngine.CallFunction(value, methodOnSaveState, args, 2); // 2:args size
+    napi_value newNapiWantParams = reinterpret_cast<napi_value>(jsWantParams);
+    OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), newNapiWantParams, wantParams);
+
+    NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
+    if (numberResult == nullptr) {
+        HILOG_ERROR("AppRecovery no result return from onSaveState");
+        return -1;
+    }
+    return *numberResult;
+}
+
+void JsAbility::OnRestoreState(int32_t reason, WantParams &wantParams)
+{
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("AppRecovery Failed to get JsAbility object");
+        return;
+    }
+    NativeValue *value = jsAbilityObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("AppRecovery Failed to get Ability object");
+        return;
+    }
+
+    NativeValue *methodOnRestoreState = obj->GetProperty("onRestoreState");
+    if (methodOnRestoreState == nullptr) {
+        HILOG_ERROR("AppRecovery Failed to get 'onRestoreState' from Ability object");
+        return;
+    }
+
+    napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
+    NativeValue* jsReason = CreateJsValue(nativeEngine, reason);
+    NativeValue* jsWantParams = reinterpret_cast<NativeValue *>(napiWantParams);
+    NativeValue* args[] = { jsReason, jsWantParams };
+    (void)nativeEngine.CallFunction(value, methodOnRestoreState, args, 2); // 2:args size
 }
 
 void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
