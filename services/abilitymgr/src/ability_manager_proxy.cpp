@@ -2294,7 +2294,7 @@ int AbilityManagerProxy::FinishUserTest(
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
+int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token, bool flag)
 {
     MessageParcel data;
     MessageParcel reply;

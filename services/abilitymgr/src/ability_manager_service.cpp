@@ -3996,7 +3996,7 @@ void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &in
 
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
+    int ret = GetTopAbility(token, false);
     if (ret != ERR_OK || token == nullptr) {
         return;
     }
@@ -4564,7 +4564,7 @@ int AbilityManagerService::FinishUserTest(
     return DelayedSingleton<AppScheduler>::GetInstance()->FinishUserTest(msg, resultCode, bundleName);
 }
 
-int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
+int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool flag)
 {
 #ifdef SUPPORT_GRAPHICS
     if (!wmsHandler_) {
@@ -4576,6 +4576,15 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
     if (!token) {
         HILOG_ERROR("token is nullptr");
         return ERR_INVALID_VALUE;
+    }
+
+    if (flag) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto callingUid = IPCSkeleton::GetCallingUid();
+        if (abilityRecord->GetUid() != callingUid) {
+            HILOG_ERROR("token is not match callingUid");
+            return ERR_INVALID_VALUE;
+        }
     }
 #endif
     return ERR_OK;
@@ -4912,7 +4921,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
+    int ret = GetTopAbility(token, false);
     if (ret) {
         return elementName;
     }
