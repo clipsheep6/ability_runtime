@@ -13,39 +13,34 @@
  * limitations under the License.
  */
 
-#include "updateconfiguration_fuzzer.h"
+#include "getextensionrunninginfos_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "app_mgr_client.h"
-#include "configuration.h"
-#include "securec.h"
+#include "ability_manager_client.h"
+#include "extension_running_info.h"
+#include "parcel.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 constexpr size_t FOO_MAX_LEN = 1024;
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        // fuzz for string, the value of colorMode is constrained
-        Configuration config;
-        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, reinterpret_cast<const char*>(data))) {
-            return false;
-        }
-
-        if (appMgrClient->UpdateConfiguration(config) != 0) {
-            return false;
-        }
-
-        return true;
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    std::vector<AAFwk::ExtensionRunningInfo> infos;
+    const int32_t upperLimit = 32;
+    auto abilityMgr = AbilityManagerClient::GetInstance();
+    if (!abilityMgr) {
+        return false;
     }
+
+    // fuzz for extensionRunningInfo
+    abilityMgr->GetExtensionRunningInfos(upperLimit, infos);
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */

@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-#include "updateconfiguration_fuzzer.h"
+#include "gettopability_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "app_mgr_client.h"
-#include "configuration.h"
-#include "securec.h"
+#include "ability_manager_client.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -29,20 +27,12 @@ namespace OHOS {
 constexpr size_t FOO_MAX_LEN = 1024;
     bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
+        AbilityManagerClient* abilityMgrClient = new AbilityManagerClient();
+        if (!abilityMgrClient) {
             return false;
         }
 
-        // fuzz for string, the value of colorMode is constrained
-        Configuration config;
-        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, reinterpret_cast<const char*>(data))) {
-            return false;
-        }
-
-        if (appMgrClient->UpdateConfiguration(config) != 0) {
-            return false;
-        }
+        abilityMgrClient->GetTopAbility();
 
         return true;
     }
