@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * 1024 * 1024;
+constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
@@ -47,7 +47,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     InitConsoleLogModule(*nativeEngine, *globalObj);
 }
 
-bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content)
+bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content, bool isDebugVersion)
 {
     char path[PATH_MAX];
     if (realpath(filePath.c_str(), path) == nullptr) {
@@ -62,7 +62,7 @@ bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content)
     }
 
     auto fileLen = stream.tellg();
-    if (fileLen > ASSET_FILE_MAX_SIZE) {
+    if (!isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
         HILOG_ERROR("ReadAssetData failed, file is too large");
         return false;
     }
@@ -75,7 +75,8 @@ bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content)
 }
 
 struct AssetHelper final {
-    explicit AssetHelper(const std::string& codePath) : codePath_(codePath)
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -98,20 +99,21 @@ struct AssetHelper final {
 
         ami = codePath_ + uri.substr(0, index) + ".abc";
         HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
-        if (!ReadAssetData(ami, content)) {
+        if (!ReadAssetData(ami, content, isDebugVersion_)) {
             HILOG_ERROR("Get asset content failed.");
             return;
         }
     }
 
     std::string codePath_;
+    bool isDebugVersion_ = false;
 };
 }
 
-void InitWorkerModule(NativeEngine& engine, const std::string& codePath)
+void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

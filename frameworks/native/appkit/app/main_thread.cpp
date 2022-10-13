@@ -913,6 +913,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
+        options.isDebugVersion = bundleInfo.applicationInfo.debug;
         std::string nativeLibraryPath = appInfo.nativeLibraryPath;
         if (!nativeLibraryPath.empty()) {
             if (nativeLibraryPath.back() == '/') {

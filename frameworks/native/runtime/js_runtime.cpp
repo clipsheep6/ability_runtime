@@ -369,7 +369,7 @@ bool JsRuntime::Initialize(const Options& options)
         moduleManager->SetAppLibPath(packagePath.c_str());
     }
 
-    InitWorkerModule(*nativeEngine_, options.codePath);
+    InitWorkerModule(*nativeEngine_, options.codePath, options.isDebugVersion);
 
     return true;
 }
