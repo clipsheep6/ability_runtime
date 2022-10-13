@@ -1613,8 +1613,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
-
-    TaskHandlerClient::GetInstance()->CreateRunner();
     HILOG_DEBUG("MainThread:Init end.");
 }
 
