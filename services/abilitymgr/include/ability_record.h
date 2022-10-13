@@ -217,6 +217,11 @@ struct AbilityRequest {
         return false;
     }
 
+    bool IsAppRecovery() const
+    {
+        return want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
+    }
+
     bool IsCallType(const AbilityCallType & type) const
     {
         return (callType == type);

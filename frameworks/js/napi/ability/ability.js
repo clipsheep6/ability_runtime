@@ -37,7 +37,6 @@ class Ability {
     dump(params) {}
 
     onSaveState(state, wantParams) {}
-    onRestoreState(state, wantParams) {}
 }
 
 export default Ability

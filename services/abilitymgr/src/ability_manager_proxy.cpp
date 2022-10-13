@@ -911,7 +911,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token
     return;
 }
 
-void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, int32_t savedStateId)
+void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
 {
     int error;
     MessageParcel data;
@@ -922,13 +922,13 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
         HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
         return;
     }
+
     if (!data.WriteRemoteObject(token)) {
         HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
         return;
     }
 
     data.WriteInt32(reason);
-    data.WriteInt32(savedStateId);
 
     auto remote = Remote();
     if (remote == nullptr) {

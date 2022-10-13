@@ -418,11 +418,6 @@ bool Ability::ShouldRecoverState(const Want& want)
         return false;
     }
 
-    std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::LIFECYCLE);
-    if (pageStack.empty()) {
-        HILOG_ERROR("AppRecovery pageStack is not exist, no need to restore window state.");
-        return false;
-    }
     return true;
 }
 
@@ -959,11 +954,6 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
     return 0;
 }
 
-void Ability::OnRestoreState(int32_t reason, WantParams &wantParams)
-{
-    return;
-}
-
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
@@ -1044,7 +1034,7 @@ void Ability::HandleCreateAsRecovery(const Want &want)
     }
 
     if (abilityRecovery_ != nullptr) {
-        abilityRecovery_->ScheduleRestoreAbilityState(StateReason::LIFECYCLE);
+        abilityRecovery_->ScheduleRestoreAbilityState(StateReason::DEVELOPER_REQUEST, want);
     }
 }
 
