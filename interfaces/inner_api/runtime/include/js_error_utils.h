@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD
 #include "ability_manager_errors.h"
 
 #ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
@@ -167,7 +168,7 @@ const std::map<int32_t, int32_t> ERROR_CODE_MAP = {
     { AppExecFwk::NAPI_ERR_ABILITY_CALL_INVALID, ERROR_CODE_ABILITY_NOT_EXIST }
 };
 
-static int32_t GetErrorCode(ErrCode innerErrorCode)
+int32_t GetErrorCode(const ErrCode &innerErrorCode)
 {
     auto iter = ERROR_CODE_MAP.find(innerErrorCode);
     if (iter != ERROR_CODE_MAP.end()) {
@@ -175,6 +176,16 @@ static int32_t GetErrorCode(ErrCode innerErrorCode)
     }
     return ERROR_CODE_QUERY_FAILED;
 }
+
+void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorMsg = "");
+void ThrowError(NativeEngine& engine, const AbilityErrorCode& err);
+void ThrowTooFewParametersError(NativeEngine& engine);
+void ThrowNoPermissionError(NativeEngine& engine, const std::string& permission);
+
+NativeValue* CreateJsError(NativeEngine& engine, const AbilityErrorCode& err);
+NativeValue* CreateNoPermissionError(NativeEngine& engine, const std::string& permission);
+NativeValue* CreateJsErrorByNativeErr(NativeEngine& engine, int32_t err, const std::string& permission = "");
 }  // namespace AbilityRuntime
 }  // namespace OHOS
+
 #endif  // OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H

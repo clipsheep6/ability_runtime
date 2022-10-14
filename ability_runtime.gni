@@ -103,4 +103,11 @@ declare_args() {
   } else {
     os_dlp_part_enabled = false
   }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.barrierfree_accessibility)) {
+    accessibility_enable = true
+  } else {
+    accessibility_enable = false
+  }
 }
