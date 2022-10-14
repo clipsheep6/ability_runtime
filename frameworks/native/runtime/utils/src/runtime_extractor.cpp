@@ -109,7 +109,6 @@ bool RuntimeExtractor::GetFileList(const std::string& srcPath, std::vector<std::
     std::regex replacePattern(srcPath);
     for (auto value : fileList) {
         if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
-            std::string realpath = std::regex_replace(value, replacePattern, "");
             assetList.emplace_back(value);
         }
     }

@@ -287,11 +287,6 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     InheritWindowMode(want);
 
     std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-    if (calls == nullptr) {
-        HILOG_ERROR("calls create error");
-        Throw(engine, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY), ERROR_MSG_CONTEXT_EMPTY);
-        return engine.CreateUndefined();
-    }
 
     NativeValue* lastParam = ((info.argc == ARGC_TWO) ? info.argv[ARGC_ONE] : nullptr);
     NativeValue* retsult = nullptr;

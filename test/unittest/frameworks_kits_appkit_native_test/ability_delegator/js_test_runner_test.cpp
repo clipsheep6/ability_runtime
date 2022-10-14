@@ -273,7 +273,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Lev
         std::make_shared<AbilityDelegator>(context, std::move(testRunner), iRemoteObj);
     AbilityDelegatorRegistry::RegisterInstance(abilityDelegator, abilityArgs);
 
-    JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
+    JsTestRunner* pTestRunner = static_cast<JsTestRunner*>((void*)(testRunner.get()));
     pTestRunner->ReportFinished(REPORT_FINISH_MSG);
 
     EXPECT_TRUE(MockAbilityDelegatorStub::finishFlag_);
@@ -315,7 +315,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0600, Function | MediumTest | Lev
     sptr<IRemoteObject> shobserver = sptr<IRemoteObject>(new MockTestObserverStub);
     abilityDelegator->observer_ = shobserver;
 
-    JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
+    JsTestRunner* pTestRunner = static_cast<JsTestRunner*>((void*)(testRunner.get()));
     pTestRunner->ReportStatus(REPORT_FINISH_MSG);
 
     EXPECT_TRUE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);

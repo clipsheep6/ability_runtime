@@ -451,7 +451,7 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
             return;
         }
         auto work = new uv_work_t;
-        work->data = (void *)retCB;
+        work->data = static_cast<void *>(retCB);
         int rev = uv_queue_work(
             loop,
             work,

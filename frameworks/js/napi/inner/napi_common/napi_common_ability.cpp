@@ -1012,7 +1012,7 @@ napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallb
             resourceName,
             GetAppTypeExecuteCB,
             GetAppTypeAsyncCompleteCB,
-            (void *)appTypeCB,
+            static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appTypeCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1049,7 +1049,7 @@ napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
             resourceName,
             GetAppTypeExecuteCB,
             GetAppTypePromiseCompleteCB,
-            (void *)appTypeCB,
+            static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appTypeCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1527,7 +1527,7 @@ napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argC
             resourceName,
             GetAbilityInfoExecuteCB,
             GetAbilityInfoAsyncCompleteCB,
-            (void *)abilityInfoCB,
+            static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, abilityInfoCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1564,7 +1564,7 @@ napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
             resourceName,
             GetAbilityInfoExecuteCB,
             GetAbilityInfoPromiseCompleteCB,
-            (void *)abilityInfoCB,
+            static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, abilityInfoCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1866,7 +1866,7 @@ napi_value GetHapModuleInfoAsync(
             resourceName,
             GetHapModuleInfoExecuteCB,
             GetHapModuleInfoAsyncCompleteCB,
-            (void *)hapModuleInfoCB,
+            static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, hapModuleInfoCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1903,7 +1903,7 @@ napi_value GetHapModuleInfoPromise(napi_env env, HapModuleInfoCB *hapModuleInfoC
             resourceName,
             GetHapModuleInfoExecuteCB,
             GetHapModuleInfoPromiseCompleteCB,
-            (void *)hapModuleInfoCB,
+            static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, hapModuleInfoCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2142,7 +2142,8 @@ napi_value GetAppVersionInfoAsync(
     }
     NAPI_CALL(
         env, napi_create_async_work(env, nullptr, resourceName, GetAppVersionInfoExecuteCB,
-                 GetAppVersionInfoAsyncCompleteCB, (void *)appVersionInfoCB, &appVersionInfoCB->cbBase.asyncWork));
+                 GetAppVersionInfoAsyncCompleteCB, static_cast<void *>(appVersionInfoCB),
+                 &appVersionInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appVersionInfoCB->cbBase.asyncWork));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
@@ -2842,7 +2843,7 @@ napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argC
             resourceName,
             GetAbilityNameExecuteCB,
             GetAbilityNameAsyncCompleteCB,
-            (void *)abilityNameCB,
+            static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, abilityNameCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -2879,7 +2880,7 @@ napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
             resourceName,
             GetAbilityNameExecuteCB,
             GetAbilityNamePromiseCompleteCB,
-            (void *)abilityNameCB,
+            static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, abilityNameCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -3204,7 +3205,7 @@ napi_value StartAbilityAsync(
             resourceName,
             StartAbilityExecuteCB,
             StartAbilityCallbackCompletedCB,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
 
@@ -3232,7 +3233,7 @@ napi_value StartAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInf
             resourceName,
             StartAbilityExecuteCB,
             StartAbilityPromiseCompletedCB,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s promise end.", __func__);
@@ -3531,7 +3532,7 @@ void ConnectAbilityCallbackCompletedCB(napi_env env, napi_status status, void *d
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-napi_value ConnectAbilityAsync(napi_env env, napi_value *args, ConnectAbilityCB *connectAbilityCB)
+napi_value ConnectAbilityAsync(napi_env env, const napi_value *args, ConnectAbilityCB *connectAbilityCB)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
     if (args == nullptr || connectAbilityCB == nullptr) {
@@ -3547,7 +3548,7 @@ napi_value ConnectAbilityAsync(napi_env env, napi_value *args, ConnectAbilityCB 
             resourceName,
             ConnectAbilityExecuteCB,
             ConnectAbilityCallbackCompletedCB,
-            (void *)connectAbilityCB,
+            static_cast<void *>(connectAbilityCB),
             &connectAbilityCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, connectAbilityCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -3819,7 +3820,7 @@ napi_value DisConnectAbilityAsync(
             resourceName,
             DisConnectAbilityExecuteCB,
             DisConnectAbilityCallbackCompletedCB,
-            (void *)connectAbilityCB,
+            static_cast<void *>(connectAbilityCB),
             &connectAbilityCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, connectAbilityCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -3846,7 +3847,7 @@ napi_value DisConnectAbilityPromise(napi_env env, ConnectAbilityCB *connectAbili
             resourceName,
             DisConnectAbilityExecuteCB,
             DisConnectAbilityPromiseCompletedCB,
-            (void *)connectAbilityCB,
+            static_cast<void *>(connectAbilityCB),
             &connectAbilityCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, connectAbilityCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -4416,7 +4417,7 @@ napi_value StartBackgroundRunningAsync(
             resourceName,
             StartBackgroundRunningExecuteCB,
             BackgroundRunningCallbackCompletedCB,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
 
@@ -4445,7 +4446,7 @@ napi_value StartBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncC
             resourceName,
             StartBackgroundRunningExecuteCB,
             BackgroundRunningPromiseCompletedCB,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s, end.", __func__);

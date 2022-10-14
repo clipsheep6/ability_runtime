@@ -815,12 +815,12 @@ EXTERN_C_START
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
-void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData, CallbackInfo cb)
+void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData, CallbackInfo callbackInfo)
 {
     HILOG_INFO("%{public}s,called", __func__);
     uv_loop_s *loop = nullptr;
 
-    napi_get_uv_event_loop(cb.env, &loop);
+    napi_get_uv_event_loop(callbackInfo.env, &loop);
     if (loop == nullptr) {
         return;
     }
@@ -830,7 +830,7 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
     onAbilityCB->requestCode = requestCode;
     onAbilityCB->resultCode = resultCode;
     onAbilityCB->resultData = resultData;
-    onAbilityCB->cb = cb;
+    onAbilityCB->cb = callbackInfo;
 
     work->data = (void *)onAbilityCB;
 

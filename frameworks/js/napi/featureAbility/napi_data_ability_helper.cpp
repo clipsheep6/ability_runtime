@@ -88,7 +88,6 @@ napi_value DataAbilityHelperInit(napi_env env, napi_value exports)
             properties,
             &constructor));
     NAPI_CALL(env, SaveGlobalDataAbilityHelper(env, constructor));
-    g_dataAbilityHelperList.clear();
     return exports;
 }
 
@@ -334,7 +333,7 @@ napi_value InsertAsync(napi_env env, napi_value *args, const size_t argCallback,
             resourceName,
             InsertExecuteCB,
             InsertAsyncCompleteCB,
-            (void *)insertCB,
+            static_cast<void *>(insertCB),
             &insertCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, insertCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -363,7 +362,7 @@ napi_value InsertPromise(napi_env env, DAHelperInsertCB *insertCB)
             resourceName,
             InsertExecuteCB,
             InsertPromiseCompleteCB,
-            (void *)insertCB,
+            static_cast<void *>(insertCB),
             &insertCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, insertCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end", __func__);
@@ -554,7 +553,7 @@ napi_value NotifyChangeAsync(
             resourceName,
             NotifyChangeExecuteCB,
             NotifyChangeAsyncCompleteCB,
-            (void *)notifyChangeCB,
+            static_cast<void *>(notifyChangeCB),
             &notifyChangeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, notifyChangeCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -582,7 +581,7 @@ napi_value NotifyChangePromise(napi_env env, DAHelperNotifyChangeCB *notifyChang
             resourceName,
             NotifyChangeExecuteCB,
             NotifyChangePromiseCompleteCB,
-            (void *)notifyChangeCB,
+            static_cast<void *>(notifyChangeCB),
             &notifyChangeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, notifyChangeCB->cbBase.asyncWork));
     return promise;
@@ -769,7 +768,7 @@ napi_value RegisterAsync(
             resourceName,
             RegisterExecuteCB,
             RegisterCompleteCB,
-            (void *)onCB,
+            static_cast<void *>(onCB),
             &onCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, onCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1161,7 +1160,7 @@ void NAPIDataAbilityObserver::OnChange()
     uv_work_t *work = new uv_work_t;
     DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
     onCB->observer = this;
-    work->data = (void *)onCB;
+    work->data = static_cast<void *>(onCB);
     int rev = uv_queue_work(
         loop,
         work,
@@ -1265,7 +1264,7 @@ napi_value GetTypeAsync(napi_env env, napi_value *args, const size_t argCallback
             resourceName,
             GetTypeExecuteCB,
             GetTypeAsyncCompleteCB,
-            (void *)gettypeCB,
+            static_cast<void *>(gettypeCB),
             &gettypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, gettypeCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1294,7 +1293,7 @@ napi_value GetTypePromise(napi_env env, DAHelperGetTypeCB *gettypeCB)
             resourceName,
             GetTypeExecuteCB,
             GetTypePromiseCompleteCB,
-            (void *)gettypeCB,
+            static_cast<void *>(gettypeCB),
             &gettypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, gettypeCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1447,7 +1446,7 @@ napi_value GetFileTypesAsync(
             resourceName,
             GetFileTypesExecuteCB,
             GetFileTypesAsyncCompleteCB,
-            (void *)getfiletypesCB,
+            static_cast<void *>(getfiletypesCB),
             &getfiletypesCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getfiletypesCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1476,7 +1475,7 @@ napi_value GetFileTypesPromise(napi_env env, DAHelperGetFileTypesCB *getfiletype
             resourceName,
             GetFileTypesExecuteCB,
             GetFileTypesPromiseCompleteCB,
-            (void *)getfiletypesCB,
+            static_cast<void *>(getfiletypesCB),
             &getfiletypesCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getfiletypesCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1649,7 +1648,7 @@ napi_value NormalizeUriAsync(
             resourceName,
             NormalizeUriExecuteCB,
             NormalizeUriAsyncCompleteCB,
-            (void *)normalizeuriCB,
+            static_cast<void *>(normalizeuriCB),
             &normalizeuriCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, normalizeuriCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1678,7 +1677,7 @@ napi_value NormalizeUriPromise(napi_env env, DAHelperNormalizeUriCB *normalizeur
             resourceName,
             NormalizeUriExecuteCB,
             NormalizeUriPromiseCompleteCB,
-            (void *)normalizeuriCB,
+            static_cast<void *>(normalizeuriCB),
             &normalizeuriCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, normalizeuriCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1826,7 +1825,7 @@ napi_value DenormalizeUriAsync(
             resourceName,
             DenormalizeUriExecuteCB,
             DenormalizeUriAsyncCompleteCB,
-            (void *)denormalizeuriCB,
+            static_cast<void *>(denormalizeuriCB),
             &denormalizeuriCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, denormalizeuriCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1855,7 +1854,7 @@ napi_value DenormalizeUriPromise(napi_env env, DAHelperDenormalizeUriCB *denorma
             resourceName,
             DenormalizeUriExecuteCB,
             DenormalizeUriPromiseCompleteCB,
-            (void *)denormalizeuriCB,
+            static_cast<void *>(denormalizeuriCB),
             &denormalizeuriCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, denormalizeuriCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2029,7 +2028,7 @@ napi_value DeleteAsync(napi_env env, napi_value *args, const size_t argCallback,
             resourceName,
             DeleteExecuteCB,
             DeleteAsyncCompleteCB,
-            (void *)deleteCB,
+            static_cast<void *>(deleteCB),
             &deleteCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -2058,7 +2057,7 @@ napi_value DeletePromise(napi_env env, DAHelperDeleteCB *deleteCB)
             resourceName,
             DeleteExecuteCB,
             DeletePromiseCompleteCB,
-            (void *)deleteCB,
+            static_cast<void *>(deleteCB),
             &deleteCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2219,7 +2218,7 @@ napi_value UpdateAsync(napi_env env, napi_value *args, const size_t argCallback,
             resourceName,
             UpdateExecuteCB,
             UpdateAsyncCompleteCB,
-            (void *)updateCB,
+            static_cast<void *>(updateCB),
             &updateCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, updateCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -2248,7 +2247,7 @@ napi_value UpdatePromise(napi_env env, DAHelperUpdateCB *updateCB)
             resourceName,
             UpdateExecuteCB,
             UpdatePromiseCompleteCB,
-            (void *)updateCB,
+            static_cast<void *>(updateCB),
             &updateCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, updateCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2550,7 +2549,7 @@ napi_value CallAsync(napi_env env, napi_value *args, const size_t argCallback, D
             resourceName,
             CallExecuteCB,
             CallAsyncCompleteCB,
-            (void *)callCB,
+            static_cast<void *>(callCB),
             &callCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, callCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -2579,7 +2578,7 @@ napi_value CallPromise(napi_env env, DAHelperCallCB *callCB)
             resourceName,
             CallExecuteCB,
             CallPromiseCompleteCB,
-            (void *)callCB,
+            static_cast<void *>(callCB),
             &callCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, callCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end", __func__);
@@ -2826,7 +2825,7 @@ napi_value OpenFileAsync(napi_env env, napi_value *args, const size_t argCallbac
             resourceName,
             OpenFileExecuteCB,
             OpenFileAsyncCompleteCB,
-            (void *)openFileCB,
+            static_cast<void *>(openFileCB),
             &openFileCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -2855,7 +2854,7 @@ napi_value OpenFilePromise(napi_env env, DAHelperOpenFileCB *openFileCB)
             resourceName,
             OpenFileExecuteCB,
             OpenFilePromiseCompleteCB,
-            (void *)openFileCB,
+            static_cast<void *>(openFileCB),
             &openFileCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -3058,7 +3057,7 @@ napi_value BatchInsertAsync(
             resourceName,
             BatchInsertExecuteCB,
             BatchInsertAsyncCompleteCB,
-            (void *)batchInsertCB,
+            static_cast<void *>(batchInsertCB),
             &batchInsertCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, batchInsertCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -3087,7 +3086,7 @@ napi_value BatchInsertPromise(napi_env env, DAHelperBatchInsertCB *batchInsertCB
             resourceName,
             BatchInsertExecuteCB,
             BatchInsertPromiseCompleteCB,
-            (void *)batchInsertCB,
+            static_cast<void *>(batchInsertCB),
             &batchInsertCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, batchInsertCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -3442,7 +3441,7 @@ napi_value ExecuteBatchAsync(
             resourceName,
             ExecuteBatchExecuteCB,
             ExecuteBatchAsyncCompleteCB,
-            (void *)executeBatchCB,
+            static_cast<void *>(executeBatchCB),
             &executeBatchCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, executeBatchCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -3471,7 +3470,7 @@ napi_value ExecuteBatchPromise(napi_env env, DAHelperExecuteBatchCB *executeBatc
             resourceName,
             ExecuteBatchExecuteCB,
             ExecuteBatchPromiseCompleteCB,
-            (void *)executeBatchCB,
+            static_cast<void *>(executeBatchCB),
             &executeBatchCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, executeBatchCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);

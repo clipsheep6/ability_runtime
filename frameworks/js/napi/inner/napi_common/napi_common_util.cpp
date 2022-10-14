@@ -1051,7 +1051,7 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;
@@ -1080,7 +1080,7 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;
@@ -1121,7 +1121,7 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;
@@ -1144,7 +1144,7 @@ void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *dat
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;

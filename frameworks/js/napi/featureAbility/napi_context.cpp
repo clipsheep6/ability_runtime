@@ -788,7 +788,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
     onRequestPermissionCB->grantResults = grantResults;
     onRequestPermissionCB->cb = callbackInfo;
 
-    work->data = (void *)onRequestPermissionCB;
+    work->data = static_cast<void *>(onRequestPermissionCB);
 
     int rev = uv_queue_work(
         loop,
@@ -861,10 +861,8 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
                     result[PARAM1]);
             }
 
-            if (onRequestPermissionCB != nullptr) {
-                delete onRequestPermissionCB;
-                onRequestPermissionCB = nullptr;
-            }
+            delete onRequestPermissionCB;
+            onRequestPermissionCB = nullptr;
             delete work;
             work = nullptr;
         });
