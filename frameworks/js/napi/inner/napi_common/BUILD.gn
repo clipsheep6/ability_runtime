@@ -20,6 +20,7 @@ config("napi_common_public_config") {
 
 ohos_shared_library("napi_common") {
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
     "${ability_runtime_napi_path}/featureAbility",
     "//third_party/node/src",
   ]
@@ -34,7 +35,10 @@ ohos_shared_library("napi_common") {
     "napi_common_want.cpp",
   ]
 
-  deps = [ "//third_party/libuv:uv" ]
+  deps = [
+    "//third_party/libuv:uv",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+  ]
 
   external_deps = [
     "ability_base:base",
