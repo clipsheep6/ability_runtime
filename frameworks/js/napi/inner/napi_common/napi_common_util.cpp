@@ -16,8 +16,8 @@
 
 #include <cstring>
 
+#include "ability_business_error.h"
 #include "hilog_wrapper.h"
-#include "js_error_util.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
 #include "securec.h"
@@ -26,11 +26,6 @@ using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
-static const std::unordered_map<int32_t, std::string> ErrorCodeToMsg {
-    {ERROR_CODE_PERMISSION_DENIED, ERROR_MSG_PERMISSION_DENIED},
-    {ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID},
-    {ERROR_CODE_SYSTEMCAP_ERROR, ERROR_MSG_SYSTEMCAP_ERROR}
-};
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
 {
     napi_valuetype valueType = napi_undefined;
@@ -1230,9 +1225,9 @@ void NapiThrow(napi_env env, int32_t errCode)
     napi_create_string_latin1(env, std::to_string(errCode).c_str(), NAPI_AUTO_LENGTH, &code);
 
     napi_value message = nullptr;
-    auto iter = ErrorCodeToMsg.find(errCode);
-    std::string errMsg = iter != ErrorCodeToMsg.end() ? iter->second : "";
-    napi_create_string_latin1(env, errMsg.c_str(), NAPI_AUTO_LENGTH, &message);
+    auto iter = ERR_CODE_MAP.find(AbilityErrorCode(errCode));
+    auto errMsg = iter != ERR_CODE_MAP.end() ? iter->second : "";
+    napi_create_string_latin1(env, errMsg, NAPI_AUTO_LENGTH, &message);
 
     napi_value error = nullptr;
     napi_create_error(env, code, message, &error);
