@@ -181,11 +181,6 @@ std::shared_ptr<ContextDeal> AbilityThread::CreateAndInitContextDeal(std::shared
     }
 
     contextDeal = std::make_shared<ContextDeal>();
-    if (contextDeal == nullptr) {
-        HILOG_ERROR("AbilityThread::ability attach failed,contextDeal  is nullptr");
-        return contextDeal;
-    }
-
     contextDeal->SetAbilityInfo(abilityRecord->GetAbilityInfo());
     contextDeal->SetApplicationInfo(application->GetApplicationInfo());
     contextDeal->SetProcessInfo(application->GetProcessInfo());

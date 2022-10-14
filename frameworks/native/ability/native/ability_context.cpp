@@ -123,10 +123,6 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     }
 
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
-    if (elementName == nullptr) {
-        HILOG_ERROR("AbilityContext::GetElementName elementName == nullptr");
-        return nullptr;
-    }
     elementName->SetAbilityName(info->name);
     elementName->SetBundleName(info->bundleName);
     elementName->SetDeviceID(info->deviceId);
@@ -139,11 +135,6 @@ std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
-
-    if (elementName == nullptr) {
-        HILOG_ERROR("AbilityContext::GetElementName elementName == nullptr");
-        return nullptr;
-    }
     elementName->SetAbilityName(callingAbilityName_);
     elementName->SetBundleName(callingBundleName_);
     elementName->SetDeviceID(callingDeviceId_);

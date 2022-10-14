@@ -112,7 +112,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
     
-    for (auto &info : abilityInfos) {
+    for (const auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
         }
@@ -124,7 +124,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
     
-    for (auto &info : extensionInfos) {
+    for (const auto &info : extensionInfos) {
         if (request.callType == AbilityCallType::START_OPTIONS_TYPE ||
             request.callType == AbilityCallType::START_SETTINGS_TYPE) {
             continue;

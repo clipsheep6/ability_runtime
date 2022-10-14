@@ -163,7 +163,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     jsonObject[DEVICE_TYPE] = deviceType_;
 
     nlohmann::json hapListObj = nlohmann::json::array();
-    for (auto &aInfo : infos) {
+    for (const auto &aInfo : infos) {
         nlohmann::json aObj;
         aObj["label"] = std::to_string(aInfo.labelId);
         aObj["icon"] = std::to_string(aInfo.iconId);

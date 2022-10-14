@@ -52,7 +52,7 @@ static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
 static struct ProcInfo g_procInfo;
 
-static std::string PrintJsFrame(JsFrames& jsFrame)
+static std::string PrintJsFrame(const JsFrames& jsFrame)
 {
     return "  at " + jsFrame.functionName + " (" + jsFrame.fileName + ":" + jsFrame.pos + ")\n";
 }

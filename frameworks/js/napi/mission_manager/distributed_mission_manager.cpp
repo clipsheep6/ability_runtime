@@ -258,7 +258,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
             delete syncContext;
             syncContext = nullptr;
         },
-        (void *)syncContext,
+        static_cast<void *>(syncContext),
         &syncContext->work);
         napi_queue_async_work(env, syncContext->work);
     HILOG_INFO("%{public}s, end.", __func__);
@@ -329,7 +329,7 @@ void StopSyncRemoteMissionsAsyncWork(napi_env env, napi_value resourceName,
             delete syncContext;
             syncContext = nullptr;
         },
-        (void *)syncContext,
+        static_cast<void *>(syncContext),
         &syncContext->work);
         napi_queue_async_work(env, syncContext->work);
     HILOG_INFO("%{public}s, end.", __func__);
@@ -479,7 +479,7 @@ napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMission
         resourceName,
         RegisterMissionExecuteCB,
         RegisterMissionCallbackCompletedCB,
-        (void *)registerMissionCB,
+        static_cast<void *>(registerMissionCB),
         &registerMissionCB->cbBase.asyncWork);
     napi_queue_async_work(env, registerMissionCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -740,7 +740,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     registerMissionCB->cbBase.cbInfo.env = env_;
     registerMissionCB->cbBase.cbInfo.callback = notifyMissionsChangedRef_;
     registerMissionCB->deviceId = deviceId;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyMissionChanged);
@@ -811,7 +811,7 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     registerMissionCB->cbBase.cbInfo.callback = notifySnapshotRef_;
     registerMissionCB->deviceId = deviceId;
     registerMissionCB->missionId = missionId;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifySnapshot);
@@ -873,7 +873,7 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
     registerMissionCB->cbBase.cbInfo.callback = notifyNetDisconnectRef_;
     registerMissionCB->deviceId = deviceId;
     registerMissionCB->state = state;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyNetDisconnect);
@@ -956,7 +956,7 @@ napi_value UnRegisterMissionPromise(napi_env env, RegisterMissionCB *registerMis
         resourceName,
         UnRegisterMissionExecuteCB,
         UnRegisterMissionPromiseCompletedCB,
-        (void *)registerMissionCB,
+        static_cast<void *>(registerMissionCB),
         &registerMissionCB->cbBase.asyncWork);
     napi_queue_async_work(env, registerMissionCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -1184,7 +1184,7 @@ napi_value ContinueAbilityAsync(napi_env env, ContinueAbilityCB *continueAbility
         resourceName,
         ContinueAbilityExecuteCB,
         ContinueAbilityCallbackCompletedCB,
-        (void *)continueAbilityCB,
+        static_cast<void *>(continueAbilityCB),
         &continueAbilityCB->cbBase.asyncWork);
     napi_queue_async_work(env, continueAbilityCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -1419,7 +1419,7 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
     continueAbilityCB->cbBase.cbInfo.env = env_;
     continueAbilityCB->cbBase.cbInfo.callback = onContinueDoneRef_;
     continueAbilityCB->resultCode = result;
-    work->data = (void *)continueAbilityCB;
+    work->data = static_cast<void *>(continueAbilityCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkOnContinueDone);

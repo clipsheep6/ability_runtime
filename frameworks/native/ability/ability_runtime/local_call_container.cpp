@@ -46,10 +46,6 @@ int LocalCallContainer::StartAbilityByCallInner(
     std::shared_ptr<LocalCallRecord> localCallRecord;
     if (!GetCallLocalRecord(element, localCallRecord)) {
         localCallRecord = std::make_shared<LocalCallRecord>(element);
-        if (!localCallRecord) {
-            HILOG_ERROR("localCallRecord create fail.");
-            return ERR_INVALID_VALUE;
-        }
         std::string uri = element.GetURI();
         callProxyRecords_.emplace(uri, localCallRecord);
     }

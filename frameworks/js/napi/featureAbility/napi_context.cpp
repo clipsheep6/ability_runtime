@@ -126,7 +126,7 @@ static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowO
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_SetShowOnLockScreen, worker pool thread execute."); },
             SetShowOnLockScreenAsyncCompleteCB,
-            (void *)showOnLockScreenCB,
+            static_cast<void *>(showOnLockScreenCB),
             &showOnLockScreenCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, showOnLockScreenCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -178,7 +178,7 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
             showOnLockScreenCB = nullptr;
             HILOG_INFO("SetShowOnLockScreenPromise, main event thread complete end.");
         },
-        (void *)cbData,
+        static_cast<void *>(cbData),
         &cbData->cbBase.asyncWork);
     napi_queue_async_work(env, cbData->cbBase.asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -341,7 +341,7 @@ static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUp
             resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_SetWakeUpScreenScreen, worker pool thread execute."); },
             SetWakeUpScreenAsyncCompleteCB,
-            (void *)cbData,
+            static_cast<void *>(cbData),
             &cbData->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, cbData->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -392,7 +392,7 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
             setWakeUpScreenCB = nullptr;
             HILOG_INFO("SetWakeUpScreenPromise, main event thread complete end.");
         },
-        (void *)cbData,
+        static_cast<void *>(cbData),
         &cbData->cbBase.asyncWork);
     napi_queue_async_work(env, cbData->cbBase.asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -733,7 +733,7 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
                 resourceName,
                 RequestPermissionsFromUserExecuteCallbackWork,
                 RequestPermissionsFromUserCompleteAsyncCallbackWork,
-                (void *)asyncCallbackInfo,
+                static_cast<void *>(asyncCallbackInfo),
                 &asyncCallbackInfo->asyncWork));
 
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
@@ -999,7 +999,7 @@ void VerifyPermissionExecuteCallback(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_INFO("%{public}s called. asyncCallbackInfo is null", __func__);
         return;
@@ -1147,7 +1147,7 @@ napi_value GetApplicationInfoAsync(napi_env env, napi_value *args, const size_t 
             resourceName,
             GetAppInfoExecuteCB,
             GetAppInfoAsyncCompleteCB,
-            (void *)appInfoCB,
+            static_cast<void *>(appInfoCB),
             &appInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appInfoCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1200,7 +1200,7 @@ napi_value GetApplicationInfoPromise(napi_env env, AppInfoCB *appInfoCB)
             resourceName,
             GetAppInfoExecuteCB,
             GetAppInfoPromiseCompleteCB,
-            (void *)appInfoCB,
+            static_cast<void *>(appInfoCB),
             &appInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appInfoCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1420,7 +1420,7 @@ napi_value GetProcessInfoAsync(napi_env env, napi_value *args, const size_t argC
             resourceName,
             GetProcessInfoExecuteCB,
             GetProcessInfoAsyncCompleteCB,
-            (void *)processInfoCB,
+            static_cast<void *>(processInfoCB),
             &processInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, processInfoCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1468,7 +1468,7 @@ napi_value GetProcessInfoPromise(napi_env env, ProcessInfoCB *processInfoCB)
             resourceName,
             GetProcessInfoExecuteCB,
             GetProcessInfoPromiseCompleteCB,
-            (void *)processInfoCB,
+            static_cast<void *>(processInfoCB),
             &processInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, processInfoCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1683,7 +1683,7 @@ napi_value GetElementNamePromise(napi_env env, ElementNameCB *elementNameCB)
             resourceName,
             GetElementNameExecuteCB,
             GetElementNamePromiseCompleteCB,
-            (void *)elementNameCB,
+            static_cast<void *>(elementNameCB),
             &elementNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, elementNameCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1711,7 +1711,7 @@ napi_value GetElementNameAsync(napi_env env, napi_value *args, const size_t argC
             resourceName,
             GetElementNameExecuteCB,
             GetElementNameAsyncCompleteCB,
-            (void *)elementNameCB,
+            static_cast<void *>(elementNameCB),
             &elementNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, elementNameCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1875,7 +1875,7 @@ napi_value GetProcessNameAsync(napi_env env, napi_value *args, const size_t argC
             resourceName,
             GetProcessNameExecuteCB,
             GetProcessNameAsyncCompleteCB,
-            (void *)processNameCB,
+            static_cast<void *>(processNameCB),
             &processNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, processNameCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -1904,7 +1904,7 @@ napi_value GetProcessNamePromise(napi_env env, ProcessNameCB *processNameCB)
             resourceName,
             GetProcessNameExecuteCB,
             GetProcessNamePromiseCompleteCB,
-            (void *)processNameCB,
+            static_cast<void *>(processNameCB),
             &processNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, processNameCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2067,7 +2067,7 @@ napi_value GetCallingBundleAsync(
             resourceName,
             GetCallingBundleExecuteCB,
             GetCallingBundleAsyncCompleteCB,
-            (void *)callingBundleCB,
+            static_cast<void *>(callingBundleCB),
             &callingBundleCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, callingBundleCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -2096,7 +2096,7 @@ napi_value GetCallingBundlePromise(napi_env env, CallingBundleCB *callingBundleC
             resourceName,
             GetCallingBundleExecuteCB,
             GetCallingBundlePromiseCompleteCB,
-            (void *)callingBundleCB,
+            static_cast<void *>(callingBundleCB),
             &callingBundleCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, callingBundleCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2267,7 +2267,7 @@ napi_value GetOrCreateLocalDirAsync(
             resourceName,
             GetOrCreateLocalDirExecuteCB,
             GetOrCreateLocalDirAsyncCompleteCB,
-            (void *)getOrCreateLocalDirCB,
+            static_cast<void *>(getOrCreateLocalDirCB),
             &getOrCreateLocalDirCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getOrCreateLocalDirCB->cbBase.asyncWork));
     napi_value result = nullptr;
@@ -2296,7 +2296,7 @@ napi_value GetOrCreateLocalDirPromise(napi_env env, GetOrCreateLocalDirCB *getOr
             resourceName,
             GetOrCreateLocalDirExecuteCB,
             GetOrCreateLocalDirPromiseCompleteCB,
-            (void *)getOrCreateLocalDirCB,
+            static_cast<void *>(getOrCreateLocalDirCB),
             &getOrCreateLocalDirCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getOrCreateLocalDirCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2909,10 +2909,6 @@ static NativeValue* ConstructNapiJSContext(NativeEngine &engine)
         return nullptr;
     }
     auto jsCalss = std::make_unique<NapiJsContext>();
-    if (jsCalss == nullptr) {
-        HILOG_ERROR("new NapiJsContext failed");
-        return nullptr;
-    }
     if (!jsCalss->DataInit(engine)) {
         HILOG_ERROR("NapiJsContext init failed");
         return nullptr;

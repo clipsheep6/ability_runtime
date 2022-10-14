@@ -48,9 +48,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 
     auto recordId = AppRecordId::Create();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
-    if (!appRecord) {
-        return nullptr;
-    }
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;

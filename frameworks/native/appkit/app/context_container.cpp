@@ -583,15 +583,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     }
 
     std::shared_ptr<AppContext> appContext = std::make_shared<AppContext>();
-    if (appContext == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext appContext is nullptr");
-        return nullptr;
-    }
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>(true);
-    if (deal == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext bundleName is empty");
-        return nullptr;
-    }
 
     // init resourceManager.
     InitResourceManager(bundleInfo, deal);

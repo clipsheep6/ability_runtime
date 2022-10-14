@@ -29,7 +29,7 @@ using OHOS::AppExecFwk::RunningProcessInfo;
 NativeValue* CreateJsAppStateData(NativeEngine &engine, const AppStateData &appStateData);
 NativeValue* CreateJsAbilityStateData(NativeEngine &engine, const AbilityStateData &abilityStateData);
 NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &processData);
-NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, std::vector<AppStateData> &appStateDatas);
+NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, const std::vector<AppStateData> &appStateDatas);
 NativeValue* CreateJsProcessRunningInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos);
 NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProcessInfo &info);
 }  // namespace AbilityRuntime

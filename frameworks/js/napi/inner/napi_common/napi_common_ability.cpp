@@ -2234,7 +2234,8 @@ napi_value GetAppVersionInfoPromise(napi_env env, AppVersionInfoCB *appVersionIn
 
     NAPI_CALL(
         env, napi_create_async_work(env, nullptr, resourceName, GetAppVersionInfoExecuteCB,
-                 GetAppVersionInfoPromiseCompleteCB, (void *)appVersionInfoCB, &appVersionInfoCB->cbBase.asyncWork));
+                 GetAppVersionInfoPromiseCompleteCB, static_cast<void *>(appVersionInfoCB),
+                 &appVersionInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, appVersionInfoCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
@@ -2424,7 +2425,7 @@ napi_value GetContextAsync(
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetContextAsync, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = 0;
@@ -2469,7 +2470,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetContextPromise, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -2613,7 +2614,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetWantAsync, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = 0;
@@ -2658,7 +2659,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetWantPromise, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -4086,7 +4087,7 @@ void NAPIAbilityConnection::OnAbilityConnectDone(
     connectAbilityCB->abilityConnectionCB.elementName = element;
     connectAbilityCB->abilityConnectionCB.resultCode = resultCode;
     connectAbilityCB->abilityConnectionCB.connection = remoteObject;
-    work->data = (void *)connectAbilityCB;
+    work->data = static_cast<void *>(connectAbilityCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkOnAbilityConnectDone);
@@ -4194,7 +4195,7 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
     connectAbilityCB->cbBase.cbInfo.callback = disconnectRef_;
     connectAbilityCB->abilityConnectionCB.elementName = element;
     connectAbilityCB->abilityConnectionCB.resultCode = resultCode;
-    work->data = (void *)connectAbilityCB;
+    work->data = static_cast<void *>(connectAbilityCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkOnAbilityDisconnectDone);
@@ -4574,7 +4575,7 @@ napi_value CancelBackgroundRunningAsync(
         resourceName,
         CancelBackgroundRunningExecuteCB,
         BackgroundRunningCallbackCompletedCB,
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = 0;
@@ -4604,7 +4605,7 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
         resourceName,
         CancelBackgroundRunningExecuteCB,
         BackgroundRunningPromiseCompletedCB,
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     HILOG_INFO("%{public}s, promise end", __func__);
@@ -4736,7 +4737,7 @@ napi_value TerminateAbilityAsync(
             delete asyncCallbackInfo;
             HILOG_INFO("%{public}s, main event thread complete end.", __func__);
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     napi_value result = 0;
@@ -4781,7 +4782,7 @@ napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbac
             delete asyncCallbackInfo;
             HILOG_INFO("%{public}s, main event thread complete end.", __func__);
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s, promise end", __func__);

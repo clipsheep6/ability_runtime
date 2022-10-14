@@ -904,7 +904,7 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
     return true;
 }
 
-void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string strProName,
+void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string &strProName,
     AAFwk::WantParams &wantParams)
 {
     if (IsSpecialObject(env, param, strProName, FD, napi_number)) {
@@ -923,7 +923,7 @@ void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std
     }
 }
 
-bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std::string type,
+bool IsSpecialObject(napi_env env, napi_value param, std::string &strProName, std::string type,
     napi_valuetype jsValueProType)
 {
     napi_value jsWantParamProValue = nullptr;
@@ -964,7 +964,7 @@ bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std
     return true;
 }
 
-bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams)
+bool HandleFdObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams)
 {
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
@@ -983,7 +983,7 @@ bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFw
     return true;
 }
 
-bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams)
+bool HandleRemoteObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams)
 {
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);

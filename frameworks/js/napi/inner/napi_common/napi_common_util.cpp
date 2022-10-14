@@ -992,7 +992,7 @@ napi_value ExecuteAsyncCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCall
             resourceName,
             param->execute,
             param->complete,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
 
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
@@ -1031,7 +1031,7 @@ napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCa
             resourceName,
             param->execute,
             param->complete,
-            (void *)asyncCallbackInfo,
+            static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
 
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));

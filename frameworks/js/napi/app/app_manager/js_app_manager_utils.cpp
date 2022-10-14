@@ -100,7 +100,7 @@ NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &proces
     return objValue;
 }
 
-NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, std::vector<AppStateData> &appStateDatas)
+NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, const std::vector<AppStateData> &appStateDatas)
 {
     HILOG_INFO("%{public}s called.", __func__);
     NativeValue* arrayValue = engine.CreateArray(appStateDatas.size());

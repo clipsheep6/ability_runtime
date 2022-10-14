@@ -210,7 +210,6 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         return engine.CreateUndefined();
     }
 
-    std::string bundleName;
     std::string moduleName;
     std::shared_ptr<Context> moduleContext = nullptr;
     if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
@@ -221,6 +220,7 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         }
         moduleContext = applicationContext->CreateModuleContext(moduleName);
     } else {
+        std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
             return engine.CreateUndefined();

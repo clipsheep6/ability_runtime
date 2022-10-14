@@ -403,11 +403,6 @@ NativeValue* CreateJsCallerComplex(
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     auto jsCaller = std::make_unique<JsCallerComplex>(engine, releaseCallFunc, callee, callerCallBack);
-    if (jsCaller == nullptr) {
-        HILOG_ERROR("%{public}s is called, but make_unique<JsCallerComplex> is nullptr", __func__);
-        return engine.CreateUndefined();
-    }
-
     auto remoteObj = jsCaller->GetRemoteObject();
     if (remoteObj == nullptr) {
         HILOG_ERROR("%{public}s is called,remoteObj is nullptr", __func__);

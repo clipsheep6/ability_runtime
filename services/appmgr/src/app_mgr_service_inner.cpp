@@ -1072,9 +1072,9 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
         return;
     }
 
-    std::list<pid_t> pids;
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
+        std::list<pid_t> pids;
         pids.push_back(pid);
         appRecord->ScheduleProcessSecurityExit();
         if (!WaitForRemoteProcessExit(pids, SystemTimeMillisecond())) {
@@ -2052,10 +2052,6 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
 
     std::string processName;
     auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
-    if (!abilityInfoPtr) {
-        HILOG_ERROR("abilityInfoPtr is nullptr.");
-        return;
-    }
     MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, processName);
 
     std::vector<HapModuleInfo> hapModules;
