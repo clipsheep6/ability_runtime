@@ -19,7 +19,7 @@
 #include "hitrace_meter.h"
 #include "message_parcel.h"
 #include "permission_verification.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #include "quick_fix_util.h"
 
 namespace OHOS {

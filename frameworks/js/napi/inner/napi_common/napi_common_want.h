@@ -20,13 +20,14 @@
 #include <string>
 #include <vector>
 
+#include "js_runtime_utils.h"
+#include "native_engine/native_engine.h"
 #include "napi_common_data.h"
 #include "want.h"
 #include "want_params.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-EXTERN_C_START
 
 napi_value WrapElementName(napi_env env, const ElementName &elementName);
 bool UnwrapElementName(napi_env env, napi_value param, ElementName &elementName);
@@ -48,7 +49,49 @@ bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFw
 
 bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams);
 
-EXTERN_C_END
+NativeValue* CreateJsWant(NativeEngine &engine, const Want &want);
+NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams);
+template<class TBase, class T, class NativeT>
+bool InnerWrapJsWantParams(
+    NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams)
+{
+    auto value = wantParams.GetParam(key);
+    TBase *ao = TBase::Query(value);
+    if (ao != nullptr) {
+        NativeT natValue = T::Unbox(ao);
+        object->SetProperty(key.c_str(), OHOS::AbilityRuntime::CreateJsValue(engine, natValue));
+        return true;
+    }
+    return false;
+}
+
+bool InnerWrapJsWantParamsWantParams(
+    NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams);
+
+bool WrapJsWantParamsArray(
+    NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao);
+
+template<class TBase, class T, class NativeT>
+bool InnerWrapWantParamsArray(
+    NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao)
+{
+    long size = 0;
+    if (ao->GetLength(size) != ERR_OK) {
+        return false;
+    }
+    std::vector<NativeT> natArray;
+    for (long i = 0; i < size; i++) {
+        sptr<AAFwk::IInterface> iface = nullptr;
+        if (ao->Get(i, iface) == ERR_OK) {
+            TBase *iValue = TBase::Query(iface);
+            if (iValue != nullptr) {
+                natArray.push_back(T::Unbox(iValue));
+            }
+        }
+    }
+    object->SetProperty(key.c_str(), OHOS::AbilityRuntime::CreateNativeArray(engine, natArray));
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_WANT_H

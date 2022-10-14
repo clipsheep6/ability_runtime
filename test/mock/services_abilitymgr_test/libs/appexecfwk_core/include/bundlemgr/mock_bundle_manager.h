@@ -25,6 +25,7 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "form_info.h"
+#include "mock_app_control_manager.h"
 #include "shortcut_info.h"
 
 namespace OHOS {
@@ -303,6 +304,11 @@ public:
             return -1;
         }
         return 0;
+    }
+    virtual sptr<IAppControlMgr> GetAppControlProxy()
+    {
+        sptr<IAppControlMgr> appControlMgr = new (std::nothrow) AppControlProxy(nullptr);
+        return appControlMgr;
     }
 public:
     using QueryAbilityInfoFunType =

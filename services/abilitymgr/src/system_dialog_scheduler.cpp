@@ -14,9 +14,11 @@
  */
 #include "system_dialog_scheduler.h"
 
-#include <csignal>
+#include <regex>
 
+#include "ability_constants.h"
 #include "ability_util.h"
+#include "app_scheduler.h"
 #include "display_manager.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -47,8 +49,6 @@ const int32_t UI_TIPS_DIALOG_WIDTH_NARROW = 328 * 2;
 
 const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
-const std::string EVENT_WAITING_CODE = "0";
-const std::string EVENT_CLOSE_CODE = "1";
 const std::string APP_NAME = "appName";
 const std::string DEVICE_TYPE = "deviceType";
 const std::string OFF_SET_X = "offsetX";
@@ -61,8 +61,6 @@ const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
 const int32_t UI_DEFAULT_WIDTH = 2560;
 const int32_t UI_DEFAULT_HEIGHT = 1600;
-const std::string EVENT_CLOSE = "EVENT_CLOSE";
-const std::string EVENT_CHOOSE_APP = "EVENT_CHOOSE_APP";
 
 const std::string STR_PHONE = "phone";
 const std::string STR_PC = "pc";
@@ -70,58 +68,41 @@ const std::string DIALOG_NAME_ANR = "dialog_anr_service";
 const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
 const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
 
+const std::string BUNDLE_NAME = "bundleName";
+const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+const std::string DIALOG_PARAMS = "params";
+const std::string DIALOG_POSITION = "position";
+const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
+const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
+const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
+
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
 const int32_t LINE_NUMS_THREE = 3;
 const int32_t LINE_NUMS_FOUR = 4;
 const int32_t LINE_NUMS_EIGHT = 8;
 
-void SystemDialogScheduler::ScheduleShowDialog(const std::string &name, const DialogPosition &position,
-    const std::string &params, DialogCallback callback) const
+bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &want)
 {
-    if (name.empty()) {
-        HILOG_ERROR("dialog name is empty.");
-        return;
+    HILOG_DEBUG("GetANRDialogWant start");
+    AppExecFwk::ApplicationInfo appInfo;
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
+        HILOG_ERROR("Get application info failed.");
+        return false;
     }
 
-    HILOG_INFO("Show Dialog:[%{public}s],Dialog position:[%{public}d,%{public}d,%{public}d,%{public}d],str:%{public}s",
-        name.data(), position.offsetX, position.offsetY, position.width, position.height, params.data());
-    Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
-        name,
-        params,
-        OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
-        position.offsetX, position.offsetY, position.width, position.height,
-        callback);
-    HILOG_INFO("Show UI Dialog finished.");
-}
-
-int32_t SystemDialogScheduler::ShowANRDialog(const std::string &appName, const Closure &anrCallBack)
-{
-    HILOG_DEBUG("ShowAnrDialog start");
-
+    std::string appName {""};
+    GetAppNameFromResource(appInfo.labelId, appInfo.bundleName, userId, appName);
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_ANR, position);
     std::string params = GetAnrParams(position, appName);
-    auto callback = [anrCallBack] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_DEBUG("Dialog anr callback: id : %{public}d, event: %{public}s, params: %{public}s",
-            id, event.data(), params.data());
 
-        Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
-
-        if (params == EVENT_WAITING_CODE) {
-            HILOG_WARN("user choose to wait no response app.");
-            return;
-        }
-        if (params == EVENT_CLOSE_CODE) {
-            HILOG_WARN("user choose to kill no response app.");
-            anrCallBack();
-        }
-    };
-
-    ScheduleShowDialog(DIALOG_NAME_ANR, position, params, callback);
-
-    HILOG_DEBUG("ShowAnrDialog end");
-    return ERR_OK;
+    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_ANR_DIALOG);
+    want.SetParam(BUNDLE_NAME, appInfo.bundleName);
+    want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    want.SetParam(DIALOG_PARAMS, params);
+    return true;
 }
 
 const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition position, const std::string &appName) const
@@ -138,9 +119,9 @@ const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition posit
     return anrData.dump();
 }
 
-int32_t SystemDialogScheduler::ShowTipsDialog()
+Want SystemDialogScheduler::GetTipsDialogWant()
 {
-    HILOG_DEBUG("ShowTipsDialog start");
+    HILOG_DEBUG("GetTipsDialogWant start");
     
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_TIPS, position);
@@ -149,64 +130,26 @@ int32_t SystemDialogScheduler::ShowTipsDialog()
     jsonObj[DEVICE_TYPE] = deviceType_;
     const std::string params = jsonObj.dump();
 
-    auto callback = [] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_DEBUG("Dialog tips callback: id : %{public}d, event: %{public}s, params: %{public}s",
-            id, event.data(), params.data());
-        Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
-        if (event == EVENT_CLOSE) {
-            HILOG_WARN("the user abandoned implicit start ability.");
-        }
-    };
-
-    ScheduleShowDialog(DIALOG_NAME_TIPS, position, params, callback);
-
-    HILOG_DEBUG("ShowTipsDialog end");
-    return ERR_OK;
+    AAFwk::Want want;
+    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_TIPS_DIALOG);
+    want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    want.SetParam(DIALOG_PARAMS, params);
+    return want;
 }
 
-int32_t SystemDialogScheduler::ShowSelectorDialog(
-    const std::vector<DialogAppInfo> &infos, const SelectorClosure &startAbilityCallBack)
+Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos)
 {
-    HILOG_DEBUG("ShowSelectorDialog start");
-    if (infos.empty()) {
-        HILOG_WARN("Invalid abilityInfos.");
-        return ERR_INVALID_VALUE;
-    }
-
+    HILOG_DEBUG("GetSelectorDialogWant start");
     DialogPosition position;
-    GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(infos.size()));
+    GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
+    std::string params = GetSelectorParams(dialogAppInfos);
 
-    std::string params = GetSelectorParams(infos);
+    AAFwk::Want want;
+    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    want.SetParam(DIALOG_PARAMS, params);
 
-    auto callback = [startAbilityCallBack] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_DEBUG("Dialog selector callback: id : %{public}d, event: %{public}s, params: %{public}s",
-            id, event.data(), params.data());
-        Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
-
-        if (event == EVENT_CLOSE) {
-            HILOG_WARN("the user abandoned implicit start ability.");
-            return;
-        }
-        if (event == EVENT_CHOOSE_APP) {
-            std::string bundleName {""};
-            std::string abilityName {""};
-            auto pos = params.find(";");
-            if (pos != std::string::npos) {
-                bundleName = params.substr(0, pos);
-                abilityName = params.substr(pos + 1, params.length() - (pos + 1));
-                HILOG_INFO("dialog callback, bundle:%{public}s, ability:%{public}s",
-                    bundleName.c_str(), abilityName.c_str());
-            }
-            if (!bundleName.empty() && !abilityName.empty()) {
-                IN_PROCESS_CALL_WITHOUT_RET(startAbilityCallBack(bundleName, abilityName));
-            }
-        }
-    };
-
-    ScheduleShowDialog(DIALOG_SELECTOR_NAME, position, params, callback);
-
-    HILOG_DEBUG("ShowSelectorDialog end");
-    return ERR_OK;
+    return want;
 }
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos) const
@@ -222,7 +165,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     nlohmann::json hapListObj = nlohmann::json::array();
     for (auto &aInfo : infos) {
         nlohmann::json aObj;
-        aObj["name"] = std::to_string(aInfo.labelId);
+        aObj["label"] = std::to_string(aInfo.labelId);
         aObj["icon"] = std::to_string(aInfo.iconId);
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
@@ -231,6 +174,16 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     jsonObject["hapList"] = hapListObj;
 
     return jsonObject.dump();
+}
+
+const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPosition position) const
+{
+    nlohmann::json dialogPositionData;
+    dialogPositionData[OFF_SET_X] = position.offsetX;
+    dialogPositionData[OFF_SET_Y] = position.offsetY;
+    dialogPositionData[WIDTH] = position.width;
+    dialogPositionData[HEIGHT] = position.height;
+    return dialogPositionData.dump();
 }
 
 void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &position) const
@@ -373,16 +326,25 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     resConfig->SetLocaleInfo(locale);
     resourceManager->UpdateResConfig(*resConfig);
 
-    for (auto resPath = bundleInfo.moduleResPaths.begin(); resPath != bundleInfo.moduleResPaths.end(); resPath++) {
-        if (resPath->empty()) {
+    std::regex pattern(std::string(AbilityRuntime::Constants::ABS_CODE_PATH) +
+        std::string(AbilityRuntime::Constants::FILE_SEPARATOR) + bundleInfo.name);
+    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
             continue;
         }
-        if (!resourceManager->AddResource(resPath->c_str())) {
-            HILOG_INFO("resourceManager add %{public}s resource path failed!", bundleInfo.name.c_str());
+        std::string loadPath;
+        if (!hapModuleInfo.hapPath.empty()) {
+            loadPath = hapModuleInfo.hapPath;
+        } else {
+            loadPath = hapModuleInfo.resourcePath;
+        }
+        HILOG_DEBUG("GetAppNameFromResource loadPath: %{public}s", loadPath.c_str());
+        if (!resourceManager->AddResource(loadPath.c_str())) {
+            HILOG_ERROR("ResourceManager add %{public}s resource path failed!", bundleInfo.name.c_str());
         }
     }
     resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
-    HILOG_INFO("get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
+    HILOG_DEBUG("Get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
 }
 
 sptr<AppExecFwk::IBundleMgr> SystemDialogScheduler::GetBundleManager()

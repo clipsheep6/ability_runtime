@@ -272,7 +272,7 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         HILOG_ERROR("missionId %{public}d not exists, get inner mission info failed", missionId);
-        return -1;
+        return MISSION_NOT_FOUND;
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
@@ -282,7 +282,7 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     );
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
-        return -1;
+        return MISSION_NOT_FOUND;
     }
     innerMissionInfo = *it;
     return 0;

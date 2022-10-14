@@ -21,9 +21,10 @@
 #include <unistd.h>
 
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
 #include "napi_common.h"
 #include "want_agent_helper.h"
-
+using namespace OHOS::AbilityRuntime;
 namespace OHOS {
 #define NAPI_ASSERT_RETURN_NULL(env, assertion, message)    \
 do {                                                        \
@@ -32,8 +33,18 @@ do {                                                        \
         return nullptr;                                     \
     }                                                       \
 } while (0)
+namespace {
+constexpr size_t ARGC_ZERO = 0;
+constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_THREE = 3;
+constexpr uint8_t INDEX_ONE = 1;
+constexpr uint8_t INDEX_TWO = 2;
+constexpr int32_t ERR_NOT_OK = -1;
 constexpr int32_t BUSINESS_ERROR_CODE_OK = 0;
 constexpr int32_t PARAMETER_ERROR = -1;
+} // namespace
+
 
 TriggerCompleteCallBack::TriggerCompleteCallBack()
 {}
@@ -165,23 +176,426 @@ void TriggerCompleteCallBack::OnSendFinished(
 
     HILOG_INFO("TriggerCompleteCallBack::OnSendFinished end");
 }
+
+void JsWantAgent::Finalizer(NativeEngine* engine, void* data, void* hint)
+{
+    HILOG_INFO("JsWantAgent::Finalizer is called");
+    std::unique_ptr<JsWantAgent>(static_cast<JsWantAgent*>(data));
+}
+
+NativeValue* JsWantAgent::Equal(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnEqual(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::GetWant(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnGetWant(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::GetOperationType(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnGetOperationType(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::GetBundleName(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnGetBundleName(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::GetUid(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnGetUid(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::Cancel(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnCancel(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::Trigger(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsWantAgent *me = CheckParamsAndGetThis<JsWantAgent>(engine, info);
+    return (me != nullptr) ? me->OnTrigger(*engine, *info) : nullptr;
+};
+
+NativeValue* JsWantAgent::OnEqual(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgentFirst = nullptr;
+    WantAgent *pWantAgentSecond = nullptr;
+    if (info.argc < ARGC_TWO || info.argc > ARGC_THREE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgentFirst));
+    if (pWantAgentFirst == nullptr) {
+        HILOG_ERROR("Parse pWantAgentFirst failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[1]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[1]), (void **)&(pWantAgentSecond));
+    if (pWantAgentSecond == nullptr) {
+        HILOG_ERROR("Parse pWantAgentSceond failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgentFirst = std::make_shared<WantAgent>(*pWantAgentFirst);
+    std::shared_ptr<WantAgent> wantAgentSecond = std::make_shared<WantAgent>(*pWantAgentSecond);
+    AsyncTask::CompleteCallback complete =
+        [wantAgentFirst, wantAgentSecond](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            HILOG_DEBUG("OnEqual AsyncTask is called");
+            bool ret = WantAgentHelper::JudgeEquality(wantAgentFirst, wantAgentSecond);
+            task.Resolve(engine, CreateJsValue(engine, ret));
+        };
+    NativeValue *lastParam = (info.argc >= ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnEqual",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnGetWant(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgent = nullptr;
+    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgent));
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+    AsyncTask::CompleteCallback complete = [wantAgent](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_DEBUG("OnGetWant AsyncTask is called");
+        std::shared_ptr<Want> want = WantAgentHelper::GetWant(wantAgent);
+        if (want == nullptr) {
+            task.Reject(engine, CreateJsError(engine, ERR_NOT_OK, "WantAgentHelper::GetWant result nullptr."));
+            return;
+        }
+        task.Resolve(engine, CreateJsWant(engine, *(want)));
+    };
+    NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnGetWant",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnGetOperationType(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("JsWantAgent::OnGetOperationType enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgent = nullptr;
+    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgent));
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+    AsyncTask::CompleteCallback complete = [wantAgent](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_DEBUG("OnGetOperationType AsyncTask is called");
+        auto ret = WantAgentHelper::GetType(wantAgent);
+        task.Resolve(engine, CreateJsValue(engine, ret));
+    };
+    NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnGetOperationType",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnGetBundleName(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("JsWantAgent::OnGetBundleName enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgent = nullptr;
+    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgent));
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+    AsyncTask::CompleteCallback complete = [wantAgent](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_DEBUG("OnGetBundleName AsyncTask is called");
+        auto ret = WantAgentHelper::GetBundleName(wantAgent);
+        task.Resolve(engine, CreateJsValue(engine, ret));
+    };
+    NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnGetBundleName",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnGetUid(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("JsWantAgent::OnGetUid enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgent = nullptr;
+    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgent));
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+    AsyncTask::CompleteCallback complete = [wantAgent](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_DEBUG("OnGetUid AsyncTask is called");
+        auto ret = WantAgentHelper::GetUid(wantAgent);
+        task.Resolve(engine, CreateJsValue(engine, ret));
+    };
+    NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnGetUid",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnCancel(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    auto env = reinterpret_cast<napi_env>(&engine);
+    WantAgent *pWantAgent = nullptr;
+    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[0]), (void **)&(pWantAgent));
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+    AsyncTask::CompleteCallback complete =
+        [wantAgent](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            HILOG_DEBUG("OnCancel AsyncTask is called");
+            WantAgentHelper::Cancel(wantAgent);
+            task.Resolve(engine, engine.CreateUndefined());
+        };
+
+    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsWantAgent::OnCancel",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWantAgent::OnTrigger(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    auto env = reinterpret_cast<napi_env>(&engine);
+    if (info.argc != ARGC_THREE) {
+        HILOG_ERROR("Not enough params");
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    TriggerInfo triggerInfo;
+    auto triggerObj = std::make_shared<TriggerCompleteCallBack>();
+    int32_t errCode = UnWrapTriggerInfoParam(engine, info, wantAgent, triggerInfo, triggerObj);
+    if (errCode != BUSINESS_ERROR_CODE_OK) {
+        return reinterpret_cast<NativeValue*>(JSParaError(env, false));
+    }
+
+    WantAgentHelper::TriggerWantAgent(wantAgent, triggerObj, triggerInfo);
+    return engine.CreateNull();
+}
+
+int32_t JsWantAgent::UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallbackInfo &info,
+    std::shared_ptr<WantAgent> &wantAgent, TriggerInfo &triggerInfo,
+    std::shared_ptr<TriggerCompleteCallBack> &triggerObj)
+{
+    if (info.argc != ARGC_THREE) {
+        HILOG_ERROR("Not enough params");
+        return ERR_NOT_OK;
+    }
+    auto env = reinterpret_cast<napi_env>(&engine);
+
+    if (info.argv[ARGC_ZERO]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return ERR_NOT_OK;
+    }
+    WantAgent *pWantAgent = nullptr;
+    napi_unwrap(env, reinterpret_cast<napi_value>(info.argv[ARGC_ZERO]), (void **)&(pWantAgent));
+
+    if (pWantAgent == nullptr) {
+        HILOG_ERROR("Parse pWantAgent failed");
+        return ERR_NOT_OK;
+    }
+    wantAgent = std::make_shared<WantAgent>(*pWantAgent);
+
+    int32_t ret = GetTriggerInfo(engine, info.argv[ARGC_ONE], triggerInfo);
+    if (ret != BUSINESS_ERROR_CODE_OK) {
+        HILOG_ERROR("Get trigger info error");
+        return ret;
+    }
+
+    napi_ref callback[2] = {0};
+    napi_create_reference(env, reinterpret_cast<napi_value>(info.argv[ARGC_TWO]), 1, &callback[0]);
+    triggerObj->SetCallbackInfo(env, callback[0]);
+    triggerObj->SetWantAgentInstance(wantAgent);
+
+    return BUSINESS_ERROR_CODE_OK;
+}
+
+int32_t JsWantAgent::GetTriggerInfo(NativeEngine &engine, NativeValue *param, TriggerInfo &triggerInfo)
+{
+    if (param->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("param type mismatch!");
+        return ERR_NOT_OK;
+    }
+
+    NativeObject *objectParam = ConvertNativeValueTo<NativeObject>(param);
+
+    int32_t code = -1;
+    NativeValue *jsCode = objectParam->GetProperty("code");
+    if (!ConvertFromJsValue(engine, jsCode, code)) {
+        return ERR_NOT_OK;
+    }
+
+    NativeValue *jsWant = objectParam->GetProperty("want");
+    std::shared_ptr<AAFwk::Want> want = nullptr;
+    if (jsWant != nullptr) {
+        want = std::make_shared<AAFwk::Want>();
+        if (!UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jsWant), *want)) {
+            return ERR_NOT_OK;
+        }
+    }
+
+    std::string permission = "";
+    NativeValue *jsPermission = objectParam->GetProperty("permission");
+    if (!ConvertFromJsValue(engine, jsPermission, permission)) {
+        return ERR_NOT_OK;
+    }
+
+    NativeValue *jsExtraInfo = objectParam->GetProperty("extraInfo");
+    std::shared_ptr<AAFwk::WantParams> extraInfo = nullptr;
+    if (jsExtraInfo != nullptr) {
+        extraInfo = std::make_shared<AAFwk::WantParams>();
+        if (!UnwrapWantParams(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jsExtraInfo),
+            *extraInfo)) {
+            return ERR_NOT_OK;
+        }
+    }
+
+    TriggerInfo triggerInfoData(permission, extraInfo, want, code);
+    triggerInfo = triggerInfoData;
+    return BUSINESS_ERROR_CODE_OK;
+}
+
+NativeValue* JsWantAgentInit(NativeEngine* engine, NativeValue* exportObj)
+{
+    HILOG_DEBUG("JsWantAgentInit is called");
+
+    if (engine == nullptr || exportObj == nullptr) {
+        HILOG_ERROR("engine or exportObj null");
+        return nullptr;
+    }
+
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
+    if (object == nullptr) {
+        HILOG_ERROR("object null");
+        return nullptr;
+    }
+
+    std::unique_ptr<JsWantAgent> jsWantAgent = std::make_unique<JsWantAgent>();
+    object->SetNativePointer(jsWantAgent.release(), JsWantAgent::Finalizer, nullptr);
+
+    HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
+    const char *moduleName = "JsWantAgent";
+    BindNativeFunction(*engine, *object, "equal", moduleName, JsWantAgent::Equal);
+    BindNativeFunction(*engine, *object, "getWant", moduleName, JsWantAgent::GetWant);
+    BindNativeFunction(*engine, *object, "getoperationtype", moduleName, JsWantAgent::GetOperationType);
+    BindNativeFunction(*engine, *object, "getBundleName", moduleName, JsWantAgent::GetBundleName);
+    BindNativeFunction(*engine, *object, "getUid", moduleName, JsWantAgent::GetUid);
+    BindNativeFunction(*engine, *object, "cancel", moduleName, JsWantAgent::Cancel);
+    BindNativeFunction(*engine, *object, "trigger", moduleName, JsWantAgent::Trigger);
+    HILOG_DEBUG("JsWantAgentInit end");
+    return exportObj;
+}
+
 napi_value WantAgentInit(napi_env env, napi_value exports)
 {
     HILOG_INFO("napi_moudule Init start...");
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getBundleName", NAPI_GetBundleName),
-        DECLARE_NAPI_FUNCTION("getUid", NAPI_GetUid),
-        DECLARE_NAPI_FUNCTION("cancel", NAPI_Cancel),
-        DECLARE_NAPI_FUNCTION("trigger", NAPI_Trigger),
-        DECLARE_NAPI_FUNCTION("equal", NAPI_Equal),
-        DECLARE_NAPI_FUNCTION("getWant", NAPI_GetWant),
         DECLARE_NAPI_FUNCTION("getWantAgent", NAPI_GetWantAgent),
         DECLARE_NAPI_FUNCTION("getOperationType", NAPI_GetOperationType),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     HILOG_INFO("napi_moudule Init end...");
-    return exports;
+    return reinterpret_cast<napi_value>(JsWantAgentInit(reinterpret_cast<NativeEngine*>(env),
+        reinterpret_cast<NativeValue*>(exports)));
 }
 
 void SetNamedPropertyByInteger(napi_env env, napi_value dstObj, int32_t objName, const std::string &propName)
@@ -238,904 +652,6 @@ napi_value WantAgentOperationTypeInit(napi_env env, napi_value exports)
 
     napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     return exports;
-}
-
-auto NAPI_GetBundleNameExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("GetBundleName called(CallBack Mode)...");
-    AsyncGetBundleNameCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetBundleNameCallbackInfo *>(data);
-    asyncCallbackInfo->bundleName = WantAgentHelper::GetBundleName(asyncCallbackInfo->wantAgent);
-};
-
-auto NAPI_GetBundleNameCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetBundleName compeleted(CallBack Mode)...");
-    AsyncGetBundleNameCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetBundleNameCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value callResult = nullptr;
-
-    result[0] = GetCallbackErrorResult(asyncCallbackInfo->env, BUSINESS_ERROR_CODE_OK);
-    napi_create_string_utf8(env, asyncCallbackInfo->bundleName.c_str(), NAPI_AUTO_LENGTH, &result[1]);
-    napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, asyncCallbackInfo->callback[0], &callback);
-    napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (asyncCallbackInfo->callback[0] != nullptr) {
-        napi_delete_reference(env, asyncCallbackInfo->callback[0]);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-auto NAPI_GetBundleNamePromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetBundleName compeleted(Promise Mode)...");
-    AsyncGetBundleNameCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetBundleNameCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result = nullptr;
-    napi_create_string_utf8(env, asyncCallbackInfo->bundleName.c_str(), NAPI_AUTO_LENGTH, &result);
-    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_GetBundleNameWrap(
-    napi_env env, napi_callback_info info, bool callBackMode, AsyncGetBundleNameCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_GetBundleNameWrap called...");
-    if (callBackMode) {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_GetBundleNameCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetBundleNameExecuteCallBack,
-            NAPI_GetBundleNameCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-        // create reutrn
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
-    } else {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_GetBundleNamePromise", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_deferred deferred = nullptr;
-        napi_value promise = nullptr;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo.deferred = deferred;
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetBundleNameExecuteCallBack,
-            NAPI_GetBundleNamePromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
-        return promise;
-    }
-}
-
-napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_TWO;
-    napi_value argv[NUMBER_OF_PARAMETERS_TWO] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentType);
-    if (wantAgentType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgent = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgent));
-    if (pWantAgent == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_TWO) {
-        napi_valuetype valuetype = napi_valuetype::napi_null;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-    AsyncGetBundleNameCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetBundleNameCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
-
-    if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback[0]);
-    }
-    napi_value ret = NAPI_GetBundleNameWrap(env, info, callBackMode, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return ((callBackMode) ? (NapiGetNull(env)) : (ret));
-}
-
-auto NAPI_GetUidWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("GetUid called(CallBack Mode)...");
-    AsyncGetUidCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetUidCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    asyncCallbackInfo->uid = WantAgentHelper::GetUid(asyncCallbackInfo->wantAgent);
-};
-
-auto NAPI_GetUidWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetUid compeleted(CallBack Mode)...");
-    AsyncGetUidCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetUidCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value callResult = nullptr;
-
-    result[0] = GetCallbackErrorResult(asyncCallbackInfo->env, BUSINESS_ERROR_CODE_OK);
-    napi_create_int32(env, asyncCallbackInfo->uid, &result[1]);
-    napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, asyncCallbackInfo->callback[0], &callback);
-    napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (asyncCallbackInfo->callback[0] != nullptr) {
-        napi_delete_reference(env, asyncCallbackInfo->callback[0]);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-auto NAPI_GetUidWrapPromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetUid compeleted(Promise Mode)...");
-    AsyncGetUidCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetUidCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result = nullptr;
-    napi_create_int32(env, asyncCallbackInfo->uid, &result);
-    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_GetUidWrap(
-    napi_env env, napi_callback_info info, bool callBackMode, AsyncGetUidCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_GetUidWrap called...");
-    if (callBackMode) {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_GetUidCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetUidWrapExecuteCallBack,
-            NAPI_GetUidWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-        // create reutrn
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
-    } else {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_GetUidPromise", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_deferred deferred = nullptr;
-        napi_value promise = nullptr;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo.deferred = deferred;
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetUidWrapExecuteCallBack,
-            NAPI_GetUidWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
-        return promise;
-    }
-}
-
-napi_value NAPI_GetUid(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_TWO;
-    napi_value argv[NUMBER_OF_PARAMETERS_TWO] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentType);
-    if (wantAgentType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgent = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgent));
-    if (pWantAgent == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_TWO) {
-        napi_valuetype valuetype = napi_valuetype::napi_null;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-    AsyncGetUidCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetUidCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
-
-    if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback[0]);
-    }
-    napi_value ret = NAPI_GetUidWrap(env, info, callBackMode, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return ((callBackMode) ? (NapiGetNull(env)) : (ret));
-}
-
-auto NAPI_GetWantWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("GetWant called(CallBack Mode)...");
-    AsyncGetWantCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetWantCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    asyncCallbackInfo->want = WantAgentHelper::GetWant(asyncCallbackInfo->wantAgent);
-};
-
-auto NAPI_GetWantWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetWant compeleted(CallBack Mode)...");
-    AsyncGetWantCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetWantCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr || asyncCallbackInfo->want == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo or want is nullptr.");
-        return;
-    }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {};
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value callResult = nullptr;
-
-    result[0] = GetCallbackErrorResult(asyncCallbackInfo->env, BUSINESS_ERROR_CODE_OK);
-    result[1] = WrapWant(env, *(asyncCallbackInfo->want));
-    napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, asyncCallbackInfo->callback[0], &callback);
-    napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-    if (asyncCallbackInfo->callback[0] != nullptr) {
-        napi_delete_reference(env, asyncCallbackInfo->callback[0]);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-auto NAPI_GetWantWrapPromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("GetWant compeleted(Promise Mode)...");
-    AsyncGetWantCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetWantCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr || asyncCallbackInfo->want == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo or want is nullptr.");
-        return;
-    }
-    napi_value result = WrapWant(env, *(asyncCallbackInfo->want));
-    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_GetWantWrap(
-    napi_env env, napi_callback_info info, bool callBackMode, AsyncGetWantCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_GetWantWrap called...");
-    if (callBackMode) {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_GetWantCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetWantWrapExecuteCallBack,
-            NAPI_GetWantWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-        // create reutrn
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
-    } else {
-        napi_value resourceName;
-        napi_create_string_latin1(env, "NAPI_GetWantPromise", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_deferred deferred = nullptr;
-        napi_value promise = nullptr;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo.deferred = deferred;
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_GetWantWrapExecuteCallBack,
-            NAPI_GetWantWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
-        return promise;
-    }
-}
-
-napi_value NAPI_GetWant(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_TWO;
-    napi_value argv[NUMBER_OF_PARAMETERS_TWO] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentType);
-    if (wantAgentType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgent = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgent));
-    if (pWantAgent == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_TWO) {
-        napi_valuetype valuetype = napi_valuetype::napi_null;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-    AsyncGetWantCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetWantCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
-
-    if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback[0]);
-    }
-    napi_value ret = NAPI_GetWantWrap(env, info, callBackMode, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return ((callBackMode) ? (NapiGetNull(env)) : (ret));
-}
-
-void DeleteRecordByCode(const int32_t code)
-{
-    std::lock_guard<std::recursive_mutex> guard(g_mutex);
-    for (const auto &item : *g_WantAgentMap) {
-        auto code_ = item.second;
-        auto record = item.first;
-        if (code_ == code) {
-            g_WantAgentMap->erase(record);
-            if (record != nullptr) {
-                delete record;
-                record = nullptr;
-            }
-        }
-    }
-}
-
-auto NAPI_CancelWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("Cancel called(CallBack Mode)...");
-    AsyncCancelCallbackInfo *asyncCallbackInfo = static_cast<AsyncCancelCallbackInfo *>(data);
-    WantAgentHelper::Cancel(asyncCallbackInfo->wantAgent);
-};
-
-auto NAPI_CancelWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("Cancel compeleted(CallBack Mode)...");
-    AsyncCancelCallbackInfo *asyncCallbackInfo = static_cast<AsyncCancelCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {nullptr};
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value callResult = nullptr;
-
-    result[0] = GetCallbackErrorResult(asyncCallbackInfo->env, BUSINESS_ERROR_CODE_OK);
-    napi_get_null(env, &result[1]);
-    napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, asyncCallbackInfo->callback[0], &callback);
-    napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (asyncCallbackInfo->callback[0] != nullptr) {
-        napi_delete_reference(env, asyncCallbackInfo->callback[0]);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-auto NAPI_CancelWrapPromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("Cancel compeleted(Promise Mode)...");
-    AsyncCancelCallbackInfo *asyncCallbackInfo = static_cast<AsyncCancelCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result = nullptr;
-    napi_get_null(env, &result);
-    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_CancelWrap(
-    napi_env env, napi_callback_info info, bool callBackMode, AsyncCancelCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_CancelWrap called...");
-    if (callBackMode) {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_CancelCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_CancelWrapExecuteCallBack,
-            NAPI_CancelWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-        // create reutrn
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
-    } else {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_CancelPromise", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_deferred deferred = nullptr;
-        napi_value promise = nullptr;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo.deferred = deferred;
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_CancelWrapExecuteCallBack,
-            NAPI_CancelWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
-        return promise;
-    }
-}
-
-napi_value NAPI_Cancel(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_TWO;
-    napi_value argv[NUMBER_OF_PARAMETERS_TWO] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentType);
-    if (wantAgentType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgent = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgent));
-    if (pWantAgent == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_TWO) {
-        napi_valuetype valuetype = napi_valuetype::napi_null;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-    AsyncCancelCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncCancelCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
-
-    if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback[0]);
-    }
-    napi_value ret = NAPI_CancelWrap(env, info, callBackMode, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return ((callBackMode) ? (NapiGetNull(env)) : (ret));
-}
-
-auto NAPI_TriggerWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("Trigger called ...");
-    AsyncTriggerCallbackInfo *asyncCallbackInfo = static_cast<AsyncTriggerCallbackInfo *>(data);
-    asyncCallbackInfo->triggerObj->SetCallbackInfo(env, asyncCallbackInfo->callback[0]);
-    asyncCallbackInfo->triggerObj->SetWantAgentInstance(asyncCallbackInfo->wantAgent);
-    WantAgentHelper::TriggerWantAgent(asyncCallbackInfo->wantAgent,
-        asyncCallbackInfo->triggerObj,
-        asyncCallbackInfo->triggerInfo);
-};
-
-auto NAPI_TriggerWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("Trigger compeleted ...");
-    AsyncTriggerCallbackInfo *asyncCallbackInfo = static_cast<AsyncTriggerCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_TriggerWrap(napi_env env, napi_callback_info info, AsyncTriggerCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_TriggerWrap called...");
-    napi_value resourceName = nullptr;
-    napi_create_string_latin1(env, "NAPI_TriggerWrap", NAPI_AUTO_LENGTH, &resourceName);
-
-    napi_create_async_work(env,
-        nullptr,
-        resourceName,
-        NAPI_TriggerWrapExecuteCallBack,
-        NAPI_TriggerWrapCompleteCallBack,
-        (void *)&asyncCallbackInfo,
-        &asyncCallbackInfo.asyncWork);
-
-    NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-    // create reutrn
-    napi_value ret = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-    return ret;
-}
-
-napi_value NAPI_GetTriggerInfo(napi_value argv[NUMBER_OF_PARAMETERS_THREE], uint8_t argvLen, napi_env env,
-    napi_callback_info info, TriggerInfo &triggerInfo)
-{
-    if (argvLen < 1) {
-        return nullptr;
-    }
-    // Get triggerInfo
-    napi_value jsTriggerInfo = argv[1];
-    napi_valuetype valueType = napi_valuetype::napi_null;
-    NAPI_CALL(env, napi_typeof(env, jsTriggerInfo, &valueType));
-    NAPI_ASSERT_RETURN_NULL(env, valueType == napi_object, "param type mismatch!");
-
-    // Get triggerInfo code
-    int32_t code = -1;
-    if (!UnwrapInt32ByPropertyName(env, jsTriggerInfo, "code", code)) {
-        return nullptr;
-    }
-    // Get triggerInfo want
-    napi_value jsWant = nullptr;
-    jsWant = GetPropertyValueByPropertyName(env, jsTriggerInfo, "want", napi_object);
-    std::shared_ptr<AAFwk::Want> want = nullptr;
-    if (jsWant != nullptr) {
-        want = std::make_shared<AAFwk::Want>();
-        if (!UnwrapWant(env, jsWant, *want)) {
-            return nullptr;
-        }
-    }
-    // Get triggerInfo permission
-    std::string permission = {};
-    UnwrapStringByPropertyName(env, jsTriggerInfo, "permission", permission);
-    // Get triggerInfo extraInfo
-    napi_value jsExtraInfo = nullptr;
-    jsExtraInfo = GetPropertyValueByPropertyName(env, jsTriggerInfo, "extraInfo", napi_object);
-    std::shared_ptr<AAFwk::WantParams> extraInfo = nullptr;
-    if (jsExtraInfo != nullptr) {
-        extraInfo = std::make_shared<AAFwk::WantParams>();
-        if (!UnwrapWantParams(env, jsExtraInfo, *extraInfo)) {
-            return nullptr;
-        }
-    }
-
-    TriggerInfo triggerInfoData(permission, extraInfo, want, code);
-    triggerInfo = triggerInfoData;
-    return NapiGetNull(env);
-}
-
-napi_value NAPI_Trigger(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_THREE;
-    napi_value argv[NUMBER_OF_PARAMETERS_THREE] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_DEBUG("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentType);
-    if (wantAgentType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgent = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgent));
-    if (pWantAgent == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_THREE) {
-        napi_valuetype valuetype;
-        NAPI_CALL(env, napi_typeof(env, argv[NUMBER_OF_PARAMETERS_TWO], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-
-    TriggerInfo triggerInfo;
-    napi_value ret = NAPI_GetTriggerInfo(argv, NUMBER_OF_PARAMETERS_THREE, env, info, triggerInfo);
-    if (ret == nullptr) {
-        HILOG_ERROR("Get trigger info error");
-        return JSParaError(env, callBackMode);
-    }
-
-    AsyncTriggerCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncTriggerCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
-    asyncCallbackInfo->triggerInfo = triggerInfo;
-    asyncCallbackInfo->triggerObj = nullptr;
-    if (callBackMode) {
-        asyncCallbackInfo->callBackMode = callBackMode;
-        asyncCallbackInfo->triggerObj = std::make_shared<TriggerCompleteCallBack>();
-        napi_create_reference(env, argv[NUMBER_OF_PARAMETERS_TWO], 1, &asyncCallbackInfo->callback[0]);
-    }
-
-    ret = NAPI_TriggerWrap(env, info, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return NapiGetNull(env);
-}
-
-auto NAPI_EqualWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("Equal called(CallBack Mode)...");
-    AsyncEqualCallbackInfo *asyncCallbackInfo = static_cast<AsyncEqualCallbackInfo *>(data);
-    asyncCallbackInfo->result =
-        WantAgentHelper::JudgeEquality(asyncCallbackInfo->wantAgentFirst, asyncCallbackInfo->wantAgentSecond);
-};
-
-auto NAPI_EqualWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("Equal compeleted(CallBack Mode)...");
-    AsyncEqualCallbackInfo *asyncCallbackInfo = static_cast<AsyncEqualCallbackInfo *>(data);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("asyncCallbackInfo is nullptr.");
-        return;
-    }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {};
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value callResult = nullptr;
-
-    result[0] = GetCallbackErrorResult(asyncCallbackInfo->env, BUSINESS_ERROR_CODE_OK);
-    napi_get_boolean(env, asyncCallbackInfo->result, &result[1]);
-    napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, asyncCallbackInfo->callback[0], &callback);
-    napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (asyncCallbackInfo->callback[0] != nullptr) {
-        napi_delete_reference(env, asyncCallbackInfo->callback[0]);
-    }
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-auto NAPI_EqualWrapPromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
-    HILOG_INFO("Equal compeleted(Promise Mode)...");
-    AsyncEqualCallbackInfo *asyncCallbackInfo = static_cast<AsyncEqualCallbackInfo *>(data);
-    napi_value result = nullptr;
-    napi_get_boolean(env, asyncCallbackInfo->result, &result);
-    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    delete asyncCallbackInfo;
-    asyncCallbackInfo = nullptr;
-};
-
-napi_value NAPI_EqualWrap(
-    napi_env env, napi_callback_info info, bool callBackMode, AsyncEqualCallbackInfo &asyncCallbackInfo)
-{
-    HILOG_INFO("NAPI_EqualWrap called...");
-    if (callBackMode) {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_EqualWrapCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_EqualWrapExecuteCallBack,
-            NAPI_EqualWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
-        // create reutrn
-        napi_value ret = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
-    } else {
-        napi_value resourceName = nullptr;
-        napi_create_string_latin1(env, "NAPI_EqualPromise", NAPI_AUTO_LENGTH, &resourceName);
-
-        napi_deferred deferred = nullptr;
-        napi_value promise = nullptr;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo.deferred = deferred;
-
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            NAPI_EqualWrapExecuteCallBack,
-            NAPI_EqualWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
-            &asyncCallbackInfo.asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
-        return promise;
-    }
-}
-
-napi_value NAPI_Equal(napi_env env, napi_callback_info info)
-{
-    size_t argc = NUMBER_OF_PARAMETERS_THREE;
-    napi_value argv[NUMBER_OF_PARAMETERS_THREE] = {};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_DEBUG("argc = [%{public}zu]", argc);
-
-    napi_valuetype wantAgentFirstType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[0], &wantAgentFirstType);
-    if (wantAgentFirstType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgentFirst = nullptr;
-    napi_unwrap(env, argv[0], (void **)&(pWantAgentFirst));
-    if (pWantAgentFirst == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    napi_valuetype wantAgentSecondType = napi_valuetype::napi_null;
-    napi_typeof(env, argv[1], &wantAgentSecondType);
-    if (wantAgentSecondType != napi_object) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
-        return JSParaError(env, false);
-    }
-
-    WantAgent *pWantAgentSecond = nullptr;
-    napi_unwrap(env, argv[1], (void **)&(pWantAgentSecond));
-    if (pWantAgentSecond == nullptr) {
-        HILOG_ERROR("WantAgent napi_unwrap error");
-        return JSParaError(env, false);
-    }
-
-    bool callBackMode = false;
-    if (argc >= NUMBER_OF_PARAMETERS_THREE) {
-        napi_valuetype valuetype = napi_valuetype::napi_null;
-        NAPI_CALL(env, napi_typeof(env, argv[NUMBER_OF_PARAMETERS_TWO], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("Wrong argument type. Function expected.");
-            return JSParaError(env, false);
-        }
-        callBackMode = true;
-    }
-    AsyncEqualCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncEqualCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("Failed to create object.");
-        return JSParaError(env, callBackMode);
-    }
-    asyncCallbackInfo->wantAgentFirst = std::make_shared<WantAgent>(*pWantAgentFirst);
-    asyncCallbackInfo->wantAgentSecond = std::make_shared<WantAgent>(*pWantAgentSecond);
-
-    if (callBackMode) {
-        napi_create_reference(env, argv[NUMBER_OF_PARAMETERS_TWO], 1, &asyncCallbackInfo->callback[0]);
-    }
-    napi_value ret = NAPI_EqualWrap(env, info, callBackMode, *asyncCallbackInfo);
-    if (ret == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-    }
-    return ((callBackMode) ? (NapiGetNull(env)) : (ret));
 }
 
 auto NAPI_GetWantAgentWrapExecuteCallBack = [](napi_env env, void *data) {
@@ -1414,7 +930,6 @@ napi_value NapiGetNull(napi_env env)
     napi_get_null(env, &result);
     return result;
 }
-
 
 auto NAPI_GetOperationTypeWrapExecuteCallBack = [](napi_env env, void *data) {
     HILOG_INFO("GetOperationType called...");

@@ -23,8 +23,6 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <thread>
 #include <unistd.h>
 #include <csignal>
@@ -282,8 +280,7 @@ bool AbilityManagerService::Init()
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     anrListener_ = std::make_shared<ApplicationAnrListener>();
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
-    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-        amsConfigResolver_->GetBootAnimationTimeoutTime());
+    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
@@ -294,7 +291,7 @@ bool AbilityManagerService::Init()
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<DisposedInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
 
     HILOG_INFO("Init success.");
     return true;
@@ -1194,6 +1191,13 @@ void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUs
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     AAFWK::EventInfo eventInfo;
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is Null.");
+        return ERR_INVALID_VALUE;
+    }
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
     AAFWK::EventReport::SendAbilityEvent(AAFWK::TERMINATE_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = TerminateAbilityWithFlag(token, resultCode, resultWant, true);
@@ -1523,16 +1527,16 @@ int AbilityManagerService::ConnectAbilityCommon(
     }
 
     int32_t validUserId = GetValidUserId(userId);
-    std::string localDeviceId;
-    if (!GetLocalDeviceId(localDeviceId)) {
-        HILOG_ERROR("%{public}s: Get Local DeviceId failed", __func__);
-        eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
-    }
-
+    
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+        std::string localDeviceId;
+        if (!GetLocalDeviceId(localDeviceId)) {
+            HILOG_ERROR("%{public}s: Get Local DeviceId failed", __func__);
+            eventInfo.errCode = ERR_INVALID_VALUE;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return ERR_INVALID_VALUE;
+        }
         result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
         if (result != ERR_OK) {
             eventInfo.errCode = result;
@@ -2302,8 +2306,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
-        abilityRequest.appInfo.name.c_str(),
-        abilityRequest.appInfo.bundleName.c_str(),
+        abilityRequest.appInfo.name.c_str(), abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
 
     if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
@@ -2698,20 +2701,6 @@ void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<
     } else {
         info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
     }
-}
-
-bool AbilityManagerService::IsExistFile(const std::string &path)
-{
-    HILOG_INFO("%{public}s", __func__);
-    if (path.empty()) {
-        return false;
-    }
-    struct stat buf = {};
-    if (stat(path.c_str(), &buf) != 0) {
-        return false;
-    }
-    HILOG_INFO("%{public}s  :file exists", __func__);
-    return S_ISREG(buf.st_mode);
 }
 
 void AbilityManagerService::DataDumpStateInner(const std::string &args, std::vector<std::string> &info)
@@ -4126,6 +4115,79 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
+void AbilityManagerService::RecoverAbilityRestart(AAFwk::Want& want)
+{
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+    std::string wantStr = want.ToString();
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    int32_t ret = StartAbility(want, userId, 0);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s AppRecovery::failed to restart ability.  %{public}d", __func__, ret);
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
+}
+
+void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token,
+    int32_t reason, int32_t savedStateId)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
+        return;
+    }
+
+    AAFwk::Want want;
+    {
+        std::lock_guard<std::recursive_mutex> guard(globalLock_);
+        auto type = record->GetAbilityInfo().type;
+        if (type != AppExecFwk::AbilityType::PAGE) {
+            HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability?.", __func__);
+            return;
+        }
+
+        // next to add ability state and check
+        constexpr int64_t MIN_RECOVERY_TIME = 60;
+        auto now = time(nullptr);
+        auto it = appRecoverHistory_.find(record->GetUid());
+        if ((it != appRecoverHistory_.end()) &&
+            (it->second + MIN_RECOVERY_TIME > static_cast<int64_t>(now))) {
+            HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
+                __func__, record->GetPid());
+            kill(record->GetPid(), SIGKILL);
+            return;
+        }
+    
+        auto appInfo = record->GetApplicationInfo();
+        auto abilityInfo = record->GetAbilityInfo();
+        appRecoverHistory_.emplace(record->GetUid(),
+            static_cast<int64_t>(now)).first->second = static_cast<int64_t>(now);
+        want = record->GetWant();
+        HiSysEvent::Write(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
+            "APP_UID", record->GetUid(),
+            "VERSION_CODE", std::to_string(appInfo.versionCode),
+            "VERSION_NAME", appInfo.versionName,
+            "BUNDLE_NAME", appInfo.bundleName,
+            "ABILITY_NAME", abilityInfo.name);
+        kill(record->GetPid(), SIGKILL);
+    }
+
+    constexpr int delaytime = 2000;
+    std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
+    auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, want);
+    handler_->PostTask(task, taskName, delaytime);
+}
+
 int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot)
 {
@@ -4364,36 +4426,19 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
-    CHECK_POINTER_AND_RETURN(anrDisposer_, ERR_INVALID_VALUE);
-
-    auto setMissionTask = [manager = currentMissionListManager_](const std::vector<sptr<IRemoteObject>> &tokens) {
-        HILOG_WARN("set some mission anr status.");
-        if (manager) {
-            manager->SetMissionANRStateByTokens(tokens);
-        }
-    };
-#ifdef SUPPORT_GRAPHICS
-    auto showDialogTask = [pid, userId = GetUserId()](int32_t labelId,
-        const std::string &bundle, const Closure &callBack) {
-        std::string appName {""};
-        auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
-        if (!sysDialog) {
-            HILOG_ERROR("SystemDialogScheduler is nullptr.");
-            return;
-        }
-        sysDialog->GetAppNameFromResource(labelId, bundle, userId, appName);
-        sysDialog->ShowANRDialog(appName, callBack);
-    };
-    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask, showDialogTask);
-#else
-    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask);
-#endif
-    if (ret != ERR_OK) {
-        HILOG_ERROR("dispose app no respose failed.");
-        return ret;
+    
+    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    if (!sysDialog) {
+        HILOG_ERROR("SystemDialogScheduler is nullptr.");
+        return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilityManagerService::SendANRProcessID end");
-    return ERR_OK;
+
+    Want want;
+    if (!sysDialog->GetANRDialogWant(GetUserId(), pid, want)) {
+        HILOG_ERROR("GetANRDialogWant failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return StartAbility(want);
 }
 
 bool AbilityManagerService::IsRunningInStabilityTest()

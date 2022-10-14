@@ -17,16 +17,20 @@ group("fuzztest") {
   testonly = true
 
   deps = [
+    "abilitymanager_fuzzer:fuzztest",
     "acquiredataability_fuzzer:fuzztest",
+    "appmanager_fuzzer:fuzztest",
     "finishusertest_fuzzer:fuzztest",
+    "getabilityrunninginfos_fuzzer:fuzztest",
+    "getextensionrunninginfos_fuzzer:fuzztest",
+    "gettopability_fuzzer:fuzztest",
     "getwantsender_fuzzer:fuzztest",
     "setmissionlabel_fuzzer:fuzztest",
-
-    #"startability_fuzzer:fuzztest",
-    "abilitymanager_fuzzer:fuzztest",
-    "appmanager_fuzzer:fuzztest",
+    "startability_fuzzer:fuzztest",
     "startcontinuation_fuzzer:fuzztest",
+    "startusertest_fuzzer:fuzztest",
     "stopserviceability_fuzzer:fuzztest",
+    "updateconfiguration_fuzzer:fuzztest",
     "uripermissionmanager_fuzzer:fuzztest",
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",

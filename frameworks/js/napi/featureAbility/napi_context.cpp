@@ -19,6 +19,7 @@
 #include <uv.h>
 
 #include "../inner/napi_common/napi_common_ability.h"
+#include "ability_util.h"
 #include "ability_process.h"
 #include "directory_ex.h"
 #include "feature_ability_common.h"
@@ -2942,368 +2943,253 @@ NativeValue* CreateNapiJSContext(NativeEngine &engine)
 
 NativeValue* NapiJsContext::JsRequestPermissionsFromUser(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnRequestPermissionsFromUser(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetBundleName(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetBundleName(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsVerifyPermission(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnVerifyPermission(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetApplicationInfo(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetApplicationInfo(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetProcessInfo(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetProcessInfo(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetElementName(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetElementName(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetProcessName(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetProcessName(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetCallingBundle(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetCallingBundle(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetOrCreateLocalDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnGetOrCreateLocalDir(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetFilesDir(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsIsUpdatingConfigurations(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsIsUpdatingConfigurations(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsPrintDrawnCompleted(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsPrintDrawnCompleted(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetCacheDir(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetCtxAppType(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetCtxAppType(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetCtxHapModuleInfo(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetCtxHapModuleInfo(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetAppVersionInfo(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetAppVersionInfo(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetContext(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsGetCtxAbilityInfo(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetCtxAbilityInfo(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetShowOnLockScreen(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetOrCreateDistributedDir(*engine, *info, AbilityType::PAGE);
 }
 
 NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetWakeUpScreen(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetDisplayOrientation(*engine, *info);
 }
 
 NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("but input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
-        return nullptr;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
     auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    if (object == nullptr) {
-        HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-        return engine->CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetDisplayOrientation(*engine, *info, AbilityType::PAGE);
 }

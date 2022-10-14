@@ -18,13 +18,14 @@
 #include <dlfcn.h>
 #include <uv.h>
 
+#include "ability_util.h"
 #include "hilog_wrapper.h"
+#include "js_napi_common_ability.h"
+#include "js_runtime_utils.h"
 #include "napi_common_util.h"
 #include "napi_context.h"
 #include "napi_base_context.h"
 #include "napi_remote_object.h"
-#include "js_napi_common_ability.h"
-#include "js_runtime_utils.h"
 #include "securec.h"
 
 using namespace OHOS::AbilityRuntime;
@@ -4811,6 +4812,175 @@ napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info)
 JsNapiCommon::JsNapiCommon() : ability_(nullptr)
 {}
 
+NativeValue* JsNapiCommon::JsConnectAbility(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    int32_t errorVal = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
+    int64_t id = 0;
+    HILOG_DEBUG("%{public}s is called", __func__);
+    if (info.argc != ARGS_TWO) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+    auto env = reinterpret_cast<napi_env>(&engine);
+    auto firstParam = reinterpret_cast<napi_value>(info.argv[PARAM0]);
+    auto secondParam = reinterpret_cast<napi_value>(info.argv[PARAM1]);
+    Want want;
+    if (!UnwrapWant(env, firstParam, want)) {
+        HILOG_ERROR("called. Invoke UnwrapWant fail");
+        return engine.CreateUndefined();
+    }
+    sptr<NAPIAbilityConnection> abilityConnection = BuildWant(want, id);
+    if (abilityConnection == nullptr) {
+        HILOG_ERROR("error, the abilityConnection is nullptr");
+        return engine.CreateUndefined();
+    }
+    napi_ref callbackArray[PARAM3];
+    ChangeAbilityConnection(callbackArray, env, secondParam);
+    abilityConnection->SetEnv(env);
+    abilityConnection->SetConnectCBRef(callbackArray[PARAM0]);
+    abilityConnection->SetDisconnectCBRef(callbackArray[PARAM1]);
+
+    if (ability_ == nullptr) {
+        errorVal = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+        HILOG_ERROR("JsConnectAbility, the ability is nullptr");
+    }
+
+    bool result = false;
+    if (!CheckAbilityType(abilityType)) {
+        errorVal = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+    } else {
+        result = ability_->ConnectAbility(want, abilityConnection);
+    }
+
+    if (errorVal != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || result == false) {
+        HILOG_ERROR("CommonJsConnectAbility failed.");
+        // return error code in onFailed asynccallback
+        napi_value callback = 0;
+        napi_value undefined = 0;
+        napi_value result = 0;
+        napi_value callResult = 0;
+        int errorCode = NO_ERROR;
+        switch (errorVal) {
+            case NAPI_ERR_ACE_ABILITY:
+                errorCode = ABILITY_NOT_FOUND;
+                break;
+            case NAPI_ERR_PARAM_INVALID:
+                errorCode = INVALID_PARAMETER;
+                break;
+            default:
+                break;
+        }
+        NAPI_CALL_BASE(env, napi_create_int32(env, errorCode, &result), engine.CreateUndefined());
+        NAPI_CALL_BASE(
+            env, napi_get_reference_value(env, callbackArray[PARAM2], &callback), engine.CreateUndefined());
+        NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &result, &callResult),
+            engine.CreateUndefined());
+    }
+    return CreateJsValue(engine, id);
+}
+
+NativeValue* JsNapiCommon::JsDisConnectAbility(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s is called", __func__);
+    if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+    auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
+    int64_t id = 0;
+    sptr<NAPIAbilityConnection> abilityConnection = nullptr;
+    if (!ConvertFromJsValue(engine, info.argv[PARAM0], id)) {
+        HILOG_ERROR("input params int error");
+        return engine.CreateUndefined();
+    }
+    auto item = std::find_if(connects_.begin(), connects_.end(),
+        [&id](std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return id == obj.first.id;
+        });
+    if (item != connects_.end()) {
+        abilityConnection = item->second;
+        HILOG_DEBUG("find conn ability exist");
+    } else {
+        HILOG_ERROR("there is no ability to disconnect.");
+        return engine.CreateUndefined();
+    }
+    auto execute = [obj = this, value = errorVal, abilityType, abilityConnection] () {
+        if (obj->ability_ == nullptr) {
+            *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+            HILOG_ERROR("task execute error, the ability is nullptr.");
+            return;
+        }
+        if (!obj->CheckAbilityType(abilityType)) {
+            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+            return;
+        }
+        *value = obj->ability_->DisconnectAbility(abilityConnection);
+    };
+    auto complete = [obj = this, value = errorVal]
+        (NativeEngine &engine, AsyncTask &task, const int32_t status) {
+        if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR)) {
+            task.Reject(engine, CreateJsError(engine, *value, "DisconnectAbility failed."));
+            return;
+        }
+        task.Resolve(engine, CreateJsValue(engine, *value));
+    };
+    NativeValue *lastParam = (info.argc == ARGS_ONE) ? nullptr : info.argv[PARAM1];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsDisConnectAbility",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
+sptr<NAPIAbilityConnection> JsNapiCommon::BuildWant(const Want &want, int64_t &id)
+{
+    HILOG_DEBUG("%{public}s uri:%{public}s", __func__, want.GetElement().GetURI().c_str());
+    std::string deviceId = want.GetElement().GetDeviceID();
+    std::string bundleName = want.GetBundle();
+    std::string abilityName = want.GetElement().GetAbilityName();
+    auto item = std::find_if(connects_.begin(),
+        connects_.end(), [&deviceId, &bundleName, &abilityName](const std::map<ConnecttionKey,
+        sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return (deviceId == obj.first.want.GetElement().GetDeviceID()) &&
+                   (bundleName == obj.first.want.GetBundle()) &&
+                   (abilityName == obj.first.want.GetElement().GetAbilityName());
+        });
+    sptr<NAPIAbilityConnection> abilityConnection;
+    if (item != connects_.end()) {
+        id = item->first.id;
+        abilityConnection = item->second;
+        HILOG_DEBUG("find connection exist");
+    } else {
+        sptr<NAPIAbilityConnection> conn(new (std::nothrow) NAPIAbilityConnection());
+        id = serialNumber_;
+        abilityConnection = conn;
+        ConnecttionKey key;
+        key.id = id;
+        key.want = want;
+        connects_.emplace(key, conn);
+        if (serialNumber_ < INT32_MAX) {
+            serialNumber_++;
+        } else {
+            serialNumber_ = 0;
+        }
+        HILOG_DEBUG("not find connection, make new one");
+    }
+    HILOG_DEBUG("id:%{public}" PRId64, id);
+    return abilityConnection;
+}
+
+void JsNapiCommon::ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1)
+{
+    napi_value jsMethod = nullptr;
+    napi_get_named_property(env, arg1, "onConnect", &jsMethod);
+    napi_create_reference(env, jsMethod, 1, &callbackArray[PARAM0]);
+    napi_get_named_property(env, arg1, "onDisconnect", &jsMethod);
+    napi_create_reference(env, jsMethod, 1, &callbackArray[PARAM1]);
+    napi_get_named_property(env, arg1, "onFailed", &jsMethod);
+    napi_create_reference(env, jsMethod, 1, &callbackArray[PARAM2]);
+}
+
 NativeValue* JsNapiCommon::JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
     if (!CheckAbilityType(abilityType)) {
@@ -4823,9 +4993,9 @@ NativeValue* JsNapiCommon::JsGetContext(NativeEngine &engine, NativeCallbackInfo
 
 NativeValue* JsNapiCommon::JsGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetFilesDir called");
     if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        HILOG_ERROR("JsGetFilesDir input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
 
@@ -4834,7 +5004,7 @@ NativeValue* JsNapiCommon::JsGetFilesDir(NativeEngine &engine, NativeCallbackInf
     auto execute = [obj = this, dir = filesDir, abilityType, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("JsGetFilesDir task execute error, the ability is nullptr");
             return;
         }
         if (!obj->CheckAbilityType(abilityType)) {
@@ -4844,7 +5014,7 @@ NativeValue* JsNapiCommon::JsGetFilesDir(NativeEngine &engine, NativeCallbackInf
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, the abilitycontext is nullptr");
+            HILOG_ERROR("JsGetFilesDir task execute error, the abilitycontext is nullptr");
             return;
         }
         dir->name = context->GetFilesDir();
@@ -4869,9 +5039,9 @@ NativeValue* JsNapiCommon::JsGetFilesDir(NativeEngine &engine, NativeCallbackInf
 NativeValue* JsNapiCommon::JsIsUpdatingConfigurations(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsIsUpdatingConfigurations called");
     if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        HILOG_ERROR("JsIsUpdatingConfigurations input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
 
@@ -4880,7 +5050,7 @@ NativeValue* JsNapiCommon::JsIsUpdatingConfigurations(
     auto execute = [obj = this, data = config, value = errorVal, abilityType] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("JsIsUpdatingConfigurations task execute error, the ability is nullptr");
             return;
         }
         if (!obj->CheckAbilityType(abilityType)) {
@@ -4889,7 +5059,7 @@ NativeValue* JsNapiCommon::JsIsUpdatingConfigurations(
         }
         if (data == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, param is nullptr");
+            HILOG_ERROR("JsIsUpdatingConfigurations task execute error, param is nullptr");
             return;
         }
         data->status = obj->ability_->IsUpdatingConfigurations();
@@ -4915,9 +5085,9 @@ NativeValue* JsNapiCommon::JsIsUpdatingConfigurations(
 NativeValue* JsNapiCommon::JsPrintDrawnCompleted(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsPrintDrawnCompleted called");
     if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        HILOG_ERROR("JsPrintDrawnCompleted input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -4925,7 +5095,7 @@ NativeValue* JsNapiCommon::JsPrintDrawnCompleted(
     auto execute = [obj = this, data = drawComplete, value = errorVal, abilityType] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("JsPrintDrawnCompleted task execute error, the ability is nullptr");
             return;
         }
         if (!obj->CheckAbilityType(abilityType)) {
@@ -4934,7 +5104,7 @@ NativeValue* JsNapiCommon::JsPrintDrawnCompleted(
         }
         if (data == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, data is nullptr");
+            HILOG_ERROR("JsPrintDrawnCompleted task execute error, data is nullptr");
             return;
         }
         data->status = obj->ability_->PrintDrawnCompleted();
@@ -4959,9 +5129,9 @@ NativeValue* JsNapiCommon::JsPrintDrawnCompleted(
 
 NativeValue* JsNapiCommon::JsGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetCacheDir called");
     if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        HILOG_ERROR("JsGetCacheDir input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -4969,7 +5139,7 @@ NativeValue* JsNapiCommon::JsGetCacheDir(NativeEngine &engine, NativeCallbackInf
     auto execute = [obj = this, dir = cacheDir, value = errorVal, abilityType] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("JsGetCacheDir task execute error, the ability is nullptr");
             return;
         }
         if (!obj->CheckAbilityType(abilityType)) {
@@ -4979,7 +5149,7 @@ NativeValue* JsNapiCommon::JsGetCacheDir(NativeEngine &engine, NativeCallbackInf
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, the abilitycontext is nullptr");
+            HILOG_ERROR("JsGetCacheDir task execute error, the abilitycontext is nullptr");
             return;
         }
         dir->name = context->GetCacheDir();
@@ -5275,21 +5445,12 @@ NativeValue* JsNapiCommon::JsGetDisplayOrientation(
 
 NativeValue* JsNapiCommon::CreateProcessInfo(NativeEngine &engine, const std::shared_ptr<JsProcessInfo> &processInfo)
 {
-    HILOG_DEBUG("called");
-    if (processInfo == nullptr) {
-        HILOG_ERROR("input params error");
-        return engine.CreateUndefined();
-    }
+    HILOG_DEBUG("CreateProcessInfo called");
+    CHECK_POINTER_AND_RETURN_LOG(processInfo, engine.CreateUndefined(), "input params error");
     auto objContext = engine.CreateObject();
-    if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(objContext, engine.CreateUndefined(), "CreateObject failed");
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
-    if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine.CreateUndefined(), "ConvertNativeValueTo object failed");
 
     object->SetProperty("processName", CreateJsValue(engine, processInfo->processName));
     object->SetProperty("pid", CreateJsValue(engine, processInfo->pid));
@@ -5299,21 +5460,12 @@ NativeValue* JsNapiCommon::CreateProcessInfo(NativeEngine &engine, const std::sh
 
 NativeValue* JsNapiCommon::CreateElementName(NativeEngine &engine, const std::shared_ptr<JsElementName> &elementName)
 {
-    HILOG_DEBUG("called");
-    if (elementName == nullptr) {
-        HILOG_ERROR("input params error");
-        return engine.CreateUndefined();
-    }
+    HILOG_DEBUG("CreateElementName called");
+    CHECK_POINTER_AND_RETURN_LOG(elementName, engine.CreateUndefined(), "input params error");
     auto objContext = engine.CreateObject();
-    if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(objContext, engine.CreateUndefined(), "CreateObject failed");
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
-    if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine.CreateUndefined(), "ConvertNativeValueTo object failed");
 
     object->SetProperty("deviceId", CreateJsValue(engine, elementName->deviceId));
     object->SetProperty("bundleName", CreateJsValue(engine, elementName->bundleName));
@@ -5327,21 +5479,12 @@ NativeValue* JsNapiCommon::CreateElementName(NativeEngine &engine, const std::sh
 NativeValue* JsNapiCommon::CreateHapModuleInfo(
     NativeEngine &engine, const std::shared_ptr<JsHapModuleInfo> &hapModInfo)
 {
-    HILOG_DEBUG("called");
-    if (hapModInfo == nullptr) {
-        HILOG_ERROR("input params error");
-        return engine.CreateUndefined();
-    }
+    HILOG_DEBUG("CreateHapModuleInfo called");
+    CHECK_POINTER_AND_RETURN_LOG(hapModInfo, engine.CreateUndefined(), "input params error");
     auto objContext = engine.CreateObject();
-    if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(objContext, engine.CreateUndefined(), "CreateObject failed");
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
-    if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine.CreateUndefined(), "ConvertNativeValueTo object failed");
 
     object->SetProperty("name", CreateJsValue(engine, hapModInfo->hapModInfo.name));
     object->SetProperty("description", CreateJsValue(engine, hapModInfo->hapModInfo.description));
@@ -5398,15 +5541,15 @@ NativeValue* JsNapiCommon::CreateModuleInfos(NativeEngine &engine, const std::ve
 
 NativeValue* JsNapiCommon::CreateAppInfo(NativeEngine &engine, const ApplicationInfo &appInfo)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("CreateAppInfo called");
     auto objContext = engine.CreateObject();
     if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
+        HILOG_ERROR("CreateAppInfo, CreateObject failed");
         return engine.CreateUndefined();
     }
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
     if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
+        HILOG_ERROR("CreateAppInfo, ConvertNativeValueTo object failed");
         return engine.CreateUndefined();
     }
 
@@ -5441,15 +5584,15 @@ NativeValue* JsNapiCommon::CreateAppInfo(NativeEngine &engine, const std::shared
 
 NativeValue* JsNapiCommon::CreateAbilityInfo(NativeEngine &engine, const AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("CreateAbilityInfo called");
     auto objContext = engine.CreateObject();
     if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
+        HILOG_ERROR("CreateAbilityInfo, CreateObject failed");
         return engine.CreateUndefined();
     }
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
     if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
+        HILOG_ERROR("CreateAbilityInfo, ConvertNativeValueTo object failed");
         return engine.CreateUndefined();
     }
 
@@ -5541,21 +5684,12 @@ bool JsNapiCommon::CheckAbilityType(const AbilityType typeWant)
 NativeValue* JsNapiCommon::CreateAppVersionInfo(
     NativeEngine &engine, const std::shared_ptr<JsApplicationInfo> &appInfo)
 {
-    HILOG_DEBUG("called");
-    if (appInfo == nullptr) {
-        HILOG_ERROR("input params error");
-        return engine.CreateUndefined();
-    }
+    HILOG_DEBUG("CreateAppVersionInfo called");
+    CHECK_POINTER_AND_RETURN_LOG(appInfo, engine.CreateUndefined(), "input params error");
     auto objContext = engine.CreateObject();
-    if (objContext == nullptr) {
-        HILOG_ERROR("CreateObject failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(objContext, engine.CreateUndefined(), "CreateObject failed");
     auto object = ConvertNativeValueTo<NativeObject>(objContext);
-    if (object == nullptr) {
-        HILOG_ERROR("ConvertNativeValueTo object failed");
-        return engine.CreateUndefined();
-    }
+    CHECK_POINTER_AND_RETURN_LOG(object, engine.CreateUndefined(), "ConvertNativeValueTo object failed");
 
     object->SetProperty("appName", CreateJsValue(engine, appInfo->appInfo.name));
     object->SetProperty("versionName", CreateJsValue(engine, appInfo->appInfo.versionName));
@@ -5632,6 +5766,66 @@ std::string JsNapiCommon::ConvertErrorCode(int32_t errCode)
     }
 
     return findECode->second;
+}
+
+NativeValue* JsNapiCommon::JsGetWant(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+
+    std::shared_ptr<JsWant> pwant = std::make_shared<JsWant>();
+    auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
+    auto execute = [obj = this, want = pwant, value = errorVal, abilityType] () {
+        if (obj->ability_ == nullptr) {
+            *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+            HILOG_ERROR("task execute error, the ability is nullptr");
+            return;
+        }
+        if (!obj->CheckAbilityType(abilityType)) {
+            HILOG_ERROR("task execute error, the abilityType is error");
+            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+            return;
+        }
+
+        auto wantData = obj->ability_->GetWant();
+        if (wantData == nullptr || want == nullptr) {
+            HILOG_ERROR("wantData or want is nullptr!");
+            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
+            return;
+        }
+        want->want = *wantData;
+    };
+
+    auto complete = [obj = this, value = errorVal, pwant]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (*value == NAPI_ERR_NO_ERROR && pwant != nullptr) {
+            task.Resolve(engine, obj->CreateWant(engine, pwant));
+        } else {
+            auto error = (pwant == nullptr) ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
+            task.Reject(engine, CreateJsError(engine, error, "GetAbilityInfo return nullptr"));
+        }
+    };
+
+    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsGetWant",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_ptr<JsWant> &want)
+{
+    HILOG_DEBUG("%{public}s,called", __func__);
+    if (want == nullptr) {
+        HILOG_DEBUG("%{public}s,called", __func__);
+        return engine.CreateUndefined();
+    }
+
+    return CreateJsWant(engine, want->want);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

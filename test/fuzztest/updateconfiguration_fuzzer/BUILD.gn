@@ -46,7 +46,16 @@ ohos_fuzztest("UpdateConfigurationFuzzTest") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "ability_base:want",
+    "ability_base:zuri",
+    "appspawn:appspawn_socket_client",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 }
 

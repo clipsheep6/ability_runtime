@@ -81,6 +81,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
   ]
@@ -154,6 +155,14 @@ ohos_shared_library("appkit_native") {
   defines = []
   if (is_asan) {
     defines += [ "SUPPORT_ASAN" ]
+  }
+
+  if ("${product_name}" == "rk3568" || "${product_name}" == "m40") {
+    public_deps += [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
+
+    include_dirs += [ "//base/web/webview/ohos_adapter/interfaces" ]
+
+    defines += [ "NWEB" ]
   }
 
   subsystem_name = "ability"

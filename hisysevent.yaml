@@ -201,3 +201,11 @@ APP_TERMINATE:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
+
+APP_RECOVERY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: recover app status}
+  APP_UID: {type: INT32, desc: app Uid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}

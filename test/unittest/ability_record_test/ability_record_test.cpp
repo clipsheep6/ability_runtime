@@ -713,5 +713,19 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_001, TestSize.Level1)
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     EXPECT_EQ(abilityRecord_->GetPixelMap(1, resourceMgr), nullptr);
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetPendingState
+ * SubFunction: SetPendingState
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: set AbilityRecord pending state
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetPendingState_001, TestSize.Level1)
+{
+    abilityRecord_->SetPendingState(OHOS::AAFwk::AbilityState::FOREGROUND);
+    EXPECT_EQ(abilityRecord_->GetPendingState(), OHOS::AAFwk::AbilityState::FOREGROUND);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -160,6 +160,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
   ]
@@ -273,6 +274,7 @@ group("unittest") {
     "ability_manager_stub_test:unittest",
     "ability_record_dump_test:unittest",
     "ability_record_test:unittest",
+    "ability_running_info_test:unittest",
     "ability_scheduler_proxy_test:unittest",
     "ability_scheduler_stub_test:unittest",
     "ability_service_start_test:unittest",

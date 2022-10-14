@@ -18,10 +18,13 @@
 #include <uv.h>
 #include <vector>
 
-#include "../inner/napi_common/napi_common_ability.h"
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
+#include "napi_common_ability.h"
+#include "napi/native_api.h"
 #include "securec.h"
 
+using namespace OHOS::AbilityRuntime;
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
@@ -35,6 +38,10 @@ namespace AppExecFwk {
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
+
+constexpr size_t ARGC_ONE = 1;
+constexpr int32_t INDEX_ZERO = 0;
+
 napi_value NAPI_PAGetAppType(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -239,12 +246,130 @@ napi_value ParticleAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disconnectAbility", NAPI_PADisConnectAbility),
         DECLARE_NAPI_FUNCTION("acquireDataAbilityHelper", NAPI_PAAcquireDataAbilityHelper),
         DECLARE_NAPI_FUNCTION("startBackgroundRunning", NAPI_PAStartBackgroundRunning),
-        DECLARE_NAPI_FUNCTION("cancelBackgroundRunning", NAPI_PACancelBackgroundRunning),
         DECLARE_NAPI_FUNCTION("terminateSelf", NAPI_PATerminateAbility),
     };
     napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties);
 
-    return exports;
+    return reinterpret_cast<napi_value>(JsParticleAbilityInit(reinterpret_cast<NativeEngine*>(env),
+        reinterpret_cast<NativeValue*>(exports)));
 }
+
+napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRuntime::WantAgent::WantAgent *&wantAgent)
+{
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
+    NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
+    napi_value wantAgentParam = nullptr;
+    napi_value result = nullptr;
+
+    bool hasProperty = false;
+    NAPI_CALL(env, napi_has_named_property(env, args, "wantAgent", &hasProperty));
+    if (hasProperty) {
+        napi_get_named_property(env, args, "wantAgent", &wantAgentParam);
+        NAPI_CALL(env, napi_typeof(env, wantAgentParam, &valuetype));
+        NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
+        napi_unwrap(env, wantAgentParam, (void **)&wantAgent);
+    }
+
+    napi_get_null(env, &result);
+    return result;
+}
+
+void JsParticleAbility::Finalizer(NativeEngine *engine, void *data, void *hint)
+{
+    HILOG_INFO("JsWantAgent::Finalizer is called");
+    std::unique_ptr<JsParticleAbility>(static_cast<JsParticleAbility*>(data));
+}
+
+NativeValue* JsParticleAbility::PACancelBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsParticleAbility *me = CheckParamsAndGetThis<JsParticleAbility>(engine, info);
+    return (me != nullptr) ? me->OnPACancelBackgroundRunning(*engine, *info) : nullptr;
+}
+
+Ability* JsParticleAbility::GetAbility(napi_env env)
+{
+    napi_status ret;
+    napi_value global = 0;
+    const napi_extended_error_info *errorInfo = nullptr;
+    ret = napi_get_global(env, &global);
+    if (ret != napi_ok) {
+        napi_get_last_error_info(env, &errorInfo);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_global=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
+        return nullptr;
+    }
+    napi_value abilityObj = 0;
+    ret = napi_get_named_property(env, global, "ability", &abilityObj);
+    if (ret != napi_ok) {
+        napi_get_last_error_info(env, &errorInfo);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
+        return nullptr;
+    }
+    Ability* ability = nullptr;
+    ret = napi_get_value_external(env, abilityObj, (void **)&ability);
+    if (ret != napi_ok) {
+        napi_get_last_error_info(env, &errorInfo);
+        HILOG_ERROR("JsParticleAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
+        return nullptr;
+    }
+    return ability;
+}
+NativeValue* JsParticleAbility::OnPACancelBackgroundRunning(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    if (info.argc > ARGC_ONE) {
+        HILOG_ERROR("Wrong argument count");
+        return engine.CreateUndefined();
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [obj = this](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            if (obj->ability_ == nullptr) {
+                HILOG_ERROR("task execute error, the ability is nullptr.");
+                task.Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "StopBackgroundRunning failed."));
+                return;
+            }
+            obj->ability_->StopBackgroundRunning();
+            task.Resolve(engine, engine.CreateUndefined());
+        };
+
+    NativeValue *lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsParticleAbility::OnPACancelBackgroundRunning",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj)
+{
+    HILOG_DEBUG("JsParticleAbility is called");
+
+    if (engine == nullptr || exportObj == nullptr) {
+        HILOG_ERROR("engine or exportObj null");
+        return nullptr;
+    }
+
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(exportObj);
+    if (object == nullptr) {
+        HILOG_ERROR("object null");
+        return nullptr;
+    }
+
+    std::unique_ptr<JsParticleAbility> jsParticleAbility = std::make_unique<JsParticleAbility>();
+    jsParticleAbility->ability_ = jsParticleAbility->GetAbility(reinterpret_cast<napi_env>(engine));
+    object->SetNativePointer(jsParticleAbility.release(), JsParticleAbility::Finalizer, nullptr);
+
+    HILOG_DEBUG("JsParticleAbility BindNativeFunction called");
+    const char *moduleName = "JsParticleAbility";
+    BindNativeFunction(*engine, *object, "cancelBackgroundRunning", moduleName,
+        JsParticleAbility::PACancelBackgroundRunning);
+
+    HILOG_DEBUG("JsParticleAbility end");
+    return exportObj;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

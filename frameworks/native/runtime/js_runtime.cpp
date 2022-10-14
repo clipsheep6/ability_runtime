@@ -533,15 +533,18 @@ bool JsRuntime::Initialize(const Options& options)
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
 
         codePath_ = options.codePath;
+    }
 
-        auto moduleManager = NativeModuleManager::GetInstance();
-        std::string packagePath = options.packagePath;
-        if (moduleManager && !packagePath.empty()) {
-            moduleManager->SetAppLibPath(std::vector<std::string>(1, packagePath));
+    auto moduleManager = NativeModuleManager::GetInstance();
+    if (moduleManager != nullptr) {
+        for (const auto &appLibPath : options.appLibPaths) {
+            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
         }
+    }
 
+    if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
     preloaded_ = options.preload;
@@ -559,7 +562,7 @@ void JsRuntime::Deinitialize()
 
     auto uvLoop = nativeEngine_->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd >= 0) {
+    if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
     RemoveTask(TIMER_TASK);
