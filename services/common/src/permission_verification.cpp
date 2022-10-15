@@ -25,7 +25,7 @@ namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string DMS_PROCESS_NAME = "distributedsched";
-bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName)
+bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName) const
 {
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
     auto callerToken = GetCallingTokenID();
@@ -38,7 +38,7 @@ bool PermissionVerification::VerifyCallingPermission(const std::string &permissi
     return true;
 }
 
-bool PermissionVerification::IsSACall()
+bool PermissionVerification::IsSACall() const
 {
     HILOG_DEBUG("%{public}s: is called.", __func__);
     auto callerToken = GetCallingTokenID();
@@ -51,7 +51,7 @@ bool PermissionVerification::IsSACall()
     return false;
 }
 
-bool PermissionVerification::IsShellCall()
+bool PermissionVerification::IsShellCall() const
 {
     HILOG_DEBUG("%{public}s: is called.", __func__);
     auto callerToken = GetCallingTokenID();
@@ -64,7 +64,7 @@ bool PermissionVerification::IsShellCall()
     return false;
 }
 
-bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission()
+bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
@@ -81,7 +81,7 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission()
     return true;
 }
 
-bool PermissionVerification::VerifyRunningInfoPerm()
+bool PermissionVerification::VerifyRunningInfoPerm() const
 {
     if (IsSACall()) {
         HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
@@ -95,7 +95,7 @@ bool PermissionVerification::VerifyRunningInfoPerm()
     return false;
 }
 
-bool PermissionVerification::VerifyControllerPerm()
+bool PermissionVerification::VerifyControllerPerm() const
 {
     if (IsSACall()) {
         HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
@@ -109,7 +109,7 @@ bool PermissionVerification::VerifyControllerPerm()
     return false;
 }
 
-bool PermissionVerification::VerifyDlpPermission(Want &want)
+bool PermissionVerification::VerifyDlpPermission(Want &want) const
 {
     if (want.GetIntParam(DLP_PARAMS_INDEX, 0) == 0) {
         want.RemoveParam(DLP_PARAMS_SECURITY_FLAG);
@@ -126,7 +126,7 @@ bool PermissionVerification::VerifyDlpPermission(Want &want)
     return false;
 }
 
-int PermissionVerification::VerifyAccountPermission()
+int PermissionVerification::VerifyAccountPermission() const
 {
     if (IsSACall()) {
         return ERR_OK;
@@ -138,7 +138,7 @@ int PermissionVerification::VerifyAccountPermission()
     return CHECK_PERMISSION_FAILED;
 }
 
-bool PermissionVerification::VerifyMissionPermission()
+bool PermissionVerification::VerifyMissionPermission() const
 {
     if (IsSACall()) {
         return true;
@@ -151,7 +151,7 @@ bool PermissionVerification::VerifyMissionPermission()
     return false;
 }
 
-int PermissionVerification::VerifyAppStateObserverPermission()
+int PermissionVerification::VerifyAppStateObserverPermission() const
 {
     if (IsSACall()) {
         return ERR_OK;
@@ -164,7 +164,7 @@ int PermissionVerification::VerifyAppStateObserverPermission()
     return ERR_PERMISSION_DENIED;
 }
 
-int32_t PermissionVerification::VerifyUpdateConfigurationPerm()
+int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 {
     if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
@@ -174,7 +174,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm()
     return ERR_PERMISSION_DENIED;
 }
 
-bool PermissionVerification::VerifyInstallBundlePermission()
+bool PermissionVerification::VerifyInstallBundlePermission() const
 {
     if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
@@ -185,7 +185,7 @@ bool PermissionVerification::VerifyInstallBundlePermission()
     return false;
 }
 
-bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission()
+bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
 {
     if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
@@ -196,7 +196,7 @@ bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission()
     return false;
 }
 
-int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo) const
 {
     if (IsSACall()) {
         return ERR_OK;
@@ -209,7 +209,7 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         HILOG_ERROR("Target DataAbility is not visible, and caller does not have INVISIBLE permission.");
-        return CHECK_PERMISSION_FAILED;
+        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
     if (!JudgeAssociatedWakeUp(verificationInfo.accessTokenId, verificationInfo.associatedWakeUp)) {
         HILOG_ERROR("Target DataAbility's associatedWakeUp is false, reject start it from other application.");
@@ -219,7 +219,7 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
     return ERR_OK;
 }
 
-int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
     if (IsSACall()) {
         return ERR_OK;
@@ -232,7 +232,7 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         HILOG_ERROR("Target ServiceAbility is not visible, and caller does not have INVISIBLE permission.");
-        return CHECK_PERMISSION_FAILED;
+        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
     if (!JudgeAssociatedWakeUp(verificationInfo.accessTokenId, verificationInfo.associatedWakeUp)) {
         HILOG_ERROR("Target ServiceAbility's associatedWakeUp is false, reject start it from other application.");
@@ -242,22 +242,22 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     return ERR_OK;
 }
 
-int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo) const
 {
     return JudgeInvisibleAndBackground(verificationInfo);
 }
 
-int PermissionVerification::CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo) const
 {
     return JudgeInvisibleAndBackground(verificationInfo);
 }
 
-int PermissionVerification::CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo) const
 {
     return JudgeInvisibleAndBackground(verificationInfo);
 }
 
-int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo)
+int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo) const
 {
     if (IsSACall()) {
         return ERR_OK;
@@ -273,7 +273,7 @@ int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &v
         return CHECK_PERMISSION_FAILED;
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
-        return CHECK_PERMISSION_FAILED;
+        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
     if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
         return CHECK_PERMISSION_FAILED;
@@ -282,14 +282,14 @@ int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &v
     return ERR_OK;
 }
 
-unsigned int PermissionVerification::GetCallingTokenID()
+unsigned int PermissionVerification::GetCallingTokenID() const
 {
     auto callerToken = IPCSkeleton::GetCallingTokenID();
     HILOG_DEBUG("callerToken : %{private}u", callerToken);
     return callerToken;
 }
 
-bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible)
+bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible) const
 {
     if (visible) {
         HILOG_DEBUG("TargetAbility visible is true, PASS.");
@@ -307,7 +307,7 @@ bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTok
     return false;
 }
 
-bool PermissionVerification::JudgeStartAbilityFromBackground(const bool isBackgroundCall)
+bool PermissionVerification::JudgeStartAbilityFromBackground(const bool isBackgroundCall) const
 {
     if (!isBackgroundCall) {
         HILOG_DEBUG("Caller is not background, PASS.");
@@ -324,7 +324,7 @@ bool PermissionVerification::JudgeStartAbilityFromBackground(const bool isBackgr
     return false;
 }
 
-bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp)
+bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp) const
 {
     if (IsCallFromSameAccessToken(accessTokenId)) {
         HILOG_DEBUG("TargetAbility is in same APP, PASS.");
@@ -338,17 +338,19 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
     return false;
 }
 
-int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo)
+int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
     if (IsSACall()) {
         return ERR_OK;
     }
-    if (JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible) &&
-        JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
-        return ERR_OK;
+    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
+        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+    }
+    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        return CHECK_PERMISSION_FAILED;
     }
 
-    return CHECK_PERMISSION_FAILED;
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
