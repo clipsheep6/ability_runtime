@@ -41,6 +41,7 @@ public:
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
+    int64_t GetConnectionId();
 private:
     NativeEngine& engine_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

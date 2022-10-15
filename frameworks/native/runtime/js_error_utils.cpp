@@ -48,6 +48,11 @@ void ThrowNoPermissionError(NativeEngine& engine, const std::string& permission)
         GetNoPermissionErrorMsg(permission)));
 }
 
+void ThrowErrorByNativeErr(NativeEngine& engine, int32_t err)
+{
+    engine.Throw(CreateJsErrorByNativeErr(engine, err));
+}
+
 NativeValue* CreateJsError(NativeEngine& engine, const AbilityErrorCode& err)
 {
     return CreateJsError(engine, static_cast<int32_t>(err), GetErrorMsg(err));

@@ -28,12 +28,12 @@ enum class AbilityErrorCode {
     ERROR_CODE_INNER = 16000050, // inner error.
     ERROR_CODE_NO_MISSION_ID = 16300001,
     ERROR_CODE_NO_MISSION_LISTENER = 16300002,
+    ERROR_CODE_INVALID_CONTEXT = 16000011,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);
 std::string GetNoPermissionErrorMsg(const std::string& permission);
 AbilityErrorCode GetJsErrorCodeByNativeError(int32_t errCode);
-
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif

@@ -26,6 +26,7 @@ void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorM
 void ThrowError(NativeEngine& engine, const AbilityErrorCode& err);
 void ThrowTooFewParametersError(NativeEngine& engine);
 void ThrowNoPermissionError(NativeEngine& engine, const std::string& permission);
+void ThrowErrorByNativeErr(NativeEngine& engine, int32_t err);
 
 NativeValue* CreateJsError(NativeEngine& engine, const AbilityErrorCode& err);
 NativeValue* CreateNoPermissionError(NativeEngine& engine, const std::string& permission);
