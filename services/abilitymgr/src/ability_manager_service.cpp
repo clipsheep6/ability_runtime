@@ -353,7 +353,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_INVALID_CONTINUATION_FLAG;
     }
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
@@ -389,7 +389,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             CheckSpecificSystemAbilityAccessPermission();
         if (!isSpecificSA) {
             HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-            return ERR_INVALID_VALUE;
+            return ERR_INVALID_CALLER;
         }
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
@@ -424,7 +424,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -449,14 +449,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
         HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
-        return result;
+        return ERR_STATIC_CFG_PERMISSION;
     }
     GrantUriPermission(want, validUserId);
 
     auto type = abilityInfo.type;
     if (type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot start data ability, use 'AcquireDataAbility()' instead.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     } else if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
         result = CheckCallServicePermission(abilityRequest);
@@ -537,7 +537,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_INVALID_CALLER;
     }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -566,7 +566,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -605,7 +605,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return result;
+        return ERR_STATIC_CFG_PERMISSION;
     }
     result = CheckCallAbilityPermission(abilityRequest);
     if (result != ERR_OK) {
@@ -623,7 +623,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -644,7 +644,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 #endif
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
@@ -697,7 +697,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_INVALID_CALLER;
     }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -725,7 +725,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -766,7 +766,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return result;
+        return ERR_STATIC_CFG_PERMISSION;
     }
     result = CheckCallAbilityPermission(abilityRequest);
     if (result != ERR_OK) {
@@ -847,19 +847,19 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     auto type = abilityInfo.type;
     if (type != AppExecFwk::AbilityType::EXTENSION) {
         HILOG_ERROR("Not extension ability, not allowed.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
     if (extensionType != AppExecFwk::ExtensionAbilityType::UNSPECIFIED &&
         extensionType != abilityInfo.extensionAbilityType) {
         HILOG_ERROR("Extension ability type not match, set type: %{public}d, real type: %{public}d",
             static_cast<int32_t>(extensionType), static_cast<int32_t>(abilityInfo.extensionAbilityType));
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     auto result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
         HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
-        return result;
+        return ERR_STATIC_CFG_PERMISSION;
     }
 
     if (extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE ||
@@ -971,7 +971,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_INVALID_CALLER;
     }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -986,7 +986,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
             HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -1075,7 +1075,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
         AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
             HiSysEventType::FAULT,
             eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_INVALID_CALLER;
     }
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
@@ -1084,7 +1084,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
         AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
             HiSysEventType::FAULT,
             eventInfo);
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -1250,7 +1250,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     if (type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot terminate data ability, use 'ReleaseDataAbility()' instead.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
@@ -1471,7 +1471,7 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("Cannot minimize except page ability.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
@@ -1525,7 +1525,7 @@ int AbilityManagerService::ConnectAbilityCommon(
     }
 
     int32_t validUserId = GetValidUserId(userId);
-    
+
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
         std::string localDeviceId;
         if (!GetLocalDeviceId(localDeviceId)) {
@@ -1617,7 +1617,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     HILOG_INFO("Connect local ability begin.");
     if (!JudgeMultiUserConcurrency(userId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
+        return ERR_CROSS_USER;
     }
 
     AbilityRequest abilityRequest;
@@ -1642,7 +1642,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
         HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
-        return result;
+        return ERR_STATIC_CFG_PERMISSION;
     }
 
     if (!VerifyUriPermission(abilityRequest, want)) {
@@ -4165,7 +4165,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
             kill(record->GetPid(), SIGKILL);
             return;
         }
-    
+
         auto appInfo = record->GetApplicationInfo();
         auto abilityInfo = record->GetAbilityInfo();
         appRecoverHistory_.emplace(record->GetUid(),
@@ -4424,7 +4424,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
-    
+
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     if (!sysDialog) {
         HILOG_ERROR("SystemDialogScheduler is nullptr.");
@@ -4621,7 +4621,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("Cannot minimize except page ability.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
@@ -5206,7 +5206,7 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     }
     if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("BMS query result is not a data ability.");
-        return ERR_INVALID_VALUE;
+        return ERR_WRONG_INTERFACE_CALL;
     }
 
     if (!IsUseNewStartUpRule(abilityRequest)) {

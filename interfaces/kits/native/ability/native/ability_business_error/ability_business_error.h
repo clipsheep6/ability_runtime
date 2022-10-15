@@ -21,14 +21,74 @@
 namespace OHOS {
 namespace AbilityRuntime {
 enum class AbilityErrorCode {
+    // success
     ERROR_OK = 0,
+
+    // no such permission.
     ERROR_CODE_PERMISSION_DENIED = 201,
+
+    // invalid param.
     ERROR_CODE_INVALID_PARAM = 401,
+
+    // no such systemcap.
     ERROR_CODE_SYSTEMCAP = 801,
-    ERROR_CODE_INNER = 16000050, // inner error.
-    ERROR_CODE_NO_MISSION_ID = 16300001,
-    ERROR_CODE_NO_MISSION_LISTENER = 16300002,
+
+    // common inner error.
+    ERROR_CODE_INNER = 16000050,
+
+    // can not find target ability.
+    ERROR_CODE_RESOLVE_ABILITY = 16000001,
+
+    // ability type is wrong.
+    ERROR_CODE_INVALID_ABILITY_TYPE = 16000002,
+
+    // no start invisible ability permission.
+    ERROR_CODE_NO_INVISIBLE_PERMISSION = 16000004,
+
+    // check static permission failed.
+    ERROR_CODE_STATIC_CFG_PERMISSION = 16000005,
+
+    // no permission to cross user.
+    ERROR_CODE_CROSS_USER = 16000006,
+
+    // crowdtest app expiration.
+    ERROR_CODE_CROWDTEST_EXPIRED = 16000008,
+
+    // wukong mode.
+    ERROR_CODE_WUKONG_MODE = 16000009,
+
+    // not allowed for continuation flag.
+    ERROR_CODE_CONTINUATION_FLAG = 16000010,
+
+    // context is invalid.
     ERROR_CODE_INVALID_CONTEXT = 16000011,
+
+    // free install network abnormal.
+    ERROR_CODE_NETWORK_ABNORMAL = 16000051,
+
+    // not support free install.
+    ERROR_CODE_NOT_SUPPORT_FREE_INSTALL = 16000052,
+
+    // not top ability, not enable to free install.
+    ERROR_CODE_NOT_TOP_ABILITY = 16000053,
+
+    // too busy for free install.
+    ERROR_CODE_FREE_INSTALL_TOO_BUSY = 16000054,
+
+    // free install timeout.
+    ERROR_CODE_FREE_INSTALL_TIMEOUT = 16000055,
+
+    // free install other ability.
+    ERROR_CODE_FREE_INSTALL_OTHERS = 16000056,
+
+    // invalid caller.
+    ERROR_CODE_INVALID_CALLER = 16200001,
+
+    // no such mission id.
+    ERROR_CODE_NO_MISSION_ID = 16300001,
+
+    // no such mission listener.
+    ERROR_CODE_NO_MISSION_LISTENER = 16300002,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);
