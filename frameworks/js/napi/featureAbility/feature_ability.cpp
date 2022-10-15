@@ -20,10 +20,12 @@
 
 #include "../inner/napi_common/napi_common_ability.h"
 #include "../inner/napi_common/js_napi_common_ability.h"
+#include "ability_business_error.h"
 #include "ability_process.h"
 #include "element_name.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_window.h"
@@ -851,7 +853,7 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
                 return;
             }
             napi_value result[ARGS_TWO] = {0};
-            int32_t errCode = GetStartAbilityErrorCode(onAbilityCB->cb.errCode);
+            int32_t errCode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(onAbilityCB->cb.errCode));
             result[PARAM0] = GetCallbackErrorValue(onAbilityCB->cb.env, errCode);
 
             napi_create_object(onAbilityCB->cb.env, &result[PARAM1]);

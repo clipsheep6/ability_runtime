@@ -29,7 +29,10 @@ ohos_shared_library("abilitymanager_napi") {
     "${ipc_native_path}/src/napi/include",
   ]
 
-  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
+  deps = [
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+  ]
 
   external_deps = [
     "ability_base:configuration",

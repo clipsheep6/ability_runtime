@@ -18,8 +18,10 @@
 #include <dlfcn.h>
 #include <uv.h>
 
+#include "ability_business_error.h"
 #include "ability_util.h"
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_napi_common_ability.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
@@ -34,63 +36,7 @@ namespace OHOS {
 namespace AppExecFwk {
 napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
-const int32_t ERR_ABILITY_START_SUCCESS = 0;
-const int32_t ERR_ABILITY_QUERY_FAILED = 1;
-const int32_t ERR_NETWORK_UNAVAILABLE = 2;
-const int32_t ERR_SYSTEM_ERROR = 3;
-const int32_t ERR_LOADING_ERROR = 4;
-const int32_t ERR_CONCURRENT_TASKS_WAITING_FOR_RETRY = 5;
-const int32_t ERR_FREE_INSTALL_NOT_SUPPORTED = 6;
-const int32_t ERR_SERVICE_ERROR = 7;
-const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
-const int32_t ERR_PARAMETER_INVALID = 9;
-const int32_t ERR_REMOTE_INCOMPATIBLE = 10;
-const int32_t ERR_DEVICE_OFFLINE = 11;
-const int32_t ERR_FREE_INSTALL_TIMEOUT = 12;
-const int32_t ERR_NOT_TOP_ABILITY = 13;
-const int32_t ERR_TARGET_BUNDLE_NOT_EXIST = 14;
-const int32_t ERR_CONTINUE_FREE_INSTALL_FAILED = 15;
-const int32_t ERR_PARAM_INVALID = 202;
-const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
-    { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
-    { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
-    { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_PARAM_INVALID, ERR_PARAM_INVALID },
-    { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
-    { ERR_OK, ERR_ABILITY_START_SUCCESS },
-    { RESOLVE_ABILITY_ERR, ERR_ABILITY_QUERY_FAILED },
-    { CHECK_PERMISSION_FAILED, ERR_PERMISSION_VERIFY_FAILED },
-    { RESOLVE_CALL_NO_PERMISSIONS, ERR_PERMISSION_VERIFY_FAILED },
-    { FA_FREE_INSTALL_QUERY_ERROR, ERR_ABILITY_QUERY_FAILED },
-    { HAG_QUERY_TIMEOUT, ERR_ABILITY_QUERY_FAILED },
-    { FA_NETWORK_UNAVAILABLE, ERR_NETWORK_UNAVAILABLE },
-    { FA_FREE_INSTALL_SERVICE_ERROR, ERR_SYSTEM_ERROR },
-    { FA_CRASH, ERR_SYSTEM_ERROR },
-    { FA_TIMEOUT, ERR_SYSTEM_ERROR },
-    { UNKNOWN_EXCEPTION, ERR_SYSTEM_ERROR },
-    { NOT_SUPPORT_PA_ON_SAME_DEVICE, ERR_SYSTEM_ERROR },
-    { FA_INTERNET_ERROR, ERR_SYSTEM_ERROR },
-    { JUMP_TO_THE_APPLICATION_MARKET_UPGRADE, ERR_SYSTEM_ERROR },
-    { USER_GIVES_UP, ERR_LOADING_ERROR },
-    { INSTALLATION_ERROR_IN_FREE_INSTALL, ERR_LOADING_ERROR },
-    { HAP_PACKAGE_DOWNLOAD_TIMED_OUT, ERR_LOADING_ERROR },
-    { CONCURRENT_TASKS_WAITING_FOR_RETRY, ERR_CONCURRENT_TASKS_WAITING_FOR_RETRY },
-    { FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL, ERR_FREE_INSTALL_NOT_SUPPORTED },
-    { NOT_ALLOWED_TO_PULL_THIS_FA, ERR_SERVICE_ERROR },
-    { NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA, ERR_SERVICE_ERROR },
-    { DMS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { DMS_COMPONENT_ACCESS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { DMS_ACCOUNT_ACCESS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { INVALID_PARAMETERS_ERR, ERR_PARAMETER_INVALID },
-    { INVALID_REMOTE_PARAMETERS_ERR, ERR_PARAMETER_INVALID },
-    { REMOTE_DEVICE_NOT_COMPATIBLE, ERR_REMOTE_INCOMPATIBLE },
-    { DEVICE_OFFLINE_ERR, ERR_DEVICE_OFFLINE },
-    { FREE_INSTALL_TIMEOUT, ERR_FREE_INSTALL_TIMEOUT },
-    { NOT_TOP_ABILITY, ERR_NOT_TOP_ABILITY },
-    { TARGET_BUNDLE_NOT_EXIST, ERR_TARGET_BUNDLE_NOT_EXIST },
-    { CONTINUE_FREE_INSTALL_FAILED, ERR_CONTINUE_FREE_INSTALL_FAILED }
-};
+
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
@@ -306,14 +252,6 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
     return result;
 }
 
-int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
-{
-    auto iter = START_ABILITY_ERROR_CODE_MAP.find(innerErrorCode);
-    if (iter != START_ABILITY_ERROR_CODE_MAP.end()) {
-        return iter->second;
-    }
-    return ERR_ABILITY_QUERY_FAILED;
-}
 
 /**
  * @brief GetFilesDir asynchronous processing function.
@@ -1885,7 +1823,8 @@ void GetHapModuleInfoPromiseCompleteCB(napi_env env, napi_status status, void *d
         result = WrapHapModuleInfo(env, *hapModuleInfoCB);
         napi_resolve_deferred(env, hapModuleInfoCB->cbBase.deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, hapModuleInfoCB->cbBase.errCode);
+        result = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(hapModuleInfoCB->cbBase.errCode)));
         napi_reject_deferred(env, hapModuleInfoCB->cbBase.deferred, result);
     }
 
@@ -2136,7 +2075,8 @@ void GetAppVersionInfoAsyncCompleteCB(napi_env env, napi_status status, void *da
     napi_value result[ARGS_TWO] = {nullptr};
     napi_value callResult = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    result[PARAM0] = GetCallbackErrorValue(env, appVersionInfoCB->cbBase.errCode);
+    result[PARAM0] = GetCallbackErrorValue(env,
+        static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(appVersionInfoCB->cbBase.errCode)));
     if (appVersionInfoCB->cbBase.errCode == NAPI_ERR_NO_ERROR) {
         result[PARAM1] = WrapAppVersionInfo(env, *appVersionInfoCB);
     } else {
@@ -2163,7 +2103,8 @@ void GetAppVersionInfoPromiseCompleteCB(napi_env env, napi_status status, void *
         result = WrapAppVersionInfo(env, *appVersionInfoCB);
         napi_resolve_deferred(env, appVersionInfoCB->cbBase.deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, appVersionInfoCB->cbBase.errCode);
+        result = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(appVersionInfoCB->cbBase.errCode)));
         napi_reject_deferred(env, appVersionInfoCB->cbBase.deferred, result);
     }
 
@@ -2408,7 +2349,8 @@ napi_value GetContextAsync(
             napi_value result[ARGS_TWO] = {0};
             napi_value callResult = 0;
             napi_get_undefined(env, &undefined);
-            result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+            result[PARAM0] = GetCallbackErrorValue(env,
+                static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
                 napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result[PARAM1]);
             } else {
@@ -2461,7 +2403,8 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
                 napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result);
                 napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
             } else {
-                result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+                result = GetCallbackErrorValue(env,
+                    static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
                 napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
             }
 
@@ -2597,7 +2540,8 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
             napi_value result[ARGS_TWO] = {0};
             napi_value callResult = 0;
             napi_get_undefined(env, &undefined);
-            result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+            result[PARAM0] = GetCallbackErrorValue(env,
+                static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
                 result[PARAM1] = WrapWant(env, asyncCallbackInfo->param.want);
             } else {
@@ -2650,7 +2594,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
                 result = WrapWant(env, asyncCallbackInfo->param.want);
                 napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
             } else {
-                result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+                result = GetCallbackErrorValue(env, static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
                 napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
             }
 
@@ -2825,7 +2769,8 @@ void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status status, void *data)
     napi_value result[ARGS_TWO] = {nullptr};
     napi_value callResult = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    result[PARAM0] = GetCallbackErrorValue(env, abilityNameCB->cbBase.errCode);
+    result[PARAM0] = GetCallbackErrorValue(env,
+        static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(abilityNameCB->cbBase.errCode)));
     if (abilityNameCB->cbBase.errCode == NAPI_ERR_NO_ERROR) {
         result[PARAM1] = WrapAbilityName(env, abilityNameCB);
     } else {
@@ -2857,7 +2802,8 @@ void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status status, void *dat
         result = WrapAbilityName(env, abilityNameCB);
         napi_resolve_deferred(env, abilityNameCB->cbBase.deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, abilityNameCB->cbBase.errCode);
+        result = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(abilityNameCB->cbBase.errCode)));
         napi_reject_deferred(env, abilityNameCB->cbBase.deferred, result);
     }
 
@@ -3198,7 +3144,7 @@ void StartAbilityCallbackCompletedCB(napi_env env, napi_status status, void *dat
     napi_value callResult = 0;
     napi_get_undefined(env, &undefined);
 
-    int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+    int32_t errCode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode));
     result[PARAM0] = GetCallbackErrorValue(env, errCode);
     if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
         napi_create_int32(env, 0, &result[PARAM1]);
@@ -3227,7 +3173,7 @@ void StartAbilityPromiseCompletedCB(napi_env env, napi_status status, void *data
         napi_create_int32(env, 0, &result);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
     } else {
-        int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+        int32_t errCode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode));
         result = GetCallbackErrorValue(env, errCode);
         napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
     }
@@ -3813,7 +3759,8 @@ void DisConnectAbilityCallbackCompletedCB(napi_env env, napi_status status, void
     napi_value result[ARGS_TWO] = {0};
     napi_value callResult = 0;
     napi_get_undefined(env, &undefined);
-    result[PARAM0] = GetCallbackErrorValue(env, connectAbilityCB->errCode);
+    result[PARAM0] = GetCallbackErrorValue(env,
+        static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(connectAbilityCB->errCode)));
     if (connectAbilityCB->errCode == NAPI_ERR_NO_ERROR) {
         result[PARAM1] = WrapVoidToJS(env);
     } else {
@@ -3841,7 +3788,8 @@ void DisConnectAbilityPromiseCompletedCB(napi_env env, napi_status status, void 
         result = WrapVoidToJS(env);
         napi_resolve_deferred(env, connectAbilityCB->cbBase.deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, connectAbilityCB->errCode);
+        result = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(connectAbilityCB->errCode)));
         napi_reject_deferred(env, connectAbilityCB->cbBase.deferred, result);
     }
 
@@ -4254,6 +4202,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     HILOG_INFO("%{public}s,called", __func__);
     if (dataAbilityHelperCB == nullptr) {
         HILOG_ERROR("%{public}s,dataAbilityHelperCB == nullptr", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
@@ -4263,6 +4212,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     if (argc > requireArgc) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return nullptr;
     }
 
@@ -4280,6 +4230,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
         auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
         if (ability == nullptr) {
             HILOG_ERROR("Failed to get native context instance");
+            NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
             return nullptr;
         }
         dataAbilityHelperCB->cbBase.ability = ability;
@@ -4287,6 +4238,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
         if (!CheckAbilityType(&dataAbilityHelperCB->cbBase)) {
             dataAbilityHelperCB->cbBase.errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
             HILOG_ERROR("%{public}s ability type invalid.", __func__);
+            NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
             return nullptr;
         }
     }
@@ -4295,6 +4247,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     NAPI_CALL(env, napi_typeof(env, args[uriIndex], &valuetype));
     if (valuetype != napi_string) {
         HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return nullptr;
     }
 
@@ -4303,21 +4256,25 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("%{public}s, IsTypeForNapiValue isn`t object", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
     if (IsTypeForNapiValue(env, result, napi_null)) {
         HILOG_ERROR("%{public}s, IsTypeForNapiValue is null", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
     if (IsTypeForNapiValue(env, result, napi_undefined)) {
         HILOG_ERROR("%{public}s, IsTypeForNapiValue is undefined", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
     if (!GetDataAbilityHelperStatus()) {
         HILOG_ERROR("%{public}s, GetDataAbilityHelperStatus is false", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
@@ -4354,20 +4311,24 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
     AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return;
     }
     if (asyncCallbackInfo->errCode == NAPI_ERR_PARAM_INVALID) {
         HILOG_ERROR("parse input param failed");
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return;
     }
     if (asyncCallbackInfo->ability == nullptr) {
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return;
     }
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
     if (info == nullptr) {
         HILOG_ERROR("abilityinfo is null");
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -4398,7 +4359,8 @@ void BackgroundRunningCallbackCompletedCB(napi_env env, napi_status status, void
         napi_create_int32(env, 0, &result[1]);
     } else {
         result[1] = WrapUndefinedToJS(env);
-        result[0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+        result[0] = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
     }
 
     napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
@@ -4422,7 +4384,8 @@ void BackgroundRunningPromiseCompletedCB(napi_env env, napi_status status, void 
         napi_create_int32(env, 0, &result);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+        result = GetCallbackErrorValue(env,
+            static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(asyncCallbackInfo->errCode)));
         napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
     }
 
@@ -4437,6 +4400,7 @@ napi_value StartBackgroundRunningAsync(
     HILOG_INFO("%{public}s asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -4467,6 +4431,7 @@ napi_value StartBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncC
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName;
@@ -4502,6 +4467,7 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
 
     if (paramNums < minParamNums || paramNums > maxParamNums) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return nullptr;
     }
 
@@ -4525,6 +4491,7 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullpter", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return WrapVoidToJS(env);
     }
 
@@ -4549,6 +4516,7 @@ void CancelBackgroundRunningExecuteCB(napi_env env, void *data)
         asyncCallbackInfo->ability->StopBackgroundRunning();
     } else {
         HILOG_ERROR("NAPI_PACancelBackgroundRunning, ability == nullptr");
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
     }
 }
 
@@ -4558,6 +4526,7 @@ napi_value CancelBackgroundRunningAsync(
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -4589,6 +4558,7 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -4624,6 +4594,7 @@ napi_value CancelBackgroundRunningWrap(napi_env &env, napi_callback_info &info, 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, NULL, NULL));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return nullptr;
     }
 
@@ -4643,6 +4614,7 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullpter", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return WrapVoidToJS(env);
     }
 
@@ -4665,6 +4637,7 @@ napi_value TerminateAbilityWrap(napi_env env, napi_callback_info info, AsyncCall
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
 
@@ -4677,6 +4650,7 @@ napi_value TerminateAbilityWrap(napi_env env, napi_callback_info info, AsyncCall
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return nullptr;
     }
 
@@ -4695,6 +4669,7 @@ napi_value TerminateAbilityAsync(
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -4725,7 +4700,7 @@ napi_value TerminateAbilityAsync(
             napi_value result[ARGS_TWO] = {0};
             napi_value callResult = 0;
             napi_get_undefined(env, &undefined);
-            result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
+            result[PARAM0] = GetCallbackErrorValue(env, static_cast<int32_t>(AbilityErrorCode::ERROR_OK));
             napi_get_null(env, &result[PARAM1]);
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
@@ -4751,6 +4726,7 @@ napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbac
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -4795,6 +4771,7 @@ napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info)
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s,asyncCallbackInfo == nullptr", __func__);
+        NapiThrow(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_CONTEXT_EMPTY));
         return WrapVoidToJS(env);
     }
 

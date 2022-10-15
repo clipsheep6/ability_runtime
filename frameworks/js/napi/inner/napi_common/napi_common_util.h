@@ -10,7 +10,8 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitation
+ * s under the License.
  */
 
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H
@@ -254,6 +255,8 @@ void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *dat
 std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
+
+void NapiThrow(napi_env env, int32_t errCode);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H

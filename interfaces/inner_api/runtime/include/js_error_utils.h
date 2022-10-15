@@ -13,15 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
-#define OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
-
 #include "ability_business_error.h"
 #include "native_engine/native_engine.h"
 
+#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_ERROR_UTILS_H
+
 namespace OHOS {
 namespace AbilityRuntime {
-
 void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorMsg = "");
 void ThrowError(NativeEngine& engine, const AbilityErrorCode& err);
 void ThrowTooFewParametersError(NativeEngine& engine);

@@ -17,10 +17,12 @@
 
 #include <cstdint>
 
+#include "ability_business_error.h"
 #include "ability_manager_client.h"
 #include "app_mgr_interface.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -89,7 +91,9 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, CreateJsAbilityRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Get mission infos failed."));
+                    task.Reject(engine, CreateJsError(engine,
+                        static_cast<int32_t>(GetJsErrorCodeByNativeError(errcode)),
+                        "Get mission infos failed."));
                 }
             };
 
@@ -106,11 +110,13 @@ private:
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         if (info.argc == 0) {
             HILOG_ERROR("Not enough params");
+            Throw(engine, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_PARAM);
             return engine.CreateUndefined();
         }
         int upperLimit = -1;
         if (!ConvertFromJsValue(engine, info.argv[0], upperLimit)) {
             HILOG_ERROR("Parse missionId failed");
+            Throw(engine, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_PARAM);
             return engine.CreateUndefined();
         }
 
@@ -121,7 +127,9 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, CreateJsExtensionRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Get mission infos failed."));
+                    task.Reject(engine, CreateJsError(engine,
+                        static_cast<int32_t>(GetJsErrorCodeByNativeError(errcode)),
+                        "Get mission infos failed."));
                 }
             };
 
@@ -141,18 +149,16 @@ private:
         do {
             if (info.argc == 0) {
                 HILOG_ERROR("Not enough params");
-                complete = [](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                    task.Reject(engine, CreateJsError(engine, ERR_INVALID_VALUE, "no enough params."));
-                };
+                Throw(engine, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
+                    ERROR_MSG_INVALID_PARAM);
                 break;
             }
 
             AppExecFwk::Configuration changeConfig;
             if (!UnwrapConfiguration(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[0]), changeConfig)) {
-                complete = [](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                    task.Reject(engine, CreateJsError(engine, ERR_INVALID_VALUE, "config is invalid."));
-                };
+                Throw(engine, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED),
+                    ERROR_MSG_PERMISSION_DENIED);
                 break;
             }
 
@@ -161,7 +167,9 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "update config failed."));
+                    task.Reject(engine, CreateJsError(engine,
+                        static_cast<int32_t>(GetJsErrorCodeByNativeError(errcode)),
+                        "update config failed."));
                 }
             };
         } while (0);

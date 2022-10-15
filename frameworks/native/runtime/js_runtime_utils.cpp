@@ -258,5 +258,16 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
     return CreateAsyncTaskWithLastParam(engine, lastParam, std::unique_ptr<AsyncTask::ExecuteCallback>(),
         std::unique_ptr<AsyncTask::CompleteCallback>(), result);
 }
+
+bool Throw(NativeEngine& engine, int32_t errCode, const std::string& message)
+{
+    NativeValue* error = engine.CreateError(CreateJsValue(engine, errCode), CreateJsValue(engine, message));
+    return engine.Throw(error);
+}
+
+bool Throw(NativeEngine& engine, NativeValue* error)
+{
+    return engine.Throw(error);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

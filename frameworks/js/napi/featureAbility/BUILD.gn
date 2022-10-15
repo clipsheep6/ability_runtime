@@ -18,6 +18,7 @@ import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 ohos_shared_library("featureability") {
   include_dirs = [
     "./",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
     "${relational_store_napi_path}/dataability/include",
@@ -38,6 +39,7 @@ ohos_shared_library("featureability") {
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/libuv:uv",
   ]
