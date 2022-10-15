@@ -142,7 +142,7 @@ void Watchdog::Timer()
 
 void Watchdog::reportEvent()
 {
-    uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+    int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     constexpr int RESET_RATIO = 2;
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
