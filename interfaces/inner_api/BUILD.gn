@@ -19,6 +19,7 @@ group("innerkits_target") {
     "connectionobs_manager:connection_obs_manager",
     "dataobs_manager:dataobs_manager",
     "deps_wrapper:ability_deps_wrapper",
+    "error_utils:ability_runtime_error_util",
     "quick_fix:quickfix_manager",
     "uri_permission:uri_permission_mgr",
     "wantagent:wantagent_innerkits",
