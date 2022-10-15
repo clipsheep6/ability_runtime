@@ -1149,6 +1149,7 @@ private:
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
+    void InitStartUpRuleFlag();
     void RecoverAbilityRestart(AAFwk::Want& want);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
