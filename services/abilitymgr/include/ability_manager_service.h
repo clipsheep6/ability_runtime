@@ -54,6 +54,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -1150,6 +1151,8 @@ private:
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
     void RecoverAbilityRestart(AAFwk::Want& want);
+
+    AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
