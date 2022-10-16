@@ -16,10 +16,13 @@
 
 #include <cstring>
 
+#include "ability_business_error.h"
 #include "hilog_wrapper.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
 #include "securec.h"
+
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1214,6 +1217,21 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
         return {};
     }
     return result;
+}
+
+void NapiThrow(napi_env env, int32_t errCode)
+{
+    napi_value code = nullptr;
+    napi_create_string_latin1(env, std::to_string(errCode).c_str(), NAPI_AUTO_LENGTH, &code);
+
+    napi_value message = nullptr;
+    auto iter = ERR_CODE_MAP.find(AbilityErrorCode(errCode));
+    auto errMsg = iter != ERR_CODE_MAP.end() ? iter->second : "";
+    napi_create_string_latin1(env, errMsg, NAPI_AUTO_LENGTH, &message);
+
+    napi_value error = nullptr;
+    napi_create_error(env, code, message, &error);
+    napi_throw(env, error);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
