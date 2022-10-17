@@ -20,6 +20,35 @@ const REQUEST_SUCCESS = 0;
 const REQUEST_FAILED = 1;
 const PERMISSION_ABILITY_BACKGROUND_COMMUNICATION = "ohos.permission.ABILITY_BACKGROUND_COMMUNICATION"
 
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_CODE_FUNC_REGISTERED = 16200004;
+const ERROR_CODE_FUNC_NOT_EXIST = 16200005;
+const ERROR_CODE_INNER_ERROR = 16000050;
+
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+const ERROR_MSG_FUNC_REGISTERED = "Method registered. The method has registered.";
+const ERROR_MSG_FUNC_NOT_EXIST = "Method not registered. The method has not registered.";
+const ERROR_MSG_INNER_ERROR = "Inner Error.";
+
+var errMap = new Map();
+errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
+errMap.set(ERROR_CODE_FUNC_REGISTERED, ERROR_MSG_FUNC_REGISTERED);
+errMap.set(ERROR_CODE_FUNC_NOT_EXIST, ERROR_MSG_FUNC_NOT_EXIST);
+errMap.set(ERROR_CODE_INNER_ERROR, ERROR_MSG_INNER_ERROR);
+
+class BusinessError extends Error {
+    constructor(code) {
+        let msg = "";
+        if (errMap.has(code)) {
+            msg = errMap.get(code);
+        } else {
+            msg = ERROR_MSG_INNER_ERROR;
+        }
+        super(msg);
+        this.code = code;
+    }
+}
+
 class Callee extends rpc.RemoteObject {
     constructor(des) {
         if (typeof des === 'string') {
@@ -98,20 +127,17 @@ class Callee extends rpc.RemoteObject {
         if (typeof method !== 'string' || method == "" || typeof callback !== 'function') {
             console.log(
                 "Callee on error, method is [" + typeof method + "], typeof callback [" + typeof callback + "]");
-            throw new Error("function input parameter error");
-            return;
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
         }
 
         if (this.callList == null) {
             console.log("Callee on error, this.callList is nullptr");
-            throw new Error("Function inner container error");
-            return;
+            throw new BusinessError(ERROR_CODE_INNER_ERROR);;
         }
 
         if (this.callList.has(method)) {
-            console.log("Callee on error, this.callList not found " + method);
-            throw new Error("function is registered");
-            return;
+            console.log("Callee on error, [" + method + "] has registered");
+            throw new BusinessError(ERROR_CODE_FUNC_REGISTERED);
         }
 
         this.callList.set(method, callback);
@@ -121,20 +147,17 @@ class Callee extends rpc.RemoteObject {
     off(method) {
         if (typeof method !== 'string' || method == "") {
             console.log("Callee off error, method is [" + typeof method + "]");
-            throw new Error("function input parameter error");
-            return;
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
         }
 
         if (this.callList == null) {
             console.log("Callee off error, this.callList is null");
-            throw new Error("Function inner container error");
-            return;
+            throw new BusinessError(ERROR_CODE_INNER_ERROR);
         }
 
         if (!this.callList.has(method)) {
             console.log("Callee off error, this.callList not found " + method);
-            throw new Error("function not registered");
-            return;
+            throw new BusinessError(ERROR_CODE_FUNC_NOT_EXIST);
         }
 
         this.callList.delete(method);

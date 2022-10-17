@@ -16,6 +16,15 @@
 var ExtensionContext = requireNapi("application.ExtensionContext")
 var Caller = requireNapi("application.Caller")
 
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+class ParamError extends Error {
+    constructor() {
+        super(ERROR_MSG_INVALID_PARAM);
+        this.code = ERROR_CODE_INVALID_PARAM;
+    }
+}
+
 class ServiceExtensionContext extends ExtensionContext {
     constructor(obj) {
         super(obj);
@@ -75,14 +84,15 @@ class ServiceExtensionContext extends ExtensionContext {
         return new Promise(async (resolve, reject) => {
             if (typeof want !== 'object' || want == null) {
                 console.log("ServiceExtensionContext::startAbilityByCall input param error");
-                reject(new Error("function input parameter error"));
+                reject(new ParamError());
                 return;
             }
 
-            let callee = await this.__context_impl__.startAbilityByCall(want);
-            if (callee == null || typeof callee !== 'object') {
+            try{
+                var callee = await this.__context_impl__.startAbilityByCall(want);
+            } catch(error) {
                 console.log("ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed");
-                reject(new Error("function request remote error"));
+                reject(error);
                 return;
             }
 

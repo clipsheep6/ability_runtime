@@ -3825,7 +3825,7 @@ int AbilityManagerService::StartAbilityByCall(
     result = CheckStartByCallPermission(abilityRequest);
     if (result != ERR_OK) {
         HILOG_ERROR("CheckStartByCallPermission fail, result: %{public}d", result);
-        return RESOLVE_CALL_NO_PERMISSIONS;
+        return result;
     }
 
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",

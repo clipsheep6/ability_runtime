@@ -16,7 +16,36 @@ var rpc = requireNapi("rpc")
 
 const EVENT_CALL_NOTIFY = 1;
 const REQUEST_SUCCESS = 0;
-const REQUEST_FAILED = 1;
+
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_CODE_CALLER_RELEASED = 16200001;
+const ERROR_CODE_CLAAEE_INVALID = 16200002;
+const ERROR_CODE_INNER_ERROR = 16000050;
+
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+const ERROR_MSG_CALLER_RELEASED = "Caller released. The caller has been released.";
+const ERROR_MSG_CLAAEE_INVALID = "Callee invalid. The callee does not exist.";
+const ERROR_MSG_INNER_ERROR = "Inner Error.";
+
+var errMap = new Map();
+errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
+errMap.set(ERROR_CODE_CALLER_RELEASED, ERROR_MSG_CALLER_RELEASED);
+errMap.set(ERROR_CODE_CLAAEE_INVALID, ERROR_MSG_CLAAEE_INVALID);
+errMap.set(ERROR_CODE_INNER_ERROR, ERROR_MSG_INNER_ERROR);
+
+class BusinessError extends Error {
+    constructor(code) {
+        let msg = "";
+        if (errMap.has(code)) {
+            msg = errMap.get(code);
+        } else {
+            msg = ERROR_MSG_INNER_ERROR;
+        }
+        super(msg);
+        this.code = code;
+    }
+}
+
 class Caller {
     constructor(obj) {
         console.log("Caller::constructor obj is " + typeof obj);
@@ -29,25 +58,25 @@ class Caller {
             console.log("Caller call method [" + method + "]");
             if (typeof method !== 'string' || typeof data !== 'object') {
                 console.log("Caller call " + typeof method + " " + typeof data);
-                reject(new Error("function input parameter error"));
+                reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
                 return;
             }
 
             if (method == '' || data == null) {
                 console.log("Caller call " + method + ", " + data);
-                reject(new Error("function input parameter error"));
+                reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
                 return;
             }
 
             if (this.releaseState == true) {
                 console.log("Caller call this.callee release");
-                reject(new Error("function inner object error"));
+                reject(new BusinessError(ERROR_CODE_CALLER_RELEASED));
                 return;
             }
 
             if (this.__call_obj__.callee == null) {
                 console.log("Caller call this.callee is nullptr");
-                reject(new Error("function inner object error"));
+                reject(new BusinessError(ERROR_CODE_CLAAEE_INVALID));
                 return;
             }
 
@@ -60,13 +89,13 @@ class Caller {
 
             let retData = undefined;
             try {
-                retData = retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
+                retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
                 console.log("Caller call msgData rpc.SendRequest called");
                 if (retData.errCode != 0) {
                     msgData.reclaim();
                     msgReply.reclaim();
                     console.log("Caller call return errCode " + retData.errCode);
-                    reject(new Error("function execution exception"));
+                    reject(new BusinessError(retData.errCode));
                     return;
                 }
             } catch (e) {
@@ -84,12 +113,12 @@ class Caller {
                     console.log("Caller call retval is [" + retval + "], str [" + str + "]");
                     msgData.reclaim();
                     msgReply.reclaim();
-                    reject(new Error("function execution result is abnormal"));
+                    reject(new BusinessError(retval));
                     return;
                 }
             } catch (e) {
                 console.log("Caller call msgData SendRequest retval error");
-                reject(new Error("function execution result is abnormal"));
+                reject(new BusinessError(ERROR_CODE_INNER_ERROR));
                 return;
             }
 
@@ -104,25 +133,25 @@ class Caller {
             console.log("Caller callWithResult method [" + method + "]");
             if (typeof method !== 'string' || typeof data !== 'object') {
                 console.log("Caller callWithResult " + typeof method + " " + typeof data);
-                reject(new Error("function input parameter error"));
+                reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
                 return;
             }
 
             if (method == '' || data == null) {
                 console.log("Caller callWithResult " + method + ", " + data);
-                reject(new Error("function input parameter error"));
+                reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
                 return;
             }
 
             if (this.releaseState == true) {
                 console.log("Caller callWithResult this.callee release");
-                reject(new Error("function inner object error"));
+                reject(new BusinessError(ERROR_CODE_CALLER_RELEASED));
                 return;
             }
 
             if (this.__call_obj__.callee == null) {
                 console.log("Caller callWithResult this.callee is nullptr");
-                reject(new Error("function inner object error"));
+                reject(new BusinessError(ERROR_CODE_CLAAEE_INVALID));
                 return;
             }
 
@@ -136,13 +165,13 @@ class Caller {
             let reply = undefined;
             let retData = undefined;
             try {
-                retData = retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
+                retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
                 console.log("Caller callWithResult msgData rpc.SendRequest called");
                 if (retData.errCode != 0) {
                     msgData.reclaim();
                     msgReply.reclaim();
                     console.log("Caller callWithResult return errCode " + retData.errCode);
-                    reject(new Error("function execution exception"));
+                    reject(new BusinessError(retData.errCode));
                     return;
                 }
             } catch (e) {
@@ -160,12 +189,12 @@ class Caller {
                     console.log("Caller callWithResult retval is [" + retval + "], str [" + str + "]");
                     msgData.reclaim();
                     msgReply.reclaim();
-                    reject(new Error("function execution result is abnormal"));
+                    reject(new BusinessError(retval));
                     return;
                 }
             } catch (e) {
                 console.log("Caller callWithResult msgData SendRequest retval error");
-                reject(new Error("function execution result is abnormal"));
+                reject(new BusinessError(ERROR_CODE_INNER_ERROR));
                 return;
             }
 
@@ -179,14 +208,12 @@ class Caller {
         console.log("Caller release js called.");
         if (this.releaseState == true) {
             console.log("Caller release remoteObj releaseState is true");
-            throw new Error("caller release call remoteObj is released");
-            return;
+            throw new BusinessError(ERROR_CODE_CALLER_RELEASED);
         }
 
         if (this.__call_obj__.callee == null) {
             console.log("Caller release call remoteObj is released");
-            throw new Error("caller release call remoteObj is released");
-            return;
+            throw new BusinessError(ERROR_CODE_CLAAEE_INVALID);
         }
 
         this.releaseState = true;
@@ -197,14 +224,12 @@ class Caller {
         console.log("Caller onRelease jscallback called.");
         if (typeof callback !== 'function') {
             console.log("Caller onRelease " + typeof callback);
-            throw new Error("function input parameter error");
-            return;
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
         }
 
         if (this.releaseState == true) {
             console.log("Caller onRelease remoteObj releaseState is true");
-            throw new Error("caller onRelease call remoteObj is released");
-            return;
+            throw new BusinessError(ERROR_CODE_CALLER_RELEASED);
         }
 
         this.__call_obj__.onRelease(callback);

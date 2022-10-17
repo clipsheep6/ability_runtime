@@ -18,6 +18,7 @@
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi_common_want.h"
@@ -314,18 +315,18 @@ private:
         HILOG_DEBUG("JsCallerComplex::%{public}s, called", __func__);
         if (callerCallBackObj_ == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
-            return CreateJsError(engine, -1, "CallerComplex callback is nullptr.");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         if (!releaseCallFunc_) {
             HILOG_ERROR("JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
-            return CreateJsError(engine, -1, "CallerComplex get releaseFunc failed.");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
-        int32_t retErr = releaseCallFunc_(callerCallBackObj_);
-        if (retErr != ERR_OK) {
+        int32_t innerErrorCode = releaseCallFunc_(callerCallBackObj_);
+        if (innerErrorCode != ERR_OK) {
             HILOG_ERROR("JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
-                __func__, static_cast<int>(retErr));
-            return CreateJsError(engine, -1, "CallerComplex get context failed.");
+                __func__, static_cast<int>(innerErrorCode));
+            ThrowError(engine, innerErrorCode);
         }
 
         return engine.CreateUndefined();
@@ -334,26 +335,26 @@ private:
     NativeValue* SetOnReleaseCallBackInner(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
-        constexpr size_t ARGC_TWO = 2;
-        if (info.argc >= ARGC_TWO) {
+        constexpr size_t ARGC_ONE = 1;
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
-            return CreateJsError(engine, -1, "CallerComplex on release CallBack input params error.");
+            ThrowTooFewParametersError(engine);
         }
         if (!info.argv[0]->IsCallable()) {
             HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
                 __func__, ((info.argv[0]->IsCallable()) ? "true" : "false"));
-            return CreateJsError(engine, -1, "CallerComplex on release CallBack input params not function.");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
 
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
-            return CreateJsError(engine, -1, "CallerComplex on release CallBacker is nullptr.");
+            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
-            return CreateJsError(engine, -1, "CallerComplex on release input params isn`t function.");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         jsReleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));

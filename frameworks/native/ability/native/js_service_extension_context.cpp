@@ -218,6 +218,7 @@ private:
         std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
         if (calls == nullptr) {
             HILOG_ERROR("calls create error");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
             return engine.CreateUndefined();
         }
 
@@ -229,6 +230,7 @@ private:
         auto context = context_.lock();
         if (context == nullptr) {
             HILOG_ERROR("OnStartAbilityByCall context is nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
             return engine.CreateUndefined();
         }
 
