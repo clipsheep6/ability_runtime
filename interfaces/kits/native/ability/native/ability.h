@@ -811,14 +811,6 @@ public:
     virtual int32_t OnSaveState(int32_t reason, WantParams &wantParams);
 
     /**
-     * @brief restore user data of local Ability.
-     *
-     * @param reason the reason why framework invoke this function
-     * @param wantParams Indicates the user data to be saved.
-     */
-    virtual void OnRestoreState(int32_t reason, WantParams &wantParams);
-
-    /**
      * @brief enable ability recovery.
      *
      * @param abilityRecovery shared_ptr of abilityRecovery

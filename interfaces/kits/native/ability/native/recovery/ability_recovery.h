@@ -12,6 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef OHOS_ABILITY_ABILITY_RECOVERY_H
+#define OHOS_ABILITY_ABILITY_RECOVERY_H
+
 #include <memory>
 #include <mutex>
 
@@ -25,9 +29,6 @@
 #include "want.h"
 #include "want_params.h"
 
-#ifndef OHOS_ABILITY_ABILITY_RECOVERY_H
-#define OHOS_ABILITY_ABILITY_RECOVERY_H
-
 namespace OHOS {
 namespace AppExecFwk {
 class AbilityRecovery {
@@ -38,7 +39,8 @@ public:
     bool InitAbilityInfo(const std::shared_ptr<Ability>& ability,
         const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
     bool ScheduleSaveAbilityState(StateReason reason);
-    bool ScheduleRestoreAbilityState(StateReason reason);
+    bool ScheduleRecoverAbility(StateReason reason);
+    bool ScheduleRestoreAbilityState(StateReason reason, const Want &want);
     bool CallOnRestoreAbilityState(StateReason reason);
     std::string GetSavedPageStack(StateReason reason);
     uint16_t GetRestartFlag() const;

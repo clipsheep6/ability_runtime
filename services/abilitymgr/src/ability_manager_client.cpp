@@ -888,12 +888,11 @@ void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& toke
     return abms->UpdateMissionSnapShot(token);
 }
 
-void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token,
-    int32_t reason, int32_t savedStateId)
+void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    return abms->ScheduleRecoverAbility(token, reason, savedStateId);
+    return abms->ScheduleRecoverAbility(token, reason);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

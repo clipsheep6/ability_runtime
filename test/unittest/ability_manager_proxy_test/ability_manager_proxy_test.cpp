@@ -986,8 +986,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ScheduleRecoverAbility_001
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     int32_t reason = 0;
-    int32_t savedStateId = 0;
-    proxy_->ScheduleRecoverAbility(token, reason, savedStateId);
+    proxy_->ScheduleRecoverAbility(token, reason);
     EXPECT_EQ(IAbilityManager::ABILITY_RECOVERY, mock_->code_);
 }
 

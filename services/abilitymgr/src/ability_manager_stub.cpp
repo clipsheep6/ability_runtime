@@ -1470,8 +1470,7 @@ int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, Message
     }
 
     int reason = data.ReadInt32();
-    int savedStateId = data.ReadInt32();
-    ScheduleRecoverAbility(token, reason, savedStateId);
+    ScheduleRecoverAbility(token, reason);
     return NO_ERROR;
 }
 
