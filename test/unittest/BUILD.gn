@@ -182,7 +182,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr:sa_mgr_mock",
-    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]
 
   external_deps = [
@@ -203,6 +202,7 @@ ohos_source_set("abilityms_test_source") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",

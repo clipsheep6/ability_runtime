@@ -191,7 +191,7 @@ ohos_shared_library("app_context") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility" ]
+  deps = []
 
   public_deps =
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
@@ -239,10 +239,7 @@ ohos_shared_library("app_context_utils") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [
-    "${ability_runtime_native_path}/appkit:app_context",
-    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
-  ]
+  deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
 
   public_deps =
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
