@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,46 +14,42 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_shared_library("abilityconstant_napi") {
-  include_dirs = [
-    "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${ability_runtime_services_path}/common/include",
+ohos_shared_library("appmanager") {
+  include_dirs = []
+
+  if (ability_runtime_graphics) {
+    include_dirs += [ "./" ]
+  }
+
+  sources = [
+    "app_manager_module.cpp",
+    "js_app_manager.cpp",
+    "js_app_manager_utils.cpp",
+    "js_app_state_observer.cpp",
   ]
 
-  sources = [ "ability_constant_module.cpp" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = []
+  deps = [
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+  ]
 
   external_deps = [
+    "ability_runtime:ability_manager",
+    "ability_runtime:ability_runtime_error_util",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
-
-  relative_install_dir = "module/application"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_shared_library("abilityconstant") {
-  include_dirs = [
-    "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${ability_runtime_services_path}/common/include",
-  ]
-
-  sources = [ "ability_constant_module.cpp" ]
-
-  deps = []
-
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "napi:ace_napi",
-  ]
-
-  defines = [ "ENABLE_ERRCODE" ]
 
   relative_install_dir = "module/app/ability"
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

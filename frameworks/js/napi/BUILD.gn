@@ -17,6 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 group("napi_packages") {
   deps = [
     "${ability_runtime_napi_path}/ability:ability_napi",
+    "${ability_runtime_napi_path}/ability_constant:abilityconstant",
     "${ability_runtime_napi_path}/ability_constant:abilityconstant_napi",
     "${ability_runtime_napi_path}/ability_context:abilitycontext_napi",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager_napi",
@@ -28,6 +29,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app/application_context:applicationcontext_napi",
     "${ability_runtime_napi_path}/app/context:context_napi",
     "${ability_runtime_napi_path}/app/error_manager:errormanager_napi",
+    "${ability_runtime_napi_path}/app/js_app_manager:appmanager",
     "${ability_runtime_napi_path}/app/recovery:apprecovery_napi",
     "${ability_runtime_napi_path}/app/test_runner:testrunner_napi",
     "${ability_runtime_napi_path}/application_context_constant:contextconstant_napi",

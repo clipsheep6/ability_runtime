@@ -95,7 +95,7 @@ static napi_value InitWindowModeObject(napi_env env)
     return object;
 }
 
-// ohos.application.AbilityConstant.OnSaveResult
+// AbilityConstant.OnSaveResult
 static napi_value InitOnSaveResultEnum(napi_env env)
 {
     napi_value object;
@@ -109,7 +109,7 @@ static napi_value InitOnSaveResultEnum(napi_env env)
     return object;
 }
 
-// ohos.application.AbilityConstant.StateType
+// AbilityConstant.StateType
 static napi_value InitStateTypeEnum(napi_env env)
 {
     napi_value object;
@@ -207,7 +207,11 @@ static napi_module _module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = AbilityConstantInit,
+#ifdef ENABLE_ERRCODE
+    .nm_modname = "app.ability.AbilityConstant",
+#else
     .nm_modname = "application.AbilityConstant",
+#endif
     .nm_priv = ((void *)0),
     .reserved = {0}
 };
