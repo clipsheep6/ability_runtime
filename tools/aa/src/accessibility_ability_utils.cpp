@@ -31,7 +31,7 @@ void AccessibilityUtils::GetCommandArgument(const Accessibility::AccessibilityAb
     argument.bundleName = abilityInfo.GetPackageName();
     argument.abilityName = abilityInfo.GetName();
     std::string capabilityNames = "";
-    const std::map<std::int32_t, std::string> capabilityNameMap = {
+    std::map<uint32_t, std::string> capabilityNameMap = {
         {0x0001, "r"}, {0x0002, "t"},
         {0x0004, "g"}, {0x0008, "k"},
         {0x0010, "z"},
@@ -71,11 +71,11 @@ std::string AccessibilityUtils::FormatAbilityInfos(
 
 std::int32_t AccessibilityUtils::GetCapabilityValue(const std::string &capabilityNames)
 {
-    std::int32_t result = 0;
+    uint32_t result = 0;
     std::map<char, int32_t> capabilityValueMap = {
         {'r', 0x0001}, {'t', 0x0002}, {'g', 0x0004}, {'k', 0x0008}, {'z', 0x0010}
     };
-    for (int i = 0; i < capabilityNames.size(); i++) {
+    for (uint32_t i = 0; i < capabilityNames.size(); i++) {
         result |= capabilityValueMap[capabilityNames[i]];
     }
     return result;
@@ -86,10 +86,10 @@ std::string AccessibilityUtils::GetInvalidCapabilityNames(const std::string &ena
 {
     std::string result = "";
     std::set<char> installedCapabilityNameSet;
-    for (int i = 0; i < installedCapabilityNames.size(); i++) {
+    for (uint32_t i = 0; i < installedCapabilityNames.size(); i++) {
         installedCapabilityNameSet.insert(installedCapabilityNames[i]);
     }
-    for (int i = 0; i < enabledCapabilityNames.size(); i++) {
+    for (uint32_t i = 0; i < enabledCapabilityNames.size(); i++) {
         if (installedCapabilityNameSet.count(enabledCapabilityNames[i]) == 0) {
             result.push_back(enabledCapabilityNames[i]);
         }
@@ -127,7 +127,7 @@ bool AccessibilityUtils::IsValidIntString(std::string &intString, const int32_t 
         return false;
     }
     bool flag = true;
-    int index = 0;
+    uint32_t index = 0;
     if (valueStr[0] == '-' || valueStr[0] == '+') {
         index++;
         if (valueStr[0] == '-') {
