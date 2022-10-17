@@ -17,9 +17,11 @@
 
 #include <cstdint>
 
+#include "ability_business_error.h"
 #include "application_data_manager.h"
 #include "hilog_wrapper.h"
 #include "js_error_observer.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -29,8 +31,6 @@ namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr int32_t ERROR_CODE = -1;
-constexpr int32_t INVALID_PARAM = -2;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 
@@ -64,6 +64,7 @@ private:
         // only support one
         if (info.argc != ARGC_ONE) {
             HILOG_ERROR("The param is invalid, observers need.");
+            ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
 
@@ -88,6 +89,7 @@ private:
         int32_t observerId = -1;
         // only support one or two params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+            ThrowTooFewParametersError(engine);
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
             napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
@@ -101,7 +103,7 @@ private:
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("Unregister errorObserver called.");
                 if (observerId == -1) {
-                    task.Reject(engine, CreateJsError(engine, INVALID_PARAM, "param is invalid!"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                     return;
                 }
                 auto observer = observerWptr.lock();
@@ -109,7 +111,7 @@ private:
                 if (observer && observer->RemoveJsObserverObject(observerId, isEmpty)) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID));
                 }
                 if (isEmpty) {
                     AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();

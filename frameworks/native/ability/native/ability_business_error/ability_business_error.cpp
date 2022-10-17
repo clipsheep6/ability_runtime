@@ -31,6 +31,7 @@ constexpr const char* ERROR_MSG_SYSTEMCAP = "The specified SystemCapability name
 constexpr const char* ERROR_MSG_INNER = "Inner Error.";
 constexpr const char* ERROR_MSG_RESOLVE_ABILITY = "The specified ability does not exist.";
 constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Ability type error. The specified ability type is wrong";
+constexpr const char* ERROR_MSG_INVALID_ID = "The specified id does not exist.";
 constexpr const char* ERROR_MSG_INVISIBLE = "Can not start invisible component.";
 constexpr const char* ERROR_MSG_STATIC_CFG_PERMISSION = "The specified process does not have the permission.";
 constexpr const char* ERROR_MSG_CROSS_USER = "Can not cross user operations.";
@@ -57,6 +58,7 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_INNER, ERROR_MSG_INNER },
     { AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY, ERROR_MSG_RESOLVE_ABILITY },
     { AbilityErrorCode::ERROR_CODE_INVALID_ABILITY_TYPE, ERROR_MSG_INVALID_ABILITY_TYPE },
+    { AbilityErrorCode::ERROR_CODE_INVALID_ID, ERROR_MSG_INVALID_ID },
     { AbilityErrorCode::ERROR_CODE_NO_INVISIBLE_PERMISSION, ERROR_MSG_INVISIBLE },
     { AbilityErrorCode::ERROR_CODE_STATIC_CFG_PERMISSION, ERROR_MSG_STATIC_CFG_PERMISSION },
     { AbilityErrorCode::ERROR_CODE_CROSS_USER, ERROR_MSG_CROSS_USER },

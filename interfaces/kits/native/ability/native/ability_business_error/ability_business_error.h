@@ -42,6 +42,9 @@ enum class AbilityErrorCode {
     // ability type is wrong.
     ERROR_CODE_INVALID_ABILITY_TYPE = 16000002,
 
+    // id does not exist.
+    ERROR_CODE_INVALID_ID = 16000003,
+
     // no start invisible ability permission.
     ERROR_CODE_NO_INVISIBLE_PERMISSION = 16000004,
 
