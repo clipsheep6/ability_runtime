@@ -297,6 +297,7 @@ void Ability::OnStop()
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
 #ifdef SUPPORT_GRAPHICS
+    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();
