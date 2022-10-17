@@ -89,7 +89,7 @@ private:
             int32_t tmp = 0;
             napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[i]), &tmp);
-            flags[i] = tmp;
+            flags[i] = static_cast<uint16_t>(tmp);
         }
         AppRecovery::GetInstance().EnableAppRecovery(flags[0],  // 0:RestartFlag
                                                      flags[1],  // 1:SaveOccasionFlag
@@ -208,7 +208,7 @@ NativeValue *InitAppRecoveryApiModule(NativeEngine *engine, NativeValue *exportO
     BindNativeFunction(*engine, *object, "saveAppState", moduleName, AppRecoveryApiRegistry::SaveAppState);
 
     object->SetProperty("RestartFlag", AppRecoveryRestartFlagInit(engine));
-    object->SetProperty("StateSave", AppRecoveryStateSaveFlagInit(engine));
+    object->SetProperty("SaveOccasionFlag", AppRecoveryStateSaveFlagInit(engine));
     object->SetProperty("SaveModeFlag", AppRecoverySaveModeFlagInit(engine));
 
     return engine->CreateUndefined();

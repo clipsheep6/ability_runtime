@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_ABILITY_RUNTIME_APP_RECOVERY_API_H
+#define OHOS_ABILITY_RUNTIME_APP_RECOVERY_API_H
+
 #include <map>
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "native_engine/native_engine.h"
-
-#ifndef OHOS_ABILITY_RUNTIME_APP_RECOVERY_API_H
-#define OHOS_ABILITY_RUNTIME_APP_RECOVERY_API_H
 
 namespace OHOS {
 namespace AbilityRuntime {

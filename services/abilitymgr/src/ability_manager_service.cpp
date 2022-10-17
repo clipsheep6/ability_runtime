@@ -4113,11 +4113,9 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
-void AbilityManagerService::RecoverAbilityRestart(AAFwk::Want& want)
+void AbilityManagerService::RecoverAbilityRestart(const Want& want)
 {
     std::string identity = IPCSkeleton::ResetCallingIdentity();
-    want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
-    std::string wantStr = want.ToString();
     int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
     int32_t ret = StartAbility(want, userId, 0);
     if (ret != ERR_OK) {
@@ -4126,8 +4124,7 @@ void AbilityManagerService::RecoverAbilityRestart(AAFwk::Want& want)
     IPCSkeleton::SetCallingIdentity(identity);
 }
 
-void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token,
-    int32_t reason, int32_t savedStateId)
+void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
 {
     if (token == nullptr) {
         return;
@@ -4150,11 +4147,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         std::lock_guard<std::recursive_mutex> guard(globalLock_);
         auto type = record->GetAbilityInfo().type;
         if (type != AppExecFwk::AbilityType::PAGE) {
-            HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability?.", __func__);
+            HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability.", __func__);
             return;
         }
 
-        // next to add ability state and check
         constexpr int64_t MIN_RECOVERY_TIME = 60;
         auto now = time(nullptr);
         auto it = appRecoverHistory_.find(record->GetUid());
@@ -4171,6 +4167,8 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         appRecoverHistory_.emplace(record->GetUid(),
             static_cast<int64_t>(now)).first->second = static_cast<int64_t>(now);
         want = record->GetWant();
+        want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+        
         HiSysEvent::Write(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
             "APP_UID", record->GetUid(),
             "VERSION_CODE", std::to_string(appInfo.versionCode),

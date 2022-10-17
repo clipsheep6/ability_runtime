@@ -675,7 +675,7 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
 
-    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, int32_t savedStateId) {};
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) {};
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)

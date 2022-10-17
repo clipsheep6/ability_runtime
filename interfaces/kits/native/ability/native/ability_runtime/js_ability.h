@@ -54,7 +54,6 @@ public:
     void OnMemoryLevel(int level) override;
     void OnNewWant(const Want &want) override;
     int32_t OnSaveState(int32_t reason, WantParams &wantParams) override;
-    void OnRestoreState(int32_t reason, WantParams &wantParams) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
