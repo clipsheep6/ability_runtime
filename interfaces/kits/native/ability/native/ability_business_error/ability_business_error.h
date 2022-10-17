@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_BUSINESS_ERROR_H
 
 #include <string>
+#include <unordered_map>
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -89,6 +90,58 @@ enum class AbilityErrorCode {
 
     // no such mission listener.
     ERROR_CODE_NO_MISSION_LISTENER = 16300002,
+};
+
+constexpr const char* TAG_PERMISSION = " permission:";
+constexpr const char* ERROR_MSG_OK = "OK.";
+constexpr const char* ERROR_MSG_PERMISSION_DENIED = "The application does not have permission to call the interface.";
+constexpr const char* ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+constexpr const char* ERROR_MSG_SYSTEMCAP = "The specified SystemCapability name was not found.";
+constexpr const char* ERROR_MSG_INNER = "Inner Error.";
+constexpr const char* ERROR_MSG_RESOLVE_ABILITY = "The specified ability does not exist.";
+constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Ability type error. The specified ability type is wrong";
+constexpr const char* ERROR_MSG_INVISIBLE = "Can not start invisible component.";
+constexpr const char* ERROR_MSG_STATIC_CFG_PERMISSION = "The specified process does not have the permission.";
+constexpr const char* ERROR_MSG_CROSS_USER = "Can not cross user operations.";
+constexpr const char* ERROR_MSG_CROWDTEST_EXPIRED = "Crowdtest App Expiration.";
+constexpr const char* ERROR_MSG_WUKONG_MODE = "Cannot operate in wukong mode.";
+constexpr const char* ERROR_MSG_CONTINUATION_FLAG = "StartAbility with continuation flags is not allowed!";
+constexpr const char* ERROR_MSG_INVALID_CONTEXT = "Context does not exist!";
+constexpr const char* ERROR_MSG_NETWORK_ABNORMAL = "Network error. The network is abnormal when free install.";
+constexpr const char* ERROR_MSG_NOT_SUPPORT_FREE_INSTALL = "The Application does not support free install.";
+constexpr const char* ERROR_MSG_NOT_TOP_ABILITY = "Not top ability, Can not free install ability.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_TOO_BUSY =
+    "Free install busyness. There are concurrent tasks waiting for retry.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_TIMEOUT = "Free install timeout.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Can not free install other ability.";
+constexpr const char* ERROR_MSG_INVALID_CALLER = "Caller released, The caller has been released.";
+constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission id does not exist.";
+constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "The specified mission listener does not exist.";
+
+static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
+    { AbilityErrorCode::ERROR_OK, ERROR_MSG_OK },
+    { AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED, ERROR_MSG_PERMISSION_DENIED },
+    { AbilityErrorCode::ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM },
+    { AbilityErrorCode::ERROR_CODE_SYSTEMCAP, ERROR_MSG_SYSTEMCAP },
+    { AbilityErrorCode::ERROR_CODE_INNER, ERROR_MSG_INNER },
+    { AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY, ERROR_MSG_RESOLVE_ABILITY },
+    { AbilityErrorCode::ERROR_CODE_INVALID_ABILITY_TYPE, ERROR_MSG_INVALID_ABILITY_TYPE },
+    { AbilityErrorCode::ERROR_CODE_NO_INVISIBLE_PERMISSION, ERROR_MSG_INVISIBLE },
+    { AbilityErrorCode::ERROR_CODE_STATIC_CFG_PERMISSION, ERROR_MSG_STATIC_CFG_PERMISSION },
+    { AbilityErrorCode::ERROR_CODE_CROSS_USER, ERROR_MSG_CROSS_USER },
+    { AbilityErrorCode::ERROR_CODE_CROWDTEST_EXPIRED, ERROR_MSG_CROWDTEST_EXPIRED },
+    { AbilityErrorCode::ERROR_CODE_WUKONG_MODE, ERROR_MSG_WUKONG_MODE },
+    { AbilityErrorCode::ERROR_CODE_CONTINUATION_FLAG, ERROR_MSG_CONTINUATION_FLAG},
+    { AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT, ERROR_MSG_INVALID_CONTEXT},
+    { AbilityErrorCode::ERROR_CODE_NETWORK_ABNORMAL, ERROR_MSG_NETWORK_ABNORMAL },
+    { AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_FREE_INSTALL, ERROR_MSG_NOT_SUPPORT_FREE_INSTALL },
+    { AbilityErrorCode::ERROR_CODE_NOT_TOP_ABILITY, ERROR_MSG_NOT_TOP_ABILITY },
+    { AbilityErrorCode::ERROR_CODE_FREE_INSTALL_TOO_BUSY, ERROR_MSG_FREE_INSTALL_TOO_BUSY },
+    { AbilityErrorCode::ERROR_CODE_FREE_INSTALL_TIMEOUT, ERROR_MSG_FREE_INSTALL_TIMEOUT },
+    { AbilityErrorCode::ERROR_CODE_FREE_INSTALL_OTHERS, ERROR_MSG_FREE_INSTALL_OTHERS },
+    { AbilityErrorCode::ERROR_CODE_INVALID_CALLER, ERROR_MSG_INVALID_CALLER },
+    { AbilityErrorCode::ERROR_CODE_NO_MISSION_ID, ERROR_MSG_NO_MISSION_ID },
+    { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER }
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);
