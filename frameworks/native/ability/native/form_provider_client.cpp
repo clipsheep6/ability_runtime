@@ -111,18 +111,7 @@ int FormProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
         ownerAbility->OnDelete(formId);
     } while (false);
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 
 /**
@@ -161,18 +150,7 @@ int FormProviderClient::NotifyFormsDelete(
         }
     } while (false);
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 
 /**
@@ -214,18 +192,7 @@ int FormProviderClient::NotifyFormUpdate(
         return errorCode;
     }
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 
 /**
@@ -269,18 +236,7 @@ int FormProviderClient::EventNotify(
         ownerAbility->OnVisibilityChanged(formEventsMap);
     } while (false);
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 
 /**
@@ -315,18 +271,7 @@ int FormProviderClient::NotifyFormCastTempForm(
         ownerAbility->OnCastTemptoNormal(formId);
     } while (false);
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 /**
  * @brief Fire message event to form provider.
@@ -366,18 +311,7 @@ int FormProviderClient::FireFormEvent(
         return errorCode;
     }
 
-    // The error code for disconnect.
-    int disconnectErrorCode = HandleDisconnect(want, callerToken);
-    if (errorCode != ERR_OK) {
-        // If errorCode is not ERR_OK，return errorCode.
-        return errorCode;
-    } else {
-        // If errorCode is ERR_OK，return disconnectErrorCode.
-        if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
-        }
-        return disconnectErrorCode;
-    }
+    return DCRtnHelper(errorCode, want, callerToken);
 }
 
 /**
@@ -498,6 +432,17 @@ int FormProviderClient::HandleAcquire(
     formSupplyClient->OnAcquire(formProviderInfo, newWant);
     HILOG_INFO("%{public}s end", __func__);
     return ERR_OK;
+}
+
+int32_t FormProviderClient::DCRtnHelper(const int &errCode, const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    // The error code for disconnect.
+    int disconnectErrorCode = HandleDisconnect(want, callerToken);
+    if (errCode != ERR_OK) {
+        // If errorCode is not ERR_OK，return errorCode.
+        return errCode;
+    }
+    return disconnectErrorCode;
 }
 
 int  FormProviderClient::HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken)

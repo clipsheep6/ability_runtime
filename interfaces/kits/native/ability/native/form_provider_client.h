@@ -174,6 +174,16 @@ protected:
     bool IsCallBySelfBundle();
 private:
     std::shared_ptr<Ability> GetOwner();
+    /**
+     * @brief Eliminates duplicate code of returning functional error code and error code of handling disconnection.
+     * This function will call HandleDisconnect() and return functional errorCode when possible, only return error
+     * code of HandleDisconnect() if there's no functional error.
+     * @param errCode The functional error the caller has.
+     * @param want The input parameter of the caller function and is required by HandleDisconnect().
+     * @param callerToken callerToken
+     * @return int32_t The error code (functional/HandleDisconnect).
+     */
+    int32_t DCRtnHelper(const int &errCode, const Want &want, const sptr<IRemoteObject> &callerToken);
 private:
     DISALLOW_COPY_AND_MOVE(FormProviderClient);
     mutable std::mutex abilityMutex_;
