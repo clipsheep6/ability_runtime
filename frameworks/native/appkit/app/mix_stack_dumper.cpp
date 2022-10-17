@@ -39,6 +39,7 @@ static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
 static constexpr int NATIVE_DUMP = -1;
 static constexpr int MIX_DUMP = -2;
+static constexpr int NAMESPACE_MATCH_NUM = 2;
 typedef struct ProcInfo {
     int tid;
     int pid;
@@ -144,7 +145,7 @@ static int GetProcStatus(struct ProcInfo* procInfo)
         }
         // NSpid:  1892    1
         if (strncmp(buf, NSPID_STR_NAME, strlen(NSPID_STR_NAME)) == 0) {
-            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != 2) {
+            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != NAMESPACE_MATCH_NUM) {
                 perror("sscanf_s failed.");
             }
             procInfo->tid = t;
@@ -179,7 +180,7 @@ static void TidToNstid(const int tid, int& nstid)
 
         // NSpid:  1892    1
         if (strncmp(buf, NSPID_STR_NAME, strlen(NSPID_STR_NAME)) == 0) {
-            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != 2) {
+            if (sscanf_s(buf, "%*[^0-9]%d%*[^0-9]%d", &p, &t) != NAMESPACE_MATCH_NUM) {
                 HILOG_ERROR("sscanf_s failed.");
             }
             nstid = t;
