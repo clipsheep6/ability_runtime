@@ -75,8 +75,6 @@ struct VerificationInfo {
      */
     int CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo) const;
 
-    int CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo) const;
-
     int CheckStartByCallPermission(const VerificationInfo &verificationInfo) const;
 
 private:

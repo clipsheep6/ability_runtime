@@ -20,6 +20,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
+static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+}
+
 int64_t AppRunningRecord::appEventId_ = 0;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
@@ -134,6 +139,12 @@ AppRunningRecord::AppRunningRecord(
         isLauncherApp_ = info->isLauncherApp;
         mainAppName_ = info->name;
     }
+
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    startTimeMillis_ = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
 }
 
 void AppRunningRecord::SetApplicationClient(const sptr<IAppScheduler> &thread)
@@ -1301,6 +1312,11 @@ void AppRunningRecord::SetContinuousTaskAppState(bool isContinuousTask)
 bool AppRunningRecord::GetFocusFlag() const
 {
     return isFocused_;
+}
+
+int64_t AppRunningRecord::GetAppStartTime() const
+{
+    return startTimeMillis_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
