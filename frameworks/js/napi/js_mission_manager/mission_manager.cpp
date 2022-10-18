@@ -187,12 +187,12 @@ private:
                 }
 
                 if (!missionListener->IsEmpty()) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                     return;
                 }
                 auto ret = AbilityManagerClient::GetInstance()->UnRegisterMissionListener(missionListener);
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                     missionListener = nullptr;
                 } else {
                     task.Reject(engine,
@@ -233,7 +233,7 @@ private:
                 std::vector<AAFwk::MissionInfo> missionInfos;
                 auto ret = AbilityManagerClient::GetInstance()->GetMissionInfos(deviceId, numMax, missionInfos);
                 if (ret == 0) {
-                    task.Resolve(engine, CreateJsMissionInfoArray(engine, missionInfos));
+                    task.ResolveWithNoError(engine, CreateJsMissionInfoArray(engine, missionInfos));
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -273,7 +273,7 @@ private:
                 AAFwk::MissionInfo missionInfo;
                 auto ret = AbilityManagerClient::GetInstance()->GetMissionInfo(deviceId, missionId, missionInfo);
                 if (ret == 0) {
-                    task.Resolve(engine, CreateJsMissionInfo(engine, missionInfo));
+                    task.ResolveWithNoError(engine, CreateJsMissionInfo(engine, missionInfo));
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -316,7 +316,7 @@ private:
                         reinterpret_cast<napi_env>(&engine), missionSnapshot.snapshot));
                     object->SetProperty("snapshot", snapshotValue);
 #endif
-                    task.Resolve(engine, objValue);
+                    task.ResolveWithNoError(engine, objValue);
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -371,7 +371,7 @@ private:
             [missionId](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->LockMissionForCleanup(missionId);
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -404,7 +404,7 @@ private:
             [missionId](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->UnlockMissionForCleanup(missionId);
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -437,7 +437,7 @@ private:
             [missionId](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanMission(missionId);
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -458,7 +458,7 @@ private:
             [](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanAllMissions();
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
@@ -500,7 +500,7 @@ private:
                 auto ret = (unwrapArgc == 1) ? AbilityManagerClient::GetInstance()->MoveMissionToFront(missionId) :
                     AbilityManagerClient::GetInstance()->MoveMissionToFront(missionId, startOptions);
                 if (ret == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine,
                         CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
