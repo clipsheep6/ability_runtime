@@ -70,7 +70,7 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_EXTERNAL_FREE_INSTALL_BUSY,
         "Free install busyness. There are concurrent tasks, waiting for retry." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_FREE_INSTALL_TIMEOUT,
-        "Free install timeout." }, 
+        "Free install timeout." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_CANNOT_FREE_INSTALL_OTHER_ABILITY,
         "Cannot free install other ability." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL,

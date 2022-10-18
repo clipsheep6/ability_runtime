@@ -335,8 +335,8 @@ private:
     NativeValue* SetOnReleaseCallBackInner(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
-        constexpr size_t ARGC_ONE = 1;
-        if (info.argc < ARGC_ONE) {
+        constexpr size_t argcOne = 1;
+        if (info.argc < argcOne) {
             HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
             ThrowTooFewParametersError(engine);
         }

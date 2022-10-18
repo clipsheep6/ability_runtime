@@ -441,7 +441,7 @@ bool AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env 
         napi_value value = 0;
         napi_get_property(env, arg, key, &value);
 
-        if(!SetValuesBucketObject(valuesBucket, env, keyStr, value)) {
+        if (!SetValuesBucketObject(valuesBucket, env, keyStr, value)) {
             HILOG_ERROR("Set values bucket object error.");
             return false;
         }
@@ -919,7 +919,6 @@ void RegisterCompleteCB(napi_env env, napi_status status, void *data)
         return;
     }
 
-    // CreateCallBackValue(env, onCB->cbBase.cbInfo.callback, onCB->result);
     if (onCB->result == NO_ERROR) {
         return;
     }
@@ -1071,7 +1070,6 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
         }
     }
 
-    // CreateCallBackValue(env, offCB->cbBase.cbInfo.callback, NO_ERROR);
     offCB->DestroyList.clear();
     delete offCB;
     offCB = nullptr;
