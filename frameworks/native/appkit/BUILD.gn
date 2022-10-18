@@ -245,6 +245,7 @@ ohos_shared_library("app_context_utils") {
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
 
   external_deps = [
+    "ability_runtime:ability_runtime_error_util",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
