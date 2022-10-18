@@ -17,14 +17,28 @@
 #include "js_ability_manager.h"
 
 extern "C" __attribute__((constructor))
+#ifdef ENABLE_ERRCODE
+void NAPI_app_ability_AbilityManager_AutoRegister()
+{
+    NativeModule newModuleInfo = {
+        .name = "app.ability.abilityManager",
+        .fileName = "app/ability/abilitymanager_napi.so/ability_manager.js",
+        .registerCallback = OHOS::AbilityRuntime::JsAbilityManagerInit,
+    };
+
+    auto moduleManager = NativeModuleManager::GetInstance();
+    moduleManager->Register(&newModuleInfo);
+}
+#else
 void NAPI_application_AbilityManager_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
         .name = "application.abilityManager",
         .fileName = "application/abilitymanager_napi.so/ability_manager.js",
         .registerCallback = OHOS::AbilityRuntime::JsAbilityManagerInit,
     };
 
+    auto moduleManager = NativeModuleManager::GetInstance();
     moduleManager->Register(&newModuleInfo);
 }
+#endif

@@ -29,10 +29,17 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+#ifndef ENABLE_ERRCODE
+constexpr int32_t ERROR_CODE = -1;
+constexpr int32_t INVALID_PARAM = -2;
+#endif
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+#ifdef ENABLE_ERRCODE
+constexpr size_t ARGC_THREE = 3;
+#endif
 
 class JsErrorManager final {
 public:
@@ -61,13 +68,26 @@ private:
     NativeValue* OnRegisterErrorObserver(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("Register errorObserver is called.");
-        // only support one
-        if (info.argc != ARGC_ONE) {
+#ifdef ENABLE_ERRCODE
+        if (info.argc != ARGC_TWO) {
             HILOG_ERROR("The param is invalid, observers need.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
 
+        std::string type;
+        if (!ConvertFromJsValue(engine, info.argv[0], type) || type != "error") {
+            HILOG_ERROR("Parse type failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+#else
+        // only support one
+        if (info.argc != ARGC_ONE) {
+            HILOG_ERROR("The param is invalid, observers need.");
+            return engine.CreateUndefined();
+        }
+#endif
         int32_t observerId = serialNumber_;
         if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
@@ -87,8 +107,8 @@ private:
     NativeValue* OnUnregisterErrorObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
         int32_t observerId = -1;
-        // only support one or two params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+#ifdef ENABLE_ERRCODE
+        if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
             ThrowTooFewParametersError(engine);
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
@@ -97,21 +117,50 @@ private:
             HILOG_INFO("unregister errorObserver called, observer:%{public}d", observerId);
         }
 
+        std::string type;
+        if (!ConvertFromJsValue(engine, info.argv[0], type) || type != "error") {
+            HILOG_ERROR("Parse type failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+#else
+        // only support one or two params
+        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+            HILOG_ERROR("unregister errorObserver error, not enough params.");
+        } else {
+            napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
+                reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
+            HILOG_INFO("unregister errorObserver called, observer:%{public}d", observerId);
+        }
+#endif
+
         std::weak_ptr<JsErrorObserver> observerWptr(observer_);
         AsyncTask::CompleteCallback complete =
             [observerWptr, observerId](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("Unregister errorObserver called.");
                 if (observerId == -1) {
+#ifdef ENABLE_ERRCODE
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+#else
+                    task.Reject(engine, CreateJsError(engine, INVALID_PARAM, "param is invalid!"));
+#endif
                     return;
                 }
                 auto observer = observerWptr.lock();
                 bool isEmpty = false;
                 if (observer && observer->RemoveJsObserverObject(observerId, isEmpty)) {
+#ifdef ENABLE_ERRCODE
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
+#else
                     task.Resolve(engine, engine.CreateUndefined());
+#endif
                 } else {
+#ifdef ENABLE_ERRCODE
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID));
+#else
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
+#endif
                 }
                 if (isEmpty) {
                     AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
@@ -149,9 +198,14 @@ NativeValue* JsErrorManagerInit(NativeEngine* engine, NativeValue* exportObj)
 
     HILOG_INFO("JsErrorManager BindNativeFunction called");
     const char *moduleName = "JsErrorManager";
+#ifdef ENABLE_ERRCODE
+    BindNativeFunction(*engine, *object, "on", moduleName, JsErrorManager::RegisterErrorObserver);
+    BindNativeFunction(*engine, *object, "off", moduleName, JsErrorManager::UnregisterErrorObserver);
+#else
     BindNativeFunction(*engine, *object, "registerErrorObserver", moduleName, JsErrorManager::RegisterErrorObserver);
     BindNativeFunction(*engine, *object, "unregisterErrorObserver",
         moduleName, JsErrorManager::UnregisterErrorObserver);
+#endif
     return engine->CreateUndefined();
 }
 }  // namespace AbilityRuntime

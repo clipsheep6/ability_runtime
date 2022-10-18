@@ -14,42 +14,55 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_shared_library("abilitymanager_napi") {
-  sources = [
-    "ability_manager_module.cpp",
-    "js_ability_manager.cpp",
-    "js_ability_manager_utils.cpp",
-  ]
+template("abilitymanager") {
+  ohos_shared_library(target_name) {
+    forward_variables_from(invoker, [ "relative_install_dir" ])
 
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+    if (defined(invoker.defines)) {
+      defines = invoker.defines
+    }
 
-  include_dirs = [
-    "./",
-    "//third_party/icu/icu4c/source/common",
-    "${ipc_native_path}/src/napi/include",
-  ]
+    sources = [
+      "ability_manager_module.cpp",
+      "js_ability_manager.cpp",
+      "js_ability_manager_utils.cpp",
+    ]
 
-  deps = [
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/ability/native:ability_business_error",
-  ]
+    include_dirs = [
+      "./",
+      "//third_party/icu/icu4c/source/common",
+      "${ipc_native_path}/src/napi/include",
+    ]
 
-  external_deps = [
-    "ability_base:configuration",
-    "ability_base:want",
-    "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-    "samgr:samgr_proxy",
-  ]
+    deps = [
+      "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+      "${ability_runtime_native_path}/ability/native:ability_business_error",
+    ]
 
+    external_deps = [
+      "ability_base:configuration",
+      "ability_base:want",
+      "ability_runtime:ability_manager",
+      "ability_runtime:abilitykit_native",
+      "ability_runtime:runtime",
+      "c_utils:utils",
+      "eventhandler:libeventhandler",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "napi:ace_napi",
+      "samgr:samgr_proxy",
+    ]
+
+    subsystem_name = "ability"
+    part_name = "ability_runtime"
+  }
+}
+
+abilitymanager("abilitymanager_napi") {
   relative_install_dir = "module/application"
+}
 
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
+abilitymanager("abilitymanager") {
+  relative_install_dir = "module/app/ability"
+  defines = [ "ENABLE_ERRCODE" ]
 }

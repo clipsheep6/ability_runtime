@@ -12,6 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+class BusinessError extends Error {
+    constructor(code) {
+        let msg = "";
+        if (errMap.has(code)) {
+            msg = errMap.get(code);
+        } else {
+            msg = ERROR_MSG_INNER_ERROR;
+        }
+        super(msg);
+        this.code = code;
+    }
+}
+
 class EventHub {
     constructor() {
         this.eventMap = {};
@@ -19,6 +32,7 @@ class EventHub {
 
     on(event, callback) {
         if ((typeof(event) != 'string') || (typeof(callback) != 'function')) {
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
             return;
         }
         if (!this.eventMap[event]) {
@@ -31,6 +45,7 @@ class EventHub {
 
     off(event, callback) {
         if (typeof(event) != 'string') {
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
             return;
         }
         if (this.eventMap[event]) {
@@ -47,6 +62,7 @@ class EventHub {
 
     emit(event, ...args) {
         if (typeof(event) != 'string') {
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
             return;
         }
         if (this.eventMap[event]) {
