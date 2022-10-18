@@ -40,7 +40,6 @@ namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t INDEX_TWO = 2;
-constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
@@ -102,7 +101,7 @@ public:
     static NativeValue* KillProcessesByBundleName(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-        return (me != nullptr) ? me->OnkillProcessByBundleName(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnkillProcessesByBundleName(*engine, *info) : nullptr;
     }
 
     static NativeValue* ClearUpApplicationData(NativeEngine* engine, NativeCallbackInfo* info)
@@ -309,47 +308,41 @@ private:
         return result;
     }
 
-    NativeValue* OnkillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
+    NativeValue* OnkillProcessesByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        int32_t errCode = 0;
-        std::string bundleName;
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
 
-        // only support 1 or 2 params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
-            errCode = ERR_NOT_OK;
-        } else {
-            if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
-                HILOG_ERROR("get bundleName failed!");
-                errCode = ERR_NOT_OK;
-            }
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("get bundleName failed!");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
         }
 
         HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
         AsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task,
-                int32_t status) {
-            if (errCode != 0) {
-                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
-                return;
-            }
+            [bundleName, abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
-                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto ret = abilityManager->KillProcess(bundleName);
             if (ret == 0) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else {
-                task.Reject(engine, CreateJsError(engine, ret, "kill process failed."));
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "kill process failed."));
             }
         };
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnkillProcessByBundleName",
+        AsyncTask::Schedule("JSAppManager::OnkillProcessesByBundleName",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -357,39 +350,31 @@ private:
     NativeValue* OnClearUpApplicationData(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        int32_t errCode = 0;
-        std::string bundleName;
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
 
-        // only support 1 or 2 params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
-            errCode = ERR_NOT_OK;
-        } else {
-            if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
-                HILOG_ERROR("get bundleName failed!");
-                errCode = ERR_NOT_OK;
-            } else {
-                HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
-            }
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("get bundleName failed!");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
         }
 
         AsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task,
-                int32_t status) {
-            if (errCode != 0) {
-                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
-                return;
-            }
+            [bundleName, abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
-                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto ret = abilityManager->ClearUpApplicationData(bundleName);
             if (ret == 0) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else {
-                task.Reject(engine, CreateJsError(engine, ret, "clear up application failed."));
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "clear up application failed."));
             }
         };
 
