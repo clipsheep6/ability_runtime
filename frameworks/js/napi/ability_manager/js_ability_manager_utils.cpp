@@ -57,12 +57,9 @@ NativeValue* CreateJsAbilityRunningInfoArray(
 
 NativeValue* CreateJsElementName(NativeEngine &engine, const AppExecFwk::ElementName &elementName)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     napi_value napiElementName =
         OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine), elementName);
-    object->SetProperty("ability", reinterpret_cast<NativeValue*>(napiElementName));
-    return objValue;
+    return reinterpret_cast<NativeValue*>(napiElementName);
 }
 
 NativeValue* CreateJsExtensionRunningInfoArray(
