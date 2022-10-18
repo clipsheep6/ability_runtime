@@ -234,6 +234,41 @@ class Caller {
 
         this.__call_obj__.onRelease(callback);
     }
+
+    on(type, callback) {
+        console.log("Caller onRelease jscallback called.");
+        if (typeof type !== 'string' || type !== "release") {
+            console.log(
+                "Caller onRelease error, input [type] is invalid.");
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (typeof callback !== 'function') {
+            console.log("Caller onRelease error " + typeof callback);
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (this.releaseState == true) {
+            console.log("Caller onRelease error, remoteObj releaseState is true");
+            throw new BusinessError(ERROR_CODE_CALLER_RELEASED);
+        }
+
+        this.__call_obj__.onRelease(callback);
+    }
+
+    off(type, callback) {
+        if (typeof type !== 'string' || type !== "release") {
+            console.log(
+                "Caller onRelease error, input [type] is invalid.");
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (typeof callback !== 'function') {
+            console.log("Caller onRelease error " + typeof callback);
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+        // Empty
+    }
 }
 
 export default Caller

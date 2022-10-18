@@ -95,12 +95,24 @@ class AbilityContext extends Context {
         return this.__context_impl__.connectAbility(want, options);
     }
 
+    connectServiceExtensionAbility(want, options) {
+        return this.__context_impl__.connectServiceExtensionAbility(want, options);
+    }
+
     connectAbilityWithAccount(want, accountId, options) {
         return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
+    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+    }
+
     disconnectAbility(connection, callback) {
         return this.__context_impl__.disconnectAbility(connection, callback);
+    }
+
+    disconnectServiceExtensionAbility(connection, callback) {
+        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
     }
 
     terminateSelf(callback) {

@@ -40,6 +40,11 @@ class ServiceExtensionContext extends ExtensionContext {
         return this.__context_impl__.connectAbility(want, options);
     }
 
+    connectServiceExtensionAbility(want, options) {
+        console.log("connectServiceExtensionAbility");
+        return this.__context_impl__.connectServiceExtensionAbility(want, options);
+    }
+
     startAbilityWithAccount(want, accountId, options, callback) {
         console.log("startAbilityWithAccount");
         return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback);
@@ -70,9 +75,19 @@ class ServiceExtensionContext extends ExtensionContext {
         return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
+    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+        console.log("connectServiceExtensionAbilityWithAccount");
+        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+    }
+
     disconnectAbility(connection, callback) {
         console.log("disconnectAbility");
         return this.__context_impl__.disconnectAbility(connection, callback);
+    }
+
+    disconnectServiceExtensionAbility(connection, callback) {
+        console.log("disconnectServiceExtensionAbility");
+        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
     }
 
     terminateSelf(callback) {

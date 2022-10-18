@@ -856,7 +856,11 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsServiceExtensionContext::StartAbility);
     BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsServiceExtensionContext::TerminateAbility);
     BindNativeFunction(engine, *object, "connectAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
+    BindNativeFunction(
+        engine, *object, "connectServiceExtensionAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
     BindNativeFunction(engine, *object, "disconnectAbility",
+        moduleName, JsServiceExtensionContext::DisconnectAbility);
+    BindNativeFunction(engine, *object, "disconnectServiceExtensionAbility",
         moduleName, JsServiceExtensionContext::DisconnectAbility);
     BindNativeFunction(engine, *object, "startAbilityWithAccount",
         moduleName, JsServiceExtensionContext::StartAbilityWithAccount);
@@ -864,6 +868,9 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
         moduleName, JsServiceExtensionContext::StartAbilityByCall);
     BindNativeFunction(
         engine, *object, "connectAbilityWithAccount", moduleName, JsServiceExtensionContext::ConnectAbilityWithAccount);
+    BindNativeFunction(
+        engine, *object,
+        "connectServiceExtensionAbilityWithAccount", moduleName, JsServiceExtensionContext::ConnectAbilityWithAccount);
     BindNativeFunction(engine, *object, "startServiceExtensionAbility", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbility);
     BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount", moduleName,
