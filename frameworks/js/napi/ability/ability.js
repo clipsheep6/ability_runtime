@@ -33,6 +33,7 @@ class Ability {
     }
     onContinue(wantParams) {}
     onConfigurationUpdated(config) {}
+    onConfigurationUpdate(newConfig) {}
     onNewWant(want, param) {}
     dump(params) {}
     onDump(params) {}
