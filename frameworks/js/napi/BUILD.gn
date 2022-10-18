@@ -24,6 +24,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/ability_manager:abilitymanager",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager_napi",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry",
+    "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry_napi",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage_napi",
     "${ability_runtime_napi_path}/app/ability_stage_context:abilitystagecontext_napi",

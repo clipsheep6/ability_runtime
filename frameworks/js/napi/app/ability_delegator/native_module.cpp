@@ -17,12 +17,20 @@
 
 extern "C" __attribute__((constructor)) void NAPI_application_AbilityDelegatorRegistry_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
+#ifdef ENABLE_ERRCODE
+    NativeModule newModuleInfo = {
+        .name = "app.ability.abilityDelegatorRegistry",
+        .fileName = "app/ability/libabilitydelegator_napi.so/ability_delegator_registry.js",
+        .registerCallback = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
+    };
+#else
     NativeModule newModuleInfo = {
         .name = "application.abilityDelegatorRegistry",
         .fileName = "application/libabilitydelegator_napi.so/ability_delegator_registry.js",
         .registerCallback = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
     };
+#endif
 
+    auto moduleManager = NativeModuleManager::GetInstance();
     moduleManager->Register(&newModuleInfo);
 }
