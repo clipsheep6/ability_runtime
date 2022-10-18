@@ -58,6 +58,7 @@
 
 #if defined(NWEB)
 #include <thread>
+#include "app_mgr_client.h"
 #include "nweb_pre_dns_adapter.h"
 #endif
 
@@ -1073,6 +1074,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #if defined(NWEB)
     // pre dns for nweb
     std::thread(&OHOS::NWeb::PreDnsInThread).detach();
+
+    // start nwebspawn process
+    std::thread(PreStartNWebSpawn).detach();
 #endif
 
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
@@ -1252,6 +1256,18 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     }
     return true;
 }
+
+#ifdef NWEB
+void MainThread::PreStartNWebSpawn()
+{
+    HILOG_INFO("MainThread::PreStartNWebSpawn");
+    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    std::string nwebPath = contextImpl->GetCacheDir() + "/web";
+    if (access(nwebPath.c_str(), F_OK) != -1) {
+        std::make_unique<AppExecFwk::AppMgrClient>()->PreStartNWebSpawnProcess();
+    }
+}
+#endif
 
 /**
  *

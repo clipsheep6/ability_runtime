@@ -214,6 +214,8 @@ public:
 
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
 
+    virtual int PreStartNWebSpawnProcess() override;
+
     virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid) override;
 

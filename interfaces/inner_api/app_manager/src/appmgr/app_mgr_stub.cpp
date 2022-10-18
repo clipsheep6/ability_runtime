@@ -73,6 +73,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleScheduleAcceptWantDone;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
         &AppMgrStub::HandleGetAbilityRecordsByProcessID;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS)] =
+        &AppMgrStub::HandlePreStartNWebSpawnProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS)] =
         &AppMgrStub::HandleStartRenderProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::ATTACH_RENDER_PROCESS)] =
@@ -389,6 +391,17 @@ int32_t AppMgrStub::HandleGetAbilityRecordsByProcessID(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandlePreStartNWebSpawnProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("HandlePreNWebSpawnProcess");
+    int32_t result = PreStartNWebSpawnProcess();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    return result;
 }
 
 int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply)

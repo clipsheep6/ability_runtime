@@ -208,6 +208,13 @@ public:
     #endif
 
     /**
+     * Prestart nwebspawn process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreStartNWebSpawnProcess() = 0;
+
+    /**
      * Start nweb render process, called by nweb host.
      *
      * @param renderParam, params passed to renderprocess.
@@ -323,6 +330,7 @@ public:
         NOTIFY_HOT_RELOAD_PAGE,
         SET_CONTINUOUSTASK_PROCESS,
         NOTIFY_UNLOAD_REPAIR_PATCH,
+        PRE_START_NWEBSPAWN_PROCESS,
     };
 };
 }  // namespace AppExecFwk

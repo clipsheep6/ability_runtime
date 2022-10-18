@@ -436,6 +436,17 @@ int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
 }
 
+int32_t AppMgrService::PreStartNWebSpawnProcess()
+{
+    HILOG_INFO("PreStartNWebSpawnProcess");
+    if (!IsReady()) {
+        HILOG_ERROR("PreStartNWebSpawnProcess failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingPid());
+}
+
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
     int32_t sharedFd, pid_t &renderPid)
 {

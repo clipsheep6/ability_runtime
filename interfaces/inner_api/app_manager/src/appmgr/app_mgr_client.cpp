@@ -539,6 +539,17 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return amsService->GetApplicationInfoByProcessID(pid, application);
 }
 
+int AppMgrClient::PreStartNWebSpawnProcess()
+{
+    HILOG_INFO("PreStartNWebSpawnProcess");
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        return service->PreStartNWebSpawnProcess();
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 int AppMgrClient::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
     int32_t sharedFd, pid_t &renderPid)
 {

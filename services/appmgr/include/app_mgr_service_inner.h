@@ -514,6 +514,8 @@ public:
      */
     int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
 
+    virtual int32_t PreStartNWebSpawnProcess(const pid_t hostPid);
+
     virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
         int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
 

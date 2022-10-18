@@ -49,6 +49,7 @@ public:
     #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     #endif
+    MOCK_METHOD0(PreStartNWebSpawnProcess, int());
     MOCK_METHOD4(StartRenderProcess, int(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));

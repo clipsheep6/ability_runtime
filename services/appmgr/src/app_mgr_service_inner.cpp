@@ -2453,6 +2453,40 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
     return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
 }
 
+int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
+{
+    HILOG_INFO("AppMgrServiceInner::PreStartNWebSpawnProcess, hostPid:%{public}d", hostPid);
+    if (hostPid <= 0) {
+        HILOG_ERROR("invalid param, hostPid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is , not start render process");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord, hostpid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto nwebSpawnClient = remoteClientManager_->GetNWebSpawnClient();
+    if (!nwebSpawnClient) {
+        HILOG_ERROR("nwebSpawnClient is null");
+        return ERR_INVALID_VALUE;
+    }
+
+    ErrCode errCode = nwebSpawnClient->PreStartNWebSpawnProcess();
+    if (FAILED(errCode)) {
+        HILOG_ERROR("failed to spawn new render process, errCode %{public}08x", errCode);
+        return ERR_INVALID_VALUE;
+    }
+
+    return 0;
+}
+
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
     int32_t ipcFd, int32_t sharedFd, pid_t &renderPid)
 {
