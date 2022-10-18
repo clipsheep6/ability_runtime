@@ -437,6 +437,7 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.isContinuousTask = appRecord->IsContinuousTask();
     info.isKeepAlive = appRecord->IsKeepAliveApp();
     info.isFocused = appRecord->GetFocusFlag();
+    info.startTimeMillis_ = appRecord->GetAppStartTime();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
