@@ -640,7 +640,7 @@ private:
         NativeEngine& engine, NativeCallbackInfo& info,
         AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId) const
     {
-        HILOG_INFO("Disconnect ability begin, connection:%{public}d.", (int32_t)connectId);
+        HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
         auto item = std::find_if(connects_.begin(),
             connects_.end(),
             [&connectId](const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
