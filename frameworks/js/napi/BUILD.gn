@@ -51,6 +51,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/mission_manager:missionmanager_napi",
     "${ability_runtime_napi_path}/particleAbility:particleability",
     "${ability_runtime_napi_path}/quick_fix:quickfixmanager_napi",
+    "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability",
     "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability_napi",
     "${ability_runtime_napi_path}/service_extension_context:serviceextensioncontext_napi",
     "${ability_runtime_napi_path}/static_subscriber_extension:staticsubscriberextensionability_napi",

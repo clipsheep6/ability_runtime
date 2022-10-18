@@ -91,7 +91,7 @@ private:
             auto errCode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->GetApplyedQuickFixInfo(
                 bundleName, quickFixInfo);
             if (errCode == 0) {
-                task.Resolve(engine, CreateJsApplicationQuickFixInfo(engine, quickFixInfo));
+                task.ResolveWithNoError(engine, CreateJsApplicationQuickFixInfo(engine, quickFixInfo));
             } else {
                 task.Reject(engine, CreateJsErrorByErrorCode(engine, errCode));
             }
@@ -126,7 +126,7 @@ private:
             auto errcode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->ApplyQuickFix(
                 hapQuickFixFiles);
             if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else {
                 task.Reject(engine, CreateJsErrorByErrorCode(engine, errcode));
             }

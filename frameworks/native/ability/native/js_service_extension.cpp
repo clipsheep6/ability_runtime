@@ -418,6 +418,7 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
         reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, ARGC_ONE);
+    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
 }
 
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -447,10 +448,13 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
         return;
     }
 
-    NativeValue* method = obj->GetProperty("dump");
-    if (method == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
-        return;
+    NativeValue* method = obj->GetProperty("onDump");
+    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+        method = obj->GetProperty("dump");
+        if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+            HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
+            return;
+        }
     }
     HILOG_INFO("JsServiceExtension::CallFunction onConnect, success");
     NativeValue* dumpInfo = nativeEngine.CallFunction(value, method, argv, ARGC_ONE);
