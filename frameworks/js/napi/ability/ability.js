@@ -35,6 +35,7 @@ class Ability {
     onConfigurationUpdated(config) {}
     onNewWant(want, param) {}
     dump(params) {}
+    onDump(params) {}
 
     onSaveState(state, wantParams) {}
 }

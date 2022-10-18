@@ -911,29 +911,50 @@ void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::st
     }
 
     NativeValue* method = obj->GetProperty("dump");
-    if (method == nullptr) {
-        HILOG_ERROR("Failed to get dump from object");
-        return;
+    NativeValue* onDumpMethod = obj->GetProperty("onDump");
+
+    NativeValue* dumpInfo = nullptr;
+    if (method != nullptr) {
+        dumpInfo = nativeEngine.CallFunction(value, method, argv, 1);
     }
-    HILOG_DEBUG("Dump CallFunction dump, success");
-    NativeValue* dumpInfo = nativeEngine.CallFunction(value, method, argv, 1);
-    if (dumpInfo == nullptr) {
-        HILOG_ERROR("dumpInfo nullptr.");
-        return;
+
+    NativeValue* onDumpInfo = nullptr;
+    if (onDumpMethod != nullptr) {
+        onDumpInfo = nativeEngine.CallFunction(value, onDumpMethod, argv, 1);
     }
-    NativeArray* dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
-    if (dumpInfoNative == nullptr) {
-        HILOG_ERROR("dumpInfoNative nullptr.");
-        return;
+
+    NativeArray* dumpInfoNative = nullptr;
+    if (dumpInfo != nullptr) {
+        dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
     }
-    for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
-        std::string dumpInfoStr;
-        if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr failed");
-            return;
+
+    NativeArray* onDumpInfoNative = nullptr;
+    if (onDumpInfo != nullptr) {
+        onDumpInfoNative = ConvertNativeValueTo<NativeArray>(onDumpInfo);
+    }
+
+    if (dumpInfoNative != nullptr) {
+        for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
+            std::string dumpInfoStr;
+            if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
+                HILOG_ERROR("Parse dumpInfoStr failed");
+                return;
+            }
+            info.push_back(dumpInfoStr);
         }
-        info.push_back(dumpInfoStr);
     }
+
+    if (onDumpInfoNative != nullptr) {
+        for (uint32_t i = 0; i < onDumpInfoNative->GetLength(); i++) {
+            std::string dumpInfoStr;
+            if (!ConvertFromJsValue(nativeEngine, onDumpInfoNative->GetElement(i), dumpInfoStr)) {
+                HILOG_ERROR("Parse dumpInfoStr from onDumpInfoNative failed");
+                return;
+            }
+            info.push_back(dumpInfoStr);
+        }
+    }
+
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
 

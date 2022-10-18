@@ -16,12 +16,14 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("napi_packages") {
   deps = [
+    "${ability_runtime_napi_path}/ability:ability",
     "${ability_runtime_napi_path}/ability:ability_napi",
     "${ability_runtime_napi_path}/ability_constant:abilityconstant",
     "${ability_runtime_napi_path}/ability_constant:abilityconstant_napi",
     "${ability_runtime_napi_path}/ability_context:abilitycontext_napi",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager_napi",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry",
+    "${ability_runtime_napi_path}/app/ability_stage:abilitystage",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage_napi",
     "${ability_runtime_napi_path}/app/ability_stage_context:abilitystagecontext_napi",
     "${ability_runtime_napi_path}/app/appMgr:napi_app_mgr",
