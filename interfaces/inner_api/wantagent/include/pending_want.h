@@ -257,6 +257,10 @@ public:
 
     std::shared_ptr<AAFwk::WantSenderInfo> GetWantSenderInfo(const sptr<AAFwk::IWantSender> &target);
 
+    // add return error code interface
+    ErrCode GetType(const sptr<AAFwk::IWantSender> &target, int32_t &operType);
+    ErrCode GetWant(const sptr<AAFwk::IWantSender> &target, std::shared_ptr<AAFwk::Want> &want);
+
 private:
     std::mutex lock_object;
     sptr<AAFwk::IWantSender> target_;

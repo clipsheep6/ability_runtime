@@ -423,4 +423,16 @@ std::shared_ptr<WantSenderInfo> PendingWant::GetWantSenderInfo(const sptr<AAFwk:
     int ret = WantAgentClient::GetInstance().GetWantSenderInfo(target, info);
     return ret ? nullptr : info;
 }
+
+ErrCode PendingWant::GetType(const sptr<AAFwk::IWantSender> &target, int32_t &operType)
+{
+    ErrCode result = WantAgentClient::GetInstance().GetPendingWantType(target, operType);
+    return result;
+}
+
+ErrCode PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target, std::shared_ptr<AAFwk::Want> &want)
+{
+    ErrCode result = WantAgentClient::GetInstance().GetPendingRequestWant(target, want);
+    return result;
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent

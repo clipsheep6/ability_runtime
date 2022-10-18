@@ -158,5 +158,12 @@ NativeValue *AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(NativeEngine 
     int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);
     return CreateJsError(engine, externalErrCode, ERROR_MSG_MAP.at(externalErrCode));
 }
+
+std::string AbilityRuntimeErrorUtil::GetErrMessage(int32_t errCode)
+{
+    auto iter = ERROR_MSG_MAP.find(errCode);
+    std::string errMsg = (iter != ERROR_MSG_MAP.end()) ? iter->second : "";
+    return errMsg;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

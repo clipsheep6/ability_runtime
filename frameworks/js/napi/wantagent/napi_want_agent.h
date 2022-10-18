@@ -95,6 +95,8 @@ struct AsyncGetOperationTypeCallbackInfo {
     napi_ref callback[2] = {0};
     std::shared_ptr<WantAgent> wantAgent;
     int32_t operationType;
+    bool newInterface = false;
+    int32_t errorCode = 0;
 };
 
 class JsWantAgent final {
@@ -109,6 +111,8 @@ public:
     static NativeValue* GetUid(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* Cancel(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* Trigger(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* NapiGetWant(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* NapiTrigger(NativeEngine *engine, NativeCallbackInfo *info);
 
 private:
     NativeValue* OnEqual(NativeEngine &engine, NativeCallbackInfo &info);
@@ -118,6 +122,8 @@ private:
     NativeValue* OnGetUid(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnCancel(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnTrigger(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnNapiGetWant(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnNapiTrigger(NativeEngine &engine, NativeCallbackInfo &info);
     int32_t UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallbackInfo &info,
     std::shared_ptr<WantAgent> &wantAgent, TriggerInfo &triggerInfo,
     std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
@@ -150,6 +156,7 @@ napi_value NAPI_GetOperationType(napi_env env, napi_callback_info info);
 napi_value GetCallbackErrorResult(napi_env env, int errCode);
 napi_value NapiGetNull(napi_env env);
 napi_value JSParaError(const napi_env &env, const bool bCallback);
+napi_value GetOperationType(napi_env env, napi_callback_info info);
 
 static std::unique_ptr<std::map<AsyncGetWantAgentCallbackInfo *, const int32_t>,
     std::function<void(std::map<AsyncGetWantAgentCallbackInfo *, const int32_t> *)>>

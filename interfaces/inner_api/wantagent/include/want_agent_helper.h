@@ -183,6 +183,10 @@ public:
      */
     static std::shared_ptr<WantAgent> FromString(const std::string &jsonString);
 
+    // add return error code interface
+    static ErrCode GetType(const std::shared_ptr<WantAgent> &agent, int32_t &operType);
+    static ErrCode GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want);
+
 private:
     WantAgentHelper();
     virtual ~WantAgentHelper() = default;

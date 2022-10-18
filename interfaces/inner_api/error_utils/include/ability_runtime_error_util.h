@@ -105,6 +105,14 @@ public:
      * @return js error object.
      */
     static NativeValue *CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode);
+
+    /**
+     * @brief Get error message By error code
+     * 
+     * @param errCode internal errorcode.
+     * @return error message.
+     */
+    static std::string GetErrMessage(int32_t errCode);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
