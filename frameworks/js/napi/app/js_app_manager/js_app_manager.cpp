@@ -22,6 +22,7 @@
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -45,6 +46,7 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERR_NOT_OK = -1;
+constexpr const char* ON_OFF_TYPE = "applicationState";
 
 std::mutex g_observerMutex;
 
@@ -59,18 +61,6 @@ public:
     {
         HILOG_INFO("JsAbilityContext::Finalizer is called");
         std::unique_ptr<JsAppManager>(static_cast<JsAppManager*>(data));
-    }
-
-    static NativeValue* RegisterApplicationStateObserver(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-        return (me != nullptr) ? me->OnRegisterApplicationStateObserver(*engine, *info) : nullptr;
-    }
-
-    static NativeValue* UnregisterApplicationStateObserver(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-        return (me != nullptr) ? me->OnUnregisterApplicationStateObserver(*engine, *info) : nullptr;
     }
 
     static NativeValue* On(NativeEngine* engine, NativeCallbackInfo* info)
@@ -137,28 +127,35 @@ private:
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
     sptr<JSAppStateObserver> observer_ = nullptr;
 
-    NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnOn(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        // only support 1 or 2 params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_TWO) { // support 2 or 3 params, if > 3 params, ignore other params
             HILOG_ERROR("Not enough params");
-            AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
+
+        if (!CheckOnOffType(engine, info)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
         if (appManager_ == nullptr) {
             HILOG_ERROR("appManager nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
             return engine.CreateUndefined();
         }
+
         static int64_t serialNumber = 0;
         std::vector<std::string> bundleNameList;
         // unwarp observer
         if (observer_ == nullptr) {
             observer_ = new JSAppStateObserver(engine);
         }
-        if (info.argc == ARGC_TWO) {
+        if (info.argc > ARGC_TWO) {
             AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), bundleNameList);
+                reinterpret_cast<napi_value>(info.argv[INDEX_TWO]), bundleNameList);
         }
         int32_t ret = appManager_->RegisterApplicationStateObserver(observer_, bundleNameList);
         if (ret == 0) {
@@ -174,47 +171,42 @@ private:
             return engine.CreateNumber(observerId);
         } else {
             HILOG_ERROR("RegisterApplicationStateObserver failed error:%{public}d.", ret);
+            ThrowErrorByNativeErr(engine, ret);
             return engine.CreateUndefined();
         }
     }
 
-    NativeValue* OnUnregisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnOff(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        int32_t errCode = 0;
-        int64_t observerId = -1;
-
-        // only support 1 or 2 params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
-            errCode = ERR_NOT_OK;
-        } else {
-            // unwrap connectId
-            napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
-            std::lock_guard<std::mutex> lock(g_observerMutex);
-            bool isExist = observer_->FindObserverByObserverId(observerId);
-            if (isExist) {
-                // match id
-                HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__,
-                    static_cast<int32_t>(observerId));
-            } else {
-                HILOG_INFO("%{public}s not find observer, observer:%{public}d", __func__,
-                    static_cast<int32_t>(observerId));
-                errCode = ERR_NOT_OK;
-            }
+        if (info.argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params when off.");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
         }
 
+        if (!CheckOnOffType(engine, info)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        int64_t observerId = -1;
+        napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), &observerId);
+        std::lock_guard<std::mutex> lock(g_observerMutex);
+        if (!observer_->FindObserverByObserverId(observerId)) {
+            HILOG_INFO("not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, static_cast<int32_t>(observerId));
+
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer = observer_, observerId, errCode](
+            [appManager = appManager_, observer = observer_, observerId](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (errCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
-                    return;
-                }
                 if (observer == nullptr || appManager == nullptr) {
                     HILOG_ERROR("observer or appManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "observer or appManager nullptr"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                     return;
                 }
                 int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
@@ -225,25 +217,15 @@ private:
                         observer->GetJsObserverMapSize());
                 } else {
                     HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
-                    task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, ret));
                 }
             };
 
-        NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+        NativeValue* lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
-    }
-
-    NativeValue* OnOn(NativeEngine& engine, NativeCallbackInfo& info)
-    {
-        return engine.CreateUndefined();
-    }
-
-    NativeValue* OnOff(NativeEngine& engine, NativeCallbackInfo& info)
-    {
-        return engine.CreateUndefined();
     }
 
     NativeValue* OnGetForegroundApplications(NativeEngine& engine, NativeCallbackInfo& info)
@@ -505,6 +487,30 @@ private:
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    bool CheckOnOffType(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        if (info.argc < ARGC_ONE) {
+            return false;
+        }
+
+        if (info.argv[0]->TypeOf() != NATIVE_STRING) {
+            HILOG_ERROR("Param 0 is not string");
+            return false;
+        }
+
+        std::string type;
+        if (!ConvertFromJsValue(engine, info.argv[0], type)) {
+            HILOG_ERROR("Parse on off type failed");
+            return false;
+        }
+
+        if (type != ON_OFF_TYPE) {
+            HILOG_ERROR("args[0] should be %{public}s.", ON_OFF_TYPE);
+            return false;
+        }
+        return true;
+    }
 };
 } // namespace
 
@@ -545,10 +551,6 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
     object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
 
     const char *moduleName = "AppManager";
-    BindNativeFunction(*engine, *object, "registerApplicationStateObserver", moduleName,
-        JsAppManager::RegisterApplicationStateObserver);
-    BindNativeFunction(*engine, *object, "unregisterApplicationStateObserver", moduleName,
-        JsAppManager::UnregisterApplicationStateObserver);
     BindNativeFunction(*engine, *object, "on", moduleName, JsAppManager::On);
     BindNativeFunction(*engine, *object, "off", moduleName, JsAppManager::Off);
     BindNativeFunction(*engine, *object, "getForegroundApplications", moduleName,
