@@ -545,8 +545,6 @@ public:
 
     bool GetFocusFlag() const;
 
-    int64_t GetAppStartTime() const;
-
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -629,7 +627,6 @@ private:
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
     bool isDebugApp_ = false;
-    int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
