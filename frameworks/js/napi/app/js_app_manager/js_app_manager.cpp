@@ -44,7 +44,6 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
-constexpr int32_t ERR_NOT_OK = -1;
 constexpr const char* ON_OFF_TYPE = "applicationState";
 
 std::mutex g_observerMutex;
@@ -306,7 +305,7 @@ private:
     NativeValue* OnkillProcessesByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (info.argc < ARGC_ONE) {
+        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
@@ -345,7 +344,7 @@ private:
     NativeValue* OnClearUpApplicationData(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (info.argc < ARGC_ONE) {
+        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
@@ -383,37 +382,37 @@ private:
     NativeValue* OnKillProcessWithAccount(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        int32_t errCode = 0;
-        int32_t accountId = -1;
-        std::string bundleName;
-
-        // only support 2 or 3 params
         if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
-            HILOG_ERROR("Not enough params");
-            errCode = ERR_NOT_OK;
-        } else {
-            if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
-                HILOG_ERROR("Parse bundleName failed");
-                errCode = ERR_NOT_OK;
-            }
-            if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
-                HILOG_ERROR("Parse userId failed");
-                errCode = ERR_NOT_OK;
-            }
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("Parse bundleName failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        int32_t accountId = -1;
+        if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
+            HILOG_ERROR("Parse userId failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
         }
 
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, accountId, errCode](NativeEngine &engine, AsyncTask &task,
-                int32_t status) {
-                if (errCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+            [appManager = appManager_, bundleName, accountId](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
+                    HILOG_WARN("appManager is nullptr or amsMgr is nullptr.");
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                     return;
                 }
                 auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
                 if (ret == 0) {
                     task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, ret, "Kill processes failed."));
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "Kill processes failed."));
                 }
             };
 
