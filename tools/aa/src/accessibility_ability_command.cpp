@@ -449,7 +449,8 @@ ErrCode AccessibilityAbilityShellCommand::RunAsGetInstalledAbilities()
 const std::vector<std::string> AccessibilityAbilityShellCommand::GetEnabledAbilities()
 {
     std::vector<std::string> enabledAbilities;
-    if (abilityClientPtr_ != nullptr && !abilityClientPtr_->GetEnabledAbilities(enabledAbilities)) {
+    if (abilityClientPtr_ != nullptr &&
+        (abilityClientPtr_->GetEnabledAbilities(enabledAbilities) != Accessibility::RET_OK)) {
         HILOG_ERROR("Failed to GetEnabledAbilities");
     }
     return enabledAbilities;
@@ -460,7 +461,8 @@ const std::vector<Accessibility::AccessibilityAbilityInfo> AccessibilityAbilityS
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     const uint32_t allTypes = Accessibility::AccessibilityAbilityTypes::ACCESSIBILITY_ABILITY_TYPE_ALL;
     const Accessibility::AbilityStateType stateType = Accessibility::AbilityStateType::ABILITY_STATE_INSTALLED;
-    if (abilityClientPtr_ != nullptr && !abilityClientPtr_->GetAbilityList(allTypes, stateType, installedAbilities)) {
+    if (abilityClientPtr_ != nullptr &&
+        (abilityClientPtr_->GetAbilityList(allTypes, stateType, installedAbilities) != Accessibility::RET_OK)) {
         HILOG_ERROR("Failed to GetInstalledAbilities");
     }
     return installedAbilities;
