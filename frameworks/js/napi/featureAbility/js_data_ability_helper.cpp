@@ -2341,6 +2341,1093 @@ napi_value CallPacMapValue(napi_env env, std::shared_ptr<AppExecFwk::PacMap> res
     return value;
 }
 
+void CallAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperCallCB *callCB = static_cast<DAHelperCallCB *>(data);
+    napi_value result = nullptr;
+    result = CallPacMapValue(env, callCB->result);
+    CreateCallBackValue(env, callCB->cbBase.cbInfo.callback, callCB->execResult, result);
+    if (callCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, callCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, callCB->cbBase.asyncWork));
+    delete callCB;
+    callCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void CallPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperCallCB *callCB = static_cast<DAHelperCallCB *>(data);
+    napi_value result = nullptr;
+    result = CallPacMapValue(env, callCB->result);
+    CreatePromiseValue(env, callCB->cbBase.deferred, callCB->execResult, result);
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, callCB->cbBase.asyncWork));
+    delete callCB;
+    callCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+napi_value CallAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperCallCB *callCB)
+{
+    HILOG_INFO("Enter.");
+    if (args == nullptr || callCB == nullptr) {
+        HILOG_ERROR("Input Param args or callCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &callCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            CallExecuteCB,
+            CallAsyncCompleteCB,
+            (void *)callCB,
+            &callCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, callCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("End.");
+    return result;
+}
+
+napi_value CallPromise(napi_env env, DAHelperCallCB *callCB)
+{
+    HILOG_INFO("Enter.");
+    if (callCB == nullptr) {
+        HILOG_ERROR("Input Param callCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    callCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            CallExecuteCB,
+            CallPromiseCompleteCB,
+            (void *)callCB,
+            &callCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, callCB->cbBase.asyncWork));
+    HILOG_INFO("End.");
+    return promise;
+}
+
+void SetPacMapObject(AppExecFwk::PacMap &pacMap, const napi_env &env, std::string keyStr, napi_value value)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, value, &valueType);
+    if (valueType == napi_string) {
+        std::string valueString = UnwrapStringFromJS(env, value);
+        pacMap.PutStringValue(keyStr, valueString);
+    } else if (valueType == napi_number) {
+        double valueNumber = 0;
+        napi_get_value_double(env, value, &valueNumber);
+        pacMap.PutDoubleValue(keyStr, valueNumber);
+    } else if (valueType == napi_boolean) {
+        bool valueBool = false;
+        napi_get_value_bool(env, value, &valueBool);
+        pacMap.PutBooleanValue(keyStr, valueBool);
+    } else if (valueType == napi_null) {
+        pacMap.PutObject(keyStr, nullptr);
+    } else if (valueType == napi_object) {
+        pacMap.PutStringValueArray(keyStr, ConvertStringVector(env, value));
+    } else {
+        HILOG_ERROR("SetPacMapObject pacMap type error.");
+    }
+}
+
+void AnalysisPacMap(AppExecFwk::PacMap &pacMap, const napi_env &env, const napi_value &arg)
+{
+    napi_value keys = 0;
+    napi_get_property_names(env, arg, &keys);
+    uint32_t arrLen = 0;
+    napi_status status = napi_get_array_length(env, keys, &arrLen);
+    if (status != napi_ok) {
+        HILOG_ERROR("AnalysisPacMap error.");
+        return;
+    }
+    for (size_t i = 0; i < arrLen; ++i) {
+        napi_value key = 0;
+        (void)napi_get_element(env, keys, i, &key);
+        std::string keyStr = UnwrapStringFromJS(env, key);
+        napi_value value = 0;
+        napi_get_property(env, arg, key, &value);
+        SetPacMapObject(pacMap, env, keyStr, value);
+    }
+}
+
+/**
+ * @brief Call processing function.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param callCB Process data asynchronously.
+ *
+ * @return Return JS data successfully, otherwise return nullptr.
+ */
+napi_value CallWrap(napi_env env, napi_callback_info info, DAHelperCallCB *callCB)
+{
+    HILOG_INFO("Enter.");
+    size_t argCount = ARGS_MAX_COUNT;
+    const size_t promiseArgCount = ARGS_FOUR;
+    const size_t asyncArgCount = promiseArgCount + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = nullptr;
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argCount, args, &thisVar, nullptr));
+    if (!CheckArgCount(env, argCount, promiseArgCount)) {
+        return nullptr;
+    }
+
+    bool isPromise = (argCount < asyncArgCount) ? true : false;
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
+    if (valuetype == napi_string) {
+        callCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
+    } else {
+        return CallErrorWrap(env, thisVar, info, args, isPromise);
+    }
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
+    if (valuetype == napi_string) {
+        callCB->method = NapiValueToStringUtf8(env, args[PARAM1]);
+    } else {
+        return CallErrorWrap(env, thisVar, info, args, isPromise);
+    }
+    NAPI_CALL(env, napi_typeof(env, args[PARAM2], &valuetype));
+    if (valuetype == napi_string) {
+        callCB->arg = NapiValueToStringUtf8(env, args[PARAM2]);
+    }
+    NAPI_CALL(env, napi_typeof(env, args[PARAM3], &valuetype));
+    if (valuetype == napi_object) {
+        AnalysisPacMap(callCB->pacMap, env, args[PARAM3]);
+    }
+    DataAbilityHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    callCB->dataAbilityHelper = objectInfo;
+    if (!isPromise) {
+        ret = CallAsync(env, args, ARGS_TWO, callCB);
+    } else {
+        ret = CallPromise(env, callCB);
+    }
+    return ret;
+}
+
+/**
+ * @brief DataAbilityHelper NAPI method : call.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_Call(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("Enter.");
+    DAHelperCallCB *callCB = new DAHelperCallCB;
+    callCB->cbBase.cbInfo.env = env;
+    callCB->cbBase.asyncWork = nullptr;
+    callCB->cbBase.deferred = nullptr;
+    callCB->cbBase.ability = nullptr;
+
+    napi_value ret = CallWrap(env, info, callCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("CallWrap failed.");
+        delete callCB;
+        callCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+/**
+ * @brief DataAbilityHelper NAPI method : insert.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("Enter.");
+    DAHelperOpenFileCB *openFileCB = new DAHelperOpenFileCB;
+    openFileCB->cbBase.cbInfo.env = env;
+    openFileCB->cbBase.asyncWork = nullptr;
+    openFileCB->cbBase.deferred = nullptr;
+    openFileCB->cbBase.ability = nullptr;
+
+    napi_value ret = OpenFileWrap(env, info, openFileCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("OpenFileWrap failed.");
+        delete openFileCB;
+        openFileCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+/**
+ * @brief Insert processing function.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param insertCB Process data asynchronously.
+ *
+ * @return Return JS data successfully, otherwise return nullptr.
+ */
+napi_value OpenFileWrap(napi_env env, napi_callback_info info, DAHelperOpenFileCB *openFileCB)
+{
+    HILOG_INFO("Enter.");
+    size_t argCount = ARGS_MAX_COUNT;
+    const size_t promiseArgCount = ARGS_TWO;
+    const size_t asyncArgCount = promiseArgCount + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = 0;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argCount, args, &thisVar, nullptr));
+    if (!CheckArgCount(env, argCount, promiseArgCount)) {
+        return nullptr;
+    }
+    if (!CheckStringParam(env, args[PARAM0], openFileCB->uri)) {
+        return nullptr;
+    }
+    if (!CheckStringParam(env, args[PARAM1], openFileCB->mode)) {
+        return nullptr;
+    }
+
+    DataAbilityHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    openFileCB->dataAbilityHelper = objectInfo;
+
+    if (argCount >= asyncArgCount) {
+        ret = OpenFileAsync(env, args, ARGS_TWO, openFileCB);
+    } else {
+        ret = OpenFilePromise(env, openFileCB);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+napi_value OpenFileAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperOpenFileCB *openFileCB)
+{
+    HILOG_INFO("Enter.");
+    if (args == nullptr || openFileCB == nullptr) {
+        HILOG_ERROR("Input Param args or openFileCB is nullptr.");
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &openFileCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            OpenFileExecuteCB,
+            OpenFileAsyncCompleteCB,
+            (void *)openFileCB,
+            &openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("End.");
+    return result;
+}
+
+napi_value OpenFilePromise(napi_env env, DAHelperOpenFileCB *openFileCB)
+{
+    HILOG_INFO("Enter.");
+    if (openFileCB == nullptr) {
+        HILOG_ERROR("Input Param openFileCB is nullptr.");
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    openFileCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            OpenFileExecuteCB,
+            OpenFilePromiseCompleteCB,
+            (void *)openFileCB,
+            &openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    HILOG_INFO("End.");
+    return promise;
+}
+
+void OpenFileExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("Worker pool thread execute.");
+    DAHelperOpenFileCB *OpenFileCB = static_cast<DAHelperOpenFileCB *>(data);
+    if (OpenFileCB->dataAbilityHelper != nullptr) {
+        OpenFileCB->execResult = INVALID_PARAMETER;
+        if (!OpenFileCB->uri.empty()) {
+            OHOS::Uri uri(OpenFileCB->uri);
+            auto ret = OpenFileCB->dataAbilityHelper->OpenFile(uri, OpenFileCB->mode);
+            if (ret != -1) {
+                // success
+                OpenFileCB->execResult = NO_ERROR;
+                OpenFileCB->result = ret;
+            } else {
+                // fail
+                OpenFileCB->execResult = ret;
+            }
+        } else {
+            HILOG_ERROR("dataAbilityHelper uri is empty.");
+        }
+    } else {
+        HILOG_ERROR("dataAbilityHelper is nullptr.");
+    }
+    HILOG_INFO("Worker pool thread execute end.");
+}
+
+void OpenFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperOpenFileCB *openFileCB = static_cast<DAHelperOpenFileCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, openFileCB->result, &result);
+    CreateCallBackValue(env, openFileCB->cbBase.cbInfo.callback, openFileCB->execResult, result);
+    if (openFileCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, openFileCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
+    delete openFileCB;
+    openFileCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void OpenFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperOpenFileCB *openFileCB = static_cast<DAHelperOpenFileCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, openFileCB->result, &result);
+    CreatePromiseValue(env, openFileCB->cbBase.deferred, openFileCB->execResult, result);
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
+    delete openFileCB;
+    openFileCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+/**
+ * @brief DataAbilityHelper NAPI method : insert.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_BatchInsert(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("Enter.");
+    DAHelperBatchInsertCB *BatchInsertCB = new DAHelperBatchInsertCB;
+    BatchInsertCB->cbBase.cbInfo.env = env;
+    BatchInsertCB->cbBase.asyncWork = nullptr;
+    BatchInsertCB->cbBase.deferred = nullptr;
+    BatchInsertCB->cbBase.ability = nullptr;
+
+    napi_value ret = BatchInsertWrap(env, info, BatchInsertCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("BatchInsertWrap failed.");
+        delete BatchInsertCB;
+        BatchInsertCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+bool UnwrapArrayObjectFromJS(napi_env env, napi_value param, std::vector<NativeRdb::ValuesBucket> &value)
+{
+    HILOG_INFO("Enter.");
+    uint32_t arraySize = 0;
+    napi_value jsValue = nullptr;
+    std::string strValue = "";
+
+    if (!IsArrayForNapiValue(env, param, arraySize)) {
+        HILOG_ERROR("IsArrayForNapiValue is false.");
+        return false;
+    }
+
+    value.clear();
+    for (uint32_t i = 0; i < arraySize; i++) {
+        jsValue = nullptr;
+        if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
+            HILOG_ERROR("napi_get_element is false.");
+            return false;
+        }
+
+        NativeRdb::ValuesBucket valueBucket;
+        valueBucket.Clear();
+        if(!AnalysisValuesBucket(valueBucket, env, jsValue)) {
+            HILOG_ERROR("Analysis values bucket failed.");
+            return false;
+        }
+
+        value.push_back(valueBucket);
+    }
+    HILOG_INFO("End.");
+    return true;
+}
+
+/**
+ * @brief Insert processing function.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param insertCB Process data asynchronously.
+ *
+ * @return Return JS data successfully, otherwise return nullptr.
+ */
+napi_value BatchInsertWrap(napi_env env, napi_callback_info info, DAHelperBatchInsertCB *batchInsertCB)
+{
+    HILOG_INFO("Enter.");
+    size_t argCount = ARGS_MAX_COUNT;
+    const size_t promiseArgCount = ARGS_TWO;
+    const size_t asyncArgCount = promiseArgCount + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = 0;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argCount, args, &thisVar, nullptr));
+    if (!CheckArgCount(env, argCount, promiseArgCount)) {
+        return nullptr;
+    }
+    if (!CheckStringParam(env, args[PARAM0], batchInsertCB->uri)) {
+        return nullptr;
+    }
+    if (!CheckArrayValuesBucket(env, args[PARAM1], batchInsertCB->values)) {
+        return nullptr;
+    }
+
+    DataAbilityHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    batchInsertCB->dataAbilityHelper = objectInfo;
+
+    if (argCount >= asyncArgCount) {
+        ret = BatchInsertAsync(env, args, ARGS_TWO, batchInsertCB);
+    } else {
+        ret = BatchInsertPromise(env, batchInsertCB);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+napi_value BatchInsertAsync(
+    napi_env env, napi_value *args, const size_t argCallback, DAHelperBatchInsertCB *batchInsertCB)
+{
+    HILOG_INFO("Enter.");
+    if (args == nullptr || batchInsertCB == nullptr) {
+        HILOG_ERROR("Input Param args or batchInsertCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &batchInsertCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            BatchInsertExecuteCB,
+            BatchInsertAsyncCompleteCB,
+            (void *)batchInsertCB,
+            &batchInsertCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, batchInsertCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("End.");
+    return result;
+}
+
+napi_value BatchInsertPromise(napi_env env, DAHelperBatchInsertCB *batchInsertCB)
+{
+    HILOG_INFO("Enter.");
+    if (batchInsertCB == nullptr) {
+        HILOG_ERROR("Input Param batchInsertCB is nullptr.");
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    batchInsertCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            BatchInsertExecuteCB,
+            BatchInsertPromiseCompleteCB,
+            (void *)batchInsertCB,
+            &batchInsertCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, batchInsertCB->cbBase.asyncWork));
+    HILOG_INFO("End.");
+    return promise;
+}
+
+void BatchInsertExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("Worker pool thread execute.");
+    DAHelperBatchInsertCB *batchInsertCB = static_cast<DAHelperBatchInsertCB *>(data);
+    if (batchInsertCB->dataAbilityHelper != nullptr) {
+        batchInsertCB->execResult = INVALID_PARAMETER;
+        if (!batchInsertCB->uri.empty()) {
+            OHOS::Uri uri(batchInsertCB->uri);
+            auto ret = batchInsertCB->dataAbilityHelper->BatchInsert(uri, batchInsertCB->values);
+            if (ret != -1) {
+                // success
+                batchInsertCB->result = ret;
+                batchInsertCB->execResult = NO_ERROR;
+            } else {
+                // fail
+                batchInsertCB->execResult = ret;
+            }
+        } else {
+            HILOG_ERROR("dataAbilityHelper uri is empyt.");
+        }
+    } else {
+        HILOG_ERROR("dataAbilityHelper is nullptr.");
+    }
+    HILOG_INFO("Worker pool thread execute end.");
+}
+
+void BatchInsertAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperBatchInsertCB *batchInsertCB = static_cast<DAHelperBatchInsertCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, batchInsertCB->result, &result);
+    CreateCallBackValue(env, batchInsertCB->cbBase.cbInfo.callback, batchInsertCB->execResult, result);
+    if (batchInsertCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, batchInsertCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, batchInsertCB->cbBase.asyncWork));
+    delete batchInsertCB;
+    batchInsertCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperBatchInsertCB *batchInsertCB = static_cast<DAHelperBatchInsertCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, batchInsertCB->result, &result);
+    CreatePromiseValue(env, batchInsertCB->cbBase.deferred, batchInsertCB->execResult, result);
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, batchInsertCB->cbBase.asyncWork));
+    delete batchInsertCB;
+    batchInsertCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+/**
+ * @brief DataAbilityHelper NAPI method : insert.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_Query(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("Enter.");
+    DAHelperQueryCB *queryCB = new DAHelperQueryCB;
+    queryCB->cbBase.cbInfo.env = env;
+    queryCB->cbBase.asyncWork = nullptr;
+    queryCB->cbBase.deferred = nullptr;
+    queryCB->cbBase.ability = nullptr;
+
+    napi_value ret = QueryWrap(env, info, queryCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("QueryWrap failed.");
+        delete queryCB;
+        queryCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+/**
+ * @brief Insert processing function.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param insertCB Process data asynchronously.
+ *
+ * @return Return JS data successfully, otherwise return nullptr.
+ */
+napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *queryCB)
+{
+    HILOG_INFO("Enter.");
+    size_t argCount = ARGS_MAX_COUNT;
+    const size_t promiseArgCount = ARGS_THREE;
+    const size_t asyncArgCount = promiseArgCount + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = 0;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argCount, args, &thisVar, nullptr));
+    if (!CheckArgCount(env, argCount, promiseArgCount)) {
+        return nullptr;
+    }
+    if (!CheckStringParam(env, args[PARAM0], queryCB->uri)) {
+        return nullptr;
+    }
+    std::vector<std::string> result;
+    if (!CheckArrayStringParam(env, args[PARAM1], result)) {
+        return nullptr;
+    }
+
+    queryCB->columns = result;
+    for (size_t i = 0; i < queryCB->columns.size(); i++) {
+        HILOG_INFO("columns = %{public}s", queryCB->columns.at(i).c_str());
+    }
+
+    UnwrapDataAbilityPredicates(queryCB->predicates, env, args[PARAM2]);
+    DataAbilityHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    queryCB->dataAbilityHelper = objectInfo;
+
+    if (argCount >= asyncArgCount) {
+        ret = QueryAsync(env, args, ARGS_THREE, queryCB);
+    } else {
+        ret = QueryPromise(env, queryCB);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+napi_value QueryAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperQueryCB *queryCB)
+{
+    HILOG_INFO("Enter.");
+    if (args == nullptr || queryCB == nullptr) {
+        HILOG_ERROR("Input Param args or queryCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &queryCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            QueryExecuteCB,
+            QueryAsyncCompleteCB,
+            (void *)queryCB,
+            &queryCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, queryCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("End.");
+    return result;
+}
+
+napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB)
+{
+    HILOG_INFO("Enter.");
+    if (queryCB == nullptr) {
+        HILOG_ERROR("Input Param queryCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    queryCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            QueryExecuteCB,
+            QueryPromiseCompleteCB,
+            (void *)queryCB,
+            &queryCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, queryCB->cbBase.asyncWork));
+    HILOG_INFO("End.");
+    return promise;
+}
+
+void QueryPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperQueryCB *queryCB = static_cast<DAHelperQueryCB *>(data);
+    napi_value result = nullptr;
+    result = WrapResultSet(env, queryCB->result);
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, queryCB->cbBase.deferred, result));
+    CreatePromiseValue(env, queryCB->cbBase.deferred, queryCB->execResult, result);
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, queryCB->cbBase.asyncWork));
+    delete queryCB;
+    queryCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void QueryExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("Worker pool thread execute.");
+    DAHelperQueryCB *queryCB = static_cast<DAHelperQueryCB *>(data);
+    if (queryCB->dataAbilityHelper != nullptr) {
+        queryCB->execResult = INVALID_PARAMETER;
+        if (!queryCB->uri.empty()) {
+            OHOS::Uri uri(queryCB->uri);
+            auto resultset = queryCB->dataAbilityHelper->Query(uri, queryCB->columns, queryCB->predicates);
+            if (resultset != nullptr) {
+                queryCB->result = resultset;
+                queryCB->execResult = NO_ERROR;
+            } else {
+                HILOG_INFO("resultset is nullptr.");
+            }
+        } else {
+            HILOG_ERROR("dataAbilityHelper uri is empty.");
+        }
+    } else {
+        HILOG_ERROR("dataAbilityHelper is nullptr.");
+    }
+    HILOG_INFO("Worker pool thread execute end.");
+}
+
+void QueryAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete.");
+    DAHelperQueryCB *queryCB = static_cast<DAHelperQueryCB *>(data);
+    napi_value result = nullptr;
+    result = WrapResultSet(env, queryCB->result);
+    CreateCallBackValue(env, queryCB->cbBase.cbInfo.callback, queryCB->execResult, result);
+    if (queryCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, queryCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, queryCB->cbBase.asyncWork));
+    delete queryCB;
+    queryCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+napi_value WrapResultSet(napi_env env, const std::shared_ptr<NativeRdb::AbsSharedResultSet> &resultSet)
+{
+    HILOG_INFO("Enter.");
+    if (resultSet == nullptr) {
+        HILOG_ERROR("Input parameter resultSet is nullptr.");
+        return WrapVoidToJS(env);
+    }
+
+    return RdbJsKit::ResultSetProxy::NewInstance(env, resultSet);
+}
+
+napi_value NAPI_ExecuteBatch(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("Enter.");
+    DAHelperExecuteBatchCB *executeBatchCB = new DAHelperExecuteBatchCB;
+    executeBatchCB->cbBase.cbInfo.env = env;
+    executeBatchCB->cbBase.asyncWork = nullptr;
+    executeBatchCB->cbBase.deferred = nullptr;
+    executeBatchCB->cbBase.ability = nullptr;
+
+    napi_value ret = ExecuteBatchWrap(env, info, executeBatchCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("ExecuteBatchWrap failed.");
+        delete executeBatchCB;
+        executeBatchCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+bool UnwrapArrayOperationFromJS(
+    napi_env env, napi_callback_info info, napi_value param, std::vector<std::shared_ptr<DataAbilityOperation>> &result)
+{
+    HILOG_INFO("Enter.");
+    uint32_t arraySize = 0;
+    napi_value jsValue = nullptr;
+    std::string strValue = "";
+
+    if (!IsArrayForNapiValue(env, param, arraySize)) {
+        HILOG_ERROR("Wrong argument type.");
+        return false;
+    }
+    HILOG_INFO("Param size: %{public}zu.", arraySize);
+    result.clear();
+    for (uint32_t i = 0; i < arraySize; i++) {
+        jsValue = nullptr;
+        if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
+            HILOG_ERROR("Get element failed, index: %{public}zu.", i);
+            return false;
+        }
+        std::shared_ptr<DataAbilityOperation> operation = nullptr;
+        UnwrapDataAbilityOperation(operation, env, jsValue);
+        HILOG_INFO("UnwrapDataAbilityOperation, index: %{public}zu.", i);
+        result.push_back(operation);
+    }
+    return true;
+}
+
+napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecuteBatchCB *executeBatchCB)
+{
+    HILOG_INFO("Enter.");
+    size_t argCount = ARGS_MAX_COUNT;
+    const size_t promiseArgCount = ARGS_TWO;
+    const size_t asyncArgCount = promiseArgCount + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = 0;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argCount, args, &thisVar, nullptr));
+    if (!CheckArgCount(env, argCount, promiseArgCount)) {
+        return nullptr;
+    }
+    if (!CheckStringParam(env, args[PARAM0], executeBatchCB->uri)) {
+        return nullptr;
+    }
+    std::vector<std::shared_ptr<DataAbilityOperation>> operations;
+    if(!CheckArrayOperation(env, info, args[PARAM1], operations)) {
+        return nullptr;
+    }
+    HILOG_INFO("Operations size = %{public}zu.", operations.size());
+    executeBatchCB->operations = operations;
+
+    DataAbilityHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    executeBatchCB->dataAbilityHelper = objectInfo;
+
+    if (argCount >= asyncArgCount) {
+        ret = ExecuteBatchAsync(env, args, argCount, promiseArgCount, executeBatchCB);
+    } else {
+        ret = ExecuteBatchPromise(env, executeBatchCB);
+    }
+    HILOG_INFO("End.");
+    return ret;
+}
+
+napi_value ExecuteBatchAsync(
+    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperExecuteBatchCB *executeBatchCB)
+{
+    HILOG_INFO("Enter.");
+    if (args == nullptr || executeBatchCB == nullptr) {
+        HILOG_ERROR("Input Param args or executeBatchCB is nullptr.");
+        ThrowException(env, JS_ERR_PARAM_INVALID);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argcPromise], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argcPromise], 1, &executeBatchCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            ExecuteBatchExecuteCB,
+            ExecuteBatchAsyncCompleteCB,
+            (void *)executeBatchCB,
+            &executeBatchCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, executeBatchCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("End.");
+    return result;
+}
+
+napi_value ExecuteBatchPromise(napi_env env, DAHelperExecuteBatchCB *executeBatchCB)
+{
+    HILOG_INFO("Enter.");
+    if (executeBatchCB == nullptr) {
+        HILOG_ERROR("Input Param executeBatchCB is nullptr.");
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    executeBatchCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            ExecuteBatchExecuteCB,
+            ExecuteBatchPromiseCompleteCB,
+            (void *)executeBatchCB,
+            &executeBatchCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, executeBatchCB->cbBase.asyncWork));
+    HILOG_INFO("End.");
+    return promise;
+}
+
+void ExecuteBatchExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("Worker pool thread execute start.");
+    DAHelperExecuteBatchCB *executeBatchCB = static_cast<DAHelperExecuteBatchCB *>(data);
+    if (executeBatchCB->dataAbilityHelper != nullptr) {
+        OHOS::Uri uri(executeBatchCB->uri);
+        executeBatchCB->execResult = INVALID_PARAMETER;
+        auto ret = executeBatchCB->dataAbilityHelper->ExecuteBatch(uri, executeBatchCB->operations);
+        if (!ret.empty()) {
+            // success
+            executeBatchCB->result = ret;
+            executeBatchCB->execResult = NO_ERROR;
+        }
+        HILOG_INFO("result size: %{public}zu.", executeBatchCB->result.size());
+    }
+    HILOG_INFO("Worker pool thread execute end.");
+}
+
+void ExecuteBatchAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete start.");
+    DAHelperExecuteBatchCB *executeBatchCB = static_cast<DAHelperExecuteBatchCB *>(data);
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    GetDataAbilityResultForResult(env, executeBatchCB->result, result);
+    CreateCallBackValue(env, executeBatchCB->cbBase.cbInfo.callback, executeBatchCB->execResult, result);
+    if (executeBatchCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, executeBatchCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, executeBatchCB->cbBase.asyncWork));
+    delete executeBatchCB;
+    executeBatchCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void ExecuteBatchPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("Main event thread complete start.");
+    DAHelperExecuteBatchCB *executeBatchCB = static_cast<DAHelperExecuteBatchCB *>(data);
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    GetDataAbilityResultForResult(env, executeBatchCB->result, result);
+    CreatePromiseValue(env, executeBatchCB->cbBase.deferred, executeBatchCB->execResult, result);
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, executeBatchCB->cbBase.asyncWork));
+    delete executeBatchCB;
+    executeBatchCB = nullptr;
+    HILOG_INFO("Main event thread complete end.");
+}
+
+void GetDataAbilityResultForResult(
+    napi_env env, const std::vector<std::shared_ptr<DataAbilityResult>> dataAbilityResult, napi_value result)
+{
+    HILOG_INFO("Enter, dataAbilityResult size: %{public}zu.", dataAbilityResult.size());
+    int32_t index = 0;
+    std::vector<std::shared_ptr<DataAbilityResult>> entities = dataAbilityResult;
+    for (const auto &item : entities) {
+        napi_value objDataAbilityResult;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &objDataAbilityResult));
+
+        napi_value uri;
+        NAPI_CALL_RETURN_VOID(
+            env, napi_create_string_utf8(env, item->GetUri().ToString().c_str(), NAPI_AUTO_LENGTH, &uri));
+        HILOG_INFO("Uri = [%{public}s].", item->GetUri().ToString().c_str());
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objDataAbilityResult, "uri", uri));
+
+        napi_value count;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, item->GetCount(), &count));
+        HILOG_INFO("Count = [%{public}d].", item->GetCount());
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objDataAbilityResult, "count", count));
+
+        NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, objDataAbilityResult));
+        index++;
+    }
+    HILOG_INFO("End.");
+}
+
+void EraseMemberProperties(DAHelperOnOffCB* onCB)
+{
+    if (onCB->observer) {
+        HILOG_DEBUG("Call ReleaseJSCallback.");
+        onCB->observer->ReleaseJSCallback();
+        onCB->observer = nullptr;
+    }
+    if (onCB->dataAbilityHelper) {
+        HILOG_DEBUG("Call Release.");
+        onCB->dataAbilityHelper->Release();
+        onCB->dataAbilityHelper = nullptr;
+    }
+}
+
+bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, DataAbilityHelper* objectInfo)
+{
+    if ((*iter) == nullptr) {
+        return false;
+    }
+    if ((*iter)->dataAbilityHelper == objectInfo) {
+        EraseMemberProperties(*iter);
+        delete (*iter);
+        (*iter) = nullptr;
+        iter = g_registerInstances.erase(iter);
+    } else {
+        ++iter;
+    }
+    return true;
+}
+
+void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
+{
+    if (!onCB) {
+        HILOG_INFO("DeleteDAHelperOnOffCB, onCB is nullptr, no need delete.");
+        return;
+    }
+    EraseMemberProperties(onCB);
+
+    auto end = remove(g_registerInstances.begin(), g_registerInstances.end(), onCB);
+    if (end != g_registerInstances.end()) {
+        (void)g_registerInstances.erase(end);
+    }
+    delete onCB;
+    onCB = nullptr;
+}
+
 bool CheckArgCount(const napi_env &env, uint32_t argCount, uint32_t promiseArgCount)
 {
     if (argCount < promiseArgCount || argCount > ARGS_MAX_COUNT) {
