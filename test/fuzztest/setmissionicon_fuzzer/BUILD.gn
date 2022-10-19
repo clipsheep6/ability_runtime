@@ -19,14 +19,16 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("UpdateConfigurationFuzzTest") {
+ohos_fuzztest("SetMissionIconFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/updateconfiguration_fuzzer"
+      "${ability_runtime_test_path}/fuzztest/setmissionicon_fuzzer"
 
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/",
+  ]
 
   cflags = [
     "-g",
@@ -35,26 +37,21 @@ ohos_fuzztest("UpdateConfigurationFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "updateconfiguration_fuzzer.cpp" ]
+  sources = [ "setmissionicon_fuzzer.cpp" ]
 
   configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [
-    "ability_base:configuration",
     "ability_base:want",
-    "ability_base:zuri",
-    "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "eventhandler:libeventhandler",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
+    "c_utils:utils",
   ]
 }
 
@@ -64,7 +61,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":UpdateConfigurationFuzzTest",
+    ":SetMissionIconFuzzTest",
   ]
 }
 ###############################################################################
