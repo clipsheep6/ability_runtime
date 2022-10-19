@@ -47,7 +47,7 @@ ohos_shared_library("wantagent_napi") {
     "napi:ace_napi",
   ]
 
-  relative_install_dir = "module"
+  relative_install_dir = "module/app/ability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

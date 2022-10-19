@@ -108,7 +108,11 @@ static napi_module _module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = ConfigurationConstantInit,
+#ifdef ENABLE_ERRCODE
+    .nm_modname = "app.ability.ConfigurationConstant",
+#else
     .nm_modname = "application.ConfigurationConstant",
+#endif
     .nm_priv = ((void *)0),
     .reserved = {0}
 };
