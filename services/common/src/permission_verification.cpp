@@ -252,11 +252,6 @@ int PermissionVerification::CheckCallServiceExtensionPermission(const Verificati
     return JudgeInvisibleAndBackground(verificationInfo);
 }
 
-int PermissionVerification::CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo) const
-{
-    return JudgeInvisibleAndBackground(verificationInfo);
-}
-
 int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo) const
 {
     if (IsSACall()) {

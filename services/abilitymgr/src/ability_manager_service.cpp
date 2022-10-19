@@ -82,6 +82,7 @@ const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
+constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
@@ -5108,7 +5109,7 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
 
 int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
     abilityRequest.uid = abilityRequest.appInfo.uid;
     if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
@@ -5125,6 +5126,9 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     }
 
     AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start DataAbility");
@@ -5156,7 +5160,7 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
 
 int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("CheckCallServiceExtensionPermission begin");
+    HILOG_INFO("CheckCallServiceExtensionPermission begin");
     if (!IsUseNewStartUpRule(abilityRequest)) {
         return CheckCallerPermissionOldRule(abilityRequest);
     }
@@ -5177,29 +5181,23 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
 
 int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("CheckCallOtherExtensionPermission begin");
+    HILOG_INFO("CheckCallOtherExtensionPermission begin");
     if (!IsUseNewStartUpRule(abilityRequest)) {
         return CheckCallerPermissionOldRule(abilityRequest);
     }
 
-    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
-    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
-    verificationInfo.visible = abilityRequest.abilityInfo.visible;
-    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
-        return ERR_INVALID_VALUE;
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        return ERR_OK;
     }
 
-    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckCallOtherExtensionPermission, Do not have permission to start OtherExtension");
-    }
-    return result;
+    HILOG_ERROR("CheckCallOtherExtensionPermission, Not SA, can not start other Extension");
+    return CHECK_PERMISSION_FAILED;
 }
 
 
 int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     if (!IsUseNewStartUpRule(abilityRequest)) {
         return CheckCallerPermissionOldRule(abilityRequest);
     }
@@ -5218,7 +5216,7 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
 
 int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     if (!IsUseNewStartUpRule(abilityRequest)) {
         return CheckCallerPermissionOldRule(abilityRequest);
     }
@@ -5239,7 +5237,7 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
 
 int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abilityRequest)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
     if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
         abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
@@ -5295,6 +5293,14 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND;
     } else {
         isBackgroundCall = !processInfo.isFocused;
+        if (!processInfo.isFocused && processInfo.state_ == AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) {
+            // Allow background startup within 1 second after application startup if state is FOREGROUND
+            int64_t aliveTime = AbilityUtil::SystemTimeMillis() - processInfo.startTimeMillis_;
+            isBackgroundCall = aliveTime > APP_ALIVE_TIME_MS;
+            HILOG_DEBUG(
+                "Process %{public}s is alive %{public}s ms.",
+                processInfo.processName_.c_str(), std::to_string(aliveTime).c_str());
+        }
     }
     HILOG_DEBUG("backgroundJudgeFlag: %{public}d, isBackgroundCall: %{public}d, callerAppState: %{public}d.",
         static_cast<int32_t>(backgroundJudgeFlag_),
