@@ -57,7 +57,7 @@ bool GetDataAbilityOperationBuilder(
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
-napi_value UnwrapValuesBucket(std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env, napi_value args);
+napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env, napi_value args);
 /**
  * @brief Parse the DataAbilityPredicatesBackReferences parameters.
  *

@@ -1213,10 +1213,6 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         return false;
     }
     auto args = std::make_shared<AbilityDelegatorArgs>(record->want);
-    if (!args) {
-        HILOG_ERROR("args is null");
-        return false;
-    }
     if (isStageBased) { // Stage model
         HILOG_DEBUG("PrepareAbilityDelegator for Stage model.");
         auto testRunner = TestRunner::Create(application_->GetRuntime(), args, false);

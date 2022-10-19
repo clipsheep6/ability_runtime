@@ -174,7 +174,7 @@ private:
         }
     }
 
-    NativeValue* OnOff(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnOff(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_TWO) {
@@ -444,7 +444,7 @@ private:
         return result;
     }
 
-    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         AsyncTask::CompleteCallback complete =
             [abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
@@ -465,7 +465,7 @@ private:
         return result;
     }
 
-    bool CheckOnOffType(NativeEngine& engine, NativeCallbackInfo& info)
+    bool CheckOnOffType(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         if (info.argc < ARGC_ONE) {
             return false;

@@ -94,7 +94,7 @@ public:
     static NativeValue* GetWant(NativeEngine *engine, NativeCallbackInfo *info);
 private:
 #ifdef SUPPORT_GRAPHICS
-    NativeValue* OnHasWindowFocus(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnHasWindowFocus(NativeEngine &engine, const NativeCallbackInfo &info);
 #endif
 };
 
@@ -160,7 +160,7 @@ NativeValue* JsFeatureAbility::DisconnectAbility(NativeEngine *engine, NativeCal
 }
 
 #ifdef SUPPORT_GRAPHICS
-NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s is called", __FUNCTION__);
     if (info.argc > ARGS_ONE || info.argc < ARGS_ZERO) {
@@ -352,7 +352,7 @@ napi_value StartAbilityForResultAsync(napi_env env, AsyncCallbackInfo *asyncCall
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_StartAbilityForResult, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     napi_value result = 0;
@@ -407,7 +407,7 @@ napi_value StartAbilityForResultPromise(napi_env env, AsyncCallbackInfo *asyncCa
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_StartAbilityForResult,  main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -533,7 +533,7 @@ napi_value SetResultAsync(
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_SetResult, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     napi_value result = 0;
@@ -579,7 +579,7 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_SetResult,  main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s, promise end", __func__);
@@ -738,7 +738,7 @@ napi_value HasWindowFocusAsync(
             asyncCallbackInfo = nullptr;
             HILOG_INFO("NAPI_HasWindowFocus, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     napi_value result = 0;
@@ -783,7 +783,7 @@ napi_value HasWindowFocusPromise(napi_env env, AsyncCallbackInfo *asyncCallbackI
             asyncCallbackInfo = nullptr;
             HILOG_INFO("NAPI_HasWindowFocus, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -830,7 +830,7 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
     onAbilityCB->resultData = resultData;
     onAbilityCB->cb = callbackInfo;
 
-    work->data = (void *)onAbilityCB;
+    work->data = static_cast<void *>(onAbilityCB);
 
     int rev = uv_queue_work(
         loop,
@@ -1053,7 +1053,7 @@ napi_value GetWindowWrapAsync(
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetWindowWrapAsync, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     napi_value result = 0;
@@ -1102,7 +1102,7 @@ napi_value GetWindowWrapPromise(napi_env env, AsyncCallbackInfo *asyncCallbackIn
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetWindowWrapPromise, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1449,7 +1449,7 @@ napi_value GetDataAbilityHelperAsync(
         napi_create_async_work(env, nullptr, resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_GetDataAbilityHelper, worker pool thread execute."); },
             GetDataAbilityHelperAsyncCompleteCB,
-            (void *)dataAbilityHelperCB,
+            static_cast<void *>(dataAbilityHelperCB),
             &dataAbilityHelperCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, dataAbilityHelperCB->cbBase.asyncWork));
     napi_value result = 0;
@@ -1476,7 +1476,7 @@ napi_value GetDataAbilityHelperPromise(napi_env env, DataAbilityHelperCB *dataAb
         napi_create_async_work(env, nullptr, resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_GetDataAbilityHelper, worker pool thread execute."); },
             GetDataAbilityHelperPromiseCompleteCB,
-            (void *)dataAbilityHelperCB,
+            static_cast<void *>(dataAbilityHelperCB),
             &dataAbilityHelperCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, dataAbilityHelperCB->cbBase.asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
@@ -1519,7 +1519,6 @@ void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, voi
 {
     HILOG_INFO("NAPI_GetDataAbilityHelper,  main event thread complete.");
     DataAbilityHelperCB *dataAbilityHelperCB = static_cast<DataAbilityHelperCB *>(data);
-    std::unique_ptr<DataAbilityHelperCB> callbackPtr {dataAbilityHelperCB};
     napi_value uri = nullptr;
     napi_value result = nullptr;
     napi_get_reference_value(env, dataAbilityHelperCB->uri, &uri);
@@ -1727,7 +1726,7 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_ContinueAbilityForResult, main event thread complete end.");
         },
-        (void *)asyncCallbackInfo,
+        static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = 0;
@@ -1786,7 +1785,7 @@ napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackI
             delete asyncCallbackInfo;
             HILOG_INFO("NAPI_ContinueAbilityForResult,  main event thread complete end.");
         },
-        (void *)asyncCallbackInfo, &asyncCallbackInfo->asyncWork);
+        static_cast<void *>(asyncCallbackInfo), &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;

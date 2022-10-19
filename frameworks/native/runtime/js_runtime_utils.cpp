@@ -65,7 +65,7 @@ void BindNativeProperty(NativeObject& object, const char* name, NativeCallback g
     object.DefineProperty(property);
 }
 
-void* GetNativePointerFromCallbackInfo(NativeEngine* engine, NativeCallbackInfo* info, const char* name)
+void* GetNativePointerFromCallbackInfo(const NativeEngine* engine, NativeCallbackInfo* info, const char* name)
 {
     if (engine == nullptr || info == nullptr) {
         return nullptr;
