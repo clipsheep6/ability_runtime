@@ -1076,7 +1076,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::thread(&OHOS::NWeb::PreDnsInThread).detach();
 
     // start nwebspawn process
-    std::thread(PreStartNWebSpawn).detach();
+    std::thread([nwebApp = application_, nwebMgr = appMgr_] {
+        if (nwebApp == nullptr || nwebMgr == nullptr) {
+            HILOG_ERROR("HandleLaunchApplication nwebApp or nwebMgr is null");
+            return;
+        }
+        std::string nwebPath = nwebApp->GetAppContext()->GetCacheDir() + "/web";
+        if (access(nwebPath.c_str(), F_OK) != -1) {
+            nwebMgr->PreStartNWebSpawnProcess();
+        }
+    }).detach();
 #endif
 
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
@@ -1252,18 +1261,6 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     }
     return true;
 }
-
-#ifdef NWEB
-void MainThread::PreStartNWebSpawn()
-{
-    HILOG_INFO("MainThread::PreStartNWebSpawn");
-    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    std::string nwebPath = contextImpl->GetCacheDir() + "/web";
-    if (access(nwebPath.c_str(), F_OK) != -1) {
-        std::make_unique<AppExecFwk::AppMgrClient>()->PreStartNWebSpawnProcess();
-    }
-}
-#endif
 
 /**
  *

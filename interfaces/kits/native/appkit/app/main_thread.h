@@ -431,15 +431,6 @@ private:
     bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
         BundleInfo& bundleInfo);
 
-#ifdef NWEB
-    /**
-     *
-     * @brief start nwebspawn process for web core.
-     *
-     */
-    static void PreStartNWebSpawn();
-#endif
-
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
 

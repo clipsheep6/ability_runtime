@@ -2456,20 +2456,9 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
 
 int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 {
-    HILOG_INFO("AppMgrServiceInner::PreStartNWebSpawnProcess, hostPid:%{public}d", hostPid);
+    HILOG_INFO("AppMgrServiceInner::PreStartNWebSpawnProcess");
     if (hostPid <= 0) {
         HILOG_ERROR("invalid param, hostPid:%{public}d", hostPid);
-        return ERR_INVALID_VALUE;
-    }
-
-    if (!appRunningManager_) {
-        HILOG_ERROR("appRunningManager_ is , not start render process");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto appRecord = GetAppRunningRecordByPid(hostPid);
-    if (!appRecord) {
-        HILOG_ERROR("no such appRecord, hostpid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 

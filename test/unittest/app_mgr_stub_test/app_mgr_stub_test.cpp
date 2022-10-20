@@ -196,5 +196,27 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
 
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: PreStartNWebSpawnProcess_001
+ * @tc.desc: prestart nwebspawn process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    EXPECT_CALL(*mockAppMgrService_, PreStartNWebSpawnProcess()).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
