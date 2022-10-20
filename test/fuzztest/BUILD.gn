@@ -17,9 +17,12 @@ group("fuzztest") {
   testonly = true
 
   deps = [
+    "abilityconnectionstub_fuzzer:fuzztest",
     "abilitymanager_fuzzer:fuzztest",
+    "abilityschedulerstub_fuzzer:fuzztest",
     "acquiredataability_fuzzer:fuzztest",
     "appmanager_fuzzer:fuzztest",
+    "atomicservicestatuscallbackstub_fuzzer:fuzztest",
     "connectability_fuzzer:fuzztest",
     "disconnectability_fuzzer:fuzztest",
     "finishusertest_fuzzer:fuzztest",
@@ -28,6 +31,8 @@ group("fuzztest") {
     "gettopability_fuzzer:fuzztest",
     "getwantsender_fuzzer:fuzztest",
     "killprocesswithaccount_fuzzer:fuzztest",
+    "missionlistenerstub_fuzzer:fuzztest",
+    "remotemissionlistenerstub_fuzzer:fuzztest",
     "setmissionicon_fuzzer:fuzztest",
     "setmissionlabel_fuzzer:fuzztest",
     "startability_fuzzer:fuzztest",
