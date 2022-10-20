@@ -261,7 +261,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallOtherExtensionPermission_001, TestS
     HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_001 start");
     bool oldFlag = abilityMs_->startUpNewRule_;
     abilityMs_->startUpNewRule_ = true;
-    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
     abilityMs_->startUpNewRule_ = oldFlag;
     HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_001 end");
 }
@@ -327,7 +327,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_003, TestSize.Lev
     abilityRequest_.abilityInfo.visible = false;
     bool oldFlag = abilityMs_->startUpNewRule_;
     abilityMs_->startUpNewRule_ = true;
-    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ABILITY_VISIBLE_FALSE_DENY_REQUEST);
     abilityMs_->startUpNewRule_ = oldFlag;
     HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_003 end");
 }
