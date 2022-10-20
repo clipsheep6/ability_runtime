@@ -265,7 +265,7 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
     auto contextObj = systemModule->Get();
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get context native object");
+        HILOG_ERROR("OnCreateModuleContext, Failed to get context native object");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
