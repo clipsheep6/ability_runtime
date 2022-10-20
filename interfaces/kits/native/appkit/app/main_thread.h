@@ -225,11 +225,13 @@ public:
      */
     void CheckMainThreadIsAlive();
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyHotReloadPage() override;
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
 private:
     /**

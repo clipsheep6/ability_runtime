@@ -20,7 +20,7 @@
 #include "iservice_registry.h"
 #include "mock_bundle_manager.h"
 #include "mock_quick_fix_util.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #define private public
 #include "quick_fix_manager_service.h"
 #undef private

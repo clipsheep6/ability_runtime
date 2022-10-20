@@ -1926,28 +1926,32 @@ void MainThread::CheckMainThreadIsAlive()
 }
 #endif  // ABILITY_LIBRARY_LOADER
 
-int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
+int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak, bundleName]() {
+    auto task = [weak, bundleName, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("ScheduleNotifyLoadRepairPatch, app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("ScheduleNotifyLoadRepairPatch, parameter is nullptr.");
             return;
         }
 
+        bool ret = true;
         std::vector<std::pair<std::string, std::string>> hqfFilePair;
         if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
             for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
                 HILOG_INFO("LoadPatch, hqfFile: %{private}s, hapPath: %{private}s.",
                     it->first.c_str(), it->second.c_str());
-                appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
+                ret = appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
             }
         } else {
             HILOG_DEBUG("There's no hqfFile need to load.");
         }
+
+        callback->OnLoadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("Post task failed.");
@@ -1957,18 +1961,19 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
     return NO_ERROR;
 }
 
-int32_t MainThread::ScheduleNotifyHotReloadPage()
+int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak]() {
+    auto task = [weak, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("parameter is nullptr.");
             return;
         }
-        appThread->application_->NotifyHotReloadPage();
+        auto ret = appThread->application_->NotifyHotReloadPage();
+        callback->OnReloadPageDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("Post task failed.");
@@ -2026,27 +2031,31 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     return true;
 }
 
-int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak, bundleName]() {
+    auto task = [weak, bundleName, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, parameter is nullptr.");
             return;
         }
 
+        bool ret = true;
         std::vector<std::pair<std::string, std::string>> hqfFilePair;
         if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
             for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("UnloadPatch, hqfFile: %{private}s.", it->first.c_str());
-                appThread->application_->NotifyUnLoadRepairPatch(it->first);
+                HILOG_INFO("ScheduleNotifyUnLoadRepairPatch, UnloadPatch, hqfFile: %{private}s.", it->first.c_str());
+                ret = appThread->application_->NotifyUnLoadRepairPatch(it->first);
             }
         } else {
             HILOG_DEBUG("There's no hqfFile need to unload.");
         }
+
+        callback->OnUnloadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("Post task failed.");

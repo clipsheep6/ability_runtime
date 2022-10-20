@@ -660,34 +660,34 @@ void OHOSApplication::SetExtensionTypeMap(std::map<int32_t, std::string> map)
     extensionTypeMap_ = map;
 }
 
-void OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath)
+bool OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath)
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->LoadRepairPatch(hqfFile, hapPath);
+    return runtime_->LoadRepairPatch(hqfFile, hapPath);
 }
 
-void OHOSApplication::NotifyHotReloadPage()
+bool OHOSApplication::NotifyHotReloadPage()
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->NotifyHotReloadPage();
+    return runtime_->NotifyHotReloadPage();
 }
 
-void OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
+bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->UnLoadRepairPatch(hqfFile);
+    return runtime_->UnLoadRepairPatch(hqfFile);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

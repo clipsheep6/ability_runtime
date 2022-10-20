@@ -162,9 +162,9 @@ public:
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
     bool ProcessExitByPid(pid_t pid);
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
-    int32_t NotifyHotReloadPage(const std::string &bundleName);
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
     bool IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationBackground(const std::string &bundleName);
 private:

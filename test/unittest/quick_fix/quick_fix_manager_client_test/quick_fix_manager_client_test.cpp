@@ -17,7 +17,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_quick_fix_manager_stub.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #define private public
 #include "quick_fix_manager_client.h"
 #undef private

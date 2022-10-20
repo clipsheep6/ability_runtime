@@ -2787,7 +2787,8 @@ bool AppMgrServiceInner::GetAppRunningStateByBundleName(const std::string &bundl
     return appRunningManager_->GetAppRunningStateByBundleName(bundleName);
 }
 
-int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2796,10 +2797,10 @@ int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyLoadRepairPatch(bundleName);
+    return appRunningManager_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2808,7 +2809,7 @@ int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyHotReloadPage(bundleName);
+    return appRunningManager_->NotifyHotReloadPage(bundleName, callback);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -2837,7 +2838,8 @@ int32_t AppMgrServiceInner::SetContinuousTaskProcess(int32_t pid, bool isContinu
 }
 #endif
 
-int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2846,7 +2848,7 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyUnLoadRepairPatch(bundleName);
+    return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

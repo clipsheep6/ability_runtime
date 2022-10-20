@@ -19,7 +19,7 @@
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #include "quick_fix_manager_proxy.h"
 #include "system_ability_definition.h"
 

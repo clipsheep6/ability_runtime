@@ -134,7 +134,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
 
-    EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_)).Times(1);
+    EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
@@ -161,7 +161,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
 
-    EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_)).Times(1);
+    EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
@@ -188,7 +188,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
 
-    EXPECT_CALL(*mockAppMgrService_, NotifyUnLoadRepairPatch(_)).Times(1);
+    EXPECT_CALL(*mockAppMgrService_, NotifyUnLoadRepairPatch(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);

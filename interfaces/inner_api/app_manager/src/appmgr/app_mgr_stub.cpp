@@ -503,7 +503,8 @@ int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParc
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
@@ -515,7 +516,8 @@ int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyHotReloadPage(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyHotReloadPage(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
@@ -542,7 +544,8 @@ int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessagePa
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyUnLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyUnLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
