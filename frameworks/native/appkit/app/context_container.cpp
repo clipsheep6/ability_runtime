@@ -22,6 +22,7 @@
 #include "app_context.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -609,7 +610,8 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
             continue;
         }
         std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
+        if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
+            !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
