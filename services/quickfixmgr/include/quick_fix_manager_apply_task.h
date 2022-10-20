@@ -45,12 +45,16 @@ public:
     void NotifyApplyStatus(int32_t applyResult);
     void RemoveSelf();
 
-private:
-    void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostSwitchQuickFixTask();
     void PostDeleteQuickFixTask();
 
+private:
+    void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostTimeOutTask();
+    void NotifyLoadRepairPatch();
+    void NotifyUnloadRepairPatch();
+    void NotifyHotReloadPage();
+    void RegAppStateObserver();
 
     sptr<AppExecFwk::IQuickFixManager> bundleQfMgr_ = nullptr;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;

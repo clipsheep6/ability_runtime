@@ -57,6 +57,7 @@ public:
     /**
      * @brief Get specified type names in a zip file.
      * @param fileNames Indicates the obtained file names in zip.
+     * @param suffix Indicates the suffix of file.
      */
     void GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix);
     /**

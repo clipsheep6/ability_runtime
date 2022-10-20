@@ -1266,7 +1266,7 @@ void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObjec
     (void)moduleRecord->RemoveTerminateAbilityTimeoutTask(token);
 }
 
-int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1274,10 +1274,10 @@ int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName);
+    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppRunningRecord::NotifyHotReloadPage()
+int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1285,10 +1285,11 @@ int32_t AppRunningRecord::NotifyHotReloadPage()
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyHotReloadPage();
+    return appLifeCycleDeal_->NotifyHotReloadPage(callback);
 }
 
-int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1296,7 +1297,7 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName);
+    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
 bool AppRunningRecord::IsContinuousTask()
