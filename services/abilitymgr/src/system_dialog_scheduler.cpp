@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "locale_config.h"
+#include "parameters.h"
 #include "resource_manager.h"
 #include "ui_service_mgr_client.h"
 
@@ -333,7 +334,8 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
             continue;
         }
         std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
+        if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
+            !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
