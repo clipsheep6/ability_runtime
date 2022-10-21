@@ -47,7 +47,7 @@ ReverseContinuationSchedulerPrimaryStub::~ReverseContinuationSchedulerPrimaryStu
 int ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::u16string token = data.ReadInterfaceToken();
     std::u16string descriptor = Str8ToStr16(DESCRIPTOR);
     if (descriptor != token) {
@@ -66,20 +66,20 @@ int ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest(
     } else {
         HILOG_WARN("ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, iter not find");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int ReverseContinuationSchedulerPrimaryStub::NotifyReplicaTerminatedInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     NotifyReplicaTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return 0;
 }
 int ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
         HILOG_ERROR("ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner want is nullptr");
@@ -91,7 +91,7 @@ int ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner(MessageParcel
                  "return false");
         return -1;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return 0;
 }
 }  // namespace AppExecFwk

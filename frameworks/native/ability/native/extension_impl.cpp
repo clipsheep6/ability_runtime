@@ -31,7 +31,7 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("ExtensionImpl Init begin.");
+    HILOG_DEBUG("ExtensionImpl Init begin.");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         extension == nullptr) {
         HILOG_ERROR("ExtensionImpl::init failed, some object is nullptr");
@@ -42,7 +42,7 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     extension_ = extension;
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
-    HILOG_INFO("ExtensionImpl Init end.");
+    HILOG_DEBUG("ExtensionImpl Init end.");
 }
 
 /**
@@ -93,12 +93,12 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want,
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
         HILOG_INFO("ExtensionImpl::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
     }
-    HILOG_INFO("ExtensionImpl::HandleAbilityTransaction end");
+    HILOG_DEBUG("ExtensionImpl::HandleAbilityTransaction end");
 }
 
 void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
 
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::ScheduleUpdateConfiguration extension_ is nullptr");
@@ -109,12 +109,12 @@ void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
         extension_->OnConfigurationUpdated(config);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void ExtensionImpl::NotifyMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
 
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::NotifyMemoryLevel extension_ is nullptr");
@@ -125,7 +125,7 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
         extension_->OnMemoryLevel(level);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 /**
@@ -136,7 +136,7 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  */
 void ExtensionImpl::Start(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Start extension_ is nullptr");
         return;
@@ -145,7 +145,7 @@ void ExtensionImpl::Start(const Want &want)
     HILOG_INFO("ExtensionImpl::Start");
     extension_->OnStart(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 /**
@@ -155,7 +155,7 @@ void ExtensionImpl::Start(const Want &want)
  */
 void ExtensionImpl::Stop()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
         return;
@@ -164,7 +164,7 @@ void ExtensionImpl::Stop()
     HILOG_INFO("ExtensionImpl::Stop");
     extension_->OnStop();
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 /**
@@ -175,7 +175,7 @@ void ExtensionImpl::Stop()
  */
 sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::ConnectAbility extension_ is nullptr");
         return nullptr;
@@ -184,7 +184,7 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
     HILOG_INFO("ExtensionImpl:: ConnectAbility");
     sptr<IRemoteObject> object = extension_->OnConnect(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 
     return object;
 }
@@ -196,14 +196,14 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
  */
 void ExtensionImpl::DisconnectExtension(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::DisconnectAbility extension_ is nullptr");
         return;
     }
 
     extension_->OnDisconnect(want);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
@@ -262,7 +262,7 @@ void ExtensionImpl::DisconnectExtensionCallback()
  */
 void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::CommandAbility extension_ is nullptr");
         return;
@@ -271,7 +271,7 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
     HILOG_INFO("ExtensionImpl:: CommandAbility");
     extension_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 }
 }

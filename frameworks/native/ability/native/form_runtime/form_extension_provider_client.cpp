@@ -34,7 +34,7 @@ using namespace OHOS::AppExecFwk;
 int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
         HILOG_WARN("%{public}s warn, IFormSupply is nullptr", __func__);
@@ -67,7 +67,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
 void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     Want connectWant(want);
     connectWant.SetParam(Constants::ACQUIRE_TYPE, want.GetIntParam(Constants::ACQUIRE_TYPE, 0));
     connectWant.SetParam(Constants::FORM_CONNECT_ID, want.GetIntParam(Constants::FORM_CONNECT_ID, 0));
@@ -103,7 +103,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         HILOG_ERROR("%{public}s HandleAcquire failed", __func__);
         HandleResultCode(error, connectWant, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -116,7 +116,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
 int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -135,7 +135,7 @@ int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
     if (hostToken != nullptr) {
@@ -153,7 +153,7 @@ void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -167,7 +167,7 @@ void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId
 int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &formIds, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -186,7 +186,7 @@ int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &f
 void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<int64_t> &formIds,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -199,7 +199,7 @@ void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<i
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -213,7 +213,7 @@ void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<i
 int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -232,7 +232,7 @@ int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -245,7 +245,7 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -260,7 +260,7 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
 int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds, const int32_t formVisibleType,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -279,7 +279,7 @@ int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds
 void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t> &formIds,
     const int32_t formVisibleType, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -294,7 +294,7 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -307,7 +307,7 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
 int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -326,7 +326,7 @@ int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, co
 void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -337,7 +337,7 @@ void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t 
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -351,7 +351,7 @@ void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t 
 int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -370,7 +370,7 @@ int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::
 void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -383,7 +383,7 @@ void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, c
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**
@@ -397,7 +397,7 @@ void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, c
 int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                               const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("%{public}s CheckParam failed", __func__);
@@ -417,7 +417,7 @@ void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wa
                                                                   const Want &want,
                                                                   const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormState state = FormState::UNKNOWN;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
@@ -426,7 +426,7 @@ void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wa
         state = ownerFormExtension->OnAcquireFormState(wantArg);
     }
     HandleAcquireStateResult(state, provider, wantArg, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
 }
 
 /**

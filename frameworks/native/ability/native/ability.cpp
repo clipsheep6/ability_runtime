@@ -399,7 +399,7 @@ bool Ability::ShouldRecoverState(const Want& want)
 
 void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_INFO("NotifyContinuationResult begin");
+    HILOG_DEBUG("NotifyContinuationResult begin");
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
@@ -572,7 +572,7 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 
 void Ability::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    HILOG_DEBUG("%{public}s start.", __func__);
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;

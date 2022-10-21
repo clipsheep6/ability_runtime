@@ -240,7 +240,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
         }
         resultCallbacks_.erase(requestCode);
     }
-    HILOG_INFO("%{public}s. End calling OnAbilityResult.", __func__);
+    HILOG_DEBUG("%{public}s. End calling OnAbilityResult.", __func__);
 }
 
 bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback)
@@ -383,7 +383,7 @@ sptr<IRemoteObject> AbilityContextImpl::GetToken()
 void AbilityContextImpl::RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions,
     int requestCode, PermissionRequestTask &&task)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     if (permissions.empty()) {
         HILOG_ERROR("%{public}s. The params are invalid.", __func__);
         return;
@@ -511,7 +511,7 @@ void AbilityContextImpl::ResultCallbackJSThreadWorker(uv_work_t* work, int statu
 
 ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     contentStorage_ = std::unique_ptr<NativeReference>(engine.CreateReference(contentStorage, 1));
     return ERR_OK;
 }
@@ -542,7 +542,7 @@ ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack> &c
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     abilityCallback_ = abilityCallback;
 }
 
@@ -565,7 +565,7 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 
 ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionIcon(token_, icon);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContextImpl::SetMissionIcon is failed %{public}d", err);
@@ -581,7 +581,7 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
 
 int AbilityContextImpl::GetCurrentWindowMode()
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     auto abilityCallback = abilityCallback_.lock();
     if (abilityCallback == nullptr) {
         return AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;

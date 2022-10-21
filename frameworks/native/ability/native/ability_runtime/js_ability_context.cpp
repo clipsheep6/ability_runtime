@@ -439,7 +439,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
         (unwrapArgc == 1) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task)) :
             context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnStartAbilityForResult is called end");
+    HILOG_DEBUG("OnStartAbilityForResult is called end");
     return result;
 }
 
@@ -500,7 +500,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
             want, accountId, curRequestCode_, std::move(task)) : context->StartAbilityForResultWithAccount(
                 want, accountId, startOptions, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnStartAbilityForResultWithAccount is called end");
+    HILOG_DEBUG("OnStartAbilityForResultWithAccount is called end");
     return result;
 }
 
@@ -706,7 +706,7 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnTerminateSelfWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    HILOG_INFO("OnTerminateSelfWithResult is called end");
+    HILOG_DEBUG("OnTerminateSelfWithResult is called end");
     return result;
 }
 
@@ -965,7 +965,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
         context->RequestPermissionsFromUser(engine, permissionList, curRequestCode_, std::move(task));
     }
-    HILOG_INFO("OnRequestPermissionsFromUser is called end");
+    HILOG_DEBUG("OnRequestPermissionsFromUser is called end");
     return result;
 }
 
@@ -1286,7 +1286,7 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
     NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
     NativeValue* argv[] = { ConvertElement(element), nativeRemoteObject };
     engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
-    HILOG_INFO("OnAbilityConnectDone end");
+    HILOG_DEBUG("OnAbilityConnectDone end");
 }
 
 void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
@@ -1354,7 +1354,7 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
 
 void JSAbilityConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_INFO("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed begin");
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1375,7 +1375,7 @@ void JSAbilityConnection::CallJsFailed(int32_t errorCode)
     NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
     HILOG_INFO("CallJsFailed CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_INFO("CallJsFailed end");
+    HILOG_DEBUG("CallJsFailed end");
 }
 
 NativeValue* JSAbilityConnection::ConvertElement(const AppExecFwk::ElementName &element)

@@ -838,7 +838,7 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
 NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context,
                                              DetachCallback detach, AttachCallback attach)
 {
-    HILOG_INFO("CreateJsServiceExtensionContext begin");
+    HILOG_DEBUG("CreateJsServiceExtensionContext begin");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
@@ -948,7 +948,7 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
     }
     HILOG_INFO("JSServiceExtensionConnection::CallFunction onConnect, success");
     engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
-    HILOG_INFO("OnAbilityConnectDone end");
+    HILOG_DEBUG("OnAbilityConnectDone end");
 }
 
 void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
@@ -1022,7 +1022,7 @@ void JSServiceExtensionConnection::SetJsConnectionObject(NativeValue* jsConnecti
 
 void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_INFO("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed begin");
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1042,7 +1042,7 @@ void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
     NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
     HILOG_INFO("CallJsFailed CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_INFO("CallJsFailed end");
+    HILOG_DEBUG("CallJsFailed end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

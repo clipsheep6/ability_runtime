@@ -382,7 +382,7 @@ Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("DataAbilityImpl::ExecuteBatch start");
+    HILOG_DEBUG("DataAbilityImpl::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::ExecuteBatch ability_ is nullptr");

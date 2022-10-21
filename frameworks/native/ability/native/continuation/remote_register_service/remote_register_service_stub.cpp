@@ -50,13 +50,13 @@ int RemoteRegisterServiceStub::OnRemoteRequest(
         }
     }
 
-    HILOG_INFO("%{public}s Not found cmd, need check.", __func__);
+    HILOG_DEBUG("%{public}s Not found cmd, need check.", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::string bundleName = data.ReadString();
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     ExtraParams *pExtras = nullptr;
@@ -84,35 +84,35 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
     delete pExtras;
     pExtras = nullptr;
     reply.WriteInt32(result);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::UnregisterInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
     bool result = Unregister(registerToken);
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::UpdateConnectStatusInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32(registerToken);
     std::string deviceId = data.ReadString();
     int status = data.ReadInt32();
     bool result = UpdateConnectStatus(registerToken, deviceId, status);
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
     ExtraParams *pExtras = nullptr;
     int32_t extraId = data.ReadInt32();
@@ -129,7 +129,7 @@ int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageP
     delete pExtras;
     pExtras = nullptr;
     reply.WriteInt32(result ? ERR_NONE : IPC_STUB_ERR);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

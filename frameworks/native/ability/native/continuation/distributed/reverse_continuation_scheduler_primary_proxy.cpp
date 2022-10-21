@@ -29,7 +29,7 @@ ReverseContinuationSchedulerPrimaryProxy::ReverseContinuationSchedulerPrimaryPro
  */
 void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -47,7 +47,7 @@ void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
         HILOG_ERROR("ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated SendRequest return false");
         return;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 /**
@@ -58,7 +58,7 @@ void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
  */
 bool ReverseContinuationSchedulerPrimaryProxy::ContinuationBack(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -79,7 +79,7 @@ bool ReverseContinuationSchedulerPrimaryProxy::ContinuationBack(const AAFwk::Wan
         HILOG_ERROR("ReverseContinuationSchedulerPrimaryProxy::ContinuationBack SendRequest return false");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 }  // namespace AppExecFwk

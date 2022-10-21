@@ -63,7 +63,7 @@ AbilityProcess::~AbilityProcess()
 
 ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
 {
-    HILOG_INFO("AbilityProcess::StartAbility begin");
+    HILOG_DEBUG("AbilityProcess::StartAbility begin");
     if (ability == nullptr) {
         HILOG_ERROR("AbilityProcess::StartAbility ability is nullptr");
         return ERR_NULL_OBJECT;
@@ -110,7 +110,7 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
             err = ability->StartAbility(param.want, *(param.setting));
         }
     }
-    HILOG_INFO("AbilityProcess::StartAbility end");
+    HILOG_DEBUG("AbilityProcess::StartAbility end");
     return err;
 }
 
@@ -134,7 +134,7 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
 
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("AbilityProcess::OnAbilityResult begin");
+    HILOG_DEBUG("AbilityProcess::OnAbilityResult begin");
 
     std::lock_guard<std::mutex> lock_l(mutex_);
 
@@ -178,13 +178,13 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     map.erase(requestCode);
 
     abilityResultMap_[ability] = map;
-    HILOG_INFO("AbilityProcess::OnAbilityResult end");
+    HILOG_DEBUG("AbilityProcess::OnAbilityResult end");
 }
 
 void AbilityProcess::RequestPermissionsFromUser(
     Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo)
 {
-    HILOG_INFO("AbilityProcess::RequestPermissionsFromUser begin");
+    HILOG_DEBUG("AbilityProcess::RequestPermissionsFromUser begin");
     if (ability == nullptr) {
         HILOG_ERROR("AbilityProcess::RequestPermissionsFromUser ability is nullptr");
         return;

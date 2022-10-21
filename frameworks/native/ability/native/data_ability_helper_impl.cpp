@@ -99,7 +99,7 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
 
 void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("On scheduler died.");
+    HILOG_DEBUG("On scheduler died.");
     std::lock_guard<std::mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
@@ -844,12 +844,12 @@ void DataAbilityHelperImpl::ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> da
 {
     // if uri_ is nullptr, it indicates the operation(such as insert, delete and so on) is temporary,
     // so, we need release the dataability after the operation.
-    HILOG_INFO("ReleaseDataAbility start.");
+    HILOG_DEBUG("ReleaseDataAbility start.");
     if (!uri_ && dataAbilityProxy && token_) {
         int ret = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
         HILOG_INFO("Release data ability, ret: %{public}d.", ret);
     }
-    HILOG_INFO("ReleaseDataAbility end.");
+    HILOG_DEBUG("ReleaseDataAbility end.");
 }
 
 bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
@@ -889,7 +889,7 @@ void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     if (handler_) {
         handler_(remote);
     }
-    HILOG_INFO("OnRemoteDied end.");
+    HILOG_DEBUG("OnRemoteDied end.");
 }
 
 DataAbilityDeathRecipient::DataAbilityDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
