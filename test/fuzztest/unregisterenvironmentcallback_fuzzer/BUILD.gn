@@ -16,16 +16,15 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_runtime/ability_context_native"
+module_output_path = "ability_runtime/app_context"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("ConnectAbilityFuzzTest") {
+ohos_fuzztest("UnregisterEnvironmentCallbackFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/connectability_fuzzer"
+  fuzz_config_file = "${ability_runtime_test_path}/fuzztest/unregisterenvironmentcallback_fuzzer"
 
-  include_dirs = []
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context" ]
 
   cflags = [
     "-g",
@@ -34,31 +33,15 @@ ohos_fuzztest("ConnectAbilityFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "connectability_fuzzer.cpp" ]
+  sources = [ "unregisterenvironmentcallback_fuzzer.cpp" ]
 
-  configs = [ "${ability_runtime_native_path}/ability/native:ability_config" ]
+  configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
-  public_configs = [
-    "${ability_runtime_native_path}/ability/native:ability_public_config",
-    "${ability_runtime_native_path}/ability:ability_context_public_config",
-    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
-  ]
-
-  deps = [
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-    "${ability_runtime_native_path}/ability:ability_context_native",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/appkit:app_context",
-    "${ability_runtime_native_path}/appkit:app_context_utils",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
-  ]
+  deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
 
   external_deps = [
     "ability_base:want",
-    "appspawn:appspawn_socket_client",
     "c_utils:utils",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
 }
 
@@ -68,7 +51,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":ConnectAbilityFuzzTest",
+    ":UnregisterEnvironmentCallbackFuzzTest",
   ]
 }
 ###############################################################################
