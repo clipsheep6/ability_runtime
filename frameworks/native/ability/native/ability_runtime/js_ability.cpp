@@ -70,7 +70,7 @@ NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsAbilityContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsAbilityContext(*engine, ptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -148,7 +148,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     }
 
     auto context = GetAbilityContext();
-    NativeValue *contextObj = CreateJsAbilityContext(engine, context, nullptr, nullptr);
+    NativeValue *contextObj = CreateJsAbilityContext(engine, context);
     shellContextRef_ = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(&engine, "application.AbilityContext", &contextObj, 1).release());
     contextObj = shellContextRef_->Get();

@@ -46,7 +46,7 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsFormExtensionContext(*engine, ptr, nullptr, nullptr);
+    NativeValue* object = CreateJsFormExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.FormExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
@@ -116,7 +116,7 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("JsFormExtension::Init CreateJsFormExtensionContext.");
-    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context, nullptr, nullptr);
+    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.FormExtensionContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);

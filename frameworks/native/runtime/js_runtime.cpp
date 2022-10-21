@@ -492,11 +492,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
 
-void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
-{
-    return value;
-}
-
 bool JsRuntime::Initialize(const Options& options)
 {
     HandleScope handleScope(*this);

@@ -140,7 +140,7 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -255,7 +255,7 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");

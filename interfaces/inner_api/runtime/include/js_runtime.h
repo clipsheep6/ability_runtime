@@ -34,7 +34,10 @@ namespace AbilityRuntime {
 class TimerTask;
 class RuntimeExtractor;
 
-void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
+inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
+{
+    return value;
+}
 
 class JsRuntime : public Runtime {
 public:

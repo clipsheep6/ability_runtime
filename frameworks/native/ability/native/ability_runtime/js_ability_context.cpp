@@ -1116,10 +1116,9 @@ void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_pt
     engine->CallFunction(value, method, argv, ARGC_ONE);
 }
 
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context,
-                                    DetachCallback detach, AttachCallback attach)
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context)
 {
-    NativeValue* objValue = CreateJsBaseContext(engine, context, detach, attach);
+    NativeValue* objValue = CreateJsBaseContext(engine, context);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsAbilityContext> jsContext = std::make_unique<JsAbilityContext>(context);

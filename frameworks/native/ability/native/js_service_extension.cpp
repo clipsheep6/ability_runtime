@@ -65,7 +65,7 @@ NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, vo
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.ServiceExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
@@ -132,7 +132,7 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("JsServiceExtension::Init CreateJsServiceExtensionContext.");
-    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context, nullptr, nullptr);
+    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef_->Get();

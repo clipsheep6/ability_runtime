@@ -215,7 +215,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -414,7 +414,7 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnCreateBundleContext, invalid systemModule.");
@@ -496,7 +496,7 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
+    NativeValue* object = CreateJsBaseContext(*engine, ptr, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("AttachBaseContext, invalid systemModule.");
@@ -518,16 +518,9 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
     return contextObj;
 }
 
-NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, DetachCallback detach,
-                                 AttachCallback attach, bool keepContext)
+NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, bool keepContext)
 {
-    NativeValue* objValue;
-    if (detach == nullptr || attach == nullptr) {
-        objValue = engine.CreateObject();
-    } else {
-        objValue = engine.CreateNBObject(detach, attach);
-    }
-
+    NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
         HILOG_WARN("invalid object.");
