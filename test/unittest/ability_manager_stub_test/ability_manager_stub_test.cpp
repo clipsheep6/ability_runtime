@@ -2014,6 +2014,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ScheduleRecoverAbilityInner_
 
 /*
  * Feature: AbilityManagerService
+ * Function: EnableRecoverAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService EnableRecoverAbilityInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function EnableRecoverAbilityInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_EnableRecoverAbilityInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->EnableRecoverAbilityInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: RegisterConnectionObserverInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService RegisterConnectionObserverInner

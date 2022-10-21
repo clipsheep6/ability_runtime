@@ -804,6 +804,7 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
     bool GetStartUpNewRuleFlag() const;
@@ -1213,7 +1214,7 @@ private:
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
-    std::unordered_map<int32_t, int64_t> appRecoverHistory_; // uid:time
+    std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
 };
 }  // namespace AAFwk
 }  // namespace OHOS
