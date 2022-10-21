@@ -409,6 +409,10 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
     size_t size = operations.size();
     for (size_t i = 0; i < size; i++) {
         std::shared_ptr<DataAbilityOperation> operation = operations[i];
+        if (operation == nullptr) {
+            HILOG_ERROR("operation[i] is nullptr, index: %{public}d", static_cast<int32_t>(i));
+            return false;
+        }
         if (operation->IsInsertOperation() || operation->IsUpdateOperation() || operation->IsDeleteOperation()) {
             needCheckWritePermission = true;
         } else if (operation->IsAssertOperation()) {
