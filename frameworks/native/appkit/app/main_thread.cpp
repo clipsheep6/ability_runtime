@@ -45,6 +45,7 @@
 #include "js_runtime.h"
 #include "mix_stack_dumper.h"
 #include "ohos_application.h"
+#include "parameters.h"
 #include "resource_manager.h"
 #include "runtime.h"
 #include "service_extension.h"
@@ -772,7 +773,8 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
             if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
                 continue;
             }
-            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            std::string loadPath =  (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
+                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
             loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
             HILOG_DEBUG("ModuleResPath: %{public}s", loadPath.c_str());
             if (!resourceManager->AddResource(loadPath.c_str())) {
