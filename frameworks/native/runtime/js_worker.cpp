@@ -173,9 +173,9 @@ ContainerScope::UpdateCurrent(id);
 }
 void RestoreContainerScope(int32_t id)
 {
-#ifdef SUPPORT_GRAPHICS
-ContainerScope::UpdateCurrent(-1);
-#endif
+// #ifdef SUPPORT_GRAPHICS
+// ContainerScope::UpdateCurrent(-1);
+// #endif
 }
 }
 
