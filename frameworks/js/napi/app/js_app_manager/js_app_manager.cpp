@@ -305,7 +305,7 @@ private:
     NativeValue* OnkillProcessesByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
@@ -344,7 +344,7 @@ private:
     NativeValue* OnClearUpApplicationData(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
@@ -382,7 +382,7 @@ private:
     NativeValue* OnKillProcessWithAccount(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+        if (info.argc < ARGC_TWO) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
