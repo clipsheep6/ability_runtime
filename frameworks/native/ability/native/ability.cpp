@@ -197,10 +197,8 @@ void Ability::OnStart(const Want &want)
             HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
             auto window = abilityWindow_->GetWindow();
             if (window) {
-                auto windowId = window->GetWindowId();
-                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", windowId);
-                std::weak_ptr<Ability> weakAbility = shared_from_this();
-                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
+                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
                 window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
             }
         }
@@ -268,6 +266,11 @@ void Ability::OnStop()
     }
 #ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    auto&& window = GetWindow();
+    if (window != nullptr) {
+        HILOG_DEBUG("Call UnregisterDisplayMoveListener");
+        window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
+    }
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();

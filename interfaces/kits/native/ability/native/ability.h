@@ -1207,10 +1207,7 @@ protected:
 
     class AbilityDisplayMoveListener : public OHOS::Rosen::IDisplayMoveListener {
     public:
-        AbilityDisplayMoveListener(const std::weak_ptr<Ability>& ability)
-        {
-            ability_ = ability;
-        }
+        AbilityDisplayMoveListener(std::weak_ptr<Ability>&& ability) : ability_(ability) {}
 
         void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to) override
         {

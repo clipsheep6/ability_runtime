@@ -354,6 +354,14 @@ void JsAbility::onSceneDestroyed()
 
     CallObjectMethod("onWindowStageDestroy");
 
+    if (scene_ != nullptr) {
+        auto window = scene_->GetMainWindow();
+        if (window != nullptr) {
+            HILOG_DEBUG("Call UnregisterDisplayMoveListener");
+            window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
+        }
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceDestroyed");
@@ -509,6 +517,12 @@ void JsAbility::DoOnForeground(const Want &want)
         }
 
         AbilityContinuationOrRecover(want);
+        auto window = scene_->GetMainWindow();
+        if (window) {
+            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+        }
     } else {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
@@ -520,14 +534,8 @@ void JsAbility::DoOnForeground(const Want &want)
     }
 
     auto window = scene_->GetMainWindow();
-    if (window) {
-        HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-        std::weak_ptr<Ability> weakAbility = shared_from_this();
-        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
-        window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        if (securityFlag_) {
-            window->SetSystemPrivacyMode(true);
-        }
+    if (window != nullptr && securityFlag_) {
+        window->SetSystemPrivacyMode(true);
     }
 
     HILOG_DEBUG("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
