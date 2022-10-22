@@ -175,7 +175,7 @@ NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, const Nati
                 return;
             }
             auto ret = obj->ability_->HasWindowFocus();
-            task.Resolve(engine, CreateJsValue(engine, ret));
+            task.@ohos.app.form.FormExtensionAbility(engine, CreateJsValue(engine, ret));
         };
     NativeValue *result = nullptr;
     NativeValue *lastParam = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
