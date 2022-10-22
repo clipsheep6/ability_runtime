@@ -33,9 +33,9 @@ public:
     AtomicServiceStatusCallbackStubFuzzTest() = default;
     virtual ~AtomicServiceStatusCallbackStubFuzzTest()
     {};
-    virtual void OnInstallFinished(int resultCode, const Want &want, int32_t userId) override
+    void OnInstallFinished(int resultCode, const Want &want, int32_t userId) override
     {}
-    virtual void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId) override
+    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId) override
     {}
 };
 

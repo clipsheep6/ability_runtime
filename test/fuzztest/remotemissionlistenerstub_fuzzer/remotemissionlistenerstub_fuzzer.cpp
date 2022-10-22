@@ -33,11 +33,11 @@ public:
     RemoteMissionListenerStubFuzzTest() = default;
     virtual ~RemoteMissionListenerStubFuzzTest()
     {};
-    virtual void NotifyMissionsChanged(const std::string& deviceId) override
+    void NotifyMissionsChanged(const std::string& deviceId) override
     {}
-    virtual void NotifySnapshot(const std::string& deviceId, int32_t missionId) override
+    void NotifySnapshot(const std::string& deviceId, int32_t missionId) override
     {}
-    virtual void NotifyNetDisconnect(const std::string& deviceId, int32_t state) override
+    void NotifyNetDisconnect(const std::string& deviceId, int32_t state) override
     {}
 };
 
@@ -63,7 +63,8 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t* rawData, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    std::shared_ptr<RemoteMissionListenerStub> remotemissionlistenerstub = std::make_shared<RemoteMissionListenerStubFuzzTest>();
+    std::shared_ptr<RemoteMissionListenerStub> remotemissionlistenerstub
+        = std::make_shared<RemoteMissionListenerStubFuzzTest>();
 
     remotemissionlistenerstub->OnRemoteRequest(code, data, reply, option);
 

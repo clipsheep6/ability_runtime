@@ -34,104 +34,104 @@ public:
     AbilitySchedulerStubFuzzTest() = default;
     virtual ~AbilitySchedulerStubFuzzTest()
     {};
-    virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) override
+    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) override
     {}
-    virtual void SendResult(int requestCode, int resultCode, const Want &resultWant) override
+    void SendResult(int requestCode, int resultCode, const Want &resultWant) override
     {}
-    virtual void ScheduleConnectAbility(const Want &want) override
+    void ScheduleConnectAbility(const Want &want) override
     {}
-    virtual void ScheduleDisconnectAbility(const Want &want) override
+    void ScheduleDisconnectAbility(const Want &want) override
     {}
-    virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) override
+    void ScheduleCommandAbility(const Want &want, bool restart, int startId) override
     {}
-    virtual void ScheduleSaveAbilityState() override
+    void ScheduleSaveAbilityState() override
     {}
-    virtual void ScheduleRestoreAbilityState(const PacMap &inState) override
+    void ScheduleRestoreAbilityState(const PacMap &inState) override
     {}
-    virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override
+    std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override
     {
         return {};
     }
-    virtual int OpenFile(const Uri &uri, const std::string &mode) override
+    int OpenFile(const Uri &uri, const std::string &mode) override
     {
         return 0;
     }
-    virtual int OpenRawFile(const Uri &uri, const std::string &mode) override
+    int OpenRawFile(const Uri &uri, const std::string &mode) override
     {
         return 0;
     }
-    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override
+    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override
     {
         return 0;
     }
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
+    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
         const NativeRdb::DataAbilityPredicates &predicates) override
     {
         return 0;
     }
-    virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override
+    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override
     {
         return 0;
     }
-    virtual std::shared_ptr<AppExecFwk::PacMap> Call(
+    std::shared_ptr<AppExecFwk::PacMap> Call(
         const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap) override
     {
         return {};
     }
-    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri,
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri,
         std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override
     {
         return {};
     }
-    virtual std::string GetType(const Uri &uri) override
+    std::string GetType(const Uri &uri) override
     {
         return {};
     }
-    virtual bool Reload(const Uri &uri, const PacMap &extras) override
+    bool Reload(const Uri &uri, const PacMap &extras) override
     {
         return true;
     }
-    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override
+    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override
     {
         return 0;
     }
-    virtual bool ScheduleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
+    bool ScheduleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
     {
         return true;
     }
-    virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
+    bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
     {
         return true;
     }
-    virtual bool ScheduleNotifyChange(const Uri &uri) override
+    bool ScheduleNotifyChange(const Uri &uri) override
     {
         return true;
     }
-    virtual Uri NormalizeUri(const Uri &uri) override
+    Uri NormalizeUri(const Uri &uri) override
     {
         return Uri{"abilityschedulerstub"};
     }
 
-    virtual Uri DenormalizeUri(const Uri &uri) override
+    Uri DenormalizeUri(const Uri &uri) override
     {
         return Uri{"abilityschedulerstub"};
     }
-    virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
+    std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) override
     {
         return {};
     }
-    virtual void ContinueAbility(const std::string& deviceId, uint32_t versionCode) override
+    void ContinueAbility(const std::string& deviceId, uint32_t versionCode) override
     {}
-    virtual void NotifyContinuationResult(int32_t result) override
+    void NotifyContinuationResult(int32_t result) override
     {}
-    virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
+    void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
     {}
-    virtual int BlockAbility() override
+    int BlockAbility() override
     {
         return 0;
     }
-    virtual sptr<IRemoteObject> CallRequest() override
+    sptr<IRemoteObject> CallRequest() override
     {
         return {};
     }

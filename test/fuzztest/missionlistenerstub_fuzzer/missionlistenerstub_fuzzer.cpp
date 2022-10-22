@@ -33,19 +33,19 @@ public:
     MissionListenerStubFuzzTest() = default;
     virtual ~MissionListenerStubFuzzTest()
     {};
-    virtual void OnMissionCreated(int32_t missionId) override
+    void OnMissionCreated(int32_t missionId) override
     {}
-    virtual void OnMissionDestroyed(int32_t missionId) override
+    void OnMissionDestroyed(int32_t missionId) override
     {}
-    virtual void OnMissionSnapshotChanged(int32_t missionId) override
+    void OnMissionSnapshotChanged(int32_t missionId) override
     {}
-    virtual void OnMissionMovedToFront(int32_t missionId) override
+    void OnMissionMovedToFront(int32_t missionId) override
     {}
-    virtual void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
+    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
     {}
-    virtual void OnMissionClosed(int32_t missionId) override
+    void OnMissionClosed(int32_t missionId) override
     {}
-    virtual void OnMissionLabelUpdated(int32_t missionId) override
+    void OnMissionLabelUpdated(int32_t missionId) override
     {}
 };
 
