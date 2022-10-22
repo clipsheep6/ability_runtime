@@ -236,7 +236,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_004
- * @tc.desc:  ScheduleSaveAppState should be return true.
+ * @tc.desc:  ScheduleSaveAppState should be return false.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -245,7 +245,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                   SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST);
-    EXPECT_TRUE(ret);
+    EXPECT_FALSE(ret);
 }
 
 /**
@@ -316,6 +316,9 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_005, TestSize.Level1)
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
+    auto applicationInfo = std::make_shared<ApplicationInfo>();
+    auto testHandler = std::make_shared<EventHandler>();
+    AppRecovery::GetInstance().InitApplicationInfo(testHandler, applicationInfo);
     bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
 }
@@ -346,7 +349,10 @@ HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_002, TestSize.Level1)
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
-    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
+    auto applicationInfo = std::make_shared<ApplicationInfo>();
+    auto testHandler = std::make_shared<EventHandler>();
+    AppRecovery::GetInstance().InitApplicationInfo(testHandler, applicationInfo);
+    bool ret = AppRecovery::GetInstance().TryRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
 }
 }  // namespace AppExecFwk
