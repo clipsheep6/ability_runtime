@@ -358,14 +358,14 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
         std::regex outer_pattern(ABS_CODE_PATH);
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-                continue;
-            }
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
             std::string loadPath =  (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
                 !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
+            if (loadPath.empty()) {
+                continue;
+            }
             if (currentBundle) {
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
             } else {
