@@ -868,6 +868,8 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
     BindNativeFunction(engine, *object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
     BindNativeFunction(engine, *object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(engine, *object, "on", MD_NAME, JsApplicationContextUtils::On);
+    BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
 
     return objValue;
 }
