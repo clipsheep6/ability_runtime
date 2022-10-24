@@ -526,7 +526,6 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     }
 
     std::shared_ptr<ModuleRunningRecord> moduleRecord;
-    std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
 
     auto initModuleRecord = [=](const std::shared_ptr<ModuleRunningRecord> &moduleRecord) {
         moduleRecord->Init(hapModuleInfo);
@@ -544,6 +543,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         }
     } else {
         moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, eventHandler_);
+        std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
         moduleList.push_back(moduleRecord);
         hapModules_.emplace(appInfo->bundleName, moduleList);
         appInfos_.emplace(appInfo->bundleName, appInfo);

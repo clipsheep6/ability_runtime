@@ -290,7 +290,7 @@ std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
 
 void MixStackDumper::PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames)
 {
-    for (auto& frame : nativeFrames) {
+    for (const auto& frame : nativeFrames) {
         std::string nativeFrameStr = PrintNativeFrame(frame);
         write(fd, nativeFrameStr.c_str(), nativeFrameStr.size());
     }

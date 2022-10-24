@@ -141,7 +141,7 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
         close(fd);
         return false;
     }
-    size_t nwrite = write(fd, (uint8_t*)buf, sz);
+    size_t nwrite = write(fd, reinterpret_cast<uint8_t*>(buf), sz);
     if (nwrite != sz) {
         HILOG_ERROR("AppRecovery%{public}s failed to persist parcel data %{public}d.", __func__, errno);
     }
@@ -177,7 +177,7 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
         return false;
     }
 
-    auto mapFile = (uint8_t*) mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    auto mapFile = static_cast<uint8_t*>(mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
     if (mapFile == MAP_FAILED) {
         close(fd);
         remove(path);

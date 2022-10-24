@@ -101,7 +101,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     amsJson.clear();
     inFile.close();
 
-    for (auto& i : ret) {
+    for (const auto& i : ret) {
         if (i != 0) {
             HILOG_ERROR("json no have service item ...");
             return READ_JSON_FAIL;
