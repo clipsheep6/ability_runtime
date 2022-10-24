@@ -17,6 +17,7 @@ group("unittest") {
   deps = [
     "quick_fix_callback_proxy_test:unittest",
     "quick_fix_callback_stub_test:unittest",
+    "quick_fix_error_utils_test:unittest",
     "quick_fix_info_test:unittest",
     "quick_fix_manager_client_test:unittest",
     "quick_fix_manager_proxy_test:unittest",
