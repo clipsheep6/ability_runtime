@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-class ServiceExtensionAbility {
+var ExtensionAbility = requireNapi("application.ExtensionAbility")
+
+class ServiceExtensionAbility extends ExtensionAbility {
     onCreate(want) {
         console.log('onCreate, want:' + want.abilityName);
     }
