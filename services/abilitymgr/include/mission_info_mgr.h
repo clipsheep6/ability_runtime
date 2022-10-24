@@ -96,10 +96,11 @@ public:
      * @brief Try find reused mission info.
      *
      * @param missionName name of mission.
+     * @param flag name of specified mission flag.
      * @param info found mission info.
      * @return true if success.
      */
-    bool FindReusedSingletonMission(const std::string &missionName, InnerMissionInfo &info);
+    bool FindReusedMissionInfo(const std::string &missionName, const std::string &flag, InnerMissionInfo &info);
 
     /**
      * @brief Update mission timestamp.
