@@ -1,0 +1,97 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_frontend/ts2panda/ts2abc_config.gni")
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import("//foundation/arkui/ace_engine/build/ace_gen_obj.gni")
+
+ts2abc_gen_abc("gen_abc_js_mock") {
+  js_mock_path =
+      get_label_info("//third_party/jsframework:gen_snapshot",
+                     "target_out_dir") + "/dist/jsMockSystemPlugin.js"
+  src_js = rebase_path(js_mock_path)
+  dst_file = rebase_path(target_out_dir + "/jsMockSystemPlugin.abc")
+  in_puts = [ js_mock_path ]
+  out_puts = [ target_out_dir + "/jsMockSystemPlugin.abc" ]
+  extra_dependencies = [ "//third_party/jsframework:gen_snapshot" ]
+}
+
+gen_obj("js_mock_abc") {
+  input = get_label_info(":gen_abc_js_mock", "target_out_dir") +
+          "/jsMockSystemPlugin.abc"
+
+  if (is_mac || is_mingw) {
+    output = target_out_dir + "/js_mock_abc.c"
+  } else {
+    output = target_out_dir + "/js_mock_abc.o"
+  }
+
+  snapshot_dep = [ ":gen_abc_js_mock" ]
+}
+
+config("ability_simulator_public_config") {
+  include_dirs = [ "include" ]
+}
+
+ohos_shared_library("ability_simulator") {
+  if (is_mingw) {
+    defines = [
+      "WINDOWS_PLATFORM",
+      "NOGDI",
+    ]
+  }
+
+  if (is_mingw) {
+    platform = "windows"
+  } else {
+    platform = "mac"
+  }
+
+  cflags = [ "-std=c++17" ]
+
+  include_dirs = [
+    "//foundation/ability/ability_runtime/frameworks/native/runtime",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/runtime/include",
+  ]
+
+  sources = [
+    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_console_log.cpp",
+    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_module_searcher.cpp",
+    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_runtime_utils.cpp",
+    "src/js_timer.cpp",
+    "src/simulator.cpp",
+  ]
+
+  public_configs = [
+    ":ability_simulator_public_config",
+    "${ability_runtime_services_path}/common:common_config",
+  ]
+
+  configs = [ "//arkcompiler/ets_runtime:ark_jsruntime_public_config" ]
+
+  deps = [
+    ":gen_obj_src_js_mock_abc",
+    "${ability_runtime_native_path}/runtime:string_utils",
+    "//arkcompiler/ets_runtime:libark_jsruntime",
+    "//arkcompiler/toolchain/inspector:ark_debugger",
+    "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
+    "//foundation/ability/ability_runtime/frameworks/simulator/osal:simulator_osal",
+    "//foundation/arkui/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi_ark",
+  ]
+
+  part_name = "simulator"
+  subsystem_name = "ability"
+}
