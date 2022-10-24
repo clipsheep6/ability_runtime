@@ -16,7 +16,7 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_runtime/abilitymgr"
+module_output_path = "ability_runtime/libappms"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("KillProcessWithAccountFuzzTest") {
