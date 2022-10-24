@@ -74,6 +74,14 @@ ErrCode AppControlProxy::GetAppRunningControlRule(int32_t userId, std::vector<st
 ErrCode AppControlProxy::GetAppRunningControlRule(
     const std::string &bundleName, int32_t userId, AppRunningControlRuleResult &controlRuleResult)
 {
+    if (bundleName.compare("com.test.control2") == 0) {
+        return ERR_INVALID_VALUE;
+    }
+    if (bundleName.compare("com.test.control3") == 0) {
+        controlRuleResult.controlWant = nullptr;
+        controlRuleResult.controlMessage = "the test app is not available";
+        return ERR_OK;
+    }
     Want want;
     ElementName element("", "com.huawei.hmos.appgallery", "MainAbility");
     want.SetElement(element);
