@@ -27,7 +27,7 @@ public:
         AccessibilityCommandArgument &argument);
     static std::string FormatAbilityInfos(
         const std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities);
-    static std::int32_t GetCapabilityValue(const std::string &capabilityNames);
+    static std::uint32_t GetCapabilityValue(const std::string &capabilityNames);
     static std::string GetInvalidCapabilityNames(const std::string &enabledCapabilityNames,
         const std::string &installedCapabilityNames);
     static std::string GetUnknownArgumentsMsg(const std::vector<std::string> &unknownArugments);
