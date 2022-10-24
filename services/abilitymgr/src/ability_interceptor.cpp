@@ -106,7 +106,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
     if (CheckControl(want, userId, controlRule)) {
         HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
-        if (isForeground) {
+        if (isForeground && controlRule.controlWant != nullptr) {
             int ret = AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant, userId, requestCode);
             if (ret != ERR_OK) {
                 HILOG_ERROR("Control implicit start appgallery failed.");
@@ -139,14 +139,10 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
 
     auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
     if (ret != ERR_OK) {
-        HILOG_INFO("GetAppRunningControlRule failed");
+        HILOG_INFO("Get No AppRunningControlRule");
         return false;
     }
-    
-    if (controlRule.controlWant != nullptr) {
-        return true;
-    }
-    return false;
+    return true;
 }
 } // namespace AAFwk
 } // namespace OHOS
