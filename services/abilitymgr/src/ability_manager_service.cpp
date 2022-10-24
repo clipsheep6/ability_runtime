@@ -25,6 +25,7 @@
 #include <string>
 #include <thread>
 #include <unistd.h>
+#include <unordered_set>
 #include <csignal>
 #include <cstdlib>
 
@@ -83,15 +84,33 @@ const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can en
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+// Startup rule switch
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
+const std::string WHITE_LIST_NORMAL_FLAG = "component.startup.whitelist.normal";
+const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+// White list app
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
 const std::string BUNDLE_NAME_INPUTMETHOD_TEST = "com.acts.inputmethodtest";
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+const std::string BUNDLE_NAME_KEY_BOARD = "com.example.kikakeyboard";
+const std::string BUNDLE_NAME_MESSAGE_DATA = "com.ohos.smsmmsability";
+const std::string BUNDLE_NAME_CALL_LOG = "com.ohos.calllogability";
+const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
+const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
+const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
+                                                                BUNDLE_NAME_INPUTMETHOD_TEST,
+                                                                BUNDLE_NAME_KEY_BOARD };
+const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA,
+                                                                    BUNDLE_NAME_MESSAGE_DATA,
+                                                                    BUNDLE_NAME_CALL_LOG,
+                                                                    BUNDLE_NAME_CONTACTS_DATA,
+                                                                    BUNDLE_NAME_TELE_DATA,
+                                                                    BUNDLE_NAME_DEVICE_TEST };
 } // namespace
 
 using namespace std::chrono;
@@ -288,12 +307,8 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-
-    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
-    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
-    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    InitStartupFlag();
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -301,6 +316,15 @@ bool AbilityManagerService::Init()
 
     HILOG_INFO("Init success.");
     return true;
+}
+
+void AbilityManagerService::InitStartupFlag()
+{
+    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
+    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
+    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    whiteListNormalFlag_ = CheckNewRuleSwitchState(WHITE_LIST_NORMAL_FLAG);
+    whiteListassociatedWakeUpFlag_ = CheckNewRuleSwitchState(WHITE_LIST_ASS_WAKEUP_FLAG);
 }
 
 void AbilityManagerService::OnStop()
@@ -5128,6 +5152,7 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+        HILOG_INFO("extensionType is %{public}d.", static_cast<int>(extensionType));
         if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE ||
             extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
             return CheckCallServiceExtensionPermission(abilityRequest);
@@ -5176,11 +5201,15 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
-    if (abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ||
-        abilityRequest.appInfo.bundleName == BUNDLE_NAME_DEVICE_TEST) {
+    HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundleName: %{public}s.",
+        abilityRequest.appInfo.bundleName.c_str());
+    if (whiteListassociatedWakeUpFlag_ &&
+        WHITE_LIST_ASS_WAKEUP_SET.find(abilityRequest.appInfo.bundleName) != WHITE_LIST_ASS_WAKEUP_SET.end()) {
+        HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundle in white-list, allow associatedWakeUp.");
         verificationInfo.associatedWakeUp = true;
     } else {
-        verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+        verificationInfo.associatedWakeUp = abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ?
+                                            true : abilityRequest.appInfo.associatedWakeUp;
     }
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
@@ -5393,7 +5422,7 @@ bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityReq
     if (callerAbility) {
         const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-        if (bundleName == BUNDLE_NAME_INPUTMETHOD_TEST) {
+        if (whiteListNormalFlag_ && WHITE_LIST_NORMAL_SET.find(bundleName) != WHITE_LIST_NORMAL_SET.end()) {
             return false;
         }
     }
