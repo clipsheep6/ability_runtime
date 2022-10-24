@@ -76,7 +76,7 @@ private:
         }
 
         std::string type;
-        if (!ConvertFromJsValue(engine, info.argv[0], type) || type != "error") {
+        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type) || type != "error") {
             HILOG_ERROR("Parse type failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -100,7 +100,7 @@ private:
             observer_ = std::make_shared<JsErrorObserver>(engine);
             AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);
         }
-        observer_->AddJsObserverObject(observerId, info.argv[0]);
+        observer_->AddJsObserverObject(observerId, info.argv[INDEX_ZERO]);
         return engine.CreateNumber(observerId);
     }
 
@@ -113,12 +113,12 @@ private:
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
             napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
+                reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), &observerId);
             HILOG_INFO("unregister errorObserver called, observer:%{public}d", observerId);
         }
 
         std::string type;
-        if (!ConvertFromJsValue(engine, info.argv[0], type) || type != "error") {
+        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type) || type != "error") {
             HILOG_ERROR("Parse type failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
