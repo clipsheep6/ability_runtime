@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "ability_context.h"
+#include "ability_runtime_error_util.h"
 #include <algorithm>
 #include "completed_callback.h"
 #include "context_container.h"
@@ -47,6 +48,7 @@ using namespace testing::ext;
 using namespace OHOS::AAFwk;
 using namespace OHOS;
 using OHOS::AppExecFwk::ElementName;
+using namespace OHOS::AbilityRuntime;
 using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
 
@@ -808,5 +810,63 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3800, Function | MediumTest | Leve
     std::vector<WantAgentConstant::Flags>::iterator noBuildIt = std::find(flagsVec.begin(), flagsVec.end(),
         WantAgentConstant::Flags::NO_BUILD_FLAG);
     EXPECT_EQ(noBuildIt != flagsVec.end(), true);
+}
+
+/*
+ * @tc.number    : WantAgentHelper_3900
+ * @tc.name      : WantAgentHelper GetType
+ * @tc.desc      : 1.agent is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3900, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+    int32_t type = static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE);
+    EXPECT_EQ(wantAgentHelper->GetType(wantAgent, type), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(type, static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE));
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4000
+ * @tc.name      : WantAgentHelper GetType
+ * @tc.desc      : 1.agent is not nullptr,PendingWant is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4000, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<PendingWant> pendingWant(nullptr);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+    auto type = static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE);
+    EXPECT_EQ(wantAgentHelper->GetType(wantAgent, type), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(type, static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE));
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4100
+ * @tc.name      : WantAgentHelper GetWant
+ * @tc.desc      : 1.GetWant WantAgent is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+    std::shared_ptr<AAFwk::Want> want(nullptr);
+    EXPECT_EQ(wantAgentHelper->GetWant(wantAgent, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(want, nullptr);
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4200
+ * @tc.name      : WantAgentHelper GetWant
+ * @tc.desc      : 1.GetWant WantAgent.PendingWant.target is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<PendingWant> pendingWant(nullptr);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+    std::shared_ptr<AAFwk::Want> want(nullptr);
+    EXPECT_EQ(wantAgentHelper->GetWant(wantAgent, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(want, nullptr);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent
