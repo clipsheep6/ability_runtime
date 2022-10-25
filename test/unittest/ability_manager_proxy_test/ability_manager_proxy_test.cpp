@@ -973,6 +973,24 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpdateMissionSnapShot_001,
 
 /*
  * Feature: AbilityManagerService
+ * Function: EnableRecoverAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService EnableRecoverAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of EnableRecoverAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_EnableRecoverAbility_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    proxy_->EnableRecoverAbility(token);
+    EXPECT_EQ(IAbilityManager::ABILITY_RECOVERY_ENABLE, mock_->code_);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ScheduleRecoverAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleRecoverAbility

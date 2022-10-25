@@ -788,7 +788,7 @@ public:
      * @param token The target ability.
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
-    
+    void EnableRecoverAbility(const sptr<IRemoteObject>& token);
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason);
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

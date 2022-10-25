@@ -4026,6 +4026,30 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
+void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
+        return;
+    }
+
+    auto it = appRecoveryHistory_.find(record->GetUid());
+    if (it == appRecoveryHistory_.end()) {
+        appRecoveryHistory_.emplace(record->GetUid(), 0);
+    }
+}
+
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
 {
     std::string identity = IPCSkeleton::ResetCallingIdentity();
@@ -4065,10 +4089,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         }
 
         constexpr int64_t MIN_RECOVERY_TIME = 60;
-        auto now = time(nullptr);
-        auto it = appRecoverHistory_.find(record->GetUid());
-        if ((it != appRecoverHistory_.end()) &&
-            (it->second + MIN_RECOVERY_TIME > static_cast<int64_t>(now))) {
+        int64_t now = time(nullptr);
+        auto it = appRecoveryHistory_.find(record->GetUid());
+        if ((it != appRecoveryHistory_.end()) &&
+            (it->second + MIN_RECOVERY_TIME > now)) {
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
             kill(record->GetPid(), SIGKILL);
@@ -4077,8 +4101,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
 
         auto appInfo = record->GetApplicationInfo();
         auto abilityInfo = record->GetAbilityInfo();
-        appRecoverHistory_.emplace(record->GetUid(),
-            static_cast<int64_t>(now)).first->second = static_cast<int64_t>(now);
+        appRecoveryHistory_[record->GetUid()] = now;
         want = record->GetWant();
         want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
         
@@ -4334,6 +4357,15 @@ int AbilityManagerService::SendANRProcessID(int pid)
     if (!isSaCall && !isShellCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
+    }
+
+    AppExecFwk::ApplicationInfo appInfo;
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK) {
+        auto it = appRecoveryHistory_.find(appInfo.uid);
+        if (it != appRecoveryHistory_.end()) {
+            return ERR_OK;
+        }
     }
 
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();

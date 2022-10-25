@@ -74,6 +74,13 @@ bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<Ability>& ability,
     ability_ = ability;
     abilityInfo_ = abilityInfo;
     token_ = token;
+    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
+    if (ams == nullptr) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
+        return false;
+    }
+
+    ams->EnableRecoverAbility(token);
     return true;
 }
 
@@ -141,7 +148,7 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
         close(fd);
         return false;
     }
-    size_t nwrite = write(fd, (uint8_t*)buf, sz);
+    ssize_t nwrite = write(fd, reinterpret_cast<uint8_t*>(buf), sz);
     if (nwrite != sz) {
         HILOG_ERROR("AppRecovery%{public}s failed to persist parcel data %{public}d.", __func__, errno);
     }
@@ -177,7 +184,7 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
         return false;
     }
 
-    auto mapFile = (uint8_t*) mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    auto mapFile = static_cast<uint8_t*>(mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
     if (mapFile == MAP_FAILED) {
         close(fd);
         remove(path);
@@ -257,11 +264,15 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
 
     hasTryLoad_ = true;
 
-    if (!ReadSerializeDataFromFile(abilityInfo->descriptionId, params_)) {
-        HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d",
-            abilityInfo->descriptionId);
-        hasLoaded_ = false;
-        return hasLoaded_;
+    if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
+        if (!ReadSerializeDataFromFile(abilityInfo->descriptionId, params_)) {
+            HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d",
+                abilityInfo->descriptionId);
+            hasLoaded_ = false;
+            return hasLoaded_;
+        }
+    } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
+        HILOG_DEBUG("AppRecovery save to SHARED_MEMORY");
     }
 
     auto stringObj = AAFwk::IString::Query(params_.GetParam("pageStack"));
