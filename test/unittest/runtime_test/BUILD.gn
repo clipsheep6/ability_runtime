@@ -40,8 +40,37 @@ ohos_unittest("runtime_test") {
   ]
 }
 
+ohos_unittest("js_runtime_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "js_runtime_test.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
+  ]
+}
+
 group("unittest") {
   testonly = true
 
-  deps = [ ":runtime_test" ]
+  deps = [
+    ":js_runtime_test",
+    ":runtime_test",
+  ]
 }
