@@ -48,7 +48,7 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
         HILOG_ERROR("Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
         if (isForeground) {
-            int ret = AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST);
+            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Crowdtest implicit start appgallery failed.");
                 return ret;
@@ -107,7 +107,8 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
         HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
         if (isForeground && controlRule.controlWant != nullptr) {
-            int ret = AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant, userId, requestCode);
+            int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
+                userId, requestCode));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Control implicit start appgallery failed.");
                 return ret;
