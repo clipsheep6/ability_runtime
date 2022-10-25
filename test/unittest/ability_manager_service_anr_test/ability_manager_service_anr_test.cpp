@@ -203,5 +203,22 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
         (void)kill(pid, SIGKILL);
     }
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SendANRProcessID
+ * SubFunction: NA
+ * FunctionPoints: Waiting anr process
+ * EnvConditions: NA
+ * CaseDescription: create a new exception process, call SendANRProcessID func
+ * click waiting button, do not kill the new process
+ */
+HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_003, TestSize.Level1)
+{
+    pid_t pid = -1;
+    auto result = abilityMs_->SendANRProcessID(pid);
+    sleep(6);
+    EXPECT_TRUE(result == ERR_INVALID_VALUE);
+}
 }
 }

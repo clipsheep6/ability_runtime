@@ -174,6 +174,10 @@ int AppScheduler::StartUserTest(
 
 int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
 {
+    if (pid < 0) {
+        return -1;
+    }
+
     return 0;
 }
 
