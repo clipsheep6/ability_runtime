@@ -18,6 +18,7 @@
     "name": "serviceAbilityBundleForStop",
     "mainAbility": ".MainAbility",
     "deviceType": [
+      "tablet",
       "default",
       "tv",
       "car"
