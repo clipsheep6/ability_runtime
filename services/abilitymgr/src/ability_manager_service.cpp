@@ -5211,6 +5211,11 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
         verificationInfo.associatedWakeUp = abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ?
                                             true : abilityRequest.appInfo.associatedWakeUp;
     }
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_INFO("Caller is not an application.");
+        return verificationInfo;
+    }
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
         verificationInfo.apiTargetVersion = callerAbility->GetApplicationInfo().apiTargetVersion;
@@ -5413,23 +5418,22 @@ bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityReq
         return false;
     }
 
-    if (newRuleExceptLauncherSystemUI_) {
-        // TEMP, caller is Launcher or systemUI, PASS
-        std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-        if (callerAbility) {
-            const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
-            HILOG_INFO("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-            if (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI) {
-                return false;
-            }
-        }
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_INFO("Caller is not an application.");
+        return true;
     }
-    // TEMP, rpctest PASS
+
+    // TEMP, white list
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
-        const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
+        const std::string bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
         if (whiteListNormalFlag_ && WHITE_LIST_NORMAL_SET.find(bundleName) != WHITE_LIST_NORMAL_SET.end()) {
+            return false;
+        }
+        if (newRuleExceptLauncherSystemUI_ &&
+            (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI)) {
             return false;
         }
     }
