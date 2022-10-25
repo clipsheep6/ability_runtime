@@ -4313,34 +4313,18 @@ int AbilityManagerService::SendANRProcessID(int pid)
     }
     CHECK_POINTER_AND_RETURN(anrDisposer_, ERR_INVALID_VALUE);
 
-    auto setMissionTask = [manager = currentMissionListManager_](const std::vector<sptr<IRemoteObject>> &tokens) {
-        HILOG_WARN("set some mission anr status.");
-        if (manager) {
-            manager->SetMissionANRStateByTokens(tokens);
-        }
-    };
-#ifdef SUPPORT_GRAPHICS
-    auto showDialogTask = [pid, userId = GetUserId()](int32_t labelId,
-        const std::string &bundle, const Closure &callBack) {
-        std::string appName {""};
-        auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
-        if (!sysDialog) {
-            HILOG_ERROR("SystemDialogScheduler is nullptr.");
-            return;
-        }
-        sysDialog->GetAppNameFromResource(labelId, bundle, userId, appName);
-        sysDialog->ShowANRDialog(appName, callBack);
-    };
-    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask, showDialogTask);
-#else
-    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask);
-#endif
-    if (ret != ERR_OK) {
-        HILOG_ERROR("dispose app no respose failed.");
-        return ret;
+    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    if (!sysDialog) {
+        HILOG_ERROR("SystemDialogScheduler is nullptr.");
+        return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilityManagerService::SendANRProcessID end");
-    return ERR_OK;
+
+    Want want;
+    if (!sysDialog->GetANRDialogWant(GetUserId(), pid, want)) {
+        HILOG_ERROR("GetANRDialogWant failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return StartAbility(want);
 }
 
 bool AbilityManagerService::IsRunningInStabilityTest()

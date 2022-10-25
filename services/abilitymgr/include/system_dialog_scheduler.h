@@ -67,7 +67,7 @@ public:
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    int32_t ShowANRDialog(const std::string &appName, const Closure &anrCallBack);
+    bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
     int32_t ShowSelectorDialog(const std::vector<DialogAppInfo> &infos, const SelectorClosure &startAbilityCallBack);
     int32_t ShowTipsDialog();
 
