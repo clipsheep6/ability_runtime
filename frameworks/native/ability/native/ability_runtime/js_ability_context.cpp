@@ -866,7 +866,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
             HILOG_INFO("OnDisconnectAbility begin");
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("context is released");
+                HILOG_WARN("OnDisconnectAbility context is released");
                 task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }

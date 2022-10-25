@@ -522,18 +522,18 @@ private:
         }
 
         if (info.argv[0]->TypeOf() != NATIVE_STRING) {
-            HILOG_ERROR("Param 0 is not string");
+            HILOG_ERROR("CheckOnOffType, Param 0 is not string");
             return false;
         }
 
         std::string type;
         if (!ConvertFromJsValue(engine, info.argv[0], type)) {
-            HILOG_ERROR("Parse on off type failed");
+            HILOG_ERROR("CheckOnOffType, Parse on off type failed");
             return false;
         }
 
         if (type != ON_OFF_TYPE) {
-            HILOG_ERROR("args[0] should be mission.");
+            HILOG_ERROR("CheckOnOffType, args[0] should be mission.");
             return false;
         }
         return true;
