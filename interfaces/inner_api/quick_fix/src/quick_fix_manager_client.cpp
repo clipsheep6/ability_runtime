@@ -20,17 +20,22 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "quick_fix_error_utils.h"
+#include "quick_fix_load_callback.h"
 #include "quick_fix_manager_proxy.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
+} // namespace
+
 int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
-    auto quickFixMgr = ConnectQuickFixManagerService();
+    auto quickFixMgr = GetQuickFixMgrProxy();
     if (quickFixMgr == nullptr) {
         HILOG_ERROR("Get quick fix manager service failed.");
         return QUICK_FIX_CONNECT_FAILED;
@@ -45,7 +50,7 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
-    auto quickFixMgr = ConnectQuickFixManagerService();
+    auto quickFixMgr = GetQuickFixMgrProxy();
     if (quickFixMgr == nullptr) {
         HILOG_ERROR("Get quick fix manager service failed.");
         return QUICK_FIX_CONNECT_FAILED;
@@ -54,43 +59,39 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
     return quickFixMgr->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
 }
 
-sptr<IQuickFixManager> QuickFixManagerClient::ConnectQuickFixManagerService()
+sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 {
     HILOG_DEBUG("function called.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (quickFixMgr_ == nullptr) {
-        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemAbilityMgr == nullptr) {
-            HILOG_ERROR("Failed to get SystemAbilityManager.");
-            return nullptr;
-        }
-
-        auto remoteObj = systemAbilityMgr->GetSystemAbility(QUICK_FIX_MGR_SERVICE_ID);
-        if (remoteObj == nullptr) {
-            HILOG_ERROR("Remote object is nullptr.");
-            return nullptr;
-        }
-
-        quickFixMgr_ = iface_cast<IQuickFixManager>(remoteObj);
-        if (quickFixMgr_ == nullptr || quickFixMgr_->AsObject() == nullptr) {
-            HILOG_ERROR("Failed to get quick fix manager service.");
-            return nullptr;
-        }
-
-        auto self = weak_from_this();
-        const auto &onClearProxyCallback = [self](const wptr<IRemoteObject> &remote) {
-            auto impl = self.lock();
-            if (impl && impl->quickFixMgr_ == remote) {
-                impl->ClearProxy();
-            }
-        };
-
-        sptr<QfmsDeathRecipient> recipient(new (std::nothrow) QfmsDeathRecipient(onClearProxyCallback));
-        quickFixMgr_->AsObject()->AddDeathRecipient(recipient);
+    auto quickFixMgr = GetQuickFixMgr();
+    if (quickFixMgr != nullptr) {
+        HILOG_DEBUG("Quick fix manager has been started.");
+        return quickFixMgr;
     }
 
+    if (!LoadQuickFixMgrService()) {
+        HILOG_ERROR("Load quick fix manager service failed.");
+        return nullptr;
+    }
+
+    quickFixMgr = GetQuickFixMgr();
+    if (quickFixMgr == nullptr || quickFixMgr->AsObject() == nullptr) {
+        HILOG_ERROR("Failed to get quick fix manager.");
+        return nullptr;
+    }
+
+    auto self = weak_from_this();
+    const auto &onClearProxyCallback = [self](const wptr<IRemoteObject> &remote) {
+        auto impl = self.lock();
+        if (impl && impl->quickFixMgr_ == remote) {
+            impl->ClearProxy();
+        }
+    };
+
+    sptr<QfmsDeathRecipient> recipient(new (std::nothrow) QfmsDeathRecipient(onClearProxyCallback));
+    quickFixMgr->AsObject()->AddDeathRecipient(recipient);
+
     HILOG_DEBUG("function finished.");
-    return quickFixMgr_;
+    return quickFixMgr;
 }
 
 void QuickFixManagerClient::ClearProxy()
@@ -106,6 +107,74 @@ void QuickFixManagerClient::QfmsDeathRecipient::OnRemoteDied([[maybe_unused]] co
         HILOG_ERROR("quick fix manager service died.");
         proxy_(remote);
     }
+}
+
+bool QuickFixManagerClient::LoadQuickFixMgrService()
+{
+    {
+        std::unique_lock<std::mutex> lock(loadSaMutex_);
+        loadSaFinished_ = false;
+    }
+
+    auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityMgr == nullptr) {
+        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        return false;
+    }
+
+    sptr<QuickFixLoadCallback> loadCallback = new (std::nothrow) QuickFixLoadCallback();
+    if (loadCallback == nullptr) {
+        HILOG_ERROR("Create load callback failed.");
+        return false;
+    }
+
+    auto ret = systemAbilityMgr->LoadSystemAbility(QUICK_FIX_MGR_SERVICE_ID, loadCallback);
+    if (ret != 0) {
+        HILOG_ERROR("Load system ability %{public}d failed with %{public}d.", QUICK_FIX_MGR_SERVICE_ID, ret);
+        return false;
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(loadSaMutex_);
+        auto waitStatus = loadSaCondation_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
+            [this]() {
+                return loadSaFinished_;
+            });
+        if (!waitStatus) {
+            HILOG_ERROR("Wait for load sa timeout.");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void QuickFixManagerClient::SetQuickFixMgr(const sptr<IRemoteObject> &remoteObject)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    quickFixMgr_ = iface_cast<IQuickFixManager>(remoteObject);
+}
+
+sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgr()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return quickFixMgr_;
+}
+
+void QuickFixManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
+{
+    SetQuickFixMgr(remoteObject);
+    std::unique_lock<std::mutex> lock(loadSaMutex_);
+    loadSaFinished_ = true;
+    loadSaCondation_.notify_one();
+}
+
+void QuickFixManagerClient::OnLoadSystemAbilityFail()
+{
+    SetQuickFixMgr(nullptr);
+    std::unique_lock<std::mutex> lock(loadSaMutex_);
+    loadSaFinished_ = true;
+    loadSaCondation_.notify_one();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
