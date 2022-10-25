@@ -5250,6 +5250,13 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
         return ERR_OK;
     }
+    auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";
+    if (extensionType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION &&
+        AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(fileAccessPermission)) {
+        HILOG_DEBUG("Temporary, FILEACCESS_EXTENSION use serviceExtension start-up rule.");
+        return CheckCallServiceExtensionPermission(abilityRequest);
+    }
 
     HILOG_ERROR("CheckCallOtherExtensionPermission, Not SA, can not start other Extension");
     return CHECK_PERMISSION_FAILED;
