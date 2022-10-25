@@ -49,6 +49,13 @@ public:
     bool IsSingletonAbility() const;
 
     /**
+     * check whether ability contains by this mission is specified.
+     *
+     * @return is ability contains by this mission is specified.
+     */
+    bool IsSpecifiedAbility() const;
+
+    /**
      * get owner mission list.
      *
      * @return mission list.
@@ -157,11 +164,26 @@ public:
         return needNotify_;
     }
 
+    /**
+     * Set mission specified flag.
+     *
+     * @param flag specified flag.
+     */
+    void SetSpecifiedFlag(const std::string &flag);
+
+    /**
+     * Get mission specified flag.
+     *
+     * @return specified flag.
+     */
+    std::string GetSpecifiedFlag() const;
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
     std::shared_ptr<AbilityRecord> abilityRecord_;
     std::string missionName_;
+    std::string specifiedFlag_;
     std::weak_ptr<MissionList> ownerMissionList_;
     bool lockedState_ = false;
     bool isMovingToFront_ = false;

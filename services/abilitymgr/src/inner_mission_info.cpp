@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string KEY_MISSION_NAME = "MissionName";
-const std::string KEY_IS_SINGLETON = "IsSingleton";
+const std::string KEY_LAUNCH_MODE = "LaunchMode";
 const std::string KEY_MISSION_ID = "MissionId";
 const std::string KEY_RUNNING_STATE = "RunningState";
 const std::string KEY_LOCKED_STATE = "LockedState";
@@ -35,16 +35,18 @@ const std::string KEY_START_METHOD = "StartMethod";
 const std::string KEY_BUNDLE_NAME = "BundleName";
 const std::string KEY_UID = "Uid";
 const std::string KEY_IS_TEMPORARY = "IsTemporary";
+const std::string KEY_SPEC_FLAG = "SpecFlag";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {
     nlohmann::json value;
     value[KEY_MISSION_NAME] = missionName;
-    value[KEY_IS_SINGLETON] = isSingletonMode;
+    value[KEY_LAUNCH_MODE] = launchMode;
     value[KEY_IS_TEMPORARY] = isTemporary;
     value[KEY_BUNDLE_NAME] = bundleName;
     value[KEY_START_METHOD] = startMethod;
     value[KEY_UID] = uid;
+    value[KEY_SPEC_FLAG] = specifiedFlag;
     value[KEY_MISSION_ID] = missionInfo.id;
     value[KEY_RUNNING_STATE] = missionInfo.runningState;
     value[KEY_LOCKED_STATE] = missionInfo.lockedState;
@@ -70,10 +72,11 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
     missionName = value[KEY_MISSION_NAME].get<std::string>();
-    if (!CheckJsonNode(value, KEY_IS_SINGLETON, JsonType::BOOLEAN)) {
+
+    if (!CheckJsonNode(value, KEY_LAUNCH_MODE, JsonType::NUMBER)) {
         return false;
     }
-    isSingletonMode = value[KEY_IS_SINGLETON].get<bool>();
+    launchMode = value[KEY_LAUNCH_MODE].get<int32_t>();
     if (!CheckJsonNode(value, KEY_IS_TEMPORARY, JsonType::BOOLEAN)) {
         return false;
     }
@@ -90,6 +93,10 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
     uid = value[KEY_UID].get<int32_t>();
+    if (!CheckJsonNode(value, KEY_SPEC_FLAG, JsonType::STRING)) {
+        return false;
+    }
+    specifiedFlag = value[KEY_SPEC_FLAG].get<std::string>();
     if (!CheckJsonNode(value, KEY_MISSION_ID, JsonType::NUMBER)) {
         return false;
     }
@@ -133,8 +140,6 @@ void InnerMissionInfo::Dump(std::vector<std::string> &info) const
     std::string dumpInfo = "      Mission ID #" + std::to_string(missionInfo.id);
     info.push_back(dumpInfo);
     dumpInfo = "        mission name [" + missionName + "]";
-    info.push_back(dumpInfo);
-    dumpInfo = "        isSingleton [" + std::to_string(isSingletonMode) + "]";
     info.push_back(dumpInfo);
     dumpInfo = "        runningState [" + std::to_string(missionInfo.runningState) + "]";
     info.push_back(dumpInfo);

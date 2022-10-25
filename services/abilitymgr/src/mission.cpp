@@ -58,6 +58,25 @@ bool Mission::IsSingletonAbility() const
     return false;
 }
 
+bool Mission::IsSpecifiedAbility() const
+{
+    if (abilityRecord_) {
+        return abilityRecord_->GetAbilityInfo().launchMode == AppExecFwk::LaunchMode::SPECIFIED;
+    }
+
+    return false;
+}
+
+void Mission::SetSpecifiedFlag(const std::string &flag)
+{
+    specifiedFlag_ = flag;
+}
+
+std::string Mission::GetSpecifiedFlag() const
+{
+    return specifiedFlag_;
+}
+
 std::shared_ptr<MissionList> Mission::GetMissionList()
 {
     return ownerMissionList_.lock();

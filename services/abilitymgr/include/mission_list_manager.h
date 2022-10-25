@@ -388,8 +388,13 @@ private:
     std::shared_ptr<MissionList> GetTargetMissionListByDefault(
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
+    std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
+    bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
+        std::shared_ptr<AbilityRecord> &targetRecord);
+    std::string GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const;
+    bool CreateOrReusedMissionInfo(const AbilityRequest &abilityRequest, InnerMissionInfo &info) const;
     void MoveMissionToTargetList(bool isCallFromLauncher,
         const std::shared_ptr<MissionList> &targetMissionList,
         const std::shared_ptr<Mission> &mission);
@@ -449,7 +454,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const bool isSingleton, const int32_t startMethod, const AbilityRequest &abilityRequest);
+        const AbilityRequest &abilityRequest) const;
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
