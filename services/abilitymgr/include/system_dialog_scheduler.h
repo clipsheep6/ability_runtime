@@ -81,6 +81,7 @@ public:
 private:
     const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
+    const std::string GetDialogPositionParams(const DialogPosition position) const;
     
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;

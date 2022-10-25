@@ -71,6 +71,7 @@ const std::string BUNDLE_NAME = "bundleName";
 const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 const std::string DIALOG_PARAMS = "params";
 const std::string DIALOG_POSITION = "position";
+const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
 const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
 
@@ -229,6 +230,16 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     jsonObject["hapList"] = hapListObj;
 
     return jsonObject.dump();
+}
+
+const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPosition position) const
+{
+    nlohmann::json dialogPositionData;
+    dialogPositionData[OFF_SET_X] = position.offsetX;
+    dialogPositionData[OFF_SET_Y] = position.offsetY;
+    dialogPositionData[WIDTH] = position.width;
+    dialogPositionData[HEIGHT] = position.height;
+    return dialogPositionData.dump();
 }
 
 void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &position) const
