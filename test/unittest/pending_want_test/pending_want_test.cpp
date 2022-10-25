@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "ability_manager_client.h"
+#include "ability_runtime_error_util.h"
 #include "cancel_listener.h"
 #include "completed_callback.h"
 #include "completed_dispatcher.h"
@@ -56,6 +57,7 @@ using namespace testing::ext;
 using namespace OHOS::AAFwk;
 using namespace OHOS;
 using OHOS::AppExecFwk::ElementName;
+using namespace OHOS::AbilityRuntime;
 using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
 
@@ -695,5 +697,35 @@ HWTEST_F(PendingWantTest, PendingWant_3900, Function | MediumTest | Level1)
     MessageParcel parcel;
     bool ret = pendingWant.Marshalling(parcel);
     EXPECT_EQ(ret, true);
+}
+
+/*
+ * @tc.number    : PendingWant_4000
+ * @tc.name      : PendingWant GetType
+ * @tc.desc      : 1.Get PendingWant Type (UNKNOWN_TYPE)
+ */
+HWTEST_F(PendingWantTest, PendingWant_4000, Function | MediumTest | Level1)
+{
+    sptr<AAFwk::IWantSender> target = nullptr;
+    PendingWant pendingWant(target);
+    EXPECT_EQ(pendingWant.target_, target);
+    int32_t type = static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE);
+    EXPECT_EQ(pendingWant.GetType(target, type), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(type, static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE));
+}
+
+/*
+ * @tc.number    : PendingWant_4100
+ * @tc.name      : PendingWant GetWant
+ * @tc.desc      : 1.GetWant
+ */
+HWTEST_F(PendingWantTest, PendingWant_4100, Function | MediumTest | Level1)
+{
+    sptr<AAFwk::IWantSender> target = nullptr;
+    PendingWant pendingWant(target);
+    EXPECT_EQ(pendingWant.target_, target);
+    std::shared_ptr<AAFwk::Want> want(nullptr);
+    EXPECT_EQ(pendingWant.GetWant(target, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(want, nullptr);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent
