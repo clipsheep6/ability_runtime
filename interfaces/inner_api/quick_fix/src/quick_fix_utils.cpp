@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "quick_fix_util.h"
+#include "quick_fix_utils.h"
 
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"

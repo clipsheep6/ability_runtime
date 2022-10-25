@@ -19,7 +19,7 @@
 #include "hitrace_meter.h"
 #include "permission_verification.h"
 #include "quick_fix_error_utils.h"
-#include "quick_fix_util.h"
+#include "quick_fix_utils.h"
 
 namespace OHOS {
 namespace AAFwk {

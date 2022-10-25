@@ -30,10 +30,11 @@ ohos_shared_library("quickfix_manager") {
   sources = [
     "src/quick_fix_error_utils.cpp",
     "src/quick_fix_info.cpp",
+    "src/quick_fix_load_callback.cpp",
     "src/quick_fix_manager_client.cpp",
     "src/quick_fix_manager_proxy.cpp",
     "src/quick_fix_manager_stub.cpp",
-    "src/quick_fix_util.cpp",
+    "src/quick_fix_utils.cpp",
   ]
 
   defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
