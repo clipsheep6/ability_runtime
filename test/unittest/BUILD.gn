@@ -262,6 +262,7 @@ group("unittest") {
   testonly = true
 
   deps = [
+    "ability_business_error_test:unittest",
     "ability_connect_callback_proxy_test:unittest",
     "ability_connect_callback_stub_test:unittest",
     "ability_connect_manage_test:unittest",
