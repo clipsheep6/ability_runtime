@@ -760,6 +760,7 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
     runningProcessInfo.isContinuousTask = appRecord->IsContinuousTask();
     runningProcessInfo.isKeepAlive = appRecord->IsKeepAliveApp();
     runningProcessInfo.isFocused = appRecord->GetFocusFlag();
+    runningProcessInfo.startTimeMillis_ = appRecord->GetAppStartTime();
     appRecord->GetBundleNames(runningProcessInfo.bundleNames);
     info.emplace_back(runningProcessInfo);
 }
