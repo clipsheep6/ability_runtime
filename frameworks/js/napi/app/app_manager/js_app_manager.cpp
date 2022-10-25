@@ -493,7 +493,7 @@ private:
         return result;
     }
 
-    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         int32_t errCode = 0;
 

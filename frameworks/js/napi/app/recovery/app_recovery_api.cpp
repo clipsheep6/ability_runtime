@@ -97,7 +97,7 @@ private:
         return result;
     }
 
-    NativeValue *OnSaveAppState(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue *OnSaveAppState(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         if (info.argc != 0) {
             HILOG_ERROR("AppRecoveryApi SaveAppState Incorrect number of parameters");
@@ -110,7 +110,7 @@ private:
         return engine.CreateBoolean(false);
     }
 
-    NativeValue *OnRestartApp(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue *OnRestartApp(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         if (info.argc != 0) {
             HILOG_ERROR("AppRecoveryApi OnRestartApp Incorrect number of parameters");

@@ -197,11 +197,11 @@ napi_value NAPI_Register(napi_env env, napi_callback_info info);
  * @brief On processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
- * @param insertCB Process data asynchronously.
+ * @param onCB Process data asynchronously.
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *insertCB);
+napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *onCB);
 
 /**
  * @brief On Async.
@@ -239,11 +239,11 @@ napi_value NAPI_UnRegister(napi_env env, napi_callback_info info);
  * @brief Off processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
- * @param insertCB Process data asynchronously.
+ * @param offCB Process data asynchronously.
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *insertCB);
+napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *offCB);
 
 /**
  * @brief Off Async.
@@ -384,7 +384,7 @@ napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB);
 
 napi_value WrapResultSet(napi_env env, const std::shared_ptr<NativeRdb::AbsSharedResultSet> &resultSet);
 
-void AnalysisValuesBucket(NativeRdb::ValuesBucket &value, const napi_env &env, const napi_value &arg);
+void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env &env, const napi_value &arg);
 void SetValuesBucketObject(
     NativeRdb::ValuesBucket &valuesBucket, const napi_env &env, std::string keyStr, napi_value value);
 
@@ -460,10 +460,10 @@ void ExecuteBatchAsyncCompleteCB(napi_env env, napi_status status, void *data);
 void ExecuteBatchPromiseCompleteCB(napi_env env, napi_status status, void *data);
 
 void GetDataAbilityResultForResult(
-    napi_env env, const std::vector<std::shared_ptr<DataAbilityResult>> dataAbilityResult, napi_value result);
+    napi_env env, const std::vector<std::shared_ptr<DataAbilityResult>> &dataAbilityResult, napi_value result);
 
 void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB);
-bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, DataAbilityHelper* objectInfo);
+bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, const DataAbilityHelper* objectInfo);
 void EraseMemberProperties(DAHelperOnOffCB* onCB);
 }  // namespace AppExecFwk
 }  // namespace OHOS
