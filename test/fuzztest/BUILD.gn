@@ -53,6 +53,8 @@ group("fuzztest") {
     "startusertest_fuzzer:fuzztest",
     "stopserviceability_fuzzer:fuzztest",
     "stopserviceextensionability_fuzzer:fuzztest",
+    "stopusercallbackstub_fuzzer:fuzztest",
+    "systemabilitytokencallbackstub_fuzzer:fuzztest",
     "terminateability_fuzzer:fuzztest",
     "terminateabilityresult_fuzzer:fuzztest",
     "unregisterabilitylifecyclecallback_fuzzer:fuzztest",
@@ -62,5 +64,7 @@ group("fuzztest") {
     "uripermissionmanager_fuzzer:fuzztest",
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",
+    "wantreceiverstub_fuzzer:fuzztest",
+    "wantsenderstub_fuzzer:fuzztest",
   ]
 }
