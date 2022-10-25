@@ -193,7 +193,7 @@ void TriggerCompleteCallBack::OnSendFinished(
     dataWorker->env = triggerCompleteInfo_.env;
     dataWorker->ref = triggerCompleteInfo_.ref;
     dataWorker->wantAgent = triggerCompleteInfo_.wantAgent;
-    work->data = (void *)dataWorker;
+    work->data = static_cast<void *>(dataWorker);
     int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, OnSendFinishedUvAfterWorkCallback);
     if (ret != 0) {
         delete dataWorker;
@@ -804,7 +804,7 @@ auto NAPI_GetWantAgentWrapCompleteCallBack = [](napi_env env, napi_status status
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result[1]);
     napi_wrap(env,
         result[1],
-        (void *)asyncCallbackInfo->wantAgent.get(),
+        static_cast<void *>(asyncCallbackInfo->wantAgent.get()),
         [](napi_env env, void *data, void *hint) {},
         nullptr,
         nullptr);
@@ -838,7 +838,7 @@ auto NAPI_GetWantAgentWrapPromiseCompleteCallBack = [](napi_env env, napi_status
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result);
     napi_wrap(env,
         result,
-        (void *)asyncCallbackInfo->wantAgent.get(),
+        static_cast<void *>(asyncCallbackInfo->wantAgent.get()),
         [](napi_env env, void *data, void *hint) {},
         nullptr,
         nullptr);
@@ -859,7 +859,7 @@ napi_value NAPI_GetWantAgentWrap(
             resourceName,
             NAPI_GetWantAgentWrapExecuteCallBack,
             NAPI_GetWantAgentWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
+            static_cast<void *>(&asyncCallbackInfo),
             &asyncCallbackInfo.asyncWork);
 
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
@@ -881,7 +881,7 @@ napi_value NAPI_GetWantAgentWrap(
             resourceName,
             NAPI_GetWantAgentWrapExecuteCallBack,
             NAPI_GetWantAgentWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
+            static_cast<void *>(&asyncCallbackInfo),
             &asyncCallbackInfo.asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
         return promise;
@@ -1118,7 +1118,7 @@ napi_value NAPI_GetOperationTypeWrap(
             resourceName,
             NAPI_GetOperationTypeWrapExecuteCallBack,
             NAPI_GetOperationTypeWrapCompleteCallBack,
-            (void *)&asyncCallbackInfo,
+            static_cast<void *>(&asyncCallbackInfo),
             &asyncCallbackInfo.asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo.asyncWork));
         // create return
@@ -1139,7 +1139,7 @@ napi_value NAPI_GetOperationTypeWrap(
             resourceName,
             NAPI_GetOperationTypeWrapExecuteCallBack,
             NAPI_GetOperationTypeWrapPromiseCompleteCallBack,
-            (void *)&asyncCallbackInfo,
+            static_cast<void *>(&asyncCallbackInfo),
             &asyncCallbackInfo.asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
         return promise;

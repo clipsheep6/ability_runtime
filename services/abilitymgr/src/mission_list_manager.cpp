@@ -2871,7 +2871,6 @@ void MissionListManager::ResumeManager()
 
 void MissionListManager::GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>>& foregroundList)
 {
-    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     for (auto& missionList : currentMissionLists_) {
         GetForegroundAbilities(missionList, foregroundList);
     }

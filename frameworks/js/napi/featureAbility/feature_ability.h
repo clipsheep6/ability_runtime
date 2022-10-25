@@ -355,7 +355,7 @@ napi_value NAPI_FADisConnectAbility(napi_env env, napi_callback_info info);
  */
 napi_value NAPI_FAContinueAbility(napi_env env, napi_callback_info info);
 
-NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exportObj);
+NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H */

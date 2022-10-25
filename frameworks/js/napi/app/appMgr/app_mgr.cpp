@@ -37,7 +37,7 @@ constexpr size_t ARGC_TWO = 2;
 
 class JsAppManager final {
 public:
-    JsAppManager(sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : abilityManager_(abilityManager) {}
+    explicit JsAppManager(sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : abilityManager_(abilityManager) {}
     ~JsAppManager() = default;
 
     static void Finalizer(NativeEngine *engine, void *data, void *hint)

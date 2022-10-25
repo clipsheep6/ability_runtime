@@ -64,11 +64,11 @@ public:
     NativeValue* OnUnregisterEnvironmentCallback(NativeEngine &engine, NativeCallbackInfo &info);
 
     NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOff(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOff(NativeEngine &engine, const NativeCallbackInfo &info);
     NativeValue* OnOnAbilityLifecycle(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
     NativeValue* OnOnEnvironment(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOffEnvironment(NativeEngine &engine, NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOffEnvironment(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
 
     NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
@@ -671,7 +671,7 @@ NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbac
     return engine.CreateUndefined();
 }
 
-NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("OnOff is called");
 
@@ -731,7 +731,7 @@ NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycle(
 }
 
 NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
-    NativeEngine &engine, NativeCallbackInfo &info, int32_t callbackId)
+    NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
 {
     HILOG_INFO("OnOffAbilityLifecycle is called");
     std::weak_ptr<JsAbilityLifecycleCallback> callbackWeak(callback_);
@@ -779,7 +779,7 @@ NativeValue *JsApplicationContextUtils::OnOnEnvironment(
 }
 
 NativeValue *JsApplicationContextUtils::OnOffEnvironment(
-    NativeEngine &engine, NativeCallbackInfo &info, int32_t callbackId)
+    NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
 {
     HILOG_DEBUG("OnOffEnvironment is called");
     std::weak_ptr<JsEnvironmentCallback> envCallbackWeak(envCallback_);

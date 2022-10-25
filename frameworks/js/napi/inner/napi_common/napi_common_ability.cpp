@@ -4860,7 +4860,7 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         // return error code in onFailed asynccallback
         napi_value callback = 0;
         napi_value undefined = 0;
-        napi_value result = 0;
+        napi_value resultVal = 0;
         napi_value callResult = 0;
         int errorCode = NO_ERROR;
         switch (errorVal) {
@@ -4873,10 +4873,10 @@ NativeValue* JsNapiCommon::JsConnectAbility(
             default:
                 break;
         }
-        NAPI_CALL_BASE(env, napi_create_int32(env, errorCode, &result), engine.CreateUndefined());
+        NAPI_CALL_BASE(env, napi_create_int32(env, errorCode, &resultVal), engine.CreateUndefined());
         NAPI_CALL_BASE(
             env, napi_get_reference_value(env, callbackArray[PARAM2], &callback), engine.CreateUndefined());
-        NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &result, &callResult),
+        NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &resultVal, &callResult),
             engine.CreateUndefined());
     }
     return CreateJsValue(engine, id);
@@ -4898,7 +4898,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
         return engine.CreateUndefined();
     }
     auto item = std::find_if(connects_.begin(), connects_.end(),
-        [&id](std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
+        [&id](const std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
             return id == obj.first.id;
         });
     if (item != connects_.end()) {

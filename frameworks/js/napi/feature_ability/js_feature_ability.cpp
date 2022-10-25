@@ -382,7 +382,7 @@ void JsFeatureAbility::GetExtraParams(DistributeReqParam &requestParam, Want &wa
     return;
 }
 
-bool JsFeatureAbility::CheckThenGetDeepLinkUri(DistributeReqParam &requestParam, Uri &uri)
+bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri)
 {
     std::string url = requestParam.GetUrl();
     std::string action = requestParam.GetAction();
@@ -498,7 +498,7 @@ NativeValue* JsFeatureAbility::CreateJsFeatureAbility(NativeEngine &engine)
     return objValue;
 }
 
-NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exportObj)
+NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (engine == nullptr) {

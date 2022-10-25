@@ -188,7 +188,6 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
     }
 
     std::shared_ptr<Context> moduleContext = nullptr;
-    std::string bundleName;
     std::string moduleName;
 
     if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
@@ -200,6 +199,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
         }
         moduleContext = context->CreateModuleContext(moduleName);
     } else {
+        std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
             AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
