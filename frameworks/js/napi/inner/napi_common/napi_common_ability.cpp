@@ -5829,5 +5829,141 @@ NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_pt
 
     return CreateJsWant(engine, want->want);
 }
+
+NativeValue* JsNapiCommon::JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, info.argc);
+        return engine.CreateUndefined();
+    }
+
+    auto complete = [obj = this](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (obj->ability_ != nullptr) {
+            obj->ability_->TerminateAbility();
+        } else {
+            HILOG_ERROR("JsTerminateAbility ability is nullptr");
+        }
+        task.Resolve(engine, engine.CreateNull());
+    };
+
+    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsTerminateAbility",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
+    auto env = reinterpret_cast<napi_env>(&engine);
+    auto param = std::make_shared<CallAbilityParam>();
+    if (info.argc == 0 || info.argc > ARGS_TWO) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        *errorVal = NAPI_ERR_PARAM_INVALID;
+    } else {
+        auto arg0 = reinterpret_cast<napi_value>(info.argv[PARAM0]);
+        if (!UnwrapParamForWant(env, arg0, abilityType, *param)) {
+            HILOG_ERROR("call UnwrapParamForWant failed.");
+            *errorVal = NAPI_ERR_PARAM_INVALID;
+        }
+    }
+
+    auto execute = [obj = this, value = errorVal, abilityType, paramObj = param] () {
+        if (*value != NAPI_ERR_NO_ERROR) {
+            HILOG_ERROR("JsStartAbility params error!");
+            return;
+        }
+
+        if (obj->ability_ == nullptr) {
+            *value = NAPI_ERR_ACE_ABILITY;
+            HILOG_ERROR("task execute error, the ability is nullptr");
+            return;
+        }
+
+        if (!obj->CheckAbilityType(abilityType)) {
+            *value = NAPI_ERR_ABILITY_TYPE_INVALID;
+            HILOG_ERROR("task execute error, the abilityType is error");
+            return;
+        }
+#ifdef SUPPORT_GRAPHICS
+        // inherit split mode
+        auto windowMode = obj->ability_->GetCurrentWindowMode();
+        if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+            windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+            paramObj->want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+        }
+        HILOG_DEBUG("window mode is %{public}d", windowMode);
+
+        // follow orientation
+        paramObj->want.SetParam("ohos.aafwk.Orientation", 0);
+        if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+            auto orientation = obj->ability_->GetDisplayOrientation();
+            paramObj->want.SetParam("ohos.aafwk.Orientation", orientation);
+            HILOG_DEBUG("display orientation is %{public}d", orientation);
+        }
+#endif
+        if (paramObj->setting == nullptr) {
+            HILOG_INFO("param.setting == nullptr call StartAbility.");
+            *value = obj->ability_->StartAbility(paramObj->want);
+        } else {
+            HILOG_INFO("param.setting != nullptr call StartAbility.");
+            *value = obj->ability_->StartAbility(paramObj->want, *(paramObj->setting));
+        }
+    };
+
+    auto complete = [value = errorVal]
+        (NativeEngine& engine, AsyncTask& task, int32_t status) {
+        if (*value != NAPI_ERR_NO_ERROR) {
+            int32_t errCode = GetStartAbilityErrorCode(*value);
+            task.Reject(engine, CreateJsError(engine, errCode, "StartAbility Failed"));
+            return;
+        }
+        task.Resolve(engine, CreateJsValue(engine, *value));
+    };
+
+    auto callback = (info.argc == ARGS_ONE) ? nullptr : info.argv[PARAM1];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsStartAbility",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+
+    return result;
+}
+
+NativeValue* JsNapiCommon::JsGetExternalCacheDir(NativeEngine &engine,
+                                                 NativeCallbackInfo &info,
+                                                 AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, info.argc);
+        return engine.CreateUndefined();
+    }
+
+    auto complete = [obj = this, abilityType](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (obj->ability_ == nullptr) {
+            HILOG_ERROR("JsGetExternalCacheDir ability is nullptr");
+            task.RejectWithNull(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "JsGetExternalCacheDir Failed"));
+            return;
+        }
+
+        if (!obj->CheckAbilityType(abilityType)) {
+            HILOG_ERROR("JsGetExternalCacheDir abilityType is error");
+            task.Reject(engine, CreateJsError(engine, NAPI_ERR_ABILITY_TYPE_INVALID, "JsGetExternalCacheDir Failed"));
+            return;
+        }
+
+        std::string result = obj->ability_->GetExternalCacheDir();
+        task.Resolve(engine, CreateJsValue(engine, result));
+    };
+
+    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsGetExternalCacheDir",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    return result;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

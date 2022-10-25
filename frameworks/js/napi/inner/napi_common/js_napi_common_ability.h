@@ -84,9 +84,6 @@ public:
 
     NativeValue* JsConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsDisConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-
-    sptr<NAPIAbilityConnection> BuildWant(const Want &want, int64_t &id);
-    void ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1);
     NativeValue* JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsIsUpdatingConfigurations(
@@ -104,6 +101,9 @@ public:
     NativeValue* JsGetDisplayOrientation(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetWant(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+    NativeValue* JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* JsStartAbility(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);
+    NativeValue* JsGetExternalCacheDir(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);
 
     NativeValue* CreateProcessInfo(NativeEngine &engine, const std::shared_ptr<JsProcessInfo> &processInfo);
     NativeValue* CreateElementName(NativeEngine &engine, const std::shared_ptr<JsElementName> &elementName);
@@ -122,7 +122,8 @@ public:
     bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
     bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options);
     std::string ConvertErrorCode(int32_t errCode);
-
+    sptr<NAPIAbilityConnection> BuildWant(const Want &want, int64_t &id);
+    void ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1);
     Ability *ability_;
 };
 }  // namespace AppExecFwk

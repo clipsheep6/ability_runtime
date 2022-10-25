@@ -21,16 +21,21 @@
 #include "../inner/napi_common/napi_common_ability.h"
 #include "ability_util.h"
 #include "ability_process.h"
+#include "accesstoken_kit.h"
 #include "directory_ex.h"
 #include "feature_ability_common.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "js_napi_common_ability.h"
+#include "permission_list_state.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
+using OHOS::Security::AccessToken::AccessTokenKit;
+using OHOS::Security::AccessToken::PermissionListState;
+using OHOS::Security::AccessToken::TypePermissionOper;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -2838,6 +2843,7 @@ public:
     static NativeValue* JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
 
     bool DataInit(NativeEngine &engine);
 
@@ -2854,6 +2860,8 @@ private:
     NativeValue* OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetWakeUpScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetDisplayOrientation(NativeEngine &engine, NativeCallbackInfo &info);
+    void JsGetSelfPermissionsState(PermissionRequestTask &&task, const std::vector<std::string> &permissionList,
+        std::vector<int> &permissionsState);
 };
 
 static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object)
@@ -2891,6 +2899,7 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
         engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
     BindNativeFunction(engine, *object, "setDisplayOrientation", moduleName, NapiJsContext::JsSetDisplayOrientation);
     BindNativeFunction(engine, *object, "getDisplayOrientation", moduleName, NapiJsContext::JsGetDisplayOrientation);
+    BindNativeFunction(engine, *object, "getExternalCacheDir", moduleName, NapiJsContext::JsGetExternalCacheDir);
 
     return true;
 }
@@ -3188,6 +3197,17 @@ NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, Native
     return object->JsNapiCommon::JsGetDisplayOrientation(*engine, *info, AbilityType::PAGE);
 }
 
+NativeValue* NapiJsContext::JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
+
+    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+
+    return object->JsNapiCommon::JsGetExternalCacheDir(*engine, *info, AbilityType::PAGE);
+}
+
 bool NapiJsContext::DataInit(NativeEngine &engine)
 {
     HILOG_DEBUG("called");
@@ -3203,54 +3223,88 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     return true;
 }
 
+void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task, 
+    const std::vector<std::string> &permissionList, std::vector<int> &permissionsState)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    std::vector<PermissionListState> permList;
+    for (auto permission : permissionList) {
+        HILOG_DEBUG("JsGetSelfPermissionsState permission: %{public}s.", permission.c_str());
+        PermissionListState permState;
+        permState.permissionName = permission;
+        permState.state = -1;
+        permList.emplace_back(permState);
+    }
+    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.", 
+        permList.size(), permissionList.size());
+
+    auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
+    if (permList.size() != permissionList.size()) {
+        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
+        return;
+    }
+
+    for (auto permState : permList) {
+        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
+            permState.permissionName.c_str(), permState.state);
+        permissionsState.emplace_back(permState.state);
+    }
+    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
+         permissionList.size(), permissionsState.size());
+
+    if (ret != TypePermissionOper::DYNAMIC_OPER) {
+        HILOG_DEBUG("No dynamic popup required.");
+        task(permissionList, permissionsState);
+    }
+}
 
 NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("OnRequestPermissionsFromUser called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_THREE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
 
-    auto errorVal = std::make_shared<int32_t>(0);
     std::vector<std::string> permissionList;
     if (!GetStringsValue(engine, info.argv[PARAM0], permissionList)) {
         HILOG_ERROR("input params string error");
         return engine.CreateUndefined();
     }
-    int32_t code = 0;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM1], code)) {
+
+    int32_t requestCode = 0;
+    if (!ConvertFromJsValue(engine, info.argv[PARAM1], requestCode)) {
         HILOG_ERROR("input params int error");
         return engine.CreateUndefined();
     }
-    CallbackInfo callbackInfo;
-    auto execute = [obj = this, permissionList, code, cbInfo = callbackInfo, value = errorVal] () {
-        if (permissionList.empty()) {
-            *value = static_cast<int32_t>(NAPI_ERR_PARAM_INVALID);
-            return;
-        }
-        CallAbilityPermissionParam permissionParam;
-        permissionParam.requestCode = code;
-        permissionParam.permission_list = permissionList;
-        auto processInstance = AbilityProcess::GetInstance();
-        if (processInstance != nullptr) {
-            *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            return;
-        }
-        processInstance->RequestPermissionsFromUser(obj->ability_, permissionParam, cbInfo);
-    };
-    auto complete = [obj = this, value = errorVal] (NativeEngine &engine, AsyncTask &task, int32_t status) {
-        if (*value != 0) {
-            task.Reject(engine, CreateJsError(engine, *value, obj->ConvertErrorCode(*value)));
-            return;
-        }
-        task.Resolve(engine, CreateJsValue(engine, *value));
-    };
 
     auto callback = info.argc == ARGS_THREE ? info.argv[PARAM2] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnRequestPermissionsFromUser",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+
+    std::unique_ptr<AbilityRuntime::AsyncTask> uasyncTask =
+        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, callback, nullptr, nullptr, &result);
+    std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = std::move(uasyncTask);
+
+    PermissionRequestTask task = [&engine, requestCode, task = asyncTask]
+        (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
+        HILOG_DEBUG("OnRequestPermissionsFromUser result called");
+        NativeValue* objValue = engine.CreateObject();
+        NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+
+        object->SetProperty("requestCode", CreateJsValue(engine, requestCode));
+        object->SetProperty("permissions", CreateNativeArray(engine, permissions));
+        object->SetProperty("authResults", CreateNativeArray(engine, grantResults));
+        task->Resolve(engine, objValue);
+    };
+
+    std::vector<int> permissionsState;
+    JsGetSelfPermissionsState(std::move(task), permissionList, permissionsState);
+
+    if (ability_ == nullptr) {
+        asyncTask->Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, ConvertErrorCode(NAPI_ERR_ACE_ABILITY)));
+    } else {
+        ability_->RequestPermissionsFromUser(permissionList, permissionsState, std::move(task));
+    }
     return result;
 }
 

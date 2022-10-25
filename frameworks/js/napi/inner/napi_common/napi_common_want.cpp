@@ -1166,7 +1166,7 @@ NativeValue* CreateJsWant(NativeEngine &engine, const Want &want)
     object->SetProperty("moduleName", CreateJsValue(engine, want.GetElement().GetModuleName()));
     object->SetProperty("uri", CreateJsValue(engine, want.GetUriString()));
     object->SetProperty("type", CreateJsValue(engine, want.GetType()));
-    object->SetProperty("flags", CreateJsValue(engine, want.GetFlags()));
+    object->SetProperty("flags", CreateJsValue(engine, static_cast<int32_t>(want.GetFlags())));
     object->SetProperty("action", CreateJsValue(engine, want.GetAction()));
     object->SetProperty("parameters", CreateJsWantParams(engine, want.GetParams()));
     object->SetProperty("entities", CreateNativeArray(engine, want.GetEntities()));
