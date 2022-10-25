@@ -548,24 +548,24 @@ bool AppMgrService::GetAppRunningStateByBundleName(const std::string &bundleName
     return appMgrServiceInner_->GetAppRunningStateByBundleName(bundleName);
 }
 
-int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName);
+    return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyHotReloadPage(bundleName);
+    return appMgrServiceInner_->NotifyHotReloadPage(bundleName, callback);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -580,14 +580,14 @@ int32_t AppMgrService::SetContinuousTaskProcess(int32_t pid, bool isContinuousTa
 }
 #endif
 
-int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName);
+    return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

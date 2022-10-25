@@ -142,11 +142,13 @@ public:
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyHotReloadPage() override;
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);
