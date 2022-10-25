@@ -587,19 +587,19 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get Ability object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     NativeValue *methodOnCreate = obj->GetProperty("onContinue");
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get 'onContinue' from Ability object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
@@ -612,7 +612,8 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
 
     NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
     if (numberResult == nullptr) {
-        return false;
+        HILOG_ERROR("'onContinue' is not implemented");
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
