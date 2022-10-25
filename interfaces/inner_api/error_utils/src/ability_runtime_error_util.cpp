@@ -24,7 +24,9 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-const std::map<int32_t, int32_t> ERROR_CODE_MAP = {};
+const std::map<int32_t, int32_t> ERROR_CODE_MAP = {
+    { ERR_OK, ERR_OK }
+};
 
 const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_OK,

@@ -1,0 +1,44 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/error_utils"
+
+ohos_unittest("ability_runtime_error_utils_test") {
+  module_out_path = module_output_path
+  include_dirs = [ "${ability_runtime_test_path}/unittest/ability_runtime_error_util_test" ]
+
+  sources = [ "ability_runtime_error_util_test.cpp" ]
+
+  configs = []
+
+  deps = [
+    "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "napi:ace_napi",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [ ":ability_runtime_error_utils_test" ]
+}
