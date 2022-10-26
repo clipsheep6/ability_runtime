@@ -5469,6 +5469,10 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
 {
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        return ERR_OK;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int32_t apiVersion = abilityRecord->GetApplicationInfo().apiTargetVersion;
