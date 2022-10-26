@@ -88,6 +88,7 @@ protected:
     bool isBundle_ = true;
     std::unique_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
+    std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
