@@ -700,12 +700,16 @@ bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hap
 
 void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    eventHandler_->PostTask(task, name, delayTime);
+    if (eventHandler_ != nullptr) {
+        eventHandler_->PostTask(task, name, delayTime);
+    }
 }
 
 void JsRuntime::RemoveTask(const std::string& name)
 {
-    eventHandler_->RemoveTask(name);
+    if (eventHandler_ != nullptr) {
+        eventHandler_->RemoveTask(name);
+    }
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
