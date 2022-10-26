@@ -107,6 +107,14 @@ Token::~Token()
 std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
 {
     CHECK_POINTER_AND_RETURN(token, nullptr);
+
+    std::string descriptor = Str16ToStr8(token->GetObjectDescriptor());
+    if (descriptor != "ohos.aafwk.AbilityToken") {
+        HILOG_ERROR("Input token is not an AbilityToken, token->GetObjectDescriptor(): %{public}s",
+            descriptor.c_str());
+        return nullptr;
+    }
+
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
