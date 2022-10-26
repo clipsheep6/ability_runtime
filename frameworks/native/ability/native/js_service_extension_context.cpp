@@ -216,12 +216,6 @@ private:
         }
 
         std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-        if (calls == nullptr) {
-            HILOG_ERROR("calls create error");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-            return engine.CreateUndefined();
-        }
-
         NativeValue* retsult = nullptr;
         calls->callerCallBack = std::make_shared<CallerCallBack>();
         calls->callerCallBack->SetCallBack(GetCallBackDone(calls));

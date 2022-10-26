@@ -145,7 +145,6 @@ private:
             return engine.CreateUndefined();
         }
 
-        static int64_t serialNumber = 0;
         std::vector<std::string> bundleNameList;
         // unwarp observer
         if (observer_ == nullptr) {
@@ -159,6 +158,7 @@ private:
         if (ret == 0) {
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
             std::lock_guard<std::mutex> lock(g_observerMutex);
+            static int64_t serialNumber = 0;
             int64_t observerId = serialNumber;
             observer_->AddJsObserverObject(observerId, info.argv[INDEX_ZERO]);
             if (serialNumber < INT32_MAX) {
@@ -226,7 +226,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetForegroundApplications(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnGetForegroundApplications(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         AsyncTask::CompleteCallback complete =

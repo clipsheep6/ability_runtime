@@ -286,11 +286,6 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     InheritWindowMode(want);
 
     std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-    if (calls == nullptr) {
-        HILOG_ERROR("calls create error");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-        return engine.CreateUndefined();
-    }
     NativeValue* lastParam = ((info.argc == ARGC_TWO) ? info.argv[ARGC_ONE] : nullptr);
     NativeValue* retsult = nullptr;
 
@@ -542,7 +537,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
     return result;
 }
 
-NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
+NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
 {
     HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
     if (info.argc < ARGC_TWO) {
@@ -583,7 +578,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
     return result;
 }
 
-NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
+NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, const NativeCallbackInfo& info)
 {
     HILOG_INFO("OnStopExtensionAbility is called.");
     if (info.argc < ARGC_ONE) {
@@ -621,7 +616,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, Nati
     return result;
 }
 
-NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
+NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
 {
     HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
     if (info.argc < ARGC_TWO) {
