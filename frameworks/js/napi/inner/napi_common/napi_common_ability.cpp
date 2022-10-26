@@ -5823,7 +5823,7 @@ NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_pt
 {
     HILOG_DEBUG("%{public}s,called", __func__);
     if (want == nullptr) {
-        HILOG_DEBUG("%{public}s,called", __func__);
+        HILOG_ERROR("CreateWant error, want is nullptr.");
         return engine.CreateUndefined();
     }
 
