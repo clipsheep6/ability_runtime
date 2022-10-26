@@ -102,9 +102,18 @@ const std::string BUNDLE_NAME_MESSAGE_DATA = "com.ohos.smsmmsability";
 const std::string BUNDLE_NAME_CALL_LOG = "com.ohos.calllogability";
 const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
 const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
+const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
+const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
+const std::string BUNDLE_NAME_SINGLE_TEST = "com.singleusermodel.actssingleusertest";
+const std::string BUNDLE_NAME_FREEINSTALL_TEST = "com.example.qianyiyingyong.hmservice";
+// White list
 const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
                                                                 BUNDLE_NAME_INPUTMETHOD_TEST,
-                                                                BUNDLE_NAME_KEY_BOARD };
+                                                                BUNDLE_NAME_KEY_BOARD,
+                                                                BUNDLE_NAME_NOTE,
+                                                                BUNDLE_NAME_SERVICE_TEST,
+                                                                BUNDLE_NAME_SINGLE_TEST,
+                                                                BUNDLE_NAME_FREEINSTALL_TEST };
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA,
                                                                     BUNDLE_NAME_MESSAGE_DATA,
                                                                     BUNDLE_NAME_CALL_LOG,
@@ -5363,7 +5372,8 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     DelayedSingleton<AppScheduler>::GetInstance()->
         GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
-        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND;
+        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
+            !processInfo.isFocused;
     } else {
         isBackgroundCall = !processInfo.isFocused;
         if (!processInfo.isFocused && processInfo.state_ == AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) {
