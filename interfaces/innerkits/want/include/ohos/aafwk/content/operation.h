@@ -187,6 +187,7 @@ private:
     std::string action_;
     std::string bundleName_;
     std::string deviceId_;
+    std::string moduleName_
     std::vector<std::string> entities_;
     unsigned int flags_;
     Uri uri_;
