@@ -843,10 +843,26 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4000, Function | MediumTest | Leve
 
 /*
  * @tc.number    : WantAgentHelper_4100
+ * @tc.name      : WantAgentHelper GetType
+ * @tc.desc      : 1.agent is not nullptr, PendingWant is not nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    sptr<AAFwk::IWantSender> target(nullptr);
+    std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>(target);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+    auto type = static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE);
+    EXPECT_EQ(wantAgentHelper->GetType(wantAgent, type), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(type, static_cast<int32_t>(WantAgentConstant::OperationType::UNKNOWN_TYPE));
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4200
  * @tc.name      : WantAgentHelper GetWant
  * @tc.desc      : 1.GetWant WantAgent is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
@@ -856,14 +872,30 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4200
+ * @tc.number    : WantAgentHelper_4300
  * @tc.name      : WantAgentHelper GetWant
- * @tc.desc      : 1.GetWant WantAgent.PendingWant.target is nullptr
+ * @tc.desc      : 1.GetWant WantAgent.PendingWant is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4300, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+    std::shared_ptr<AAFwk::Want> want(nullptr);
+    EXPECT_EQ(wantAgentHelper->GetWant(wantAgent, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    EXPECT_EQ(want, nullptr);
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4400
+ * @tc.name      : WantAgentHelper GetWant
+ * @tc.desc      : 1.GetWant WantAgent and WantAgent.PendingWant is not nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4400, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    sptr<AAFwk::IWantSender> target(nullptr);
+    std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>(target);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     std::shared_ptr<AAFwk::Want> want(nullptr);
     EXPECT_EQ(wantAgentHelper->GetWant(wantAgent, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
