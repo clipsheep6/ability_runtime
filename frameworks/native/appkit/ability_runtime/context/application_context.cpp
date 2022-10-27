@@ -42,6 +42,7 @@ void ApplicationContext::RegisterAbilityLifecycleCallback(
     if (abilityLifecycleCallback == nullptr) {
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     callbacks_.push_back(abilityLifecycleCallback);
 }
 
@@ -49,14 +50,16 @@ void ApplicationContext::UnregisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
     HILOG_DEBUG("ApplicationContext UnregisterAbilityLifecycleCallback");
+    std::lock_guard<std::mutex> lock(callbackLock_);
     auto it = std::find(callbacks_.begin(), callbacks_.end(), abilityLifecycleCallback);
     if (it != callbacks_.end()) {
         callbacks_.erase(it);
     }
 }
 
-bool ApplicationContext::IsAbilityLifecycleCallbackEmpty() const
+bool ApplicationContext::IsAbilityLifecycleCallbackEmpty()
 {
+    std::lock_guard<std::mutex> lock(callbackLock_);
     return callbacks_.empty();
 }
 
@@ -86,6 +89,7 @@ void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeRef
         HILOG_ERROR("ability is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityCreate(ability);
@@ -100,6 +104,7 @@ void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<Nativ
         HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnWindowStageCreate(ability, windowStage);
@@ -114,6 +119,7 @@ void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<Nati
         HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnWindowStageDestroy(ability, windowStage);
@@ -129,6 +135,7 @@ void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeRe
         HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnWindowStageActive(ability, windowStage);
@@ -144,6 +151,7 @@ void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<Native
         HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnWindowStageInactive(ability, windowStage);
@@ -157,6 +165,7 @@ void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeRe
         HILOG_ERROR("ability is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityDestroy(ability);
@@ -170,6 +179,7 @@ void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<Nativ
         HILOG_ERROR("ability is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityForeground(ability);
@@ -183,6 +193,7 @@ void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<Nativ
         HILOG_ERROR("ability is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityBackground(ability);
@@ -196,6 +207,7 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
         HILOG_ERROR("ability is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityContinue(ability);
