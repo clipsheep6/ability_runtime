@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "gettopability_fuzzer.h"
+#include "completefirstframedrawing_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -25,7 +25,9 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
+namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+}
 sptr<Token> GetFuzzAbilityToken()
 {
     sptr<Token> token = nullptr;
@@ -48,18 +50,14 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    abilitymgr->GetTopAbility();
-
     // get token and connectCallback
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    if (!token) {
+    sptr<IRemoteObject> abilityToken = GetFuzzAbilityToken();
+    if (!abilityToken) {
         std::cout << "Get ability token failed." << std::endl;
         return false;
     }
 
-    if (abilitymgr->GetTopAbility(token) != 0) {
-        return false;
-    }
+    abilitymgr->CompleteFirstFrameDrawing(abilityToken);
 
     return true;
 }

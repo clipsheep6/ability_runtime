@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "gettopability_fuzzer.h"
+#include "getmissionsnapshot_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -25,21 +25,14 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
+namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
-sptr<Token> GetFuzzAbilityToken()
+constexpr uint8_t ENABLE = 2;
+}
+uint32_t GetU32Data(const char* ptr)
 {
-    sptr<Token> token = nullptr;
-
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-
-    return token;
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
@@ -48,16 +41,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    abilitymgr->GetTopAbility();
-
-    // get token and connectCallback
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    if (!token) {
-        std::cout << "Get ability token failed." << std::endl;
-        return false;
-    }
-
-    if (abilitymgr->GetTopAbility(token) != 0) {
+    std::string deviceId(data, size);
+    int32_t missionId = static_cast<int32_t>(GetU32Data(data));
+    MissionSnapshot snapshot;
+    bool isLowResolution = *data % ENABLE;
+    if (abilitymgr->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution) != 0) {
         return false;
     }
 
