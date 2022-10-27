@@ -4109,18 +4109,17 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
         HILOG_ERROR("UvWorkOnAbilityDisconnectDone, connectAbilityCB is null");
         return;
     }
-    napi_value result = nullptr;
-    result = WrapElementName(connectAbilityCB->cbBase.cbInfo.env, connectAbilityCB->abilityConnectionCB.elementName);
-
-    napi_value callback = 0;
-    napi_value undefined = 0;
-    napi_get_undefined(connectAbilityCB->cbBase.cbInfo.env, &undefined);
-    napi_value callResult = 0;
-    napi_get_reference_value(connectAbilityCB->cbBase.cbInfo.env, connectAbilityCB->cbBase.cbInfo.callback, &callback);
-
-    napi_call_function(connectAbilityCB->cbBase.cbInfo.env, undefined, callback, ARGS_ONE, &result, &callResult);
-    if (connectAbilityCB->cbBase.cbInfo.callback != nullptr) {
-        napi_delete_reference(connectAbilityCB->cbBase.cbInfo.env, connectAbilityCB->cbBase.cbInfo.callback);
+    CallbackInfo &cbInfo = connectAbilityCB->cbBase.cbInfo;
+    napi_value result = WrapElementName(cbInfo.env, connectAbilityCB->abilityConnectionCB.elementName);
+    if (cbInfo.callback != nullptr) {
+        napi_value callback = 0;
+        napi_value callResult = 0;
+        napi_value undefined = 0;
+        napi_get_undefined(cbInfo.env, &undefined);
+        napi_get_reference_value(cbInfo.env, cbInfo.callback, &callback);
+        napi_call_function(cbInfo.env, undefined, callback, ARGS_ONE, &result, &callResult);
+        napi_delete_reference(cbInfo.env, cbInfo.callback);
+        cbInfo.callback = nullptr;
     }
 
     // release connect
@@ -4128,8 +4127,7 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
     std::string deviceId = connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID();
     std::string bundleName = connectAbilityCB->abilityConnectionCB.elementName.GetBundleName();
     std::string abilityName = connectAbilityCB->abilityConnectionCB.elementName.GetAbilityName();
-    auto item = std::find_if(connects_.begin(),
-        connects_.end(),
+    auto item = std::find_if(connects_.begin(), connects_.end(),
         [deviceId, bundleName, abilityName](const std::map<ConnecttionKey,
             sptr<NAPIAbilityConnection>>::value_type &obj) {
             return (deviceId == obj.first.want.GetDeviceId()) &&
