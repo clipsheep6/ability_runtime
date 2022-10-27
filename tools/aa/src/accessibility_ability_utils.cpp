@@ -16,6 +16,13 @@
 
 #include <fstream>
 
+#include "accesstoken_kit.h"
+#include "hilog_wrapper.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
+
+using namespace OHOS::Security::AccessToken;
+
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -23,13 +30,15 @@ const int32_t NUM_COLUMN_WIDTH = 10;
 const int32_t BUNDLE_NAME_COLUMN_WIDTH = 50;
 const int32_t ABILITY_NAME_COLUMN_WIDTH = 30;
 const int32_t CAPABILITIES_ABBR_COLUMN_WIDTH = 20;
+const int32_t DCAPS_NUM = 0;
+const int32_t PERMS_NUM = 2;
+const int32_t ACLS_NUM = 0;
+const std::string PROCESS_NAME = "aa";
+const std::string APL_STR = "system_basic";
 } // namespace
 
-void AccessibilityUtils::GetCommandArgument(const Accessibility::AccessibilityAbilityInfo &abilityInfo,
-    AccessibilityCommandArgument &argument)
+std::string AccessibilityUtils::GetStaticCapabilityNames(const Accessibility::AccessibilityAbilityInfo &abilityInfo)
 {
-    argument.bundleName = abilityInfo.GetPackageName();
-    argument.abilityName = abilityInfo.GetName();
     std::string capabilityNames = "";
     std::map<uint32_t, std::string> capabilityNameMap = {
         {0x0001, "r"}, {0x0002, "t"},
@@ -41,7 +50,7 @@ void AccessibilityUtils::GetCommandArgument(const Accessibility::AccessibilityAb
             capabilityNames.append(it->second);
         }
     }
-    argument.capabilityNames = capabilityNames;
+    return capabilityNames;
 }
 
 std::string AccessibilityUtils::FormatAbilityInfos(
@@ -57,22 +66,21 @@ std::string AccessibilityUtils::FormatAbilityInfos(
     int num = 1;
     for (auto &ability : installedAbilities) {
         std::stringstream lineStream;
-        AccessibilityCommandArgument argument;
-        GetCommandArgument(ability, argument);
+        std::string capabilityNames = GetStaticCapabilityNames(ability);
         lineStream << std::left << std::setw(NUM_COLUMN_WIDTH) << std::to_string(num)
-        << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << argument.bundleName
-        << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << argument.abilityName
-        << std::left << argument.capabilityNames << std::endl;
+        << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << ability.GetPackageName()
+        << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << ability.GetName()
+        << std::left << capabilityNames << std::endl;
         num++;
         result.append(lineStream.str());
     }
     return result;
 }
 
-std::int32_t AccessibilityUtils::GetCapabilityValue(const std::string &capabilityNames)
+std::uint32_t AccessibilityUtils::GetCapabilityValue(const std::string &capabilityNames)
 {
     uint32_t result = 0;
-    std::map<char, int32_t> capabilityValueMap = {
+    std::map<char, uint32_t> capabilityValueMap = {
         {'r', 0x0001}, {'t', 0x0002}, {'g', 0x0004}, {'k', 0x0008}, {'z', 0x0010}
     };
     for (uint32_t i = 0; i < capabilityNames.size(); i++) {
@@ -159,6 +167,34 @@ std::string& AccessibilityUtils::Trim(std::string &inputStr)
     inputStr.erase(0, inputStr.find_first_not_of(" "));
     inputStr.erase(inputStr.find_last_not_of(" ") + 1);
     return inputStr;
+}
+
+int32_t AccessibilityUtils::AddPermission()
+{
+    const char *perms[2];
+    perms[0] = OHOS::Accessibility::OHOS_PERMISSION_READ_ACCESSIBILITY_CONFIG.c_str();
+    perms[1] = OHOS::Accessibility::OHOS_PERMISSION_WRITE_ACCESSIBILITY_CONFIG.c_str();
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = DCAPS_NUM,
+        .permsNum = PERMS_NUM,
+        .aclsNum = ACLS_NUM,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = PROCESS_NAME.c_str(),
+        .aplStr = APL_STR.c_str(),
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    if (!tokenId) {
+        HILOG_ERROR("Set token failed.");
+        return -1;
+    }
+    int32_t setTokenResult = SetSelfTokenID(tokenId);
+    if (setTokenResult != 0) {
+        HILOG_ERROR("Set token failed.");
+        return -1;
+    }
+    return AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 }

@@ -168,15 +168,14 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
-                                          DetachCallback detach, AttachCallback attach)
+NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo, detach, attach);
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);

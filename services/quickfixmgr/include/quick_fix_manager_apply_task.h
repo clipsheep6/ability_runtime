@@ -31,7 +31,7 @@ public:
         : bundleQfMgr_(bundleQfMgr), appMgr_(appMgr), eventHandler_(handler), quickFixMgrService_(service)
     {}
 
-    virtual ~QuickFixManagerApplyTask() = default;
+    virtual ~QuickFixManagerApplyTask();
 
     void Run(const std::vector<std::string> &quickFixFiles);
     void HandlePatchDeployed();
@@ -45,12 +45,16 @@ public:
     void NotifyApplyStatus(int32_t applyResult);
     void RemoveSelf();
 
-private:
-    void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostSwitchQuickFixTask();
     void PostDeleteQuickFixTask();
 
+private:
+    void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostTimeOutTask();
+    void PostNotifyLoadRepairPatchTask();
+    void PostNotifyUnloadRepairPatchTask();
+    void PostNotifyHotReloadPageTask();
+    void RegAppStateObserver();
 
     sptr<AppExecFwk::IQuickFixManager> bundleQfMgr_ = nullptr;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;

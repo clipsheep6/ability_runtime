@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "ability_context_impl.h"
+#include "ability_record.h"
 #include "parcel.h"
 #include "want.h"
 #include "securec.h"
@@ -41,16 +42,35 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Want *want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
-        if (want) {
-            context->TerminateSelf();
-            context->TerminateAbilityWithResult(*want, resultCode);
+        if (!want) {
+            return false;
         }
+    }
+
+    context->TerminateSelf();
+    context->TerminateAbilityWithResult(*want, resultCode);
+
+    // fuzz for AbilityRecord::TerminateAbility
+    AbilityInfo abilityInfo;
+    ApplicationInfo applicationInfo;
+    int requestCode = -1;
+    auto abilityRecord = new AbilityRecord(*want, abilityInfo, applicationInfo, requestCode);
+
+    if (!abilityRecord->Init()) {
+        std::cout << "AbilityRecord Init failed" << std::endl;
+        return false;
+    }
+    if (abilityRecord->TerminateAbility() != ERR_OK) {
+        std::cout << "AbilityRecord TerminateAbility failed" << std::endl;
+        return false;
     }
 
     if (want) {
         delete want;
         want = nullptr;
     }
+    
+    delete abilityRecord;
 
     return true;
 }

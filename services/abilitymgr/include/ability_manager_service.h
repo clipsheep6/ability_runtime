@@ -804,6 +804,7 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
     bool GetStartUpNewRuleFlag() const;
@@ -1153,6 +1154,8 @@ private:
 
     AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
+    void InitStartupFlag();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1199,6 +1202,16 @@ private:
      *  FALSE: Determine the state by AppExecFwk::AppProcessState::APP_STATE_FOCUS.
      */
     bool backgroundJudgeFlag_ = true;
+    /** The applications in white list use old rule
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListNormalFlag_ = false;
+    /** The applications in white list can associatedWakeUp
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListassociatedWakeUpFlag_ = false;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
@@ -1213,7 +1226,7 @@ private:
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
-    std::unordered_map<int32_t, int64_t> appRecoverHistory_; // uid:time
+    std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
 };
 }  // namespace AAFwk
 }  // namespace OHOS

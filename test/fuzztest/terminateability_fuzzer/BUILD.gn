@@ -16,7 +16,7 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_runtime/abilitymgr"
+module_output_path = "ability_runtime/ability_context_native"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("TerminateAbilityFuzzTest") {
@@ -39,6 +39,7 @@ ohos_fuzztest("TerminateAbilityFuzzTest") {
   configs = []
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
@@ -52,6 +53,7 @@ ohos_fuzztest("TerminateAbilityFuzzTest") {
     "ability_base:want",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

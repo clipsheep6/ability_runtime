@@ -18,6 +18,7 @@
 #include "ability_info.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -65,7 +66,7 @@ NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, vo
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.ServiceExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
@@ -122,6 +123,8 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
 
     BindContext(engine, obj);
+
+    SetExtensionCommon(JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
 
 void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
@@ -132,7 +135,7 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("JsServiceExtension::Init CreateJsServiceExtensionContext.");
-    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context, nullptr, nullptr);
+    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef_->Get();

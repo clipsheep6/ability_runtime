@@ -599,7 +599,7 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
     return false;
 }
 
-int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -610,7 +610,7 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyLoadRepairPatch(bundleName);
+            result = appRecord->NotifyLoadRepairPatch(bundleName, callback);
             if (result == ERR_OK) {
                 loadSucceed = true;
             }
@@ -619,7 +619,7 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
     return loadSucceed == true ? ERR_OK : result;
 }
 
-int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -629,13 +629,14 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] reload page.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyHotReloadPage();
+            result = appRecord->NotifyHotReloadPage(callback);
         }
     }
     return result;
 }
 
-int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -646,7 +647,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] unload patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
             }

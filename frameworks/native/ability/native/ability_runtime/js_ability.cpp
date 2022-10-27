@@ -70,7 +70,7 @@ NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsAbilityContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsAbilityContext(*engine, ptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -148,7 +148,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     }
 
     auto context = GetAbilityContext();
-    NativeValue *contextObj = CreateJsAbilityContext(engine, context, nullptr, nullptr);
+    NativeValue *contextObj = CreateJsAbilityContext(engine, context);
     shellContextRef_ = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(&engine, "application.AbilityContext", &contextObj, 1).release());
     contextObj = shellContextRef_->Get();
@@ -354,6 +354,14 @@ void JsAbility::onSceneDestroyed()
 
     CallObjectMethod("onWindowStageDestroy");
 
+    if (scene_ != nullptr) {
+        auto window = scene_->GetMainWindow();
+        if (window != nullptr) {
+            HILOG_DEBUG("Call UnregisterDisplayMoveListener");
+            window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
+        }
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceDestroyed");
@@ -509,6 +517,12 @@ void JsAbility::DoOnForeground(const Want &want)
         }
 
         AbilityContinuationOrRecover(want);
+        auto window = scene_->GetMainWindow();
+        if (window) {
+            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+        }
     } else {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
@@ -520,14 +534,8 @@ void JsAbility::DoOnForeground(const Want &want)
     }
 
     auto window = scene_->GetMainWindow();
-    if (window) {
-        HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-        std::weak_ptr<Ability> weakAbility = shared_from_this();
-        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
-        window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        if (securityFlag_) {
-            window->SetSystemPrivacyMode(true);
-        }
+    if (window != nullptr && securityFlag_) {
+        window->SetSystemPrivacyMode(true);
     }
 
     HILOG_DEBUG("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
@@ -587,19 +595,19 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get Ability object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     NativeValue *methodOnCreate = obj->GetProperty("onContinue");
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get 'onContinue' from Ability object");
-        return false;
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
@@ -612,7 +620,8 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
 
     NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
     if (numberResult == nullptr) {
-        return false;
+        HILOG_ERROR("'onContinue' is not implemented");
+        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();

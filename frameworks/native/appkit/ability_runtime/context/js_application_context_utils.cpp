@@ -140,7 +140,7 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -255,7 +255,7 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -265,7 +265,7 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
     auto contextObj = systemModule->Get();
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get context native object");
+        HILOG_ERROR("OnCreateModuleContext, Failed to get context native object");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
@@ -814,15 +814,10 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
 }  // namespace
 
 NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<ApplicationContext> applicationContext,
-    DetachCallback detach, AttachCallback attach, bool keepApplicationContext)
+    bool keepApplicationContext)
 {
     HILOG_DEBUG("CreateJsApplicationContext start");
-    NativeValue* objValue;
-    if (detach == nullptr || attach == nullptr) {
-        objValue = engine.CreateObject();
-    } else {
-        objValue = engine.CreateNBObject(detach, attach);
-    }
+    NativeValue* objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
         return objValue;
@@ -868,6 +863,8 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
     BindNativeFunction(engine, *object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
     BindNativeFunction(engine, *object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(engine, *object, "on", MD_NAME, JsApplicationContextUtils::On);
+    BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
 
     return objValue;
 }

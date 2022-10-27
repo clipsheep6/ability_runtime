@@ -262,9 +262,11 @@ group("unittest") {
   testonly = true
 
   deps = [
+    "ability_business_error_test:unittest",
     "ability_connect_callback_proxy_test:unittest",
     "ability_connect_callback_stub_test:unittest",
     "ability_connect_manage_test:unittest",
+    "ability_extension_test:unittest",
     "ability_interceptor_test:unittest",
     "ability_manager_client_test:unittest",
     "ability_manager_proxy_test:unittest",
@@ -275,6 +277,7 @@ group("unittest") {
     "ability_record_dump_test:unittest",
     "ability_record_test:unittest",
     "ability_running_info_test:unittest",
+    "ability_runtime_error_util_test:unittest",
     "ability_scheduler_proxy_test:unittest",
     "ability_scheduler_stub_test:unittest",
     "ability_service_start_test:unittest",
@@ -302,6 +305,7 @@ group("unittest") {
     "ams_service_event_drive_test:unittest",
     "ams_service_load_ability_process_test:unittest",
     "ams_service_startup_test:unittest",
+    "app_mgr_client_test:unittest",
     "app_mgr_proxy_test:unittest",
     "app_mgr_service_dump_test:unittest",
     "app_mgr_service_event_handler_test:unittest",

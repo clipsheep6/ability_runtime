@@ -23,6 +23,7 @@
 #include "main_thread.h"
 #undef private
 #include "mock_bundle_manager.h"
+#include "quick_fix_callback_stub.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -31,6 +32,27 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
+public:
+    QuickFixCallbackImpl() = default;
+    virtual ~QuickFixCallbackImpl() = default;
+
+    void OnLoadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnUnloadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnReloadPageDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+};
+
 class MainThreadTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -81,7 +103,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
-    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -95,7 +118,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-    auto ret = mainThread_->ScheduleNotifyHotReloadPage();
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -131,7 +155,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
-    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }

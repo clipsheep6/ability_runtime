@@ -24,8 +24,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
-    std::shared_ptr<StaticSubscriberExtensionContext> context,
-    DetachCallback detach = nullptr, AttachCallback attach = nullptr);
+    std::shared_ptr<StaticSubscriberExtensionContext> context);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H

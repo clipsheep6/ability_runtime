@@ -34,7 +34,10 @@ namespace AbilityRuntime {
 class TimerTask;
 class RuntimeExtractor;
 
-void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
+inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
+{
+    return value;
+}
 
 class JsRuntime : public Runtime {
 public:
@@ -85,6 +88,7 @@ protected:
     bool isBundle_ = true;
     std::unique_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
+    std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;

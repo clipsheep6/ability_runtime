@@ -201,7 +201,6 @@ void RuntimeExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames
             }
         }
     }
-    return;
 }
 
 bool RuntimeExtractor::IsStageBasedModel(std::string abilityName)

@@ -307,6 +307,10 @@ public:
     }
     virtual sptr<IAppControlMgr> GetAppControlProxy()
     {
+        if (isAppControlProxyNull_) {
+            isAppControlProxyNull_ = false;
+            return nullptr;
+        }
         sptr<IAppControlMgr> appControlMgr = new (std::nothrow) AppControlProxy(nullptr);
         return appControlMgr;
     }
@@ -314,6 +318,7 @@ public:
     using QueryAbilityInfoFunType =
         std::function<bool(std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp)>;
     std::map<std::string, QueryAbilityInfoFunType> abilityInfoMap_;
+    bool isAppControlProxyNull_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

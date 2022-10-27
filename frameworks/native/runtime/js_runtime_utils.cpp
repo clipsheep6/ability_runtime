@@ -201,6 +201,22 @@ void AsyncTask::Reject(NativeEngine& engine, NativeValue* error)
     }
 }
 
+void AsyncTask::RejectWithNull(NativeEngine& engine, NativeValue* error)
+{
+    if (deferred_) {
+        deferred_->Reject(error);
+        deferred_.reset();
+    }
+    if (callbackRef_) {
+        NativeValue* argv[] = {
+            error,
+            engine.CreateNull(),
+        };
+        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
+        callbackRef_.reset();
+    }
+}
+
 void AsyncTask::Execute(NativeEngine* engine, void* data)
 {
     if (engine == nullptr || data == nullptr) {

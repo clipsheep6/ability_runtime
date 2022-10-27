@@ -105,8 +105,7 @@ private:
     int curRequestCode_ = 0;
 };
 
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context,
-                                    DetachCallback detach, AttachCallback attach);
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

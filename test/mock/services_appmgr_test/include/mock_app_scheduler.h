@@ -43,9 +43,11 @@ public:
     MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo &));
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want &want, const std::string &moduleName));
-    MOCK_METHOD1(ScheduleNotifyLoadRepairPatch, int32_t(const std::string &bundleName));
-    MOCK_METHOD0(ScheduleNotifyHotReloadPage, int32_t());
-    MOCK_METHOD1(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string &bundleName));
+    MOCK_METHOD2(ScheduleNotifyLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD1(ScheduleNotifyHotReloadPage, int32_t(const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD2(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

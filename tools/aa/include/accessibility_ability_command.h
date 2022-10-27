@@ -68,7 +68,7 @@ private:
         const AccessibilityCommandArgument &argument,
         std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
         std::string &resultMessage);
-    bool CheckAbilityNameAndBundleName(
+    bool CheckParamValidity(
         const AccessibilityCommandArgument &argument,
         std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
         std::string &resultMessage);
@@ -95,7 +95,6 @@ private:
     ErrCode MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
     ErrCode MakeCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
 
-    std::shared_ptr<AbilityManagerShellCommand> aaShellCmd_;
     std::shared_ptr<Accessibility::AccessibilitySystemAbilityClient> abilityClientPtr_ = nullptr;
 };
 }  // namespace AAFwk

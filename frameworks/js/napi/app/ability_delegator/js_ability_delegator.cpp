@@ -48,8 +48,8 @@ constexpr size_t INDEX_TWO = 2;
 using namespace OHOS::AbilityRuntime;
 std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> g_monitorRecord;
 std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityStageMonitor>> g_stageMonitorRecord;
-std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> g_ablityRecord;
-std::mutex g_mutexAblityRecord;
+std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> g_abilityRecord;
+std::mutex g_mutexAbilityRecord;
 std::mutex g_mtxStageMonitorRecord;
 
 enum ERROR_CODE {
@@ -105,7 +105,7 @@ NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
         return nullptr;
     }
 
-    NativeValue *object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
+    NativeValue *object = CreateJsBaseContext(*engine, ptr, true);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachAppContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
@@ -130,10 +130,10 @@ JSAbilityDelegator::JSAbilityDelegator()
                 return;
             }
 
-            std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
-            for (auto it = g_ablityRecord.begin(); it != g_ablityRecord.end();) {
+            std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
+            for (auto it = g_abilityRecord.begin(); it != g_abilityRecord.end();) {
                 if (it->second == property->token_) {
-                    it = g_ablityRecord.erase(it);
+                    it = g_abilityRecord.erase(it);
                     continue;
                 }
                 ++it;
@@ -416,8 +416,8 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
         }
 
         abilityObjectBox->object_ = property->object_;
-        std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
-        g_ablityRecord.emplace(property->object_, property->token_);
+        std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
+        g_abilityRecord.emplace(property->object_, property->token_);
     };
 
     AsyncTask::CompleteCallback complete = [abilityObjectBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -610,7 +610,7 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
         HILOG_ERROR("context is null");
         return engine.CreateNull();
     }
-    NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
+    NativeValue *value = CreateJsBaseContext(engine, context, false);
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
@@ -678,8 +678,8 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
             task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "getCurrentTopAbility failed."));
         } else {
             {
-                std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
-                g_ablityRecord.emplace(property->object_, property->token_);
+                std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
+                g_abilityRecord.emplace(property->object_, property->token_);
             }
             ResolveWithNoError(engine, task, property->object_.lock()->Get());
         }
@@ -899,23 +899,23 @@ NativeValue *JSAbilityDelegator::ParseAbilityPara(
 {
     HILOG_INFO("enter");
 
-    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
-    for (auto iter = g_ablityRecord.begin(); iter != g_ablityRecord.end();) {
+    std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
+    for (auto iter = g_abilityRecord.begin(); iter != g_abilityRecord.end();) {
         if (iter->first.expired()) {
-            iter = g_ablityRecord.erase(iter);
+            iter = g_abilityRecord.erase(iter);
             continue;
         }
 
         if (value->StrictEquals(iter->first.lock()->Get())) {
             remoteObject = iter->second;
-            HILOG_INFO("Ablity exist");
+            HILOG_INFO("Ability exist");
             return remoteObject ? engine.CreateNull() : nullptr;
         }
 
         ++iter;
     }
 
-    HILOG_ERROR("Ablity doesn't exist");
+    HILOG_ERROR("Ability doesn't exist");
     remoteObject = nullptr;
     return nullptr;
 }
@@ -935,11 +935,11 @@ NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const
         return nullptr;
     }
 
-    std::shared_ptr<NativeReference> refence = nullptr;
-    refence.reset(engine.CreateReference(objValue, 1));
+    std::shared_ptr<NativeReference> reference = nullptr;
+    reference.reset(engine.CreateReference(objValue, 1));
 
-    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
-    g_ablityRecord[refence] = remoteObject;
+    std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
+    g_abilityRecord[reference] = remoteObject;
     return objValue;
 }
 

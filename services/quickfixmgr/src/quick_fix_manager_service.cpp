@@ -17,8 +17,9 @@
 
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "permission_verification.h"
 #include "quick_fix_error_utils.h"
-#include "quick_fix_util.h"
+#include "quick_fix_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -58,6 +59,10 @@ int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &qu
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission()) {
+        return QUICK_FIX_VERIFY_PERMISSION_FAILED;
+    }
+
     auto bundleQfMgr = QuickFixUtil::GetBundleQuickFixMgrProxy();
     if (bundleQfMgr == nullptr) {
         HILOG_ERROR("Bundle quick fix manager is nullptr.");
@@ -83,6 +88,10 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
+
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyGetBundleInfoPrivilegedPermission()) {
+        return QUICK_FIX_VERIFY_PERMISSION_FAILED;
+    }
 
     auto bundleMgr = QuickFixUtil::GetBundleManagerProxy();
     if (bundleMgr == nullptr) {

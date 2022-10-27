@@ -166,6 +166,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/extension.cpp",
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
     "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
+    "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
     "${ability_runtime_native_path}/ability/native/mission_information.cpp",
     "${ability_runtime_native_path}/ability/native/new_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/ability_recovery.cpp",
@@ -237,6 +238,7 @@ ohos_shared_library("abilitykit_native") {
   public_deps = [
     ":ability_utils",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
+    "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/kits/js/napi:rpc",
   ]
@@ -472,36 +474,6 @@ ohos_shared_library("service_extension_module") {
   public_configs = [ ":ability_public_config" ]
 
   deps = [ ":service_extension" ]
-
-  external_deps = [
-    "ability_base:configuration",
-    "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "ipc_js:rpc",
-    "napi:ace_napi",
-    "resource_management:global_resmgr",
-  ]
-
-  relative_install_dir = "extensionability/"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_shared_library("static_subscriber_extension_module") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
-
-  sources = [ "${ability_runtime_native_path}/ability/native/static_subscriber_extension_module_loader.cpp" ]
-
-  configs = [ ":ability_config" ]
-  public_configs = [ ":ability_public_config" ]
-
-  deps = [ ":static_subscriber_extension" ]
 
   external_deps = [
     "ability_base:configuration",

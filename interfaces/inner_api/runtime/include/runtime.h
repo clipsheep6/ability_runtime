@@ -44,6 +44,7 @@ public:
         std::string codePath;
         std::map<std::string, std::vector<std::string>> appLibPaths {};
         std::string hapPath;
+        std::string arkNativeFilePath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;
@@ -66,9 +67,9 @@ public:
     virtual void NotifyApplicationState(bool isBackground) = 0;
     virtual void PreloadSystemModule(const std::string& moduleName) = 0;
     virtual void FinishPreload() = 0;
-    virtual void LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) = 0;
-    virtual void NotifyHotReloadPage() = 0;
-    virtual void UnLoadRepairPatch(const std::string& patchFile) = 0;
+    virtual bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) = 0;
+    virtual bool NotifyHotReloadPage() = 0;
+    virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

@@ -98,17 +98,36 @@ HWTEST_F(QuickFixManagerClientTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
 }
 
 /**
- * @tc.name: ConnectQuickFixManagerService_0100
+ * @tc.name: GetQuickFixMgrProxy_0100
  * @tc.desc: ApplyQuickFix
  * @tc.type: FUNC
  * @tc.require: issueI5OD2E
  */
-HWTEST_F(QuickFixManagerClientTest, ConnectQuickFixManagerService_0100, TestSize.Level1)
+HWTEST_F(QuickFixManagerClientTest, GetQuickFixMgrProxy_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start", __func__);
 
-    auto quickFixMgr = quickFixClient_->ConnectQuickFixManagerService();
-    EXPECT_NE(quickFixMgr, nullptr);
+    auto quickFixMgr = quickFixClient_->GetQuickFixMgrProxy();
+    EXPECT_EQ(quickFixMgr, nullptr);
+
+    HILOG_INFO("%{public}s end", __func__);
+}
+
+/**
+ * @tc.name: LoadSystemAbility_0100
+ * @tc.desc: Load system ability test.
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerClientTest, LoadSystemAbility_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start", __func__);
+
+    auto ret = quickFixClient_->LoadQuickFixMgrService();
+    EXPECT_EQ(ret, false);
+
+    quickFixClient_->OnLoadSystemAbilitySuccess(mockQuickFixMgrService_);
+    quickFixClient_->OnLoadSystemAbilityFail();
 
     HILOG_INFO("%{public}s end", __func__);
 }

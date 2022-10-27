@@ -25,9 +25,9 @@
 
 #include "ability_constants.h"
 #include "connect_server_manager.h"
+#include "ecmascript/napi/include/jsnapi.h"
 #include "event_handler.h"
 #include "file_path_utils.h"
-#include "ecmascript/napi/include/jsnapi.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "hot_reloader.h"
@@ -51,6 +51,8 @@ namespace AbilityRuntime {
 namespace {
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
+const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
+const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #if defined(_ARM64_)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #else
@@ -58,7 +60,8 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
 constexpr char TIMER_TASK[] = "uv_timer_task";
-static constexpr char MERGE_ABC_PATH[] = "/data/storage/el1/bundle/entry/ets/modules.abc";
+constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
+constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -136,7 +139,16 @@ public:
                     return result;
                 }
             } else {
-                if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
+                std::string mergeAbcPath;
+                if (vm_ && !moduleName_.empty()) {
+                    mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+                    panda::JSNApi::SetAssetPath(vm_, mergeAbcPath);
+                } else {
+                    HILOG_ERROR("vm is nullptr or moduleName is hole");
+                    return result;
+                }
+
+                if (!runtimeExtractor->GetFileBuffer(mergeAbcPath, outStream)) {
                     HILOG_ERROR("Get Module abc file failed");
                     return result;
                 }
@@ -170,25 +182,25 @@ public:
             static_cast<ArkNativeEngine*>(nativeEngine_.get()), exportObj);
     }
 
-    void LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
+    bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
     {
         HILOG_DEBUG("LoadRepairPatch function called.");
         if (vm_ == nullptr) {
             HILOG_ERROR("LoadRepairPatch, vm is nullptr.");
-            return;
+            return false;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
             HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
-            return;
+            return false;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
             HILOG_WARN("LoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
-            return;
+            return true;
         }
 
         for (const auto &fileName : fileNames) {
@@ -197,7 +209,7 @@ public:
             std::ostringstream outStream;
             if (!extractor.ExtractByName(fileName, outStream)) {
                 HILOG_ERROR("LoadRepairPatch, Extract %{public}s failed.", patchFile.c_str());
-                return;
+                return false;
             }
 
             const auto &outStr = outStream.str();
@@ -208,31 +220,33 @@ public:
             bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
             if (!ret) {
                 HILOG_ERROR("LoadRepairPatch, LoadPatch failed.");
-                return;
+                return false;
             }
             HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
         }
+
+        return true;
     }
 
-    void UnLoadRepairPatch(const std::string& hqfFile) override
+    bool UnLoadRepairPatch(const std::string& hqfFile) override
     {
         HILOG_DEBUG("UnLoadRepairPatch function called.");
         if (vm_ == nullptr) {
             HILOG_ERROR("UnLoadRepairPatch vm is nullptr.");
-            return;
+            return false;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
             HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
-            return;
+            return false;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
             HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
-            return;
+            return true;
         }
 
         for (const auto &fileName : fileNames) {
@@ -241,16 +255,19 @@ public:
             bool ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
             if (!ret) {
                 HILOG_ERROR("UnLoadRepairPatch, UnLoadPatch failed.");
-                return;
+                return false;
             }
             HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
         }
+
+        return true;
     }
 
-    void NotifyHotReloadPage() override
+    bool NotifyHotReloadPage() override
     {
         HILOG_DEBUG("function called.");
         Ace::HotReloader::HotReload();
+        return true;
     }
 
 private:
@@ -268,7 +285,13 @@ private:
     bool Initialize(const Runtime::Options& options) override
     {
         if (preloaded_) {
-            panda::JSNApi::postFork(vm_);
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
+            }
+            panda::JSNApi::postFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
         } else {
             panda::RuntimeOption pandaOption;
@@ -284,15 +307,16 @@ private:
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
             pandaOption.SetLogBufPrint(PrintVmLog);
 
-            // Fix a problem that if vm will crash if preloaded
-            if (options.preload) {
-                pandaOption.SetEnableAsmInterpreter(false);
-            } else {
-                bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
-                std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
-                pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
-                pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-            }
+            bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+            std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
+            pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
+            pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+            // aot related
+            bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
+            pandaOption.SetEnableAOT(aotEnabled);
+            bool profileEnabled = OHOS::system::GetBoolParameter("persist.ark.profile", false);
+            pandaOption.SetEnableProfile(profileEnabled);
+            pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
             vm_ = panda::JSNApi::CreateJSVM(pandaOption);
             if (vm_ == nullptr) {
                 return false;
@@ -477,11 +501,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
 
-void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
-{
-    return value;
-}
-
 bool JsRuntime::Initialize(const Options& options)
 {
     HandleScope handleScope(*this);
@@ -603,6 +622,13 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     HandleScope handleScope(*this);
 
+    std::string path = moduleName;
+    auto pos = path.find("::");
+    if (pos != std::string::npos) {
+        path.erase(pos, path.size() - pos);
+        moduleName_ = path;
+    }
+
     NativeValue* classValue = nullptr;
 
     auto it = modules_.find(modulePath);
@@ -679,7 +705,8 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
                 return result;
             }
         } else {
-            if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
+            std::string mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+            if (!runtimeExtractor->GetFileBuffer(mergeAbcPath, outStream)) {
                 HILOG_ERROR("Get Module abc file failed");
                 return result;
             }
@@ -713,12 +740,16 @@ bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hap
 
 void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    eventHandler_->PostTask(task, name, delayTime);
+    if (eventHandler_ != nullptr) {
+        eventHandler_->PostTask(task, name, delayTime);
+    }
 }
 
 void JsRuntime::RemoveTask(const std::string& name)
 {
-    eventHandler_->RemoveTask(name);
+    if (eventHandler_ != nullptr) {
+        eventHandler_->RemoveTask(name);
+    }
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)

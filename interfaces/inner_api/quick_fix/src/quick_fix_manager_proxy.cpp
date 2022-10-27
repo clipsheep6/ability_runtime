@@ -15,12 +15,12 @@
 
 #include "quick_fix_manager_proxy.h"
 
+#include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "message_parcel.h"
-#include "permission_verification.h"
 #include "quick_fix_error_utils.h"
-#include "quick_fix_util.h"
+#include "quick_fix_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -29,10 +29,6 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
-    if (!AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission()) {
-        return QUICK_FIX_VERIFY_PERMISSION_FAILED;
-    }
-
     auto bundleQuickFixMgr = QuickFixUtil::GetBundleQuickFixMgrProxy();
     if (bundleQuickFixMgr == nullptr) {
         return QUICK_FIX_CONNECT_FAILED;
@@ -40,9 +36,11 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
 
     HILOG_DEBUG("hqf file number need to apply: %{public}zu.", quickFixFiles.size());
     std::vector<std::string> destFiles;
-    if (bundleQuickFixMgr->CopyFiles(quickFixFiles, destFiles) != 0) {
+    auto copyRet = bundleQuickFixMgr->CopyFiles(quickFixFiles, destFiles);
+    if (copyRet != 0) {
         HILOG_ERROR("Copy files failed.");
-        return QUICK_FIX_COPY_FILES_FAILED;
+        return (copyRet == ERR_BUNDLEMANAGER_QUICK_FIX_PERMISSION_DENIED) ? QUICK_FIX_VERIFY_PERMISSION_FAILED :
+            QUICK_FIX_COPY_FILES_FAILED;
     }
 
     MessageParcel data;
@@ -79,10 +77,6 @@ int32_t QuickFixManagerProxy::GetApplyedQuickFixInfo(const std::string &bundleNa
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
-
-    if (!AAFwk::PermissionVerification::GetInstance()->VerifyGetBundleInfoPrivilegedPermission()) {
-        return QUICK_FIX_VERIFY_PERMISSION_FAILED;
-    }
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(AAFwk::IQuickFixManager::GetDescriptor())) {

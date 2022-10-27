@@ -43,6 +43,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant",
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant_napi",
     "${ability_runtime_napi_path}/dataUriUtils:datauriutils_napi",
+    "${ability_runtime_napi_path}/extension_ability:extensionability_napi",
     "${ability_runtime_napi_path}/extensioncontext:extensioncontext_napi",
     "${ability_runtime_napi_path}/featureAbility:featureability",
     "${ability_runtime_napi_path}/feature_ability:featureability_napi",

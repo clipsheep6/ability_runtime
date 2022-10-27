@@ -51,10 +51,10 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::s
 }
 
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext> &context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo, DetachCallback detach, AttachCallback attach)
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
     HILOG_INFO("CreateJsExtensionContext begin");
-    NativeValue* objValue = CreateJsBaseContext(engine, context, detach, attach);
+    NativeValue* objValue = CreateJsBaseContext(engine, context);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
         return objValue;

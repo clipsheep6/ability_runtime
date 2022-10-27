@@ -859,7 +859,7 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
     return reply.ReadBool();
 }
 
-int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("NotifyLoadRepairPatch, function called.");
@@ -871,6 +871,11 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("NotifyLoadRepairPatch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -892,7 +897,7 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -904,6 +909,11 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -965,7 +975,7 @@ int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask
 }
 #endif
 
-int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -977,6 +987,11 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("Notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 

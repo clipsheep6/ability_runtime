@@ -25,6 +25,7 @@
 #include <string>
 #include <thread>
 #include <unistd.h>
+#include <unordered_set>
 #include <csignal>
 #include <cstdlib>
 
@@ -83,15 +84,42 @@ const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can en
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+// Startup rule switch
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
+const std::string WHITE_LIST_NORMAL_FLAG = "component.startup.whitelist.normal";
+const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+// White list app
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
 const std::string BUNDLE_NAME_INPUTMETHOD_TEST = "com.acts.inputmethodtest";
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+const std::string BUNDLE_NAME_KEY_BOARD = "com.example.kikakeyboard";
+const std::string BUNDLE_NAME_MESSAGE_DATA = "com.ohos.smsmmsability";
+const std::string BUNDLE_NAME_CALL_LOG = "com.ohos.calllogability";
+const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
+const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
+const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
+const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
+const std::string BUNDLE_NAME_SINGLE_TEST = "com.singleusermodel.actssingleusertest";
+const std::string BUNDLE_NAME_FREEINSTALL_TEST = "com.example.qianyiyingyong.hmservice";
+// White list
+const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
+                                                                BUNDLE_NAME_INPUTMETHOD_TEST,
+                                                                BUNDLE_NAME_KEY_BOARD,
+                                                                BUNDLE_NAME_NOTE,
+                                                                BUNDLE_NAME_SERVICE_TEST,
+                                                                BUNDLE_NAME_SINGLE_TEST,
+                                                                BUNDLE_NAME_FREEINSTALL_TEST };
+const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA,
+                                                                    BUNDLE_NAME_MESSAGE_DATA,
+                                                                    BUNDLE_NAME_CALL_LOG,
+                                                                    BUNDLE_NAME_CONTACTS_DATA,
+                                                                    BUNDLE_NAME_TELE_DATA,
+                                                                    BUNDLE_NAME_DEVICE_TEST };
 } // namespace
 
 using namespace std::chrono;
@@ -288,12 +316,8 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-
-    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
-    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
-    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    InitStartupFlag();
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -301,6 +325,15 @@ bool AbilityManagerService::Init()
 
     HILOG_INFO("Init success.");
     return true;
+}
+
+void AbilityManagerService::InitStartupFlag()
+{
+    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
+    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
+    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    whiteListNormalFlag_ = CheckNewRuleSwitchState(WHITE_LIST_NORMAL_FLAG);
+    whiteListassociatedWakeUpFlag_ = CheckNewRuleSwitchState(WHITE_LIST_ASS_WAKEUP_FLAG);
 }
 
 void AbilityManagerService::OnStop()
@@ -4027,6 +4060,30 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
+void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
+        return;
+    }
+
+    auto it = appRecoveryHistory_.find(record->GetUid());
+    if (it == appRecoveryHistory_.end()) {
+        appRecoveryHistory_.emplace(record->GetUid(), 0);
+    }
+}
+
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
 {
     std::string identity = IPCSkeleton::ResetCallingIdentity();
@@ -4066,10 +4123,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         }
 
         constexpr int64_t MIN_RECOVERY_TIME = 60;
-        auto now = time(nullptr);
-        auto it = appRecoverHistory_.find(record->GetUid());
-        if ((it != appRecoverHistory_.end()) &&
-            (it->second + MIN_RECOVERY_TIME > static_cast<int64_t>(now))) {
+        int64_t now = time(nullptr);
+        auto it = appRecoveryHistory_.find(record->GetUid());
+        if ((it != appRecoveryHistory_.end()) &&
+            (it->second + MIN_RECOVERY_TIME > now)) {
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
             kill(record->GetPid(), SIGKILL);
@@ -4078,8 +4135,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
 
         auto appInfo = record->GetApplicationInfo();
         auto abilityInfo = record->GetAbilityInfo();
-        appRecoverHistory_.emplace(record->GetUid(),
-            static_cast<int64_t>(now)).first->second = static_cast<int64_t>(now);
+        appRecoveryHistory_[record->GetUid()] = now;
         want = record->GetWant();
         want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
         
@@ -4335,6 +4391,15 @@ int AbilityManagerService::SendANRProcessID(int pid)
     if (!isSaCall && !isShellCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
+    }
+
+    AppExecFwk::ApplicationInfo appInfo;
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK) {
+        auto it = appRecoveryHistory_.find(appInfo.uid);
+        if (it != appRecoveryHistory_.end()) {
+            return ERR_OK;
+        }
     }
 
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
@@ -5096,6 +5161,7 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+        HILOG_INFO("extensionType is %{public}d.", static_cast<int>(extensionType));
         if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE ||
             extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
             return CheckCallServiceExtensionPermission(abilityRequest);
@@ -5144,11 +5210,20 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
-    if (abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ||
-        abilityRequest.appInfo.bundleName == BUNDLE_NAME_DEVICE_TEST) {
+    HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundleName: %{public}s.",
+        abilityRequest.appInfo.bundleName.c_str());
+    if (whiteListassociatedWakeUpFlag_ &&
+        WHITE_LIST_ASS_WAKEUP_SET.find(abilityRequest.appInfo.bundleName) != WHITE_LIST_ASS_WAKEUP_SET.end()) {
+        HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundle in white-list, allow associatedWakeUp.");
         verificationInfo.associatedWakeUp = true;
     } else {
-        verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+        verificationInfo.associatedWakeUp = abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ?
+                                            true : abilityRequest.appInfo.associatedWakeUp;
+    }
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_INFO("Caller is not an application.");
+        return verificationInfo;
     }
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
@@ -5188,6 +5263,13 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
         return ERR_OK;
+    }
+    auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";
+    if (extensionType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION &&
+        AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(fileAccessPermission)) {
+        HILOG_DEBUG("Temporary, FILEACCESS_EXTENSION use serviceExtension start-up rule.");
+        return CheckCallServiceExtensionPermission(abilityRequest);
     }
 
     HILOG_ERROR("CheckCallOtherExtensionPermission, Not SA, can not start other Extension");
@@ -5290,7 +5372,8 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     DelayedSingleton<AppScheduler>::GetInstance()->
         GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
-        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND;
+        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
+            !processInfo.isFocused;
     } else {
         isBackgroundCall = !processInfo.isFocused;
         if (!processInfo.isFocused && processInfo.state_ == AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) {
@@ -5345,23 +5428,22 @@ bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityReq
         return false;
     }
 
-    if (newRuleExceptLauncherSystemUI_) {
-        // TEMP, caller is Launcher or systemUI, PASS
-        std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-        if (callerAbility) {
-            const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
-            HILOG_INFO("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-            if (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI) {
-                return false;
-            }
-        }
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_INFO("Caller is not an application.");
+        return true;
     }
-    // TEMP, rpctest PASS
+
+    // TEMP, white list
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
-        const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
+        const std::string bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-        if (bundleName == BUNDLE_NAME_INPUTMETHOD_TEST) {
+        if (whiteListNormalFlag_ && WHITE_LIST_NORMAL_SET.find(bundleName) != WHITE_LIST_NORMAL_SET.end()) {
+            return false;
+        }
+        if (newRuleExceptLauncherSystemUI_ &&
+            (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI)) {
             return false;
         }
     }
@@ -5387,6 +5469,10 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
 {
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        return ERR_OK;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int32_t apiVersion = abilityRecord->GetApplicationInfo().apiTargetVersion;

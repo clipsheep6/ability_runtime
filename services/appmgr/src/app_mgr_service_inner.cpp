@@ -2456,20 +2456,9 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
 
 int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 {
-    HILOG_INFO("AppMgrServiceInner::PreStartNWebSpawnProcess, hostPid:%{public}d", hostPid);
+    HILOG_INFO("AppMgrServiceInner::PreStartNWebSpawnProcess");
     if (hostPid <= 0) {
         HILOG_ERROR("invalid param, hostPid:%{public}d", hostPid);
-        return ERR_INVALID_VALUE;
-    }
-
-    if (!appRunningManager_) {
-        HILOG_ERROR("appRunningManager_ is , not start render process");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto appRecord = GetAppRunningRecordByPid(hostPid);
-    if (!appRecord) {
-        HILOG_ERROR("no such appRecord, hostpid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 
@@ -2799,7 +2788,8 @@ bool AppMgrServiceInner::GetAppRunningStateByBundleName(const std::string &bundl
     return appRunningManager_->GetAppRunningStateByBundleName(bundleName);
 }
 
-int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2808,10 +2798,10 @@ int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyLoadRepairPatch(bundleName);
+    return appRunningManager_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2820,7 +2810,7 @@ int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyHotReloadPage(bundleName);
+    return appRunningManager_->NotifyHotReloadPage(bundleName, callback);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -2849,7 +2839,8 @@ int32_t AppMgrServiceInner::SetContinuousTaskProcess(int32_t pid, bool isContinu
 }
 #endif
 
-int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -2858,7 +2849,7 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
         return ERR_INVALID_OPERATION;
     }
 
-    return appRunningManager_->NotifyUnLoadRepairPatch(bundleName);
+    return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
