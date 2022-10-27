@@ -16,12 +16,12 @@
 #include "app_recovery_api.h"
 #include "native_engine/native_engine.h"
 
-extern "C" __attribute__((constructor)) void NAPI_application_AppRecovery_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_app_ability_AppRecovery_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.appRecovery",
-        .fileName = "application/apprecovery_napi.so/app_recovery.js",
+        .name = "app.ability.appRecovery",
+        .fileName = "app/ability/apprecovery_napi.so/app_recovery.js",
         .registerCallback = OHOS::AbilityRuntime::InitAppRecoveryApiModule,
     };
 
