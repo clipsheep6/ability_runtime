@@ -1154,6 +1154,8 @@ private:
 
     AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
+    void InitStartupFlag();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1200,6 +1202,16 @@ private:
      *  FALSE: Determine the state by AppExecFwk::AppProcessState::APP_STATE_FOCUS.
      */
     bool backgroundJudgeFlag_ = true;
+    /** The applications in white list use old rule
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListNormalFlag_ = false;
+    /** The applications in white list can associatedWakeUp
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListassociatedWakeUpFlag_ = false;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;

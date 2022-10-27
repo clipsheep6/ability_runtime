@@ -16,3 +16,5 @@ compress = foundation:foundation:0775
 component.startup.newRules = foundation:foundation:0775
 component.startup.newRules.except.LauncherSystemUI = foundation:foundation:0775
 component.startup.backgroundJudge.flag = foundation:foundation:0775
+component.startup.whitelist.normal = foundation:foundation:0775
+component.startup.whitelist.associatedWakeUp = foundation:foundation:0775
