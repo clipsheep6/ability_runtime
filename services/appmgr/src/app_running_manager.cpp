@@ -678,8 +678,11 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
         auto state = appRecord->GetState();
-        if (appRecord && appRecord->GetBundleName() == bundleName &&
+        if (appRecord->GetBundleName() == bundleName &&
             state == ApplicationState::APP_STATE_FOREGROUND) {
             return false;
         }
