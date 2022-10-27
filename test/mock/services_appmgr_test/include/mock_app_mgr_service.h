@@ -48,6 +48,7 @@ public:
     MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string &bundleName));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo> &bundleInfos));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
+    MOCK_METHOD0(PreStartNWebSpawnProcess, int());
     MOCK_METHOD4(StartRenderProcess, int(const std::string&, int32_t, int32_t, pid_t&));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int &status));
@@ -65,9 +66,11 @@ public:
     MOCK_METHOD0(BlockAppService, int());
     #endif
     MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string &bundleName));
-    MOCK_METHOD1(NotifyLoadRepairPatch, int32_t(const std::string &bundleName));
-    MOCK_METHOD1(NotifyHotReloadPage, int32_t(const std::string &bundleName));
-    MOCK_METHOD1(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName));
+    MOCK_METHOD2(NotifyLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string &bundleName, const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
 
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)

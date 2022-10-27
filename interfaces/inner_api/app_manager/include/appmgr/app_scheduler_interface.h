@@ -21,6 +21,7 @@
 #include "app_launch_data.h"
 #include "configuration.h"
 #include "hap_module_info.h"
+#include "iquick_fix_callback.h"
 #include "want.h"
 
 namespace OHOS {
@@ -143,24 +144,29 @@ public:
      * @brief Notify application load patch.
      *
      * @param bundleName Bundle name
+     * @param callback called when LoadPatch finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) = 0;
+    virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) = 0;
 
     /**
      * @brief Notify application reload page.
      *
+     * @param callback called when HotReload finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t ScheduleNotifyHotReloadPage() = 0;
+    virtual int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) = 0;
 
     /**
      * @brief Notify application unload patch.
      *
      * @param bundleName Bundle name
+     * @param callback called when UnloadPatch finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) = 0;
+    virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) = 0;
 
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,

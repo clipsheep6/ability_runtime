@@ -470,6 +470,8 @@ void OHOSApplication::OnMemoryLevel(int level)
             callback->OnMemoryLevel(level);
         }
     }
+
+    abilityRuntimeContext_->DispatchMemoryLevel(level);
 }
 
 /**
@@ -529,6 +531,12 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
             HILOG_ERROR("AddAbilityStage:hapModuleInfo is nullptr");
             return nullptr;
         }
+
+        if (abilityInfo->applicationInfo.multiProjects) {
+            auto rm = stageContext->CreateModuleContext(hapModuleInfo->moduleName)->GetResourceManager();
+            stageContext->SetResourceManager(rm);
+        }
+
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
         Want want;
@@ -577,6 +585,12 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
         HILOG_ERROR("OHOSApplication::%{public}s: moduleInfo is nullptr", __func__);
         return false;
     }
+
+    if (abilityRuntimeContext_->GetApplicationInfo() && abilityRuntimeContext_->GetApplicationInfo()->multiProjects) {
+        auto rm = stageContext->CreateModuleContext(hapModuleInfo.moduleName)->GetResourceManager();
+        stageContext->SetResourceManager(rm);
+    }
+
     auto abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *moduleInfo);
     abilityStage->Init(stageContext);
     Want want;
@@ -648,34 +662,34 @@ void OHOSApplication::SetExtensionTypeMap(std::map<int32_t, std::string> map)
     extensionTypeMap_ = map;
 }
 
-void OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath)
+bool OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath)
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->LoadRepairPatch(hqfFile, hapPath);
+    return runtime_->LoadRepairPatch(hqfFile, hapPath);
 }
 
-void OHOSApplication::NotifyHotReloadPage()
+bool OHOSApplication::NotifyHotReloadPage()
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->NotifyHotReloadPage();
+    return runtime_->NotifyHotReloadPage();
 }
 
-void OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
+bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 {
     if (runtime_ == nullptr) {
         HILOG_DEBUG("runtime is nullptr.");
-        return;
+        return true;
     }
 
-    runtime_->UnLoadRepairPatch(hqfFile);
+    return runtime_->UnLoadRepairPatch(hqfFile);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

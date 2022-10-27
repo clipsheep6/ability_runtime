@@ -32,45 +32,109 @@ namespace AAFwk {
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 const std::string TAG = "NAPIMissionRegistration";
 constexpr size_t VALUE_BUFFER_SIZE = 128;
+const std::string CODE_KEY_NAME = "code";
+static const std::map<int32_t, int32_t> DMS_MISSION_MANAGER_ERROR_CODE_MAP = {
+    { NO_ERROR, NO_ERROR },
+    { DMS_PERMISSION_DENIED, PERMISSION_DENIED },
+    { CHECK_PERMISSION_FAILED, PERMISSION_DENIED },
+    { ERR_NULL_OBJECT, PARAMETER_CHECK_FAILED },
+    { INVALID_PARAMETERS_ERR, PARAMETER_CHECK_FAILED },
+    { ERR_INVALID_VALUE, PARAMETER_CHECK_FAILED },
+    { INNER_ERR, SYSTEM_WORK_ABNORMALLY },
+    { ABILITY_SERVICE_NOT_CONNECTED, SYSTEM_WORK_ABNORMALLY },
+    { INVALID_REMOTE_PARAMETERS_ERR, SYSTEM_WORK_ABNORMALLY },
+    { NO_MISSION_INFO_FOR_MISSION_ID, NO_MISSION_INFO_FOR_MISSION_ID },
+    { CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL, REMOTE_UNINSTALLED_AND_UNSUPPORT_FREEINSTALL_FOR_CONTINUE },
+    { CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL, CONTINUE_WITHOUT_FREEINSTALL_FLAG },
+    { OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET, OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET },
+    { CONTINUE_ALREADY_IN_PROGRESS, CONTINUE_ALREADY_IN_PROGRESS },
+};
+
+static const std::map<int32_t, std::string> DMS_MISSION_MANAGER_ERROR_INFO_MAP = {
+    { NO_ERROR, std::string() },
+    { PERMISSION_DENIED, std::string("permission denied") },
+    { PARAMETER_CHECK_FAILED, std::string("parameter check failed.") },
+    { SYSTEM_WORK_ABNORMALLY, std::string("the system ability work abnormally.") },
+    { NO_MISSION_INFO_FOR_MISSION_ID, std::string("failed to get the missionInfo of the specified missionId.") },
+    { REMOTE_UNINSTALLED_AND_UNSUPPORT_FREEINSTALL_FOR_CONTINUE, std::string("the application is not installed on the \
+remote end and installation-free is not supported.") },
+    { CONTINUE_WITHOUT_FREEINSTALL_FLAG, std::string("the application is not installed on the remote end but \
+installation-free is supported, try again with freeInstall flag.") },
+    { OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET, std::string("the operation device must be the device where the \
+application to be continued is located or the target device to be continued.") },
+    { CONTINUE_ALREADY_IN_PROGRESS, std::string("the local continuation task is already in progress.") },
+};
+
+napi_value GenerateBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg)
+{
+    HILOG_ERROR("%{public}s", errMsg.c_str());
+    napi_value code = nullptr;
+    napi_create_int32(env, errCode, &code);
+    napi_value msg = nullptr;
+    napi_create_string_utf8(env, errMsg.c_str(), NAPI_AUTO_LENGTH, &msg);
+    napi_value businessError = nullptr;
+    napi_create_error(env, nullptr, msg, &businessError);
+    napi_set_named_property(env, businessError, CODE_KEY_NAME.c_str(), code);
+    return businessError;
+}
+
+int32_t ErrorCodeReturn(int32_t code)
+{
+    return DMS_MISSION_MANAGER_ERROR_CODE_MAP.find(code) != DMS_MISSION_MANAGER_ERROR_CODE_MAP.end() ?
+        DMS_MISSION_MANAGER_ERROR_CODE_MAP.at(code) : SYSTEM_WORK_ABNORMALLY;
+}
+
+napi_value GetUndefined(const napi_env &env)
+{
+    napi_value nullResult = nullptr;
+    napi_get_undefined(env, &nullResult);
+    return nullResult;
+}
+
+std::string ErrorInfoReturn(int32_t code)
+{
+    return DMS_MISSION_MANAGER_ERROR_INFO_MAP.find(code) != DMS_MISSION_MANAGER_ERROR_INFO_MAP.end() ?
+        DMS_MISSION_MANAGER_ERROR_INFO_MAP.at(code) : DMS_MISSION_MANAGER_ERROR_INFO_MAP.at(SYSTEM_WORK_ABNORMALLY);
+}
 
 bool SetStartSyncMissionsContext(const napi_env &env, const napi_value &value,
-    SyncRemoteMissionsContext* context)
+    SyncRemoteMissionsContext* context, std::string &errInfo)
 {
     HILOG_INFO("%{public}s call.", __func__);
     bool isFixConflict = false;
     napi_has_named_property(env, value, "fixConflict", &isFixConflict);
     if (!isFixConflict) {
-        HILOG_ERROR("%{public}s, Wrong argument name for fixConflict.", __func__);
+        errInfo = "Parameter error. The key of \"MissionParameter\" must be fixConflict";
         return false;
     }
     napi_value fixConflictValue = nullptr;
     napi_get_named_property(env, value, "fixConflict", &fixConflictValue);
     if (fixConflictValue == nullptr) {
-        HILOG_ERROR("%{public}s, not find fixConflict.", __func__);
+        errInfo = "Parameter error. The value of \"fixConflict\" must not be undefined";
         return false;
     }
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, fixConflictValue, &valueType);
     if (valueType != napi_boolean) {
-        HILOG_ERROR("%{public}s, fixConflict error type.", __func__);
+        errInfo = "Parameter error. The type of \"fixConflict\" must be boolean";
         return false;
     }
     napi_get_value_bool(env, fixConflictValue, &context->fixConflict);
     bool isTag = false;
     napi_has_named_property(env, value, "tag", &isTag);
     if (!isTag) {
-        HILOG_ERROR("%{public}s, Wrong argument name for tag.", __func__);
+        errInfo = "Parameter error. The key of \"MissionParameter\" must be tag";
         return false;
     }
     napi_value tagValue = nullptr;
     napi_get_named_property(env, value, "tag", &tagValue);
     if (tagValue == nullptr) {
-        HILOG_ERROR("%{public}s, not find tag.", __func__);
+        errInfo = "Parameter error. The value of \"tag\" must not be undefined";
         return false;
     }
     napi_typeof(env, tagValue, &valueType);
     if (valueType != napi_number) {
-        HILOG_ERROR("%{public}s, tag error type.", __func__);
+        errInfo = "Parameter error. The type of \"tag\" must be number";
         return false;
     }
     napi_get_value_int64(env, tagValue, &context->tag);
@@ -79,43 +143,44 @@ bool SetStartSyncMissionsContext(const napi_env &env, const napi_value &value,
 }
 
 bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
-    bool isStart, SyncRemoteMissionsContext* context)
+    bool isStart, SyncRemoteMissionsContext* context, std::string &errInfo)
 {
     HILOG_INFO("%{public}s call.", __func__);
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, value, &valueType);
     if (valueType != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        errInfo = "Parameter error. The type of \"parameter\" must be MissionParameter";
         return false;
     }
     napi_value deviceIdValue = nullptr;
     bool isDeviceId = false;
     napi_has_named_property(env, value, "deviceId", &isDeviceId);
     if (!isDeviceId) {
-        HILOG_ERROR("%{public}s, Wrong argument name for deviceId.", __func__);
+        errInfo = "Parameter error. The key of \"parameter\" must be deviceId";
         return false;
     }
     napi_get_named_property(env, value, "deviceId", &deviceIdValue);
     if (deviceIdValue == nullptr) {
-        HILOG_ERROR("%{public}s, not find deviceId.", __func__);
+        errInfo = "Parameter error. The value of \"deviceId\" must not be undefined";
         return false;
     }
     napi_typeof(env, deviceIdValue, &valueType);
     if (valueType != napi_string) {
-        HILOG_ERROR("%{public}s, deviceId error type.", __func__);
+        errInfo = "Parameter error. The type of \"deviceId\" must be string";
         return false;
     }
 
     char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
     napi_get_value_string_utf8(env, deviceIdValue, deviceId, VALUE_BUFFER_SIZE + 1, &context->valueLen);
     if (context->valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
+        errInfo = "Parameter error. The length of \"deviceId\" must be less than " +
+            std::to_string(VALUE_BUFFER_SIZE);
         return false;
     }
     context->deviceId = deviceId;
 
     if (isStart) {
-        if (!SetStartSyncMissionsContext (env, value, context)) {
+        if (!SetStartSyncMissionsContext (env, value, context, errInfo)) {
             HILOG_ERROR("%{public}s, Wrong argument for start sync.", __func__);
             return false;
         }
@@ -125,18 +190,18 @@ bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
 }
 
 bool ProcessSyncInput(napi_env env, napi_callback_info info, bool isStart,
-    SyncRemoteMissionsContext* syncContext)
+    SyncRemoteMissionsContext* syncContext, std::string &errInfo)
 {
     HILOG_INFO("%{public}s,called.", __func__);
     size_t argc = 2;
     napi_value argv[2] = { 0 };
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGS_ONE && argc != ARGS_TWO) {
-        HILOG_ERROR("%{public}s, argument size error.", __func__);
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 1 or 2";
         return false;
     }
     syncContext->env = env;
-    if (!SetSyncRemoteMissionsContext(env, argv[0], isStart, syncContext)) {
+    if (!SetSyncRemoteMissionsContext(env, argv[0], isStart, syncContext, errInfo)) {
         HILOG_ERROR("%{public}s, Wrong argument.", __func__);
         return false;
     }
@@ -144,7 +209,7 @@ bool ProcessSyncInput(napi_env env, napi_callback_info info, bool isStart,
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[1], &valueType);
         if (valueType != napi_function) {
-            HILOG_ERROR("%{public}s, callback error type.", __func__);
+            errInfo = "Parameter error. The type of \"callback\" must be AsynCallback<void>: void";
             return false;
         }
         napi_create_reference(env, argv[1], 1, &syncContext->callbackRef);
@@ -172,10 +237,8 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
             if (syncContext->result == 0) {
                 napi_get_undefined(env, &result[0]);
             } else {
-                napi_value message = nullptr;
-                napi_create_string_utf8(env, ("StartSyncRemoteMissions failed, error : " +
-                    std::to_string(syncContext->result)).c_str(), NAPI_AUTO_LENGTH, &message);
-                napi_create_error(env, nullptr, message, &result[0]);
+                int32_t errCode = ErrorCodeReturn(syncContext->result);
+                result[0] = GenerateBusinessError(env, errCode, ErrorInfoReturn(errCode));
             }
 
             if (syncContext->callbackRef == nullptr) { // promise
@@ -195,7 +258,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
             delete syncContext;
             syncContext = nullptr;
         },
-        (void *)syncContext,
+        static_cast<void *>(syncContext),
         &syncContext->work);
         napi_queue_async_work(env, syncContext->work);
     HILOG_INFO("%{public}s, end.", __func__);
@@ -204,16 +267,17 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
 napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
-    auto syncContext = new SyncRemoteMissionsContext();
+    std::string errInfo = "Parameter error";
+    auto syncContext = new (std::nothrow) SyncRemoteMissionsContext();
     if (syncContext == nullptr) {
         HILOG_ERROR("syncContext == nullptr");
         return WrapVoidToJS(env);
     }
-    if (!ProcessSyncInput(env, info, true, syncContext)) {
+    if (!ProcessSyncInput(env, info, true, syncContext, errInfo)) {
         delete syncContext;
         syncContext = nullptr;
-        HILOG_ERROR("%{public}s, Wrong argument.", __func__);
-        NAPI_ASSERT(env, false, "Wrong argument");
+        napi_throw(env, GenerateBusinessError(env, PARAMETER_CHECK_FAILED, errInfo));
+        return GetUndefined(env);
     }
     napi_value result = nullptr;
     if (syncContext->callbackRef == nullptr) {
@@ -248,10 +312,8 @@ void StopSyncRemoteMissionsAsyncWork(napi_env env, napi_value resourceName,
             if (syncContext->result == 0) {
                 napi_get_undefined(env, &result[0]);
             } else {
-                napi_value message = nullptr;
-                napi_create_string_utf8(env, ("StopSyncRemoteMissions failed, error : " +
-                    std::to_string(syncContext->result)).c_str(), NAPI_AUTO_LENGTH, &message);
-                napi_create_error(env, nullptr, message, &result[0]);
+                int32_t errCode = ErrorCodeReturn(syncContext->result);
+                result[0] = GenerateBusinessError(env, errCode, ErrorInfoReturn(errCode));
             }
 
             if (syncContext->callbackRef == nullptr) { // promise
@@ -271,7 +333,7 @@ void StopSyncRemoteMissionsAsyncWork(napi_env env, napi_value resourceName,
             delete syncContext;
             syncContext = nullptr;
         },
-        (void *)syncContext,
+        static_cast<void *>(syncContext),
         &syncContext->work);
         napi_queue_async_work(env, syncContext->work);
     HILOG_INFO("%{public}s, end.", __func__);
@@ -280,16 +342,17 @@ void StopSyncRemoteMissionsAsyncWork(napi_env env, napi_value resourceName,
 napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
-    auto syncContext = new SyncRemoteMissionsContext();
+    std::string errInfo = "Parameter error";
+    auto syncContext = new (std::nothrow) SyncRemoteMissionsContext();
     if (syncContext == nullptr) {
         HILOG_ERROR("syncContext == nullptr");
         return WrapVoidToJS(env);
     }
-    if (!ProcessSyncInput(env, info, false, syncContext)) {
+    if (!ProcessSyncInput(env, info, false, syncContext, errInfo)) {
         delete syncContext;
         syncContext = nullptr;
-        HILOG_ERROR("%{public}s, Wrong argument.", __func__);
-        NAPI_ASSERT(env, false, "Wrong argument");
+        napi_throw(env, GenerateBusinessError(env, PARAMETER_CHECK_FAILED, errInfo));
+        return GetUndefined(env);
     }
     napi_value result = nullptr;
     if (syncContext->callbackRef == nullptr) {
@@ -378,10 +441,8 @@ void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *
     if (registerMissionCB->result == 0) {
         napi_get_undefined(env, &result[0]);
     } else {
-        napi_value message = nullptr;
-        napi_create_string_utf8(env, ("registerMissionListener failed, error : " +
-            std::to_string(registerMissionCB->result)).c_str(), NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &result[0]);
+        int32_t errCode = ErrorCodeReturn(registerMissionCB->result);
+        result[0] = GenerateBusinessError(env, errCode, ErrorInfoReturn(errCode));
     }
 
     ReturnValueToApplication(env, &result[0], registerMissionCB);
@@ -413,6 +474,7 @@ napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMission
     HILOG_INFO("%{public}s asyncCallback.", __func__);
     if (registerMissionCB == nullptr) {
         HILOG_ERROR("%{public}s, registerMissionCB == nullptr.", __func__);
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, ErrorInfoReturn(SYSTEM_WORK_ABNORMALLY)));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -429,14 +491,15 @@ napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMission
         resourceName,
         RegisterMissionExecuteCB,
         RegisterMissionCallbackCompletedCB,
-        (void *)registerMissionCB,
+        static_cast<void *>(registerMissionCB),
         &registerMissionCB->cbBase.asyncWork);
     napi_queue_async_work(env, registerMissionCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
     return result;
 }
 
-bool SetCallbackReference(napi_env env, const napi_value& value, RegisterMissionCB *registerMissionCB)
+bool SetCallbackReference(napi_env env, const napi_value& value,
+    RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     bool isFirstCallback = false;
@@ -446,42 +509,43 @@ bool SetCallbackReference(napi_env env, const napi_value& value, RegisterMission
     bool isThirdCallback = false;
     napi_has_named_property(env, value, "notifyNetDisconnect", &isThirdCallback);
     if (!isFirstCallback || !isSecondCallback || !isThirdCallback) {
-        HILOG_ERROR("%{public}s, Wrong argument name for callback.", __func__);
+        errInfo = "Parameter error. The type of \"options\" must be MissionCallback";
         return false;
     }
     napi_value jsMethod = nullptr;
     napi_get_named_property(env, value, "notifyMissionsChanged", &jsMethod);
     if (jsMethod == nullptr) {
-        HILOG_ERROR("%{public}s, not find callback notifyMissionsChanged.", __func__);
+        errInfo = "Parameter error. The value of \"notifyMissionsChanged\" must not be undefined";
         return false;
     }
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
-        HILOG_ERROR("%{public}s, notifyMissionsChanged callback error type.", __func__);
+        errInfo = "Parameter error. The type of \"notifyMissionsChanged\" must be function";
         return false;
     }
     napi_create_reference(env, jsMethod, 1, &registerMissionCB->missionRegistrationCB.callback[0]);
 
     napi_get_named_property(env, value, "notifySnapshot", &jsMethod);
     if (jsMethod == nullptr) {
-        HILOG_ERROR("%{public}s, not find callback notifySnapshot.", __func__);
+        errInfo = "Parameter error. The value of \"notifySnapshot\" must not be undefined";
         return false;
     }
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
-        HILOG_ERROR("%{public}s, notifySnapshot callback error type.", __func__);
+        errInfo = "Parameter error. The type of \"notifySnapshot\" must be function";
         return false;
     }
     napi_create_reference(env, jsMethod, 1, &registerMissionCB->missionRegistrationCB.callback[1]);
 
     napi_get_named_property(env, value, "notifyNetDisconnect", &jsMethod);
     if (jsMethod == nullptr) {
-        HILOG_ERROR("%{public}s, not find callback notifyNetDisconnect.", __func__);
+        errInfo = "Parameter error. The value of \"notifyNetDisconnect\" must not be undefined";
         return false;
     }
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
+        errInfo = "Parameter error. The type of \"notifyNetDisconnect\" must be function";
         return false;
     }
     napi_create_reference(env, jsMethod, 1,
@@ -490,32 +554,34 @@ bool SetCallbackReference(napi_env env, const napi_value& value, RegisterMission
     return true;
 }
 
-bool CreateCallbackReference(napi_env env, const napi_value& value, RegisterMissionCB *registerMissionCB)
+bool CreateCallbackReference(napi_env env, const napi_value& value,
+    RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, value, &valuetype);
     if (valuetype == napi_object) {
-        if (!SetCallbackReference(env, value, registerMissionCB)) {
+        if (!SetCallbackReference(env, value, registerMissionCB, errInfo)) {
             HILOG_ERROR("%{public}s, Wrong callback.", __func__);
             return false;
         }
     } else {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        errInfo = "Parameter error. The type of \"options\" must be MissionCallback";
         return false;
     }
     HILOG_INFO("%{public}s called end.", __func__);
     return true;
 }
 
-napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMissionCB *registerMissionCB)
+napi_value RegisterMissionWrap(napi_env env, napi_callback_info info,
+    RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     size_t argcAsync = 3;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
     if (argcAsync != ARGS_TWO && argcAsync != ARGS_THREE) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 2 or 3";
         return nullptr;
     }
     napi_value firstNApi = nullptr;
@@ -524,36 +590,38 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
     napi_has_named_property(env, args[0], "deviceId", &isDeviceId);
     napi_typeof(env, args[0], &valueType);
     if (!isDeviceId || valueType != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument name for deviceId.", __func__);
+        errInfo = "Parameter error. The key of \"MissionDeviceInfo\" must be deviceId";
         return nullptr;
     }
     napi_get_named_property(env, args[0], "deviceId", &firstNApi);
     if (firstNApi == nullptr) {
+        errInfo = "Parameter error. The value of \"deviceId\" must not be undefined";
         return nullptr;
     }
 
     napi_typeof(env, firstNApi, &valueType);
     if (valueType != napi_string) {
-        HILOG_ERROR("%{public}s, deviceId error type.", __func__);
+        errInfo = "Parameter error. The type of \"deviceId\" must be string";
         return nullptr;
     }
     char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
     size_t valueLen = 0;
     napi_get_value_string_utf8(env, firstNApi, deviceId, VALUE_BUFFER_SIZE + 1, &valueLen);
     if (valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
+        errInfo = "Parameter error. The length of \"deviceId\" must be less than " +
+            std::to_string(VALUE_BUFFER_SIZE);
         return nullptr;
     }
     registerMissionCB->deviceId = deviceId;
 
-    if (argcAsync > 1 && !CreateCallbackReference(env, args[1], registerMissionCB)) {
+    if (argcAsync > 1 && !CreateCallbackReference(env, args[1], registerMissionCB, errInfo)) {
         return nullptr;
     }
 
     if (argcAsync == ARGS_THREE) {
         napi_typeof(env, args[ARGS_TWO], &valueType);
         if (valueType != napi_function) {
-            HILOG_ERROR("%{public}s, callback error type.", __func__);
+            errInfo = "Parameter error. The type of \"options\" must be MissionCallback";
             return nullptr;
         }
         napi_create_reference(env, args[ARGS_TWO], 1, &registerMissionCB->callbackRef);
@@ -567,18 +635,21 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
 napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    std::string errInfo = "Parameter error";
     RegisterMissionCB *registerMissionCB = CreateRegisterMissionCBCBInfo(env);
     if (registerMissionCB == nullptr) {
         HILOG_ERROR("%{public}s registerMissionCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, ErrorInfoReturn(SYSTEM_WORK_ABNORMALLY)));
+        return GetUndefined(env);
     }
 
-    napi_value ret = RegisterMissionWrap(env, info, registerMissionCB);
+    napi_value ret = RegisterMissionWrap(env, info, registerMissionCB, errInfo);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
         delete registerMissionCB;
         registerMissionCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, PARAMETER_CHECK_FAILED, errInfo));
+        return GetUndefined(env);
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -685,7 +756,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     registerMissionCB->cbBase.cbInfo.env = env_;
     registerMissionCB->cbBase.cbInfo.callback = notifyMissionsChangedRef_;
     registerMissionCB->deviceId = deviceId;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyMissionChanged);
@@ -761,7 +832,7 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     registerMissionCB->cbBase.cbInfo.callback = notifySnapshotRef_;
     registerMissionCB->deviceId = deviceId;
     registerMissionCB->missionId = missionId;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifySnapshot);
@@ -827,7 +898,7 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
     registerMissionCB->cbBase.cbInfo.callback = notifyNetDisconnectRef_;
     registerMissionCB->deviceId = deviceId;
     registerMissionCB->state = state;
-    work->data = (void *)registerMissionCB;
+    work->data = static_cast<void *>(registerMissionCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyNetDisconnect);
@@ -878,10 +949,8 @@ void UnRegisterMissionPromiseCompletedCB(napi_env env, napi_status status, void 
     if (registerMissionCB->result == 0) {
         napi_get_undefined(env, &result[0]);
     } else {
-        napi_value message = nullptr;
-        napi_create_string_utf8(env, ("unRegisterMissionListener failed, error : " +
-            std::to_string(registerMissionCB->result)).c_str(), NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &result[0]);
+        int32_t errCode = ErrorCodeReturn(registerMissionCB->result);
+        result[0] = GenerateBusinessError(env, errCode, ErrorInfoReturn(errCode));
     }
 
     ReturnValueToApplication(env, &result[0], registerMissionCB);
@@ -912,14 +981,15 @@ napi_value UnRegisterMissionPromise(napi_env env, RegisterMissionCB *registerMis
         resourceName,
         UnRegisterMissionExecuteCB,
         UnRegisterMissionPromiseCompletedCB,
-        (void *)registerMissionCB,
+        static_cast<void *>(registerMissionCB),
         &registerMissionCB->cbBase.asyncWork);
     napi_queue_async_work(env, registerMissionCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
     return promise;
 }
 
-bool GetUnRegisterMissionDeviceId(napi_env env, const napi_value& value, RegisterMissionCB *registerMissionCB)
+bool GetUnRegisterMissionDeviceId(napi_env env, const napi_value& value,
+    RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_value firstNApi = nullptr;
@@ -930,24 +1000,25 @@ bool GetUnRegisterMissionDeviceId(napi_env env, const napi_value& value, Registe
     if (isDeviceId && valueType == napi_object) {
         napi_get_named_property(env, value, "deviceId", &firstNApi);
     } else {
-        HILOG_ERROR("%{public}s, Wrong argument name for deviceId.", __func__);
+        errInfo = "Parameter error. The key of \"MissionDeviceInfo\" must be deviceId";
         return false;
     }
     if (firstNApi == nullptr) {
-        HILOG_ERROR("%{public}s, not find deviceId.", __func__);
+        errInfo = "Parameter error. The value of \"deviceId\" must not be undefined";
         return false;
     }
 
     size_t valueLen = 0;
     napi_typeof(env, firstNApi, &valueType);
     if (valueType != napi_string) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        errInfo = "Parameter error. The type of \"deviceId\" must be string";
         return false;
     }
     char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
     napi_get_value_string_utf8(env, firstNApi, deviceId, VALUE_BUFFER_SIZE + 1, &valueLen);
     if (valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
+        errInfo = "Parameter error. The length of \"deviceId\" must be less than " +
+            std::to_string(VALUE_BUFFER_SIZE);
         return false;
     }
     registerMissionCB->deviceId = deviceId;
@@ -955,7 +1026,8 @@ bool GetUnRegisterMissionDeviceId(napi_env env, const napi_value& value, Registe
     return true;
 }
 
-napi_value UnRegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMissionCB *registerMissionCB)
+napi_value UnRegisterMissionWrap(napi_env env, napi_callback_info info,
+    RegisterMissionCB *registerMissionCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     size_t argc = 2;
@@ -965,11 +1037,11 @@ napi_value UnRegisterMissionWrap(napi_env env, napi_callback_info info, Register
     napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     HILOG_INFO("argc is %{public}zu", argc);
     if (argc != ARGS_ONE && argc != ARGS_TWO) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 1 or 2";
         return nullptr;
     }
 
-    if (!GetUnRegisterMissionDeviceId(env, args[0], registerMissionCB)) {
+    if (!GetUnRegisterMissionDeviceId(env, args[0], registerMissionCB, errInfo)) {
         HILOG_ERROR("%{public}s, Wrong argument.", __func__);
         return nullptr;
     }
@@ -978,7 +1050,7 @@ napi_value UnRegisterMissionWrap(napi_env env, napi_callback_info info, Register
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, args[1], &valueType);
         if (valueType != napi_function) {
-            HILOG_ERROR("%{public}s, callback error type.", __func__);
+            errInfo = "Parameter error. The type of \"callback\" must be AsynCallback<void>: void";
             return nullptr;
         }
         napi_create_reference(env, args[1], 1, &registerMissionCB->callbackRef);
@@ -991,18 +1063,21 @@ napi_value UnRegisterMissionWrap(napi_env env, napi_callback_info info, Register
 napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    std::string errInfo = "Parameter error";
     RegisterMissionCB *registerMissionCB = CreateRegisterMissionCBCBInfo(env);
     if (registerMissionCB == nullptr) {
         HILOG_ERROR("%{public}s registerMissionCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, ErrorInfoReturn(SYSTEM_WORK_ABNORMALLY)));
+        return GetUndefined(env);
     }
 
-    napi_value ret = UnRegisterMissionWrap(env, info, registerMissionCB);
+    napi_value ret = UnRegisterMissionWrap(env, info, registerMissionCB, errInfo);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
         delete registerMissionCB;
         registerMissionCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, PARAMETER_CHECK_FAILED, errInfo));
+        return GetUndefined(env);
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -1088,10 +1163,8 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
     if (continueAbilityCB->result == 0) {
         napi_get_undefined(env, &result[0]);
     } else {
-        napi_value message = nullptr;
-        napi_create_string_utf8(env, ("ContinueAbility failed, error : " +
-            std::to_string(continueAbilityCB->result)).c_str(), NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &result[0]);
+        int32_t errCode = ErrorCodeReturn(continueAbilityCB->result);
+        result[0] = GenerateBusinessError(env, errCode, ErrorInfoReturn(errCode));
     }
 
     if (continueAbilityCB->callbackRef == nullptr) { // promise
@@ -1136,7 +1209,7 @@ napi_value ContinueAbilityAsync(napi_env env, ContinueAbilityCB *continueAbility
         resourceName,
         ContinueAbilityExecuteCB,
         ContinueAbilityCallbackCompletedCB,
-        (void *)continueAbilityCB,
+        static_cast<void *>(continueAbilityCB),
         &continueAbilityCB->cbBase.asyncWork);
     napi_queue_async_work(env, continueAbilityCB->cbBase.asyncWork);
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
@@ -1160,11 +1233,12 @@ bool CheckContinueKeyExist(napi_env env, const napi_value &value)
     return true;
 }
 
-bool CheckContinueFirstArgs(napi_env env, const napi_value &value, ContinueAbilityCB *continueAbilityCB)
+bool CheckContinueFirstArgs(napi_env env, const napi_value &value,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (!CheckContinueKeyExist(env, value)) {
-        HILOG_ERROR("%{public}s, Wrong argument key.", __func__);
+        errInfo = "Parameter error. The type of \"parameter\" must be ContinueMission";
         return false;
     }
     napi_value firstNApi = nullptr;
@@ -1174,7 +1248,7 @@ bool CheckContinueFirstArgs(napi_env env, const napi_value &value, ContinueAbili
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, value, &valueType);
     if (valueType != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        errInfo = "Parameter error. The type of \"parameter\" must be ContinueMission";
         return false;
     }
     napi_get_named_property(env, value, "srcDeviceId", &firstNApi);
@@ -1182,61 +1256,65 @@ bool CheckContinueFirstArgs(napi_env env, const napi_value &value, ContinueAbili
     napi_get_named_property(env, value, "missionId", &thirdNApi);
     napi_get_named_property(env, value, "wantParam", &fourthNApi);
     if (firstNApi == nullptr || secondNApi == nullptr || thirdNApi == nullptr || fourthNApi == nullptr) {
-        HILOG_ERROR("%{public}s, miss required parameters.", __func__);
+        errInfo = "Parameter error. The number of \"ContinueMission\" must be 4";
         return false;
     }
     napi_typeof(env, firstNApi, &valueType);
     if (valueType != napi_string) {
-        HILOG_ERROR("%{public}s, Wrong argument type srcDeviceId.", __func__);
+        errInfo = "Parameter error. The type of \"srcDeviceId\" must be string";
         return false;
     }
     continueAbilityCB->srcDeviceId = AppExecFwk::UnwrapStringFromJS(env, firstNApi, "");
     napi_typeof(env, secondNApi, &valueType);
     if (valueType != napi_string) {
-        HILOG_ERROR("%{public}s, Wrong argument type dstDeviceId.", __func__);
+        errInfo = "Parameter error. The type of \"dstDeviceId\" must be string";
         return false;
     }
     continueAbilityCB->dstDeviceId = AppExecFwk::UnwrapStringFromJS(env, secondNApi, "");
     napi_typeof(env, thirdNApi, &valueType);
     if (valueType != napi_number) {
-        HILOG_ERROR("%{public}s, Wrong argument type missionId.", __func__);
+        errInfo = "Parameter error. The type of \"missionId\" must be number";
         return false;
     }
     continueAbilityCB->missionId = AppExecFwk::UnwrapInt32FromJS(env, thirdNApi, -1);
     napi_typeof(env, fourthNApi, &valueType);
     if (valueType != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument type wantParam.", __func__);
+        errInfo = "Parameter error. The type of \"wantParams\" must be object";
         return false;
     }
-    AppExecFwk::UnwrapWantParams(env, fourthNApi, continueAbilityCB->wantParams);
+    if (!AppExecFwk::UnwrapWantParams(env, fourthNApi, continueAbilityCB->wantParams)) {
+        errInfo = "Parameter error. The type of \"wantParams\" must be array";
+        return false;
+    }
     HILOG_INFO("%{public}s called end.", __func__);
     return true;
 }
 
-bool CheckContinueCallback(napi_env env, const napi_value &value, ContinueAbilityCB *continueAbilityCB)
+bool CheckContinueCallback(napi_env env, const napi_value &value,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_value jsMethod = nullptr;
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, value, &valuetype);
     if (valuetype != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        errInfo = "Parameter error. The type of \"options\" must be ContinueCallback";
         return false;
     }
     bool isFirstCallback = false;
     napi_has_named_property(env, value, "onContinueDone", &isFirstCallback);
     if (!isFirstCallback) {
-        HILOG_ERROR("%{public}s, Wrong argument name for onContinueDone.", __func__);
+        errInfo = "Parameter error. The key of \"ContinueCallback\" must be onContinueDone";
         return false;
     }
     napi_get_named_property(env, value, "onContinueDone", &jsMethod);
     if (jsMethod == nullptr) {
-        HILOG_ERROR("%{public}s, not find callback onContinueDone.", __func__);
+        errInfo = "Parameter error. The value of \"onContinueDone\" must not be undefined";
         return false;
     }
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
-        HILOG_ERROR("%{public}s, onContinueDone callback error type.", __func__);
+        errInfo = "Parameter error. The type of \"onContinueDone\" must be function";
         return false;
     }
     napi_create_reference(env, jsMethod, 1, &continueAbilityCB->abilityContinuationCB.callback[0]);
@@ -1244,7 +1322,8 @@ bool CheckContinueCallback(napi_env env, const napi_value &value, ContinueAbilit
     return true;
 }
 
-napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAbilityCB *continueAbilityCB)
+napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     size_t argcAsync = 3;
@@ -1254,17 +1333,17 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
     HILOG_INFO("argcAsync is %{public}zu", argcAsync);
     if (argcAsync != ARGS_TWO && argcAsync != ARGS_THREE) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 2 or 3";
         return nullptr;
     }
 
-    if (!CheckContinueFirstArgs(env, args[0], continueAbilityCB)) {
+    if (!CheckContinueFirstArgs(env, args[0], continueAbilityCB, errInfo)) {
         HILOG_ERROR("%{public}s, check the first argument failed.", __func__);
         return nullptr;
     }
 
     if (argcAsync > 1) {
-        if (!CheckContinueCallback(env, args[1], continueAbilityCB)) {
+        if (!CheckContinueCallback(env, args[1], continueAbilityCB, errInfo)) {
             HILOG_ERROR("%{public}s, check callback failed.", __func__);
             return nullptr;
         }
@@ -1274,7 +1353,7 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, args[ARGS_TWO], &valueType);
         if (valueType != napi_function) {
-            HILOG_ERROR("%{public}s, callback error type.", __func__);
+            errInfo = "Parameter error. The type of \"callback\" must be AsynCallback<void>: void";
             return nullptr;
         }
         napi_create_reference(env, args[ARGS_TWO], 1, &continueAbilityCB->callbackRef);
@@ -1288,18 +1367,21 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    std::string errInfo = "Parameter error";
     ContinueAbilityCB *continueAbilityCB = CreateContinueAbilityCBCBInfo(env);
     if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s continueAbilityCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, ErrorInfoReturn(SYSTEM_WORK_ABNORMALLY)));
+        return GetUndefined(env);
     }
 
-    napi_value ret = ContinueAbilityWrap(env, info, continueAbilityCB);
+    napi_value ret = ContinueAbilityWrap(env, info, continueAbilityCB, errInfo);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
         delete continueAbilityCB;
         continueAbilityCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        napi_throw(env, GenerateBusinessError(env, PARAMETER_CHECK_FAILED, errInfo));
+        return GetUndefined(env);
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -1362,7 +1444,7 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
     continueAbilityCB->cbBase.cbInfo.env = env_;
     continueAbilityCB->cbBase.cbInfo.callback = onContinueDoneRef_;
     continueAbilityCB->resultCode = result;
-    work->data = (void *)continueAbilityCB;
+    work->data = static_cast<void *>(continueAbilityCB);
 
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkOnContinueDone);

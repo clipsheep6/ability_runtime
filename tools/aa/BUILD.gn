@@ -90,6 +90,22 @@ ohos_executable("aa") {
 
   symlink_target_name = [ "ability_tool" ]
 
+  defines = []
+  print("accessibility_enable = ", accessibility_enable)
+  if (accessibility_enable) {
+    sources += [
+      "src/accessibility_ability_command.cpp",
+      "src/accessibility_ability_utils.cpp",
+    ]
+    external_deps += [
+      "accessibility:accessibility_common",
+      "accessibility:accessibilityclient",
+      "accessibility:accessibilityconfig",
+    ]
+    defines += [ "A11Y_ENABLE" ]
+    symlink_target_name += [ "accessibility" ]
+  }
+
   install_enable = true
 
   subsystem_name = "ability"

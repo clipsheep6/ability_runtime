@@ -81,6 +81,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
   ]
@@ -156,6 +157,14 @@ ohos_shared_library("appkit_native") {
     defines += [ "SUPPORT_ASAN" ]
   }
 
+  if ("${product_name}" == "rk3568" || "${product_name}" == "m40") {
+    public_deps += [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
+
+    include_dirs += [ "//base/web/webview/ohos_adapter/interfaces" ]
+
+    defines += [ "NWEB" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -182,7 +191,7 @@ ohos_shared_library("app_context") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility" ]
+  deps = []
 
   public_deps =
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
@@ -195,6 +204,7 @@ ohos_shared_library("app_context") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
@@ -230,15 +240,13 @@ ohos_shared_library("app_context_utils") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [
-    "${ability_runtime_native_path}/appkit:app_context",
-    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
-  ]
+  deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
 
   public_deps =
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
 
   external_deps = [
+    "ability_runtime:ability_runtime_error_util",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

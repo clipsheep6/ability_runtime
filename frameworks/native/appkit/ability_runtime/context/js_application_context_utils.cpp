@@ -17,6 +17,7 @@
 
 #include <map>
 
+#include "ability_runtime_error_util.h"
 #include "application_context.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
@@ -31,6 +32,7 @@ namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_THREE = 3;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr int32_t ERROR_CODE_ONE = 1;
@@ -48,6 +50,8 @@ public:
     static NativeValue* UnregisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* RegisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* UnregisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* On(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* Off(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* SwitchArea(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
@@ -58,6 +62,13 @@ public:
 
     NativeValue* OnRegisterEnvironmentCallback(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnUnregisterEnvironmentCallback(NativeEngine &engine, NativeCallbackInfo &info);
+
+    NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOff(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnOnAbilityLifecycle(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOnEnvironment(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOffEnvironment(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
 
     NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
@@ -104,37 +115,43 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
 {
     if (info.argc == 0) {
         HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
         HILOG_WARN("applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
     std::string bundleName;
     if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
         HILOG_ERROR("Parse bundleName failed");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
     auto bundleContext = applicationContext->CreateBundleContext(bundleName);
     if (!bundleContext) {
         HILOG_ERROR("bundleContext is nullptr");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
     auto contextObj = systemModule->Get();
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
@@ -211,22 +228,25 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
         HILOG_WARN("applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
-    std::string bundleName;
     std::string moduleName;
     std::shared_ptr<Context> moduleContext = nullptr;
     if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
         HILOG_INFO("Parse inner module name.");
         if (!ConvertFromJsValue(engine, info.argv[0], moduleName)) {
             HILOG_ERROR("Parse moduleName failed");
+            AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
             return engine.CreateUndefined();
         }
         moduleContext = applicationContext->CreateModuleContext(moduleName);
     } else {
+        std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
+            AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
             return engine.CreateUndefined();
         }
         HILOG_INFO("Parse outer module name.");
@@ -235,19 +255,22 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
 
     if (!moduleContext) {
         HILOG_ERROR("failed to create module context.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
 
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
     auto contextObj = systemModule->Get();
     NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get context native object");
+        HILOG_ERROR("OnCreateModuleContext, Failed to get context native object");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
@@ -599,6 +622,200 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     NativeValue *lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsApplicationContextUtils::OnUnregisterEnvironmentCallback", engine,
+        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue *JsApplicationContextUtils::On(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnOn(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::Off(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnOff(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("OnOn is called");
+
+    if (keepApplicationContext_ == nullptr) {
+        HILOG_ERROR("ApplicationContext is nullptr.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (info.argc != ARGC_TWO) {
+        HILOG_ERROR("Not enough params.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (info.argv[0]->TypeOf() != NATIVE_STRING) {
+        HILOG_ERROR("param0 is invalid");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    std::string type;
+    if (!ConvertFromJsValue(engine, info.argv[0], type)) {
+        HILOG_ERROR("convert type failed!");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (type == "abilityLifeCycle") {
+        return OnOnAbilityLifecycle(engine, info);
+    }
+    if (type == "environment") {
+        return OnOnEnvironment(engine, info);
+    }
+    HILOG_ERROR("on function type not match.");
+    AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    return engine.CreateUndefined();
+}
+
+NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const NativeCallbackInfo &info)
+{
+    HILOG_INFO("OnOff is called");
+
+    if (keepApplicationContext_ == nullptr) {
+        HILOG_ERROR("ApplicationContext is nullptr.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    int32_t callbackId = -1;
+    if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    } else {
+        napi_get_value_int32(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[1]), &callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
+    }
+
+    if (info.argv[0]->TypeOf() != NATIVE_STRING) {
+        HILOG_ERROR("param0 is invalid");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    std::string type;
+    if (!ConvertFromJsValue(engine, info.argv[0], type)) {
+        HILOG_ERROR("convert type failed!");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (type == "abilityLifeCycle") {
+        return OnOffAbilityLifecycle(engine, info, callbackId);
+    }
+    if (type == "environment") {
+        return OnOffEnvironment(engine, info, callbackId);
+    }
+    HILOG_ERROR("off function type not match.");
+    AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    return engine.CreateUndefined();
+}
+
+NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycle(
+    NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("OnOnAbilityLifecycle is called");
+    if (callback_ != nullptr) {
+        HILOG_DEBUG("callback_ is not nullptr.");
+        return engine.CreateNumber(callback_->Register(info.argv[1]));
+    }
+    callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
+    int32_t callbackId = callback_->Register(info.argv[1]);
+    keepApplicationContext_->RegisterAbilityLifecycleCallback(callback_);
+    HILOG_INFO("OnOnAbilityLifecycle is end");
+    return engine.CreateNumber(callbackId);
+}
+
+NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
+    NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
+{
+    HILOG_INFO("OnOffAbilityLifecycle is called");
+    std::weak_ptr<JsAbilityLifecycleCallback> callbackWeak(callback_);
+    AsyncTask::CompleteCallback complete =
+        [&applicationContext = keepApplicationContext_, callbackWeak, callbackId](
+            NativeEngine &engine, AsyncTask &task, int32_t status) {
+            auto callback = callbackWeak.lock();
+            if (applicationContext == nullptr || callback == nullptr) {
+                HILOG_ERROR("applicationContext or callback nullptr");
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
+                    "applicationContext or callback nullptr"));
+                return;
+            }
+
+            HILOG_DEBUG("OnOffAbilityLifecycle begin");
+            if (!callback->UnRegister(callbackId)) {
+                HILOG_ERROR("call UnRegister failed!");
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
+                    "call UnRegister failed!"));
+                return;
+            }
+
+            task.ResolveWithNoError(engine, engine.CreateUndefined());
+        };
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsApplicationContextUtils::OnOffAbilityLifecycle", engine,
+        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue *JsApplicationContextUtils::OnOnEnvironment(
+    NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("OnOnEnvironment is called");
+    if (envCallback_ != nullptr) {
+        HILOG_DEBUG("envCallback_ is not nullptr.");
+        return engine.CreateNumber(envCallback_->Register(info.argv[1]));
+    }
+    envCallback_ = std::make_shared<JsEnvironmentCallback>(&engine);
+    int32_t callbackId = envCallback_->Register(info.argv[1]);
+    keepApplicationContext_->RegisterEnvironmentCallback(envCallback_);
+    HILOG_DEBUG("OnOnEnvironment is end");
+    return engine.CreateNumber(callbackId);
+}
+
+NativeValue *JsApplicationContextUtils::OnOffEnvironment(
+    NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
+{
+    HILOG_DEBUG("OnOffEnvironment is called");
+    std::weak_ptr<JsEnvironmentCallback> envCallbackWeak(envCallback_);
+    AsyncTask::CompleteCallback complete =
+        [&applicationContext = keepApplicationContext_, envCallbackWeak, callbackId](
+            NativeEngine &engine, AsyncTask &task, int32_t status) {
+            auto env_callback = envCallbackWeak.lock();
+            if (applicationContext == nullptr || env_callback == nullptr) {
+                HILOG_ERROR("applicationContext or env_callback nullptr");
+                task.Reject(engine,
+                    CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
+                        "applicationContext or env_callback nullptr"));
+                return;
+            }
+
+            HILOG_DEBUG("OnOffEnvironment begin");
+            if (!env_callback->UnRegister(callbackId)) {
+                HILOG_ERROR("call UnRegister failed!");
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
+                    "call UnRegister failed!"));
+                return;
+            }
+
+            task.ResolveWithNoError(engine, engine.CreateUndefined());
+        };
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsApplicationContextUtils::OnOffEnvironment", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

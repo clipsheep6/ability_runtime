@@ -56,6 +56,44 @@ ErrCode AppSpawnClient::OpenConnection()
     return errCode;
 }
 
+ErrCode AppSpawnClient::PreStartNWebSpawnProcess()
+{
+    HILOG_INFO("PreStartNWebSpawnProcess");
+    int32_t retryCount = 1;
+    ErrCode errCode = PreStartNWebSpawnProcessImpl();
+    while (FAILED(errCode) && retryCount <= CONNECT_RETRY_MAX_TIMES) {
+        HILOG_ERROR("failed to Start NWebSpawn Process, retry times %{public}d ...", retryCount);
+        usleep(CONNECT_RETRY_DELAY);
+        errCode = PreStartNWebSpawnProcessImpl();
+        retryCount++;
+    }
+    return errCode;
+}
+
+ErrCode AppSpawnClient::PreStartNWebSpawnProcessImpl()
+{
+    HILOG_INFO("PreStartNWebSpawnProcessImpl");
+    if (!socket_) {
+        HILOG_ERROR("failed to Pre Start NWebSpawn Process without socket!");
+        return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
+    }
+
+    ErrCode result = ERR_OK;
+    // openconnection failed, return fail
+    if (state_ != SpawnConnectionState::STATE_CONNECTED) {
+        result = OpenConnection();
+        if (FAILED(result)) {
+            HILOG_ERROR("connect to nwebspawn failed!");
+            return result;
+        }
+    }
+
+    std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
+        this, [](AppSpawnClient *client) { client->CloseConnection(); });
+
+    return result;
+}
+
 ErrCode AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -79,11 +117,11 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
     }
 
     ErrCode result = ERR_OK;
-    // openconnection failed, return fail
+    // open connection failed, return fail
     if (state_ != SpawnConnectionState::STATE_CONNECTED) {
         result = OpenConnection();
         if (FAILED(result)) {
-            HILOG_ERROR("connect to appspawn failed!");
+            HILOG_ERROR("connect to appSpawn failed!");
             return result;
         }
     }
@@ -125,11 +163,11 @@ ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
     }
 
     ErrCode result = ERR_OK;
-    // openconnection failed, return fail
+    // open connection failed, return fail
     if (state_ != SpawnConnectionState::STATE_CONNECTED) {
         result = OpenConnection();
         if (FAILED(result)) {
-            HILOG_ERROR("connect to appspawn failed!");
+            HILOG_ERROR("connect to appSpawn failed!");
             return result;
         }
     }

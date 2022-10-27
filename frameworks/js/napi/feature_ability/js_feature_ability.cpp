@@ -296,7 +296,8 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
 
@@ -304,7 +305,8 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_named_property=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
 
@@ -312,7 +314,8 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_value_external(env, abilityObj, (void **)&ability);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
     return nullptr;
     }
 
@@ -379,7 +382,7 @@ void JsFeatureAbility::GetExtraParams(DistributeReqParam &requestParam, Want &wa
     return;
 }
 
-bool JsFeatureAbility::CheckThenGetDeepLinkUri(DistributeReqParam &requestParam, Uri &uri)
+bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri)
 {
     std::string url = requestParam.GetUrl();
     std::string action = requestParam.GetAction();
@@ -495,7 +498,7 @@ NativeValue* JsFeatureAbility::CreateJsFeatureAbility(NativeEngine &engine)
     return objValue;
 }
 
-NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exportObj)
+NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (engine == nullptr) {

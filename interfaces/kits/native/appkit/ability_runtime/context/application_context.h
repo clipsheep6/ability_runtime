@@ -49,6 +49,7 @@ public:
     void DispatchOnAbilityBackground(const std::shared_ptr<NativeReference> &ability);
     void DispatchOnAbilityContinue(const std::shared_ptr<NativeReference> &ability);
     void DispatchConfigurationUpdated(const AppExecFwk::Configuration &config);
+    void DispatchMemoryLevel(const int level);
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;

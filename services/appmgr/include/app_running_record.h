@@ -194,9 +194,9 @@ public:
 
     // Get abilities_ for this process
     /**
-     * @brief Obtains the abilitys info for the application record.
+     * @brief Obtains the abilities info for the application record.
      *
-     * @return Returns the abilitys info for the application record.
+     * @return Returns the abilities info for the application record.
      */
     const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> GetAbilities();
     // Update appThread with appThread
@@ -523,21 +523,33 @@ public:
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyHotReloadPage();
+    int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
     bool IsContinuousTask();
 
     void SetContinuousTaskAppState(bool isContinuousTask);
 
-    void Unfocused(const sptr<IRemoteObject> &token);
+    /**
+     * Update target ability focus state.
+     *
+     * @param token the token of target ability.
+     * @param isFocus focus state.
+     *
+     * @return true if process focus state changed, false otherwise.
+     */
+    bool UpdateAbilityFocusState(const sptr<IRemoteObject> &token, bool isFocus);
+
+    bool GetFocusFlag() const;
+
+    int64_t GetAppStartTime() const;
 
 private:
     /**
-     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
+     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
      *
      * @return If an uninitialized data is found return true,Otherwise return false.
      */
@@ -577,7 +589,9 @@ private:
     void AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability);
     // drive application state changes when ability state changes.
 
-    void AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability);
+    bool AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability);
+
+    bool AbilityUnfocused(const std::shared_ptr<AbilityRunningRecord> &ability);
 
     void SendEvent(uint32_t msg, int64_t timeOut);
 
@@ -588,7 +602,7 @@ private:
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
-    ApplicationState lastState_ = ApplicationState::APP_STATE_CREATE; // last state of this process
+    bool isFocused_ = false; // if process is focused.
 
     std::shared_ptr<ApplicationInfo> appInfo_ = nullptr;  // the application's info of this process
     int32_t appRecordId_ = 0;
@@ -615,11 +629,12 @@ private:
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
     bool isDebugApp_ = false;
+    int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
     bool isKilling_ = false;
-    bool isContinuousTask_ = false;    // Only continuestask processes can be set to true, please choose carefully
+    bool isContinuousTask_ = false;    // Only continuesTask processes can be set to true, please choose carefully
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;

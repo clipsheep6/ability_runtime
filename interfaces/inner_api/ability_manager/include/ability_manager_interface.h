@@ -674,7 +674,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
-
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) {};
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -969,6 +970,10 @@ public:
 
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
+
+        // ipc id for app recovery(3010)
+        ABILITY_RECOVERY = 3010,
+        ABILITY_RECOVERY_ENABLE = 3011,
     };
 };
 }  // namespace AAFwk

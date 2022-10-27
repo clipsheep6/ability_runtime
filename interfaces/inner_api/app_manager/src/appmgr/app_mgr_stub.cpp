@@ -31,6 +31,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 AppMgrStub::AppMgrStub()
 {
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ATTACH_APPLICATION)] =
@@ -72,6 +73,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleScheduleAcceptWantDone;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
         &AppMgrStub::HandleGetAbilityRecordsByProcessID;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS)] =
+        &AppMgrStub::HandlePreStartNWebSpawnProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS)] =
         &AppMgrStub::HandleStartRenderProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::ATTACH_RENDER_PROCESS)] =
@@ -261,6 +264,9 @@ int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessagePar
     HITRACE_METER(HITRACE_TAG_APP);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     int32_t infoSize = data.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<AppExecFwk::BundleInfo> bundleInfo(data.ReadParcelable<AppExecFwk::BundleInfo>());
         if (!bundleInfo) {
@@ -387,6 +393,17 @@ int32_t AppMgrStub::HandleGetAbilityRecordsByProcessID(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandlePreStartNWebSpawnProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("HandlePreNWebSpawnProcess");
+    int32_t result = PreStartNWebSpawnProcess();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+
 int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply)
 {
     std::string renderParam = data.ReadString();
@@ -503,7 +520,8 @@ int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParc
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
@@ -515,7 +533,8 @@ int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyHotReloadPage(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyHotReloadPage(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
@@ -542,7 +561,8 @@ int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessagePa
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::string bundleName = data.ReadString();
-    auto ret = NotifyUnLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyUnLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }

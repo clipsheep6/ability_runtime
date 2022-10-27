@@ -54,6 +54,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -803,6 +804,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
     bool GetStartUpNewRuleFlag() const;
 
@@ -917,13 +920,14 @@ private:
      */
     bool IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const;
     /**
-     * Get parameters from the global
+     * Init parameters from the global
      *
      */
-    void GetGlobalConfiguration();
+    void InitGlobalConfiguration();
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
-    int StartRemoteAbility(const Want &want, int requestCode);
+    int StartRemoteAbility(const Want &want, int requestCode, int32_t validUserId,
+        const sptr<IRemoteObject> &callerToken);
     int ConnectLocalAbility(
         const Want &want,
         const int32_t userId,
@@ -931,7 +935,7 @@ private:
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
-    int ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect);
+    int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void UpdateCallerInfo(Want& want);
@@ -948,7 +952,8 @@ private:
         MissionInfo &missionInfo);
     int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& missionSnapshot);
-    int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &connect);
+    int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &callerToken,
+        const sptr<IRemoteObject> &connect);
     int ReleaseRemoteAbility(const sptr<IRemoteObject> &connect, const AppExecFwk::ElementName &element);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
@@ -958,7 +963,6 @@ private:
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
     void DumpFuncInit();
-    bool IsExistFile(const std::string &path);
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
@@ -1144,6 +1148,14 @@ private:
     AAFwk::PermissionVerification::VerificationInfo CreateVerificationInfo(
         const AbilityRequest &abilityRequest);
 
+    int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
+
+    void RecoverAbilityRestart(const Want &want);
+
+    AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
+
+    void InitStartupFlag();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1190,6 +1202,16 @@ private:
      *  FALSE: Determine the state by AppExecFwk::AppProcessState::APP_STATE_FOCUS.
      */
     bool backgroundJudgeFlag_ = true;
+    /** The applications in white list use old rule
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListNormalFlag_ = false;
+    /** The applications in white list can associatedWakeUp
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListassociatedWakeUpFlag_ = false;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
@@ -1204,6 +1226,7 @@ private:
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
+    std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -51,6 +51,7 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
             // startAbility
             Want want;
             want.SetElementName(hapModuleInfo.bundleName, mainElement);
+            HILOG_INFO("Start resident ability, mainElement: %{public}s", mainElement.c_str());
             DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(want, USER_ID_NO_HEAD,
                 DEFAULT_INVAL_VALUE);
         }
@@ -90,6 +91,8 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
             hapModuleInfo.abilityInfos, mainElement, uriStr);
         if (getDataAbilityUri) {
             // dataability, need use AcquireDataAbility
+            HILOG_INFO("Start resident dataability, mainElement: %{public}s, uri: %{public}s",
+                mainElement.c_str(), uriStr.c_str());
             Uri uri(uriStr);
             DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
             needEraseIndexSet.insert(bundleInfoIndex);
@@ -117,7 +120,7 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
         }
     }
     if (mainElementIsPageAbility) {
-        HILOG_DEBUG("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
+        HILOG_DEBUG("%{public}s is page ability", mainElement.c_str());
         return false;
     }
 

@@ -18,8 +18,8 @@
 #include <uv.h>
 #include <vector>
 
-#include "../inner/napi_common/napi_common_ability.h"
 #include "hilog_wrapper.h"
+#include "napi_common_ability.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;

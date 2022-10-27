@@ -459,7 +459,7 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
             HILOG_ERROR("work == nullptr.");
             return;
         }
-        work->data = (void *)retCB;
+        work->data = static_cast<void *>retCB;
         int rev = uv_queue_work(
             loop,
             work,
@@ -495,7 +495,7 @@ void AbilityContextImpl::ResultCallbackJSThreadWorker(uv_work_t* work, int statu
         HILOG_ERROR("ResultCallbackJSThreadWorker, uv_queue_work input work is nullptr");
         return;
     }
-    ResultCallback* retCB = (ResultCallback *)work->data;
+    ResultCallback* retCB = static_cast<ResultCallback *>(work->data);
     if (retCB == nullptr) {
         HILOG_ERROR("ResultCallbackJSThreadWorker, retCB is nullptr");
         delete work;

@@ -164,15 +164,16 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+    if (result == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -190,15 +191,16 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_002, TestSize.Level1)
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+    if (result == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -216,15 +218,16 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+    if (result == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -242,27 +245,28 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
-    EXPECT_TRUE(topAbility);
-    topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    if (result == OHOS::ERR_OK) {
+        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        EXPECT_TRUE(topAbility);
+        topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    }
 
     ElementName element2("device", "com.ix.hiMusicOther", "MusicAbilityOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
-        EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+            EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+        }
     }
 }
 
@@ -279,23 +283,23 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    abilityMs_->StartAbility(want);
 
     ElementName element2("device", "com.ix.hiServiceOther", "ServiceAbilityOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
-        EXPECT_TRUE(infos[1].ability.GetAbilityName() == element2.GetAbilityName());
-        EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::INITIAL));
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+            EXPECT_TRUE(infos[1].ability.GetAbilityName() == element2.GetAbilityName());
+            EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -313,27 +317,28 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
-    EXPECT_TRUE(topAbility);
-    topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    if (result == OHOS::ERR_OK) {
+        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        EXPECT_TRUE(topAbility);
+        topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    }
 
     ElementName element2("device", "com.ohos.launcherOther", "com.ohos.launcher.MainAbilityOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
-
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
-        EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+            EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+        }
     }
 }
 
@@ -349,20 +354,21 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
-    EXPECT_TRUE(topAbility);
-    topAbility->SetAbilityState(AbilityState::ACTIVE);
+    if (result == OHOS::ERR_OK) {
+        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        EXPECT_TRUE(topAbility);
+        topAbility->SetAbilityState(AbilityState::ACTIVE);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->GetAbilityRunningInfos(infos);
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->GetAbilityRunningInfos(infos);
 
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::ACTIVE));
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::ACTIVE));
+        }
     }
 }
 
@@ -380,15 +386,16 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<ExtensionRunningInfo> infos;
-    size_t infoCount {1};
-    int upperLimit = 10;
-    abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+    if (result == OHOS::ERR_OK) {
+        std::vector<ExtensionRunningInfo> infos;
+        size_t infoCount {1};
+        int upperLimit = 10;
+        abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+        }
     }
 }
 
@@ -405,22 +412,22 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_002, TestSize.Level1)
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    abilityMs_->StartAbility(want);
 
     ElementName element2("device", "com.ix.hiExtension", "hiExtensionOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<ExtensionRunningInfo> infos;
-    int upperLimit = 10;
-    abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[1].extension.GetAbilityName() == element2.GetAbilityName());
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<ExtensionRunningInfo> infos;
+        int upperLimit = 10;
+        abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[1].extension.GetAbilityName() == element2.GetAbilityName());
+        }
     }
 }
 
@@ -436,11 +443,12 @@ HWTEST_F(RunningInfosTest, GetProcessRunningInfos_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<RunningProcessInfo> infos;
-    auto ret = abilityMs_->GetProcessRunningInfos(infos);
-    EXPECT_EQ(OHOS::ERR_OK, ret);
+    if (result == OHOS::ERR_OK) {
+        std::vector<RunningProcessInfo> infos;
+        auto ret = abilityMs_->GetProcessRunningInfos(infos);
+        EXPECT_EQ(OHOS::ERR_OK, ret);
+    }
 }
 
 /*
@@ -457,15 +465,16 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Le
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
-
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+    
+    if (result == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -482,24 +491,24 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_002, TestSize.Le
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    abilityMs_->StartAbility(want);
 
     ElementName element2("device", "com.ix.hiServiceOther", "ServiceAbilityOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
 
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
-        EXPECT_TRUE(infos[1].ability.GetAbilityName() == element2.GetAbilityName());
-        EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::INITIAL));
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+            EXPECT_TRUE(infos[1].ability.GetAbilityName() == element2.GetAbilityName());
+            EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -517,16 +526,17 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_001, TestSize.
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<ExtensionRunningInfo> infos;
-    int upperLimit = 10;
-    int userId = 100;
-    size_t infoCount {1};
-    abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+    if (result == OHOS::ERR_OK) {
+        std::vector<ExtensionRunningInfo> infos;
+        int upperLimit = 10;
+        int userId = 100;
+        size_t infoCount {1};
+        abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+        }
     }
 }
 
@@ -543,23 +553,23 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    abilityMs_->StartAbility(want);
 
     ElementName element2("device", "com.ix.hiExtension", "hiExtensionOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<ExtensionRunningInfo> infos;
-    int upperLimit = 10;
-    int userId = 100;
-    size_t infoCount {2};
-    abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[1].extension.GetAbilityName() == element2.GetAbilityName());
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<ExtensionRunningInfo> infos;
+        int upperLimit = 10;
+        int userId = 100;
+        size_t infoCount {2};
+        abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[1].extension.GetAbilityName() == element2.GetAbilityName());
+        }
     }
 }
 
@@ -577,15 +587,16 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
-    size_t infoCount {1};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+    if (result == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+        size_t infoCount {1};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+        }
     }
 }
 
@@ -603,27 +614,29 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
-    EXPECT_TRUE(topAbility);
-    topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    if (result == OHOS::ERR_OK) {
+        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        EXPECT_TRUE(topAbility);
+        topAbility->SetAbilityState(AbilityState::FOREGROUND);
+    }
 
     ElementName element2("device", "com.ix.hiMusicOther", "MusicAbilityOther");
     want.SetElement(element2);
     auto result2 = abilityMs_->StartAbility(want);
-    EXPECT_EQ(OHOS::ERR_OK, result2);
 
-    std::vector<AbilityRunningInfo> infos;
-    abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+    if (result2 == OHOS::ERR_OK) {
+        std::vector<AbilityRunningInfo> infos;
+        abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
 
-    size_t infoCount {2};
-    EXPECT_TRUE(infos.size() == infoCount);
-    if (infos.size() == infoCount) {
-        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
-        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
-        EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
-        EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+        size_t infoCount {2};
+        EXPECT_TRUE(infos.size() == infoCount);
+        if (infos.size() == infoCount) {
+            EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
+            EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::INITIAL));
+            EXPECT_TRUE(infos[1].ability.GetAbilityName() == element.GetAbilityName());
+            EXPECT_TRUE(infos[1].abilityState == static_cast<int>(AbilityState::FOREGROUND));
+        }
     }
 }
 

@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "hilog_wrapper.h"
+#include "form_mgr_errors.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -27,12 +28,12 @@
 #include "napi_common_start_options.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "napi_form_util.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
-constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 const int UPDATE_FORM_PARAMS_SIZE = 2;
@@ -117,13 +118,19 @@ private:
         // only support one or two params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
+            NapiFormUtil::ThrowParamNumError(engine, std::to_string(info.argc), "1 or 2");
             return engine.CreateUndefined();
         }
 
         decltype(info.argc) unwrapArgc = 0;
         AAFwk::Want want;
-        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+        bool unwrapResult = OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), want);
+        if (!unwrapResult) {
+            HILOG_ERROR("Failed to unwrap want.");
+            NapiFormUtil::ThrowParamTypeError(engine, "want", "Want");
+            return engine.CreateUndefined();
+        }
         HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
             __func__,
             want.GetBundle().c_str(),
@@ -131,22 +138,24 @@ private:
         unwrapArgc++;
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("startAbility begin");
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine,
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
                     return;
                 }
 
                 // entry to the core functionality.
                 ErrCode innerErrorCode = context->StartAbility(want);
-                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
-                if (errcode == 0) {
+                if (innerErrorCode == ERR_OK) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start Ability failed."));
+                    HILOG_ERROR("Failed to StartAbility, errorCode: %{public}d.", innerErrorCode);
+                    task.Reject(engine,
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
                 }
             };
 
@@ -159,15 +168,14 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
-                                          DetachCallback detach, AttachCallback attach)
+NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo, detach, attach);
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);

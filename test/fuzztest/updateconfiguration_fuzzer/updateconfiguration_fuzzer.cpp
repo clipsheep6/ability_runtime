@@ -18,17 +18,19 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#include "app_mgr_client.h"
 #include "configuration.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
+constexpr size_t FOO_MAX_LEN = 1024;
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     {
-        auto abilityMgr = AbilityManagerClient::GetInstance();
-        if (!abilityMgr) {
+        AppMgrClient* appMgrClient = new AppMgrClient();
+        if (!appMgrClient) {
             return false;
         }
 
@@ -38,7 +40,7 @@ namespace OHOS {
             return false;
         }
 
-        if (abilityMgr->UpdateConfiguration(config) != 0) {
+        if (appMgrClient->UpdateConfiguration(config) != 0) {
             return false;
         }
 
@@ -50,7 +52,34 @@ namespace OHOS {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::DoSomethingInterestingWithMyAPI(data, size);
+    if (data == nullptr) {
+        std::cout << "invalid data" << std::endl;
+        return 0;
+    }
+
+    /* Validate the length of size */
+    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
+        std::cout << "invalid size" << std::endl;
+        return 0;
+    }
+
+    char* ch = (char *)malloc(size + 1);
+    if (ch == nullptr) {
+        std::cout << "malloc failed." << std::endl;
+        return 0;
+    }
+
+    (void)memset_s(ch, size + 1, 0x00, size + 1);
+    if (memcpy_s(ch, size, data, size) != EOK) {
+        std::cout << "copy failed." << std::endl;
+        free(ch);
+        ch = nullptr;
+        return 0;
+    }
+
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    free(ch);
+    ch = nullptr;
     return 0;
 }
 

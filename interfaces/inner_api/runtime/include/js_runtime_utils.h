@@ -116,7 +116,7 @@ NativeValue* CreateJsError(NativeEngine& engine, int32_t errCode, const std::str
 void BindNativeFunction(NativeEngine& engine, NativeObject& object, const char* name,
     const char* moduleName, NativeCallback func);
 void BindNativeProperty(NativeObject& object, const char* name, NativeCallback getter);
-void* GetNativePointerFromCallbackInfo(NativeEngine* engine, NativeCallbackInfo* info, const char* name);
+void* GetNativePointerFromCallbackInfo(const NativeEngine* engine, NativeCallbackInfo* info, const char* name);
 
 void SetNamedNativePointer(
     NativeEngine& engine, NativeObject& object, const char* name, void* ptr, NativeFinalize func);
@@ -161,6 +161,7 @@ public:
 
     void Resolve(NativeEngine& engine, NativeValue* value);
     void Reject(NativeEngine& engine, NativeValue* error);
+    void ResolveWithNoError(NativeEngine& engine, NativeValue* value);
 
 private:
     static void Execute(NativeEngine* engine, void* data);

@@ -21,7 +21,8 @@
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_callback_stub.h"
+#include "quick_fix_error_utils.h"
 #include "quick_fix_manager_service.h"
 #include "quick_fix/quick_fix_status_callback_host.h"
 #include "want.h"
@@ -172,6 +173,58 @@ private:
     std::shared_ptr<QuickFixManagerApplyTask> applyTask_;
 };
 
+class QuickFixNotifyCallback : public AppExecFwk::QuickFixCallbackStub {
+public:
+    explicit QuickFixNotifyCallback(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
+        : applyTask_(applyTask)
+    {}
+
+    virtual ~QuickFixNotifyCallback() = default;
+
+    void OnLoadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+        if (resultCode != 0) {
+            HILOG_ERROR("Notify app load patch failed with %{public}d.", resultCode);
+            applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
+            applyTask_->RemoveSelf();
+            return;
+        }
+
+        applyTask_->PostDeleteQuickFixTask();
+    }
+
+    void OnUnloadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+        if (resultCode != 0) {
+            HILOG_ERROR("Notify app load patch failed with %{public}d.", resultCode);
+            applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+            applyTask_->RemoveSelf();
+            return;
+        }
+
+        applyTask_->PostSwitchQuickFixTask();
+    }
+
+    void OnReloadPageDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+        if (resultCode != 0) {
+            HILOG_ERROR("Notify app load patch failed with %{public}d.", resultCode);
+            applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
+            applyTask_->RemoveSelf();
+            return;
+        }
+
+        applyTask_->NotifyApplyStatus(QUICK_FIX_OK);
+        applyTask_->RemoveSelf();
+    }
+
+private:
+    std::shared_ptr<QuickFixManagerApplyTask> applyTask_;
+};
+
 void QuickFixManagerApplyTask::Run(const std::vector<std::string> &quickFixFiles)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -184,31 +237,9 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
-    if (appMgr_ == nullptr) {
-        HILOG_ERROR("Appmgr is nullptr.");
-        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
-        RemoveSelf();
-        return;
-    }
-
     isRunning_ = GetRunningState();
     if (isRunning_ && isSoContained_) {
-        HILOG_INFO("Start to register application state observer.");
-        std::vector<std::string> bundleNameList;
-        bundleNameList.push_back(bundleName_);
-        sptr<AppExecFwk::IApplicationStateObserver> callback = new (std::nothrow) QuickFixMgrAppStateObserver(shared_from_this());
-        if (callback == nullptr) {
-            HILOG_ERROR("callback == nullptr");
-            return;
-        }
-        auto ret = appMgr_->RegisterApplicationStateObserver(callback, bundleNameList);
-        if (ret != 0) {
-            HILOG_ERROR("Register application state observer failed.");
-            NotifyApplyStatus(QUICK_FIX_REGISTER_OBSERVER_FAILED);
-            RemoveSelf();
-        }
-        HILOG_DEBUG("Register application state observer succeed.");
-        return;
+        return RegAppStateObserver();
     } else if (isRunning_ && !isSoContained_) {
         ApplicationQuickFixInfo quickFixInfo;
         auto service = quickFixMgrService_.promote();
@@ -223,13 +254,7 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
         if (ret == QUICK_FIX_OK && !quickFixInfo.appqfInfo.hqfInfos.empty()) {
             // if there exist old version hqfInfo, need to unload.
             HILOG_DEBUG("Need unload patch firstly.");
-            ret = appMgr_->NotifyUnLoadRepairPatch(bundleName_);
-            if (ret != 0) {
-                HILOG_ERROR("Notify app unload patch failed.");
-                NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
-                RemoveSelf();
-                return;
-            }
+            return NotifyUnloadRepairPatch();
         }
     }
 
@@ -242,20 +267,7 @@ void QuickFixManagerApplyTask::HandlePatchSwitched()
     HILOG_DEBUG("function called.");
 
     if (isRunning_ && !isSoContained_) {
-        if (appMgr_ == nullptr) {
-            HILOG_ERROR("Appmgr is nullptr.");
-            NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
-            RemoveSelf();
-            return;
-        }
-
-        auto ret = appMgr_->NotifyLoadRepairPatch(bundleName_);
-        if (ret != 0) {
-            HILOG_ERROR("Notify app load patch failed.");
-            NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
-            RemoveSelf();
-            return;
-        }
+        return NotifyLoadRepairPatch();
     }
 
     PostDeleteQuickFixTask();
@@ -267,20 +279,7 @@ void QuickFixManagerApplyTask::HandlePatchDeleted()
     HILOG_DEBUG("function called.");
 
     if (isRunning_ && !isSoContained_ && type_ == AppExecFwk::QuickFixType::HOT_RELOAD) {
-        if (appMgr_ == nullptr) {
-            HILOG_ERROR("Appmgr is nullptr.");
-            NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
-            RemoveSelf();
-            return;
-        }
-
-        auto ret = appMgr_->NotifyHotReloadPage(bundleName_);
-        if (ret != 0) {
-            HILOG_ERROR("Notify app reload page failed.");
-            NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
-            RemoveSelf();
-            return;
-        }
+        return NotifyHotReloadPage();
     }
 
     NotifyApplyStatus(QUICK_FIX_OK);
@@ -472,14 +471,14 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
 
     Want want;
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_QUICK_FIX_APPLY_RESULT);
-    want.SetParam(APPLY_RESULT, applyResult);
-    want.SetParam(APPLY_RESULT_INFO, GetApplyResultInfo(applyResult));
+    want.SetParam(APPLY_RESULT, QuickFixErrorUtil::GetErrorCode(applyResult));
+    want.SetParam(APPLY_RESULT_INFO, QuickFixErrorUtil::GetErrorMessage(applyResult));
     want.SetParam(BUNDLE_NAME, bundleName_);
     want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
     want.SetParam(PATCH_VERSION, patchVersionCode_);
 
     std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
-        [moduleName = moduleNames_](std::string name, const std::string &str) {
+        [moduleName = moduleNames_](const std::string &name, const std::string &str) {
             return (str == moduleName.front()) ? (name + str) : (name + "," + str);
         });
     want.SetModuleName(moduleName);
@@ -488,32 +487,80 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
 }
 
-std::string QuickFixManagerApplyTask::GetApplyResultInfo(int32_t applyResult)
+void QuickFixManagerApplyTask::NotifyLoadRepairPatch()
 {
-    std::string info = "invalid result";
-    static const std::vector<std::pair<int32_t, std::string>> resolutions = {
-        { QUICK_FIX_OK, "apply succeed" },
-        { QUICK_FIX_DEPLOY_FAILED, "deploy failed" },
-        { QUICK_FIX_SWICH_FAILED, "switch failed" },
-        { QUICK_FIX_DELETE_FAILED, "delete failed" },
-        { QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED, "load patch failed" },
-        { QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED, "reload page failed" },
-        { QUICK_FIX_REGISTER_OBSERVER_FAILED, "register observer failed" },
-        { QUICK_FIX_APPMGR_INVALID, "appmgr is invalid" },
-        { QUICK_FIX_BUNDLEMGR_INVALID, "bundlemgr is invalid" },
-        { QUICK_FIX_SET_INFO_FAILED, "set quick fix info failed" },
-        { QUICK_FIX_PROCESS_TIMEOUT, "process apply timeout" },
-        { QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED, "unload patch failed" },
-    };
-
-    for (const auto &[temp, value] : resolutions) {
-        if (temp == applyResult) {
-            info = value;
-            break;
-        }
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Appmgr is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
     }
 
-    return info;
+    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    auto ret = appMgr_->NotifyLoadRepairPatch(bundleName_, callback);
+    if (ret != 0) {
+        HILOG_ERROR("Notify app load patch failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
+        RemoveSelf();
+    }
+}
+
+void QuickFixManagerApplyTask::NotifyUnloadRepairPatch()
+{
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Appmgr is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    auto ret = appMgr_->NotifyUnLoadRepairPatch(bundleName_, callback);
+    if (ret != 0) {
+        HILOG_ERROR("Notify app unload patch failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+        RemoveSelf();
+    }
+}
+
+void QuickFixManagerApplyTask::NotifyHotReloadPage()
+{
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Appmgr is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    auto ret = appMgr_->NotifyHotReloadPage(bundleName_, callback);
+    if (ret != 0) {
+        HILOG_ERROR("Notify app reload page failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
+        RemoveSelf();
+    }
+}
+
+void QuickFixManagerApplyTask::RegAppStateObserver()
+{
+    HILOG_DEBUG("Start to register application state observer.");
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Appmgr is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    std::vector<std::string> bundleNameList;
+    bundleNameList.push_back(bundleName_);
+    sptr<AppExecFwk::IApplicationStateObserver> callback = new QuickFixMgrAppStateObserver(shared_from_this());
+    auto ret = appMgr_->RegisterApplicationStateObserver(callback, bundleNameList);
+    if (ret != 0) {
+        HILOG_ERROR("Register application state observer failed.");
+        NotifyApplyStatus(QUICK_FIX_REGISTER_OBSERVER_FAILED);
+        RemoveSelf();
+    }
+    HILOG_DEBUG("Register application state observer succeed.");
 }
 
 void QuickFixManagerApplyTask::RemoveSelf()

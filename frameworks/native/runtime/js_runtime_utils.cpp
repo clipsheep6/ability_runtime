@@ -65,7 +65,7 @@ void BindNativeProperty(NativeObject& object, const char* name, NativeCallback g
     object.DefineProperty(property);
 }
 
-void* GetNativePointerFromCallbackInfo(NativeEngine* engine, NativeCallbackInfo* info, const char* name)
+void* GetNativePointerFromCallbackInfo(const NativeEngine* engine, NativeCallbackInfo* info, const char* name)
 {
     if (engine == nullptr || info == nullptr) {
         return nullptr;
@@ -159,6 +159,24 @@ void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
     if (callbackRef_) {
         NativeValue* argv[] = {
             CreateJsError(engine, 0),
+            value,
+        };
+        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
+        callbackRef_.reset();
+    }
+    HILOG_DEBUG("AsyncTask::Resolve is called end.");
+}
+
+void AsyncTask::ResolveWithNoError(NativeEngine& engine, NativeValue* value)
+{
+    HILOG_DEBUG("AsyncTask::Resolve is called");
+    if (deferred_) {
+        deferred_->Resolve(value);
+        deferred_.reset();
+    }
+    if (callbackRef_) {
+        NativeValue* argv[] = {
+            engine.CreateNull(),
             value,
         };
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));

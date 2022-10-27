@@ -13,6 +13,8 @@
 
 bootevent.appfwk.ready=false
 compress=false
-component.startup.newRules=false
+component.startup.newRules=true
 component.startup.newRules.except.LauncherSystemUI=true
-component.startup.backgroundJudge.flag=true
+component.startup.backgroundJudge.flag=false
+component.startup.whitelist.normal=true
+component.startup.whitelist.associatedWakeUp=true

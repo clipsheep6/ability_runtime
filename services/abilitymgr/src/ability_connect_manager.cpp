@@ -294,10 +294,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
             ConnectAbility(targetService);
         }
     } else {
-        HILOG_ERROR("Target service ability is activating, connect failed");
-        targetService->RemoveConnectRecordFromList(connectRecord);
-        RemoveConnectionRecordFromMap(connectRecord);
-        ret = START_SERVICE_ABILITY_ACTIVATING;
+        HILOG_INFO("Target service ability is activating, just wait for callback");
     }
 
     auto token = targetService->GetToken();

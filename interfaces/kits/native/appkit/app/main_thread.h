@@ -225,11 +225,13 @@ public:
      */
     void CheckMainThreadIsAlive();
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyHotReloadPage() override;
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
 private:
     /**
@@ -416,9 +418,6 @@ private:
      *
      */
     bool IsApplicationReady() const;
-
-    void LoadAndRegisterExtension(const std::string &libName, const std::string &extensionName,
-        const std::unique_ptr<Runtime>& runtime);
 
     void LoadAllExtensions(const std::string &filePath);
 

@@ -20,6 +20,42 @@ extern const char _binary_service_extension_ability_js_end[];
 extern const char _binary_service_extension_ability_abc_start[];
 extern const char _binary_service_extension_ability_abc_end[];
 
+#ifdef ENABLE_ERRCODE
+extern "C" __attribute__((constructor))
+void NAPI_app_ability_ServiceExtensionAbility_AutoRegister()
+{
+    auto moduleManager = NativeModuleManager::GetInstance();
+    NativeModule newModuleInfo = {
+        .name = "app.ability.ServiceExtensionAbility",
+        .fileName = "app/ability/libserviceextensionability_napi.so/service_extension_ability.js",
+    };
+
+    moduleManager->Register(&newModuleInfo);
+}
+
+extern "C" __attribute__((visibility("default")))
+void NAPI_app_ability_ServiceExtensionAbility_GetJSCode(const char **buf, int *bufLen)
+{
+    if (buf != nullptr) {
+        *buf = _binary_service_extension_ability_js_start;
+    }
+
+    if (bufLen != nullptr) {
+        *bufLen = _binary_service_extension_ability_js_end - _binary_service_extension_ability_js_start;
+    }
+}
+
+extern "C" __attribute__((visibility("default")))
+void NAPI_app_ability_ServiceExtensionAbility_GetABCCode(const char **buf, int *buflen)
+{
+    if (buf != nullptr) {
+        *buf = _binary_service_extension_ability_abc_start;
+    }
+    if (buflen != nullptr) {
+        *buflen = _binary_service_extension_ability_abc_end - _binary_service_extension_ability_abc_start;
+    }
+}
+#else
 extern "C" __attribute__((constructor))
 void NAPI_application_ServiceExtensionAbility_AutoRegister()
 {
@@ -54,3 +90,4 @@ void NAPI_application_ServiceExtensionAbility_GetABCCode(const char **buf, int *
         *buflen = _binary_service_extension_ability_abc_end - _binary_service_extension_ability_abc_start;
     }
 }
+#endif

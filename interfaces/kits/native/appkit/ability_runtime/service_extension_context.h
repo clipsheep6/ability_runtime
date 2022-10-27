@@ -75,9 +75,9 @@ public:
      *
      * @param conn Indicates the callback object when the target ability is connected.
      *
-     * @return True means success and false means failure
+     * @return Returns zero on success, others on failure.
      */
-    bool ConnectAbility(
+    ErrCode ConnectAbility(
         const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
 
     /**
@@ -109,9 +109,9 @@ public:
      *
      * @param conn Indicates the callback object when the target ability is connected.
      *
-     * @return True means success and false means failure.
+     * @return Returns zero on success, others on failure.
      */
-    bool ConnectAbilityWithAccount(
+    ErrCode ConnectAbilityWithAccount(
         const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback) const;
 
     /**

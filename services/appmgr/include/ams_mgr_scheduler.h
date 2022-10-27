@@ -16,21 +16,20 @@
 #ifndef OHOS_ABILITY_RUNTIME_AMS_MGR_SCHEDULER_H
 #define OHOS_ABILITY_RUNTIME_AMS_MGR_SCHEDULER_H
 
-#include "if_system_ability_manager.h"
-#include "nocopyable.h"
-
-#include "system_ability.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
+#include "ams_mgr_stub.h"
 #include "appexecfwk_errors.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
-#include "ams_mgr_stub.h"
 #include "app_mgr_service_event_handler.h"
 #include "app_mgr_service_inner.h"
 #include "app_record_id.h"
 #include "app_running_record.h"
 #include "app_scheduler_proxy.h"
+#include "if_system_ability_manager.h"
+#include "nocopyable.h"
+#include "system_ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -47,7 +46,7 @@ public:
      * @param preToken, the unique identification to call the ability.
      * @param abilityInfo, the ability information.
      * @param appInfo, the app information.
-     * @return
+     * @param want, the starting information.
      */
     virtual void LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,

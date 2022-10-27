@@ -143,7 +143,7 @@ ErrCode AppMgrService::Init()
         HILOG_WARN("failed to connect to AppSpawnDaemon! errCode: %{public}08x", openErr);
     }
     if (!Publish(this)) {
-        HILOG_ERROR("failed to publish appmgrservice to systemAbilityMgr");
+        HILOG_ERROR("failed to publish app mgr service to systemAbilityMgr");
         return ERR_APPEXECFWK_SERVICE_NOT_CONNECTED;
     }
     amsMgrScheduler_ = new (std::nothrow) AmsMgrScheduler(appMgrServiceInner_, handler_);
@@ -359,6 +359,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
     const AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
     std::function<void()> startUserTestProcessFunc =
@@ -370,6 +371,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
 int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
 
@@ -383,7 +385,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s, appms is not ready.", __func__);
+        HILOG_ERROR("%{public}s, not ready.", __func__);
         return ERR_APPEXECFWK_HIDUMP_ERROR;
     }
 
@@ -422,6 +424,7 @@ void AppMgrService::ShowHelp(std::string& result) const
 void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
@@ -431,9 +434,21 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
+}
+
+int32_t AppMgrService::PreStartNWebSpawnProcess()
+{
+    HILOG_INFO("PreStartNWebSpawnProcess");
+    if (!IsReady()) {
+        HILOG_ERROR("PreStartNWebSpawnProcess failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingPid());
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
@@ -537,24 +552,24 @@ bool AppMgrService::GetAppRunningStateByBundleName(const std::string &bundleName
     return appMgrServiceInner_->GetAppRunningStateByBundleName(bundleName);
 }
 
-int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName);
+    return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyHotReloadPage(bundleName);
+    return appMgrServiceInner_->NotifyHotReloadPage(bundleName, callback);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -569,14 +584,14 @@ int32_t AppMgrService::SetContinuousTaskProcess(int32_t pid, bool isContinuousTa
 }
 #endif
 
-int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName);
+    return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -16,6 +16,15 @@
 var Context = requireNapi("application.Context")
 var Caller = requireNapi("application.Caller")
 
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+class ParamError extends Error {
+    constructor() {
+        super(ERROR_MSG_INVALID_PARAM);
+        this.code = ERROR_CODE_INVALID_PARAM;
+    }
+}
+
 class AbilityContext extends Context {
     constructor(obj) {
         super(obj)
@@ -40,14 +49,15 @@ class AbilityContext extends Context {
         return new Promise(async (resolve, reject) => {
             if (typeof want !== 'object' || want == null) {
                 console.log("AbilityContext::startAbilityByCall input param error");
-                reject(new Error("function input parameter error"));
+                reject(new ParamError());
                 return;
             }
 
-            let callee = await this.__context_impl__.startAbilityByCall(want);
-            if (callee == null || typeof callee !== 'object') {
+            try{
+                var callee = await this.__context_impl__.startAbilityByCall(want);
+            } catch(error) {
                 console.log("AbilityContext::startAbilityByCall Obtain remoteObject failed");
-                reject(new Error("function request remote error"));
+                reject(error);
                 return;
             }
 
@@ -85,12 +95,24 @@ class AbilityContext extends Context {
         return this.__context_impl__.connectAbility(want, options);
     }
 
+    connectServiceExtensionAbility(want, options) {
+        return this.__context_impl__.connectServiceExtensionAbility(want, options);
+    }
+
     connectAbilityWithAccount(want, accountId, options) {
         return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
+    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+    }
+
     disconnectAbility(connection, callback) {
         return this.__context_impl__.disconnectAbility(connection, callback);
+    }
+
+    disconnectServiceExtensionAbility(connection, callback) {
+        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
     }
 
     terminateSelf(callback) {

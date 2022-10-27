@@ -14,43 +14,58 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_shared_library("abilitydelegatorregistry") {
-  include_dirs = [
-    "./",
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/",
-    "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${ability_runtime_path}/tools/aa/include",
-    "${ipc_native_path}/src/napi/include",
-  ]
+template("delegator") {
+  ohos_shared_library(target_name) {
+    forward_variables_from(invoker, [ "relative_install_dir" ])
 
-  sources = [
-    "ability_monitor.cpp",
-    "js_ability_delegator.cpp",
-    "js_ability_delegator_registry.cpp",
-    "js_ability_delegator_utils.cpp",
-    "js_ability_monitor.cpp",
-    "native_module.cpp",
-  ]
+    if (defined(invoker.defines)) {
+      defines = invoker.defines
+    }
 
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+    include_dirs = [
+      "./",
+      "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/",
+      "${ability_runtime_path}/interfaces/kits/native/ability/native",
+      "${ability_runtime_path}/tools/aa/include",
+      "${ipc_native_path}/src/napi/include",
+    ]
 
-  deps = [
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/appkit:app_context_utils",
-    "${ability_runtime_native_path}/appkit:appkit_delegator",
-  ]
+    sources = [
+      "ability_monitor.cpp",
+      "js_ability_delegator.cpp",
+      "js_ability_delegator_registry.cpp",
+      "js_ability_delegator_utils.cpp",
+      "js_ability_monitor.cpp",
+      "native_module.cpp",
+    ]
 
-  external_deps = [
-    "ability_base:want",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "napi:ace_napi",
-  ]
+    configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
+    deps = [
+      "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+      "${ability_runtime_native_path}/appkit:app_context_utils",
+      "${ability_runtime_native_path}/appkit:appkit_delegator",
+    ]
+
+    external_deps = [
+      "ability_base:want",
+      "ability_runtime:abilitykit_native",
+      "ability_runtime:runtime",
+      "c_utils:utils",
+      "hiviewdfx_hilog_native:libhilog",
+      "napi:ace_napi",
+    ]
+
+    subsystem_name = "ability"
+    part_name = "ability_runtime"
+  }
+}
+
+delegator("abilitydelegatorregistry_napi") {
   relative_install_dir = "module/application"
+}
 
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
+delegator("abilitydelegatorregistry") {
+  relative_install_dir = "module/app/ability"
+  defines = [ "ENABLE_ERRCODE" ]
 }

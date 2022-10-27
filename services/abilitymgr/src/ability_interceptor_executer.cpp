@@ -17,7 +17,7 @@
 #include "hilog_wrapper.h"
 
 namespace OHOS {
-namespace AAFwk{
+namespace AAFwk {
 void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<AbilityInterceptor> &interceptor)
 {
     if (interceptor != nullptr) {

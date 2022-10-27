@@ -257,6 +257,13 @@ public:
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
 
     /**
+     * Prestart nwebspawn process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreStartNWebSpawnProcess();
+
+    /**
      * Start nweb render process, called by nweb host.
      *
      * @param renderParam, params passed to renderprocess.

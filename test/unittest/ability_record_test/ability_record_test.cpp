@@ -685,5 +685,121 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetSpecifiedFlag_001, TestSize.Level
     auto flag = abilityRecord_->GetSpecifiedFlag();
     EXPECT_EQ(flag, "flag");
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetAbilityRecordByToken
+ * SubFunction: GetAbilityRecordByToken
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord token GetAbilityRecordByToken
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityRecordByToken_001, TestSize.Level1)
+{
+    EXPECT_EQ(Token::GetAbilityRecordByToken(nullptr), nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetPixelMap
+ * SubFunction: GetPixelMap
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetPixelMap
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_001, TestSize.Level1)
+{
+    EXPECT_EQ(abilityRecord_->GetPixelMap(1, nullptr), nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
+    EXPECT_EQ(abilityRecord_->GetPixelMap(1, resourceMgr), nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetPendingState
+ * SubFunction: SetPendingState
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: set AbilityRecord pending state
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetPendingState_001, TestSize.Level1)
+{
+    abilityRecord_->SetPendingState(OHOS::AAFwk::AbilityState::FOREGROUND);
+    EXPECT_EQ(abilityRecord_->GetPendingState(), OHOS::AAFwk::AbilityState::FOREGROUND);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PostCancelStartingWindowHotTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: PostCancelStartingWindowHotTask
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PostCancelStartingWindowHotTask_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    want.SetParam("debugApp", true);
+    abilityRecord.SetWant(want);
+    abilityRecord.PostCancelStartingWindowHotTask();
+    EXPECT_TRUE(want.GetBoolParam("debugApp", false));
+
+    want.SetParam("debugApp", false);
+    abilityRecord.PostCancelStartingWindowHotTask();
+    EXPECT_FALSE(want.GetBoolParam("debugApp", false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PostCancelStartingWindowColdTask
+ * SubFunction: PostCancelStartingWindowColdTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: PostCancelStartingWindowColdTask
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PostCancelStartingWindowColdTask_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    want.SetParam("debugApp", true);
+    abilityRecord.SetWant(want);
+    abilityRecord.PostCancelStartingWindowColdTask();
+    EXPECT_TRUE(want.GetBoolParam("debugApp", false));
+
+    want.SetParam("debugApp", false);
+    abilityRecord.PostCancelStartingWindowColdTask();
+    EXPECT_FALSE(want.GetBoolParam("debugApp", false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateResourceManager
+ * SubFunction: CreateResourceManager
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: CreateResourceManager
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CreateResourceManager_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.hapPath = "abc";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.resourcePath = "abc";
+    abilityInfo.hapPath = "";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.hapPath = "abc";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

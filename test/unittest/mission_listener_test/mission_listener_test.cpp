@@ -176,7 +176,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Register_0100, TestSize.Level1)
  */
 HWTEST_F(MissionListenerTest, MissionListener_Callback_0100, TestSize.Level2)
 {
-    HILOG_INFO("ConnectionObserver_Data_0200 start");
+    HILOG_INFO("MissionListener_Callback_0100 start");
 
     auto controller = GetController();
     ASSERT_TRUE(controller);
@@ -213,8 +213,33 @@ HWTEST_F(MissionListenerTest, MissionListener_Callback_0100, TestSize.Level2)
 
     controller->DelMissionListener(listener);
 
-    HILOG_INFO("ConnectionObserver_Data_0200 end");
+    HILOG_INFO("MissionListener_Callback_0100 end");
 }
 
+/**
+ * @tc.name: MissionListener_Callback_0200
+ * @tc.desc: test callback function.
+ * @tc.type: FUNC
+ * @tc.require: I5OB2Y
+ */
+HWTEST_F(MissionListenerTest, MissionListener_Callback_0200, TestSize.Level2)
+{
+    HILOG_INFO("MissionListener_Callback_0200 start");
+
+    std::shared_ptr<MissionListenerController> controller = std::make_shared<MissionListenerController>();
+    ASSERT_TRUE(controller);
+
+    sptr<MyMissionListener> listener = new MyMissionListener();
+    auto result = controller->AddMissionListener(listener);
+    EXPECT_EQ(0, result);
+
+    controller->NotifyMissionLabelUpdated(TEST_MISSION_ID);
+
+    sleep(2);
+
+    EXPECT_FALSE(listener->IsMissionLabelUpdated());
+
+    HILOG_INFO("MissionListener_Callback_0200 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

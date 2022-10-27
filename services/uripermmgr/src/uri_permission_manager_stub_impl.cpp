@@ -117,7 +117,7 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, unsigned 
         tmpFlag = Want::FLAG_AUTH_READ_URI_PERMISSION;
     }
 
-    for (auto& item : search->second) {
+    for (const auto& item : search->second) {
         if (item.targetTokenId == tokenId &&
             (item.flag == Want::FLAG_AUTH_WRITE_URI_PERMISSION || item.flag == tmpFlag)) {
             HILOG_DEBUG("This tokenID have permission for this uri.");

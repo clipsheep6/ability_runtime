@@ -21,7 +21,7 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const std::string TASK_ON_REMOTE_DIED = "OnRemoteDiedTask";
-}
+} // namespace
 
 void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {

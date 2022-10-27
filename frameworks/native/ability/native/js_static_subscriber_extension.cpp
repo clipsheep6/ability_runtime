@@ -47,7 +47,7 @@ NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsStaticSubscriberExtensionContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsStaticSubscriberExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.StaticSubscriberExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
@@ -120,7 +120,7 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         return;
     }
     HILOG_INFO("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
-    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context, nullptr, nullptr);
+    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context);
     auto shellContextRef = JsRuntime::LoadSystemModuleByEngine(&engine, "application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();

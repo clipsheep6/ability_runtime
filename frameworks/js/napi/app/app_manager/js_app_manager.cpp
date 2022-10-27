@@ -265,7 +265,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetProcessRunningInfos(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnGetProcessRunningInfos(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -297,7 +297,7 @@ private:
         return result;
     }
 
-    NativeValue* OnIsRunningInStabilityTest(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnIsRunningInStabilityTest(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -330,7 +330,7 @@ private:
         return result;
     }
 
-    NativeValue* OnkillProcessByBundleName(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnkillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -375,7 +375,7 @@ private:
         return result;
     }
 
-    NativeValue* OnClearUpApplicationData(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnClearUpApplicationData(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -465,7 +465,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetAppMemorySize(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnGetAppMemorySize(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         int32_t errCode = 0;
 
@@ -497,7 +497,7 @@ private:
         return result;
     }
 
-    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         int32_t errCode = 0;
 

@@ -380,7 +380,8 @@ void AppSchedulerProxy::ScheduleAcceptWant(const AAFwk::Want &want, const std::s
     }
 }
 
-int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
@@ -391,6 +392,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -412,12 +418,17 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     return reply.ReadInt32();
 }
 
-int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage()
+int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -439,7 +450,8 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage()
     return reply.ReadInt32();
 }
 
-int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
@@ -450,6 +462,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("Schedule notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 

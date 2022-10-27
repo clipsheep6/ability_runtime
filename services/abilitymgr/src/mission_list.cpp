@@ -77,6 +77,23 @@ std::shared_ptr<Mission> MissionList::GetSingletonMissionByName(const std::strin
     return nullptr;
 }
 
+std::shared_ptr<Mission> MissionList::GetSpecifiedMission(
+    const std::string &missionName, const std::string& flag) const
+{
+    if (missionName.empty()) {
+        return nullptr;
+    }
+
+    for (auto& mission : missions_) {
+        if (mission && mission->IsSpecifiedAbility() && mission->GetMissionName() == missionName &&
+            mission->GetSpecifiedFlag() == flag) {
+            return mission;
+        }
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const
 {
     for (auto mission : missions_) {

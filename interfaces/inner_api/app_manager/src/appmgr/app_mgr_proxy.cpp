@@ -565,6 +565,37 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
     return reply.ReadInt32();
 }
 
+int AppMgrProxy::PreStartNWebSpawnProcess()
+{
+    HILOG_INFO("PreStartNWebSpawnProcess");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("PreStartNWebSpawnProcess failed, result: %{public}d", ret);
+        return ret;
+    }
+
+    auto result = reply.ReadInt32();
+    if (result != 0) {
+        HILOG_WARN("PreStartNWebSpawnProcess failed, result: %{public}d", ret);
+        return ret;
+    }
+    return 0;
+}
+
 int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
     int32_t sharedFd, pid_t &renderPid)
 {
@@ -828,7 +859,7 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
     return reply.ReadBool();
 }
 
-int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("NotifyLoadRepairPatch, function called.");
@@ -840,6 +871,11 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("NotifyLoadRepairPatch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -861,7 +897,7 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -873,6 +909,11 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -934,7 +975,7 @@ int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask
 }
 #endif
 
-int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -946,6 +987,11 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName)
 
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("Notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
         return ERR_INVALID_DATA;
     }
 

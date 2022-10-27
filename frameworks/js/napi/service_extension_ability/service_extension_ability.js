@@ -37,6 +37,10 @@ class ServiceExtensionAbility {
     dump(params) {
         console.log('dump');
     }
+
+    onDump(params) {
+        console.log('onDump');
+    }
 }
 
 export default ServiceExtensionAbility

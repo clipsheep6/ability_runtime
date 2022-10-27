@@ -217,6 +217,11 @@ struct AbilityRequest {
         return false;
     }
 
+    bool IsAppRecovery() const
+    {
+        return want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
+    }
+
     bool IsCallType(const AbilityCallType & type) const
     {
         return (callType == type);
@@ -436,6 +441,8 @@ public:
         isStartingWindow_ = isStartingWindow;
     }
 
+    void PostCancelStartingWindowHotTask();
+
     /**
      * process request of foregrounding the ability.
      *
@@ -443,6 +450,9 @@ public:
     void ProcessForegroundAbility(bool isRecent, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
         uint32_t sceneFlag = 0);
+
+    void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag = 0);
+    void NotifyAnimationFromTerminatingAbility() const;
 #endif
 
     /**
@@ -808,6 +818,9 @@ public:
 
     std::string GetLabel();
 
+    void SetPendingState(AbilityState state);
+    AbilityState GetPendingState() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 
@@ -842,37 +855,42 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
-    void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
-        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
         sptr<AbilityTransitionInfo> &info) const;
-    void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
-        const AbilityRequest &abilityRequest) const;
-    void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
-        const std::shared_ptr<Want> &want) const;
-
-    void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
-        std::shared_ptr<StartOptions> &startOptions);
-    void StartingWindowColdTask(bool isRecnet, const AbilityRequest &abilityRequest,
-        std::shared_ptr<StartOptions> &startOptions);
-    void CancelStartingWindowColdTask();
-    void CancelStartingWindowHotTask();
+    void SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) const;
     sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
     void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
-        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-        const sptr<IRemoteObject> abilityToken) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
     std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager() const;
     std::shared_ptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
         std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
+
+    void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
+        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
+    void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
+        const AbilityRequest &abilityRequest) const;
+    void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want) const;
+    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool flag);
+
+    void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
+        std::shared_ptr<StartOptions> &startOptions);
+    void StartingWindowColdTask(bool isRecnet, const AbilityRequest &abilityRequest,
+        std::shared_ptr<StartOptions> &startOptions);
+    void PostCancelStartingWindowColdTask();
     void StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
+    void StartingWindowHot();
     void StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
+    void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
+    void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
 #endif
 
     static int64_t abilityRecordId;
@@ -948,9 +966,12 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     bool needTakeSnapShot_ = true;
+    std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
+    uint32_t bgColor_ = 0;
+    std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 #endif
 };
 }  // namespace AAFwk

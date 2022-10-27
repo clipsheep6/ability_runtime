@@ -110,7 +110,7 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName) override;
 
@@ -119,7 +119,7 @@ public:
      * Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
@@ -130,7 +130,7 @@ public:
      * @param info, app name in Application record.
      * @param userId, userId.
      *
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
 
@@ -139,7 +139,7 @@ public:
      * Notify applications background the current memory level.
      *
      * @param level, current memory level.
-     * @return ERR_OK ,return back success，others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
@@ -149,7 +149,7 @@ public:
      *
      * @param recordId, a unique record that identifies this Application from others.
      * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
 
@@ -214,6 +214,8 @@ public:
 
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
 
+    virtual int PreStartNWebSpawnProcess() override;
+
     virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid) override;
 
@@ -240,11 +242,11 @@ public:
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName) override;
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t NotifyHotReloadPage(const std::string &bundleName) override;
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;

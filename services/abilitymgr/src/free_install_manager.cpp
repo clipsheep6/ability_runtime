@@ -90,11 +90,16 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
+<<<<<<< HEAD
     sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this());
     if (callback == nullptr) {
         HILOG_ERROR("callback == nullptr");
         return ERR_INVALID_VALUE;
     }
+=======
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
+        info.startInstallTime);
+>>>>>>> master
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
@@ -133,7 +138,8 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this());
+    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this(),
+        info.startInstallTime);
     if (callback == nullptr) {
         HILOG_ERROR("callback == nullptr");
         return ERR_INVALID_VALUE;
@@ -162,6 +168,8 @@ FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32
         .want = want,
         .userId = userId,
         .requestCode = requestCode,
+        .startInstallTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count(),
         .callerToken = callerToken,
         .promise = promise
     };
@@ -233,7 +241,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
     return reply.ReadInt32();
 }
 
-void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode)
+void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode, int64_t startInstallTime)
 {
     std::lock_guard<std::mutex> lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
@@ -244,8 +252,11 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     HILOG_INFO("isFromRemote = %{public}d", isFromRemote);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
-        if (want.GetElement().GetAbilityName().compare(abilityName) != 0) {
+        if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
+            want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
+            (*it).startInstallTime != startInstallTime) {
             it++;
             continue;
         }
@@ -255,12 +266,20 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             continue;
         }
 
-        if ((*it).promise != nullptr) {
-            HILOG_INFO("Handle apps setvalue done.");
+        if ((*it).promise == nullptr) {
+            it++;
+            continue;
+        }
+        
+        if (resultCode == ERR_OK) {
+            HILOG_INFO("FreeInstall success.");
+            (*it).promise->set_value(resultCode);
+            (*it).isInstalled = true;
+        } else {
+            HILOG_INFO("FreeInstall failed.");
             (*it).promise->set_value(resultCode);
         }
 
-        (*it).isInstalled = true;
         it++;
     }
 }
@@ -316,7 +335,6 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
     if (!isSaCall) {
         std::string wantAbilityName = want.GetElement().GetAbilityName();
         std::string wantBundleName = want.GetElement().GetBundleName();
-        std::string wantModuleName = want.GetElement().GetModuleName();
         if (wantBundleName.empty() || wantAbilityName.empty()) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName or wantAbilityName is empty");
             return ERR_INVALID_VALUE;
@@ -355,11 +373,11 @@ std::time_t FreeInstallManager::GetTimeStamp()
     return timestamp;
 }
 
-void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId)
+void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     NotifyDmsCallback(want, resultCode);
-    NotifyFreeInstallResult(want, resultCode);
+    NotifyFreeInstallResult(want, resultCode, startInstallTime);
 
     std::weak_ptr<FreeInstallManager> thisWptr(shared_from_this());
     if (resultCode == ERR_OK) {
@@ -384,10 +402,11 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
     }
 }
 
-void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId)
+void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
+    int64_t startInstallTime)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
-    NotifyFreeInstallResult(want, resultCode);
+    NotifyFreeInstallResult(want, resultCode, startInstallTime);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

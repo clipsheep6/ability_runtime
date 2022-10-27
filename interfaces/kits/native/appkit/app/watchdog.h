@@ -74,6 +74,13 @@ public:
 
     /**
      *
+     * @brief Set whether app is in the background or not
+     *
+     */
+    void SetBackgroundStatus(const bool isInBackground);
+
+    /**
+     *
      * @brief Allow report the main thread timeout event.
      *
      */
@@ -102,10 +109,12 @@ private:
     std::atomic_bool stopWatchdog_ = false;
     std::atomic_bool needReport_ = true;
     std::atomic_bool isSixSecondEvent_ = false;
+    std::atomic_bool isInBackground_ = false;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;
     static std::shared_ptr<EventHandler> appMainHandler_;
+    int64_t lastWatchTime_ = 0;
 };
 
 class MainHandlerDumper : public Dumper {

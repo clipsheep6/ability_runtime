@@ -16,6 +16,15 @@
 var ExtensionContext = requireNapi("application.ExtensionContext")
 var Caller = requireNapi("application.Caller")
 
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+class ParamError extends Error {
+    constructor() {
+        super(ERROR_MSG_INVALID_PARAM);
+        this.code = ERROR_CODE_INVALID_PARAM;
+    }
+}
+
 class ServiceExtensionContext extends ExtensionContext {
     constructor(obj) {
         super(obj);
@@ -29,6 +38,11 @@ class ServiceExtensionContext extends ExtensionContext {
     connectAbility(want, options) {
         console.log("connectAbility");
         return this.__context_impl__.connectAbility(want, options);
+    }
+
+    connectServiceExtensionAbility(want, options) {
+        console.log("connectServiceExtensionAbility");
+        return this.__context_impl__.connectServiceExtensionAbility(want, options);
     }
 
     startAbilityWithAccount(want, accountId, options, callback) {
@@ -61,9 +75,19 @@ class ServiceExtensionContext extends ExtensionContext {
         return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
+    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+        console.log("connectServiceExtensionAbilityWithAccount");
+        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+    }
+
     disconnectAbility(connection, callback) {
         console.log("disconnectAbility");
         return this.__context_impl__.disconnectAbility(connection, callback);
+    }
+
+    disconnectServiceExtensionAbility(connection, callback) {
+        console.log("disconnectServiceExtensionAbility");
+        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
     }
 
     terminateSelf(callback) {
@@ -75,14 +99,15 @@ class ServiceExtensionContext extends ExtensionContext {
         return new Promise(async (resolve, reject) => {
             if (typeof want !== 'object' || want == null) {
                 console.log("ServiceExtensionContext::startAbilityByCall input param error");
-                reject(new Error("function input parameter error"));
+                reject(new ParamError());
                 return;
             }
 
-            let callee = await this.__context_impl__.startAbilityByCall(want);
-            if (callee == null || typeof callee !== 'object') {
+            try{
+                var callee = await this.__context_impl__.startAbilityByCall(want);
+            } catch(error) {
                 console.log("ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed");
-                reject(new Error("function request remote error"));
+                reject(error);
                 return;
             }
 

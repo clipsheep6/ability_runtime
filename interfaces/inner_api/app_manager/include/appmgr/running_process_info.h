@@ -53,8 +53,10 @@ struct RunningProcessInfo : public Parcelable {
     std::int32_t uid_;
     AppProcessState state_;
     std::vector<std::string> bundleNames;
+    std::int64_t startTimeMillis_;
     bool isContinuousTask = false;
     bool isKeepAlive = false;
+    bool isFocused = false;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

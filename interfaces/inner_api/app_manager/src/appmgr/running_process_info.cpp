@@ -43,6 +43,7 @@ bool RunningProcessInfo::ReadFromParcel(Parcel &parcel)
     state_ = static_cast<AppProcessState>(stateData);
     isContinuousTask = parcel.ReadBool();
     isKeepAlive = parcel.ReadBool();
+    isFocused = parcel.ReadBool();
     if (!parcel.ReadStringVector(&bundleNames)) {
         HILOG_ERROR("read bundleNames failed.");
         return false;
@@ -69,6 +70,7 @@ bool RunningProcessInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(state_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isContinuousTask);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isKeepAlive);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isFocused);
     if (!parcel.WriteStringVector(bundleNames)) {
         HILOG_ERROR("write bundleNames failed.");
         return false;

@@ -63,7 +63,6 @@ group("moduletest") {
     "panding_want_manager_test:moduletest",
     "quick_fix:moduletest",
     "running_infos_module_test:moduletest",
-    "start_ability_implicit_module_test:moduletest",
     "start_option_display_id_test:moduletest",
     "//third_party/icu/icu4c:shared_icuuc",
     "//third_party/jsoncpp:jsoncpp",

@@ -146,7 +146,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
     std::string value;
     int32_t result;
 
-    appMgrServiceInner->GetGlobalConfiguration();
+    appMgrServiceInner->InitGlobalConfiguration();
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
     value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
@@ -176,6 +176,23 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
     }
 
     HILOG_INFO("PointerDeviceUpdateConfig_0100 end");
+}
+
+/**
+ * @tc.name: PreStartNWebSpawnProcess_001
+ * @tc.desc: prestart nwebspawn process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int callingPid = 1;
+    appMgrServiceInner->PreStartNWebSpawnProcess(callingPid);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

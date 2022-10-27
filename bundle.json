@@ -59,7 +59,7 @@
             "input",
             "ipc",
             "ipc_js",
-            "multimedia_image_standard",
+            "multimedia_image_framework",
             "napi",
             "os_account",
             "relational_store",
@@ -100,6 +100,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/deps_wrapper:ability_deps_wrapper"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/error_utils/include",
+              "header_files": [
+                "ability_runtime_error_util.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/error_utils:ability_runtime_error_util"
           },
           {
             "header": {

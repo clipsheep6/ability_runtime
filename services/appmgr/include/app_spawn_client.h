@@ -42,20 +42,26 @@ public:
     DISALLOW_COPY_AND_MOVE(AppSpawnClient);
 
     /**
-     * Try connect to appspawn.
+     * Try connect to appSpawn.
      */
     ErrCode OpenConnection();
 
     /**
-     * Close the connect of appspawn.
+     * Close the connect of appSpawn.
      */
     void CloseConnection();
 
     /**
-     * AppSpawnClient core function, Start request to appspawn.
+     * Start request to nwebspawn process.
+     *
+     */
+    virtual ErrCode PreStartNWebSpawnProcess();
+
+    /**
+     * AppSpawnClient core function, Start request to appSpawn.
      *
      * @param startMsg, request message.
-     * @param pid, pid of app process, get from appspawn.
+     * @param pid, pid of app process, get from appSpawn.
      */
     virtual ErrCode StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pid);
 
@@ -63,7 +69,7 @@ public:
      * Get render process termination status.
      *
      * @param startMsg, request message.
-     * @param status, termination status of render process, get from appspawn.
+     * @param status, termination status of render process, get from appSpawn.
      */
     virtual ErrCode GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status);
 
@@ -82,9 +88,15 @@ private:
      * AppSpawnClient core function,
      *
      * @param startMsg, request message.
-     * @param pid, pid of app process, get it from appspawn.
+     * @param pid, pid of app process, get it from appSpawn.
      */
     ErrCode StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t &pid);
+
+    /**
+     * Start request to nwebspawn process.
+     *
+     */
+    ErrCode PreStartNWebSpawnProcessImpl();
 
 private:
     std::shared_ptr<AppSpawnSocket> socket_;

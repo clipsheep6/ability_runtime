@@ -53,6 +53,7 @@ public:
     void UpdateContextConfiguration() override;
     void OnMemoryLevel(int level) override;
     void OnNewWant(const Want &want) override;
+    int32_t OnSaveState(int32_t reason, WantParams &wantParams) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
@@ -86,6 +87,7 @@ protected:
 
 private:
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
+    void AbilityContinuationOrRecover(const Want &want);
     std::shared_ptr<NativeReference> jsWindowStageObj_;
 #endif
 

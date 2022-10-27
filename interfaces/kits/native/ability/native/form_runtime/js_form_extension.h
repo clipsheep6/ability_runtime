@@ -63,7 +63,8 @@ public:
     bool OnShare(int64_t formId, AAFwk::WantParams &wantParams) override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
+    NativeValue* CallObjectMethod(const char* name, const char* bakName, NativeValue* const * argv = nullptr,
+        size_t argc = 0);
 
     void BindContext(NativeEngine& engine, NativeObject* obj);
 

@@ -36,7 +36,9 @@ ohos_shared_library("wantagent") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_runtime_error_util",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
@@ -47,4 +49,8 @@ ohos_shared_library("wantagent") {
   relative_install_dir = "module"
   subsystem_name = "ability"
   part_name = "ability_runtime"
+}
+
+group("napi_wantAgent") {
+  deps = [ "ability_want_agent:wantagent_napi" ]
 }

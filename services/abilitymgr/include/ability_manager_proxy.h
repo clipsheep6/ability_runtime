@@ -591,6 +591,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
 private:
     template <typename T>

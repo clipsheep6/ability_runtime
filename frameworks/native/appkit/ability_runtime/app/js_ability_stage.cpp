@@ -252,6 +252,7 @@ void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& con
         reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
+    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, 1);
 }
 
 void JsAbilityStage::OnMemoryLevel(int32_t level)

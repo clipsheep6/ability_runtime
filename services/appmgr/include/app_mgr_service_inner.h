@@ -154,11 +154,11 @@ public:
      * AttachApplication, get all the information needed to start the Application
      * (data related to the Application ).
      *
-     * @param app, information needed to start the Application.
+     * @param appScheduler, information needed to start the Application.
      *
      * @return
      */
-    virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &app);
+    virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler);
 
     /**
      * ApplicationForegrounded, set the application to Foreground State.
@@ -514,6 +514,8 @@ public:
      */
     int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
 
+    virtual int32_t PreStartNWebSpawnProcess(const pid_t hostPid);
+
     virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
         int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
 
@@ -549,11 +551,11 @@ public:
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyHotReloadPage(const std::string &bundleName);
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
@@ -569,7 +571,7 @@ private:
 
     void RestartResidentProcess(std::shared_ptr<AppRunningRecord> appRecord);
 
-    bool CheckLoadabilityConditions(const sptr<IRemoteObject> &token,
+    bool CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo);
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
@@ -679,13 +681,13 @@ private:
     bool GetAllPids(std::list<pid_t> &pids);
 
     /**
-     * process_exist, Judge whether the process exists.
+     * ProcessExist, Judge whether the process exists.
      *
      * @param pids, process number collection to exit.
      *
      * @return true, return back existed，others non-existent.
      */
-    bool process_exist(pid_t &pid);
+    bool ProcessExist(pid_t &pid);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
@@ -697,11 +699,11 @@ private:
     bool CheckAllProcessExist(std::list<pid_t> &pids);
 
     /**
-     * SystemTimeMillis, Get system time.
+     * SystemTimeMillisecond, Get system time.
      *
      * @return the system time.
      */
-    int64_t SystemTimeMillis();
+    int64_t SystemTimeMillisecond();
 
     // Test add the bundle manager instance.
     void SetBundleManager(sptr<IBundleMgr> bundleManager);
@@ -725,7 +727,7 @@ private:
 
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
 
-    void GetGlobalConfiguration();
+    void InitGlobalConfiguration();
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
 
@@ -784,8 +786,8 @@ private:
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::recursive_mutex confiurtaionObserverLock_;
-    std::vector<sptr<IConfigurationObserver>> confiurtaionObservers_;
+    std::recursive_mutex configurationObserverLock_;
+    std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
 };
 }  // namespace AppExecFwk

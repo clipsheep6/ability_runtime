@@ -18,11 +18,10 @@
 
 #include <string>
 
-#include "iremote_object.h"
-
 #include "ability_info.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
+#include "iremote_object.h"
 #include "want.h"
 
 namespace OHOS {
@@ -151,7 +150,7 @@ public:
     /**
      * @brief Obtains the connection state to service ability.
      *
-     * @return Returnsthe connection state to service ability.
+     * @return Returns the connection state to service ability.
      */
     int32_t GetConnectionState() const;
 
@@ -174,7 +173,8 @@ public:
     int32_t GetOwnerUserId() const;
     void SetIsSingleUser(bool flag);
     bool IsSingleUser() const;
-    void Unfocused();
+    void UpdateFocusState(bool isFocus);
+    bool GetFocusFlag() const;
 
 private:
     int32_t lastLaunchTime_ = 0;
@@ -184,7 +184,7 @@ private:
     int64_t eventId_ = 0;
     bool isTerminating_ = false;
     AbilityState state_ = AbilityState::ABILITY_STATE_BEGIN;
-    AbilityState lastState_ = AbilityState::ABILITY_STATE_BEGIN;
+    bool isFocused_ = false;
     std::shared_ptr<AbilityInfo> info_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
     sptr<IRemoteObject> token_;

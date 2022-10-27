@@ -272,7 +272,7 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         HILOG_ERROR("missionId %{public}d not exists, get inner mission info failed", missionId);
-        return -1;
+        return MISSION_NOT_FOUND;
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
@@ -282,13 +282,14 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     );
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
-        return -1;
+        return MISSION_NOT_FOUND;
     }
     innerMissionInfo = *it;
     return 0;
 }
 
-bool MissionInfoMgr::FindReusedSingletonMission(const std::string &missionName, InnerMissionInfo &info)
+bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
+    const std::string &flag, InnerMissionInfo &info)
 {
     if (missionName.empty()) {
         return false;
@@ -296,8 +297,19 @@ bool MissionInfoMgr::FindReusedSingletonMission(const std::string &missionName, 
 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionName](const InnerMissionInfo item) {
-            return (missionName == item.missionName && item.isSingletonMode);
+        [&missionName, &flag](const InnerMissionInfo item) {
+            if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD)) {
+                return false;
+            }
+
+            if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON)) {
+                return missionName == item.missionName;
+            }
+
+            if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::SPECIFIED)) {
+                return missionName == item.missionName && flag == item.specifiedFlag;
+            }
+            return false;
         }
     );
     if (it == missionInfoList_.end()) {

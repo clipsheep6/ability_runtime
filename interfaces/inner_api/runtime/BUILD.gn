@@ -28,7 +28,10 @@ config("runtime_config") {
 
 config("runtime_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
+    "include",
+  ]
 }
 
 config("runtime_all_deps_config") {
@@ -41,6 +44,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
     "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
+    "${ability_runtime_native_path}/runtime/js_error_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_module_reader.cpp",
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime.cpp",
@@ -63,6 +67,7 @@ ohos_shared_library("runtime") {
   all_dependent_configs = [ ":runtime_all_deps_config" ]
 
   deps = [
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/runtime:runtime_extractor",
     "${ability_runtime_native_path}/runtime:string_utils",
     "//arkcompiler/ets_runtime:libark_jsruntime",
@@ -83,7 +88,7 @@ ohos_shared_library("runtime") {
   if (is_standard_system) {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
-      "hitrace_native:libhitrace",
+      "hitrace_native:libhitracechain",
       "init:libbegetutil",
     ]
   }

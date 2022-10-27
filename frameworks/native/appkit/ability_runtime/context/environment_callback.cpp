@@ -28,25 +28,26 @@ JsEnvironmentCallback::JsEnvironmentCallback(NativeEngine* engine)
 
 int32_t JsEnvironmentCallback::serialNumber_ = 0;
 
-void JsEnvironmentCallback::CallJsMethodInner(
+void JsEnvironmentCallback::CallConfigurationUpdatedInner(
     const std::string &methodName, const AppExecFwk::Configuration &config)
 {
+    HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks_) {
         if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
+            HILOG_ERROR("CallConfigurationUpdatedInner, Invalid jsCallback");
             return;
         }
 
         auto value = callback.second->Get();
         auto obj = ConvertNativeValueTo<NativeObject>(value);
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get object");
             return;
         }
 
         auto method = obj->GetProperty(methodName.data());
         if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
+            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
@@ -55,16 +56,14 @@ void JsEnvironmentCallback::CallJsMethodInner(
     }
 }
 
-void JsEnvironmentCallback::CallJsMethod(
-    const std::string &methodName, const AppExecFwk::Configuration &config)
+void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configuration &config)
 {
-    HILOG_DEBUG("CallJsMethod methodName = %{public}s", methodName.c_str());
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [thisWeakPtr, methodName, config](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        [thisWeakPtr, config](NativeEngine &engine, AsyncTask &task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
-                jsEnvCallback->CallJsMethodInner(methodName, config);
+                jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config);
             }
         }
     );
@@ -74,9 +73,48 @@ void JsEnvironmentCallback::CallJsMethod(
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configuration &config)
+void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level)
 {
-    CallJsMethod("onConfigurationUpdated", config);
+    HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
+    for (auto &callback : callbacks_) {
+        if (!callback.second) {
+            HILOG_ERROR("CallMemoryLevelInner, Invalid jsCallback");
+            return;
+        }
+
+        auto value = callback.second->Get();
+        auto obj = ConvertNativeValueTo<NativeObject>(value);
+        if (obj == nullptr) {
+            HILOG_ERROR("CallMemoryLevelInner, Failed to get object");
+            return;
+        }
+
+        auto method = obj->GetProperty(methodName.data());
+        if (method == nullptr) {
+            HILOG_ERROR("CallMemoryLevelInner, Failed to get %{public}s from object", methodName.data());
+            return;
+        }
+
+        NativeValue *argv[] = { CreateJsValue(*engine_, level) };
+        engine_->CallFunction(value, method, argv, ArraySize(argv));
+    }
+}
+
+void JsEnvironmentCallback::OnMemoryLevel(const int level)
+{
+    std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+        [thisWeakPtr, level](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
+            if (jsEnvCallback) {
+                jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level);
+            }
+        }
+    );
+    NativeReference *callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JsEnvironmentCallback::OnMemoryLevel",
+        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback)

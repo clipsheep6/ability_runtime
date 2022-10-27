@@ -286,13 +286,13 @@ private:
     static const std::string CONTEXT_ELS[];
     int flags_ = 0x00000000;
 
-    void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-        const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const;
+    void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
+                             bool currentBundle = false, const std::string &moduleName = "") const;
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
     int GetCurrentActiveAccountId() const;
-    void CreateDirIfNotExist(const std::string& dirPath) const;
+    void CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const;
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
