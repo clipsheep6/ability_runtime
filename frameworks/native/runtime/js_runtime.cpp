@@ -58,6 +58,8 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
 constexpr char TIMER_TASK[] = "uv_timer_task";
+constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
+constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -140,6 +142,14 @@ public:
 
             result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
         } else {
+            std::string mergeAbcPath;
+            if (vm_ != nullptr) {
+                mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+                panda::JSNApi::SetAssetPath(vm_, mergeAbcPath);
+            } else {
+                HILOG_ERROR("vm is nullptr or moduleName is empty");
+                return result;
+            }
             result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
         }
         return result;
@@ -596,6 +606,13 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     HandleScope handleScope(*this);
+
+    std::string path = moduleName;
+    auto pos = path.find("::");
+    if (pos != std::string::npos) {
+        path.erase(pos, path.size() - pos);
+        moduleName_ = path;
+    }
 
     NativeValue* classValue = nullptr;
 
