@@ -53,11 +53,12 @@ bool GetDataAbilityOperationBuilder(
  *
  * @param param Indicates the valuesBucket parameters saved the parse result.
  * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
+ * @param valueBucketParam Indicates the arguments passed into the callback.
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
-napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env, napi_value args);
+napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env,
+    napi_value valueBucketParam);
 /**
  * @brief Parse the DataAbilityPredicatesBackReferences parameters.
  *

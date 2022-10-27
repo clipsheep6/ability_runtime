@@ -216,12 +216,6 @@ private:
         }
 
         std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-        if (calls == nullptr) {
-            HILOG_ERROR("calls create error");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-            return engine.CreateUndefined();
-        }
-
         NativeValue* retsult = nullptr;
         calls->callerCallBack = std::make_shared<CallerCallBack>();
         calls->callerCallBack->SetCallBack(GetCallBackDone(calls));
@@ -254,7 +248,8 @@ private:
         return retsult;
     }
 
-    bool CheckStartAbilityByCallInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want)
+    bool CheckStartAbilityByCallInputParam(NativeEngine& engine, const NativeCallbackInfo& info,
+        AAFwk::Want& want) const
     {
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want)) {
             return false;
@@ -395,7 +390,7 @@ private:
     }
 
     bool CheckStartAbilityWithAccountInputParam(
-        NativeEngine& engine, NativeCallbackInfo& info,
+        NativeEngine& engine, const NativeCallbackInfo& info,
         AAFwk::Want& want, int32_t& accountId, size_t& unwrapArgc) const
     {
         if (info.argc < ARGC_TWO) {
@@ -555,7 +550,7 @@ private:
 
     bool CheckConnectionParam(
         NativeEngine& engine, NativeValue* value,
-        sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want) const
+        sptr<JSServiceExtensionConnection>& connection, const AAFwk::Want& want) const
     {
         if (ConvertNativeValueTo<NativeObject>(value) == nullptr) {
             HILOG_ERROR("Failed to get connection object");
@@ -694,7 +689,7 @@ private:
         return result;
     }
 
-    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
         if (info.argc < ARGC_TWO) {
@@ -733,7 +728,7 @@ private:
         return result;
     }
 
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStopExtensionAbility(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStopExtensionAbility is called.");
         if (info.argc < ARGC_ONE) {
@@ -770,7 +765,7 @@ private:
         return result;
     }
 
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStopExtensionAbilityWithAccount is called.");
         if (info.argc < ARGC_TWO) {

@@ -81,9 +81,9 @@ private:
     NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
+    NativeValue* OnStopExtensionAbility(NativeEngine& engine, const NativeCallbackInfo& info);
+    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
     NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);

@@ -55,7 +55,7 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
         HILOG_ERROR("OnChange, uv_queue_work input work is nullptr.");
         return;
     }
-    DAHelperOnOffCB *onCB = (DAHelperOnOffCB *)work->data;
+    DAHelperOnOffCB *onCB = static_cast<DAHelperOnOffCB *>(work->data);
     if (onCB == nullptr) {
         HILOG_ERROR("OnChange, uv_queue_work onCB is nullptr.");
         delete work;

@@ -222,7 +222,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetForegroundApplications(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnGetForegroundApplications(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;

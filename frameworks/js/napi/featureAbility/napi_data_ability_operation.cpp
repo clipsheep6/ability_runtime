@@ -161,8 +161,8 @@ bool GetDataAbilityOperationBuilder(
     return true;
 }
 
-napi_value UnwrapValuesBucket(
-    const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env, napi_value valueBucketParam)
+napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env,
+    napi_value valueBucketParam)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_value result;
