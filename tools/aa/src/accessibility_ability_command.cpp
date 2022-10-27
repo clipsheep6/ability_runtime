@@ -379,7 +379,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsEnableAbility()
         (void)config.InitializeContext();
         std::string name = argument.bundleName + "/" + argument.abilityName;
         std::string capabilityNames = argument.capabilityNames;
-        int capabilities = AccessibilityUtils::GetCapabilityValue(capabilityNames);
+        uint32_t capabilities = AccessibilityUtils::GetCapabilityValue(capabilityNames);
         if (config.EnableAbility(name, capabilities)) {
             resultReceiver_ = ACCESSIBILITY_STRING_ENABLE_ABILITY_OK + "\n";
         } else {
