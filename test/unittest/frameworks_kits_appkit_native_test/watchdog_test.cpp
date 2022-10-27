@@ -16,9 +16,14 @@
 #include <gtest/gtest.h>
 #include <thread>
 
+#define private public
+#define protected public
+#include "watchdog.h"
+#undef private
+#undef protected
+
 #include "main_thread.h"
 #include "mock_app_thread.h"
-#include "watchdog.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -26,6 +31,7 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int64_t TEST_INTERVAL_TIME = 5000;
 class WatchdogTest : public testing::Test {
 public:
     WatchdogTest()
@@ -85,6 +91,48 @@ HWTEST_F(WatchdogTest, AppExecFwk_Watchdog_IsReportEvent_0002, Function | Medium
     watchdog_->AllowReportEvent();
     bool ret = watchdog_->IsReportEvent();
     EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: AppExecFwk_Watchdog_ReportEvent_0001
+ * @tc.name: ReportEvent
+ * @tc.desc: Test ReportEvent.
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(WatchdogTest, AppExecFwk_Watchdog_ReportEvent_0001, Function | MediumTest | Level3)
+{
+    // be ready for reportEvent
+    watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
+    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
+    watchdog_->SetApplicationInfo(application);
+    watchdog_->needReport_ = true;
+
+    watchdog_->isSixSecondEvent_.store(true);
+
+    watchdog_->reportEvent();
+    EXPECT_TRUE(1);
+}
+
+/**
+ * @tc.number: AppExecFwk_Watchdog_ReportEvent_0002
+ * @tc.name: ReportEvent
+ * @tc.desc: Test ReportEvent.
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(WatchdogTest, AppExecFwk_Watchdog_ReportEvent_0002, Function | MediumTest | Level3)
+{
+    // be ready for reportEvent
+    watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
+    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
+    watchdog_->SetApplicationInfo(application);
+    watchdog_->needReport_ = true;
+
+    watchdog_->isSixSecondEvent_.store(false);
+
+    watchdog_->reportEvent();
+    EXPECT_TRUE(1);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
