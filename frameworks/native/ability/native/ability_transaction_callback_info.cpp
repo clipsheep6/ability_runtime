@@ -25,10 +25,10 @@ AbilityTransactionCallbackInfo::~AbilityTransactionCallbackInfo() = default;
 
 AbilityTransactionCallbackInfo *AbilityTransactionCallbackInfo::Create()
 {
-    auto info == new (std::nothrow) AbilityTransactionCallbackInfo();
+    auto info = new (std::nothrow) AbilityTransactionCallbackInfo();
     if (info == nullptr) {
         HILOG_ERROR("info == nullptr.");
-        return nullptr
+        return nullptr;
     }
     return info;
 }

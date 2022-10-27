@@ -466,37 +466,15 @@ private:
         }
         // Unwrap want and connection
         AAFwk::Want want;
-<<<<<<< HEAD
-        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), want);
-        HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
-            __func__,
-            want.GetBundle().c_str(),
-            want.GetElement().GetAbilityName().c_str());
-        // unwarp connection
         sptr<JSServiceExtensionConnection> connection = new (std::nothrow) JSServiceExtensionConnection(engine);
         if (connection == nullptr) {
             HILOG_ERROR("connection == nullptr.");
             return engine.CreateUndefined();
         }
-        connection->SetJsConnectionObject(info.argv[1]);
-        int64_t connectId = serialNumber_;
-        ConnecttionKey key;
-        key.id = serialNumber_;
-        key.want = want;
-        connection->SetConnectionId(key.id);
-        connects_.emplace(key, connection);
-        if (serialNumber_ < INT32_MAX) {
-            serialNumber_++;
-        } else {
-            serialNumber_ = 0;
-=======
-        sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(engine);
         if (!CheckWantParam(engine, info.argv[0], want) ||
             !CheckConnectionParam(engine, info.argv[1], connection, want)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
->>>>>>> master
         }
         int64_t connectId = connection->GetConnectionId();
         AsyncTask::CompleteCallback complete =

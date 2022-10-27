@@ -787,7 +787,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
 
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_ERROR("work == nullptr.")
+        HILOG_ERROR("work == nullptr.");
         return;
     }
     OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB = new (std::nothrow) OnRequestPermissionsFromUserResultCallback;

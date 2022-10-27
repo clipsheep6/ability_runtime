@@ -538,7 +538,7 @@ void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOpt
     toInfo->abilityToken_ = token_;
     toInfo->missionId_ = missionId_;
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
-    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) (std::nothrow) AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
     if (fromInfo == nullptr) {
         HILOG_ERROR("fromInfo == nullptr");
         return;

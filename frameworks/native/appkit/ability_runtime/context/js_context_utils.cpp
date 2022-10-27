@@ -528,7 +528,7 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(ptr);
     if (workContext == nullptr) {
         HILOG_ERROR("workContext == nullptr.");
-        return engine.CreateUndefined();
+        return engine->CreateUndefined();
     }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {

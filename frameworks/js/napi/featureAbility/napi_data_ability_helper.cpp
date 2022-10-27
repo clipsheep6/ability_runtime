@@ -1064,7 +1064,7 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         HILOG_ERROR("work == nullptr.");
         return;
     }
-    work->data = static_cast<void*>delRefCallbackInfo;
+    work->data = static_cast<void*>(delRefCallbackInfo);
     int ret = uv_queue_work(
         loop, work, [](uv_work_t* work) {},
         [](uv_work_t* work, int status) {

@@ -90,16 +90,12 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-<<<<<<< HEAD
-    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this());
+    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this(),
+        info.startInstallTime);
     if (callback == nullptr) {
         HILOG_ERROR("callback == nullptr");
         return ERR_INVALID_VALUE;
     }
-=======
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
-        info.startInstallTime);
->>>>>>> master
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};

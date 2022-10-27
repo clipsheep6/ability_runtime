@@ -482,7 +482,7 @@ int32_t PendingWantManager::GetWantSenderInfo(const sptr<IWantSender> &target, s
     auto newInfo = new (std::nothrow) WantSenderInfo(wantSenderInfo);
     if (newInfo == nullptr) {
         HILOG_ERROR("newInfo == nullptr");
-        return ERR_INVALID_VALUE；
+        return ERR_INVALID_VALUE;
     }
     info.reset(newInfo);
     HILOG_ERROR("%{public}s:want is ok.", __func__);

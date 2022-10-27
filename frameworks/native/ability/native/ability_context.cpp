@@ -401,7 +401,7 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     sptr<IRemoteObject> remoteObject = new (std::nothrow) AbilityRuntime::AuthorizationResult(std::move(task));
     if (remoteObject == nullptr) {
         HILOG_ERROR("remoteObject == nullptr.");
-        return remoteObject;
+        return;
     }
     want.SetParam(CALLBACK_KEY, remoteObject);
     StartAbility(want, -1);

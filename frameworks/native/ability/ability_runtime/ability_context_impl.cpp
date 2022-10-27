@@ -459,7 +459,7 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
             HILOG_ERROR("work == nullptr.");
             return;
         }
-        work->data = static_cast<void *>retCB;
+        work->data = static_cast<void *>(retCB);
         int rev = uv_queue_work(
             loop,
             work,

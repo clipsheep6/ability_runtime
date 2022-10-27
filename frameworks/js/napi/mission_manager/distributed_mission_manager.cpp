@@ -399,7 +399,7 @@ void RegisterMissionExecuteCB(napi_env env, void *data)
     } else {
         HILOG_INFO("registration not exits.");
         registration = new (std::nothrow) NAPIRemoteMissionListener();
-        if (registration == nullpter) {
+        if (registration == nullptr) {
             HILOG_ERROR("registration == nullptr.");
             return;
         }
@@ -742,7 +742,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     }
 
     uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullpter) {
+    if (work == nullptr) {
         HILOG_ERROR("work == nullptr");
         return;
     }
@@ -816,7 +816,7 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     }
 
     uv_work_t *work = new (std::nothrow) uv_work_t;    
-    if (work == nullpter) {
+    if (work == nullptr) {
         HILOG_ERROR("work == nullptr");
         return;
     }

@@ -153,7 +153,7 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
     if (workContext == nullptr) {
         HILOG_ERROR("workContext == nullptr.");
-        return nullptr;
+        return;
     }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachServiceExtensionContext,
         workContext, nullptr);
