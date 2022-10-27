@@ -161,9 +161,7 @@ public:
 
     void Resolve(NativeEngine& engine, NativeValue* value);
     void Reject(NativeEngine& engine, NativeValue* error);
-    void ResolveWithNoError(NativeEngine& engine, NativeValue* value);
     void RejectWithNull(NativeEngine& engine, NativeValue* error);
-    void ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value);
     void RejectWithMessage(NativeEngine& engine, NativeValue* error, NativeValue* messsage);
 private:
     static void Execute(NativeEngine* engine, void* data);
