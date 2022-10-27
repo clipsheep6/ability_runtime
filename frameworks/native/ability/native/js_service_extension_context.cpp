@@ -764,7 +764,7 @@ private:
         return result;
     }
 
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStopExtensionAbilityWithAccount is called.");
         if (info.argc < ARGC_TWO) {

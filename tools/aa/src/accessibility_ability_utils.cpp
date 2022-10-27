@@ -108,7 +108,7 @@ std::string AccessibilityUtils::GetInvalidCapabilityNames(const std::string &ena
 std::string AccessibilityUtils::GetUnknownArgumentsMsg(const std::vector<std::string> &unknownArguments)
 {
     std::string result = "";
-    for (auto &argument : unknownArguments) {
+    for (const auto &argument : unknownArguments) {
         result.append(argument + " ");
     };
     return result;
