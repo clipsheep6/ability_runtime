@@ -13,44 +13,55 @@
  * limitations under the License.
  */
 
-#include "clearupapplicationdata_fuzzer.h"
+#include "getrunningprocessinfobytoken_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#include "ability_record.h"
 #include "app_mgr_client.h"
+#include "configuration.h"
+#include "parcel.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-constexpr size_t FOO_MAX_LEN = 1024;
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-{
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
+    constexpr size_t FOO_MAX_LEN = 1024;
+
+    sptr<Token> GetFuzzAbilityToken()
+    {
+        sptr<Token> token = nullptr;
+        AbilityRequest abilityRequest;
+        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+        abilityRequest.abilityInfo.name = "MainAbility";
+        abilityRequest.abilityInfo.type = AbilityType::DATA;
+        std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        if (abilityRecord) {
+            token = abilityRecord->GetToken();
+        }
+        return token;
     }
 
-    std::string bundleName(data, size);
-    if (abilitymgr->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+    {
+        AppMgrClient* appMgrClient = new AppMgrClient();
+        if (!appMgrClient) {
+            return false;
+        }
 
-    // fuzz for AppMgrClient
-    auto appMgrClient = new AppMgrClient();
-    if (!appMgrClient) {
-        return false;
-    }
+        sptr<IRemoteObject> token = GetFuzzAbilityToken();
+        if (!token) {
+            std::cout << "Get ability token failed." << std::endl;
+            return false;
+        }
+        RunningProcessInfo info;
 
-    if (appMgrClient->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+        appMgrClient->GetRunningProcessInfoByToken(token, info);
 
-    return true;
-}
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
