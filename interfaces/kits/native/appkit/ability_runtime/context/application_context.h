@@ -32,7 +32,7 @@ public:
     ~ApplicationContext() = default;
     void RegisterAbilityLifecycleCallback(const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback);
     void UnregisterAbilityLifecycleCallback(const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback);
-    bool IsAbilityLifecycleCallbackEmpty() const;
+    bool IsAbilityLifecycleCallbackEmpty();
     void RegisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
     void UnregisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
     void DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability);
@@ -83,6 +83,7 @@ private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
+    std::mutex callbackLock_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
