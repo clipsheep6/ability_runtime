@@ -103,6 +103,8 @@ const std::string BUNDLE_NAME_CALL_LOG = "com.ohos.calllogability";
 const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
 const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
 const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
+const std::string BUNDLE_NAME_MESSAGE = "com.ohos.mms";
+const std::string BUNDLE_NAME_SCREENSHOT = "com.huawei.ohos.screenshot";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
 const std::string BUNDLE_NAME_SINGLE_TEST = "com.singleusermodel.actssingleusertest";
 const std::string BUNDLE_NAME_FREEINSTALL_TEST = "com.example.qianyiyingyong.hmservice";
@@ -117,6 +119,8 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_INPUTMETHOD_TEST,
                                                                 BUNDLE_NAME_KEY_BOARD,
                                                                 BUNDLE_NAME_NOTE,
+                                                                BUNDLE_NAME_MESSAGE,
+                                                                BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
                                                                 BUNDLE_NAME_SINGLE_TEST,
                                                                 BUNDLE_NAME_FREEINSTALL_TEST,
@@ -5375,6 +5379,25 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         // The call is from AbilityDelegator, no need to check permission
         isBackgroundCall = false;
         return ERR_OK;
+    }
+
+    // Temp, solve FormIssue
+    if (abilityRequest.callerToken == nullptr) {
+        auto callerUid = IPCSkeleton::GetCallingUid();
+        auto bms = GetBundleManager();
+        CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+        std::string callerBundleName;
+        bool ret = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, callerBundleName));
+        if (!ret) {
+            HILOG_ERROR("Can not find bundleName by callerUid: %{private}d.", callerUid);
+            return ERR_INVALID_VALUE;
+        } else if (callerBundleName == BUNDLE_NAME_LAUNCHER) {
+            auto callerToken = IPCSkeleton::GetCallingTokenID();
+            HILOG_INFO("Temp, just for solve FormIssue, callerUid: %{private}d  callerToken: %{private}d.",
+                callerUid, callerToken);
+            isBackgroundCall = false;
+            return ERR_OK;
+        }
     }
 
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
