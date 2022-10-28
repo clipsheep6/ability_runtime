@@ -524,7 +524,7 @@ int AppMgrClient::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
     return service->GetAbilityRecordsByProcessID(pid, tokens);
 }
 
-int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
@@ -536,7 +536,7 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
         HILOG_ERROR("amsService is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return amsService->GetApplicationInfoByProcessID(pid, application);
+    return amsService->GetApplicationInfoByProcessID(pid, application, debug);
 }
 
 int AppMgrClient::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,

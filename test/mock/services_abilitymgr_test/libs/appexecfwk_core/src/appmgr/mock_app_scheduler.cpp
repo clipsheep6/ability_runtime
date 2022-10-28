@@ -172,7 +172,7 @@ int AppScheduler::StartUserTest(
     return 0;
 }
 
-int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
 {
     return 0;
 }

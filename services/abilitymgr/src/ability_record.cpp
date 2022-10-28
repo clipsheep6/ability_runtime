@@ -484,6 +484,10 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
     HILOG_INFO("%{public}s was called.", __func__);
+    if (want_.GetBoolParam(DEBUG_APP, false)) {
+        HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
+        return;
+    }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (!handler) {
         HILOG_ERROR("Fail to get AbilityEventHandler.");
@@ -512,6 +516,10 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
     HILOG_INFO("%{public}s was called.", __func__);
+    if (want_.GetBoolParam(DEBUG_APP, false)) {
+        HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
+        return;
+    }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (!handler) {
         HILOG_ERROR("Fail to get AbilityEventHandler.");

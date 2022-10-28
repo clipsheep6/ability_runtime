@@ -2380,7 +2380,8 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
     return ERR_OK;
 }
 
-int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application,
+    bool &debug)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
@@ -2401,6 +2402,7 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
         HILOG_ERROR("ApplicationInfo is nullptr !");
         return ERR_NO_INIT;
     }
+    debug = appRecord->IsDebugApp();
     return ERR_OK;
 }
 

@@ -284,7 +284,7 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
