@@ -70,7 +70,11 @@ bool UriPermissionManagerService::Init()
     }
 
     if (impl_ == nullptr) {
-        impl_ = new UriPermissionManagerStubImpl();
+        impl_ = new (std::nothrow) UriPermissionManagerStubImpl();
+        if (impl_ == nullptr) {
+            HILOG_ERROR("impl_ is nullptr");
+            return false;
+        }
     }
     ready_ = true;
     return true;

@@ -447,7 +447,9 @@ int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &targe
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
-    want.reset(new (std::nothrow) Want(record->GetKey()->GetRequestWant()));
+    auto newWant = new (std::nothrow) Want(record->GetKey()->GetRequestWant());
+    CHECK_POINTER_AND_RETURN(newWant, ERR_INVALID_VALUE);
+    want.reset(newWant);
     HILOG_ERROR("%{public}s:want is ok.", __func__);
     return NO_ERROR;
 }

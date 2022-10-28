@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "ability_util.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -307,7 +308,8 @@ int AbilityManagerStub::ScheduleCommandAbilityDoneInner(MessageParcel &data, Mes
 
 int AbilityManagerStub::AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<Uri> uri(new Uri(data.ReadString()));
+    std::unique_ptr<Uri> uri(new (std::nothrow) Uri(data.ReadString()));
+    CHECK_POINTER_AND_RETURN(uri, ERR_INVALID_VALUE);
     bool tryBind = data.ReadBool();
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     sptr<IAbilityScheduler> result = AcquireDataAbility(*uri, tryBind, callerToken);

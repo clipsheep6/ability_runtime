@@ -75,7 +75,8 @@ void CallRecord::SetCallStub(const sptr<IRemoteObject> & call)
             call->OnCallStubDied(remote);
         };
         callDeathRecipient_ =
-                new AbilityCallRecipient(callStubDied);
+                new (std::nothrow) AbilityCallRecipient(callStubDied);
+        CHECK_POINTER(callDeathRecipient_);
     }
 
     callRemoteObject_->AddDeathRecipient(callDeathRecipient_);

@@ -329,7 +329,7 @@ ErrCode AbilityManagerClient::Connect()
         return GET_ABILITY_SERVICE_FAILED;
     }
 
-    deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AbilityMgrDeathRecipient());
+    deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) AbilityMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
         HILOG_ERROR("%{public}s :Failed to create AbilityMgrDeathRecipient!", __func__);
         return GET_ABILITY_SERVICE_FAILED;

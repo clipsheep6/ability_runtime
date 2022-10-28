@@ -2660,7 +2660,11 @@ void AppMgrServiceInner::InitFocusListener()
         return;
     }
 
-    focusListener_ = new WindowFocusChangedListener(shared_from_this(), eventHandler_);
+    focusListener_ = new (std::nothrow) WindowFocusChangedListener(shared_from_this(), eventHandler_);
+    if (focusListener_ == nullptr) {
+        HILOG_ERROR("focusListener_ is nullptr");
+        return;
+    }
     auto registerTask = [innerService = shared_from_this()]() {
         if (innerService) {
             HILOG_INFO("RegisterFocusListener task");

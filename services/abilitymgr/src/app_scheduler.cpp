@@ -68,6 +68,7 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     }
 
     startSpecifiedAbilityResponse_ = new (std::nothrow) StartSpecifiedAbilityResponse();
+    CHECK_POINTER_RETURN_BOOL(startSpecifiedAbilityResponse_);
     appMgrClient_->RegisterStartSpecifiedAbilityResponse(startSpecifiedAbilityResponse_);
 
     HILOG_INFO("success to ConnectAppMgrService");
