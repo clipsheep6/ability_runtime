@@ -449,8 +449,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         info.missionInfo.label = targetRecord->GetLabel();
     }
 
-    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
-        targetMission->SetSpecifiedFlag(abilityRequest.specifiedFlag);
+    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED && targetRecord) {
         targetRecord->SetSpecifiedFlag(abilityRequest.specifiedFlag);
     }
 
@@ -981,10 +980,6 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         handler->PostTask(task);
     } else {
         auto task = [self, abilityRecord, isInvalidMode]() {
-            if (!self) {
-                HILOG_WARN("Mission list mgr is invalid.");
-                return;
-            }
             self->CompleteForegroundFailed(abilityRecord, isInvalidMode);
         };
         handler->PostTask(task);
