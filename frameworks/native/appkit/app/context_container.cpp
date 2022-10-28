@@ -606,15 +606,15 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         "ContextContainer::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
     std::regex pattern(AbilityRuntime::Constants::ABS_CODE_PATH);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-            continue;
-        }
         std::string loadPath;
         if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
             !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
+        }
+        if (loadPath.empty()) {
+            continue;
         }
         loadPath = std::regex_replace(loadPath, pattern, AbilityRuntime::Constants::LOCAL_BUNDLES);
         HILOG_DEBUG("ContextContainer::InitResourceManager loadPath: %{public}s", loadPath.c_str());

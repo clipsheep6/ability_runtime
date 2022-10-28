@@ -330,15 +330,15 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     std::regex pattern(std::string(AbilityRuntime::Constants::ABS_CODE_PATH) +
         std::string(AbilityRuntime::Constants::FILE_SEPARATOR) + bundleInfo.name);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-            continue;
-        }
         std::string loadPath;
         if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
             !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
+        }
+        if (loadPath.empty()) {
+            continue;
         }
         HILOG_DEBUG("GetAppNameFromResource loadPath: %{public}s", loadPath.c_str());
         if (!resourceManager->AddResource(loadPath.c_str())) {
