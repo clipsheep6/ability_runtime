@@ -14,7 +14,7 @@
  * limitations under the License.
  -->
 <info>
-    <process>quick_fix</process>
+    <process>foundation</process>
     <systemability>
         <name>184</name>
         <libpath>libquickfixms.z.so</libpath>
