@@ -51,8 +51,13 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     isStageBasedModel_ = info && info->isStageBasedModel;
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
+        auto windowLifeCycleImpl = new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this());
+        if (windowLifeCycleImpl == nullptr) {
+            HILOG_ERROR("windowLifeCycleImpl is nullptr");
+            return;
+        }
         ability_->SetSceneListener(
-            sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
+            sptr<WindowLifeCycleImpl>(windowLifeCycleImpl));
     }
 #endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);

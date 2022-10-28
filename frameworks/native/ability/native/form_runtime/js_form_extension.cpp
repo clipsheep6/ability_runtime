@@ -268,6 +268,10 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
     if (providerRemoteObject_ == nullptr) {
         HILOG_INFO("%{public}s providerRemoteObject_ is nullptr, need init.", __func__);
         sptr<FormExtensionProviderClient> providerClient = new (std::nothrow) FormExtensionProviderClient();
+        if (providerClient == nullptr) {
+            HILOG_ERROR("providerClient is nullptr");
+            return nullptr;
+        }
         std::shared_ptr<JsFormExtension> formExtension = std::static_pointer_cast<JsFormExtension>(shared_from_this());
         providerClient->SetOwner(formExtension);
         providerRemoteObject_ = providerClient->AsObject();

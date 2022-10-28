@@ -90,7 +90,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject> &connectCa
     const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback,
     const AppExecFwk::ElementName &connectReceiver)
 {
-    sptr<AbilityConnection> abilityConnection = new AbilityConnection();
+    sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
     if (abilityConnection == nullptr) {
         HILOG_ERROR("create connedction failed.");
         return ERR_INVALID_VALUE;

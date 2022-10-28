@@ -138,7 +138,11 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_DEBUG("Ability::Init call RegisterDisplayListener");
-        abilityDisplayListener_ = new AbilityDisplayListener(ability);
+        abilityDisplayListener_ = new (std::nothrow) AbilityDisplayListener(ability);
+        if (abilityDisplayListener_ == nullptr) {
+            HILOG_ERROR("abilityDisplayListener_ is nullptr");
+            return;
+        }
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif
@@ -1740,6 +1744,10 @@ sptr<IRemoteObject> Ability::GetFormRemoteObject()
     HILOG_DEBUG("%{public}s start", __func__);
     if (providerRemoteObject_ == nullptr) {
         sptr<FormProviderClient> providerClient = new (std::nothrow) FormProviderClient();
+        if (providerClient == nullptr) {
+            HILOG_ERROR("providerClient is nullptr");
+            return nullptr;
+        }
         std::shared_ptr<Ability> thisAbility = this->shared_from_this();
         if (thisAbility == nullptr) {
             HILOG_ERROR("%{public}s failed, thisAbility is nullptr", __func__);
@@ -1758,7 +1766,7 @@ void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 {
-    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    sptr<Rosen::WindowOption> option = new (std::nothrow) Rosen::WindowOption();
     if (option == nullptr) {
         HILOG_ERROR("Ability::GetWindowOption option is null.");
         return nullptr;

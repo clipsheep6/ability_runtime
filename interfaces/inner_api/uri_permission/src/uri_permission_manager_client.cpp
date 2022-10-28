@@ -76,6 +76,10 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
             }
         };
         sptr<UpmsDeathRecipient> recipient(new UpmsDeathRecipient(onClearProxyCallback));
+        if (recipient == nullptr) {
+            HILOG_ERROR("recipient is nullptr");
+            return nullptr;
+        }
         uriPermMgr_->AsObject()->AddDeathRecipient(recipient);
     }
     HILOG_DEBUG("End UriPermissionManagerClient::ConnectUriPermService.");

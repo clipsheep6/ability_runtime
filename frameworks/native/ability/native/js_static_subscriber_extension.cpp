@@ -158,6 +158,10 @@ sptr<IRemoteObject> JsStaticSubscriberExtension::OnConnect(const AAFwk::Want& wa
     HILOG_INFO("%{public}s begin.", __func__);
     sptr<StaticSubscriberStubImp> remoteObject = new (std::nothrow) StaticSubscriberStubImp(
         std::static_pointer_cast<JsStaticSubscriberExtension>(shared_from_this()));
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("remoteObject is nullptr");
+        return nullptr;
+    }
     HILOG_INFO("%{public}s end. ", __func__);
     return remoteObject->AsObject();
 }

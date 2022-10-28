@@ -44,6 +44,10 @@ sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_p
         std::lock_guard<std::mutex> lock(mutex_);
         if (instance_ == nullptr) {
             instance_ = sptr<ContinuationConnector>(new (std::nothrow) ContinuationConnector(context));
+            if (instance_ == nullptr) {
+                HILOG_ERROR("instance_ is nullptr");
+                return nullptr;
+            }
         }
     }
     return instance_;
@@ -246,6 +250,10 @@ int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string
     }
 
     sptr<ContinuationDeviceCallbackProxy> callBackSptr(new (std::nothrow) ContinuationDeviceCallbackProxy(callback));
+    if (callBackSptr == nullptr) {
+        HILOG_ERROR("callBackSptr is nullptr");
+        return -1;
+    }
 
     HILOG_INFO("%{public}s called end", __func__);
     return remoteRegisterService_->Register(bundleName, token, parameter, callBackSptr);

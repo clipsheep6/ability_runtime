@@ -104,8 +104,8 @@ bool DlpStateData::ReadFromParcel(Parcel &parcel)
 
 DlpStateData *DlpStateData::Unmarshalling(Parcel &parcel)
 {
-    DlpStateData *data = new DlpStateData();
-    if (!data->ReadFromParcel(parcel)) {
+    DlpStateData *data = new (std::nothrow) DlpStateData();
+    if (data && !data->ReadFromParcel(parcel)) {
         delete data;
         data = nullptr;
     }
