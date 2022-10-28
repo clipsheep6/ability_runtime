@@ -13,67 +13,71 @@
  * limitations under the License.
  */
 
-#include "terminateability_fuzzer.h"
+#include "loadability_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_context_impl.h"
 #include "ability_record.h"
+#include "app_mgr_client.h"
 #include "parcel.h"
-#include "want.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-constexpr size_t FOO_MAX_LEN = 1024;
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-{
-    AbilityRuntime::AbilityContextImpl* context = new AbilityRuntime::AbilityContextImpl();
-    int resultCode = 100;
-    if (!context) {
-        return false;
+    constexpr size_t FOO_MAX_LEN = 1024;
+
+    sptr<Token> GetFuzzAbilityToken()
+    {
+        sptr<Token> token = nullptr;
+        AbilityRequest abilityRequest;
+        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+        abilityRequest.abilityInfo.name = "MainAbility";
+        abilityRequest.abilityInfo.type = AbilityType::DATA;
+        std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        if (abilityRecord) {
+            token = abilityRecord->GetToken();
+        }
+        return token;
     }
 
-    // fuzz for want
-    Parcel wantParcel;
-    Want *want = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        want = Want::Unmarshalling(wantParcel);
-        if (!want) {
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+    {
+        AppMgrClient* appMgrClient = new AppMgrClient();
+        if (!appMgrClient) {
             return false;
         }
+
+        sptr<IRemoteObject> token = GetFuzzAbilityToken();
+        if (!token) {
+            std::cout << "Get ability token failed." << std::endl;
+            return false;
+        }
+        sptr<IRemoteObject> preToken = GetFuzzAbilityToken();
+        if (!preToken) {
+            std::cout << "Get ability preToken failed." << std::endl;
+            return false;
+        }
+        AbilityInfo abilityInfo;
+        ApplicationInfo appInfo;
+
+        // fuzz for want
+        Parcel wantParcel;
+        Want* want = nullptr;
+        if (wantParcel.WriteBuffer(data, size)) {
+            want = Want::Unmarshalling(wantParcel);
+            if (want) {
+                appMgrClient->LoadAbility(token, preToken, abilityInfo, appInfo, *want);
+            }
+        }
+
+        delete appMgrClient;
+        appMgrClient = nullptr;
+
+        return true;
     }
-
-    context->TerminateSelf();
-    context->TerminateAbilityWithResult(*want, resultCode);
-
-    // fuzz for AbilityRecord::TerminateAbility
-    AbilityInfo abilityInfo;
-    ApplicationInfo applicationInfo;
-    int requestCode = -1;
-    auto abilityRecord = new AbilityRecord(*want, abilityInfo, applicationInfo, requestCode);
-
-    if (!abilityRecord->Init()) {
-        std::cout << "AbilityRecord Init failed" << std::endl;
-        return false;
-    }
-    if (abilityRecord->TerminateAbility() != ERR_OK) {
-        std::cout << "AbilityRecord TerminateAbility failed" << std::endl;
-        return false;
-    }
-
-    if (want) {
-        delete want;
-        want = nullptr;
-    }
-    
-    delete abilityRecord;
-
-    return true;
-}
 }
 
 /* Fuzzer entry point */
