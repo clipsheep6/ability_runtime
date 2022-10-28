@@ -72,14 +72,12 @@ HWTEST_F(AaCommandStopServiceSystemTest, Aa_Command_StopService_SystemTest_0100,
 
     // start the service ability
     ToolSystemTest::StartAbility(
-        STRING_DEVICE_NAME, STRING_SERVICE_ABILITY_NAME, STRING_SERVICE_ABILITY_BUNDLE_NAME, true);
+        STRING_DEVICE_NAME, STRING_SERVICE_ABILITY_NAME, STRING_SERVICE_ABILITY_BUNDLE_NAME, false);
 
     // stop the service ability
     std::string command = "aa stop-service -d " + STRING_DEVICE_NAME + " -a " + STRING_SERVICE_ABILITY_NAME + " -b " +
                           STRING_SERVICE_ABILITY_BUNDLE_NAME;
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
-
-    EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_STOP_SERVICE_ABILITY_OK + "\n");
 
     // uninstall the bundle
     ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
