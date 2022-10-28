@@ -24,6 +24,8 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
+#define ENABLE_FUZZ
+
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
 constexpr int32_t OFFSET = 4;
@@ -63,9 +65,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (size < OHOS::THRESHOLD) {
         return 0;
     }
-
+#ifndef ENABLE_FUZZ
     /* Run your code on data */
     OHOS::DoSomethingInterestingWithMyAPI(data, size);
+#endif
     return 0;
 }
 
