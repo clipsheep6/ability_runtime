@@ -136,7 +136,8 @@ public:
 
     virtual int KillApplicationSelf() override;
 
-    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) override;
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application,
+        bool &debug) override;
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
