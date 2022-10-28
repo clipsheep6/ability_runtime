@@ -268,7 +268,12 @@ napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     std::string errInfo = "Parameter error";
-    auto syncContext = new SyncRemoteMissionsContext();
+    auto syncContext = new (std::nothrow) SyncRemoteMissionsContext();
+    if (syncContext == nullptr) {
+        HILOG_ERROR("syncContext is nullptr");
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, "syncContext is nullptr"));
+        return GetUndefined(env);
+    }
     if (!ProcessSyncInput(env, info, true, syncContext, errInfo)) {
         delete syncContext;
         syncContext = nullptr;
@@ -339,7 +344,12 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     std::string errInfo = "Parameter error";
-    auto syncContext = new SyncRemoteMissionsContext();
+    auto syncContext = new (std::nothrow) SyncRemoteMissionsContext();
+    if (syncContext == nullptr) {
+        HILOG_ERROR("syncContext is nullptr");
+        napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, "syncContext is nullptr"));
+        return GetUndefined(env);
+    }
     if (!ProcessSyncInput(env, info, false, syncContext, errInfo)) {
         delete syncContext;
         syncContext = nullptr;
@@ -391,6 +401,11 @@ void RegisterMissionExecuteCB(napi_env env, void *data)
     } else {
         HILOG_INFO("registration not exits.");
         registration = new (std::nothrow) NAPIRemoteMissionListener();
+        if (registration == nullptr) {
+            HILOG_ERROR("registration is nullptr");
+            registerMissionCB->result = -1;
+            return;
+        }
     }
     registerMissionCB->missionRegistration = registration;
     if (registerMissionCB->missionRegistration == nullptr) {
@@ -729,7 +744,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
@@ -799,7 +814,7 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
@@ -861,7 +876,7 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
@@ -1109,7 +1124,12 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
     HILOG_INFO("%{public}s called.", __func__);
     auto continueAbilityCB = static_cast<ContinueAbilityCB *>(data);
     HILOG_INFO("create continueAbilityCB success.");
-    sptr<NAPIMissionContinue> continuation(new (std::nothrow) NAPIMissionContinue());
+    auto missionContinue = new (std::nothrow) NAPIMissionContinue();
+    if (missionContinue == nullptr) {
+        HILOG_ERROR("missionContinue is nullptr");
+        return;
+    }
+    sptr<NAPIMissionContinue> continuation(missionContinue);
     continueAbilityCB->abilityContinuation = continuation;
     if (continueAbilityCB->abilityContinuation == nullptr) {
         HILOG_ERROR("%{public}s abilityContinuation == nullptr.", __func__);
@@ -1408,7 +1428,7 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
 
     auto continueAbilityCB = new (std::nothrow) ContinueAbilityCB;
     if (continueAbilityCB == nullptr) {

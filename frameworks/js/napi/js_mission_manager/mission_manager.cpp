@@ -140,7 +140,12 @@ private:
             return engine.CreateNumber(missionListenerId_);
         }
 
-        missionListener_ = new JsMissionListener(&engine);
+        missionListener_ = new (std::nothrow) JsMissionListener(&engine);
+        if (missionListener_ == nullptr) {
+            HILOG_ERROR("missionListener_ is nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            return engine.CreateUndefined();
+        }
         auto ret = AbilityManagerClient::GetInstance()->RegisterMissionListener(missionListener_);
         if (ret == 0) {
             missionListener_->AddJsListenerObject(missionListenerId_, info.argv[ARGC_ONE]);

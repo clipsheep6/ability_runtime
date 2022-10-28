@@ -3656,7 +3656,12 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         connectAbilityCB->abilityConnection = item->second;
         HILOG_INFO("%{public}s find connection exist", __func__);
     } else {
-        sptr<NAPIAbilityConnection> conn(new (std::nothrow) NAPIAbilityConnection());
+        auto abilityConnection = new (std::nothrow) NAPIAbilityConnection();
+        if (abilityConnection == nullptr) {
+            HILOG_ERROR("abilityConnection is nullptr");
+            return nullptr;
+        }
+        sptr<NAPIAbilityConnection> conn(abilityConnection);
         connectAbilityCB->id = serialNumber_;
         connectAbilityCB->abilityConnection = conn;
         ConnecttionKey key;
@@ -4221,7 +4226,11 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
 napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DataAbilityHelperCB *dataAbilityHelperCB = new DataAbilityHelperCB;
+    DataAbilityHelperCB *dataAbilityHelperCB = new (std::nothrow) DataAbilityHelperCB;
+    if (dataAbilityHelperCB == nullptr) {
+        HILOG_ERROR("dataAbilityHelperCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     dataAbilityHelperCB->cbBase.cbInfo.env = env;
     dataAbilityHelperCB->cbBase.ability = nullptr; // temporary value assignment
     dataAbilityHelperCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
@@ -4953,7 +4962,12 @@ sptr<NAPIAbilityConnection> JsNapiCommon::BuildWant(const Want &want, int64_t &i
         abilityConnection = item->second;
         HILOG_DEBUG("find connection exist");
     } else {
-        sptr<NAPIAbilityConnection> conn(new (std::nothrow) NAPIAbilityConnection());
+        auto connection = new (std::nothrow) NAPIAbilityConnection();
+        if (connection == nullptr) {
+            HILOG_ERROR("abilityConnection is nullptr");
+            return nullptr;
+        }
+        sptr<NAPIAbilityConnection> conn(connection);
         id = serialNumber_;
         abilityConnection = conn;
         ConnecttionKey key;
