@@ -104,6 +104,7 @@ const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
 const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
 const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
 const std::string BUNDLE_NAME_MESSAGE = "com.ohos.mms";
+const std::string BUNDLE_NAME_PHOTO = "com.ohos.photos";
 const std::string BUNDLE_NAME_SCREENSHOT = "com.huawei.ohos.screenshot";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
 const std::string BUNDLE_NAME_SINGLE_TEST = "com.singleusermodel.actssingleusertest";
@@ -120,6 +121,7 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_KEY_BOARD,
                                                                 BUNDLE_NAME_NOTE,
                                                                 BUNDLE_NAME_MESSAGE,
+                                                                BUNDLE_NAME_PHOTO,
                                                                 BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
                                                                 BUNDLE_NAME_SINGLE_TEST,
