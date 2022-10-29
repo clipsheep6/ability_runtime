@@ -90,30 +90,6 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0100, Function | 
 }
 
 /**
- * @tc.number: Aa_Command_Start_SystemTest_0200
- * @tc.name: ExecCommand
- * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name>" command.
- */
-HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0200, Function | MediumTest | Level1)
-{
-    // uninstall the bundle
-    ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
-
-    // install the bundle
-    ToolSystemTest::InstallBundle(STRING_SERVICE_ABILITY_BUNDLE_PATH, true);
-
-    // start the service ability
-    std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_SERVICE_ABILITY_NAME + " -b " +
-                          STRING_SERVICE_ABILITY_BUNDLE_NAME;
-    std::string commandResult = ToolSystemTest::ExecuteCommand(command);
-
-    EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_OK + "\n");
-
-    // uninstall the bundle
-    ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
-}
-
-/**
  * @tc.number: Aa_Command_Start_SystemTest_0300
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name>" command.
