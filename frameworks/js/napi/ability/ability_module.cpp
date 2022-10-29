@@ -22,11 +22,11 @@ extern const char _binary_ability_abc_end[];
 
 #ifdef ENABLE_ERRCODE
 extern "C" __attribute__((constructor))
-void NAPI_app_ability_Ability_AutoRegister()
+void NAPI_app_ability_UIAbility_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "app.ability.Ability",
+        .name = "app.ability.UIAbility",
         .fileName = "app/ability/libability.so/ability.js",
     };
 
@@ -34,7 +34,7 @@ void NAPI_app_ability_Ability_AutoRegister()
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_app_ability_Ability_GetJSCode(const char **buf, int *bufLen)
+void NAPI_app_ability_UIAbility_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_ability_js_start;
@@ -47,7 +47,7 @@ void NAPI_app_ability_Ability_GetJSCode(const char **buf, int *bufLen)
 
 // ability JS register
 extern "C" __attribute__((visibility("default")))
-void NAPI_app_ability_Ability_GetABCCode(const char **buf, int *buflen)
+void NAPI_app_ability_UIAbility_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_ability_abc_start;
