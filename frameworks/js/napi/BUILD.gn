@@ -16,8 +16,8 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("napi_packages") {
   deps = [
-    "${ability_runtime_napi_path}/ability:ability",
     "${ability_runtime_napi_path}/ability:ability_napi",
+    "${ability_runtime_napi_path}/ability:uiability",
     "${ability_runtime_napi_path}/ability_constant:abilityconstant",
     "${ability_runtime_napi_path}/ability_constant:abilityconstant_napi",
     "${ability_runtime_napi_path}/ability_context:abilitycontext_napi",
