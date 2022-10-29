@@ -51,6 +51,8 @@ namespace AbilityRuntime {
 namespace {
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
+const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
+const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #if defined(_ARM64_)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #else
@@ -283,7 +285,13 @@ private:
     bool Initialize(const Runtime::Options& options) override
     {
         if (preloaded_) {
-            panda::JSNApi::postFork(vm_);
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
+            }
+            panda::JSNApi::postFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
         } else {
             panda::RuntimeOption pandaOption;
@@ -300,15 +308,23 @@ private:
             pandaOption.SetLogBufPrint(PrintVmLog);
 
             // Fix a problem that if vm will crash if preloaded
-            if (options.preload) {
-                pandaOption.SetEnableAsmInterpreter(false);
-            } else {
-                bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+	    if (options.preload) {
+	        pandaOption.SetEnableAsmInterpreter(false);
+	    } else {
+	        bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
                 std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
                 pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
                 pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-            }
-            vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+	    }
+
+	    // aot related
+	    bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
+            pandaOption.SetEnableAOT(aotEnabled);
+            bool profileEnabled = OHOS::system::GetBoolParameter("persist.ark.profile", false);
+            pandaOption.SetEnableProfile(profileEnabled);
+            pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
+            HILOG_DEBUG("JSRuntime::Initialize ArkNative file path = %{public}s", options.arkNativeFilePath.c_str());
+	    vm_ = panda::JSNApi::CreateJSVM(pandaOption);
             if (vm_ == nullptr) {
                 return false;
             }

@@ -44,6 +44,7 @@ public:
         std::string codePath;
         std::map<std::string, std::vector<std::string>> appLibPaths {};
         std::string hapPath;
+        std::string arkNativeFilePath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;

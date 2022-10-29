@@ -960,6 +960,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.loadAce = true;
         options.isBundle = (bundleInfo.hapModuleInfos.back().compileMode != AppExecFwk::CompileMode::ES_MODULE);
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
+        options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         std::string nativeLibraryPath = appInfo.nativeLibraryPath;
         if (!nativeLibraryPath.empty()) {
             if (nativeLibraryPath.back() == '/') {
