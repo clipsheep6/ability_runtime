@@ -201,7 +201,7 @@ private:
         return true;
     }
 
-    NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStartAbilityByCall(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartAbilityByCall is called.");
         if (info.argc < ARGC_ONE) {
@@ -248,7 +248,7 @@ private:
         return retsult;
     }
 
-    bool CheckStartAbilityByCallInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want)
+    bool CheckStartAbilityByCallInputParam(NativeEngine& engine, const NativeCallbackInfo& info, AAFwk::Want& want)
     {
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want)) {
             return false;
