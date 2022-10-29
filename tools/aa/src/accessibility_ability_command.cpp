@@ -288,9 +288,6 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
 {
     int option = -1;
     int counter = 0;
-    std::string capabilityNames = "";
-    std::string bundleName = "";
-    std::string abilityName = "";
     argument.command = "enable";
     while (true) {
         counter++;
@@ -360,9 +357,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
 
 ErrCode AccessibilityAbilityShellCommand::MakeDisableCommandArgumentFromCmd(AccessibilityCommandArgument &argument)
 {
-    ErrCode result = OHOS::ERR_OK;
     argument.command = "disable";
-    result = MakeCommandArgumentFromCmd(argument);
+    ErrCode result = MakeCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
         return CheckDisableCommandArgument(argument, resultReceiver_);
     }
@@ -371,9 +367,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeDisableCommandArgumentFromCmd(Acce
 
 ErrCode AccessibilityAbilityShellCommand::RunAsEnableAbility()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
-    result = MakeEnableCommandArgumentFromCmd(argument);
+    ErrCode result = MakeEnableCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
         auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
@@ -397,9 +392,8 @@ ErrCode AccessibilityAbilityShellCommand::RunAsEnableAbility()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsDisableAbility()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
-    result = MakeDisableCommandArgumentFromCmd(argument);
+    ErrCode result = MakeDisableCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
         auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
@@ -424,7 +418,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsGetEnabledAbilities()
     ErrCode result = OHOS::ERR_OK;
     std::vector<std::string> enabledAbilities = GetEnabledAbilities();
     if (!enabledAbilities.empty()) {
-        for (auto &ability : enabledAbilities) {
+        for (const auto &ability : enabledAbilities) {
             resultReceiver_.append(ability + "\n");
         }
     } else {
@@ -602,7 +596,7 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
     }
     std::vector<std::string> enabledAbilities = GetEnabledAbilities();
     std::string currentAbility = argument.bundleName + "/" + argument.abilityName;
-    for (auto &ability : enabledAbilities) {
+    for (const auto &ability : enabledAbilities) {
         if (ability == currentAbility) {
             resultMessage.append("the auxiliary application has been enabled.");
             return OHOS::ERR_INVALID_VALUE;
@@ -614,13 +608,12 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
 ErrCode AccessibilityAbilityShellCommand::CheckDisableCommandArgument(const AccessibilityCommandArgument &argument,
     std::string &resultMessage)
 {
-    ErrCode result = OHOS::ERR_OK;
-    result = CheckCommandArgument(argument, resultMessage);
+    ErrCode result = CheckCommandArgument(argument, resultMessage);
     if (result == OHOS::ERR_OK) {
         std::vector<std::string> enabledAbilities = GetEnabledAbilities();
         std::string currentAbility = argument.bundleName + "/" + argument.abilityName;
         bool isEnabled = false;
-        for (auto &ability : enabledAbilities) {
+        for (const auto &ability : enabledAbilities) {
             if (ability == currentAbility) {
                 isEnabled = true;
                 break;
@@ -703,10 +696,9 @@ ErrCode AccessibilityAbilityShellCommand::CheckSetCommandArgument(const Accessib
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetScreenMagnificationState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setScreenMagnificationState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -728,10 +720,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetScreenMagnificationState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setShortKeyState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -753,10 +744,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseKeyState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setMouseKeyState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -778,10 +768,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseKeyState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetCaptionState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setCaptionState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -803,10 +792,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetCaptionState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseAutoClick()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setMouseAutoClick";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidIntString(argument.value,
         MOUSE_AUTO_CLICK_TIME_LOW_BOUND, MOUSE_AUTO_CLICK_TIME_HIGH_BOUND)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
@@ -829,9 +817,8 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseAutoClick()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyTarget()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
-    result = MakeSetShortKeyTargetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetShortKeyTargetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
         auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
@@ -849,10 +836,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyTarget()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetHighContrastTextState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setHighContrastTextState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -874,10 +860,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetHighContrastTextState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetInvertColorState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setInvertColorState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -899,10 +884,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetInvertColorState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetDaltonizationColorFilter()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setDaltonizationColorFilter";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidIntString(argument.value,
         DALTIONIZATION_TYPE_LOW_BOUND, DALTIONIZATION_TYPE_HIGH_BOUND)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
@@ -947,10 +931,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetDaltonizationColorFilter()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetContentTimeout()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setContentTimeout";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidIntString(argument.value,
         CONTENT_TIME_OUT_TIME_LOW_BOUND, CONTENT_TIME_OUT_TIME_HIGH_BOUND)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
@@ -973,10 +956,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetContentTimeout()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetAnimationOffState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setAnimationOffState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -998,10 +980,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAnimationOffState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetBrightnessDiscount()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setSetBrightnessDiscount";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidIntString(argument.value,
         BRIGHTNESS_DISCOUNT_LOW_BOUND, BRIGHTNESS_DISCOUNT_HIGH_BOUND)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
@@ -1024,10 +1005,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetBrightnessDiscount()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioMonoState()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setAudioMonoState";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidStateString(argument.value)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
         result = OHOS::ERR_INVALID_VALUE;
@@ -1049,10 +1029,9 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioMonoState()
 
 ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioBalance()
 {
-    ErrCode result = OHOS::ERR_OK;
     AccessibilityCommandArgument argument;
     argument.command = "setAudioBalance";
-    result = MakeSetCommandArgumentFromCmd(argument);
+    ErrCode result = MakeSetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK && !AccessibilityUtils::IsValidIntString(argument.value,
         AUDIO_BALANCE_LOW_BOUND, AUDIO_BALANCE_HIGH_BOUND)) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
@@ -1075,9 +1054,8 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioBalance()
 ErrCode AccessibilityAbilityShellCommand::MakeSetShortKeyTargetCommandArgumentFromCmd(
     AccessibilityCommandArgument &argument)
 {
-    ErrCode result = OHOS::ERR_OK;
     argument.command = "setShortkeyTarget";
-    result = MakeCommandArgumentFromCmd(argument);
+    ErrCode result = MakeCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
         return CheckCommandArgument(argument, resultReceiver_);
     }
@@ -1088,9 +1066,6 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
 {
     int option = -1;
     int counter = 0;
-    std::string capabilityNames = "";
-    std::string bundleName = "";
-    std::string abilityName = "";
     while (true) {
         counter++;
         option = getopt_long(argc_, argv_, DISABLE_SHORT_OPTIONS.c_str(), DISABLE_LONG_OPTIONS, nullptr);
@@ -1151,7 +1126,6 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(Accessib
 {
     int option = -1;
     int counter = 0;
-    std::string value = "";
 
     while (true) {
         counter++;
