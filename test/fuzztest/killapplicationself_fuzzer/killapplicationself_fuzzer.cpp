@@ -13,44 +13,38 @@
  * limitations under the License.
  */
 
-#include "clearupapplicationdata_fuzzer.h"
+#include "killapplicationself_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#include "ability_record.h"
 #include "app_mgr_client.h"
+#include "parcel.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-constexpr size_t FOO_MAX_LEN = 1024;
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-{
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
-    }
+    constexpr size_t FOO_MAX_LEN = 1024;
 
-    std::string bundleName(data, size);
-    if (abilitymgr->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+    {
+        AppMgrClient* appMgrClient = new AppMgrClient();
+        if (!appMgrClient) {
+            return false;
+        }
 
-    // fuzz for AppMgrClient
-    auto appMgrClient = new AppMgrClient();
-    if (!appMgrClient) {
-        return false;
-    }
+        if (appMgrClient->KillApplicationSelf() != AppMgrResultCode::RESULT_OK) {
+            return false;
+        }
 
-    if (appMgrClient->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+        delete appMgrClient;
+        appMgrClient = nullptr;
 
-    return true;
-}
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
