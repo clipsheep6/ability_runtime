@@ -201,7 +201,7 @@ private:
         return true;
     }
 
-    NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStartAbilityByCall(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartAbilityByCall is called.");
         if (info.argc < ARGC_ONE) {
