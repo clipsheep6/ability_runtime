@@ -926,7 +926,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
         isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
     }
-
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
     }
@@ -949,7 +948,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
-
+    std::string BundleCodeDir = applicationContext->GetBundleCodeDir();
+    AbilityRuntime::Runtime::Options options;
     if (isStageBased) {
         // Create runtime
         AbilityRuntime::Runtime::Options options;
@@ -991,13 +991,29 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode](NativeValue* v) {
+        auto uncaughtTask = [weak, bundleName, versionCode, BundleCodeDir](NativeValue* v) {
             HILOG_INFO("Js uncaught exception callback come.");
+            auto appThread = weak.promote();
+            if (appThread == nullptr) {
+                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
+                return;
+            }
             NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
             std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-            std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
+            std::string summary = "Error message:" + errorMsg + "\n";
+            if (appThread->application_ == nullptr) {
+                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
+                return;
+            }
+            auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*
+                (weak->application_->GetRuntime()))).GetSourceMap();
+
+            // bindRuntime.bindSourceMaps lazy loading
+            summary +="Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap
+                (errorStack, bindSourceMaps, BundleCodeDir);
+            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
@@ -1010,11 +1026,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
-                return;
-            }
-            auto appThread = weak.promote();
-            if (appThread == nullptr) {
-                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failed.");
                 return;
             }
             // if app's callback has been registered, let app decide whether exit or not.
@@ -1242,6 +1253,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.eventRunner = mainHandler_->GetEventRunner();
         options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
         options.loadAce = false;
+        options.isStageModel = false;
         if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
