@@ -13,34 +13,30 @@
  * limitations under the License.
  */
 
-#include "gettopability_fuzzer.h"
+#include "setabilitycontroller_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #include "ability_manager_client.h"
 #include "ability_record.h"
+#include "iability_controller.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
+namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-
-    return token;
+constexpr uint8_t ENABLE = 2;
 }
+class AbilityControllerFuzz : public IRemoteStub<IAbilityController> {
+public:
+    AbilityControllerFuzz();
+    virtual ~AbilityControllerFuzz();
+    virtual bool AllowAbilityStart(const Want &want, const std::string &bundleName) override;
+    virtual bool AllowAbilityBackground(const std::string &bundleName) override;
+};
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     auto abilitymgr = AbilityManagerClient::GetInstance();
@@ -48,16 +44,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    abilitymgr->GetTopAbility();
-
-    // get token and connectCallback
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    if (!token) {
-        std::cout << "Get ability token failed." << std::endl;
-        return false;
-    }
-
-    if (abilitymgr->GetTopAbility(token) != 0) {
+    sptr<AbilityControllerFuzz> abilityController;
+    bool imAStabilityTest = *data % ENABLE;
+    if (abilitymgr->SetAbilityController(abilityController, imAStabilityTest) != 0) {
         return false;
     }
 

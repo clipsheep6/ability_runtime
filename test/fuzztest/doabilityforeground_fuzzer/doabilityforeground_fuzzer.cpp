@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "gettopability_fuzzer.h"
+#include "doabilityforeground_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -25,7 +25,14 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
+namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+}
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
 sptr<Token> GetFuzzAbilityToken()
 {
     sptr<Token> token = nullptr;
@@ -48,16 +55,15 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    abilitymgr->GetTopAbility();
-
     // get token and connectCallback
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    uint32_t flag = GetU32Data(data);
     if (!token) {
         std::cout << "Get ability token failed." << std::endl;
         return false;
     }
 
-    if (abilitymgr->GetTopAbility(token) != 0) {
+    if (abilitymgr->DoAbilityForeground(token, flag) != 0) {
         return false;
     }
 
