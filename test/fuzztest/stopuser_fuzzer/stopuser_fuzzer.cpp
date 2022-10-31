@@ -31,8 +31,8 @@ constexpr size_t FOO_MAX_LEN = 1024;
 }
 class StopUserCallbackFuzz : public IStopUserCallback {
 public:
-    explicit StopUserCallbackFuzz () {};
-    virtual ~StopUserCallbackFuzz () {};
+    explicit StopUserCallbackFuzz() {};
+    virtual ~StopUserCallbackFuzz() {};
     void OnStopUserDone(int userId, int errcode) override {};
 };
 uint32_t GetU32Data(const char* ptr)
