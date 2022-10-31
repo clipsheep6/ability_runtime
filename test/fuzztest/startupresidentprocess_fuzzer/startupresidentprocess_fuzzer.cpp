@@ -13,40 +13,32 @@
  * limitations under the License.
  */
 
-#include "finishusertest_fuzzer.h"
+#include "startupresidentprocess_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#include "ability_record.h"
 #include "app_mgr_client.h"
+#include "configuration.h"
+#include "parcel.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
+
 namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const char* data)
+    constexpr size_t FOO_MAX_LEN = 1024;
+
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     {
-        auto abilityMgr = AbilityManagerClient::GetInstance();
-        if (!abilityMgr) {
-            std::cout << "Get ability manager client failed." << std::endl;
-            return false;
-        }
-
-        int resultCode = 0;
-        ErrCode ret = abilityMgr->FinishUserTest(data, resultCode, "com.ohos.launcher");
-        if (ret != 0) {
-            return false;
-        }
-
-        // fuzz for AppMgrClient
         AppMgrClient* appMgrClient = new AppMgrClient();
         if (!appMgrClient) {
             return false;
         }
-        
-        if (appMgrClient->FinishUserTest(data, resultCode, "com.ohos.launcher") != 0) {
-            return false;
-        }
+
+        std::vector<AppExecFwk::BundleInfo> bundleInfos;
+        appMgrClient->StartupResidentProcess(bundleInfos);
 
         return true;
     }
@@ -58,6 +50,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     if (data == nullptr) {
         std::cout << "invalid data" << std::endl;
+        return 0;
+    }
+
+    /* Validate the length of size */
+    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
+        std::cout << "invalid size" << std::endl;
         return 0;
     }
 
@@ -75,7 +73,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    OHOS::DoSomethingInterestingWithMyAPI(ch);
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
     free(ch);
     ch = nullptr;
     return 0;
