@@ -1121,6 +1121,8 @@ private:
      */
     bool IsUseNewStartUpRule(const AbilityRequest &abilityRequest);
 
+    void InitStartupFlag();
+
     bool CheckNewRuleSwitchState(const std::string &param);
 
     void UpdateFocusState(std::vector<AbilityRunningInfo> &info);

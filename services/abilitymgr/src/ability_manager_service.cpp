@@ -279,15 +279,19 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-
-    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
-    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
-    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
+    auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
+    handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
 
     HILOG_INFO("Init success.");
     return true;
+}
+
+void AbilityManagerService::InitStartupFlag()
+{
+    startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
+    newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
+    backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
 }
 
 void AbilityManagerService::OnStop()
