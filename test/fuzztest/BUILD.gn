@@ -25,6 +25,7 @@ group("fuzztest") {
     "acquiredataability_fuzzer:fuzztest",
     "addabilitystagedone_fuzzer:fuzztest",
     "appmanager_fuzzer:fuzztest",
+    "apprunningmanager_fuzzer:fuzztest",
     "atomicservicestatuscallbackstub_fuzzer:fuzztest",
     "attachabilitythread_fuzzer:fuzztest",
     "attachrenderprocess_fuzzer:fuzztest",
