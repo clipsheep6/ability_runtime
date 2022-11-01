@@ -1191,7 +1191,7 @@ private:
     static sptr<AbilityManagerService> instance_;
 
     // Component StartUp rule switch
-    bool startUpNewRule_ = false;
+    bool startUpNewRule_ = true;
     /** It only takes effect when startUpNewRule_ is TRUE
      *  TRUE: When Caller-Application is Launcher or SystemUI, use old rule.
      *  FALSE: Apply new rule to all application
@@ -1206,12 +1206,12 @@ private:
      *  TRUE: white list enable.
      *  FALSE: white list unable.
      */
-    bool whiteListNormalFlag_ = false;
+    bool whiteListNormalFlag_ = true;
     /** The applications in white list can associatedWakeUp
      *  TRUE: white list enable.
      *  FALSE: white list unable.
      */
-    bool whiteListassociatedWakeUpFlag_ = false;
+    bool whiteListassociatedWakeUpFlag_ = true;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
