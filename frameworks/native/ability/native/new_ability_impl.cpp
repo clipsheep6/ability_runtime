@@ -110,7 +110,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
                 }
             } else {
                 Foreground(want);
-                ret = false;
+                ret = notifyForegroundByWindow_.load();
+                notifyForegroundByWindow_.store(false);
+                if (ability_ != nullptr && notifyForegroundByWindow_.load()) {
+                    ability_->NotifyForegroundByAbility(false);
+                }
             }
 #endif
             break;
