@@ -1657,7 +1657,13 @@ int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection>
 {
     HILOG_INFO("Disconnect local ability begin.");
     CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
-    return connectManager_->DisconnectAbilityLocked(connect);
+    if (connectManager_->DisconnectAbilityLocked(connect) == ERR_OK) {
+        return ERR_OK;
+    }
+    // If current connectManager_ does not exist connect, then try connectManagerU0
+    auto connectManagerU0 = GetConnectManagerByUserId(U0_USER_ID);
+    CHECK_POINTER_AND_RETURN(connectManagerU0, ERR_NO_INIT);
+    return connectManagerU0->DisconnectAbilityLocked(connect);
 }
 
 int AbilityManagerService::DisconnectRemoteAbility(const sptr<IRemoteObject> &connect)
