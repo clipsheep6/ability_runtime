@@ -190,8 +190,13 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
             reinterpret_cast<napi_value>(info.argv[1]), startOptions);
         unwrapArgc++;
     }
+    AsyncTask::ExecuteCallback execute = []() {
+        HILOG_ERROR("[DongLin]test exec");
+    };
+
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            HILOG_ERROR("[DongLin]test 1");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -205,12 +210,15 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
             } else {
                 task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
             }
+            HILOG_ERROR("[DongLin]test 2");
         };
 
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
+    HILOG_ERROR("[DongLin]test 3");
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    HILOG_ERROR("[DongLin]test 4");
     return result;
 }
 

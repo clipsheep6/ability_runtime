@@ -464,6 +464,36 @@ ohos_shared_library("data_ability_helper") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("static_subscriber_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/static_subscriber_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":static_subscriber_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "napi:ace_napi",
+    "resource_management:global_resmgr",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("service_extension_module") {
   include_dirs =
       [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
