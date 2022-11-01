@@ -5300,6 +5300,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     }
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    HILOG_DEBUG("OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
