@@ -4428,12 +4428,18 @@ int AbilityManagerService::SendANRProcessID(int pid)
     }
 
     AppExecFwk::ApplicationInfo appInfo;
+    bool debug;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK) {
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) == ERR_OK) {
         auto it = appRecoveryHistory_.find(appInfo.uid);
         if (it != appRecoveryHistory_.end()) {
             return ERR_OK;
         }
+    }
+
+    if (debug) {
+        HILOG_ERROR("SendANRProcessID error, debug mode.");
+        return ERR_INVALID_VALUE;
     }
 
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();

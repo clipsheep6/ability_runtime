@@ -505,6 +505,7 @@ public:
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
     void SetDebugApp(bool isDebugApp);
+    bool IsDebugApp();
     void SetRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecord();
     void SetStartMsg(const AppSpawnStartMsg &msg);

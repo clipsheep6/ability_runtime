@@ -2367,7 +2367,8 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
     return ERR_OK;
 }
 
-int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application,
+    bool &debug)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
@@ -2387,6 +2388,7 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
         return ERR_NO_INIT;
     }
     application = *info;
+    debug = appRecord->IsDebugApp();
     return ERR_OK;
 }
 

@@ -284,9 +284,10 @@ public:
      *
      * @param pid The process id.
      * @param application The application info.
+     * @param debug The app is or not debug.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
