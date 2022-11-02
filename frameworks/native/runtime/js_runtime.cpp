@@ -308,23 +308,23 @@ private:
             pandaOption.SetLogBufPrint(PrintVmLog);
 
             // Fix a problem that if vm will crash if preloaded
-	    if (options.preload) {
-	        pandaOption.SetEnableAsmInterpreter(false);
-	    } else {
-	        bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+            if (options.preload) {
+                pandaOption.SetEnableAsmInterpreter(false);
+            } else {
+                bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
                 std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
                 pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
                 pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-	    }
+            }
 
-	    // aot related
-	    bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
+            // aot related
+            bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
             pandaOption.SetEnableAOT(aotEnabled);
             bool profileEnabled = OHOS::system::GetBoolParameter("persist.ark.profile", false);
             pandaOption.SetEnableProfile(profileEnabled);
             pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
             HILOG_DEBUG("JSRuntime::Initialize ArkNative file path = %{public}s", options.arkNativeFilePath.c_str());
-	    vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+            vm_ = panda::JSNApi::CreateJSVM(pandaOption);
             if (vm_ == nullptr) {
                 return false;
             }
