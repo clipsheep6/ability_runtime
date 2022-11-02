@@ -375,10 +375,10 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         && (!CallTypeFilter(startMethod) ||
             abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
         HILOG_DEBUG("mission exists. No update required");
-        return false;
+        return true;
     }
     HILOG_DEBUG("mission exists. need to be updated");
-    return true;
+    return false;
 }
 
 std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const
