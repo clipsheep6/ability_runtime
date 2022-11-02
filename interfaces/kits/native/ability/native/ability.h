@@ -1161,16 +1161,6 @@ public:
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 
-    inline bool IsNotifyForegroundByAbility() const
-    {
-        return notifyForegroundByAbility_.load();
-    }
-
-    inline void NotifyForegroundByAbility(bool notifyForegroundByAbility)
-    {
-        notifyForegroundByAbility_.store(notifyForegroundByAbility);
-    }
-
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -1311,7 +1301,6 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
-    std::atomic_bool notifyForegroundByAbility_ = false;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(

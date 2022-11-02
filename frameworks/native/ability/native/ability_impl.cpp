@@ -649,14 +649,23 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed()
         return;
     }
 
-    if (ability->IsNotifyForegroundByAbility()) {
-        ability->NotifyForegroundByAbility(false);
+    bool needNotifyAMS = false;
+    {
+        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
+        if (owner->notifyForegroundByAbility_) {
+            owner->notifyForegroundByAbility_ = false;
+            needNotifyAMS = true;
+        } else {
+            HILOG_DEBUG("Notify foreground failed by window, but client's foreground is running.");
+            owner->notifyForegroundByWindow_ = true;
+        }
+    }
+
+    if (needNotifyAMS) {
+        HILOG_DEBUG("The ability is stage mode, schedule foreground failed.");
         PacMap restoreData;
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
-    } else {
-        HILOG_DEBUG("Notify foreground failed by window, but client's foreground is running.");
-        owner->notifyForegroundByWindow_.store(true);
     }
 }
 
@@ -669,7 +678,7 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
 void AbilityImpl::WindowLifeCycleImpl::AbilityTransitionDone(AbilityLifeCycleState state) const
 {
     auto owner = owner_.lock();
-    if (owner && !owner->IsStageBasedModel()) {
+    if (owner == nullptr || !owner->IsStageBasedModel()) {
         HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
         return;
     }
@@ -680,14 +689,22 @@ void AbilityImpl::WindowLifeCycleImpl::AbilityTransitionDone(AbilityLifeCycleSta
         return;
     }
 
-    if (ability->IsNotifyForegroundByAbility()) {
-        ability->NotifyForegroundByAbility(false);
-        HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
+    bool needNotifyAMS = false;
+    {
+        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
+        if (owner->notifyForegroundByAbility_) {
+            owner->notifyForegroundByAbility_ = false;
+            needNotifyAMS = true;
+        } else {
+            HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
+            owner->notifyForegroundByWindow_ = true;
+        }
+    }
+
+    if (needNotifyAMS) {
+        HILOG_DEBUG("The ability is stage mode, schedule %{public}u.", static_cast<uint32_t>(state));
         PacMap restoreData;
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, restoreData);
-    } else {
-        HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
-        owner->notifyForegroundByWindow_.store(true);
     }
 }
 
@@ -706,6 +723,10 @@ void AbilityImpl::Foreground(const Want &want)
         lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
     } else {
         lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+    }
+    {
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByAbility_ = true;
     }
     abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);

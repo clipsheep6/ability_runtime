@@ -456,7 +456,9 @@ protected:
     sptr<IRemoteObject> token_;
     std::shared_ptr<Ability> ability_;
     std::shared_ptr<AbilityHandler> handler_;
-    std::atomic_bool notifyForegroundByWindow_ = false;
+    bool notifyForegroundByWindow_ = false;
+    bool notifyForegroundByAbility_ = false;
+    std::mutex notifyForegroundLock_;
 
 private:
     typedef enum {

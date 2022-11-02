@@ -400,7 +400,6 @@ void JsAbility::OnForeground(const Want &want)
     obj->SetProperty("lastRequestWant", jsWant);
 
     CallObjectMethod("onForeground", &jsWant, 1);
-    notifyForegroundByAbility_.store(true);
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
