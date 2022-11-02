@@ -2275,14 +2275,28 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordByToken(abilityToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s get AbilityRecord by token failed.", __func__);
         return;
     }
-    NotifyMissionCreated(abilityRecord);
-    UpdateMissionSnapshot(abilityRecord);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto task = [owner = weak_from_this(), abilityRecord] {
+        auto mgr = owner.lock();
+        if (mgr == nullptr) {
+            HILOG_ERROR("MissionListManager is nullptr.");
+            return;
+        }
+        mgr->NotifyMissionCreated(abilityRecord);
+        mgr->UpdateMissionSnapshot(abilityRecord);
+    };
+    handler->PostTask(task, "FirstFrameDrawing");
 }
 
 Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const
