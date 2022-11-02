@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+
+constexpr int32_t READ_PARCEL_MAX_WANT_INFO_SIZE = 1000;
+
 bool WantSenderInfo::ReadFromParcel(Parcel &parcel)
 {
     type = parcel.ReadInt32();
@@ -28,6 +31,10 @@ bool WantSenderInfo::ReadFromParcel(Parcel &parcel)
     resultWho = Str16ToStr8(parcel.ReadString16());
     requestCode = parcel.ReadInt32();
     int32_t wantsInfoSize = parcel.ReadInt32();
+    if (wantsInfoSize > READ_PARCEL_MAX_WANT_INFO_SIZE) {
+        HILOG_ERROR("ReadFromParcel wantsInfoSize Control");
+        return false;
+    }
     for (int32_t i = 0; i < wantsInfoSize; i++) {
         std::unique_ptr<WantsInfo> wantsInfo(parcel.ReadParcelable<WantsInfo>());
         if (!wantsInfo) {
