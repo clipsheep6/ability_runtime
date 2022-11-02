@@ -1221,7 +1221,9 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
 #ifdef SUPPORT_GRAPHICS
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
         } else {
-            abilityRecord->NotifyAnimationFromTerminatingAbility();
+            if (!abilityRecord->IsClearMissionFlag()) {
+                abilityRecord->NotifyAnimationFromTerminatingAbility();
+            }
 #else
             nextAbilityRecord->ProcessForegroundAbility();
         } else {
@@ -1584,7 +1586,7 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     }
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
-    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
+    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD && !abilityRecord->IsClearMissionFlag()) {
         UpdateMissionSnapshot(abilityRecord);
     }
 
