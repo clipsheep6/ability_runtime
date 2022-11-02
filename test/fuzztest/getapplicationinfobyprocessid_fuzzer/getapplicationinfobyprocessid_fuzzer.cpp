@@ -39,8 +39,9 @@ namespace OHOS {
 
         int pid = 100;
         ApplicationInfo application;
+        bool debug;
 
-        if (appMgrClient->GetApplicationInfoByProcessID(pid, application) != 0) {
+        if (appMgrClient->GetApplicationInfoByProcessID(pid, application, debug) != 0) {
             return false;
         }
 
