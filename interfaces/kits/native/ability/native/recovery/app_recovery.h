@@ -45,6 +45,7 @@ public:
     bool ScheduleRecoverApp(StateReason reason);
     bool ScheduleSaveAppState(StateReason reason);
     bool TryRecoverApp(StateReason reason);
+    bool PersistAppState();
 
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
