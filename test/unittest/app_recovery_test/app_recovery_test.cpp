@@ -491,5 +491,45 @@ HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_002, TestSize.Level1)
     bool ret = AppRecovery::GetInstance().TryRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }
+
+/**
+ * @tc.name:  PersistAppState_001
+ * @tc.desc:  Test PersistAppState when saveMode_ == SaveModeFlag::SAVE_WITH_FILE.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, PersistAppState_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
+}
+
+/**
+ * @tc.name:  PersistAppState_002
+ * @tc.desc:  Test PersistAppState when abilityRecoverys is empty.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
+    EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
+}
+
+/**
+ * @tc.name:  PersistAppState_003
+ * @tc.desc:  Test PersistAppState when abilityRecoverys is not empty.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
+    AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_);
+    EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
