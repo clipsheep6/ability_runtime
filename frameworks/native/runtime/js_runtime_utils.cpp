@@ -251,6 +251,24 @@ void AsyncTask::ResolveWithErr(NativeEngine& engine, NativeValue* value)
     HILOG_DEBUG("AsyncTask::Resolve is called end.");
 }
 
+void AsyncTask::ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value)
+{
+    HILOG_DEBUG("AsyncTask::Resolve is called");
+    if (deferred_) {
+        deferred_->Resolve(value);
+        deferred_.reset();
+    }
+    if (callbackRef_) {
+        NativeValue* argv[] = {
+            errObject,
+            value,
+        };
+        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
+        callbackRef_.reset();
+    }
+    HILOG_DEBUG("AsyncTask::Resolve is called end.");
+}
+
 void AsyncTask::Execute(NativeEngine* engine, void* data)
 {
     if (engine == nullptr || data == nullptr) {
