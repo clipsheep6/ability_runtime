@@ -113,6 +113,7 @@ const std::string BUNDLE_NAME_FREEINSTALL_SEC_TEST = "com.open.harmony.startAbil
 const std::string BUNDLE_NAME_APP_SELECT_TEST = "com.example.appselectortest";
 const std::string BUNDLE_NAME_APP_SELECTPC_TEST = "com.example.appselectorpctest";
 const std::string BUNDLE_NAME_USERS_SYSTEM_TEST = "com.acts.actsinterfacemultiuserstest";
+const std::string BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST = "com.acts.actsinterfacemultiusersthirdtest";
 const std::string BUNDLE_NAME_SINGLE_USER_TEST = "com.singleusermodel.actssingleusertest";
 const std::string BUNDLE_NAME_MUTIUSER_TEST = "com.acts.actsinterfacemultiusersextensiontest";
 const std::string BUNDLE_NAME_PER_THRID_TEST = "com.example.actsabilitypermissionthirdtest";
@@ -135,6 +136,7 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_APP_SELECT_TEST,
                                                                 BUNDLE_NAME_APP_SELECTPC_TEST,
                                                                 BUNDLE_NAME_USERS_SYSTEM_TEST,
+                                                                BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST,
                                                                 BUNDLE_NAME_SINGLE_USER_TEST,
                                                                 BUNDLE_NAME_MUTIUSER_TEST,
                                                                 BUNDLE_NAME_PER_THRID_TEST,
@@ -5300,6 +5302,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     }
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    HILOG_DEBUG("OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
