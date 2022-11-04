@@ -446,7 +446,7 @@ private:
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
-    void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void EraseWaitingAbility(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId, bool excludeFromMissions);

@@ -377,10 +377,10 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         && (!CallTypeFilter(startMethod) ||
             abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
         HILOG_DEBUG("mission exists. No update required");
-        return false;
+        return true;
     }
     HILOG_DEBUG("mission exists. need to be updated");
-    return true;
+    return false;
 }
 
 std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const
@@ -1221,7 +1221,9 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
 #ifdef SUPPORT_GRAPHICS
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
         } else {
-            abilityRecord->NotifyAnimationFromTerminatingAbility();
+            if (!abilityRecord->IsClearMissionFlag()) {
+                abilityRecord->NotifyAnimationFromTerminatingAbility();
+            }
 #else
             nextAbilityRecord->ProcessForegroundAbility();
         } else {
@@ -1573,7 +1575,6 @@ void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject>& token)
     }
     HILOG_INFO("UpdateSnapShot, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     UpdateMissionSnapshot(abilityRecord);
-    abilityRecord->SetNeedSnapShot(false);
 }
 
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1585,13 +1586,8 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     }
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
-    NotifyMissionCreated(abilityRecord);
-    if (abilityRecord->IsNeedTakeSnapShot()) {
-        if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
-            UpdateMissionSnapshot(abilityRecord);
-        }
-    } else {
-        abilityRecord->SetNeedSnapShot(true);
+    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD && !abilityRecord->IsClearMissionFlag()) {
+        UpdateMissionSnapshot(abilityRecord);
     }
 
     auto self(shared_from_this());
@@ -1665,7 +1661,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 }
 
-void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord)
+void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord) const
 {
     CHECK_POINTER(abilityRecord);
     if (abilityRecord->GetAbilityInfo().excludeFromMissions) {
@@ -2279,13 +2275,28 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordByToken(abilityToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s get AbilityRecord by token failed.", __func__);
         return;
     }
-    NotifyMissionCreated(abilityRecord);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto task = [owner = weak_from_this(), abilityRecord] {
+        auto mgr = owner.lock();
+        if (mgr == nullptr) {
+            HILOG_ERROR("MissionListManager is nullptr.");
+            return;
+        }
+        mgr->NotifyMissionCreated(abilityRecord);
+        mgr->UpdateMissionSnapshot(abilityRecord);
+    };
+    handler->PostTask(task, "FirstFrameDrawing");
 }
 
 Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const

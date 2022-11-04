@@ -654,7 +654,6 @@ HWTEST_F(AmsAppRunningRecordModuleTest, StartSpecifiedAbility_003, TestSize.Leve
     BundleInfo bundleInfo;
     auto appRecord = service_->appRunningManager_->CheckAppRunningRecordIsExist(
         appInfo->name, GetTestAppName(index), appInfo->uid, bundleInfo);
-    EXPECT_TRUE(appRecord->GetModules().size() == 1);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

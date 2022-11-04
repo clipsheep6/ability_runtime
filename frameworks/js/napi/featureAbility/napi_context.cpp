@@ -779,10 +779,22 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         HILOG_ERROR("%{public}s, the size of permissions not equal the size of grantResults.", __func__);
         return;
     }
-    uv_loop_s *loop = nullptr;
 
-    napi_get_uv_event_loop(callbackInfo.env, &loop);
+    if (callbackInfo.engine == nullptr) {
+        HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.engine is nullptr.");
+        return;
+    }
+
+    if (callbackInfo.asyncTask == nullptr) {
+        HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.asyncTask is nullptr.");
+        return;
+    }
+
+    uv_loop_t *loop = nullptr;
+    loop = callbackInfo.engine->GetUVLoop();
+
     if (loop == nullptr) {
+        HILOG_ERROR("CallOnRequestPermissionsFromUserResult loop is nullptr.");
         return;
     }
 
@@ -800,6 +812,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
+            HILOG_DEBUG("CallOnRequestPermissionsFromUserResult result called");
             if (work == nullptr) {
                 HILOG_ERROR("%{public}s, uv_queue_work work is nullptr.", __func__);
                 return;
@@ -811,60 +824,16 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
                 work = nullptr;
                 return;
             }
+            NativeValue *objValue = onRequestPermissionCB->cb.engine->CreateObject();
+            NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
 
-            napi_value result[ARGS_TWO] = {0};
-            result[PARAM0] = GetCallbackErrorValue(onRequestPermissionCB->cb.env, 0);
-            napi_create_object(onRequestPermissionCB->cb.env, &result[PARAM1]);
-
-            // create requestCode
-            napi_value jsValue = 0;
-            napi_create_int32(onRequestPermissionCB->cb.env, onRequestPermissionCB->requestCode, &jsValue);
-            napi_set_named_property(onRequestPermissionCB->cb.env, result[PARAM1], "requestCode", jsValue);
-
-            // create permissions
-            napi_value perValue = 0;
-            napi_value perArray = 0;
-            napi_create_array(onRequestPermissionCB->cb.env, &perArray);
-
-            for (size_t i = 0; i < onRequestPermissionCB->permissions.size(); i++) {
-                napi_create_string_utf8(onRequestPermissionCB->cb.env,
-                    onRequestPermissionCB->permissions[i].c_str(),
-                    NAPI_AUTO_LENGTH,
-                    &perValue);
-                napi_set_element(onRequestPermissionCB->cb.env, perArray, i, perValue);
-            }
-            napi_set_named_property(onRequestPermissionCB->cb.env, result[PARAM1], "permissions", perArray);
-
-            // create grantResults
-            napi_value grantArray;
-            napi_create_array(onRequestPermissionCB->cb.env, &grantArray);
-
-            for (size_t j = 0; j < onRequestPermissionCB->grantResults.size(); j++) {
-                napi_create_int32(onRequestPermissionCB->cb.env, onRequestPermissionCB->grantResults[j], &perValue);
-                napi_set_element(onRequestPermissionCB->cb.env, grantArray, j, perValue);
-            }
-            napi_set_named_property(onRequestPermissionCB->cb.env, result[PARAM1], "authResults", grantArray);
-
-            // call CB function
-            if (onRequestPermissionCB->cb.callback != nullptr) {
-                HILOG_DEBUG("%{public}s call callback function.", __func__);
-                napi_value callback = 0;
-                napi_value undefined = 0;
-                napi_get_undefined(onRequestPermissionCB->cb.env, &undefined);
-
-                napi_value callResult = 0;
-                napi_get_reference_value(onRequestPermissionCB->cb.env, onRequestPermissionCB->cb.callback, &callback);
-                napi_call_function(
-                    onRequestPermissionCB->cb.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
-
-                if (onRequestPermissionCB->cb.callback != nullptr) {
-                    napi_delete_reference(onRequestPermissionCB->cb.env, onRequestPermissionCB->cb.callback);
-                }
-            } else if (onRequestPermissionCB->cb.deferred != nullptr) { // call promise function
-                HILOG_DEBUG("%{public}s call promise function.", __func__);
-                napi_resolve_deferred(onRequestPermissionCB->cb.env, onRequestPermissionCB->cb.deferred,
-                    result[PARAM1]);
-            }
+            object->SetProperty("requestCode", CreateJsValue(*(onRequestPermissionCB->cb.engine),
+                onRequestPermissionCB->requestCode));
+            object->SetProperty("permissions", CreateNativeArray(*(onRequestPermissionCB->cb.engine),
+                onRequestPermissionCB->permissions));
+            object->SetProperty("authResults", CreateNativeArray(*(onRequestPermissionCB->cb.engine),
+                onRequestPermissionCB->grantResults));
+            onRequestPermissionCB->cb.asyncTask->Resolve(*(onRequestPermissionCB->cb.engine), objValue);
 
             delete onRequestPermissionCB;
             onRequestPermissionCB = nullptr;
@@ -3265,15 +3234,13 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
-
-    std::vector<std::string> permissionList;
-    if (!GetStringsValue(engine, info.argv[PARAM0], permissionList)) {
+    CallAbilityPermissionParam permissionParam;
+    if (!GetStringsValue(engine, info.argv[PARAM0], permissionParam.permission_list)) {
         HILOG_ERROR("input params string error");
         return engine.CreateUndefined();
     }
 
-    int32_t requestCode = 0;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM1], requestCode)) {
+    if (!ConvertFromJsValue(engine, info.argv[PARAM1], permissionParam.requestCode)) {
         HILOG_ERROR("input params int error");
         return engine.CreateUndefined();
     }
@@ -3285,26 +3252,25 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
         AbilityRuntime::CreateAsyncTaskWithLastParam(engine, callback, nullptr, nullptr, &result);
     std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = std::move(uasyncTask);
 
-    PermissionRequestTask task = [&engine, requestCode, task = asyncTask]
-        (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
-        HILOG_DEBUG("OnRequestPermissionsFromUser result called");
-        NativeValue* objValue = engine.CreateObject();
-        NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
-        object->SetProperty("requestCode", CreateJsValue(engine, requestCode));
-        object->SetProperty("permissions", CreateNativeArray(engine, permissions));
-        object->SetProperty("authResults", CreateNativeArray(engine, grantResults));
-        task->Resolve(engine, objValue);
-    };
-
-    std::vector<int> permissionsState;
-    JsGetSelfPermissionsState(std::move(task), permissionList, permissionsState);
-
+    int32_t errorCode = NAPI_ERR_NO_ERROR;
     if (ability_ == nullptr) {
-        asyncTask->Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, ConvertErrorCode(NAPI_ERR_ACE_ABILITY)));
-    } else {
-        ability_->RequestPermissionsFromUser(permissionList, permissionsState, std::move(task));
+        HILOG_ERROR("OnRequestPermissionsFromUser ability is nullptr.");
+        errorCode = NAPI_ERR_ACE_ABILITY;
     }
+
+    if (permissionParam.permission_list.size() == 0) {
+        HILOG_ERROR("OnRequestPermissionsFromUser permission_list size is 0");
+        errorCode = NAPI_ERR_PARAM_INVALID;
+    }
+
+    if (errorCode != NAPI_ERR_NO_ERROR) {
+        asyncTask->Reject(engine, CreateJsError(engine, errorCode, ConvertErrorCode(errorCode)));
+    }
+    CallbackInfo callbackInfo;
+    callbackInfo.engine = &engine;
+    callbackInfo.asyncTask = asyncTask;
+    AbilityProcess::GetInstance()->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
+
     return result;
 }
 

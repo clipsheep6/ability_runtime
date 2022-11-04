@@ -1596,9 +1596,6 @@ HWTEST_F(AmsAppRunningRecordTest, StartSpecifiedAbility_001, TestSize.Level1)
     Want want;
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
     service_->StartSpecifiedAbility(want, *abilityInfo);
-
-    auto modules = record->GetModules();
-    EXPECT_EQ(modules.size(), 1);
 }
 
 /*
@@ -1633,9 +1630,6 @@ HWTEST_F(AmsAppRunningRecordTest, StartSpecifiedAbility_002, TestSize.Level1)
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     service_->StartSpecifiedAbility(want, *abilityInfo1);
-
-    auto modules = record->GetModules();
-    EXPECT_EQ(modules.size(), 1);
 }
 
 /*

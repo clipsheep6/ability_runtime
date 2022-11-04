@@ -576,5 +576,48 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetProcessName_0200, 
     std::string name = context_->GetProcessName();
     EXPECT_STREQ(empty.c_str(), name.c_str());
 }
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_InitResourceManager_0100
+ * @tc.name: GetProcessName
+ * @tc.desc: Test GetProcessName exception status.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_InitResourceManager_0100, Function | MediumTest | Level3)
+{
+    std::shared_ptr<AppExecFwk::ContextDeal> appContext = std::make_shared<AppExecFwk::ContextDeal>(true);
+    AppExecFwk::BundleInfo bundleInfo;
+    context_->InitResourceManager(bundleInfo, appContext);
+    EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+
+    HapModuleInfo info;
+    info.name = "com.ohos.contactsdataability";
+    info.moduleName = "entry";
+    info.description = "dataability_description";
+    info.iconPath = "$media:icon";
+    info.deviceTypes = {"smartVision"};
+    info.bundleName = "com.ohos.contactsdataability";
+    bundleInfo.hapModuleInfos.push_back(info);
+    context_->InitResourceManager(bundleInfo, appContext);
+    EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+
+    info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
+        "/com.ohos.contactsdataability/assets/entry/resources.index";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    context_->InitResourceManager(bundleInfo, appContext);
+    EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+
+    info.hapPath = "/system/app/com.ohos.contactsdataability/Contacts_DataAbility.hap";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    context_->InitResourceManager(bundleInfo, appContext);
+    EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+
+    info.resourcePath = "";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    context_->InitResourceManager(bundleInfo, appContext);
+    EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
+const std::string URI = "uri";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -90,6 +91,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
     Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos);
+    want.SetType(request.want.GetType());
+    want.SetParam(URI, request.want.GetStringParam(URI));
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     return abilityMgr->StartAbility(want);
 }

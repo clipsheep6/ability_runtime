@@ -35,6 +35,8 @@ public:
     void TearDown();
     std::shared_ptr<AppExecFwk::Ability> ability_ = std::make_shared<Ability>();
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
+    std::shared_ptr<AppExecFwk::EventHandler> testHandler_ = std::make_shared<EventHandler>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();
 };
 
@@ -52,6 +54,8 @@ void AppRecoveryUnitTest::SetUp()
     AppRecovery::GetInstance().saveOccasion_ = 0;
     AppRecovery::GetInstance().saveMode_ = 0;
     AppRecovery::GetInstance().abilityRecoverys_.clear();
+    AppRecovery::GetInstance().mainHandler_ = testHandler_;
+    AppRecovery::GetInstance().applicationInfo_ = applicationInfo_;
 }
 
 void AppRecoveryUnitTest::TearDown()
@@ -104,9 +108,7 @@ HWTEST_F(AppRecoveryUnitTest, GetSaveModeFlag_001, TestSize.Level1)
  */
 HWTEST_F(AppRecoveryUnitTest, InitApplicationInfo_001, TestSize.Level1)
 {
-    auto applicationInfo = std::make_shared<ApplicationInfo>();
-    auto testHandler = std::make_shared<EventHandler>();
-    EXPECT_TRUE(AppRecovery::GetInstance().InitApplicationInfo(testHandler, applicationInfo));
+    EXPECT_TRUE(AppRecovery::GetInstance().InitApplicationInfo(testHandler_, applicationInfo_));
 }
 
 /**
@@ -195,6 +197,52 @@ HWTEST_F(AppRecoveryUnitTest, AddAbility_003, TestSize.Level1)
 }
 
 /**
+ * @tc.name:  ShouldSaveAppState_001
+ * @tc.desc:  ShouldSaveAppState when state is support save.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::DEVELOPER_REQUEST);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name:  ShouldSaveAppState_002
+ * @tc.desc:  ShouldSaveAppState when state is not support save.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::LIFECYCLE);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ShouldSaveAppState_003
+ * @tc.desc:  ShouldSaveAppState when state is not support save.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_003, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::CPP_CRASH);
+    EXPECT_FALSE(ret);
+    ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::JS_ERROR);
+    EXPECT_FALSE(ret);
+    ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::APP_FREEZE);
+    EXPECT_FALSE(ret);
+}
+
+/**
  * @tc.name:  ScheduleSaveAppState_001
  * @tc.desc:  ScheduleSaveAppState when enable flag is false.
  * @tc.type: FUNC
@@ -222,21 +270,21 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_002, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_003
- * @tc.desc:  ScheduleSaveAppState when state is not support save.
+ * @tc.desc:  ScheduleSaveAppState when reason == StateReason::APP_FREEZE.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
 HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 {
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                   SaveModeFlag::SAVE_WITH_FILE);
-    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::CPP_CRASH);
-    EXPECT_FALSE(ret);
+    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+    EXPECT_TRUE(ret);
 }
 
 /**
  * @tc.name:  ScheduleSaveAppState_004
- * @tc.desc:  ScheduleSaveAppState should be return true.
+ * @tc.desc:  ScheduleSaveAppState when handler is nullptr.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -244,7 +292,78 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                   SaveModeFlag::SAVE_WITH_FILE);
-    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+    AppRecovery::GetInstance().mainHandler_.reset();
+    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ScheduleSaveAppState_005
+ * @tc.desc:  ScheduleSaveAppState should be return false.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_005, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::CPP_CRASH);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ShouldRecoverApp_001
+ * @tc.desc:  ShouldRecoverApp when state is not support save,RestartFlag = NO_RESTART.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::DEVELOPER_REQUEST);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ShouldRecoverApp_002
+ * @tc.desc:  ShouldRecoverApp when state is not support save.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::LIFECYCLE);
+    EXPECT_FALSE(ret);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::CPP_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::CPP_CRASH);
+    EXPECT_FALSE(ret);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::JS_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
+    EXPECT_FALSE(ret);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::APP_FREEZE_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ShouldRecoverApp_003
+ * @tc.desc:  ShouldRecoverApp when state is support save.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::DEVELOPER_REQUEST);
+    EXPECT_TRUE(ret);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }
 
@@ -276,25 +395,11 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_002, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleRecoverApp_003
- * @tc.desc:  ScheduleRecoverApp when state is not support save.
- * @tc.type: FUNC
- * @tc.require: I5UL6H
- */
-HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_003, TestSize.Level1)
-{
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
-                                  SaveModeFlag::SAVE_WITH_FILE);
-    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::LIFECYCLE);
-    EXPECT_FALSE(ret);
-}
-
-/**
- * @tc.name:  ScheduleRecoverApp_004
  * @tc.desc:  ScheduleRecoverApp when abilityRecoverys is empty.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
-HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
+HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                   SaveModeFlag::SAVE_WITH_FILE);
@@ -303,8 +408,26 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
 }
 
 /**
+ * @tc.name:  ScheduleRecoverApp_004
+ * @tc.desc:  ScheduleRecoverApp should be return true,reason == StateReason::APP_FREEZE.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    auto caseAbilityInfo = std::make_shared<AbilityInfo>();
+    auto ability = std::make_shared<Ability>();
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
+    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
+    EXPECT_TRUE(ret);
+}
+
+/**
  * @tc.name:  ScheduleRecoverApp_005
- * @tc.desc:  ScheduleRecoverApp should be return true.
+ * @tc.desc:  ScheduleRecoverApp when handler is nullptr.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -316,7 +439,26 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_005, TestSize.Level1)
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
-    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
+    AppRecovery::GetInstance().mainHandler_.reset();
+    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name:  ScheduleRecoverApp_006
+ * @tc.desc:  ScheduleRecoverApp should be retuen true.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_006, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                  SaveModeFlag::SAVE_WITH_FILE);
+    auto caseAbilityInfo = std::make_shared<AbilityInfo>();
+    auto ability = std::make_shared<Ability>();
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
+    bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
 }
 

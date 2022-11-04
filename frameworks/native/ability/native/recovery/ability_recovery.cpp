@@ -149,7 +149,7 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
         return false;
     }
     ssize_t nwrite = write(fd, reinterpret_cast<uint8_t*>(buf), sz);
-    if (nwrite != sz) {
+    if (nwrite <= 0) {
         HILOG_ERROR("AppRecovery%{public}s failed to persist parcel data %{public}d.", __func__, errno);
     }
     close(fd);

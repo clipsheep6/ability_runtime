@@ -596,15 +596,7 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
-    auto owner = owner_.lock();
-    if (owner && !owner->IsStageBasedModel()) {
-        return;
-    }
-
-    HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service.");
-    PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
+    AbilityTransitionDone(AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW);
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
@@ -645,23 +637,75 @@ void AbilityImpl::WindowLifeCycleImpl::AfterUnfocused()
 void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+    auto owner = owner_.lock();
+    if (owner == nullptr) {
+        HILOG_ERROR("abilityImpl is nullptr.");
+        return;
+    }
+
+    auto ability = owner->ability_;
+    if (ability == nullptr) {
+        HILOG_ERROR("jsAbility is nullptr.");
+        return;
+    }
+
+    bool needNotifyAMS = false;
+    {
+        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
+        if (owner->notifyForegroundByAbility_) {
+            owner->notifyForegroundByAbility_ = false;
+            needNotifyAMS = true;
+        } else {
+            HILOG_DEBUG("Notify foreground failed by window, but client's foreground is running.");
+            owner->notifyForegroundByWindow_ = true;
+        }
+    }
+
+    if (needNotifyAMS) {
+        HILOG_DEBUG("The ability is stage mode, schedule foreground failed.");
+        PacMap restoreData;
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+    }
 }
 
 void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
+    AbilityTransitionDone(AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE);
+}
+
+void AbilityImpl::WindowLifeCycleImpl::AbilityTransitionDone(AbilityLifeCycleState state) const
+{
     auto owner = owner_.lock();
-    if (owner && !owner->IsStageBasedModel()) {
+    if (owner == nullptr || !owner->IsStageBasedModel()) {
+        HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
         return;
     }
 
-    HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
-    PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
+    auto ability = owner->ability_;
+    if (ability == nullptr) {
+        HILOG_ERROR("jsAbility is nullptr.");
+        return;
+    }
+
+    bool needNotifyAMS = false;
+    {
+        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
+        if (owner->notifyForegroundByAbility_) {
+            owner->notifyForegroundByAbility_ = false;
+            needNotifyAMS = true;
+        } else {
+            HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
+            owner->notifyForegroundByWindow_ = true;
+        }
+    }
+
+    if (needNotifyAMS) {
+        HILOG_DEBUG("The ability is stage mode, schedule %{public}u.", static_cast<uint32_t>(state));
+        PacMap restoreData;
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, restoreData);
+    }
 }
 
 void AbilityImpl::Foreground(const Want &want)
@@ -679,6 +723,10 @@ void AbilityImpl::Foreground(const Want &want)
         lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
     } else {
         lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+    }
+    {
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByAbility_ = true;
     }
     abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);

@@ -59,7 +59,7 @@ ohos_ability_napi("ability_napi") {
   relative_install_dir = "module/application"
 }
 
-ohos_ability_napi("ability") {
+ohos_ability_napi("uiability") {
   relative_install_dir = "module/app/ability"
   defines = [ "ENABLE_ERRCODE" ]
 }
