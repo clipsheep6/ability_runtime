@@ -33,14 +33,6 @@ class ServiceExtensionAbility {
     onDestroy() {
         console.log('onDestroy');
     }
-
-    dump(params) {
-        console.log('dump');
-    }
-
-    onDump(params) {
-        console.log('onDump');
-    }
 }
 
 export default ServiceExtensionAbility
