@@ -105,7 +105,8 @@ bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &w
     HILOG_DEBUG("GetANRDialogWant start");
     AppExecFwk::ApplicationInfo appInfo;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, false) != ERR_OK) {
+    bool debug = false;
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) != ERR_OK) {
         HILOG_ERROR("Get application info failed.");
         return false;
     }
