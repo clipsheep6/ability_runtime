@@ -162,6 +162,7 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
     }
 
     ScheduleSaveAppState(reason);
+    PersistAppState();
     return ScheduleRecoverApp(reason);
 }
 
@@ -247,6 +248,19 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
                 ret = false;
             }
             break;
+    }
+    return ret;
+}
+
+bool AppRecovery::PersistAppState()
+{
+    if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
+        return true;
+    }
+
+    bool ret = true;
+    for (auto& abilityRecovery : abilityRecoverys_) {
+        ret = ret && abilityRecovery->PersistState();
     }
     return ret;
 }
