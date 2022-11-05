@@ -19,6 +19,7 @@ group("fuzztest") {
   deps = [
     "abilityattachtimeout_fuzzer:fuzztest",
     "abilityconnectionstub_fuzzer:fuzztest",
+    "abilityconnectmanager_fuzzer:fuzztest",
     "abilitymanager_fuzzer:fuzztest",
     "abilityschedulerstub_fuzzer:fuzztest",
     "abilitytransitiondone_fuzzer:fuzztest",
