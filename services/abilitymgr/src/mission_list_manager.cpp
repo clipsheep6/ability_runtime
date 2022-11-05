@@ -1269,7 +1269,6 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
     CHECK_POINTER(missionList);
 
     missionList->RemoveMissionByAbilityRecord(abilityRecord);
-    abilityRecord->SetAbilityState(AbilityState::TERMINATING);
     DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken());
     terminateAbilityList_.push_back(abilityRecord);
 
