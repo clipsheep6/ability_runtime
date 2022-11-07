@@ -21,6 +21,7 @@ group("fuzztest") {
     "abilityconnectionstub_fuzzer:fuzztest",
     "abilityconnectmanager_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
+    "abilityeventhandler_fuzzer:fuzztest",
     "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
     "abilityschedulerstub_fuzzer:fuzztest",

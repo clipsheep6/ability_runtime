@@ -50,7 +50,8 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord() {
+std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
+{
     sptr<Token> token = nullptr;
     AbilityRequest abilityRequest;
     abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
