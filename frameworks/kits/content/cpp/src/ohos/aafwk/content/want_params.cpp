@@ -1111,11 +1111,12 @@ bool WantParams::ReadFromParcelDouble(Parcel &parcel, const std::string &key)
 
 bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int type)
 {
-    int bufferSize = 0;
+    int32_t bufferSize = 0;
     if (!parcel.ReadInt32(bufferSize)) {
         return false;
     }
-    if (bufferSize < 0) {
+    static constexpr int32_t maxAllowedSize = 100 * 1024 * 1024;
+    if (bufferSize < 0 || bufferSize > maxAllowedSize) {
         return false;
     }
 
