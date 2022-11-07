@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string FORM_PROVIDER_BUNDLE_NAME = "com.form.provider.service";
+const std::string FORM_PROVIDER_BUNDLE_NAME = "com.form.supply.service";
 const std::string PARAM_PROVIDER_PACKAGE_NAME = "com.form.provider.app.test.abiliy";
 const std::string PARAM_PROVIDER_MODULE_NAME = "com.form.provider.app.test.abiliy";
 const std::string FORM_PROVIDER_ABILITY_NAME = "com.form.provider.app.test.abiliy";
@@ -52,8 +52,8 @@ bool BundleMgrProxy::GetFormsInfoByApp(const std::string &bundleName, std::vecto
     return true;
 }
 bool BundleMgrProxy::GetFormsInfoByModule(
-    const std::string &bundleName, 
-    const std::string &moduleName, 
+    const std::string &bundleName,
+    const std::string &moduleName,
     std::vector<FormInfo> &formInfo)
 {
     return true;
@@ -90,7 +90,7 @@ bool BundleMgrService::GetBundleInfo(const std::string &bundleName, const Bundle
     std::vector<AbilityInfo> abilityInfos;
     ApplicationInfo applicationInfo;
     ModuleInfo moduleInfo;
-    
+
     moduleInfo.moduleSourceDir = FORM_PROVIDER_MODULE_SOURCE_DIR;
     moduleInfo.moduleName = PARAM_PROVIDER_MODULE_NAME;
     bundleInfo.name = bundleName;
@@ -148,8 +148,8 @@ bool BundleMgrService::GetFormsInfoByApp(const std::string &bundleName, std::vec
     return true;
 }
 bool BundleMgrService::GetFormsInfoByModule(
-    const std::string &bundleName, 
-    const std::string &moduleName, 
+    const std::string &bundleName,
+    const std::string &moduleName,
     std::vector<FormInfo> &formInfo)
 {
     FormInfo form;
