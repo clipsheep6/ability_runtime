@@ -341,6 +341,10 @@ bool AbilityManagerService::Init()
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
+    interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
+
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
@@ -348,10 +352,6 @@ bool AbilityManagerService::Init()
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
-
-    interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
 
     HILOG_INFO("Init success.");
     return true;
@@ -447,6 +447,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
     }
 
