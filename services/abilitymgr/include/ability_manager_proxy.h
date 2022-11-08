@@ -584,7 +584,7 @@ public:
      * @param infos The dump info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
+    virtual void DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
     /**
      * Called to update mission snapshot.

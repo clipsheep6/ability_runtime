@@ -781,7 +781,7 @@ public:
      * @param callerToken The caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken);
+    void DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken);
 
     /**
      * Called to update mission snapshot.

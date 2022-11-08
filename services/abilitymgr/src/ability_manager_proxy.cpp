@@ -2596,38 +2596,35 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
+void AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("write interface token failed.");
-        return INNER_ERR;
+        return;
     }
 
     if (!data.WriteStringVector(infos)) {
         HILOG_ERROR("infos write failed.");
-        return INNER_ERR;
+        return;
     }
 
     if (!data.WriteRemoteObject(callerToken)) {
         HILOG_ERROR("infos write failed.");
-        return INNER_ERR;
+        return;
     }
 
     if (!Remote()) {
         HILOG_ERROR("Remote nullptr.");
-        return INNER_ERR;
+        return;
     }
 
     auto error = Remote()->SendRequest(IAbilityManager::DUMP_ABILITY_INFO_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
     }
-
-    return reply.ReadInt32();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -5061,16 +5061,15 @@ void AbilityManagerService::ShowIllegalInfomation(std::string& result)
     result.append(ILLEGAL_INFOMATION);
 }
 
-int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
+void AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("DumpAbilityInfoDone begin");
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("abilityRecord nullptr");
-        return ERR_INVALID_VALUE;
+        return;
     }
     abilityRecord->DumpAbilityInfoDone(infos);
-    return ERR_OK;
 }
 
 #ifdef SUPPORT_GRAPHICS

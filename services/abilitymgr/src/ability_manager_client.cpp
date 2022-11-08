@@ -979,13 +979,12 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
     return abms->GetTopAbility();
 }
 
-ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos,
-    const sptr<IRemoteObject> &callerToken)
+void AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("DumpAbilityInfoDone begin.");
     auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->DumpAbilityInfoDone(infos, callerToken);
+    CHECK_POINTER_RETURN(abms);
+    abms->DumpAbilityInfoDone(infos, callerToken);
 }
 
 void AbilityManagerClient::HandleDlpApp(Want &want)
