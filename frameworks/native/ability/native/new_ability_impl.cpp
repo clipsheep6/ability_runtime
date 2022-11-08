@@ -112,8 +112,8 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
                 Foreground(want);
                 std::lock_guard<std::mutex> lock(notifyForegroundLock_);
                 ret = notifyForegroundByWindow_;
-                notifyForegroundByWindow_ = false;
                 if (ret) {
+                    notifyForegroundByWindow_ = false;
                     notifyForegroundByAbility_ = false;
                 }
             }
