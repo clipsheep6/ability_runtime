@@ -1443,11 +1443,7 @@ int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessagePar
     std::vector<std::string> infos;
     data.ReadStringVector(&infos);
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
-    int32_t result = DumpAbilityInfoDone(infos, callerToken);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
-        return ERR_INVALID_VALUE;
-    }
+    DumpAbilityInfoDone(infos, callerToken);
     return NO_ERROR;
 }
 

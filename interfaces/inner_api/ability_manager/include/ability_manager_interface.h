@@ -649,10 +649,7 @@ public:
      * @param infos The dump info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
-    {
-        return 0;
-    }
+    virtual void DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) {}
 
     /**
      * Call free install from remote.

@@ -1545,10 +1545,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
         }
         std::vector<std::string> dumpInfo;
         abilityThread->DumpAbilityInfoInner(params, dumpInfo);
-        ErrCode err = AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
-        if (err != ERR_OK) {
-            HILOG_ERROR("AbilityThread:: DumpAbilityInfo failed err = %{public}d", err);
-        }
+        AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
     };
 
     if (abilityHandler_ == nullptr) {
