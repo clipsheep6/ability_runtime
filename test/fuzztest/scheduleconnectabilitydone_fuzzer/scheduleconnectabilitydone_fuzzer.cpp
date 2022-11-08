@@ -20,20 +20,24 @@
 
 #include "ability_manager_client.h"
 #include "ability_record.h"
+#include "ability_connect_manager.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 constexpr size_t FOO_MAX_LEN = 1024;
-sptr<Token> GetFuzzAbilityToken()
+constexpr int32_t UID_TEST = 100;
+constexpr int OFFSET_ZERO = 24;
+sptr<Token> GetFuzzAbilityToken(AbilityType type)
 {
     sptr<Token> token = nullptr;
 
     AbilityRequest abilityRequest;
+    abilityRequest.uid = UID_TEST;
     abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
     abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    abilityRequest.abilityInfo.type = type;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     if (abilityRecord) {
         token = abilityRecord->GetToken();
@@ -41,19 +45,37 @@ sptr<Token> GetFuzzAbilityToken()
 
     return token;
 }
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << OFFSET_ZERO) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     auto abilitymgr = AbilityManagerClient::GetInstance();
+    int userId = static_cast<int>(GetU32Data(data));
+    auto connectManager = new AbilityConnectManager(userId);
     sptr<IRemoteObject> remoteObject;
     if (!abilitymgr) {
         return false;
     }
 
     // get token
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    sptr<IRemoteObject> token = GetFuzzAbilityToken(AbilityType::PAGE);
     if (!token) {
         std::cout << "Get ability token failed." << std::endl;
         return false;
+    }
+
+    // get serviceToken
+    sptr<IRemoteObject> serviceToken = GetFuzzAbilityToken(AbilityType::SERVICE);
+    if (!serviceToken) {
+        std::cout << "Get service ability token failed." << std::endl;
+        return false;
+    }
+
+    if (connectManager) {
+        connectManager->ScheduleConnectAbilityDoneLocked(serviceToken, remoteObject);
     }
 
     if (abilitymgr->ScheduleConnectAbilityDone(token, remoteObject) != 0) {
