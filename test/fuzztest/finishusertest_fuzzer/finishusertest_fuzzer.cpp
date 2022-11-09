@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "app_mgr_client.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -34,6 +35,16 @@ namespace OHOS {
         int resultCode = 0;
         ErrCode ret = abilityMgr->FinishUserTest(data, resultCode, "com.ohos.launcher");
         if (ret != 0) {
+            return false;
+        }
+
+        // fuzz for AppMgrClient
+        AppMgrClient* appMgrClient = new AppMgrClient();
+        if (!appMgrClient) {
+            return false;
+        }
+        
+        if (appMgrClient->FinishUserTest(data, resultCode, "com.ohos.launcher") != 0) {
             return false;
         }
 

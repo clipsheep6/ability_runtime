@@ -34,8 +34,8 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info);
 napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info);
 napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info);
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info);
-napi_value WrapString(napi_env env, const std::string &deviceId, const std::string &paramName);
-napi_value WrapInt32(napi_env env, int32_t num, const std::string &paramName);
+napi_value WrapString(napi_env &env, const std::string &deviceId, const std::string &paramName);
+napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName);
 
 class NAPIMissionContinue : public MissionContinueStub {
 public:
@@ -54,9 +54,9 @@ class NAPIRemoteMissionListener : public AAFwk::RemoteMissionListenerStub {
 public:
     virtual ~NAPIRemoteMissionListener();
 
-    void NotifyMissionsChanged(const std::string& deviceId) override;
-    void NotifySnapshot(const std::string& deviceId, int32_t missionId) override;
-    void NotifyNetDisconnect(const std::string& deviceId, int32_t state) override;
+    void NotifyMissionsChanged(const std::string &deviceId) override;
+    void NotifySnapshot(const std::string &deviceId, int32_t missionId) override;
+    void NotifyNetDisconnect(const std::string &deviceId, int32_t state) override;
     void SetEnv(const napi_env &env);
     void SetNotifyMissionsChangedCBRef(const napi_ref &ref);
     void SetNotifySnapshotCBRef(const napi_ref &ref);
@@ -131,12 +131,11 @@ struct SyncRemoteMissionsContext {
     napi_ref callbackRef;
 };
 
-int32_t ErrorCodeReturn(int32_t code);
 bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
     SyncRemoteMissionsContext* context, std::string &errInfo);
-bool ProcessSyncInput(napi_env env, napi_callback_info info, bool isStart,
+bool ProcessSyncInput(napi_env &env, napi_callback_info info, bool isStart,
     SyncRemoteMissionsContext* syncContext, std::string &errInfo);
-void ReturnValueToApplication(napi_env env, napi_value *result, RegisterMissionCB *registerMissionCB);
+void ReturnValueToApplication(napi_env &env, napi_value *result, RegisterMissionCB *registerMissionCB);
 void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB);
 napi_value GetUndefined();
 mutex registrationLock_;
@@ -148,14 +147,6 @@ enum ErrorCode {
     REMOTE_MISSION_NOT_FOUND = -2,
     PERMISSION_DENY = -3,
     REGISTRATION_NOT_FOUND = -4,
-    /*
-     * Result(29360203) for continue remote not install and not support free install.
-     */
-    CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL = 29360203,
-    /*
-     * Result(29360202) for continue remote not install and support free install.
-     */
-    CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL = 29360202,
     /**
      * Result(201) for permission denied.
      */
@@ -191,6 +182,26 @@ enum ErrorCode {
      * Result(16300506) for the local continuation task is already in progress.
      */
     CONTINUE_ALREADY_IN_PROGRESS = 16300506,
+    /**
+     * Result(16300507) for the mission is dead, try again after restart mission.
+     */
+    MISSION_FOR_CONTINUING_IS_NOT_ALIVE = 16300507,
+    /*
+     * Result(29360144) for get local deviceid fail.
+     */
+    GET_LOCAL_DEVICE_ERR = 29360144,
+    /**
+     * Result(29360174) for get remote dms fail.
+     */
+    GET_REMOTE_DMS_FAIL = 29360174,
+    /*
+     * Result(29360202) for continue remote not install and support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL = 29360202,
+    /*
+     * Result(29360203) for continue remote not install and not support free install.
+     */
+    CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL = 29360203,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

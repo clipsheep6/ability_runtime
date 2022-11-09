@@ -19,23 +19,50 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "ability_record.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 constexpr size_t FOO_MAX_LEN = 1024;
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AbilityManagerClient* abilityMgrClient = new AbilityManagerClient();
-        if (!abilityMgrClient) {
-            return false;
-        }
+sptr<Token> GetFuzzAbilityToken()
+{
+    sptr<Token> token = nullptr;
 
-        abilityMgrClient->GetTopAbility();
-
-        return true;
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    if (abilityRecord) {
+        token = abilityRecord->GetToken();
     }
+
+    return token;
+}
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    auto abilitymgr = AbilityManagerClient::GetInstance();
+    if (!abilitymgr) {
+        return false;
+    }
+
+    abilitymgr->GetTopAbility();
+
+    // get token and connectCallback
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    if (!token) {
+        std::cout << "Get ability token failed." << std::endl;
+        return false;
+    }
+
+    if (abilitymgr->GetTopAbility(token) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */

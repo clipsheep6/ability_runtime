@@ -293,6 +293,7 @@ private:
             }
             panda::JSNApi::postFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
+            panda::JSNApi::SetLoop(vm_, nativeEngine_->GetUVLoop());
         } else {
             panda::RuntimeOption pandaOption;
             int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
@@ -560,7 +561,7 @@ bool JsRuntime::Initialize(const Options& options)
             moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
         }
     }
-
+    bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
     if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
         InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);

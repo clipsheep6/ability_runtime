@@ -119,7 +119,7 @@ bool AbilityRecovery::SaveAbilityState()
     if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
         SerializeDataToFile(abilityInfo->descriptionId, wantParams);
     } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
-        HILOG_DEBUG("AppRecovery save to SHARED_MEMORY");
+        params_ = wantParams;
     }
     return true;
 }
@@ -149,7 +149,7 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
         return false;
     }
     ssize_t nwrite = write(fd, reinterpret_cast<uint8_t*>(buf), sz);
-    if (nwrite != sz) {
+    if (nwrite <= 0) {
         HILOG_ERROR("AppRecovery%{public}s failed to persist parcel data %{public}d.", __func__, errno);
     }
     close(fd);
@@ -250,6 +250,20 @@ bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason)
     return true;
 }
 
+bool AbilityRecovery::PersistState()
+{
+    auto abilityInfo = abilityInfo_.lock();
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("AppRecovery ability is nullptr");
+        return false;
+    }
+
+    if (!params_.IsEmpty()) {
+        SerializeDataToFile(abilityInfo->descriptionId, params_);
+    }
+    return true;
+}
+
 bool AbilityRecovery::LoadSavedState(StateReason reason)
 {
     auto abilityInfo = abilityInfo_.lock();
@@ -264,15 +278,11 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
 
     hasTryLoad_ = true;
 
-    if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
-        if (!ReadSerializeDataFromFile(abilityInfo->descriptionId, params_)) {
-            HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d",
-                abilityInfo->descriptionId);
-            hasLoaded_ = false;
-            return hasLoaded_;
-        }
-    } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
-        HILOG_DEBUG("AppRecovery save to SHARED_MEMORY");
+    if (!ReadSerializeDataFromFile(abilityInfo->descriptionId, params_)) {
+        HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d",
+            abilityInfo->descriptionId);
+        hasLoaded_ = false;
+        return hasLoaded_;
     }
 
     auto stringObj = AAFwk::IString::Query(params_.GetParam("pageStack"));

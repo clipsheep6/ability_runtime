@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "app_mgr_client.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
@@ -35,6 +36,16 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     std::string bundleName(data, size);
     if (abilitymgr->ClearUpApplicationData(bundleName) != 0) {
+        return false;
+    }
+
+    // fuzz for AppMgrClient
+    auto appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
+    }
+
+    if (appMgrClient->ClearUpApplicationData(bundleName) != 0) {
         return false;
     }
 

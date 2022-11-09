@@ -101,16 +101,6 @@ public:
         return nullptr;
     }
 
-    NativeValue* CreateNativeBindingObject(void* detach, void* attach) override
-    {
-        return nullptr;
-    }
-
-    NativeValue* CreateNBObject(DetachCallback detach, AttachCallback attach) override
-    {
-        return nullptr;
-    }
-
     NativeValue* CreateFunction(const char* name, size_t length, NativeCallback cb, void* value) override
     {
         return nullptr;

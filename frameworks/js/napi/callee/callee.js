@@ -68,7 +68,7 @@ class Callee extends rpc.RemoteObject {
 
     onRemoteRequest(code, data, reply, option) {
         console.log("Callee onRemoteRequest code [" + typeof code + " " + code + "]");
-        if (this.startUpNewRule) {
+        if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
             console.log("Use new start up rule, check caller permission.");
             let accessManger = accessControl.createAtManager();
             let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();

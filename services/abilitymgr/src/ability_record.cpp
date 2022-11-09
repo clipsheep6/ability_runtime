@@ -720,17 +720,17 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     resourceMgr->UpdateResConfig(*resConfig);
 
-    if (abilityInfo_.resourcePath.empty() && abilityInfo_.hapPath.empty()) {
-        HILOG_WARN("Invalid app resource.");
-        return nullptr;
-    }
-
     std::string loadPath;
     if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
         !abilityInfo_.hapPath.empty()) {
         loadPath = abilityInfo_.hapPath;
     } else {
         loadPath = abilityInfo_.resourcePath;
+    }
+
+    if (loadPath.empty()) {
+        HILOG_WARN("Invalid app resource.");
+        return nullptr;
     }
 
     if (!resourceMgr->AddResource(loadPath.c_str())) {

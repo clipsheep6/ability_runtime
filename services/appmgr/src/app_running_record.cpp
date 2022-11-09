@@ -236,6 +236,7 @@ void AppRunningRecord::SetState(const ApplicationState state)
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()
 {
     std::list<std::shared_ptr<ApplicationInfo>> appInfoList;
+    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
     for (const auto &item : appInfos_) {
         appInfoList.push_back(item.second);
     }
@@ -251,11 +252,6 @@ const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>>
         abilitysMap.insert(abilities.begin(), abilities.end());
     }
     return abilitysMap;
-}
-
-std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> &AppRunningRecord::GetModules()
-{
-    return hapModules_;
 }
 
 sptr<IAppScheduler> AppRunningRecord::GetApplicationClient() const
@@ -319,6 +315,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
 {
     HILOG_INFO("Remove module record.");
 
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     for (auto &item : hapModules_) {
         auto iter = std::find_if(item.second.begin(),
             item.second.end(),
@@ -326,7 +323,10 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
         if (iter != item.second.end()) {
             iter = item.second.erase(iter);
             if (item.second.empty()) {
-                appInfos_.erase(item.first);
+                {
+                    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+                    appInfos_.erase(item.first);
+                }
                 hapModules_.erase(item.first);
             }
             return;
@@ -352,9 +352,12 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
         return;
     }
     AppLaunchData launchData;
-    auto moduleRecords = appInfos_.find(mainBundleName_);
-    if (moduleRecords != appInfos_.end()) {
-        launchData.SetApplicationInfo(*(moduleRecords->second));
+    {
+        std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+        auto moduleRecords = appInfos_.find(mainBundleName_);
+        if (moduleRecords != appInfos_.end()) {
+            launchData.SetApplicationInfo(*(moduleRecords->second));
+        }
     }
     ProcessInfo processInfo(processName_, GetPriorityObject()->GetPid());
     launchData.SetProcessInfo(processInfo);
@@ -544,6 +547,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         moduleRecord->SetApplicationClient(appLifeCycleDeal_);
     };
 
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     const auto &iter = hapModules_.find(appInfo->bundleName);
     if (iter != hapModules_.end()) {
         moduleRecord = GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
@@ -557,7 +561,10 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
         moduleList.push_back(moduleRecord);
         hapModules_.emplace(appInfo->bundleName, moduleList);
-        appInfos_.emplace(appInfo->bundleName, appInfo);
+        {
+            std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+            appInfos_.emplace(appInfo->bundleName, appInfo);
+        }
         initModuleRecord(moduleRecord);
     }
 
@@ -902,6 +909,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRecord() const
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
             moduleRecordList.push_back(list);
@@ -1083,14 +1091,16 @@ void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
 bool AppRunningRecord::GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info)
 {
     bool result = false;
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     auto moduleInfoVectorIter = hapModules_.find(bundleName);
     if (moduleInfoVectorIter == hapModules_.end() || moduleInfoVectorIter->second.empty()) {
         return result;
     }
-    auto findCondition = [this](const std::shared_ptr<ModuleRunningRecord> &record) {
+    std::string moduleName = moduleName_;
+    auto findCondition = [moduleName](const std::shared_ptr<ModuleRunningRecord> &record) {
         if (record) {
-            return (record->GetModuleName() == moduleName_ &&
-                record->GetModuleRecordState() == ModuleRecordState::INITIALIZED_STATE);
+            return (moduleName.empty() || (moduleName == record->GetModuleName())) &&
+                (record->GetModuleRecordState() == ModuleRecordState::INITIALIZED_STATE);
         }
         return false;
     };
@@ -1127,6 +1137,7 @@ bool AppRunningRecord::CanRestartResidentProc()
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
+    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }

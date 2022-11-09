@@ -52,6 +52,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_timer.cpp",
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
     "${ability_runtime_native_path}/runtime/runtime.cpp",
+    "${ability_runtime_native_path}/runtime/source_map.cpp",
   ]
 
   configs = [

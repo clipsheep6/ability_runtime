@@ -160,7 +160,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckOptExtensionAbility_002, TestSize.Level
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::FORM;
     auto result = abilityMs_->CheckOptExtensionAbility(want_, abilityRequest_, USER_ID_U100,
         AppExecFwk::ExtensionAbilityType::FORM);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, result);
     HILOG_INFO("AbilityManagerServiceTest CheckOptExtensionAbility_002 end");
 }
 
@@ -215,7 +215,7 @@ HWTEST_F(AbilityManagerServiceTest, StopUser_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, CheckCallServicePermission_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest CheckCallServicePermission_001 start");
-    EXPECT_EQ(abilityMs_->CheckCallServicePermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallServicePermission(abilityRequest_), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest CheckCallServicePermission_001 end");
 }
 
@@ -229,7 +229,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallDataAbilityPermission_001, TestSize
 {
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_001 start");
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::DATA;
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_001 end");
 }
 

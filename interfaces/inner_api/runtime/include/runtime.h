@@ -42,6 +42,7 @@ public:
         Language lang = Language::JS;
         std::string bundleName;
         std::string codePath;
+        std::string bundleCodeDir;
         std::map<std::string, std::vector<std::string>> appLibPaths {};
         std::string hapPath;
         std::string arkNativeFilePath;
@@ -50,6 +51,7 @@ public:
         bool preload = false;
         bool isBundle = true;
         bool isDebugVersion = false;
+        bool isStageModel = true;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);

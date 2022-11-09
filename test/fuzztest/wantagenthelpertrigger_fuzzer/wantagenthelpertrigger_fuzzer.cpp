@@ -24,7 +24,7 @@
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AbilityRuntime::WantAgent;
-
+#define DISABLE_FUZZ
 namespace {
     const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
 }
@@ -72,8 +72,10 @@ namespace OHOS {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+#ifndef DISABLE_FUZZ
     /* Run your code on data */
     OHOS::DoSomethingInterestingWithMyAPI(data, size);
+#endif
     return 0;
 }
 

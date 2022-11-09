@@ -41,6 +41,7 @@ ohos_fuzztest("GetTopAbilityFuzzTest") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [
@@ -49,6 +50,7 @@ ohos_fuzztest("GetTopAbilityFuzzTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "ipc:ipc_core",
+    "relational_store:native_dataability",
   ]
 }
 
