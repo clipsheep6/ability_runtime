@@ -109,11 +109,13 @@ bool AbilityRecovery::SaveAbilityState()
     }
 
 #ifdef SUPPORT_GRAPHICS
-    std::string pageStack = ability->GetContentInfo();
-    if (!pageStack.empty()) {
-        wantParams.SetParam("pageStack", AAFwk::String::Box(pageStack));
-    } else {
-        HILOG_ERROR("AppRecovery Failed to get page stack.");
+    if (wantParams.GetIntParam("ohos.extra.param.key.supportContinuePageStack", 1)) {
+        std::string pageStack = ability->GetContentInfo();
+        if (!pageStack.empty()) {
+            wantParams.SetParam("pageStack", AAFwk::String::Box(pageStack));
+        } else {
+            HILOG_ERROR("AppRecovery Failed to get page stack.");
+        }
     }
 #endif
     if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
