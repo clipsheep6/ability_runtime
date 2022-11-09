@@ -91,8 +91,8 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
     }
 
     if (reason == StateReason::APP_FREEZE) {
-        DoSaveAppState(reason);
-        return true;
+        HILOG_ERROR("ScheduleSaveAppState not support APP_FREEZE");
+        return false;
     }
 
     auto handler = mainHandler_.lock();
