@@ -166,6 +166,7 @@ public:
     void ResolveWithErr(NativeEngine& engine, NativeValue* value);
     void RejectWithNull(NativeEngine& engine, NativeValue* error);
     void ResolveWithUndefined(NativeEngine& engine, NativeValue* value);
+    void ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value);
 
 private:
     static void Execute(NativeEngine* engine, void* data);

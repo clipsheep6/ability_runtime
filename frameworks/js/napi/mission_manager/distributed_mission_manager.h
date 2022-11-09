@@ -183,6 +183,10 @@ enum ErrorCode {
      */
     CONTINUE_ALREADY_IN_PROGRESS = 16300506,
     /**
+     * Result(16300507) for the mission is dead, try again after restart mission.
+     */
+    MISSION_FOR_CONTINUING_IS_NOT_ALIVE = 16300507,
+    /*
      * Result(29360144) for get local deviceid fail.
      */
     GET_LOCAL_DEVICE_ERR = 29360144,

@@ -624,8 +624,8 @@ std::shared_ptr<Mission> MissionListManager::GetReusedSpecifiedMission(const Abi
         }
     }
 
-    // default single list
-    if ((reUsedMission = defaultSingleList_->GetSpecifiedMission(missionName, flag)) != nullptr) {
+    // default standard list
+    if ((reUsedMission = defaultStandardList_->GetSpecifiedMission(missionName, flag)) != nullptr) {
         return reUsedMission;
     }
 

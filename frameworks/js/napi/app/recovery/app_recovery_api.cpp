@@ -91,10 +91,37 @@ private:
                 reinterpret_cast<napi_value>(info.argv[i]), &tmp);
             flags[i] = static_cast<uint16_t>(tmp);
         }
+
+        if (!CheckParamsValid(flags)) {
+            return result;
+        }
+
         AppRecovery::GetInstance().EnableAppRecovery(flags[0],  // 0:RestartFlag
                                                      flags[1],  // 1:SaveOccasionFlag
                                                      flags[2]); // 2:SaveModeFlag
         return result;
+    }
+
+    bool CheckParamsValid(uint16_t params[])
+    {
+        uint16_t restartFlag = params[0];
+        constexpr uint16_t restartMaxVal = 0x0007;
+        if ((restartFlag < 0 || restartFlag > restartMaxVal) && (restartFlag != RestartFlag::NO_RESTART)) {
+            HILOG_ERROR("AppRecoveryApi CheckParamsValid restartFlag: %{public}d is Invalid", restartFlag);
+            return false;
+        }
+        uint16_t saveFlag = params[1];
+        constexpr uint16_t saveMaxVal = 0x0003;
+        if (saveFlag < SaveOccasionFlag::SAVE_WHEN_ERROR || saveFlag > saveMaxVal) {
+            HILOG_ERROR("AppRecoveryApi CheckParamsValid SaveOccasionFlag: %{public}d is Invalid", saveFlag);
+            return false;
+        }
+        uint16_t saveModeFlag = params[2];
+        if (saveModeFlag < SaveModeFlag::SAVE_WITH_FILE || saveModeFlag > SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
+            HILOG_ERROR("AppRecoveryApi CheckParamsValid saveModeFlag: %{public}d is Invalid", saveModeFlag);
+            return false;
+        }
+        return true;
     }
 
     NativeValue *OnSaveAppState(NativeEngine &engine, const NativeCallbackInfo &info)
@@ -142,6 +169,7 @@ NativeValue *AppRecoveryRestartFlagInit(NativeEngine *engine)
     object->SetProperty("CPP_CRASH_NO_RESTART", CreateJsValue(*engine, RestartFlag::CPP_CRASH_NO_RESTART));
     object->SetProperty("JS_CRASH_NO_RESTART", CreateJsValue(*engine, RestartFlag::JS_CRASH_NO_RESTART));
     object->SetProperty("APP_FREEZE_NO_RESTART", CreateJsValue(*engine, RestartFlag::APP_FREEZE_NO_RESTART));
+    object->SetProperty("NO_RESTART", CreateJsValue(*engine, RestartFlag::NO_RESTART));
     return objValue;
 }
 
