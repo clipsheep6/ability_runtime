@@ -494,7 +494,6 @@ public:
     void ForegroundFailed() override;
     void ForegroundInvalidMode() override;
 private:
-    void AbilityTransitionDone(AbilityLifeCycleState state) const;
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;
 };
