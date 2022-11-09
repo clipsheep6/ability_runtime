@@ -335,15 +335,13 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 HILOG_ERROR("Disconnect ability fail , ret = %{public}d.", ret);
                 return ret;
             }
-        }
-    }
 
-    // 3. target service has another connection, this record callback disconnected directly.
-    if (eventHandler_ != nullptr) {
-        auto task = [connectRecordList, connectManager = shared_from_this()]() {
-            connectManager->HandleDisconnectTask(connectRecordList);
-        };
-        eventHandler_->PostTask(task);
+            if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
+                HILOG_WARN("This record: %{public}d complete disconnect directly.", connectRecord->GetRecordId());
+                connectRecord->CompleteDisconnect(ERR_OK, false);
+                RemoveConnectionRecordFromMap(connectRecord);
+            }
+        }
     }
 
     return ERR_OK;
@@ -766,23 +764,6 @@ void AbilityConnectManager::HandleStopTimeoutTask(const std::shared_ptr<AbilityR
     std::lock_guard<std::recursive_mutex> guard(Lock_);
     CHECK_POINTER(abilityRecord);
     TerminateDone(abilityRecord);
-}
-
-void AbilityConnectManager::HandleDisconnectTask(const ConnectListType &connectlist)
-{
-    HILOG_DEBUG("Complete disconnect ability.");
-    std::lock_guard<std::recursive_mutex> guard(Lock_);
-    for (auto &connectRecord : connectlist) {
-        if (!connectRecord) {
-            continue;
-        }
-        auto targetService = connectRecord->GetAbilityRecord();
-        if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
-            HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
-            connectRecord->CompleteDisconnect(ERR_OK, false);
-            RemoveConnectionRecordFromMap(connectRecord);
-        };
-    }
 }
 
 void AbilityConnectManager::HandleTerminateDisconnectTask(const ConnectListType& connectlist)

@@ -38,7 +38,7 @@ namespace OHOS {
         abilityRequest.abilityInfo.type = AbilityType::DATA;
         std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (abilityRecord) {
-          token = abilityRecord->GetToken();
+            token = abilityRecord->GetToken();
         }
         return token;
     }

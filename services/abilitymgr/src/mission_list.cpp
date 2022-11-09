@@ -80,7 +80,7 @@ std::shared_ptr<Mission> MissionList::GetSingletonMissionByName(const std::strin
 std::shared_ptr<Mission> MissionList::GetSpecifiedMission(
     const std::string &missionName, const std::string& flag) const
 {
-    if (missionName.empty()) {
+    if (missionName.empty() || flag.empty()) {
         return nullptr;
     }
 

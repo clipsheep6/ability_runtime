@@ -468,8 +468,6 @@ public:
 
     std::list<std::shared_ptr<ModuleRunningRecord>> GetAllModuleRecord() const;
 
-    std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> &GetModules();
-
     const std::list<std::shared_ptr<ApplicationInfo>> GetAppInfoList();
 
     inline const std::shared_ptr<ApplicationInfo> GetApplicationInfo()
@@ -619,7 +617,9 @@ private:
     std::string signCode_;  // the sign of this hap
     std::string jointUserId_;
     std::map<std::string, std::shared_ptr<ApplicationInfo>> appInfos_;
+    std::mutex appInfosLock_;
     std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> hapModules_;
+    mutable std::mutex hapModulesLock_;
     int32_t mainUid_;
     std::string mainBundleName_;
     bool isLauncherApp_;

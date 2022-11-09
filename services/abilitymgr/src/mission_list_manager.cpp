@@ -377,10 +377,10 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         && (!CallTypeFilter(startMethod) ||
             abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
         HILOG_DEBUG("mission exists. No update required");
-        return false;
+        return true;
     }
     HILOG_DEBUG("mission exists. need to be updated");
-    return true;
+    return false;
 }
 
 std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const
@@ -624,8 +624,8 @@ std::shared_ptr<Mission> MissionListManager::GetReusedSpecifiedMission(const Abi
         }
     }
 
-    // default single list
-    if ((reUsedMission = defaultSingleList_->GetSpecifiedMission(missionName, flag)) != nullptr) {
+    // default standard list
+    if ((reUsedMission = defaultStandardList_->GetSpecifiedMission(missionName, flag)) != nullptr) {
         return reUsedMission;
     }
 
@@ -1221,7 +1221,9 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
 #ifdef SUPPORT_GRAPHICS
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
         } else {
-            abilityRecord->NotifyAnimationFromTerminatingAbility();
+            if (!abilityRecord->IsClearMissionFlag()) {
+                abilityRecord->NotifyAnimationFromTerminatingAbility();
+            }
 #else
             nextAbilityRecord->ProcessForegroundAbility();
         } else {
@@ -1584,7 +1586,7 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     }
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
-    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
+    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD && !abilityRecord->IsClearMissionFlag()) {
         UpdateMissionSnapshot(abilityRecord);
     }
 
@@ -2273,14 +2275,28 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordByToken(abilityToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s get AbilityRecord by token failed.", __func__);
         return;
     }
-    NotifyMissionCreated(abilityRecord);
-    UpdateMissionSnapshot(abilityRecord);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto task = [owner = weak_from_this(), abilityRecord] {
+        auto mgr = owner.lock();
+        if (mgr == nullptr) {
+            HILOG_ERROR("MissionListManager is nullptr.");
+            return;
+        }
+        mgr->NotifyMissionCreated(abilityRecord);
+        mgr->UpdateMissionSnapshot(abilityRecord);
+    };
+    handler->PostTask(task, "FirstFrameDrawing");
 }
 
 Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const

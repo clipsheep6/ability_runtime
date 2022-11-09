@@ -40,7 +40,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));;
+    int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
     if (abilitymgr->BlockAbility(abilityRecordId) != 0) {
         return false;
     }

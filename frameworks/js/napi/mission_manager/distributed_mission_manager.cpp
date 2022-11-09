@@ -85,6 +85,8 @@ static int32_t ErrorCodeReturn(int32_t code)
             return OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET;
         case CONTINUE_ALREADY_IN_PROGRESS:
             return CONTINUE_ALREADY_IN_PROGRESS;
+        case MISSION_FOR_CONTINUING_IS_NOT_ALIVE:
+            return MISSION_FOR_CONTINUING_IS_NOT_ALIVE;
         default:
             return SYSTEM_WORK_ABNORMALLY;
     };
@@ -107,13 +109,16 @@ static std::string ErrorMessageReturn(int32_t code)
             return std::string("the application is not installed on the "
                 "remote end and installation-free is not supported.");
         case CONTINUE_WITHOUT_FREEINSTALL_FLAG:
-            return std::string("the application is not installed on the remote end but "
-                "installation-free is supported, try again with freeInstall flag.");
+            return std::string("The application is not installed on the remote end and "
+                "installation-free is supported. Try again with the freeInstall flag.");
         case OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET:
-            return std::string("the operation device must be the device where the "
-                "application to be continued is located or the target device to be continued.");
+            return std::string("The operation device must be the device where the "
+                "application to be continued is currently located or the target device.");
         case CONTINUE_ALREADY_IN_PROGRESS:
             return std::string("the local continuation task is already in progress.");
+        case MISSION_FOR_CONTINUING_IS_NOT_ALIVE:
+            return std::string("the mission for continuing is not alive, "
+                "try again after restart this mission.");
         default:
             return std::string("the system ability work abnormally.");
     };
