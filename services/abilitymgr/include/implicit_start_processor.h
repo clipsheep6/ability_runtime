@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 #include "ability_record.h"
 #include "bundle_mgr_interface.h"
@@ -49,8 +50,12 @@ private:
     
     int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
 
+    bool CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,
+        const AppExecFwk::ExtensionAbilityInfo &extensionInfo);
+
 private:
     const static std::vector<std::string> blackList;
+    const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
 };
 }  // namespace AAFwk

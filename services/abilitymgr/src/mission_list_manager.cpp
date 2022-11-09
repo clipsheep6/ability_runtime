@@ -367,12 +367,12 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         targetRecord->SetIsNewWant(true);
     }
     /* No need to update condition:
-        *      1. not start by call
-        *      2. start by call, but call to background again
-        * Need to update condition:
-        *      1. start by call, but this time is not start by call
-        *      2. start by call, and call to foreground again
-        */
+     *      1. not start by call
+     *      2. start by call, but call to background again
+     * Need to update condition:
+     *      1. start by call, but this time is not start by call
+     *      2. start by call, and call to foreground again
+     */
     if (!(targetMission->IsStartByCall()
         && (!CallTypeFilter(startMethod) ||
             abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
