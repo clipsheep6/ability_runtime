@@ -377,7 +377,8 @@ bool ModSourceMap::GetSourceMapData(ModSourceMap& bindSourceMaps, const std::str
     return true;
 }
 
-std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps, const std::string& BundleCodeDir)
+std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps,
+    const std::string& BundleCodeDir)
 {
     const std::string closeBrace = ")";
     const std::string openBrace = "(";
@@ -485,7 +486,8 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     return ans;
 }
 
-std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::string& column, const SourceMapData& targetMap, const std::string& key)
+std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::string& column,
+    const SourceMapData& targetMap, const std::string& key)
 {
     int32_t offSet = 0;
     std::string sourceInfo;
@@ -507,12 +509,11 @@ void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::
     if (!targetMaps.nonModularMap_) {
         targetMaps.nonModularMap_ = std::make_shared<SourceMapData>();
     }
-    // SourceMapData curMapData;
     Init(targetMap, *targetMaps.nonModularMap_);
-    // targetMaps.sourceMaps_.insert(std::pair<std::string, SourceMapData>(isPageFlag, curMapData));
 }
 
-std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData, const std::string& sourceCode, uint32_t& errorPos)
+std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
+    const std::string& sourceCode, uint32_t& errorPos)
 {
     if (sourceCode.empty() || sourceCode.find("SourceCode:\n") == std::string::npos) {
         return sourceCode;

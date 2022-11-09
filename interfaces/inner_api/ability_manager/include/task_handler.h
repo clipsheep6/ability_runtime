@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class TaskHandler : public EventHandler {
 public:
-    TaskHandler(const std::shared_ptr<EventRunner> &runner);
+    explicit TaskHandler(const std::shared_ptr<EventRunner> &runner);
     ~TaskHandler()
     {}
 

@@ -37,8 +37,8 @@ public:
 
     DataAbilityOperation(
         const std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, const std::shared_ptr<Uri> &withUri);
-    DataAbilityOperation(Parcel &in);
-    DataAbilityOperation(const std::shared_ptr<DataAbilityOperationBuilder> &builder);
+    explicit DataAbilityOperation(Parcel &in);
+    explicit DataAbilityOperation(const std::shared_ptr<DataAbilityOperationBuilder> &builder);
     DataAbilityOperation();
     /**
      * @brief Creates an operation for inserting data.

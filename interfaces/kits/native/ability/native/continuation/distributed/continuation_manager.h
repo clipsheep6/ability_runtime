@@ -74,7 +74,7 @@ public:
 
     enum OnContinueResult {
         AGREE = 0,
-        Reject = 1,
+        REJECT = 1,
         MISMATCH = 2
     };
 private:

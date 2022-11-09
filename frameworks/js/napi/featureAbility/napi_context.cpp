@@ -1530,7 +1530,7 @@ ElementNameCB *CreateElementNameCBInfo(napi_env env)
     return elementNameCB;
 }
 
-napi_value WrapElementName(napi_env env, ElementNameCB *elementNameCB)
+napi_value WrapElementName(napi_env env, const ElementNameCB *elementNameCB)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (elementNameCB == nullptr) {
@@ -1769,7 +1769,7 @@ void GetProcessNameExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_GetProcessName, worker pool thread execute end.");
 }
 
-napi_value WrapProcessName(napi_env env, ProcessNameCB *processNameCB)
+napi_value WrapProcessName(napi_env env, const ProcessNameCB *processNameCB)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (processNameCB == nullptr) {
@@ -1960,7 +1960,7 @@ void GetCallingBundleExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_GetCallingBundle, worker pool thread execute end.");
 }
 
-napi_value WrapCallingBundle(napi_env env, CallingBundleCB *callingBundleCB)
+napi_value WrapCallingBundle(napi_env env, const CallingBundleCB *callingBundleCB)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (callingBundleCB == nullptr) {
@@ -2159,7 +2159,7 @@ void GetOrCreateLocalDirExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_GetOrCreateLocalDir, worker pool thread execute end.");
 }
 
-napi_value WrapGetOrCreateLocalDir(napi_env env, GetOrCreateLocalDirCB *getOrCreateLocalDirCB)
+napi_value WrapGetOrCreateLocalDir(napi_env env, const GetOrCreateLocalDirCB *getOrCreateLocalDirCB)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (getOrCreateLocalDirCB == nullptr) {

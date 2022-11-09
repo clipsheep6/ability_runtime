@@ -38,7 +38,7 @@ class JsAbility : public Ability {
 public:
     static Ability *Create(const std::unique_ptr<Runtime> &runtime);
 
-    JsAbility(JsRuntime &jsRuntime);
+    explicit JsAbility(JsRuntime &jsRuntime);
     ~JsAbility() override;
 
     void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,

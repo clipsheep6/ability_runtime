@@ -84,7 +84,7 @@ public:
 
     NativeValue* JsConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsDisConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+    NativeValue* JsGetContext(NativeEngine &engine, const NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsIsUpdatingConfigurations(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);

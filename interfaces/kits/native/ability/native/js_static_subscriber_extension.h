@@ -30,7 +30,7 @@ class JsRuntime;
  */
 class JsStaticSubscriberExtension : public StaticSubscriberExtension {
 public:
-    JsStaticSubscriberExtension(JsRuntime& jsRuntime);
+    explicit JsStaticSubscriberExtension(JsRuntime& jsRuntime);
     virtual ~JsStaticSubscriberExtension() override;
 
     /**

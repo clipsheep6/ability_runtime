@@ -39,7 +39,7 @@ const int32_t SCALE = 2;
 class MissionDataStorage : public std::enable_shared_from_this<MissionDataStorage> {
 public:
     MissionDataStorage() = default;
-    MissionDataStorage(int userId);
+    explicit MissionDataStorage(int userId);
     virtual ~MissionDataStorage();
 
     void SetEventHandler(const std::shared_ptr<AppExecFwk::EventHandler> &handler);

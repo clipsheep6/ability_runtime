@@ -102,7 +102,7 @@ private:
         return result;
     }
 
-    bool CheckParamsValid(uint16_t params[])
+    bool CheckParamsValid(const uint16_t params[])
     {
         uint16_t restartFlag = params[0];
         constexpr uint16_t restartMaxVal = 0x0007;

@@ -1600,7 +1600,7 @@ static napi_module missionModule = {
     .nm_filename = nullptr,
     .nm_register_func = DistributedMissionManagerExport,
     .nm_modname = "distributedMissionManager",
-    .nm_priv = ((void*)0),
+    .nm_priv = (static_cast<void*>(0)),
     .reserved = {0}
 };
 

@@ -172,10 +172,10 @@ ErrCode AmsMgrStub::HandleAbilityBehaviorAnalysis(MessageParcel &data, MessagePa
         preToke = data.ReadRemoteObject();
     }
     int32_t visibility = data.ReadInt32();
-    int32_t Perceptibility = data.ReadInt32();
+    int32_t perceptibility = data.ReadInt32();
     int32_t connectionState = data.ReadInt32();
 
-    AbilityBehaviorAnalysis(token, preToke, visibility, Perceptibility, connectionState);
+    AbilityBehaviorAnalysis(token, preToke, visibility, perceptibility, connectionState);
     return NO_ERROR;
 }
 

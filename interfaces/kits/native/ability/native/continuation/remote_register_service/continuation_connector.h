@@ -36,7 +36,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class ContinuationConnector : public AAFwk::AbilityConnectionStub {
 public:
-    ContinuationConnector(const std::weak_ptr<Context> &context);
+    explicit ContinuationConnector(const std::weak_ptr<Context> &context);
     virtual ~ContinuationConnector() = default;
 
     /**

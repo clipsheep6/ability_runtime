@@ -148,7 +148,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             break;
         }
     }
-    HILOG_INFO("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
+    HILOG_INFO("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 

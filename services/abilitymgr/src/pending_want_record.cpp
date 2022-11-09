@@ -89,20 +89,20 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     bool sendFinish = (senderInfo.finishedReceiver != nullptr);
     int res = NO_ERROR;
     switch (key_->GetType()) {
-        case (int32_t)OperationType::START_ABILITY:
+        case static_cast<int32_t>(OperationType::START_ABILITY):
             res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
             break;
-        case (int32_t)OperationType::START_ABILITIES: {
+        case static_cast<int32_t>(OperationType::START_ABILITIES): {
             std::vector<WantsInfo> allWantsInfos = key_->GetAllWantsInfos();
             allWantsInfos.back().want = want;
             res = pendingWantManager->PendingWantStartAbilitys(allWantsInfos, callerToken_, -1, callerUid_);
             break;
         }
-        case (int32_t)OperationType::START_SERVICE:
+        case static_cast<int32_t>(OperationType::START_SERVICE):
         case (int32_t)OperationType::START_FOREGROUND_SERVICE:
             res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
             break;
-        case (int32_t)OperationType::SEND_COMMON_EVENT:
+        case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
             res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_);
             (res == ERR_OK) ? (sendFinish = false) : (sendFinish = (senderInfo.finishedReceiver != nullptr));
             break;

@@ -66,7 +66,7 @@ private:
 
     class UpmsDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        UpmsDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
+        explicit UpmsDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
         ~UpmsDeathRecipient() = default;
         virtual void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote) override;
 

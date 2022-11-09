@@ -32,7 +32,7 @@ class JsRuntime;
  */
 class JsFormExtension : public FormExtension {
 public:
-    JsFormExtension(JsRuntime& jsRuntime);
+    explicit JsFormExtension(JsRuntime& jsRuntime);
     virtual ~JsFormExtension() override;
 
     static JsFormExtension* Create(const std::unique_ptr<Runtime>& runtime);

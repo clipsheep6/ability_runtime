@@ -357,7 +357,7 @@ void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& co
 FormState JsFormExtension::OnAcquireFormState(const Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    auto state = (int32_t)FormState::DEFAULT;
+    auto state = static_cast<int32_t>(FormState::DEFAULT);
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
@@ -377,10 +377,11 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     }
 
     HILOG_INFO("%{public}s, state: %{public}d", __func__, state);
-    if (state <= (int32_t) AppExecFwk::FormState::UNKNOWN || state > (int32_t) AppExecFwk::FormState::READY) {
+    if (state <= static_cast<int32_t>(AppExecFwk::FormState::UNKNOWN) 
+        || state > static_cast<int32_t>(AppExecFwk::FormState::READY)) {
         return AppExecFwk::FormState::UNKNOWN;
     } else {
-        return (AppExecFwk::FormState) state;
+        return static_cast<AppExecFwk::FormState>(state);
     }
 }
 

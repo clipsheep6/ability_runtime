@@ -298,10 +298,10 @@ private:
         const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
     DataAbilityHelperImpl(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::shared_ptr<Uri> &uri, const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
-    DataAbilityHelperImpl(const std::shared_ptr<Context> &context);
+    explicit DataAbilityHelperImpl(const std::shared_ptr<Context> &context);
     DataAbilityHelperImpl(const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri,
         const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy);
-    DataAbilityHelperImpl(const sptr<IRemoteObject> &token);
+    explicit DataAbilityHelperImpl(const sptr<IRemoteObject> &token);
 
     static bool CheckUri(const std::shared_ptr<Uri> &uri);
 

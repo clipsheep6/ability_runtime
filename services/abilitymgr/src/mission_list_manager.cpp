@@ -1307,8 +1307,8 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
         elementName.GetURI().c_str(), needTopAbility->GetAbilityState(), needTopAbility->IsMinimizeFromUser());
 
     // 5. if caller is recent, close
-    if (elementName.GetBundleName() == AbilityConfig::LAUNCHER_BUNDLE_NAME
-        && elementName.GetAbilityName() == AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME) {
+    if (elementName.GetBundleName() == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
+        elementName.GetAbilityName() == AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME) {
         HILOG_DEBUG("Next to need is recent, just to launcher.");
         needTopAbility = launcherList_->GetLauncherRoot();
     }

@@ -47,7 +47,7 @@ private:
 class AbilityConnectCallbackRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-    AbilityConnectCallbackRecipient(RemoteDiedHandler handler);
+    explicit AbilityConnectCallbackRecipient(RemoteDiedHandler handler);
     virtual ~AbilityConnectCallbackRecipient();
     virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
 

@@ -65,9 +65,12 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
 {
     HILOG_INFO("%{public}s:begin.", __func__);
 
-    bool needCreate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::NO_BUILD_FLAG) == 0;
-    bool needCancel = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::CANCEL_PRESENT_FLAG) != 0;
-    bool needUpdate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::UPDATE_PRESENT_FLAG) != 0;
+    bool needCreate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::NO_BUILD_FLAG)) == 0;
+    bool needCancel = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::CANCEL_PRESENT_FLAG)) != 0;
+    bool needUpdate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::UPDATE_PRESENT_FLAG)) != 0;
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
     std::shared_ptr<PendingWantKey> pendingKey = std::make_shared<PendingWantKey>();
