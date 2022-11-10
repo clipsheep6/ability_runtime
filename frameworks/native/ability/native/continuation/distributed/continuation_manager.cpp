@@ -31,6 +31,7 @@ namespace AppExecFwk {
 const int ContinuationManager::TIMEOUT_MS_WAIT_DMS_NOTIFY_CONTINUATION_COMPLETE = 25000;
 const int ContinuationManager::TIMEOUT_MS_WAIT_REMOTE_NOTIFY_BACK = 6000;
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
+const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 const int32_t CONTINUE_ABILITY_REJECTED = 29360197;
 const int32_t CONTINUE_SAVE_DATA_FAILED = 29360198;
 const int32_t CONTINUE_ON_CONTINUE_FAILED = 29360199;
@@ -169,10 +170,12 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
     }
 
 #ifdef SUPPORT_GRAPHICS
-    bool ret = GetContentInfo(wantParams);
-    if (!ret) {
-        HILOG_ERROR("GetContentInfo failed.");
-        return CONTINUE_GET_CONTENT_FAILED;
+    if (wantParams.GetIntParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME, 1)) {
+        bool ret = GetContentInfo(wantParams);
+        if (!ret) {
+            HILOG_ERROR("GetContentInfo failed.");
+            return CONTINUE_GET_CONTENT_FAILED;
+        }
     }
 #endif
     HILOG_INFO("%{public}s called end", __func__);
