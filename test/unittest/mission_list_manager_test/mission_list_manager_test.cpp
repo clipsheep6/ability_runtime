@@ -34,6 +34,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    void InitMockMission(std::shared_ptr<MissionListManager>& missionListManager,
+        AbilityRequest& abilityRequest, Want& want, std::shared_ptr<AbilityRecord>& ability);
 };
 
 void MissionListManagerTest::SetUpTestCase(void)
@@ -44,6 +46,25 @@ void MissionListManagerTest::SetUp(void)
 {}
 void MissionListManagerTest::TearDown(void)
 {}
+
+void MissionListManagerTest::InitMockMission(std::shared_ptr<MissionListManager>& missionListManager,
+    AbilityRequest& abilityRequest, Want& want, std::shared_ptr<AbilityRecord>& ability)
+{
+    missionListManager->Init();
+
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    ability = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(11, ability, "missionName");
+    mission->abilityRecord_ = ability;
+    ability->SetSpecifiedFlag("flag");
+    ability->SetIsNewWant(false);
+
+    abilityRequest.callerToken = ability->GetToken();
+    missionListManager->EnqueueWaitingAbility(abilityRequest);
+    missionListManager->defaultStandardList_->AddMissionToTop(mission);
+}
 
 bool g_notifyWindowTransitionCalled = false;
 bool g_cancelStartingWindowCalled = false;
@@ -275,6 +296,83 @@ HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_002, TestSize.Level1)
 
     missionListManager->OnAcceptWantResponse(want, "flag");
     EXPECT_EQ(ability->IsNewWant(), false);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: OnAcceptWantResponse
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager OnAcceptWantResponse
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAcceptWantResponse launchReason
+ */
+HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_003, TestSize.Level3)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    Want want;
+    std::shared_ptr<AbilityRecord> ability;
+    AbilityRequest abilityRequest;
+    abilityRequest.want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
+    InitMockMission(missionListManager, abilityRequest, want, ability);
+    if (ability == nullptr) {
+        return;
+    }
+
+    missionListManager->OnAcceptWantResponse(want, "flag");
+    EXPECT_EQ(ability->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_CONTINUATION);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: OnAcceptWantResponse
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager OnAcceptWantResponse
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAcceptWantResponse launchReason
+ */
+HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_004, TestSize.Level3)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    Want want;
+    std::shared_ptr<AbilityRecord> ability;
+    AbilityRequest abilityRequest;
+    abilityRequest.want.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+    InitMockMission(missionListManager, abilityRequest, want, ability);
+    if (ability == nullptr) {
+        return;
+    }
+
+    missionListManager->OnAcceptWantResponse(want, "flag");
+    EXPECT_EQ(ability->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_APP_RECOVERY);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: OnAcceptWantResponse
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager OnAcceptWantResponse
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAcceptWantResponse launchReason
+ */
+HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_005, TestSize.Level3)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    Want want;
+    std::shared_ptr<AbilityRecord> ability;
+    AbilityRequest abilityRequest;
+    InitMockMission(missionListManager, abilityRequest, want, ability);
+    if (ability == nullptr) {
+        return;
+    }
+
+    missionListManager->OnAcceptWantResponse(want, "flag");
+    EXPECT_EQ(ability->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_START_ABILITY);
     missionListManager.reset();
 }
 

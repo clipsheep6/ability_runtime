@@ -2643,6 +2643,13 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
             }
             ability->SetWant(abilityRequest.want);
             ability->SetIsNewWant(true);
+            if (abilityRequest.IsContinuation()) {
+                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+            } else if (abilityRequest.IsAppRecovery()) {
+                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+            } else {
+                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
+            }
 
             auto isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
             MoveMissionToFront(mission->GetMissionId(), isCallerFromLauncher);
