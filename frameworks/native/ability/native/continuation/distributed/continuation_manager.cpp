@@ -18,6 +18,7 @@
 #include "ability.h"
 #include "ability_continuation_interface.h"
 #include "ability_manager_client.h"
+#include "bool_wrapper.h"
 #include "continuation_handler.h"
 #include "distributed_client.h"
 #include "hilog_wrapper.h"
@@ -31,6 +32,7 @@ namespace AppExecFwk {
 const int ContinuationManager::TIMEOUT_MS_WAIT_DMS_NOTIFY_CONTINUATION_COMPLETE = 25000;
 const int ContinuationManager::TIMEOUT_MS_WAIT_REMOTE_NOTIFY_BACK = 6000;
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
+const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 const int32_t CONTINUE_ABILITY_REJECTED = 29360197;
 const int32_t CONTINUE_SAVE_DATA_FAILED = 29360198;
 const int32_t CONTINUE_ON_CONTINUE_FAILED = 29360199;
@@ -146,6 +148,16 @@ int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
     return ERR_OK;
 }
 
+bool ContinuationManager::isContinuePageStack(WantParams &wantParams)
+{
+    auto value = wantParams.GetParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME);
+    IBoolean *ao = IBoolean::Query(value);
+    if (ao != nullptr) {
+        return AAFwk::Boolean::Unbox(ao);
+    }
+    return true;
+}
+
 int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
@@ -164,15 +176,15 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
             HILOG_ERROR("OnContinue version mismatch.");
             return CONTINUE_ON_CONTINUE_MISMATCH;
         }
-        HILOG_ERROR("OnContinue failed.");
-        return CONTINUE_ON_CONTINUE_FAILED;
-    }
-
+        HILOG_ERROR("OnContinue failed."); 
 #ifdef SUPPORT_GRAPHICS
-    bool ret = GetContentInfo(wantParams);
-    if (!ret) {
-        HILOG_ERROR("GetContentInfo failed.");
-        return CONTINUE_GET_CONTENT_FAILED;
+    if (isContinuePageStack(wantParams)) {
+        HILOG_ERROR("GetContentInfo start.");
+        bool ret = GetContentInfo(wantParams);
+        if (!ret) {
+            HILOG_ERROR("GetContentInfo failed.");
+            return CONTINUE_GET_CONTENT_FAILED;
+        }
     }
 #endif
     HILOG_INFO("%{public}s called end", __func__);
