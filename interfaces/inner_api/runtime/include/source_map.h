@@ -68,7 +68,7 @@ public:
     explicit ModSourceMap() = default;
     explicit ModSourceMap(const bool isStageModel) : isStageModel(isStageModel) {};
     explicit ModSourceMap(const std::string& bundleCodeDir, const bool isStageModel) :
-                          isStageModel(isStageModel), bundleCodeDir_(bundleCodeDir) {};
+        isStageModel(isStageModel), bundleCodeDir_(bundleCodeDir) {};
     ~ModSourceMap() = default;
 
     static std::string TranslateBySourceMap(const std::string& stackStr, ModSourceMap& targetMaps,
