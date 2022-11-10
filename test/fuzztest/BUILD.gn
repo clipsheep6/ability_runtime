@@ -22,9 +22,11 @@ group("fuzztest") {
     "abilityconnectmanager_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
     "abilityeventhandler_fuzzer:fuzztest",
-    "abilitymanager_fuzzer:fuzztest",
+
+    # "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
-    "abilityschedulerstub_fuzzer:fuzztest",
+
+    # "abilityschedulerstub_fuzzer:fuzztest",
     "abilitytransitiondone_fuzzer:fuzztest",
     "acquiredataability_fuzzer:fuzztest",
     "addabilitystagedone_fuzzer:fuzztest",
@@ -39,7 +41,8 @@ group("fuzztest") {
     "apprunningmanager_fuzzer:fuzztest",
     "apprunningrecordfirst_fuzzer:fuzztest",
     "apprunningrecordsecond_fuzzer:fuzztest",
-    "atomicservicestatuscallbackstub_fuzzer:fuzztest",
+
+    # "atomicservicestatuscallbackstub_fuzzer:fuzztest",
     "attachabilitythread_fuzzer:fuzztest",
     "attachrenderprocess_fuzzer:fuzztest",
     "blockability_fuzzer:fuzztest",
@@ -54,10 +57,12 @@ group("fuzztest") {
     "connectability_fuzzer:fuzztest",
     "connectionstatemanager_fuzzer:fuzztest",
     "continueability_fuzzer:fuzztest",
-    "continuemission_fuzzer:fuzztest",
+
+    # "continuemission_fuzzer:fuzztest",
     "delegatordoabilitybackground_fuzzer:fuzztest",
     "delegatordoabilityforeground_fuzzer:fuzztest",
-    "disconnectability_fuzzer:fuzztest",
+
+    # "disconnectability_fuzzer:fuzztest",
     "doabilitybackground_fuzzer:fuzztest",
     "doabilityforeground_fuzzer:fuzztest",
     "dumpabilityinfodone_fuzzer:fuzztest",
@@ -148,7 +153,8 @@ group("fuzztest") {
     "uripermissionmanager_fuzzer:fuzztest",
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",
-    "wantreceiverstub_fuzzer:fuzztest",
+
+    # "wantreceiverstub_fuzzer:fuzztest",
     "wantsenderstub_fuzzer:fuzztest",
   ]
 }

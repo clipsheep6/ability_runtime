@@ -28,7 +28,10 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
+namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+}
 class AbilityConnectCallbackFuzz : public AbilityRuntime::AbilityConnectCallback {
 public:
     explicit AbilityConnectCallbackFuzz() {};
@@ -77,8 +80,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
-        std::cout << "invalid size" << std::endl;
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

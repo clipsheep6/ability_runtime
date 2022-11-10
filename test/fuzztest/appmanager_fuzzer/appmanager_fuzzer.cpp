@@ -20,39 +20,37 @@
 
 #include "app_mgr_service.h"
 #include "message_parcel.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 #define DISABLE_FUZZ
 namespace OHOS {
-constexpr size_t THRESHOLD = 10;
-constexpr int32_t OFFSET = 4;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
 const std::u16string APPMGR_INTERFACE_TOKEN = u"ohos.appexecfwk.AppMgr";
-
-uint32_t Convert2Uint32(const uint8_t* ptr)
-{
-    if (ptr == nullptr) {
-        return 0;
-    }
-    // 将第0个数字左移24位，将第1个数字左移16位，将第2个数字左移8位，第3个数字不左移
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
 }
 
-bool DoSomethingInterestingWithMyAPI(const uint8_t* rawData, size_t size)
+uint32_t GetU32Data(const char* ptr)
 {
-    uint32_t code = Convert2Uint32(rawData);
-    rawData = rawData + OFFSET;
-    size = size - OFFSET;
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
 
-    MessageParcel data;
-    data.WriteInterfaceToken(APPMGR_INTERFACE_TOKEN);
-    data.WriteBuffer(rawData, size);
-    data.RewindRead(0);
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    uint32_t code = GetU32Data(data);
+
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(APPMGR_INTERFACE_TOKEN);
+    parcel.WriteBuffer(data, size);
+    parcel.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
     sptr<AppMgrService> appMgr = new AppMgrService();
-    appMgr->OnRemoteRequest(code, data, reply, option);
+    appMgr->OnRemoteRequest(code, parcel, reply, option);
 
     return true;
 }
@@ -61,13 +59,34 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t* rawData, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < OHOS::THRESHOLD) {
+    /* Run your code on data */
+    if (data == nullptr) {
+        std::cout << "invalid data" << std::endl;
         return 0;
     }
-#ifndef DISABLE_FUZZ
-    /* Run your code on data */
-    OHOS::DoSomethingInterestingWithMyAPI(data, size);
-#endif
+
+    /* Validate the length of size */
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+        return 0;
+    }
+
+    char* ch = (char *)malloc(size + 1);
+    if (ch == nullptr) {
+        std::cout << "malloc failed." << std::endl;
+        return 0;
+    }
+
+    (void)memset_s(ch, size + 1, 0x00, size + 1);
+    if (memcpy_s(ch, size, data, size) != EOK) {
+        std::cout << "copy failed." << std::endl;
+        free(ch);
+        ch = nullptr;
+        return 0;
+    }
+
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    free(ch);
+    ch = nullptr;
     return 0;
 }
 

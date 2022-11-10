@@ -24,32 +24,42 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const char* data)
-    {
-        auto abilityMgr = AbilityManagerClient::GetInstance();
-        if (!abilityMgr) {
-            std::cout << "Get ability manager client failed." << std::endl;
-            return false;
-        }
-
-        int resultCode = 0;
-        ErrCode ret = abilityMgr->FinishUserTest(data, resultCode, "com.ohos.launcher");
-        if (ret != 0) {
-            return false;
-        }
-
-        // fuzz for AppMgrClient
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-        
-        if (appMgrClient->FinishUserTest(data, resultCode, "com.ohos.launcher") != 0) {
-            return false;
-        }
-
-        return true;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+}
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    auto abilityMgr = AbilityManagerClient::GetInstance();
+    if (!abilityMgr) {
+        std::cout << "Get ability manager client failed." << std::endl;
+        return false;
     }
+
+    int resultCode = static_cast<int>(GetU32Data(data));
+    std::string bundleName(data, size);
+    ErrCode ret = abilityMgr->FinishUserTest(data, resultCode, bundleName);
+    if (ret != 0) {
+        return false;
+    }
+
+    // fuzz for AppMgrClient
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
+    }
+    
+    if (appMgrClient->FinishUserTest(data, resultCode, bundleName) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -58,6 +68,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     if (data == nullptr) {
         std::cout << "invalid data" << std::endl;
+        return 0;
+    }
+
+    /* Validate the length of size */
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 
@@ -75,7 +90,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    OHOS::DoSomethingInterestingWithMyAPI(ch);
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
     free(ch);
     ch = nullptr;
     return 0;
