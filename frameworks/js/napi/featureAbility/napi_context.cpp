@@ -3215,7 +3215,7 @@ void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
 
     for (auto permState : permList) {
         HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
-        permState.permissionName.c_str(), permState.state);
+                    permState.permissionName.c_str(), permState.state);
         permissionsState.emplace_back(permState.state);
     }
     HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
