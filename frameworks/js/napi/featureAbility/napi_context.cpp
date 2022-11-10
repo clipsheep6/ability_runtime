@@ -3192,7 +3192,7 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     return true;
 }
 
-void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task, 
+void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
     const std::vector<std::string> &permissionList, std::vector<int> &permissionsState)
 {
     HILOG_DEBUG("%{public}s called", __func__);
@@ -3204,7 +3204,7 @@ void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
         permState.state = -1;
         permList.emplace_back(permState);
     }
-    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.", 
+    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
         permList.size(), permissionList.size());
 
     auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
