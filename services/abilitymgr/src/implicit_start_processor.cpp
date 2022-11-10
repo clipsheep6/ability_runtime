@@ -30,6 +30,15 @@ const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
 };
 
+const std::unordered_set<AppExecFwk::ExtensionAbilityType> ImplicitStartProcessor::extensionWhiteList = {
+    AppExecFwk::ExtensionAbilityType::FORM,
+    AppExecFwk::ExtensionAbilityType::INPUTMETHOD,
+    AppExecFwk::ExtensionAbilityType::WALLPAPER,
+    AppExecFwk::ExtensionAbilityType::WINDOW,
+    AppExecFwk::ExtensionAbilityType::THUMBNAIL,
+    AppExecFwk::ExtensionAbilityType::PREVIEW
+};
+
 bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
 {
     auto element = want.GetElement();
@@ -128,8 +137,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
     
     for (const auto &info : extensionInfos) {
-        if (request.callType == AbilityCallType::START_OPTIONS_TYPE ||
-            request.callType == AbilityCallType::START_SETTINGS_TYPE) {
+        if (!CheckImplicitStartExtensionIsVailable(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;
@@ -141,6 +149,23 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     return ERR_OK;
+}
+
+bool ImplicitStartProcessor::CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,
+    const AppExecFwk::ExtensionAbilityInfo &extensionInfo)
+{
+    if (!request.want.GetElement().GetBundleName().empty()) {
+        return true;
+    }
+    if (request.callType != AbilityCallType::START_EXTENSION_TYPE) {
+        return false;
+    }
+    HILOG_DEBUG("ImplicitStartExtension type: %{public}d.", static_cast<int32_t>(extensionInfo.type));
+    if (extensionWhiteList.find(extensionInfo.type) == extensionWhiteList.end()) {
+        HILOG_ERROR("The extension without UI is not allowed ImplicitStart");
+        return false;
+    }
+    return true;
 }
 
 int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant,
