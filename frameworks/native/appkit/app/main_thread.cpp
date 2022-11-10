@@ -1012,7 +1012,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
             // bindRuntime.bindSourceMaps lazy loading
             summary +="Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap
-                (errorStack, bindSourceMaps, BundleCodeDir);
+            (errorStack, bindSourceMaps, BundleCodeDir);
             ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
