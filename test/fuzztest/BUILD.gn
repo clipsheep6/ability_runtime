@@ -57,6 +57,7 @@ group("fuzztest") {
     "continueability_fuzzer:fuzztest",
 
     # "continuemission_fuzzer:fuzztest",
+    "dataabilitymanager_fuzzer:fuzztest",
     "delegatordoabilitybackground_fuzzer:fuzztest",
     "delegatordoabilityforeground_fuzzer:fuzztest",
 
@@ -96,11 +97,14 @@ group("fuzztest") {
     "lockmissionforcleanup_fuzzer:fuzztest",
     "minimizeability_fuzzer:fuzztest",
     "missionlistenerstub_fuzzer:fuzztest",
+    "missionlistmanagerfirst_fuzzer:fuzztest",
+    "missionlistmanagersecond_fuzzer:fuzztest",
     "modulerunningrecord_fuzzer:fuzztest",
     "movemissiontofront_fuzzer:fuzztest",
     "notifycompletecontinuation_fuzzer:fuzztest",
     "notifycontinuationresult_fuzzer:fuzztest",
     "notifymemorylevel_fuzzer:fuzztest",
+    "pendingwantmanager_fuzzer:fuzztest",
     "prepareterminate_fuzzer:fuzztest",
     "prestartnwebspawnprocess_fuzzer:fuzztest",
     "registerabilitylifecyclecallback_fuzzer:fuzztest",
