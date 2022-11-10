@@ -110,7 +110,6 @@ MappingInfo ModSourceMap::Find(int32_t row, int32_t col, const SourceMapData& ta
 
 void ModSourceMap::ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo)
 {
-
     uint32_t cnt = 0;
     std::string tempStr;
     for (uint32_t i = 0; i < sourceMap.size(); i++) {
@@ -425,15 +424,14 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     std::string value;
     std::string key;
     std::map<std::string, std::string> MapData;
-    while((s = curSourceMap.find(": {", j)) != std::string::npos)
-    {
-        j = curSourceMap.find("}," , s);
+    while ((s = curSourceMap.find(": {", j)) != std::string::npos) {
+        j = curSourceMap.find("},", s);
         uint32_t q = s;
         uint32_t jj = j;
         value = curSourceMap.substr(q + 1, jj - q+2);
         uint32_t sources = value.find("\"sources\": [");
         uint32_t names = value.find("],");
-        key = value.substr(sources + 20 , names - sources - 26);
+        key = value.substr(sources + 20, names - sources - 26);
         MapData.insert(std::pair<std::string, std::string>(key, value));
     }
 
@@ -441,7 +439,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         std::string temp = res[i];
         uint32_t start = temp.find("(");
         uint32_t end  = temp.find(":");
-        std::string key = temp.substr(start + 1 , end - start - 1);
+        std::string key = temp.substr(start + 1, end - start - 1);
         int32_t closeBracePos = static_cast<int32_t>(temp.find(closeBrace));
         int32_t openBracePos = static_cast<int32_t>(temp.find(openBrace));
 
@@ -456,7 +454,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
             break;
         }
         static SourceMapData curMapData;
-        if(!bindSourceMaps.isStageModel) {    
+        if(!bindSourceMaps.isStageModel) {
             if (i == 1) {   // The non module scenario initializes curmapdata only at the first traversal
                 if (!bindSourceMaps.nonModularMap_) {
                     return NOT_FOUNDMAP + stackStr;
@@ -466,7 +464,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         } else {
             auto iter = MapData.find(key);
             if (iter != MapData.end()) {
-                Init(iter->second, curMapData);    
+                Init(iter->second, curMapData);
             } else {
                 ans += NOT_FOUNDMAP + temp + "\n";
                 continue;
@@ -505,7 +503,8 @@ std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::stri
     return sourceInfo;
 }
 
-void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::string& targetMap) {
+void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::string& targetMap)
+{
     if (!targetMaps.nonModularMap_) {
         targetMaps.nonModularMap_ = std::make_shared<SourceMapData>();
     }
