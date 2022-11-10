@@ -165,7 +165,7 @@ public:
     void RejectWithMessage(NativeEngine& engine, NativeValue* error, NativeValue* messsage);
     void ResolveWithErr(NativeEngine& engine, NativeValue* value);
     void RejectWithNull(NativeEngine& engine, NativeValue* error);
-    void ResolveWithUndefined(NativeEngine& engine, NativeValue* value);
+    void ResolveWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value);
     void ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value);
 
 private:
