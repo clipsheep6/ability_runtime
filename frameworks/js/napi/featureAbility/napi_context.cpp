@@ -148,11 +148,11 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
-    napi_value resourceName = 0;
+    napi_value resourceName = nullptr;
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
 
     napi_deferred deferred;
-    napi_value promise = 0;
+    napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
     cbData->cbBase.deferred = deferred;
 
@@ -195,7 +195,7 @@ napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info,
     HILOG_DEBUG("%{public}s called.", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
+    napi_value jsthis = nullptr;
     void *data = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
@@ -363,10 +363,10 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
-    napi_value resourceName = 0;
+    napi_value resourceName = nullptr;
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
     napi_deferred deferred;
-    napi_value promise = 0;
+    napi_value promise = nullptr;
     napi_create_promise(env, &deferred, &promise);
     cbData->cbBase.deferred = deferred;
 
@@ -557,7 +557,7 @@ napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, 
     HILOG_INFO("%{public}s called.", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
+    napi_value jsthis = nullptr;
     void *data = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
@@ -675,10 +675,10 @@ void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_stat
     }
 
     if (asyncCallbackInfo->error_code != NAPI_ERR_NO_ERROR) {
-        napi_value callback = 0;
-        napi_value undefined = 0;
+        napi_value callback = nullptr;
+        napi_value undefined = nullptr;
         napi_get_undefined(env, &undefined);
-        napi_value callResult = 0;
+        napi_value callResult = nullptr;
         napi_value revParam[ARGS_TWO] = {nullptr};
 
         revParam[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);
@@ -704,7 +704,7 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
     HILOG_DEBUG("%{public}s called.", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
+    napi_value jsthis = nullptr;
     void *data = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
@@ -724,12 +724,12 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
         HILOG_DEBUG("%{public}s called. promise.", __func__);
-        napi_deferred deferred = 0;
-        napi_value promise = 0;
+        napi_deferred deferred = nullptr;
+        napi_value promise = nullptr;
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         asyncCallbackInfo->cbInfo.deferred = deferred;
 
-        napi_value resourceName = 0;
+        napi_value resourceName = nullptr;
         NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_RequestPermissionsFromUserPromise",
             NAPI_AUTO_LENGTH, &resourceName));
         NAPI_CALL(env,
@@ -1006,7 +1006,7 @@ napi_value NAPI_VerifyPermissionWrap(napi_env env, napi_callback_info info, Asyn
     HILOG_INFO("%{public}s called.", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
+    napi_value jsthis = nullptr;
     void *data = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
@@ -1265,7 +1265,7 @@ napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJS
     HILOG_INFO("%{public}s called", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
+    napi_value jsthis = nullptr;
     void *data = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
@@ -3180,8 +3180,8 @@ NativeValue* NapiJsContext::JsGetExternalCacheDir(NativeEngine *engine, NativeCa
 bool NapiJsContext::DataInit(NativeEngine &engine)
 {
     HILOG_DEBUG("called");
-    napi_value global = 0;
-    napi_value abilityObj = 0;
+    napi_value global = nullptr;
+    napi_value abilityObj = nullptr;
     auto env = reinterpret_cast<napi_env>(&engine);
     HILOG_INFO("Get Ability to start");
     NAPI_CALL_BASE(env, napi_get_global(env, &global), false);

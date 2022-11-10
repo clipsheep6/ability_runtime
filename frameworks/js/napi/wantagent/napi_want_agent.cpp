@@ -112,7 +112,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t *work, int status) {
         delete work;
         return;
     }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
+    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {nullptr};
 
     result[0] = GetCallbackErrorResult(dataWorkerData->env, BUSINESS_ERROR_CODE_OK);
     napi_create_object(dataWorkerData->env, &result[1]);
@@ -541,7 +541,7 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallback
         return ret;
     }
 
-    napi_ref callback[2] = {0};
+    napi_ref callback[2] = {nullptr};
     napi_create_reference(env, reinterpret_cast<napi_value>(info.argv[ARGC_TWO]), 1, &callback[0]);
     triggerObj->SetCallbackInfo(env, callback[0]);
     triggerObj->SetWantAgentInstance(wantAgent);
@@ -787,7 +787,7 @@ auto NAPI_GetWantAgentWrapExecuteCallBack = [](napi_env env, void *data) {
 auto NAPI_GetWantAgentWrapCompleteCallBack = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("GetWantAgent compeleted(CallBack Mode)...");
     AsyncGetWantAgentCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetWantAgentCallbackInfo *>(data);
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
+    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {nullptr};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
     napi_value callResult = nullptr;
@@ -1066,7 +1066,7 @@ auto NAPI_GetOperationTypeWrapCompleteCallBack = [](napi_env env, napi_status st
         HILOG_ERROR("asyncCallbackInfo is nullptr.");
         return;
     }
-    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
+    napi_value result[NUMBER_OF_PARAMETERS_TWO] = {nullptr};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
     napi_value callResult = nullptr;
