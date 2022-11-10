@@ -29,40 +29,6 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
-NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
-{
-    HILOG_INFO("AttachApplicationContext");
-    if (value == nullptr || engine == nullptr) {
-        HILOG_WARN("invalid parameter.");
-        return nullptr;
-    }
-    auto ptr = reinterpret_cast<std::weak_ptr<ApplicationContext>*>(value)->lock();
-    if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
-        return nullptr;
-    }
-    NativeValue* object = CreateJsApplicationContext(*engine, ptr, true);
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1);
-    if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
-        return nullptr;
-    }
-    auto contextObj = systemModule->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nObject == nullptr) {
-        HILOG_WARN("invalid nObject.");
-        return nullptr;
-    }
-    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachApplicationContext, value, nullptr);
-    auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(ptr);
-    nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr application context is called");
-            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
-        }, nullptr);
-    return contextObj;
-}
-
 class JsBaseContext {
 public:
     explicit JsBaseContext(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
@@ -514,6 +480,40 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr base context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
+        }, nullptr);
+    return contextObj;
+}
+
+NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
+{
+    HILOG_INFO("AttachApplicationContext");
+    if (value == nullptr || engine == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<ApplicationContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsApplicationContext(*engine, ptr, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1);
+    if (systemModule == nullptr) {
+        HILOG_WARN("invalid systemModule.");
+        return nullptr;
+    }
+    auto contextObj = systemModule->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nObject == nullptr) {
+        HILOG_WARN("invalid nObject.");
+        return nullptr;
+    }
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachApplicationContext, value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr application context is called");
+            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
         }, nullptr);
     return contextObj;
 }
