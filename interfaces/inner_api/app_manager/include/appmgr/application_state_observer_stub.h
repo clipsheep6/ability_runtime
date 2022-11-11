@@ -118,7 +118,7 @@ private:
 class ApplicationStateObserverRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-    ApplicationStateObserverRecipient(RemoteDiedHandler handler);
+    explicit ApplicationStateObserverRecipient(RemoteDiedHandler handler);
     virtual ~ApplicationStateObserverRecipient();
     virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
 

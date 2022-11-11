@@ -21,8 +21,10 @@
 #include "ability.h"
 #include "ability_info.h"
 #include "event_handler.h"
+#include "int_wrapper.h"
 #include "mock_ability.h"
 #include "mock_ability_token.h"
+#include "mock_app_ability.h"
 #include "recovery_param.h"
 #include "want.h"
 #include "want_params.h"
@@ -39,6 +41,7 @@ public:
     std::shared_ptr<AbilityRecovery> abilityRecovery_ = std::make_shared<AbilityRecovery>();
     std::shared_ptr<AppExecFwk::Ability> ability_ = std::make_shared<Ability>();
     std::shared_ptr<AppExecFwk::Ability> mockAbility_ = std::make_shared<MockAbility>();
+    std::shared_ptr<AppExecFwk::Ability> mockAbility2_ = std::make_shared<MockAppAbility>();
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = std::make_shared<AbilityInfo>();
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();
@@ -58,6 +61,8 @@ void AbilityRecoveryUnitTest::SetUp()
     abilityRecovery_->restartFlag_ = 0;
     abilityRecovery_->saveOccasion_ = 0;
     abilityRecovery_->saveMode_ = 0;
+    abilityRecovery_->hasLoaded_ = false;
+    abilityRecovery_->abilityInfo_ = abilityInfo_;
 }
 
 void AbilityRecoveryUnitTest::TearDown()
@@ -233,7 +238,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleSaveAbilityState_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleSaveAbilityState_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
+    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE));
 }
@@ -252,31 +257,41 @@ HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_001, TestSize.Level1)
 
 /**
  * @tc.name: SaveAbilityState_002
- * @tc.desc: Test SaveAbilityState when pageStack is empty or not.
+ * @tc.desc: Test SaveAbilityState when saveResult is not support save.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
 HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_002, TestSize.Level1)
 {
+    abilityRecovery_->ability_ = mockAbility2_;
+    EXPECT_FALSE(abilityRecovery_->SaveAbilityState());
+}
+
+/**
+ * @tc.name: SaveAbilityState_003
+ * @tc.desc: Test SaveAbilityState when pageStack is empty or not.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_003, TestSize.Level1)
+{
     abilityRecovery_->ability_ = ability_;
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
     EXPECT_TRUE(abilityRecovery_->SaveAbilityState());
     abilityRecovery_->ability_ = mockAbility_;
     EXPECT_TRUE(abilityRecovery_->SaveAbilityState());
 }
 
 /**
- * @tc.name: SaveAbilityState_003
+ * @tc.name: SaveAbilityState_004
  * @tc.desc: Test SaveAbilityState when SaveModeFlag is SAVE_WITH_FILE or SAVE_WITH_SHARED_MEMORY.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
-HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_003, TestSize.Level1)
+HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_004, TestSize.Level1)
 {
     abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_FILE);
     abilityRecovery_->ability_ = mockAbility_;
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
     EXPECT_TRUE(abilityRecovery_->SaveAbilityState());
     abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
@@ -349,15 +364,29 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_002, TestSize.Leve
 
 /**
  * @tc.name: ScheduleRestoreAbilityState_003
- * @tc.desc: Test ScheduleRestoreAbilityState check the ret as expected.
+ * @tc.desc: Test ScheduleRestoreAbilityState when no saved state.
+ * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_003, TestSize.Level1)
 {
     abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+                                            SaveModeFlag::SAVE_WITH_FILE);
+    abilityRecovery_->abilityInfo_.reset();
+    EXPECT_FALSE(abilityRecovery_->ScheduleRestoreAbilityState(StateReason::CPP_CRASH, want_));
+}
+
+/**
+ * @tc.name: ScheduleRestoreAbilityState_004
+ * @tc.desc: Test ScheduleRestoreAbilityState check the ret as expected.
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_004, TestSize.Level1)
+{
+    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
-    abilityRecovery_->hasTryLoad_ = false;
+    abilityRecovery_->hasTryLoad_ = true;
+    abilityRecovery_->hasLoaded_ = true;
     EXPECT_TRUE(abilityRecovery_->ScheduleRestoreAbilityState(StateReason::CPP_CRASH, want_));
 }
 
@@ -381,30 +410,20 @@ HWTEST_F(AbilityRecoveryUnitTest, LoadSavedState_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, LoadSavedState_002, TestSize.Level1)
 {
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
     abilityRecovery_->hasTryLoad_ = true;
     EXPECT_FALSE(abilityRecovery_->LoadSavedState(StateReason::DEVELOPER_REQUEST));
 }
 
 /**
  * @tc.name: LoadSavedState_003
- * @tc.desc: Test LoadSavedState when SaveModeFlag = SAVE_WITH_FILE or SAVE_WITH_SHARED_MEMORY.
+ * @tc.desc: Test LoadSavedState when hasTryLoad is false.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
 HWTEST_F(AbilityRecoveryUnitTest, LoadSavedState_003, TestSize.Level1)
 {
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
     abilityRecovery_->hasTryLoad_ = false;
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                            SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->LoadSavedState(StateReason::DEVELOPER_REQUEST));
-
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
-    abilityRecovery_->hasTryLoad_ = false;
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                            SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
-    EXPECT_TRUE(abilityRecovery_->LoadSavedState(StateReason::DEVELOPER_REQUEST));
 }
 
 /**
@@ -429,8 +448,8 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_002, TestSize.Level1)
 {
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
-    abilityRecovery_->hasTryLoad_ = false;
+    abilityRecovery_->hasTryLoad_ = true;
+    abilityRecovery_->hasLoaded_ = true;
     abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(abilityRecovery_->GetSavedPageStack(StateReason::DEVELOPER_REQUEST), "");
@@ -444,8 +463,8 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_003, TestSize.Level1)
 {
-    abilityRecovery_->abilityInfo_ = abilityInfo_;
-    abilityRecovery_->hasTryLoad_ = false;
+    abilityRecovery_->hasTryLoad_ = true;
+    abilityRecovery_->hasLoaded_ = true;
     abilityRecovery_->pageStack_ = "test";
     abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
                                             SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
@@ -461,6 +480,34 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_003, TestSize.Level1)
 HWTEST_F(AbilityRecoveryUnitTest, GetToken_001, TestSize.Level1)
 {
     EXPECT_EQ(abilityRecovery_->GetToken(), abilityRecovery_->token_);
+}
+
+/**
+ * @tc.name:  PersistAppState_001
+ * @tc.desc:  Test PersistAppState when abilityInfo is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AbilityRecoveryUnitTest, PersistAppState_001, TestSize.Level1)
+{
+    abilityRecovery_->abilityInfo_.reset();
+    EXPECT_FALSE(abilityRecovery_->PersistState());
+}
+
+/**
+ * @tc.name:  PersistAppState_002
+ * @tc.desc:  Test PersistAppState check the ret as expected.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AbilityRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
+{
+    abilityRecovery_->abilityInfo_ = abilityInfo_;
+    EXPECT_TRUE(abilityRecovery_->PersistState());
+    abilityRecovery_->params_ = want_.GetParams();
+    int32_t natValue32 = 0;
+    abilityRecovery_->params_.SetParam("test", AAFwk::Integer::Box(natValue32));
+    EXPECT_TRUE(abilityRecovery_->PersistState());
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

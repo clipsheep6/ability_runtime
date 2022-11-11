@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsExtensionContext final {
 public:
-    JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
+    explicit JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
     ~JsExtensionContext() = default;
 
     static void ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,

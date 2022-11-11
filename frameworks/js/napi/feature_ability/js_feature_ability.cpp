@@ -240,49 +240,49 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     return result;
 }
 
-NativeValue *JsFeatureAbility::OnGetDeviceList(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnGetDeviceList(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnCallAbility(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnCallAbility(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnContinueAbility(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnContinueAbility(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnUnsubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnUnsubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSendMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSendMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnUnsubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnUnsubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
@@ -377,7 +377,7 @@ Want JsFeatureAbility::GetWant(DistributeReqParam &requestParam)
     return want;
 }
 
-void JsFeatureAbility::GetExtraParams(DistributeReqParam &requestParam, Want &want)
+void JsFeatureAbility::GetExtraParams(const DistributeReqParam &requestParam, const Want &want)
 {
     return;
 }

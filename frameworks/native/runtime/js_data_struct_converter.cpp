@@ -96,25 +96,25 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
     return arrayValue;
 }
 
-NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &Info)
+NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info)
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    object->SetProperty("name", CreateJsValue(engine, Info.name));
-    object->SetProperty("value", CreateJsValue(engine, Info.value));
-    object->SetProperty("resource", CreateJsValue(engine, Info.resource));
+    object->SetProperty("name", CreateJsValue(engine, info.name));
+    object->SetProperty("value", CreateJsValue(engine, info.value));
+    object->SetProperty("resource", CreateJsValue(engine, info.resource));
     return objValue;
 }
 
-NativeValue* CreateJsCustomizeData(NativeEngine& engine, const AppExecFwk::CustomizeData &Info)
+NativeValue* CreateJsCustomizeData(NativeEngine& engine, const AppExecFwk::CustomizeData &info)
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    object->SetProperty("name", CreateJsValue(engine, Info.name));
-    object->SetProperty("value", CreateJsValue(engine, Info.value));
-    object->SetProperty("extra", CreateJsValue(engine, Info.extra));
+    object->SetProperty("name", CreateJsValue(engine, info.name));
+    object->SetProperty("value", CreateJsValue(engine, info.value));
+    object->SetProperty("extra", CreateJsValue(engine, info.extra));
     return objValue;
 }
 

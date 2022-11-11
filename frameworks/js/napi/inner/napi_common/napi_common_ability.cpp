@@ -321,7 +321,7 @@ int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetFilesDirExecuteCallback(napi_env env, void *data)
+void GetFilesDirExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -356,7 +356,7 @@ void GetFilesDirExecuteCallback(napi_env env, void *data)
     HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
 }
 
-void IsUpdatingConfigurationsExecuteCallback(napi_env env, void *data)
+void IsUpdatingConfigurationsExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -391,7 +391,7 @@ void IsUpdatingConfigurationsExecuteCallback(napi_env env, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void PrintDrawnCompletedExecuteCallback(napi_env env, void *data)
+void PrintDrawnCompletedExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -479,7 +479,7 @@ napi_value NAPI_GetFilesDirCommon(napi_env env, napi_callback_info info, Ability
     return ret;
 }
 
-void GetOrCreateDistributedDirExecuteCallback(napi_env env, void *data)
+void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -589,7 +589,7 @@ napi_value NAPI_GetOrCreateDistributedDirCommon(napi_env env, napi_callback_info
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetCacheDirExecuteCallback(napi_env env, void *data)
+void GetCacheDirExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -698,7 +698,7 @@ napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, Ability
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetExternalCacheDirExecuteCallback(napi_env env, void *data)
+void GetExternalCacheDirExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -956,7 +956,7 @@ AppTypeCB *CreateAppTypeCBInfo(napi_env env)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAppTypeExecuteCB(napi_env env, void *data)
+void GetAppTypeExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("NAPI_GetApplicationInfo, worker pool thread execute.");
     AppTypeCB *appTypeCB = static_cast<AppTypeCB *>(data);
@@ -988,7 +988,7 @@ void GetAppTypeExecuteCB(napi_env env, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAppTypeAsyncCompleteCB(napi_env env, napi_status status, void *data)
+void GetAppTypeAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetApplicationInfo, main event thread complete.");
     AppTypeCB *appTypeCB = static_cast<AppTypeCB *>(data);
@@ -1024,7 +1024,7 @@ void GetAppTypeAsyncCompleteCB(napi_env env, napi_status status, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAppTypePromiseCompleteCB(napi_env env, napi_status status, void *data)
+void GetAppTypePromiseCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("GetAppTypePromiseCompleteCB, main event thread complete.");
     AppTypeCB *appTypeCB = static_cast<AppTypeCB *>(data);
@@ -1220,7 +1220,7 @@ napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, Asyn
     }
 }
 
-void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
+void GetDisplayOrientationExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -1469,7 +1469,7 @@ napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityInfoExecuteCB(napi_env env, void *data)
+void GetAbilityInfoExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("NAPI_GetApplicationInfo, worker pool thread execute.");
     AbilityInfoCB *abilityInfoCB = static_cast<AbilityInfoCB *>(data);
@@ -1506,7 +1506,7 @@ void GetAbilityInfoExecuteCB(napi_env env, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
+void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetApplicationInfo, main event thread complete.");
     AbilityInfoCB *abilityInfoCB = static_cast<AbilityInfoCB *>(data);
@@ -1539,7 +1539,7 @@ void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityInfoPromiseCompleteCB(napi_env env, napi_status status, void *data)
+void GetAbilityInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetApplicationInfo, main event thread complete.");
     AbilityInfoCB *abilityInfoCB = static_cast<AbilityInfoCB *>(data);
@@ -1818,7 +1818,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoC
     return result;
 }
 
-void GetHapModuleInfoExecuteCB(napi_env env, void *data)
+void GetHapModuleInfoExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("NAPI_GetHapModuleInfo, worker pool thread execute.");
     HapModuleInfoCB *hapModuleInfoCB = static_cast<HapModuleInfoCB *>(data);
@@ -1849,7 +1849,7 @@ void GetHapModuleInfoExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_GetHapModuleInfo, worker pool thread execute end.");
 }
 
-void GetHapModuleInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
+void GetHapModuleInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetHapModuleInfo, main event thread complete.");
     HapModuleInfoCB *hapModuleInfoCB = static_cast<HapModuleInfoCB *>(data);
@@ -1876,7 +1876,7 @@ void GetHapModuleInfoAsyncCompleteCB(napi_env env, napi_status status, void *dat
     HILOG_INFO("NAPI_GetHapModuleInfo, main event thread complete end.");
 }
 
-void GetHapModuleInfoPromiseCompleteCB(napi_env env, napi_status status, void *data)
+void GetHapModuleInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetHapModuleInfo, main event thread complete.");
     HapModuleInfoCB *hapModuleInfoCB = static_cast<HapModuleInfoCB *>(data);
@@ -2095,7 +2095,7 @@ napi_value WrapAppVersionInfo(napi_env env, const AppVersionInfoCB &appVersionIn
     return result;
 }
 
-void GetAppVersionInfoExecuteCB(napi_env env, void *data)
+void GetAppVersionInfoExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("NAPI_GetAppVersionInfo, worker pool thread execute.");
     AppVersionInfoCB *appVersionInfoCB = static_cast<AppVersionInfoCB *>(data);
@@ -2127,7 +2127,7 @@ void GetAppVersionInfoExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_GetAppVersionInfo, worker pool thread execute end.");
 }
 
-void GetAppVersionInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
+void GetAppVersionInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetAppVersionInfo, main event thread complete.");
     AppVersionInfoCB *appVersionInfoCB = static_cast<AppVersionInfoCB *>(data);
@@ -2154,7 +2154,7 @@ void GetAppVersionInfoAsyncCompleteCB(napi_env env, napi_status status, void *da
     HILOG_INFO("NAPI_GetAppVersionInfo, main event thread complete end.");
 }
 
-void GetAppVersionInfoPromiseCompleteCB(napi_env env, napi_status status, void *data)
+void GetAppVersionInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetAppVersionInfo, main event thread complete.");
     AppVersionInfoCB *appVersionInfoCB = static_cast<AppVersionInfoCB *>(data);
@@ -2356,7 +2356,7 @@ AsyncCallbackInfo *CreateAsyncCallbackInfo(napi_env env)
     return asyncCallbackInfo;
 }
 
-void GetContextAsyncExecuteCB(napi_env env, void *data)
+void GetContextAsyncExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("GetContextAsync, worker pool thread execute.");
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -2400,7 +2400,7 @@ napi_value GetContextAsync(
         nullptr,
         resourceName,
         GetContextAsyncExecuteCB,
-        [](napi_env env, napi_status status, void *data) {
+        [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetContextAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value callback = 0;
@@ -2453,7 +2453,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         nullptr,
         resourceName,
         GetContextAsyncExecuteCB,
-        [](napi_env env, napi_status status, void *data) {
+        [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetContextPromise, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value result = nullptr;
@@ -2485,7 +2485,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value GetContextWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo)
+napi_value GetContextWrap(napi_env env, napi_callback_info, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (asyncCallbackInfo == nullptr) {
@@ -2539,7 +2539,7 @@ napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityT
     return ret;
 }
 
-void GetWantExecuteCB(napi_env env, void *data)
+void GetWantExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -2589,7 +2589,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
         nullptr,
         resourceName,
         GetWantExecuteCB,
-        [](napi_env env, napi_status status, void *data) {
+        [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetWantAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value callback = 0;
@@ -2642,7 +2642,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         nullptr,
         resourceName,
         GetWantExecuteCB,
-        [](napi_env env, napi_status status, void *data) {
+        [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetWantPromise, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value result = nullptr;
@@ -2766,7 +2766,7 @@ AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
     return abilityNameCB;
 }
 
-napi_value WrapAbilityName(napi_env env, AbilityNameCB *abilityNameCB)
+napi_value WrapAbilityName(napi_env env, const AbilityNameCB *abilityNameCB)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     if (abilityNameCB == nullptr) {
@@ -2785,7 +2785,7 @@ napi_value WrapAbilityName(napi_env env, AbilityNameCB *abilityNameCB)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityNameExecuteCB(napi_env env, void *data)
+void GetAbilityNameExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
@@ -2816,7 +2816,7 @@ void GetAbilityNameExecuteCB(napi_env env, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status status, void *data)
+void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
@@ -2848,7 +2848,7 @@ void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status status, void *data)
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
-void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status status, void *data)
+void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("NAPI_GetAbilityName, main event thread complete.");
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
@@ -3101,7 +3101,7 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
-bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType abilityType, CallAbilityParam &param)
+bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType, CallAbilityParam &param)
 {
     HILOG_INFO("%{public}s called.", __func__);
     bool ret = false;
@@ -3134,7 +3134,7 @@ bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType abilityType, 
     return ret;
 }
 
-void StartAbilityExecuteCB(napi_env env, void *data)
+void StartAbilityExecuteCB(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
@@ -3188,7 +3188,7 @@ void StartAbilityExecuteCB(napi_env env, void *data)
     HILOG_INFO("%{public}s end. ret:%{public}d", __func__, ret);
 }
 
-void StartAbilityCallbackCompletedCB(napi_env env, napi_status status, void *data)
+void StartAbilityCallbackCompletedCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -3218,7 +3218,7 @@ void StartAbilityCallbackCompletedCB(napi_env env, napi_status status, void *dat
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void StartAbilityPromiseCompletedCB(napi_env env, napi_status status, void *data)
+void StartAbilityPromiseCompletedCB(napi_env env, napi_status, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -3386,7 +3386,7 @@ bool UnwrapParamStopAbilityWrap(napi_env env, size_t argc, napi_value *argv, Asy
     return UnwrapWant(env, argv[PARAM0], asyncCallbackInfo->param.want);
 }
 
-void StopAbilityExecuteCallback(napi_env env, void *data)
+void StopAbilityExecuteCallback(napi_env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -4982,7 +4982,7 @@ void JsNapiCommon::ChangeAbilityConnection(napi_ref *callbackArray, const napi_e
     napi_create_reference(env, jsMethod, 1, &callbackArray[PARAM2]);
 }
 
-NativeValue* JsNapiCommon::JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+NativeValue* JsNapiCommon::JsGetContext(NativeEngine &engine, const NativeCallbackInfo &info, const AbilityType abilityType)
 {
     if (!CheckAbilityType(abilityType)) {
         HILOG_ERROR("ability type error");

@@ -41,7 +41,7 @@ public:
      *
      * @param result Indicates the ShellCommandResult object that already exists.
      */
-    ShellCmdResult(const AAFwk::ShellCommandResult &result);
+    explicit ShellCmdResult(const AAFwk::ShellCommandResult &result);
 
     /**
      * Default deconstructor used to deconstruct.

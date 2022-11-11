@@ -128,7 +128,7 @@ void Watchdog::Timer()
         const char *hook_mode = "startup:";
         int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
         if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
-            reportEvent();
+            ReportEvent();
         }
     }
     if (appMainHandler_ != nullptr) {
@@ -138,7 +138,7 @@ void Watchdog::Timer()
         system_clock::now().time_since_epoch()).count();
 }
 
-void Watchdog::reportEvent()
+void Watchdog::ReportEvent()
 {
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();

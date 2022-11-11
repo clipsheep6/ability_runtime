@@ -28,25 +28,32 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-    constexpr size_t FOO_MAX_LEN = 1024;
-
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        int pid = 100;
-        ApplicationInfo application;
-        bool debug;
-
-        if (appMgrClient->GetApplicationInfoByProcessID(pid, application, debug) != 0) {
-            return false;
-        }
-
-        return true;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+}
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
     }
+
+    int pid = static_cast<int>(GetU32Data(data));
+    ApplicationInfo application;
+    bool debug;
+
+    if (appMgrClient->GetApplicationInfoByProcessID(pid, application, debug) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -59,8 +66,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
-        std::cout << "invalid size" << std::endl;
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

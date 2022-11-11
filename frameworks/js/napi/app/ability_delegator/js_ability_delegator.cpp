@@ -946,7 +946,7 @@ NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const
 void JSAbilityDelegator::AbilityLifecycleStateToJs(
     const AbilityDelegator::AbilityState &lifeState, AbilityLifecycleState &abilityLifeState)
 {
-    HILOG_INFO("enter and lifeState = %{public}d", (int32_t)lifeState);
+    HILOG_INFO("enter and lifeState = %{public}d", static_cast<int32_t>(lifeState));
     switch (lifeState) {
         case AbilityDelegator::AbilityState::STARTED:
             abilityLifeState = AbilityLifecycleState::CREATE;

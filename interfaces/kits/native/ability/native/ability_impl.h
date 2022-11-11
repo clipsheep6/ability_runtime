@@ -456,7 +456,9 @@ protected:
     sptr<IRemoteObject> token_;
     std::shared_ptr<Ability> ability_;
     std::shared_ptr<AbilityHandler> handler_;
-    std::atomic_bool notifyForegroundByWindow_ = false;
+    bool notifyForegroundByWindow_ = false;
+    bool notifyForegroundByAbility_ = false;
+    std::mutex notifyForegroundLock_;
 
 private:
     typedef enum {
@@ -492,7 +494,6 @@ public:
     void ForegroundFailed() override;
     void ForegroundInvalidMode() override;
 private:
-    void AbilityTransitionDone(AbilityLifeCycleState state) const;
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;
 };

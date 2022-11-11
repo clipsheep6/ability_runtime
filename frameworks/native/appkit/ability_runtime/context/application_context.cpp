@@ -271,7 +271,7 @@ std::string ApplicationContext::GetBundleCodePath() const
 
 std::shared_ptr<AppExecFwk::HapModuleInfo> ApplicationContext::GetHapModuleInfo() const
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetHapModuleInfo() : nullptr;
+    return nullptr;
 }
 
 std::string ApplicationContext::GetBundleCodeDir()

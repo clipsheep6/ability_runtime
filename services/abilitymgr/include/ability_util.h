@@ -177,8 +177,8 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     AppExecFwk::ElementName element = want.GetElement();
-    if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty()
-        && !element.GetAbilityName().empty()) {
+    if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty() &&
+        !element.GetAbilityName().empty()) {
         want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());

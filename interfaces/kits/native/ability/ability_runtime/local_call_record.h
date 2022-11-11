@@ -61,7 +61,7 @@ class CallRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
 
-    CallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
+    explicit CallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
     virtual ~CallRecipient() = default;
 
     void OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote) override

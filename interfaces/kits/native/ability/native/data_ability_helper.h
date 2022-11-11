@@ -295,8 +295,8 @@ public:
     void SetCallFromJs();
 
 private:
-    DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
-    DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper);
+    explicit DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
+    explicit DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper);
 
     static bool TransferScheme(const Uri &uri, Uri &dataShareUri);
 

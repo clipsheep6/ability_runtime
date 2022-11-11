@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class AbilityHandler : public EventHandler {
 public:
-    AbilityHandler(const std::shared_ptr<EventRunner> &runner);
+    explicit AbilityHandler(const std::shared_ptr<EventRunner> &runner);
     ~AbilityHandler() = default;
 
     /**

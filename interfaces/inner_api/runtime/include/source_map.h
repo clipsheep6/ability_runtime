@@ -68,12 +68,13 @@ public:
     explicit ModSourceMap() = default;
     explicit ModSourceMap(const bool isStageModel) : isStageModel(isStageModel) {};
     explicit ModSourceMap(const std::string& bundleCodeDir, const bool isStageModel) :
-                          isStageModel(isStageModel), bundleCodeDir_(bundleCodeDir) {};
+        isStageModel(isStageModel), bundleCodeDir_(bundleCodeDir) {};
     ~ModSourceMap() = default;
 
-    static std::string TranslateBySourceMap(const std::string& stackStr, ModSourceMap& targetMaps, const std::string& BundleCodeDir);
-    static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData, const std::string& sourceCode,
-                                        uint32_t& errorPos);
+    static std::string TranslateBySourceMap(const std::string& stackStr, ModSourceMap& targetMaps,
+        const std::string& BundleCodeDir);
+    static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
+        const std::string& sourceCode, uint32_t& errorPos);
     static ErrorPos GetErrorPos(const std::string& rawStack);
     static void NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::string& targetMap);
 
@@ -87,7 +88,8 @@ private:
     static void GetPosInfo(const std::string& temp, int32_t start, std::string& line, std::string& column);
     static int32_t StringToInt(const std::string& value);
     static std::string GetRelativePath(const std::string& sources);
-    static std::string GetSourceInfo(const std::string& line, const std::string& column, const SourceMapData& targetMap, const std::string& key);
+    static std::string GetSourceInfo(const std::string& line, const std::string& column,
+        const SourceMapData& targetMap, const std::string& key);
     static bool ReadSourceMapData(const std::string& filePath, std::string& content);
     static std::vector<std::string> HandleMappings(const std::string& mapping);
     static uint32_t Base64CharToInt(char charCode);

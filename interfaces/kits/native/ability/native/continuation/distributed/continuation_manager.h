@@ -55,6 +55,8 @@ public:
 
     int32_t OnStartAndSaveData(WantParams &wantParams);
 
+    bool IsContinuePageStack(const WantParams &wantParams);
+
     int32_t OnContinueAndGetContent(WantParams &wantParams);
 
     bool SaveData(WantParams &saveData);
@@ -74,7 +76,7 @@ public:
 
     enum OnContinueResult {
         AGREE = 0,
-        Reject = 1,
+        REJECT = 1,
         MISMATCH = 2
     };
 private:

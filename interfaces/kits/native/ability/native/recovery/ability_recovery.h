@@ -42,6 +42,7 @@ public:
     bool ScheduleRecoverAbility(StateReason reason);
     bool ScheduleRestoreAbilityState(StateReason reason, const Want &want);
     bool CallOnRestoreAbilityState(StateReason reason);
+    bool PersistState();
     std::string GetSavedPageStack(StateReason reason);
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;

@@ -297,6 +297,7 @@ void JsAbility::OnStopCallback()
 
 #ifdef SUPPORT_GRAPHICS
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
+const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 
 void JsAbility::OnSceneCreated()
 {
@@ -400,7 +401,6 @@ void JsAbility::OnForeground(const Want &want)
     obj->SetProperty("lastRequestWant", jsWant);
 
     CallObjectMethod("onForeground", &jsWant, 1);
-    notifyForegroundByAbility_.store(true);
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -454,11 +454,14 @@ void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
     }
 }
 
-void JsAbility::AbilityContinuationOrRecover(const Want &want)
+bool JsAbility::IsRestorePageStack(const Want &want)
 {
-    // multi-instance ability continuation
-    HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
-    if (IsRestoredInContinuation()) {
+    return want.GetBoolParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME, true);
+}
+
+void JsAbility::RestorePageStack(const Want &want)
+{
+    if (IsRestorePageStack(want)) {
         std::string pageStack;
         GetPageStackFromWant(want, pageStack);
         HandleScope handleScope(jsRuntime_);
@@ -469,6 +472,15 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
         } else {
             HILOG_ERROR("restore: content storage is nullptr");
         }
+    }
+}
+
+void JsAbility::AbilityContinuationOrRecover(const Want &want)
+{
+    // multi-instance ability continuation
+    HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
+    if (IsRestoredInContinuation()) {
+        RestorePageStack(want);
         OnSceneRestored();
         NotifyContinuationResult(want, true);
     } else if (ShouldRecoverState(want)) {
@@ -566,16 +578,7 @@ void JsAbility::ContinuationRestore(const Want &want)
     if (!IsRestoredInContinuation() || scene_ == nullptr) {
         return;
     }
-
-    std::string pageStack;
-    GetPageStackFromWant(want, pageStack);
-    HandleScope handleScope(jsRuntime_);
-    auto &engine = jsRuntime_.GetNativeEngine();
-    if (abilityContext_->GetContentStorage()) {
-        scene_->GetMainWindow()->SetUIContent(pageStack, &engine, abilityContext_->GetContentStorage()->Get(), true);
-    } else {
-        HILOG_ERROR("restore: content storage is nullptr");
-    }
+    RestorePageStack(want);
     OnSceneRestored();
     NotifyContinuationResult(want, true);
 }
@@ -596,19 +599,19 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get Ability object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     NativeValue *methodOnCreate = obj->GetProperty("onContinue");
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get 'onContinue' from Ability object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
@@ -622,7 +625,7 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
     if (numberResult == nullptr) {
         HILOG_ERROR("'onContinue' is not implemented");
-        return AppExecFwk::ContinuationManager::OnContinueResult::Reject;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();

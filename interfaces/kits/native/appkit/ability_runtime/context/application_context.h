@@ -58,7 +58,6 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
     std::string GetBundleCodePath() const override;
-    std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
@@ -78,6 +77,9 @@ public:
 
     void InitApplicationContext();
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
+
+    // unused
+    std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
 
 private:
     std::shared_ptr<ContextImpl> contextImpl_;

@@ -25,12 +25,15 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AbilityRuntime::WantAgent;
 #define DISABLE_FUZZ
+namespace OHOS {
 namespace {
+#ifndef DISABLE_FUZZ
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+#endif
     const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
 }
-
-namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
+    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     {
         int requestCode = 0;
         WantAgentConstant::OperationType operationType = WantAgentConstant::OperationType::START_ABILITY;
@@ -74,7 +77,33 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 #ifndef DISABLE_FUZZ
     /* Run your code on data */
-    OHOS::DoSomethingInterestingWithMyAPI(data, size);
+    if (data == nullptr) {
+        std::cout << "invalid data" << std::endl;
+        return 0;
+    }
+
+    /* Validate the length of size */
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+        return 0;
+    }
+
+    char* ch = (char *)malloc(size + 1);
+    if (ch == nullptr) {
+        std::cout << "malloc failed." << std::endl;
+        return 0;
+    }
+
+    (void)memset_s(ch, size + 1, 0x00, size + 1);
+    if (memcpy_s(ch, size, data, size) != EOK) {
+        std::cout << "copy failed." << std::endl;
+        free(ch);
+        ch = nullptr;
+        return 0;
+    }
+
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    free(ch);
+    ch = nullptr;
 #endif
     return 0;
 }

@@ -107,6 +107,10 @@ class ApplicationContext {
         return this.__context_impl__.createModuleContext(bundleName, moduleName)
     }
 
+    getApplicationContext() {
+        return this.__context_impl__.getApplicationContext()
+    }
+
     set area(mode) {
         return this.__context_impl__.switchArea(mode)
     }

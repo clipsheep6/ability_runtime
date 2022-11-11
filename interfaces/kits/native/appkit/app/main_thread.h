@@ -439,7 +439,7 @@ private:
 
     bool Timer();
     bool WaitForDuration(uint32_t duration);
-    void reportEvent();
+    void ReportEvent();
     bool IsStopWatchdog();
 
     class MainHandler : public EventHandler {

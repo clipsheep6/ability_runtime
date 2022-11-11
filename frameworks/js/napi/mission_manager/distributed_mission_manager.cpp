@@ -85,6 +85,8 @@ static int32_t ErrorCodeReturn(int32_t code)
             return OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET;
         case CONTINUE_ALREADY_IN_PROGRESS:
             return CONTINUE_ALREADY_IN_PROGRESS;
+        case MISSION_FOR_CONTINUING_IS_NOT_ALIVE:
+            return MISSION_FOR_CONTINUING_IS_NOT_ALIVE;
         default:
             return SYSTEM_WORK_ABNORMALLY;
     };
@@ -114,6 +116,9 @@ static std::string ErrorMessageReturn(int32_t code)
                 "application to be continued is currently located or the target device.");
         case CONTINUE_ALREADY_IN_PROGRESS:
             return std::string("the local continuation task is already in progress.");
+        case MISSION_FOR_CONTINUING_IS_NOT_ALIVE:
+            return std::string("the mission for continuing is not alive, "
+                "try again after restart this mission.");
         default:
             return std::string("the system ability work abnormally.");
     };
@@ -1595,7 +1600,7 @@ static napi_module missionModule = {
     .nm_filename = nullptr,
     .nm_register_func = DistributedMissionManagerExport,
     .nm_modname = "distributedMissionManager",
-    .nm_priv = ((void*)0),
+    .nm_priv = (static_cast<void*>(0)),
     .reserved = {0}
 };
 

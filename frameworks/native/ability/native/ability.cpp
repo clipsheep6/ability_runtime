@@ -882,7 +882,7 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
 
 int32_t Ability::OnContinue(WantParams &wantParams)
 {
-    return ContinuationManager::OnContinueResult::Reject;
+    return ContinuationManager::OnContinueResult::REJECT;
 }
 
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)

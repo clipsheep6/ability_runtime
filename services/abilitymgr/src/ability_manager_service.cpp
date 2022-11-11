@@ -113,6 +113,7 @@ const std::string BUNDLE_NAME_FREEINSTALL_SEC_TEST = "com.open.harmony.startAbil
 const std::string BUNDLE_NAME_APP_SELECT_TEST = "com.example.appselectortest";
 const std::string BUNDLE_NAME_APP_SELECTPC_TEST = "com.example.appselectorpctest";
 const std::string BUNDLE_NAME_USERS_SYSTEM_TEST = "com.acts.actsinterfacemultiuserstest";
+const std::string BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST = "com.acts.actsinterfacemultiusersthirdtest";
 const std::string BUNDLE_NAME_SINGLE_USER_TEST = "com.singleusermodel.actssingleusertest";
 const std::string BUNDLE_NAME_MUTIUSER_TEST = "com.acts.actsinterfacemultiusersextensiontest";
 const std::string BUNDLE_NAME_PER_THRID_TEST = "com.example.actsabilitypermissionthirdtest";
@@ -135,6 +136,7 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_APP_SELECT_TEST,
                                                                 BUNDLE_NAME_APP_SELECTPC_TEST,
                                                                 BUNDLE_NAME_USERS_SYSTEM_TEST,
+                                                                BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST,
                                                                 BUNDLE_NAME_SINGLE_USER_TEST,
                                                                 BUNDLE_NAME_MUTIUSER_TEST,
                                                                 BUNDLE_NAME_PER_THRID_TEST,
@@ -339,6 +341,10 @@ bool AbilityManagerService::Init()
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
+    interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
+
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
@@ -346,10 +352,6 @@ bool AbilityManagerService::Init()
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
-
-    interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
 
     HILOG_INFO("Init success.");
     return true;
@@ -445,6 +447,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
     }
 
@@ -962,7 +965,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     HILOG_INFO("Start extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
-    eventInfo.extensionType = (int32_t)extensionType;
+    eventInfo.extensionType = static_cast<int32_t>(extensionType);
     AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
@@ -1052,7 +1055,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     HILOG_INFO("Stop extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
-    eventInfo.extensionType = (int32_t)extensionType;
+    eventInfo.extensionType = static_cast<int32_t>(extensionType);
     AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
@@ -4646,6 +4649,14 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
+    if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        HILOG_DEBUG("pending state is FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        return ERR_OK;
+    } else {
+        HILOG_DEBUG("pending state is not FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+    }
     abilityRecord->ProcessForegroundAbility(flag);
     return ERR_OK;
 }
@@ -5306,6 +5317,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     }
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    HILOG_DEBUG("OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
