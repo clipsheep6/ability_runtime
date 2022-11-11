@@ -65,7 +65,7 @@ public:
     virtual ~SystemDialogScheduler() = default;
 
     bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
-    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos);
+    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant);
     Want GetTipsDialogWant();
 
     void SetDeviceType(const std::string &deviceType)
