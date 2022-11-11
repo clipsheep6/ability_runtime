@@ -351,6 +351,7 @@ group("unittest") {
     "runtime_test:unittest",
     "sender_info_test:unittest",
     "trigger_Info_test:unittest",
+    "user_controller_test:unittest",
     "want_agent_helper_test:unittest",
     "want_agent_info_test:unittest",
     "want_agent_test:unittest",
