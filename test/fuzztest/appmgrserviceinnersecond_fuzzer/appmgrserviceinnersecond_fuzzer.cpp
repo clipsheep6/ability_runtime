@@ -107,7 +107,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::vector<sptr<IRemoteObject>> tokens;
     appMgrServiceInner->GetAbilityRecordsByProcessID(static_cast<int>(pid), tokens);
     ApplicationInfo application;
-    appMgrServiceInner->GetApplicationInfoByProcessID(static_cast<int>(pid), application);
+    bool debug;
+    appMgrServiceInner->GetApplicationInfoByProcessID(static_cast<int>(pid), application, debug);
     appMgrServiceInner->VerifyProcessPermission();
     appMgrServiceInner->VerifyAPL();
     std::string permissionName(data, size);

@@ -36,7 +36,8 @@ int AppNoResponseDisposer::DisposeAppNoResponse(int pid,
     CHECK_POINTER_AND_RETURN(appScheduler, ERR_INVALID_VALUE);
 
     AppExecFwk::ApplicationInfo appInfo;
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
+    bool debug;
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) != ERR_OK) {
         HILOG_ERROR("Get application info failed.");
         return ERR_INVALID_VALUE;
     }
@@ -73,7 +74,8 @@ int AppNoResponseDisposer::PostTimeoutTask(int pid, std::string bundleName) cons
     CHECK_POINTER_AND_RETURN(appScheduler, ERR_INVALID_VALUE);
 
     AppExecFwk::ApplicationInfo appInfo;
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
+    bool debug;
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) != ERR_OK) {
         HILOG_ERROR("Get application info failed.");
         return ERR_INVALID_VALUE;
     }

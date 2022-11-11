@@ -46,8 +46,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     int pid = static_cast<int>(GetU32Data(data));
     ApplicationInfo application;
+    bool debug;
 
-    if (appMgrClient->GetApplicationInfoByProcessID(pid, application) != 0) {
+    if (appMgrClient->GetApplicationInfoByProcessID(pid, application, debug) != 0) {
         return false;
     }
 

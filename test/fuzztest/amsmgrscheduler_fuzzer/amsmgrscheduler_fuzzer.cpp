@@ -104,7 +104,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     amsMgrScheduler.StartSpecifiedAbility(*want, abilityInfo);
     int pid = static_cast<int>(GetU32Data(data));
     AppExecFwk::ApplicationInfo application;
-    amsMgrScheduler.GetApplicationInfoByProcessID(pid, application);
+    bool debug;
+    amsMgrScheduler.GetApplicationInfoByProcessID(pid, application, debug);
     return amsMgrScheduler.IsReady();
 }
 }
