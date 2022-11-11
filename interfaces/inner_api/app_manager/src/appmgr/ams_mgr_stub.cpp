@@ -309,13 +309,18 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t pid = data.ReadInt32();
     AppExecFwk::ApplicationInfo application;
-    int32_t result = GetApplicationInfoByProcessID(pid, application);
+    bool debug;
+    int32_t result = GetApplicationInfoByProcessID(pid, application, debug);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result error.");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteParcelable(&application)) {
         HILOG_ERROR("write application info failed");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteBool(debug)) {
+        HILOG_ERROR("write debug info failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
