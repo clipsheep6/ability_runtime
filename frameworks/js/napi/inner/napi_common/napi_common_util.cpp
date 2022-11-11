@@ -837,10 +837,10 @@ AsyncJSCallbackInfo *CreateAsyncJSCallbackInfo(napi_env env)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    napi_value global = 0;
+    napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
-    napi_value abilityObj = 0;
+    napi_value abilityObj = nullptr;
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
@@ -1017,11 +1017,11 @@ napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCa
         return nullptr;
     }
 
-    napi_value resourceName = 0;
+    napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, param->resource.c_str(), NAPI_AUTO_LENGTH, &resourceName));
 
-    napi_deferred deferred = 0;
-    napi_value promise = 0;
+    napi_deferred deferred = nullptr;
+    napi_value promise = nullptr;
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
 
     asyncCallbackInfo->deferred = deferred;
@@ -1054,10 +1054,10 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
         return;
     }
 
-    napi_value callback = 0;
-    napi_value undefined = 0;
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
     napi_get_undefined(env, &undefined);
-    napi_value callResult = 0;
+    napi_value callResult = nullptr;
     napi_value revParam[ARGS_TWO] = {nullptr};
 
     revParam[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);
@@ -1082,10 +1082,10 @@ void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;
     }
-    napi_value callback = 0;
-    napi_value undefined = 0;
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
     napi_get_undefined(env, &undefined);
-    napi_value callResult = 0;
+    napi_value callResult = nullptr;
     napi_value result[ARGS_TWO] = {nullptr};
 
     if (asyncCallbackInfo->error_code) {
@@ -1124,7 +1124,7 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
         return;
     }
 
-    napi_value result = 0;
+    napi_value result = nullptr;
     if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
         WrapThreadReturnData(env, &asyncCallbackInfo->native_data, &result);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
@@ -1146,7 +1146,7 @@ void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *dat
         HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
         return;
     }
-    napi_value result = 0;
+    napi_value result = nullptr;
     if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
         result = WrapVoidToJS(env);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);

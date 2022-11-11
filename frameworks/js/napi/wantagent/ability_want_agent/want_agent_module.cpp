@@ -96,8 +96,8 @@ static napi_module _module = {
     .nm_filename = nullptr,
     .nm_register_func = Init,
     .nm_modname = "app.ability.wantAgent",
-    .nm_priv = ((void *)0),
-    .reserved = {0},
+    .nm_priv = ((void *)nullptr),
+    .reserved = {nullptr},
 };
 
 /*
