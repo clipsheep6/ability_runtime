@@ -36,7 +36,7 @@ static napi_value Init(napi_env env, napi_value exports)
     FeatureAbilityInit(env, exports);
     ContextPermissionInit(env, exports);
     DataAbilityOperationInit(env, exports);
-    DataAbilityHelperInit(env, exports);
+    // DataAbilityHelperInit(env, exports);
     FAConstantInit(env, exports);
     return exports;
 }

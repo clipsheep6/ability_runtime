@@ -46,6 +46,10 @@ void SetNamedProperty(napi_env env, napi_value obj, const char *propName, int pr
 napi_value UnwrapDataAbilityOperation(std::shared_ptr<DataAbilityOperation> &param, napi_env env, napi_value args);
 napi_value BuildDataAbilityOperation(
     std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param);
+NativeValue* BuildDataAbilityOperation(
+    NativeEngine &engine, NativeValue &jsParam, std::shared_ptr<DataAbilityOperation> &dataAbilityOperation);
+NativeValue* UnwrapDataAbilityOperation(
+    NativeEngine &engine, NativeValue *jsParam, std::shared_ptr<DataAbilityOperation> &dataAbilityOperation);
 bool GetDataAbilityOperationBuilder(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, int type, const std::shared_ptr<Uri> &uri);
 /**

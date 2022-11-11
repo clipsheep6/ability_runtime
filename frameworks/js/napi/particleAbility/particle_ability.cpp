@@ -171,20 +171,6 @@ napi_value NAPI_PADisConnectAbility(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief FeatureAbility NAPI method : acquireDataAbilityHelper.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_PAAcquireDataAbilityHelper(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    return NAPI_AcquireDataAbilityHelperCommon(env, info, AbilityType::UNKNOWN);
-}
-
-/**
  * @brief ParticleAbility NAPI method : startBackgroundRunning.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -237,7 +223,6 @@ napi_value ParticleAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getWant", NAPI_PAGetWant),
         DECLARE_NAPI_FUNCTION("getAbilityName", NAPI_PAGetAbilityName),
         DECLARE_NAPI_FUNCTION("stopAbility", NAPI_PAStopAbility),
-        DECLARE_NAPI_FUNCTION("acquireDataAbilityHelper", NAPI_PAAcquireDataAbilityHelper),
         DECLARE_NAPI_FUNCTION("startBackgroundRunning", NAPI_PAStartBackgroundRunning),
         DECLARE_NAPI_FUNCTION("cancelBackgroundRunning", NAPI_PACancelBackgroundRunning),
     };
@@ -275,6 +260,12 @@ NativeValue* JsParticleAbility::PATerminateAbility(NativeEngine *engine, NativeC
 {
     JsParticleAbility *me = CheckParamsAndGetThis<JsParticleAbility>(engine, info);
     return (me != nullptr) ? me->JsTerminateAbility(*engine, *info) : nullptr;
+}
+
+NativeValue* JsParticleAbility::AcquireDataAbilityHelper(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    auto *me = CheckParamsAndGetThis<JsParticleAbility>(engine, info);
+    return (me != nullptr) ? me->JsAcquireDataAbility(*engine, *info, AbilityType::UNKNOWN) : nullptr;
 }
 
 Ability* JsParticleAbility::GetAbility(napi_env env)
@@ -333,6 +324,8 @@ NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj)
     BindNativeFunction(*engine, *object, "disConnectAbility", moduleName, JsParticleAbility::PADisConnectAbility);
     BindNativeFunction(*engine, *object, "startAbility", moduleName, JsParticleAbility::PAStartAbility);
     BindNativeFunction(*engine, *object, "terminateSelf", moduleName, JsParticleAbility::PATerminateAbility);
+    BindNativeFunction(*engine, *object, "acquireDataAbilityHelper",
+        moduleName, JsParticleAbility::AcquireDataAbilityHelper);
 
     HILOG_DEBUG("JsParticleAbility end");
     return exportObj;

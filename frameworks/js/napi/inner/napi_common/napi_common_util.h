@@ -254,6 +254,8 @@ void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *dat
 std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
+std::vector<uint8_t> ConvertU8Vector(NativeEngine& engine, NativeValue* jsParam);
+std::vector<std::string> ConvertStringVector(NativeEngine& engine, NativeValue* jsParam);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H

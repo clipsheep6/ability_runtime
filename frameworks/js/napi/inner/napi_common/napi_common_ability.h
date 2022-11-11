@@ -20,6 +20,7 @@
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "napi_common_ability_error.h"
 
 namespace OHOS {
 namespace AppExecFwk {
