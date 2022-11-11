@@ -1011,7 +1011,12 @@ napi_value NAPI_GetWantAgent(napi_env env, napi_callback_info info)
         static_cast<WantAgentConstant::OperationType>(operationType);
     asyncCallbackInfo->requestCode = requestCode;
     asyncCallbackInfo->wantAgentFlags = wantAgentFlags;
-    asyncCallbackInfo->extraInfo.reset(new (std::nothrow) AAFwk::WantParams(extraInfo));
+    auto wantExtraInfo = new (std::nothrow) AAFwk::WantParams(extraInfo);
+    if (wantExtraInfo == nullptr) {
+        HILOG_ERROR("wantExtraInfo is nullptr");
+        return JSParaError(env, callBackMode);
+    }
+    asyncCallbackInfo->extraInfo.reset(wantExtraInfo);
     asyncCallbackInfo->context = OHOS::AbilityRuntime::Context::GetApplicationContext();
 
     if (callBackMode) {

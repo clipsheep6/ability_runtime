@@ -468,7 +468,11 @@ napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args)
 napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperNotifyChangeCB *notifyChangeCB = new DAHelperNotifyChangeCB;
+    DAHelperNotifyChangeCB *notifyChangeCB = new (std::nothrow) DAHelperNotifyChangeCB;
+    if (notifyChangeCB == nullptr) {
+        HILOG_ERROR("notifyChangeCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     notifyChangeCB->cbBase.cbInfo.env = env;
     notifyChangeCB->cbBase.asyncWork = nullptr;
     notifyChangeCB->cbBase.deferred = nullptr;
@@ -656,7 +660,11 @@ void NotifyChangePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Register(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
+    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
+    if (onCB == nullptr) {
+        HILOG_ERROR("onCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     onCB->cbBase.cbInfo.env = env;
     onCB->cbBase.asyncWork = nullptr;
     onCB->cbBase.deferred = nullptr;
@@ -752,7 +760,12 @@ napi_value RegisterAsync(
         onCB->result = INVALID_PARAMETER;
     }
 
-    sptr<NAPIDataAbilityObserver> observer(new NAPIDataAbilityObserver());
+    auto abilityObserver = new (std::nothrow) NAPIDataAbilityObserver();
+    if (abilityObserver == nullptr) {
+        HILOG_ERROR("abilityObserver is nullptr");
+        return nullptr;
+    }
+    sptr<NAPIDataAbilityObserver> observer(abilityObserver);
     observer->SetEnv(env);
     observer->SetCallbackRef(onCB->cbBase.cbInfo.callback);
     onCB->observer = observer;
@@ -1033,12 +1046,16 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         napi_ref ref_;
     };
 
-    DelRefCallbackInfo* delRefCallbackInfo = new DelRefCallbackInfo {
+    DelRefCallbackInfo* delRefCallbackInfo = new (std::nothrow) DelRefCallbackInfo {
         .env_ = env_,
         .ref_ = ref_,
     };
+    if (delRefCallbackInfo == nullptr) {
+        HILOG_ERROR("delRefCallbackInfo is nullptr");
+        return;
+    }
 
-    uv_work_t* work = new uv_work_t;
+    uv_work_t* work = new (std::nothrow) uv_work_t;
     work->data = static_cast<void*>(delRefCallbackInfo);
     int ret = uv_queue_work(
         loop, work, [](uv_work_t* work) {},
@@ -1157,8 +1174,12 @@ void NAPIDataAbilityObserver::OnChange()
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
-    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
+    if (onCB == nullptr) {
+        HILOG_ERROR("onCB is nullptr");
+        return;
+    }
     onCB->observer = this;
     work->data = static_cast<void *>(onCB);
     int rev = uv_queue_work(
@@ -1943,7 +1964,11 @@ void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, n
 napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperDeleteCB *deleteCB = new DAHelperDeleteCB;
+    DAHelperDeleteCB *deleteCB = new (std::nothrow) DAHelperDeleteCB;
+    if (deleteCB == nullptr) {
+        HILOG_ERROR("deleteCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     deleteCB->cbBase.cbInfo.env = env;
     deleteCB->cbBase.asyncWork = nullptr;
     deleteCB->cbBase.deferred = nullptr;
@@ -2131,7 +2156,11 @@ void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Update(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperUpdateCB *updateCB = new DAHelperUpdateCB;
+    DAHelperUpdateCB *updateCB = new (std::nothrow) DAHelperUpdateCB;
+    if (updateCB == nullptr) {
+        HILOG_ERROR("updateCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     updateCB->cbBase.cbInfo.env = env;
     updateCB->cbBase.asyncWork = nullptr;
     updateCB->cbBase.deferred = nullptr;
@@ -2411,7 +2440,11 @@ napi_value CallErrorPromise(napi_env env, DAHelperErrorCB *errorCB)
 napi_value CallErrorWrap(napi_env env, napi_value thisVar, napi_callback_info info, napi_value *args, bool isPromise)
 {
     HILOG_INFO("%{public}s, called", __func__);
-    DAHelperErrorCB *errorCB = new DAHelperErrorCB;
+    DAHelperErrorCB *errorCB = new (std::nothrow) DAHelperErrorCB;
+    if (errorCB == nullptr) {
+        HILOG_ERROR("errorCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     errorCB->cbBase.cbInfo.env = env;
     errorCB->cbBase.asyncWork = nullptr;
     errorCB->cbBase.deferred = nullptr;
@@ -3160,7 +3193,11 @@ void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Query(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperQueryCB *queryCB = new DAHelperQueryCB;
+    DAHelperQueryCB *queryCB = new (std::nothrow) DAHelperQueryCB;
+    if (queryCB == nullptr) {
+        HILOG_ERROR("queryCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     queryCB->cbBase.cbInfo.env = env;
     queryCB->cbBase.asyncWork = nullptr;
     queryCB->cbBase.deferred = nullptr;

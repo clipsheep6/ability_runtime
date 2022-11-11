@@ -111,7 +111,7 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         .ref_ = ref_,
     };
 
-    uv_work_t* work = new uv_work_t;
+    uv_work_t* work = new (std::nothrow) uv_work_t;
     work->data = static_cast<void*>(delRefCallbackInfo);
     int ret = uv_queue_work(
         loop, work, [](uv_work_t* work) {},
@@ -204,8 +204,12 @@ void NAPIDataAbilityObserver::OnChange()
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
-    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
+    if (onCB == nullptr) {
+        HILOG_ERROR("onCB is nullptr");
+        return;
+    }
     onCB->observer = this;
     work->data = static_cast<void *>(onCB);
     int rev = uv_queue_work(
@@ -363,7 +367,11 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
 napi_value NAPI_Insert(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperInsertCB *insertCB = new DAHelperInsertCB;
+    DAHelperInsertCB *insertCB = new (std::nothrow) DAHelperInsertCB;
+    if (insertCB == nullptr) {
+        HILOG_ERROR("insertCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     insertCB->cbBase.cbInfo.env = env;
     insertCB->cbBase.asyncWork = nullptr;
     insertCB->cbBase.deferred = nullptr;
@@ -607,7 +615,11 @@ void InsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperNotifyChangeCB *notifyChangeCB = new DAHelperNotifyChangeCB;
+    DAHelperNotifyChangeCB *notifyChangeCB = new (std::nothrow) DAHelperNotifyChangeCB;
+    if (notifyChangeCB == nullptr) {
+        HILOG_ERROR("notifyChangeCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     notifyChangeCB->cbBase.cbInfo.env = env;
     notifyChangeCB->cbBase.asyncWork = nullptr;
     notifyChangeCB->cbBase.deferred = nullptr;
@@ -781,7 +793,11 @@ void NotifyChangePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Register(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
+    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
+    if (onCB == nullptr) {
+        HILOG_ERROR("onCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     onCB->cbBase.cbInfo.env = env;
     onCB->cbBase.asyncWork = nullptr;
     onCB->cbBase.deferred = nullptr;
@@ -858,7 +874,13 @@ napi_value RegisterAsync(
     HILOG_INFO("valuetype is napi_function.");
     NAPI_CALL(env, napi_create_reference(env, args[argcPromise], 1, &onCB->cbBase.cbInfo.callback));
 
-    sptr<NAPIDataAbilityObserver> observer(new NAPIDataAbilityObserver());
+    auto abilityObserver = new (std::nothrow) NAPIDataAbilityObserver();
+    if (abilityObserver == nullptr) {
+        HILOG_ERROR("abilityObserver is nullptr");
+        ThrowException(env, JS_ERR_INTERNAL_ERROR);
+        return nullptr;
+    }
+    sptr<NAPIDataAbilityObserver> observer(abilityObserver);
     observer->SetEnv(env);
     observer->SetCallbackRef(onCB->cbBase.cbInfo.callback);
     onCB->observer = observer;
@@ -1109,7 +1131,11 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
 napi_value NAPI_GetType(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperGetTypeCB *gettypeCB = new DAHelperGetTypeCB;
+    DAHelperGetTypeCB *gettypeCB = new (std::nothrow) DAHelperGetTypeCB;
+    if (gettypeCB == nullptr) {
+        HILOG_ERROR("gettypeCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     gettypeCB->cbBase.cbInfo.env = env;
     gettypeCB->cbBase.asyncWork = nullptr;
     gettypeCB->cbBase.deferred = nullptr;
@@ -1459,7 +1485,11 @@ void GetFileTypesPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperNormalizeUriCB *normalizeuriCB = new DAHelperNormalizeUriCB;
+    DAHelperNormalizeUriCB *normalizeuriCB = new (std::nothrow) DAHelperNormalizeUriCB;
+    if (normalizeuriCB == nullptr) {
+        HILOG_ERROR("normalizeuriCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     normalizeuriCB->cbBase.cbInfo.env = env;
     normalizeuriCB->cbBase.asyncWork = nullptr;
     normalizeuriCB->cbBase.deferred = nullptr;
@@ -1620,7 +1650,11 @@ void NormalizeUriPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperDenormalizeUriCB *denormalizeuriCB = new DAHelperDenormalizeUriCB;
+    DAHelperDenormalizeUriCB *denormalizeuriCB = new (std::nothrow) DAHelperDenormalizeUriCB;
+    if (denormalizeuriCB == nullptr) {
+        HILOG_ERROR("denormalizuriCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     denormalizeuriCB->cbBase.cbInfo.env = env;
     denormalizeuriCB->cbBase.asyncWork = nullptr;
     denormalizeuriCB->cbBase.deferred = nullptr;
@@ -1803,7 +1837,11 @@ void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, n
 napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperDeleteCB *deleteCB = new DAHelperDeleteCB;
+    DAHelperDeleteCB *deleteCB = new (std::nothrow) DAHelperDeleteCB;
+    if (deleteCB == nullptr) {
+        HILOG_ERROR("deleteCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     deleteCB->cbBase.cbInfo.env = env;
     deleteCB->cbBase.asyncWork = nullptr;
     deleteCB->cbBase.deferred = nullptr;
@@ -1986,7 +2024,11 @@ void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Update(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Enter.");
-    DAHelperUpdateCB *updateCB = new DAHelperUpdateCB;
+    DAHelperUpdateCB *updateCB = new (std::nothrow) DAHelperUpdateCB;
+    if (updateCB == nullptr) {
+        HILOG_ERROR("updateCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     updateCB->cbBase.cbInfo.env = env;
     updateCB->cbBase.asyncWork = nullptr;
     updateCB->cbBase.deferred = nullptr;
@@ -2258,7 +2300,11 @@ napi_value CallErrorPromise(napi_env env, DAHelperErrorCB *errorCB)
 napi_value CallErrorWrap(napi_env env, napi_value thisVar, napi_callback_info info, napi_value *args, bool isPromise)
 {
     HILOG_INFO("Enter.");
-    DAHelperErrorCB *errorCB = new DAHelperErrorCB;
+    DAHelperErrorCB *errorCB = new (std::nothrow) DAHelperErrorCB;
+    if (errorCB == nullptr) {
+        HILOG_ERROR("errorCB is nullptr");
+        return WrapVoidToJS(env);
+    }
     errorCB->cbBase.cbInfo.env = env;
     errorCB->cbBase.asyncWork = nullptr;
     errorCB->cbBase.deferred = nullptr;

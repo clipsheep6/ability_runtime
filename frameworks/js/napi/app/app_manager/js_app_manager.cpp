@@ -140,7 +140,11 @@ private:
         std::vector<std::string> bundleNameList;
         // unwarp observer
         if (observer_ == nullptr) {
-            observer_ = new JSAppStateObserver(engine);
+            observer_ = new (std::nothrow) JSAppStateObserver(engine);
+            if (observer_ == nullptr) {
+                HILOG_ERROR("observer_ is nullptr.");
+                return engine.CreateUndefined();
+            }
         }
         if (info.argc == ARGC_TWO) {
             AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
