@@ -272,11 +272,11 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     }
 
     if (targetAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
-        HILOG_ERROR("pending state is FOREGROUND.");
+        HILOG_DEBUG("pending state is FOREGROUND.");
         targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        return 0;
+        return ERR_OK;
     } else {
-        HILOG_ERROR("pending state is not FOREGROUND.");
+        HILOG_DEBUG("pending state is not FOREGROUND.");
         targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
     }
 
@@ -320,7 +320,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
 #else
     targetAbilityRecord->ProcessForegroundAbility();
 #endif
-    return 0;
+    return ERR_OK;
 }
 
 static int32_t CallType2StartMethod(int32_t callType)
@@ -718,7 +718,7 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
     abilityRecord->SetPendingState(AbilityState::BACKGROUND);
 
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
-        HILOG_ERROR("Minimize ability fail, ability state is invalid, not foregroundnew or foregerounding_new.");
+        HILOG_ERROR("Fail to minimize ability, ability state is not foreground.");
         return ERR_OK;
     }
 
@@ -1057,7 +1057,7 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
             UpdateMissionTimeStamp(abilityRecord);
         }
     } else if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
-        HILOG_ERROR("not continuous startup.");
+        HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
     }
 }
@@ -1123,7 +1123,7 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
-        HILOG_ERROR("not continuous startup.");
+        HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
     }
 

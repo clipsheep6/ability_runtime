@@ -4531,6 +4531,14 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
+    if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        HILOG_DEBUG("pending state is FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        return ERR_OK;
+    } else {
+        HILOG_DEBUG("pending state is not FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+    }
     abilityRecord->ProcessForegroundAbility(flag);
     return ERR_OK;
 }
