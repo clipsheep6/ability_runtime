@@ -22,6 +22,8 @@
 #include "napi_common_error.h"
 #include "securec.h"
 
+using namespace OHOS::AbilityRuntime;
+
 namespace OHOS {
 namespace AppExecFwk {
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
