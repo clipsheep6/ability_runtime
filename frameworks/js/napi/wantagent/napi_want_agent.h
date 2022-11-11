@@ -54,7 +54,7 @@ struct AsyncGetWantAgentCallbackInfo {
     napi_env env;
     napi_async_work asyncWork;
     napi_deferred deferred;
-    napi_ref callback[2] = {0};
+    napi_ref callback[2] = {nullptr};
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     WantAgentConstant::OperationType operationType;
     int32_t requestCode = -1;
@@ -67,12 +67,12 @@ struct AsyncGetWantAgentCallbackInfo {
 struct CallbackInfo {
     std::shared_ptr<WantAgent> wantAgent = nullptr;
     napi_env env = nullptr;
-    napi_ref ref = 0;
+    napi_ref ref = nullptr;
 };
 
 struct TriggerReceiveDataWorker {
     napi_env env;
-    napi_ref ref = 0;
+    napi_ref ref = nullptr;
     std::shared_ptr<WantAgent> wantAgent;
     AAFwk::Want want;
     int resultCode;
@@ -92,7 +92,7 @@ struct AsyncGetOperationTypeCallbackInfo {
     napi_env env;
     napi_async_work asyncWork;
     napi_deferred deferred;
-    napi_ref callback[2] = {0};
+    napi_ref callback[2] = {nullptr};
     std::shared_ptr<WantAgent> wantAgent;
     int32_t operationType;
     bool newInterface = false;

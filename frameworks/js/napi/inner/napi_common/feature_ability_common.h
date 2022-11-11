@@ -176,7 +176,7 @@ struct DAHelperInsertCB {
 class NAPIAbilityConnection;
 struct AbilityConnectionCB {
     napi_env env;
-    napi_ref callback[3] = {0};  // onConnect/onDisconnect/onFailed
+    napi_ref callback[3] = {nullptr};  // onConnect/onDisconnect/onFailed
     int resultCode = 0;
     ElementName elementName;
     sptr<IRemoteObject> connection;
