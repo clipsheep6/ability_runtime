@@ -22,8 +22,12 @@ group("fuzztest") {
     "abilityconnectmanager_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
     "abilityeventhandler_fuzzer:fuzztest",
+    "abilitymanagerserviceeighth_fuzzer:fuzztest",
     "abilitymanagerservicefirst_fuzzer:fuzztest",
     "abilitymanagerservicesecond_fuzzer:fuzztest",
+    "abilitymanagerserviceseventh_fuzzer:fuzztest",
+    "abilitymanagerservicesixth_fuzzer:fuzztest",
+    "abilitymanagerservicethird_fuzzer:fuzztest",
 
     # "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
