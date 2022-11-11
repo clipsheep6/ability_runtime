@@ -43,6 +43,7 @@ struct AppSpawnStartMsg {
     uint8_t allowInternet; // hap socket allowed
     uint8_t reserved1;
     uint8_t reserved2;
+    uint64_t accessTokenIdEx;
 };
 
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;

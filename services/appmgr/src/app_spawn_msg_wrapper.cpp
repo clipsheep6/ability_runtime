@@ -76,6 +76,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             return false;
         }
         msg_->flags = startMsg.flags;
+        msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {
