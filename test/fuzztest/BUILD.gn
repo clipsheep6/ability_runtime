@@ -24,6 +24,8 @@ group("fuzztest") {
     "abilityeventhandler_fuzzer:fuzztest",
     "abilitymanagerservicefirst_fuzzer:fuzztest",
     "abilitymanagerservicesecond_fuzzer:fuzztest",
+    "abilitymgrrest_fuzzer:fuzztest",
+    "appstateobservermanager_fuzzer:fuzztest",
 
     # "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
