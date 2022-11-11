@@ -46,7 +46,7 @@ ohos_shared_library("napi_common") {
 
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
-    "//third_party/libuv:uv"
+    "//third_party/libuv:uv",
   ]
 
   external_deps = [
