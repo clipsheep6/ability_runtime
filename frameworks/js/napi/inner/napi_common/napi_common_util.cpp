@@ -16,6 +16,7 @@
 
 #include <cstring>
 
+#include "js_runtime_utils.h"
 #include "hilog_wrapper.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
