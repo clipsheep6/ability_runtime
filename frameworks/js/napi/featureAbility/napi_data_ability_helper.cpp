@@ -22,10 +22,11 @@
 #include "data_ability_helper.h"
 #include "data_ability_observer_interface.h"
 #include "uri.h"
-#include "js_runtime_utils.h"
 #include "../inner/napi_common/napi_common_ability.h"
 #include "data_ability_operation.h"
 #include "data_ability_result.h"
+#include "js_runtime_utils.h"
+#include "js_napi_common_ability.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "napi_base_context.h"
@@ -34,7 +35,6 @@
 #include "napi_rdb_predicates.h"
 #include "napi_result_set.h"
 #include "securec.h"
-#include "js_napi_common_ability.h"
 
 #ifndef SUPPORT_GRAPHICS
 #define DBL_MIN ((double)2.22507385850720138309e-308L)
