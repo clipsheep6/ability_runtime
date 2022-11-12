@@ -28,6 +28,8 @@ group("fuzztest") {
     "abilitymanagerserviceseventh_fuzzer:fuzztest",
     "abilitymanagerservicesixth_fuzzer:fuzztest",
     "abilitymanagerservicethird_fuzzer:fuzztest",
+    "abilitymgrrest_fuzzer:fuzztest",
+    "appstateobservermanager_fuzzer:fuzztest",
 
     # "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
