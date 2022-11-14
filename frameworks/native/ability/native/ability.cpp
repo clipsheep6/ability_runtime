@@ -2089,13 +2089,13 @@ int Ability::GetDisplayOrientation()
     HILOG_DEBUG("%{public}s called.", __func__);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
-        return 0;
+        return -1;
     }
     HILOG_DEBUG("FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
         HILOG_ERROR("window is nullptr.");
-        return 0;
+        return -1;
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {
