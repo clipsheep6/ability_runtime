@@ -123,6 +123,10 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCallingAbility_0100, Functi
     want.SetElement(elementName);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+
+    // called when abilityInfo is nullptr
+    ability->StartAbilityForResult(want, -1);
+
     // start
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::PAGE;

@@ -936,6 +936,11 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
+    if (continuationManager_ == nullptr) {
+        HILOG_ERROR("Continuation manager is nullptr.");
+        return;
+    }
+
     continuationManager_->ChangeProcessStateToInit();
 }
 
@@ -1992,6 +1997,11 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(to));
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return;
+    }
 
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
