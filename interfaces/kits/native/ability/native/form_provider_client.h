@@ -137,6 +137,16 @@ public:
                              const sptr<IRemoteObject> &callerToken) override;
 
     /**
+     * @brief Notify provider when the form want to change the size.
+     * @param formId The Id of the form to update.
+     * @param want Indicates the structure containing form info.
+     * @param callerToken Caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode NotifyFormSizeChanged(int64_t formId, const Want &want,
+        const sptr<IRemoteObject> &callerToken) override;
+
+    /**
      * @brief Acquire to share form information data. This is sync API.
      * @param formId The Id of the from.
      * @param remoteDeviceId Indicates the remote device ID.
@@ -165,6 +175,8 @@ public:
 protected:
     bool CheckIsSystemApp() const;
     int HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken);
+    ErrCode HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
+                          const sptr<IRemoteObject> &callerToken);
     int HandleAcquire(const FormProviderInfo &formProviderInfo, const Want &newWant,
         const sptr<IRemoteObject> &callerToken);
     int HandleAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg, const Want &want,

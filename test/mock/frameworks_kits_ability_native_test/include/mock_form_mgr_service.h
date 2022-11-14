@@ -227,6 +227,19 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief notify form rto change size with formId and newDimension,
+     *        send formId and new Dimension to form manager service.
+     * @param formId The Id of the forms to delete.
+     * @param newDimension the newDimension of the form to reSize
+     * @param callerToken Caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int NotifyFormSizeChanged(int64_t formId, int32_t dimensionNum, const sptr<IRemoteObject> &callerToken)
+    {
+        return ERR_OK;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

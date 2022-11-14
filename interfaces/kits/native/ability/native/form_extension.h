@@ -84,6 +84,20 @@ public:
      * @return Returns the created FormProviderInfo object.
      */
     virtual OHOS::AppExecFwk::FormProviderInfo OnCreate(const OHOS::AAFwk::Want& want);
+    
+    /**
+     * @brief Called to return a FormProviderInfo object.
+     *
+     * <p>You must override this method if your ability will serve as a form provider to change the form size.
+     * Only when the isResizeable is true, this way can be called.
+     * The default implementation returns nullptr. </p>
+     *
+     * @param formId   Indicates the Id of the form want to change size.
+     * @param dimensionId Indicates the dimensionId that the form want to change.
+     *
+     * @return Returns the created FormProviderInfo object.
+     */
+    virtual AppExecFwk::FormProviderInfo OnSizeChanged(int64_t formId, int32_t dimensionId);
 
     /**
      * @brief Called to notify the form provider that a specified form has been destroyed. Override this method if

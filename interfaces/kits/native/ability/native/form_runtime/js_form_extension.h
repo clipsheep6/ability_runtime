@@ -44,6 +44,8 @@ public:
 
     OHOS::AppExecFwk::FormProviderInfo OnCreate(const OHOS::AAFwk::Want& want) override;
 
+    AppExecFwk::FormProviderInfo OnSizeChanged(int64_t formId, int32_t dimensionId) override;
+
     void OnDestroy(const int64_t formId) override;
 
     void OnEvent(const int64_t formId, const std::string& message) override;

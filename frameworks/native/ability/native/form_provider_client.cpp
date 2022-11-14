@@ -175,6 +175,13 @@ int FormProviderClient::NotifyFormsDelete(
     }
 }
 
+ErrCode FormProviderClient::NotifyFormSizeChanged(int64_t formId, const Want &want,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("NotifyFormSizeChanged called.");
+    return ERR_OK;
+}
+
 /**
  * @brief Notify provider when the form need update.
  *
@@ -498,6 +505,22 @@ int FormProviderClient::HandleAcquire(
     formSupplyClient->OnAcquire(formProviderInfo, newWant);
     HILOG_INFO("%{public}s end", __func__);
     return ERR_OK;
+}
+
+ErrCode FormProviderClient::HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("HandleSizeChanged start, image state is %{public}d",
+        formProviderInfo.GetFormData().GetImageDataState());
+
+    sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
+    if (formSupplyClient == nullptr) {
+        HILOG_WARN("HandleSizeChanged warn, IFormSupply is nullptr");
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    ErrCode errCode = formSupplyClient->OnAcquire(formProviderInfo, want);
+    HILOG_DEBUG("HandleSizeChanged end");
+    return errCode;
 }
 
 int  FormProviderClient::HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken)

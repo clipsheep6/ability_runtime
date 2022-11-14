@@ -70,6 +70,13 @@ OHOS::AppExecFwk::FormProviderInfo FormExtension::OnCreate(const OHOS::AAFwk::Wa
     return formProviderInfo;
 }
 
+AppExecFwk::FormProviderInfo FormExtension::OnSizeChanged(int64_t formId, int32_t dimensionId)
+{
+    HILOG_DEBUG("OnSizeChanged called.");
+    OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
+    return formProviderInfo;
+}
+
 void FormExtension::OnDestroy(const int64_t formId)
 {
     HILOG_INFO("%{public}s called.", __func__);

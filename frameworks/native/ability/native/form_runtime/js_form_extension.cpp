@@ -178,6 +178,62 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     return formProviderInfo;
 }
 
+FormProviderInfo JsFormExtension::OnSizeChanged(int64_t formId, int32_t dimensionId)
+{
+    HILOG_DEBUG("OnSizeChanged called.");
+    FormExtension::OnSizeChanged(formId, dimensionId);
+
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+
+    // formId
+    napi_value napiFormIdValue = nullptr;
+    napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(formId).c_str(),
+        NAPI_AUTO_LENGTH, &napiFormIdValue);
+    NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormIdValue);
+    // dimensionId
+    napi_value napiDimensionId = nullptr;
+    napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(dimensionId).c_str(),
+        NAPI_AUTO_LENGTH, &napiDimensionId);
+    NativeValue* nativeDimensionId = reinterpret_cast<NativeValue*>(napiDimensionId);
+    NativeValue* argv[] = {nativeFormId, nativeDimensionId};
+    // the number of the params is two
+    NativeValue* nativeResult = CallObjectMethod("onSizeChanged", argv, 2);
+    NativeObject* nativeObject = ConvertNativeValueTo<NativeObject>(nativeResult);
+
+    FormProviderInfo formProviderInfo;
+    if (nativeObject == nullptr) {
+        HILOG_ERROR("nativeObject is nullptr");
+        return formProviderInfo;
+    }
+
+    NativeValue* nativeDataValue = nativeObject->GetProperty("data");
+    if (nativeDataValue == nullptr) {
+        HILOG_ERROR("nativeObject get data is nullptr");
+        return formProviderInfo;
+    }
+
+    std::string formDataStr;
+    if (!ConvertFromJsValue(*nativeEngine, nativeDataValue, formDataStr)) {
+        HILOG_ERROR("convert formDataStr failed");
+        return formProviderInfo;
+    }
+
+    AppExecFwk::FormProviderData formData(formDataStr);
+    nativeDataValue = nativeObject->GetProperty("image");
+    if (nativeDataValue != nullptr) {
+        std::map<std::string, int> rawImageDataMaps;
+        UnwrapRawImageDataMap(*nativeEngine, nativeDataValue, rawImageDataMaps);
+        HILOG_INFO("Image number is %{public}zu", rawImageDataMaps.size());
+        for (auto entry : rawImageDataMaps) {
+            formData.AddImageData(entry.first, entry.second);
+        }
+    }
+    formProviderInfo.SetFormData(formData);
+    HILOG_DEBUG("OnSizeChanged called end.");
+    return formProviderInfo;
+}
+
 void JsFormExtension::OnDestroy(const int64_t formId)
 {
     HILOG_INFO("%{public}s called.", __func__);
