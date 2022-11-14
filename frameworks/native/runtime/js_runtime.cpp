@@ -72,6 +72,7 @@ public:
 
     ~ArkJsRuntime() override
     {
+        HILOG_ERROR("YANWENHAO: ArkJsRuntime destructor called");
         Deinitialize();
 
         if (vm_ != nullptr) {

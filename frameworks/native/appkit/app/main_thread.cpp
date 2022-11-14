@@ -127,6 +127,7 @@ MainThread::MainThread()
 
 MainThread::~MainThread()
 {
+    HILOG_ERROR("YANWENHAO: MainThread destructor called");
 #ifdef ABILITY_LIBRARY_LOADER
     CloseAbilityLibrary();
 #endif  // ABILITY_LIBRARY_LOADER

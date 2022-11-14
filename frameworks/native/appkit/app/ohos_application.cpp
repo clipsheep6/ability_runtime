@@ -38,7 +38,10 @@ OHOSApplication::OHOSApplication()
     elementsCallbacks_.clear();
 }
 
-OHOSApplication::~OHOSApplication() = default;
+OHOSApplication::~OHOSApplication()
+{
+    HILOG_ERROR("YANWENHAO: OHOSApplication destructor called");
+}
 
 /**
  *
