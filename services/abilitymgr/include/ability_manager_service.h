@@ -28,7 +28,6 @@
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
-#include "app_no_response_disposer.h"
 #include "app_scheduler.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
@@ -1224,7 +1223,6 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
     std::shared_ptr<ApplicationAnrListener> anrListener_;
 #endif
-    std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
 };
