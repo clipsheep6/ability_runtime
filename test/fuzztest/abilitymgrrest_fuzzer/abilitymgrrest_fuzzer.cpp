@@ -20,7 +20,6 @@
 
 #define private public
 #include "ability_interceptor.h"
-#include "app_no_response_disposer.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #undef private
@@ -61,14 +60,8 @@ sptr<Token> GetFuzzAbilityToken()
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    int timeout = static_cast<int>(GetU32Data(data));
-    std::shared_ptr<AppNoResponseDisposer> appNoResponseDisposer = std::make_shared<AppNoResponseDisposer>(timeout);
     int pid = static_cast<int>(GetU32Data(data));
-    AAFwk::AppNoResponseDisposer::SetMissionClosure task;
-    AAFwk::AppNoResponseDisposer::ShowDialogClosure showDialogTask;
-    appNoResponseDisposer->DisposeAppNoResponse(pid, task, showDialogTask);
     std::string bundleName(data, size);
-    appNoResponseDisposer->PostTimeoutTask(pid, bundleName);
     Parcel wantParcel;
     Want *want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
