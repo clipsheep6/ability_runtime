@@ -45,9 +45,9 @@ public:
      * ScheduleAbilityTransaction,  schedule ability to transform life state.
      *
      * @param Want, Special Want for service type's ability.
-     * @param targetState, The lifecycle state to be transformed
+     * @param stateInfo, The lifecycle state to be transformed
      */
-    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) override;
+    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo) override;
 
     /*
      * SendResult, Send result to app when ability is terminated with result want.

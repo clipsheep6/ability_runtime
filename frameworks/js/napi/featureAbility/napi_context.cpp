@@ -3219,7 +3219,7 @@ void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
         permissionsState.emplace_back(permState.state);
     }
     HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
-         permissionList.size(), permissionsState.size());
+        permissionList.size(), permissionsState.size());
 
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
         HILOG_DEBUG("No dynamic popup required.");

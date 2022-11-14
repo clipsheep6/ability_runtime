@@ -61,7 +61,7 @@ AbilityProcess::AbilityProcess()
 AbilityProcess::~AbilityProcess()
 {}
 
-ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
+ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callbackInfo)
 {
     HILOG_INFO("AbilityProcess::StartAbility begin");
     if (ability == nullptr) {
@@ -98,8 +98,8 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
             HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
             map = it->second;
         }
-        callback.errCode = err;
-        map[param.requestCode] = callback;
+        callbackInfo.errCode = err;
+        map[param.requestCode] = callbackInfo;
         abilityResultMap_[ability] = map;
     } else {
         if (param.setting == nullptr) {
