@@ -4917,7 +4917,8 @@ void JsNapiCommon::ChangeAbilityConnection(napi_ref *callbackArray, const napi_e
     napi_create_reference(env, jsMethod, 1, &callbackArray[PARAM2]);
 }
 
-NativeValue* JsNapiCommon::JsGetContext(NativeEngine &engine, const NativeCallbackInfo &info, const AbilityType abilityType)
+NativeValue* JsNapiCommon::JsGetContext(
+    NativeEngine &engine, const NativeCallbackInfo &info, const AbilityType abilityType)
 {
     if (!CheckAbilityType(abilityType)) {
         HILOG_ERROR("ability type error");
