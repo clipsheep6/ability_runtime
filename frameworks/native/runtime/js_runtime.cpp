@@ -293,6 +293,7 @@ private:
             }
             panda::JSNApi::postFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
+            panda::JSNApi::SetLoop(vm_, nativeEngine_->GetUVLoop());
         } else {
             panda::RuntimeOption pandaOption;
             int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
