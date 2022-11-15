@@ -339,7 +339,6 @@ bool AbilityManagerService::Init()
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
     WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
-    anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -5418,6 +5417,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
 
     if (!abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
         // The call is from AbilityDelegator, no need to check permission
+        isBackgroundCall = false;
+        return ERR_OK;
+    }
+
+    if (AbilityUtil::IsStartFreeInstall(abilityRequest.want)) {
         isBackgroundCall = false;
         return ERR_OK;
     }

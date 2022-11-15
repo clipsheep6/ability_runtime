@@ -170,6 +170,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
         aObj["icon"] = std::to_string(aInfo.iconId);
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
+        aObj["module"] = aInfo.moduleName;
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;
@@ -279,8 +280,8 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                     position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
                     position.offsetY = (display->GetHeight() - position.height) / UI_HALF;
                 } else {
-                    position.window_width = position.window_width/UI_HALF;
-                    position.window_height = position.window_height/UI_HALF;
+                    position.window_width = position.window_width / UI_HALF;
+                    position.window_height = position.window_height / UI_HALF;
                     position.offsetX = LINE_NUMS_ZERO;
                     position.offsetY = LINE_NUMS_ZERO;
                 }

@@ -22,6 +22,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 #define NAPI_ERR_NO_ERROR 0
+#define NAPI_ERR_NO_WINDOW (-1)
 #define NAPI_ERR_NO_PERMISSION (-100)
 #define NAPI_ERR_INNER_DATA (-101)            // Internal data error, data allocation fail
 #define NAPI_ERR_ACE_ABILITY (-102)           // Failed to acquire ability object

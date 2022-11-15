@@ -53,6 +53,7 @@ struct DialogAppInfo {
     int32_t labelId = 0;
     std::string bundleName = {};
     std::string abilityName = {};
+    std::string moduleName = {};
 };
 /**
  * @class SystemDialogScheduler

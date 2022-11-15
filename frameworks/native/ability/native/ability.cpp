@@ -508,14 +508,14 @@ void Ability::OnConfigurationUpdated(const Configuration &configuration)
     HILOG_DEBUG("%{public}s called.", __func__);
 }
 
-void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfiguration)
+void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
 
     std::string language;
     std::string colormode;
     std::string hasPointerDevice;
-    InitConfigurationProperties(changeConfiguration, language, colormode, hasPointerDevice);
+    InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
@@ -550,7 +550,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
         abilityContext_->SetConfiguration(application_->GetConfiguration());
     }
     // Notify Ability Subclass
-    OnConfigurationUpdated(changeConfiguration);
+    OnConfigurationUpdated(configuration);
     HILOG_DEBUG("%{public}s Notify Ability Subclass.", __func__);
 }
 
@@ -936,6 +936,11 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
+    if (continuationManager_ == nullptr) {
+        HILOG_ERROR("Continuation manager is nullptr.");
+        return;
+    }
+
     continuationManager_->ChangeProcessStateToInit();
 }
 
@@ -1993,6 +1998,11 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return;
+    }
+
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
@@ -2079,13 +2089,13 @@ int Ability::GetDisplayOrientation()
     HILOG_DEBUG("%{public}s called.", __func__);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
-        return 0;
+        return -1;
     }
     HILOG_DEBUG("FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
         HILOG_ERROR("window is nullptr.");
-        return 0;
+        return -1;
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {

@@ -32,16 +32,16 @@ struct DlpConnectionInfo : public Parcelable {
     /**
      * @brief Marshals this Sequenceable object into a Parcel.
      *
-     * @param outParcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
+     * @param parcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
      */
-    virtual bool Marshalling(Parcel &outParcel) const override;
+    virtual bool Marshalling(Parcel &parcel) const override;
 
     /**
      * @brief Unmarshals this Sequenceable object from a Parcel.
      *
-     * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
+     * @param parcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      */
-    static DlpConnectionInfo *Unmarshalling(Parcel &inParcel);
+    static DlpConnectionInfo *Unmarshalling(Parcel &parcel);
 
     int32_t dlpUid = 0;
     int32_t openedAbilityCount = 0;

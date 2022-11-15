@@ -119,6 +119,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         DialogAppInfo dialogAppInfo;
         dialogAppInfo.abilityName = info.name;
         dialogAppInfo.bundleName = info.bundleName;
+        dialogAppInfo.moduleName = info.moduleName;
         dialogAppInfo.iconId = info.iconId;
         dialogAppInfo.labelId = info.labelId;
         dialogAppInfos.emplace_back(dialogAppInfo);

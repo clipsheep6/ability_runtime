@@ -51,7 +51,7 @@ std::vector<DAHelperOnOffCB *> g_registerInstances;
 
 void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env &env, const napi_value &arg)
 {
-    napi_value keys = 0;
+    napi_value keys = nullptr;
     napi_get_property_names(env, arg, &keys);
     uint32_t arrLen = 0;
     napi_status status = napi_get_array_length(env, keys, &arrLen);
@@ -61,10 +61,10 @@ void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env 
     }
     HILOG_INFO("ValuesBucket num:%{public}d ", arrLen);
     for (size_t i = 0; i < arrLen; ++i) {
-        napi_value key = 0;
+        napi_value key = nullptr;
         (void)napi_get_element(env, keys, i, &key);
         std::string keyStr = UnwrapStringFromJS(env, key);
-        napi_value value = 0;
+        napi_value value = nullptr;
         napi_get_property(env, arg, key, &value);
 
         SetValuesBucketObject(valuesBucket, env, keyStr, value);

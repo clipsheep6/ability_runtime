@@ -26,7 +26,6 @@ abilityms_files = [
   "src/ability_scheduler_stub.cpp",
   "src/ability_scheduler_proxy.cpp",
   "src/ability_token_stub.cpp",
-  "src/app_no_response_disposer.cpp",
   "src/app_scheduler.cpp",
   "src/connection_record.cpp",
   "src/data_ability_caller_recipient.cpp",

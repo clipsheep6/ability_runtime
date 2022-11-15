@@ -805,15 +805,15 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &Info)
+NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info)
 {
     HILOG_INFO("CreateJsMetadata");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    object->SetProperty("name", CreateJsValue(engine, Info.name));
-    object->SetProperty("value", CreateJsValue(engine, Info.value));
-    object->SetProperty("resource", CreateJsValue(engine, Info.resource));
+    object->SetProperty("name", CreateJsValue(engine, info.name));
+    object->SetProperty("value", CreateJsValue(engine, info.value));
+    object->SetProperty("resource", CreateJsValue(engine, info.resource));
     return objValue;
 }
 

@@ -31,7 +31,7 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-} 
+}
 
     sptr<Token> GetFuzzAbilityToken()
     {

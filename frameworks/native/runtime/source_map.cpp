@@ -454,7 +454,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
             break;
         }
         static SourceMapData curMapData;
-        if(!bindSourceMaps.isStageModel) {
+        if (!bindSourceMaps.isStageModel) {
             if (i == 1) {   // The non module scenario initializes curmapdata only at the first traversal
                 if (!bindSourceMaps.nonModularMap_) {
                     return NOT_FOUNDMAP + stackStr;
