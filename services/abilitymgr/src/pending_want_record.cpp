@@ -99,7 +99,7 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
             break;
         }
         case static_cast<int32_t>(OperationType::START_SERVICE):
-        case (int32_t)OperationType::START_FOREGROUND_SERVICE:
+        case static_cast<int32_t>(OperationType::START_FOREGROUND_SERVICE):
             res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
             break;
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):

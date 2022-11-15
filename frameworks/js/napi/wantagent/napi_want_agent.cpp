@@ -523,7 +523,6 @@ NativeValue* JsWantAgent::OnCancel(NativeEngine &engine, NativeCallbackInfo &inf
             task.Resolve(engine, engine.CreateUndefined());
         };
 
-
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsWantAgent::OnCancel",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -757,7 +756,7 @@ NativeValue* JsWantAgent::OnGetWantAgent(NativeEngine &engine, NativeCallbackInf
 
     NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
-    uint32_t ret = GetWantAgentParam(engine, info, *spParas);
+    int32_t ret = GetWantAgentParam(engine, info, *spParas);
     if (ret != 0) {
         HILOG_ERROR("Failed to get wantAgent param.");
         return RetErrMsg(engine, lastParam, ret);
@@ -863,7 +862,7 @@ NativeValue* JsWantAgent::OnNapiGetWantAgent(NativeEngine &engine, NativeCallbac
     }
 
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
-    uint32_t ret = GetWantAgentParam(engine, info, *spParas);
+    int32_t ret = GetWantAgentParam(engine, info, *spParas);
     if (ret != 0) {
         HILOG_ERROR("Failed to get wantAgent param.");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);

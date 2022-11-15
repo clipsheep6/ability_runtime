@@ -934,7 +934,7 @@ AppTypeCB *CreateAppTypeCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     AppTypeCB *appTypeCB = new (std::nothrow) AppTypeCB;
     if (appTypeCB == nullptr) {
@@ -1220,7 +1220,7 @@ napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, Asyn
     }
 }
 
-void GetDisplayOrientationExecuteCallback(napi_env, void *data)
+void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
@@ -1309,7 +1309,7 @@ AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     AbilityInfoCB *abilityInfoCB = new (std::nothrow) AbilityInfoCB;
     if (abilityInfoCB == nullptr) {
@@ -1718,7 +1718,7 @@ HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     HapModuleInfoCB *hapModuleInfoCB = new (std::nothrow) HapModuleInfoCB;
     if (hapModuleInfoCB == nullptr) {
@@ -2048,7 +2048,7 @@ AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     AppVersionInfoCB *appVersionInfoCB = new (std::nothrow) AppVersionInfoCB;
     if (appVersionInfoCB == nullptr) {
@@ -2333,7 +2333,7 @@ AsyncCallbackInfo *CreateAsyncCallbackInfo(napi_env env)
     }
 
     Ability *ability = nullptr;
-    ret = napi_get_value_external(env, abilityObj, (void **)&ability);
+    ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
         HILOG_ERROR("%{public}s get_value_external=%{public}d err:%{public}s", __func__, ret, errorInfo->error_message);
@@ -2750,7 +2750,7 @@ AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     AbilityNameCB *abilityNameCB = new (std::nothrow) AbilityNameCB;
     if (abilityNameCB == nullptr) {
@@ -3494,7 +3494,7 @@ ConnectAbilityCB *CreateConnectAbilityCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     ConnectAbilityCB *connectAbilityCB = new (std::nothrow) ConnectAbilityCB;
     if (connectAbilityCB == nullptr) {
@@ -3759,7 +3759,7 @@ ConnectAbilityCB *CreateDisConnectAbilityCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     ConnectAbilityCB *connectAbilityCB = new (std::nothrow) ConnectAbilityCB;
     if (connectAbilityCB == nullptr) {
@@ -4339,7 +4339,7 @@ napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRunti
         napi_get_named_property(env, args, "wantAgent", &wantAgentParam);
         NAPI_CALL(env, napi_typeof(env, wantAgentParam, &valuetype));
         NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
-        napi_unwrap(env, wantAgentParam, (void **)&wantAgent);
+        napi_unwrap(env, wantAgentParam, reinterpret_cast<void **>(&wantAgent));
     }
 
     napi_get_null(env, &result);

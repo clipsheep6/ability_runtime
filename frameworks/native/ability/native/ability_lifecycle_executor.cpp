@@ -22,7 +22,7 @@ void AbilityLifecycleExecutor::DispatchLifecycleState(const AbilityLifecycleExec
     state_ = state;
 }
 
-int AbilityLifecycleExecutor::GetState()
+int AbilityLifecycleExecutor::GetState() const
 {
     return state_;
 }
