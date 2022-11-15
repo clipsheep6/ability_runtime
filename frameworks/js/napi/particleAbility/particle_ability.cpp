@@ -280,7 +280,7 @@ NativeValue* JsParticleAbility::PATerminateAbility(NativeEngine *engine, NativeC
 Ability* JsParticleAbility::GetAbility(napi_env env)
 {
     napi_status ret;
-    napi_value global = 0;
+    napi_value global = nullptr;
     const napi_extended_error_info *errorInfo = nullptr;
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
@@ -289,7 +289,7 @@ Ability* JsParticleAbility::GetAbility(napi_env env)
             ret, errorInfo->error_message);
         return nullptr;
     }
-    napi_value abilityObj = 0;
+    napi_value abilityObj = nullptr;
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
