@@ -13,13 +13,15 @@
  * limitations under the License.
  */
 
-#include "clearupapplicationdata_fuzzer.h"
+#include "appmgrclientrest_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#define private public
 #include "app_mgr_client.h"
+#undef private
+#include "parcel.h"
 #include "securec.h"
 
 using namespace OHOS::AAFwk;
@@ -30,23 +32,26 @@ namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
-    }
-
-    std::string bundleName(data, size);
-    abilitymgr->ClearUpApplicationData(bundleName);
-
-    // fuzz for AppMgrClient
-    auto appMgrClient = new AppMgrClient();
+    AppMgrClient* appMgrClient = new AppMgrClient();
     if (!appMgrClient) {
         return false;
     }
-
-    appMgrClient->ClearUpApplicationData(bundleName);
+    sptr<IAppStateCallback> callback;
+    appMgrClient->RegisterAppStateCallback(callback);
+    std::string bundleName(data, size);
+    int uid = static_cast<int>(GetU32Data(data));
+    appMgrClient->KillApplicationByUid(bundleName, uid);
+    sptr<IStartSpecifiedAbilityResponse> response;
+    appMgrClient->RegisterStartSpecifiedAbilityResponse(response);
+    appMgrClient->GetRemoteObject();
+    appMgrClient->BlockAppService();
 
     return true;
 }

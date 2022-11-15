@@ -55,6 +55,8 @@ constexpr size_t U32_AT_SIZE = 4;
         }
 
         // get want agent
+        std::shared_ptr<WantAgentInfo> paramInfo;
+        WantAgentInfo wantAgentInfo(paramInfo);
         WantAgentInfo agentInfo(requestCode, operationType, flag, wants, extraInfo);
         std::shared_ptr<WantAgent> wantAgent = WantAgentHelper::GetWantAgent(agentInfo);
         if (wantAgent) {
