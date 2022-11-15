@@ -743,5 +743,141 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0300, Function | MediumTest |
     EXPECT_EQ(true, unmarshingMap != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0300 end";
 }
+
+/**
+ * @tc.number: AppExecFwk_PacMap_PutCharValue_0100
+ * @tc.name: PutCharValue and GetCharValue
+ * @tc.desc: Verify PutCharValue() and GetCharValue().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutCharValue_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutCharValue_0100 start";
+    char value = 'a';
+    pacmap_->PutCharValue("key_char", value);
+    EXPECT_EQ(value, pacmap_->GetCharValue("key_char"));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutCharValue_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_PutCharValueArray_0100
+ * @tc.name: PutCharValueArray and GetCharValueArray
+ * @tc.desc: Verify PutCharValueArray() and GetCharValueArray().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutCharValueArray_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutCharValueArray_0100 start";
+
+    std::vector<char> putValue;
+    std::vector<char> getValue;
+    for (int i = 0; i < 26; i++) {
+        putValue.emplace_back('a' + i);
+    }
+    pacmap_->PutCharValueArray("key_char_array", putValue);
+    pacmap_->GetCharValueArray("key_char_array", getValue);
+
+    bool isEqual = (putValue == getValue);
+    EXPECT_EQ(true, isEqual);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutCharValueArray_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0100
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify Marshalling() and Unmarshalling().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0100 start";
+    std::string str;
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(!result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0200
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify Marshalling() and Unmarshalling().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0200 start";
+    std::string str = "abc";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(!result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_Parse_0100
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify Marshalling() and Unmarshalling().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_Parse_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Parse_0100 start";
+    std::string str = "abc";
+    auto result = pacmap_->Parse(str);
+    EXPECT_TRUE(result != nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Parse_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetCharValueArray_0100
+ * @tc.name: PutCharValueArray and GetCharValueArray
+ * @tc.desc: Verify PutCharValueArray() and GetCharValueArray().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetCharValueArray_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValueArray_0100 start";
+
+    std::vector<char> putValue;
+    std::vector<char> getValue;
+    for (int i = 0; i < 26; i++) {
+        putValue.emplace_back('a' + i);
+    }
+    pacmap_->PutCharValueArray("key_char_array", putValue);
+    pacmap_->GetCharValueArray("key_char_array", getValue);
+
+    bool isEqual = (putValue == getValue);
+    EXPECT_EQ(true, isEqual);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValueArray_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetBooleanValueArray_0100
+ * @tc.name: PutBooleanValue and GetBooleanValue
+ * @tc.desc: Verify PutBooleanValue() and GetBooleanValue().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetBooleanValueArray_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetBooleanValueArray_0100 start";
+    std::vector<bool> putValue;
+    std::vector<bool> getValue;
+    putValue.emplace_back(true);
+    pacmap_->PutBooleanValueArray("key_boolean_true", putValue);
+    pacmap_->GetBooleanValueArray("key_boolean_true", getValue);
+    bool isEqual = (putValue == getValue);
+    EXPECT_EQ(true, isEqual);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetBooleanValueArray_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetCharValue_0100
+ * @tc.name: PutCharValue and GetCharValue
+ * @tc.desc: Verify PutCharValue() and GetCharValue().
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetCharValue_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValue_0100 start";
+    char value = 'a';
+    pacmap_->PutCharValue("key_char", value);
+    EXPECT_EQ(value, pacmap_->GetCharValue("key_char"));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValue_0100 end";
+}
+
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
