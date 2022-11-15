@@ -5428,15 +5428,16 @@ NativeValue* JsNapiCommon::JsGetDisplayOrientation(
         }
         *value = obj->ability_->GetDisplayOrientation();
     };
-    auto complete = [errorVal] (NativeEngine &engine, AsyncTask &task, int32_t status) {
-        if (*errorVal == NAPI_ERR_ACE_ABILITY) {
+    auto complete = [value = errorVal] (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_DEBUG("JsGetDisplayOrientation value = %{public}d", *value);
+        if (*value == NAPI_ERR_ACE_ABILITY) {
             task.Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "ability is nullptr"));
-        } else if (*errorVal == NAPI_ERR_ABILITY_TYPE_INVALID) {
+        } else if (*value == NAPI_ERR_ABILITY_TYPE_INVALID) {
             task.Reject(engine, CreateJsError(engine, NAPI_ERR_ABILITY_TYPE_INVALID, "ability type is invalid."));
-        } else if (*errorVal == NAPI_ERR_NO_WINDOW) {
+        } else if (*value == NAPI_ERR_NO_WINDOW) {
             task.Reject(engine, CreateJsError(engine, NAPI_ERR_NO_WINDOW, "window is nullptr"));
         } else {
-            task.Resolve(engine, CreateJsValue(engine, *errorVal));
+            task.Resolve(engine, CreateJsValue(engine, *value));
         }
     };
 

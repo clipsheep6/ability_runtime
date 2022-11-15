@@ -3698,14 +3698,20 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
         HILOG_ERROR("input params int error");
         return engine.CreateUndefined();
     }
-    auto complete = [obj = this, orientation]
+
+    int32_t maxRange = 3;
+    if (orientation < 0 || orientation > maxRange) {
+        HILOG_ERROR("wrong parameter orientation : %{public}d", orientation);
+        return engine.CreateNull();
+    }
+    auto complete = [obj = this, orientationData = orientation]
         (NativeEngine &engine, AsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
             task.Reject(engine,
                 CreateJsError(engine, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
-        obj->ability_->SetDisplayOrientation(orientation);
+        obj->ability_->SetDisplayOrientation(orientationData);
         task.Resolve(engine, CreateJsValue(engine, 1));
     };
 
