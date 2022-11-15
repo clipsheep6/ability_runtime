@@ -457,7 +457,7 @@ private:
         void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override;
 
     private:
-        sptr<MainThread> mainThreadObj_ = nullptr;
+        wptr<MainThread> mainThreadObj_ = nullptr;
     };
 
     bool isRunnerStarted_ = false;

@@ -1719,8 +1719,9 @@ void MainThread::MainHandler::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::P
 {
     auto eventId = event->GetInnerEventId();
     if (eventId == CHECK_MAIN_THREAD_IS_ALIVE) {
-        if (mainThreadObj_ != nullptr) {
-            mainThreadObj_->CheckMainThreadIsAlive();
+        auto mt = mainThreadObj_.promote();
+        if (mt != nullptr) {
+            mt->CheckMainThreadIsAlive();
         }
     }
 }
