@@ -14,53 +14,40 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/appmgrservice"
+module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("AppMgrClientTest") {
+ohos_unittest("os_account_manager_wrapper_test") {
   module_out_path = module_output_path
-
-  configs = [
-    "${ability_runtime_services_path}/common:common_config",
-    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
-  ]
 
   include_dirs = [
     "${ability_runtime_services_path}/abilitymgr/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${ability_runtime_services_path}/appmgr/test/unittest/mocks",
+    "${ability_runtime_innerkits_path}/deps_wrapper/include",
   ]
 
-  sources = [ "app_mgr_client_test.cpp" ]
+  sources = [ "os_account_manager_wrapper_test.cpp" ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "ability_base:configuration",
     "ability_base:want",
-    "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
-    "init:libbeget_proxy",
     "ipc:ipc_core",
   ]
-
-  if (background_task_mgr_continuous_task_enable) {
-    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
-  }
 }
 
 group("unittest") {
   testonly = true
 
-  deps = [ ":AppMgrClientTest" ]
+  deps = [ ":os_account_manager_wrapper_test" ]
 }

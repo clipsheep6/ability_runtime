@@ -25,7 +25,6 @@
 #include "iremote_object.h"
 
 using namespace testing::ext;
-
 namespace OHOS {
 namespace AbilityRuntime {
 class AbilityExtensionTest : public testing::Test {
@@ -84,5 +83,83 @@ HWTEST_F(AbilityExtensionTest, GetCallingInfo_0100, TestSize.Level1)
 
     HILOG_INFO("GetCallingInfo end");
 }
-} // namespace AbilityRuntime
-} // namespace OHOS
+
+/**
+ * @tc.name: Init_0100
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: NA
+ */
+HWTEST_F(AbilityExtensionTest, Init_0100, TestSize.Level1)
+{
+    HILOG_INFO("Init start");
+
+    Extension extension;
+    std::shared_ptr<AppExecFwk::OHOSApplication> application = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityHandler> handler = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityLocalRecord> record = nullptr;
+
+    extension.Init(record, application, handler, token);
+    EXPECT_EQ(extension.application_, nullptr);
+    EXPECT_EQ(extension.handler_, nullptr);
+    EXPECT_EQ(extension.abilityInfo_, nullptr);
+
+    HILOG_INFO("Init end");
+}
+
+/**
+ * @tc.name: SetLaunchWant_0100
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: NA
+ */
+HWTEST_F(AbilityExtensionTest, SetLaunchWant_0100, TestSize.Level1)
+{
+    HILOG_INFO("SetLaunchWant start");
+
+    Extension extension;
+    Want want;
+    extension.SetLaunchWant(want);
+    EXPECT_NE(extension.launchWant_, nullptr);
+
+    HILOG_INFO("SetLaunchWant end");
+}
+
+/**
+ * @tc.name: SetLastRequestWant_0100
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: NA
+ */
+HWTEST_F(AbilityExtensionTest, SetLastRequestWant_0100, TestSize.Level1)
+{
+    HILOG_INFO("SetLastRequestWant start");
+
+    Extension extension;
+    Want want;
+    extension.SetLastRequestWant(want);
+    EXPECT_NE(extension.lastRequestWant_, nullptr);
+
+    HILOG_INFO("SetLastRequestWant end");
+}
+
+/**
+ * @tc.name: Dump_0100
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: NA
+ */
+HWTEST_F(AbilityExtensionTest, Dump_0100, TestSize.Level1)
+{
+    HILOG_INFO("SetLastRequestWant start");
+
+    Extension extension;
+    const std::vector<std::string> params;
+    std::vector<std::string> info;
+    extension.Dump(params, info);
+
+    HILOG_INFO("SetLastRequestWant end");
+}
+}  // namespace AbilityRuntime
+}  // namespace OHOS
