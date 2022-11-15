@@ -135,6 +135,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ProcessInfo processInfo("test_quickfix", 1);
+    mainThread_->processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     std::string bundleName = "com.ohos.quickfix";
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
