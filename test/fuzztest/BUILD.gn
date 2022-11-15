@@ -83,6 +83,7 @@ group("fuzztest") {
     "delegatordoabilityforeground_fuzzer:fuzztest",
 
     # "disconnectability_fuzzer:fuzztest",
+    "appmgrclientrest_fuzzer:fuzztest",
     "doabilitybackground_fuzzer:fuzztest",
     "doabilityforeground_fuzzer:fuzztest",
     "dumpabilityinfodone_fuzzer:fuzztest",
