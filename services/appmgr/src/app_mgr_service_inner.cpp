@@ -1640,18 +1640,38 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
     const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     HILOG_INFO("%{public}s called", __func__);
+    if (!CheckGetRunningInfoPermission()) {
+        return;
+    }
+
+    appRunningManager_->GetRunningProcessInfoByToken(token, info);
+}
+
+void AppMgrServiceInner::GetRunningProcessInfoByAccessTokenID(
+    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const
+{
+    HILOG_INFO("%{public}s called", __func__);
+    if (!CheckGetRunningInfoPermission()) {
+        return;
+    }
+
+    appRunningManager_->GetRunningProcessInfoByAccessTokenID(accessTokenId, info);
+}
+
+bool AppMgrServiceInner::CheckGetRunningInfoPermission() const
+{
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
-        return;
+        return false;
     }
 
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
     if (!isPerm) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return;
+        return false;
     }
 
-    appRunningManager_->GetRunningProcessInfoByToken(token, info);
+    return true;
 }
 
 void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::BundleInfo> &infos)

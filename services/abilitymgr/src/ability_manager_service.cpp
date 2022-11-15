@@ -5425,31 +5425,16 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         isBackgroundCall = false;
         return ERR_OK;
     }
-
-    // Temp, solve FormIssue
-    if (abilityRequest.callerToken == nullptr) {
-        auto callerUid = IPCSkeleton::GetCallingUid();
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-        std::string callerBundleName;
-        bool ret = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, callerBundleName));
-        if (!ret) {
-            HILOG_ERROR("Can not find bundleName by callerUid: %{private}d.", callerUid);
-            return ERR_INVALID_VALUE;
-        } else if (callerBundleName == BUNDLE_NAME_LAUNCHER) {
-            auto callerToken = IPCSkeleton::GetCallingTokenID();
-            HILOG_INFO("Temp, just for solve FormIssue, callerUid: %{private}d  callerToken: %{private}d.",
-                callerUid, callerToken);
-            isBackgroundCall = false;
-            return ERR_OK;
-        }
+    
+    AppExecFwk::RunningProcessInfo processInfo;
+    auto callerAccessToken = IPCSkeleton::GetCallingTokenID();
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByAccessTokenID(callerAccessToken, processInfo);
+    if (processInfo.processName_.empty()) {
+        HILOG_ERROR("Can not find caller application by token, callerToken: %{private}d.", callerAccessToken);
+        return ERR_INVALID_VALUE;
     }
 
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
-    AppExecFwk::RunningProcessInfo processInfo;
-    DelayedSingleton<AppScheduler>::GetInstance()->
-        GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
         isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
             !processInfo.isFocused;
