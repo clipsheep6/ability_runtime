@@ -154,6 +154,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetApplicationInfoByProcessID_001, TestS
     std::string appName = "FirstApp";
     std::string bundleName = "com.ix.First.Test";
     AppExecFwk::ApplicationInfo application;
+    bool debug = false;
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
@@ -164,7 +165,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetApplicationInfoByProcessID_001, TestS
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    appMgrClient->GetApplicationInfoByProcessID(ERROR_PID, application);
+    appMgrClient->GetApplicationInfoByProcessID(ERROR_PID, application, debug);
     EXPECT_EQ(application.bundleName, EMPTY_STRING);
 }
 
