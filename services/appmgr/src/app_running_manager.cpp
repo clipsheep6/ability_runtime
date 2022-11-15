@@ -237,6 +237,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
+    HILOG_INFO("On remot died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
