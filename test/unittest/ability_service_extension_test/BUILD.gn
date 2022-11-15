@@ -15,18 +15,21 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_unittest("ability_extension_test") {
-  module_out_path = "ability_runtime/extension"
+ohos_unittest("ability_service_extension_test") {
+  module_out_path = "ability_runtime/service_extension"
 
   include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "${ability_base_kits_path}/configuration/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_native_path}/runtime",
   ]
+
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "ability_extension_test.cpp",
+    "ability_service_extension_test.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
@@ -38,6 +41,7 @@ ohos_unittest("ability_extension_test") {
   }
 
   deps = [
+    "${ability_runtime_native_path}/ability/native:service_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gmock_main",
@@ -54,11 +58,10 @@ ohos_unittest("ability_extension_test") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
   ]
 }
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_extension_test" ]
+  deps = [ ":ability_service_extension_test" ]
 }
