@@ -1211,7 +1211,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     HILOG_DEBUG("AbilityThread main start.");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     if (thread == nullptr) {
-        HILOG_ERROR("AbilityThread::AbilityThreadMain failed,thread  is nullptr");
+        HILOG_ERROR("AbilityThread::AbilityThreadMain failed, thread is nullptr");
         return;
     }
     thread->InitExtensionFlag(abilityRecord);

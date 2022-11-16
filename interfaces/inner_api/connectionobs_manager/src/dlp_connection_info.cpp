@@ -45,8 +45,8 @@ bool DlpConnectionInfo::ReadFromParcel(Parcel &parcel)
 
 DlpConnectionInfo *DlpConnectionInfo::Unmarshalling(Parcel &parcel)
 {
-    DlpConnectionInfo *data = new DlpConnectionInfo();
-    if (!data->ReadFromParcel(parcel)) {
+    DlpConnectionInfo *data = new (std::nothrow) DlpConnectionInfo();
+    if (data && !data->ReadFromParcel(parcel)) {
         delete data;
         data = nullptr;
     }

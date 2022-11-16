@@ -115,8 +115,8 @@ bool ConnectionData::ReadFromParcel(Parcel &parcel)
 
 ConnectionData *ConnectionData::Unmarshalling(Parcel &parcel)
 {
-    ConnectionData *data = new ConnectionData();
-    if (!data->ReadFromParcel(parcel)) {
+    ConnectionData *data = new (std::nothrow) ConnectionData();
+    if (data && !data->ReadFromParcel(parcel)) {
         delete data;
         data = nullptr;
     }

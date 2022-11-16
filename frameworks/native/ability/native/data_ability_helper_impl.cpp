@@ -84,12 +84,16 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
     if (callerDeathRecipient_ == nullptr) {
         std::weak_ptr<DataAbilityHelperImpl> thisWeakPtr(shared_from_this());
         callerDeathRecipient_ =
-            new DataAbilityDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) DataAbilityDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto DataAbilityHelperImpl = thisWeakPtr.lock();
                 if (DataAbilityHelperImpl) {
                     DataAbilityHelperImpl->OnSchedulerDied(remote);
                 }
             });
+        if (callerDeathRecipient_ == nullptr) {
+            HILOG_ERROR("callerDeathRecipient_ is nullptr");
+            return;
+        }
     }
     if (token != nullptr) {
         HILOG_INFO("Add death recipient.");

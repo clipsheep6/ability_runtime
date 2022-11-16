@@ -460,7 +460,12 @@ private:
         }
         // Unwrap want and connection
         AAFwk::Want want;
-        sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(engine);
+        sptr<JSServiceExtensionConnection> connection = new (std::nothrow) JSServiceExtensionConnection(engine);
+        if (connection == nullptr) {
+            HILOG_ERROR("connection is nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            return engine.CreateUndefined();
+        }
         if (!CheckWantParam(engine, info.argv[0], want) ||
             !CheckConnectionParam(engine, info.argv[1], connection, want)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -502,7 +507,12 @@ private:
         // Unwrap want, accountId and connection
         AAFwk::Want want;
         int32_t accountId = 0;
-        sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(engine);
+        sptr<JSServiceExtensionConnection> connection = new (std::nothrow) JSServiceExtensionConnection(engine);
+        if (connection == nullptr) {
+            HILOG_ERROR("connection is nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            return engine.CreateUndefined();
+        }
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want) ||
             !CheckAccountIdParam(engine, info.argv[INDEX_ONE], accountId) ||
             !CheckConnectionParam(engine, info.argv[INDEX_TWO], connection, want)) {
