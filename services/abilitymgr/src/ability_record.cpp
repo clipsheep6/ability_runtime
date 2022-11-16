@@ -367,7 +367,8 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<
         return;
     }
 
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER(fromInfo);
     if (callerAbility) {
         auto callerAbilityInfo = callerAbility->GetAbilityInfo();
         SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
@@ -394,7 +395,8 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility() const
         return;
     }
 
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER(fromInfo);
     SetAbilityTransitionInfo(fromInfo);
     fromInfo->reason_ = TransitionReason::CLOSE;
     windowHandler->NotifyWindowTransition(fromInfo, nullptr);
@@ -417,7 +419,8 @@ void AbilityRecord::SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) 
 
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo()
 {
-    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> info = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER_AND_RETURN(info, nullptr);
     SetAbilityTransitionInfo(info);
     SetStartingWindow(true);
     return info;
@@ -542,7 +545,8 @@ void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOpt
     toInfo->abilityToken_ = token_;
     toInfo->missionId_ = missionId_;
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER(fromInfo);
     fromInfo->isRecent_ = true;
     windowHandler->NotifyWindowTransition(fromInfo, toInfo);
 }
@@ -556,7 +560,8 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
         return;
     }
 
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER(fromInfo);
     if (callerAbility) {
         auto callerAbilityInfo = callerAbility->GetAbilityInfo();
         SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
@@ -679,7 +684,8 @@ void AbilityRecord::SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info,
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const
 {
-    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> info = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER_AND_RETURN(info, nullptr);
     if (startOptions != nullptr) {
         info->mode_ = static_cast<uint32_t>(startOptions->GetWindowMode());
         HILOG_INFO("%{public}s: window mode is %{public}d.", __func__, info->mode_);
@@ -692,7 +698,8 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
 
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest) const
 {
-    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> info = new (std::nothrow) AbilityTransitionInfo();
+    CHECK_POINTER_AND_RETURN(info, nullptr);
     auto abilityStartSetting = abilityRequest.startSetting;
     if (abilityStartSetting) {
         auto windowMode = abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY);
@@ -976,12 +983,13 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (schedulerDeathRecipient_ == nullptr) {
             std::weak_ptr<AbilityRecord> thisWeakPtr(shared_from_this());
             schedulerDeathRecipient_ =
-                new AbilitySchedulerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                new (std::nothrow) AbilitySchedulerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                     auto abilityRecord = thisWeakPtr.lock();
                     if (abilityRecord) {
                         abilityRecord->OnSchedulerDied(remote);
                     }
                 });
+            CHECK_POINTER(schedulerDeathRecipient_);
         }
         isReady_ = true;
         scheduler_ = scheduler;

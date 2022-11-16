@@ -31,7 +31,11 @@ sptr<QuickFixManagerService> QuickFixManagerService::GetInstance()
     std::lock_guard<std::mutex> lock(mutex_);
 
     if (instance_ == nullptr) {
-        instance_ = new QuickFixManagerService();
+        instance_ = new (std::nothrow) QuickFixManagerService();
+        if (instance_ == nullptr) {
+            HILOG_ERROR("instance is nullptr");
+            return nullptr;
+        }
     }
     return instance_;
 }

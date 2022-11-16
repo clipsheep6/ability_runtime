@@ -36,8 +36,8 @@ bool MissionInfo::ReadFromParcel(Parcel &parcel)
 
 MissionInfo *MissionInfo::Unmarshalling(Parcel &parcel)
 {
-    MissionInfo *info = new MissionInfo();
-    if (!info->ReadFromParcel(parcel)) {
+    MissionInfo *info = new (std::nothrow) MissionInfo();
+    if (info && !info->ReadFromParcel(parcel)) {
         delete info;
         info = nullptr;
     }

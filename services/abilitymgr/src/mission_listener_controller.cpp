@@ -15,6 +15,7 @@
 
 #include "mission_listener_controller.h"
 
+#include "ability_util.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -60,12 +61,13 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
     if (!listenerDeathRecipient_) {
         std::weak_ptr<MissionListenerController> thisWeakPtr(shared_from_this());
         listenerDeathRecipient_ =
-            new ListenerDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) ListenerDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto controller = thisWeakPtr.lock();
                 if (controller) {
                     controller->OnListenerDied(remote);
                 }
             });
+        CHECK_POINTER_AND_RETURN(listenerDeathRecipient_, ERR_INVALID_VALUE);
     }
     auto listenerObject = listener->AsObject();
     if (listenerObject) {

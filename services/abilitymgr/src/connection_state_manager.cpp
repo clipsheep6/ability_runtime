@@ -17,6 +17,7 @@
 
 #include <fstream>
 
+#include "ability_util.h"
 #include "app_mgr_interface.h"
 #include "connection_observer_errors.h"
 #include "hilog_wrapper.h"
@@ -501,6 +502,7 @@ void ConnectionStateManager::InitAppStateObserver()
     appStateObserver_ = new (std::nothrow)InnerAppStateObserver([](int32_t pid) {
         DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleAppDied(pid);
     });
+    CHECK_POINTER(appStateObserver_);
     int32_t err = appManager->RegisterApplicationStateObserver(appStateObserver_);
     if (err != 0) {
         HILOG_ERROR("%{public}s register to appmanager failed. err:%{public}d", __func__, err);

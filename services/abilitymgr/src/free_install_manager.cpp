@@ -90,8 +90,9 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
+    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this(),
         info.startInstallTime);
+    CHECK_POINTER_AND_RETURN(callback, ERR_INVALID_VALUE);
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
@@ -130,8 +131,9 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
+    sptr<AtomicServiceStatusCallback> callback = new (std::nothrow) AtomicServiceStatusCallback(weak_from_this(),
         info.startInstallTime);
+    CHECK_POINTER_AND_RETURN(callback, ERR_INVALID_VALUE);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;

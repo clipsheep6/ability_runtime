@@ -15,6 +15,7 @@
 
 #include "connection_observer_controller.h"
 
+#include "ability_util.h"
 #include "connection_observer_errors.h"
 #include "hilog_wrapper.h"
 
@@ -40,12 +41,13 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
     if (!observerDeathRecipient_) {
         std::weak_ptr<ConnectionObserverController> thisWeakPtr(shared_from_this());
         observerDeathRecipient_ =
-            new ObserverDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) ObserverDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto controller = thisWeakPtr.lock();
                 if (controller) {
                     controller->HandleRemoteDied(remote);
                 }
             });
+        CHECK_POINTER_AND_RETURN(observerDeathRecipient_, ERR_INVALID_VALUE);
     }
     auto observerObj = observer->AsObject();
     if (observerObj) {

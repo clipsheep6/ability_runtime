@@ -394,12 +394,16 @@ void AppStateObserverManager::AddObserverDeathRecipient(const sptr<IApplicationS
     } else {
         std::weak_ptr<AppStateObserverManager> thisWeakPtr(shared_from_this());
         sptr<IRemoteObject::DeathRecipient> deathRecipient =
-            new ApplicationStateObserverRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) ApplicationStateObserverRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto appStateObserverManager = thisWeakPtr.lock();
                 if (appStateObserverManager) {
                     appStateObserverManager->OnObserverDied(remote);
                 }
             });
+        if (deathRecipient == nullptr) {
+            HILOG_ERROR("deathRecipient is nullptr");
+            return;
+        }
         observer->AsObject()->AddDeathRecipient(deathRecipient);
         recipientMap_.emplace(observer->AsObject(), deathRecipient);
     }
