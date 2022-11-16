@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#include "abilitymanagerserviceg_fuzzer.h"
+#include "missioninfomgrb_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #define private public
-#define protected public
-#include "ability_manager_service.h"
-#undef protected
+#include "mission_info_mgr.h"
 #undef private
 
 #include "ability_record.h"
@@ -33,7 +31,6 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-constexpr uint8_t ENABLE = 2;
 }
 
 uint32_t GetU32Data(const char* ptr)
@@ -42,45 +39,21 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
-}
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    bool boolParam = *data % ENABLE;
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
-    Parcel wantParcel;
-    Want *want = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        want = Want::Unmarshalling(wantParcel);
-        if (!want) {
-            return false;
-        }
-    }
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    AbilityRequest abilityRequest;
+    InnerMissionInfo innerMissionInfo;
 
-    // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->CheckCallAbilityPermission(abilityRequest);
-    abilityms->CheckStartByCallPermission(abilityRequest);
-    abilityms->IsCallFromBackground(abilityRequest, boolParam);
-    abilityms->CheckCallerPermissionOldRule(abilityRequest, boolParam);
-    abilityms->IsUseNewStartUpRule(abilityRequest);
-    abilityms->CheckNewRuleSwitchState(stringParam);
-    abilityms->GetStartUpNewRuleFlag();
-    abilityms->AddStartControlParam(*want, token);
+    // fuzz for MissionInfoMgr
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    std::vector<MissionInfo> missionInfos;
+    missionInfoMgr->GetMissionInfos(int32Param, missionInfos);
+    MissionInfo missionInfo;
+    missionInfoMgr->GetMissionInfoById(int32Param, missionInfo);
+    missionInfoMgr->GetInnerMissionInfoById(int32Param, innerMissionInfo);
+    missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, innerMissionInfo);
+    missionInfoMgr->UpdateMissionTimeStamp(int32Param, stringParam);
 
     return true;
 }

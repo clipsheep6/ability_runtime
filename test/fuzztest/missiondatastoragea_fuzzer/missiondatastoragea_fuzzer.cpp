@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#include "abilitymanagerserviceg_fuzzer.h"
+#include "missiondatastoragea_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #define private public
-#define protected public
-#include "ability_manager_service.h"
-#undef protected
+#include "mission_data_storage.h"
 #undef private
 
 #include "ability_record.h"
@@ -42,45 +40,29 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
-}
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     bool boolParam = *data % ENABLE;
+    int intParam = static_cast<int>(GetU32Data(data));
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
-    Parcel wantParcel;
-    Want *want = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        want = Want::Unmarshalling(wantParcel);
-        if (!want) {
-            return false;
-        }
-    }
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    AbilityRequest abilityRequest;
+    MissionSnapshot missionSnapshot;
+    InnerMissionInfo innerMissionInfo;
 
-    // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->CheckCallAbilityPermission(abilityRequest);
-    abilityms->CheckStartByCallPermission(abilityRequest);
-    abilityms->IsCallFromBackground(abilityRequest, boolParam);
-    abilityms->CheckCallerPermissionOldRule(abilityRequest, boolParam);
-    abilityms->IsUseNewStartUpRule(abilityRequest);
-    abilityms->CheckNewRuleSwitchState(stringParam);
-    abilityms->GetStartUpNewRuleFlag();
-    abilityms->AddStartControlParam(*want, token);
+    // fuzz for MissionDataStorage
+    auto missionDataStorage = std::make_shared<MissionDataStorage>(intParam);
+    std::shared_ptr<AppExecFwk::EventHandler> handler;
+    missionDataStorage->SetEventHandler(handler);
+    std::list<InnerMissionInfo> missionInfoList;
+    missionDataStorage->LoadAllMissionInfo(missionInfoList);
+    missionDataStorage->SaveMissionInfo(innerMissionInfo);
+    missionDataStorage->SaveMissionSnapshot(int32Param, missionSnapshot);
+    missionDataStorage->GetMissionSnapshot(int32Param, missionSnapshot, boolParam);
+    missionDataStorage->GetMissionDataDirPath();
+    missionDataStorage->GetMissionDataFilePath(intParam);
+    missionDataStorage->GetMissionSnapshotPath(int32Param, boolParam);
+    missionDataStorage->CheckFileNameValid(stringParam);
+    missionDataStorage->SaveSnapshotFile(int32Param, missionSnapshot);
 
     return true;
 }
