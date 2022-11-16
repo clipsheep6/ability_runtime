@@ -41,6 +41,11 @@ group("fuzztest") {
     "abilitymanagerservicethird_fuzzer:fuzztest",
     "abilitymgrrest_fuzzer:fuzztest",
     "appstateobservermanager_fuzzer:fuzztest",
+    "missiondatastoragea_fuzzer:fuzztest",
+    "missiondatastorageb_fuzzer:fuzztest",
+    "missioninfomgra_fuzzer:fuzztest",
+    "missioninfomgrb_fuzzer:fuzztest",
+    "missioninfomgrc_fuzzer:fuzztest",
 
     # "abilitymanager_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",

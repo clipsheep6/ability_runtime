@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#include "abilitymanagerserviceg_fuzzer.h"
+#include "missioninfomgrc_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #define private public
-#define protected public
-#include "ability_manager_service.h"
-#undef protected
+#include "mission_info_mgr.h"
 #undef private
 
 #include "ability_record.h"
@@ -59,28 +57,27 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     bool boolParam = *data % ENABLE;
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
-    Parcel wantParcel;
-    Want *want = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        want = Want::Unmarshalling(wantParcel);
-        if (!want) {
-            return false;
-        }
-    }
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    AbilityRequest abilityRequest;
+    std::vector<std::string> info;
+    MissionSnapshot missionSnapshot;
 
-    // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->CheckCallAbilityPermission(abilityRequest);
-    abilityms->CheckStartByCallPermission(abilityRequest);
-    abilityms->IsCallFromBackground(abilityRequest, boolParam);
-    abilityms->CheckCallerPermissionOldRule(abilityRequest, boolParam);
-    abilityms->IsUseNewStartUpRule(abilityRequest);
-    abilityms->CheckNewRuleSwitchState(stringParam);
-    abilityms->GetStartUpNewRuleFlag();
-    abilityms->AddStartControlParam(*want, token);
+    // fuzz for MissionInfoMgr
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    missionInfoMgr->UpdateMissionLabel(int32Param, stringParam);
+    missionInfoMgr->LoadAllMissionInfo();
+    std::list<int32_t> missions;
+    missionInfoMgr->HandleUnInstallApp(stringParam, int32Param, missions);
+    missionInfoMgr->GetMatchedMission(stringParam, int32Param, missions);
+    missionInfoMgr->Dump(info);
+    sptr<ISnapshotHandler> snapshotHandler;
+    missionInfoMgr->RegisterSnapshotHandler(snapshotHandler);
+    missionInfoMgr->UpdateMissionSnapshot(int32Param, token, missionSnapshot, boolParam);
+    missionInfoMgr->GetSnapshot(int32Param);
+    missionInfoMgr->GetMissionSnapshot(int32Param, token, missionSnapshot, boolParam, boolParam);
+    Snapshot missionInfoMgrSnapshot;
+    missionInfoMgr->CreateWhitePixelMap(missionInfoMgrSnapshot);
 
     return true;
 }
