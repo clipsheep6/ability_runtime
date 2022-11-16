@@ -269,10 +269,12 @@ HWTEST_F(AbilityManagerClientTest, DumpState_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerClientTest, ForceTimeoutForTest_0100, TestSize.Level1)
 {
+#ifdef ABILITY_COMMAND_FOR_TEST
     std::string abilityName = "abilityName_test";
     std::string state = "state_test";
     auto result = client_->ForceTimeoutForTest(abilityName, state);
     EXPECT_EQ(ERR_OK, result);
+#endif
 }
 
 /**

@@ -69,7 +69,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
 
     // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();  
+    auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->GetWMSHandler();
     abilityms->CompleteFirstFrameDrawing(token);
     abilityms->ShowPickerDialog(*want, int32Param, token);

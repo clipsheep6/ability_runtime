@@ -51,8 +51,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IStartSpecifiedAbilityResponse> response;
     appMgrClient->RegisterStartSpecifiedAbilityResponse(response);
     appMgrClient->GetRemoteObject();
+#ifdef ABILITY_COMMAND_FOR_TEST
     appMgrClient->BlockAppService();
-
+#endif
     return true;
 }
 }

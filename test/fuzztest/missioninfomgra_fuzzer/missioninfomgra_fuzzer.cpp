@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#include "abilitymanagerservicefifth_fuzzer.h"
+#include "missioninfomgra_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #define private public
-#define protected public
-#include "ability_manager_service.h"
-#undef protected
+#include "mission_info_mgr.h"
 #undef private
 
 #include "ability_record.h"
@@ -41,50 +39,19 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
-}
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
+    int intParam = static_cast<int>(GetU32Data(data));
     int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
-    uint32_t uint32Param = GetU32Data(data);
-    std::string stringParam(data, size);
-    Parcel wantParcel;
-    Want *want = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        want = Want::Unmarshalling(wantParcel);
-        if (!want) {
-            return false;
-        }
-    }
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    InnerMissionInfo innerMissionInfo;
 
-    // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->GetTopAbility(token);
-    abilityms->DelegatorDoAbilityForeground(token);
-    abilityms->DelegatorDoAbilityBackground(token);
-    abilityms->DoAbilityForeground(token, uint32Param);
-    abilityms->DoAbilityBackground(token, uint32Param);
-    abilityms->DelegatorMoveMissionToFront(int32Param);
-    abilityms->UpdateCallerInfo(*want);
-    abilityms->JudgeMultiUserConcurrency(int32Param);
-#ifdef ABILITY_COMMAND_FOR_TEST
-    abilityms->ForceTimeoutForTest(stringParam, stringParam);
-#endif
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->CheckStaticCfgPermission(abilityInfo);
+    // fuzz for MissionInfoMgr
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    missionInfoMgr->GenerateMissionId(int32Param);
+    missionInfoMgr->Init(intParam);
+    missionInfoMgr->AddMissionInfo(innerMissionInfo);
+    missionInfoMgr->UpdateMissionInfo(innerMissionInfo);
+    missionInfoMgr->DeleteMissionInfo(intParam);
 
     return true;
 }
