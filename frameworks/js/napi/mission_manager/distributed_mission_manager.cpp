@@ -48,6 +48,7 @@ static const std::map<int32_t, int32_t> DMS_MISSION_MANAGER_ERROR_CODE_MAP = {
     { CONTINUE_REMOTE_UNINSTALLED_SUPPORT_FREEINSTALL, CONTINUE_WITHOUT_FREEINSTALL_FLAG },
     { OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET, OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET },
     { CONTINUE_ALREADY_IN_PROGRESS, CONTINUE_ALREADY_IN_PROGRESS },
+    { MISSION_FOR_CONTINUING_IS_NOT_ALIVE, MISSION_FOR_CONTINUING_IS_NOT_ALIVE },
 };
 
 static const std::map<int32_t, std::string> DMS_MISSION_MANAGER_ERROR_INFO_MAP = {
@@ -63,6 +64,8 @@ installation-free is supported, try again with freeInstall flag.") },
     { OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET, std::string("the operation device must be the device where the \
 application to be continued is located or the target device to be continued.") },
     { CONTINUE_ALREADY_IN_PROGRESS, std::string("the local continuation task is already in progress.") },
+    { MISSION_FOR_CONTINUING_IS_NOT_ALIVE, std::string("the mission for continuing is not alive, \
+try again after restart this mission.") },
 };
 
 napi_value GenerateBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg)

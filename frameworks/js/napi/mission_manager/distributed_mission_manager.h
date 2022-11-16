@@ -191,6 +191,10 @@ enum ErrorCode {
      * Result(16300506) for the local continuation task is already in progress.
      */
     CONTINUE_ALREADY_IN_PROGRESS = 16300506,
+    /**
+     * Result(16300507) for the mission is dead, try again after restart mission.
+     */
+    MISSION_FOR_CONTINUING_IS_NOT_ALIVE = 16300507,
 };
 }  // namespace AAFwk
 }  // namespace OHOS
