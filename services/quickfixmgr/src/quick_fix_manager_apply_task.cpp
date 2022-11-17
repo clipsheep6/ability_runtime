@@ -173,6 +173,8 @@ public:
         if (!isRunning) {
             applyTask_->HandlePatchDeployed();
         }
+
+        applyTask_->UnregAppStateObserver();
     }
 
 private:
@@ -584,7 +586,7 @@ void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
 
 void QuickFixManagerApplyTask::RegAppStateObserver()
 {
-    HILOG_DEBUG("Start to register application state observer.");
+    HILOG_DEBUG("Register application state observer.");
     if (appMgr_ == nullptr) {
         HILOG_ERROR("Appmgr is nullptr.");
         NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
@@ -600,8 +602,28 @@ void QuickFixManagerApplyTask::RegAppStateObserver()
         HILOG_ERROR("Register application state observer failed.");
         NotifyApplyStatus(QUICK_FIX_REGISTER_OBSERVER_FAILED);
         RemoveSelf();
+        return;
     }
+
+    appStateCallback_ = callback;
     HILOG_DEBUG("Register application state observer succeed.");
+}
+
+void QuickFixManagerApplyTask::UnregAppStateObserver()
+{
+    HILOG_DEBUG("Unregister application state observer.");
+    if (appMgr_ == nullptr || appStateCallback_ == nullptr) {
+        HILOG_ERROR("Appmgr or callback is nullptr.");
+        return;
+    }
+
+    auto ret = appMgr_->UnregisterApplicationStateObserver(appStateCallback_);
+    if (ret != 0) {
+        HILOG_ERROR("Unregister application state observer failed.");
+        return;
+    }
+
+    HILOG_DEBUG("Unregister application state observer succeed.");
 }
 
 void QuickFixManagerApplyTask::RemoveSelf()
