@@ -79,6 +79,8 @@ group("fuzztest") {
     "closeability_fuzzer:fuzztest",
     "completefirstframedrawing_fuzzer:fuzztest",
     "connectability_fuzzer:fuzztest",
+    "connectionobserverclient_fuzzer:fuzztest",
+    "connectionobserverclientimpl_fuzzer:fuzztest",
     "connectionstatemanager_fuzzer:fuzztest",
     "continueability_fuzzer:fuzztest",
 
