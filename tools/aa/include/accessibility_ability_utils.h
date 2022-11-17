@@ -23,8 +23,7 @@ namespace OHOS {
 namespace AAFwk {
 class AccessibilityUtils {
 public:
-    static void GetCommandArgument(const Accessibility::AccessibilityAbilityInfo &abilityInfo,
-        AccessibilityCommandArgument &argument);
+    static std::string GetStaticCapabilityNames(const Accessibility::AccessibilityAbilityInfo &abilityInfo);
     static std::string FormatAbilityInfos(
         const std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities);
     static std::uint32_t GetCapabilityValue(const std::string &capabilityNames);
@@ -34,6 +33,7 @@ public:
     static bool IsValidStateString(std::string &stateString);
     static bool IsValidIntString(std::string &intString, const int32_t lowBound, const int32_t highBound);
     static std::string& Trim(std::string &inputStr);
+    static int32_t AddPermission();
 };
 } // namespace AAFwk
 } // namespace OHOS
