@@ -2014,27 +2014,21 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
         return false;
     }
 
-    std::vector<HqfInfo> hqfInfos = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
-    HILOG_INFO("[%{public}s] has %{public}zu hqf.", bundleName.c_str(), hqfInfos.size());
-    for (auto hqfInfo : hqfInfos) {
-        std::string moduleName = hqfInfo.moduleName;
-        std::string resolvedHapPath;
-        for (auto hapInfo : bundleInfo.hapModuleInfos) {
-            if (hapInfo.moduleName != moduleName) {
-                continue;
-            }
+    for (auto hapInfo : bundleInfo.hapModuleInfos) {
+        if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
+            (!hapInfo.hqfInfo.hqfFilePath.empty())) {
+            std::string resolvedHapPath;
             std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
             auto position = hapPath.rfind('/');
             if (position != std::string::npos) {
-                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + moduleName;
+                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
             }
-            break;
+            std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
+            HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
+                "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
+                hapInfo.process.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
+            fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
         }
-
-        std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hqfInfo.hqfFilePath));
-        HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, hqf file: %{private}s, hap path: %{private}s.",
-            bundleName.c_str(), moduleName.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
-        fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
     }
 
     return true;
