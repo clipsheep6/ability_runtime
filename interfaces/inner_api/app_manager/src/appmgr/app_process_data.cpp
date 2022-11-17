@@ -24,10 +24,15 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+constexpr int32_t CYCLE_LIMIT = 1000;
 bool ReadFromParcelAppData(std::vector<AppData> &appDatas, Parcel &parcel)
 {
     int32_t appDataSize;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, appDataSize);
+    if (appDataSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return false;
+    }
     for (auto i = 0; i < appDataSize; i++) {
         AppData appDataInfo;
         std::string appName = Str16ToStr8(parcel.ReadString16());
