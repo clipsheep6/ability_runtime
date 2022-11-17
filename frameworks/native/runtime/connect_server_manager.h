@@ -26,9 +26,17 @@ public:
 
     void StartConnectServer(const std::string& bundleName);
     void StopConnectServer();
-
+    void SetLayoutInspectorStatus(bool status)
+    {
+        layoutInspectorStatus_ = status;
+    }
+    bool GetlayoutInspectorStatus() const
+    {
+        return layoutInspectorStatus_;
+    }
     bool AddInstance(int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void RemoveInstance(int32_t instanceId);
+    void SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr);
 
 private:
     ConnectServerManager() = default;
@@ -39,7 +47,7 @@ private:
 
     std::mutex mutex_;
     std::unordered_map<int32_t, std::string> instanceMap_;
-
+    bool layoutInspectorStatus_ = false;
     ConnectServerManager(const ConnectServerManager&) = delete;
     ConnectServerManager(ConnectServerManager&&) = delete;
     ConnectServerManager& operator=(const ConnectServerManager&) = delete;
