@@ -84,7 +84,7 @@ struct CBBase {
 
 struct MissionRegistrationCB {
     napi_env env = nullptr;
-    napi_ref callback[3] = {0};
+    napi_ref callback[3] = {nullptr};
     int resultCode = 0;
 };
 
@@ -101,7 +101,7 @@ struct RegisterMissionCB {
 
 struct AbilityContinuationCB {
     napi_env env;
-    napi_ref callback[1] = {0};
+    napi_ref callback[1] = {nullptr};
 };
 
 struct ContinueAbilityCB {

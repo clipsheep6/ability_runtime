@@ -59,7 +59,7 @@ namespace AppExecFwk {
 
 struct CallbackInfo {
     napi_env env;
-    napi_ref callback = 0;
+    napi_ref callback = nullptr;
     napi_deferred deferred;
     int errCode = 0;
 };
