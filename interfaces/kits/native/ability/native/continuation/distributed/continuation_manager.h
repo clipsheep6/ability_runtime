@@ -55,6 +55,8 @@ public:
 
     int32_t OnStartAndSaveData(WantParams &wantParams);
 
+    bool IsContinuePageStack(const WantParams &wantParams);
+
     int32_t OnContinueAndGetContent(WantParams &wantParams);
 
     bool SaveData(WantParams &saveData);

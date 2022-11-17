@@ -86,6 +86,8 @@ protected:
     void ContinuationRestore(const Want &want) override;
 
 private:
+    bool IsRestorePageStack(const Want &want);
+    void RestorePageStack(const Want &want);
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
     void AbilityContinuationOrRecover(const Want &want);
     std::shared_ptr<NativeReference> jsWindowStageObj_;
