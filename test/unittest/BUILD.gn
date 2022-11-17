@@ -351,6 +351,7 @@ group("unittest") {
     "runtime_extractor_test:unittest",
     "runtime_test:unittest",
     "sender_info_test:unittest",
+    "system_ability_token_callback_stub_test:unittest",
     "trigger_Info_test:unittest",
     "user_controller_test:unittest",
     "want_agent_helper_test:unittest",
