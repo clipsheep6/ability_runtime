@@ -5422,6 +5422,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         return ERR_OK;
     }
 
+    if (AbilityUtil::IsStartFreeInstall(abilityRequest.want)) {
+        isBackgroundCall = false;
+        return ERR_OK;
+    }
+
     // Temp, solve FormIssue
     if (abilityRequest.callerToken == nullptr) {
         auto callerUid = IPCSkeleton::GetCallingUid();
