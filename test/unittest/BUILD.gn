@@ -114,7 +114,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/app_no_response_disposer.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
