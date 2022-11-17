@@ -51,18 +51,18 @@ const uint8_t NUMBER_OF_PARAMETERS_NINE = 9;
 class TriggerCompleteCallBack;
 
 struct CallbackInfo {
-    std::shared_ptr<WantAgent> wantAgent = nullptr;
-    NativeEngine *engine = nullptr;
+    WantAgent* wantAgent = nullptr;
+    NativeEngine* engine = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
 };
 
 struct TriggerReceiveDataWorker {
-    std::shared_ptr<WantAgent> wantAgent;
+    WantAgent* wantAgent;
     AAFwk::Want want;
     int resultCode;
     std::string resultData;
     AAFwk::WantParams resultExtras;
-    NativeEngine *engine = nullptr;
+    NativeEngine* engine = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
 };
 
@@ -79,19 +79,19 @@ public:
     JsWantAgent() = default;
     ~JsWantAgent() = default;
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
-    static NativeValue* Equal(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetWant(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetOperationType(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetBundleName(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetUid(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* Cancel(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* Trigger(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* Equal(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetWant(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetOperationType(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetBundleName(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetUid(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* Cancel(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* Trigger(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetWantAgent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* NapiGetWant(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* NapiTrigger(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* NapiGetWant(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* NapiTrigger(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* NapiGetWantAgent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* NapiGetOperationType(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* WrapWantAgent(NativeEngine &engine, const std::shared_ptr<WantAgent> &wantAgent);
+    static NativeValue* NapiGetOperationType(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* WrapWantAgent(NativeEngine &engine, WantAgent *wantAgent);
     static void UnwrapWantAgent(NativeEngine &engine, NativeValue *jsParam, void** result);
 
 private:
@@ -110,7 +110,7 @@ private:
     int32_t UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallbackInfo &info,
         std::shared_ptr<WantAgent> &wantAgent, TriggerInfo &triggerInfo,
         std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
-    int32_t GetTriggerInfo(NativeEngine &engine, NativeValue *param, TriggerInfo &triggerInfo);
+    int32_t GetTriggerInfo(NativeEngine &engine, NativeValue* param, TriggerInfo &triggerInfo);
     int32_t GetWantAgentParam(NativeEngine &engine, NativeCallbackInfo &info, WantAgentWantsParas &paras);
 };
 
@@ -122,16 +122,16 @@ public:
 public:
     void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
         const AAFwk::WantParams &resultExtras) override;
-    void SetCallbackInfo(NativeEngine &engine, NativeReference *ref);
-    void SetWantAgentInstance(const std::shared_ptr<WantAgent> &wantAgent);
+    void SetCallbackInfo(NativeEngine &engine, NativeReference* ref);
+    void SetWantAgentInstance(WantAgent* wantAgent);
 
 private:
     CallbackInfo triggerCompleteInfo_;
 };
 
-NativeValue* JsWantAgentInit(NativeEngine *engine, NativeValue *exportObj);
-NativeValue* WantAgentFlagsInit(NativeEngine *engine);
-NativeValue* WantAgentOperationTypeInit(NativeEngine *engine);
+NativeValue* JsWantAgentInit(NativeEngine* engine, NativeValue* exportObj);
+NativeValue* WantAgentFlagsInit(NativeEngine* engine);
+NativeValue* WantAgentOperationTypeInit(NativeEngine* engine);
 napi_value NapiGetNull(napi_env env);
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_WANT_AGENT_H
