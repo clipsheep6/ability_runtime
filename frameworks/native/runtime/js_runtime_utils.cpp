@@ -302,7 +302,7 @@ void AsyncTask::RejectWithCustomize(NativeEngine& engine, NativeValue* error, Na
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
         callbackRef_.reset();
     }
-    HILOG_DEBUG("AsyncTask::RejectWithCustomize is called");
+    HILOG_DEBUG("AsyncTask::RejectWithCustomize is called end.");
 }
 
 void AsyncTask::Execute(NativeEngine* engine, void* data)
