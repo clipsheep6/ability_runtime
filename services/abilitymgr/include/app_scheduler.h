@@ -233,6 +233,9 @@ public:
     void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
+    void GetRunningProcessInfoByAccessTokenID(const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
     /**
      * Start a resident process
      */

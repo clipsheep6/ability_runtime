@@ -230,6 +230,16 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
+void AmsMgrScheduler::GetRunningProcessInfoByAccessTokenID(
+    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    amsMgrServiceInner_->GetRunningProcessInfoByAccessTokenID(accessTokenId, info);
+}
+
 void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
     if (!IsReady()) {

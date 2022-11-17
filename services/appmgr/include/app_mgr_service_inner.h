@@ -431,6 +431,9 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
+    void GetRunningProcessInfoByAccessTokenID(
+        const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
 	 /**
      * UpdateConfiguration, ANotify application update system environment changes.
      *
@@ -760,6 +763,8 @@ private:
         int32_t callerUid, pid_t callerPid, const int userId);
 
     uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo);
+
+    bool CheckGetRunningInfoPermission() const;
 
 private:
     /**
