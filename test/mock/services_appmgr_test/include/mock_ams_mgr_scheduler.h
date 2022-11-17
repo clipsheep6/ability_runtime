@@ -45,7 +45,8 @@ public:
         void(const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info));
     MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
     MOCK_METHOD1(RegisterStartSpecifiedAbilityResponse, void(const sptr<IStartSpecifiedAbilityResponse> &response));
-    MOCK_METHOD2(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo &application));
+    MOCK_METHOD3(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo &application,
+        bool &debug));
 
     MockAmsMgrScheduler() : AmsMgrStub() {};
     virtual ~MockAmsMgrScheduler() {};

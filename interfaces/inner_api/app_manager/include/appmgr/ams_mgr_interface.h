@@ -161,7 +161,7 @@ public:
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
-    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) = 0;
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
 
     enum class Message {
         LOAD_ABILITY = 0,

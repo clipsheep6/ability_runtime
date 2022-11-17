@@ -579,7 +579,7 @@ void AmsMgrProxy::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifi
     }
 }
 
-int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -611,6 +611,7 @@ int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Applic
         return ERR_NAME_NOT_FOUND;
     }
     application = *info;
+    debug = reply.ReadBool();
     HILOG_DEBUG("get parcelable info success");
     return NO_ERROR;
 }
