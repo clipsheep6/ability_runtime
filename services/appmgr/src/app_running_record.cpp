@@ -409,6 +409,12 @@ void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     if (eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
         eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG);
     }
