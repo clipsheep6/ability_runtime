@@ -1009,9 +1009,15 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             }
             auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*
                 (weak->application_->GetRuntime()))).GetSourceMap();
-
             // bindRuntime.bindSourceMaps lazy loading
-            summary += "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap
+            auto errorPos = ModSourceMap::GetErrorPos(errorStack);
+            std::string error;
+            if (obj != nullptr) {
+                NativeValue* value = obj->GetProperty("errorfunc");
+                NativeFunction* fuc = AbilityRuntime::ConvertNativeValueTo<NativeFunction>(value);
+                error = fuc->GetSourceCodeInfo(errorPos);
+            }
+            summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap
                 (errorStack, bindSourceMaps, BundleCodeDir);
             ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;

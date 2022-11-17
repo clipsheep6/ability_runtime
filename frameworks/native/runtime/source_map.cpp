@@ -418,6 +418,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     std::string filePath = BundleCodeDir + ABILITYPATH_FLAG + "sourceMaps.map";
     if (!ReadSourceMapData(filePath, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
+        return "";
     }
     std::size_t s = 0;
     std::size_t j = 0;
