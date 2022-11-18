@@ -2446,6 +2446,8 @@ void CallExecuteCB(napi_env env, void *data)
     } else {
         HILOG_ERROR("CallExecuteCB, dataAbilityHelper == nullptr.");
     }
+    delete callCB;
+    callCB = nullptr;
     HILOG_INFO("CallExecuteCB, worker pool thread execute end.");
 }
 
