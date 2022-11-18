@@ -5418,12 +5418,18 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     }
     
     AppExecFwk::RunningProcessInfo processInfo;
-    auto callerAccessToken = IPCSkeleton::GetCallingTokenID();
-    DelayedSingleton<AppScheduler>::GetInstance()->
-        GetRunningProcessInfoByAccessTokenID(callerAccessToken, processInfo);
-    if (processInfo.processName_.empty()) {
-        HILOG_ERROR("Can not find caller application by token, callerToken: %{private}d.", callerAccessToken);
-        return ERR_INVALID_VALUE;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility) {
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
+    } else {
+        auto callerAccessToken = IPCSkeleton::GetCallingTokenID();
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByAccessTokenID(callerAccessToken, processInfo);
+        if (processInfo.processName_.empty()) {
+            HILOG_ERROR("Can not find caller application by token, callerToken: %{private}d.", callerAccessToken);
+            return ERR_INVALID_VALUE;
+        }
     }
 
     if (backgroundJudgeFlag_) {
