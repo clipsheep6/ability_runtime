@@ -2714,10 +2714,10 @@ napi_value NAPI_Call(napi_env env, napi_callback_info info)
     napi_value ret = CallWrap(env, info, callCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
+        delete callCB;
+        callCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-    delete callCB;
-    callCB = nullptr;
     HILOG_INFO("%{public}s, called end", __func__);
     return ret;
 }
@@ -3171,10 +3171,10 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
     napi_value ret = QueryWrap(env, info, queryCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        delete queryCB;
+        queryCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-    delete queryCB;
-    queryCB = nullptr;
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
 }
