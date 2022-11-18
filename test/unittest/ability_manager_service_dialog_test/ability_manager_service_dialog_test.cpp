@@ -19,6 +19,7 @@
 #include "implicit_start_processor.h"
 #include "ability_info.h"
 #include "ability_record.h"
+#include "system_dialog_scheduler.h"
 #undef private
 #include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
@@ -36,6 +37,7 @@ public:
     void SetUp() override;
     void TearDown() override;
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
+    std::shared_ptr<SystemDialogScheduler> systemDialogScheduler_;
     AbilityRequest abilityRequest_;
 };
 
@@ -69,6 +71,7 @@ void AbilityMgrServiceDialogTest::SetUp()
     abilityRequest_.appInfo.signatureKey = "test";
 
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    systemDialogScheduler_ = std::make_shared<SystemDialogScheduler>();
 }
 
 void AbilityMgrServiceDialogTest::TearDown() {}
@@ -84,6 +87,36 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0100, TestSize.Lev
     auto ret = implicitStartProcessor_->ImplicitStartAbility(abilityRequest_, DEFAULT_USERID);
     EXPECT_EQ(ret, ERR_IMPLICIT_START_ABILITY_FAIL);
     HILOG_INFO("AbilityMgrServiceDialog_0100 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0200
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test GetTipsDialogWant
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0200, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0200 start");
+    auto want = systemDialogScheduler_->GetTipsDialogWant();
+    EXPECT_EQ(want.GetElement().GetBundleName(), "com.ohos.amsdialog");
+    EXPECT_EQ(want.GetElement().GetAbilityName(), "TipsDialog");
+    HILOG_INFO("AbilityMgrServiceDialog_0200 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0300
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test GetSelectorDialogWant
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0300 start");
+    std::vector<DialogAppInfo> dialogAppInfos;
+    Want targetWant;
+    auto want = systemDialogScheduler_->GetSelectorDialogWant(dialogAppInfos, targetWant);
+    EXPECT_EQ(want.GetElement().GetBundleName(), "com.ohos.amsdialog");
+    EXPECT_EQ(want.GetElement().GetAbilityName(), "SelectorDialog");
+    HILOG_INFO("AbilityMgrServiceDialog_0300 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS
