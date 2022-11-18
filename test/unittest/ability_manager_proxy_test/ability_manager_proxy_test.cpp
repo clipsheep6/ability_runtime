@@ -1027,6 +1027,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_KillProcess_001, TestSize.
     EXPECT_EQ(res, NO_ERROR);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: ForceTimeoutForTest
@@ -1046,6 +1047,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceTimeoutForTest_001, T
     EXPECT_EQ(IAbilityManager::FORCE_TIMEOUT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
 /*
  * Feature: AbilityManagerService
@@ -1830,6 +1832,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionIdByToken_001, T
     EXPECT_EQ(res, NO_ERROR);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAmsService
@@ -1847,7 +1850,9 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAmsService_001, TestS
     EXPECT_EQ(IAbilityManager::BLOCK_AMS_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAbility
@@ -1866,7 +1871,9 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAbility_001, TestSize
     EXPECT_EQ(IAbilityManager::BLOCK_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAppService
@@ -1884,6 +1891,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAppService_001, TestS
     EXPECT_EQ(IAbilityManager::BLOCK_APP_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
 /*
  * Feature: AbilityManagerService

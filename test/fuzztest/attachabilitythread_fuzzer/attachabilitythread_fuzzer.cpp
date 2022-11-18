@@ -132,10 +132,12 @@ public:
     {}
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
     {}
+#ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbility() override
     {
         return 0;
     }
+#endif
     sptr<IRemoteObject> CallRequest() override
     {
         return {};

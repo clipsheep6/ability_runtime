@@ -37,11 +37,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (!abilitymgr) {
         return false;
     }
-
+#ifdef ABILITY_COMMAND_FOR_TEST
     if (abilitymgr->ForceTimeoutForTest(abilityName, state) != 0) {
         return false;
     }
-
+#endif
     return true;
 }
 }
