@@ -2319,6 +2319,14 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
         HILOG_ERROR("appRecord is nullptr");
         return;
     }
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+    if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
+        HILOG_DEBUG("Hook_mode: no handle time out");
+        return;
+    }
 
     std::string eventName = EVENT_NAME_LIFECYCLE_TIMEOUT;
     int32_t pid = appRecord->GetPriorityObject()->GetPid();
