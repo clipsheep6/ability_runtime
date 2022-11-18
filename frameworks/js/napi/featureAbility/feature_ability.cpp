@@ -1023,7 +1023,6 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
 
     uv_loop_t *loop = nullptr;
     loop = callbackInfo.engine->GetUVLoop();
-
     if (loop == nullptr) {
         HILOG_ERROR("loop instance is nullptr");
         return;
