@@ -422,7 +422,7 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    void LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication);
 
     /**
      *
@@ -477,7 +477,7 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> signalHandler_;
-    static std::shared_ptr<OHOSApplication> applicationForDump_;
+    static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

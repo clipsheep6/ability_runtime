@@ -68,11 +68,13 @@ class ArkJsRuntime : public JsRuntime {
 public:
     ArkJsRuntime()
     {
+        HILOG_INFO("ArkJsRuntime::ArkJsRuntime call constructor.");
         isArkEngine_ = true;
     }
 
     ~ArkJsRuntime() override
     {
+        HILOG_INFO("ArkJsRuntime::ArkJsRuntime call destructor.");
         Deinitialize();
 
         if (vm_ != nullptr) {

@@ -34,11 +34,15 @@ REGISTER_APPLICATION(OHOSApplication, OHOSApplication)
 
 OHOSApplication::OHOSApplication()
 {
+    HILOG_INFO("OHOSApplication::OHOSApplication call constructor.");
     abilityLifecycleCallbacks_.clear();
     elementsCallbacks_.clear();
 }
 
-OHOSApplication::~OHOSApplication() = default;
+OHOSApplication::~OHOSApplication()
+{
+    HILOG_INFO("OHOSApplication::OHOSApplication call destructor.");
+}
 
 /**
  *
