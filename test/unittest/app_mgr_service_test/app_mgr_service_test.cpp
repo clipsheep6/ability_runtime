@@ -55,9 +55,8 @@ HWTEST_F(AppMgrServiceTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 {
     auto ams = std::make_shared<AppMgrService>();
     ams->SetInnerService(std::make_shared<AppMgrServiceInner>());
-    ams->Init();
     int ret = ams->PreStartNWebSpawnProcess();
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, ERR_INVALID_OPERATION);
 }
 
 /**
