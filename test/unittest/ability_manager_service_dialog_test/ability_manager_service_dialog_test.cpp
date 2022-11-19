@@ -118,5 +118,37 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Lev
     EXPECT_EQ(want.GetElement().GetAbilityName(), "SelectorDialog");
     HILOG_INFO("AbilityMgrServiceDialog_0300 end");
 }
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0400
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test GetSelectorParams
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0400, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0400 start");
+    std::vector<DialogAppInfo> dialogAppInfos;
+    auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);
+    EXPECT_EQ(params.size(), 0);
+    HILOG_INFO("AbilityMgrServiceDialog_0400 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0500
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test GetSelectorParams
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0500 start");
+    DialogAppInfo dialogAppInfo = {
+        0, 0, "com.example.test", "MainAbility", "entry"
+    };
+    std::vector<DialogAppInfo> dialogAppInfos = {dialogAppInfo};
+    auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);
+    nlohmann::json jsonObj = nlohmann::json::parse(params);
+    EXPECT_EQ(jsonObj["hapList"].size(), 1);
+    HILOG_INFO("AbilityMgrServiceDialog_0500 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
