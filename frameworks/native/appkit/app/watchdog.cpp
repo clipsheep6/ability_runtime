@@ -69,7 +69,6 @@ void Watchdog::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applic
 
 void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
 {
-    HILOG_DEBUG("appMainThread has handle the event");
     appMainThreadIsAlive_.store(appMainThreadState);
 }
 
@@ -87,7 +86,6 @@ void Watchdog::AllowReportEvent()
 bool Watchdog::IsReportEvent()
 {
     if (appMainThreadIsAlive_) {
-        HILOG_DEBUG("AppMainThread is alive");
         appMainThreadIsAlive_.store(false);
         return false;
     }
