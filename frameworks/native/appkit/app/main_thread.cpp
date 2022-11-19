@@ -951,7 +951,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
     std::string BundleCodeDir = applicationContext->GetBundleCodeDir();
-    AbilityRuntime::Runtime::Options options;
     if (isStageBased) {
         // Create runtime
         AbilityRuntime::Runtime::Options options;

@@ -969,7 +969,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     }
 
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetEventId());
-    auto self(shared_from_this());
+    auto self(weak_from_this());
     if (success) {
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("%{public}s foreground succeeded.", __func__);
@@ -977,15 +977,23 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_hot";
         handler->RemoveTask(taskName);
 #endif
-        auto task = [self, abilityRecord]() { self->CompleteForegroundSuccess(abilityRecord); };
-        handler->PostTask(task);
-    } else {
-        auto task = [self, abilityRecord, isInvalidMode]() {
-            if (!self) {
+        auto task = [self, abilityRecord]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
                 HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
-            self->CompleteForegroundFailed(abilityRecord, isInvalidMode);
+            selfObj->CompleteForegroundSuccess(abilityRecord);
+        };
+        handler->PostTask(task);
+    } else {
+        auto task = [self, abilityRecord, isInvalidMode]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
+                HILOG_WARN("Mission list mgr is invalid.");
+                return;
+            }
+            selfObj->CompleteForegroundFailed(abilityRecord, isInvalidMode);
         };
         handler->PostTask(task);
     }
