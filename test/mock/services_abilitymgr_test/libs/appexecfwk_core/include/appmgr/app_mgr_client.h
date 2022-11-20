@@ -165,6 +165,9 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
+    void GetRunningProcessInfoByAccessTokenID(
+        const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
 
