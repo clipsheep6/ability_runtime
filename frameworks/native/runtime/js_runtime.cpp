@@ -282,7 +282,7 @@ private:
 
     void FinishPreload() override
     {
-        panda::JSNApi::preFork(vm_);
+        panda::JSNApi::PreFork(vm_);
     }
 
     bool Initialize(const Runtime::Options& options) override
@@ -294,7 +294,7 @@ private:
                 std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
                 postOption.SetAnDir(sandBoxAnFilePath);
             }
-            panda::JSNApi::postFork(vm_, postOption);
+            panda::JSNApi::PostFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
             panda::JSNApi::SetLoop(vm_, nativeEngine_->GetUVLoop());
         } else {
