@@ -34,6 +34,7 @@
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "hilog_wrapper.h"
+#include "key_event.h"
 #include "mock_page_ability.h"
 #include "ohos_application.h"
 #include "runtime.h"
@@ -179,6 +180,50 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_Dump_0100, Function | MediumTest | Level
     ability_->Dump(extra);
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_Dump_0100 end";
+}
+
+/**
+ * @tc.name: AaFwk_Ability_Dump_0200
+ * @tc.desc: Ability Dump basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_Dump_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // ability info, lifecycle and lifecycle executor is nullptr
+    std::string extra = "";
+    ability->Dump(extra);
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->package = "test_Dump";
+    abilityInfo->name = "test_Dump";
+    abilityInfo->label = "label";
+    abilityInfo->description = "test dump";
+    abilityInfo->iconPath = "/index/icon";
+    abilityInfo->visible = true;
+    abilityInfo->kind = "kind";
+    abilityInfo->type = AbilityType::SERVICE;
+    abilityInfo->orientation = DisplayOrientation::LANDSCAPE;
+    abilityInfo->launchMode = LaunchMode::SINGLETON;
+    abilityInfo->permissions.push_back("ohos.Permission.TestPermission1");
+    abilityInfo->permissions.push_back("ohos.Permission.TestPermission2");
+    abilityInfo->bundleName = "bundleName";
+    abilityInfo->applicationName = "applicationName";
+
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability->Init(abilityInfo, application, handler, token);
+    ability->Dump(extra);
+
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -479,6 +524,68 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnStart_0200, Function | MediumTest | Le
 }
 
 /**
+ * @tc.name: AaFwk_Ability_OnStart_0300
+ * @tc.desc: Ability OnStart test when configuration is not nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnStart_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = "test_OnStart";
+    abilityInfo->type = AbilityType::PAGE;
+    abilityInfo->isStageBasedModel = true;
+
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    Configuration config;
+    application->SetConfiguration(config);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability->Init(abilityInfo, application, handler, token);
+
+    Want want;
+    ability->OnStart(want);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnStart_0400
+ * @tc.desc: Ability OnStart test when ability lifecycle executor or lifecycle is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnStart_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = "test_OnStart";
+    abilityInfo->type = AbilityType::PAGE;
+    ability->abilityInfo_ = abilityInfo;
+
+    Want want;
+    // branch when lifecycle executor is nullptr
+    ability->OnStart(want);
+
+    // branch when lifecycle is nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnStart(want);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AaFwk_Ability_OnStop_0100
  * @tc.name: OnStop
  * @tc.desc: Test whether onstop is called normally and verify whether the members are correct.
@@ -525,6 +632,66 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnStop_0200, Function | MediumTest | Lev
     EXPECT_EQ(nullptr, lifeCycle);
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_OnStop_0200 end";
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnStop_0300
+ * @tc.desc: Ability OnStop test when ability recovery, window is not nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnStop_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // ability recovery is not nullptr
+    auto abilityRecovery = std::make_shared<AbilityRecovery>();
+    EXPECT_NE(abilityRecovery, nullptr);
+    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->OnStop();
+
+    // window is not nullptr
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
+    ability->OnStop();
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnStop();
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: DestroyInstance_0100
+ * @tc.desc: Ability DestroyInstance test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, DestroyInstance_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = "test_DestroyInstance";
+    abilityInfo->type = AbilityType::PAGE;
+    abilityInfo->isStageBasedModel = false;
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability->Init(abilityInfo, application, handler, token);
+
+    ability->DestroyInstance();
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -577,6 +744,25 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnActive_0200, Function | MediumTest | L
 }
 
 /**
+ * @tc.name: AaFwk_Ability_OnActive_0300
+ * @tc.desc: Ability OnActive test when lifecycle is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnActive_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnActive();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AaFwk_Ability_OnInactive_0100
  * @tc.name: OnInactive
  * @tc.desc: Test whether oninactive is called normally and verify whether the member is correct.
@@ -623,6 +809,25 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnInactive_0200, Function | MediumTest |
     EXPECT_EQ(nullptr, lifeCycle);
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_OnInactive_0200 end";
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnInactive_0300
+ * @tc.desc: Ability OnActive test when lifecycle is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnInactive_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnInactive();
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -791,6 +996,43 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTest
 }
 
 /**
+ * @tc.name: AaFwk_Ability_OnBackground_0400
+ * @tc.desc: Ability OnBackground basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackground_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // ability info is nullptr
+    ability->OnBackground();
+
+    // stage mode, scene is not nullptr
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = "test_OnStart";
+    abilityInfo->type = AbilityType::PAGE;
+    abilityInfo->isStageBasedModel = true;
+
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability->Init(abilityInfo, application, handler, token);
+
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
+
+    ability->OnBackground();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AaFwk_Ability_OnConnect_0100
  * @tc.name: OnConnect
  * @tc.desc: Test whether onconnect is called normally and verify whether the members are correct.
@@ -818,6 +1060,29 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnConnect_0100, Function | MediumTest | 
 }
 
 /**
+ * @tc.name: AaFwk_Ability_OnConnect_0200
+ * @tc.desc: Ability OnConnect test when lifecycle is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnConnect_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // lifecycle executor is nullptr
+    Want want;
+    ability->OnConnect(want);
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnConnect(want);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AaFwk_Ability_OnCommond_0100
  * @tc.name: OnCommand
  * @tc.desc: Test whether oncommand is called normally and verify whether the members are correct.
@@ -842,6 +1107,32 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnCommond_0100, Function | MediumTest | 
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::ACTIVE, state);
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_OnCommond_0100 end";
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnCommand_0200
+ * @tc.desc: Ability OnCommand test when lifecycle is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnCommand_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    Want want;
+    bool restart = false;
+    int startId = 0;
+
+    // lifecycle executor is nullptr
+    ability->OnCommand(want, restart, startId);
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnCommand(want, restart, startId);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -962,6 +1253,50 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_ExecuteBatch_0100, Function | MediumTest
     GTEST_LOG_(INFO) << "AaFwk_Ability_ExecuteBatch_0100 end";
 }
 
+/**
+ * @tc.name: AaFwk_Ability_ExecuteBatch_0200
+ * @tc.desc: Ability ExecuteBatch basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_ExecuteBatch_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<Uri> uri = std::make_shared<Uri>("dataability:///com.ohos.test");
+    std::shared_ptr<DataAbilityOperation> operation = DataAbilityOperation::NewUpdateBuilder(uri)->Build();;
+    std::vector<std::shared_ptr<DataAbilityOperation>> executeBatchOperations;
+    executeBatchOperations.push_back(operation);
+
+    // ability info is nullptr
+    auto result = ability->ExecuteBatch(executeBatchOperations);
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = "test_ExecuteOperation";
+    abilityInfo->type = AbilityType::PAGE; // not DATA
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability->Init(abilityInfo, application, handler, token);
+
+    // type is not DATA
+    result = ability->ExecuteBatch(executeBatchOperations);
+    ability->ExecuteOperation(operation, result, -1);
+
+    abilityInfo->type = AbilityType::DATA;
+    ability->Init(abilityInfo, application, handler, token);
+    ability->ExecuteOperation(operation, result, 0);
+
+    std::shared_ptr<DataAbilityOperation> nullOperation = nullptr;
+    ability->ExecuteOperation(nullOperation, result, 0);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
 class AbilityTest final : public Ability {
 public:
     AbilityTest() {}
@@ -993,6 +1328,23 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackPressed_0100, Function | MediumTes
     ability->OnBackPressed();
     EXPECT_TRUE(ability->onBackPressed_);
     GTEST_LOG_(INFO) << "AaFwk_Ability_OnBackPressed_0100 end";
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnBackPressed_0200
+ * @tc.desc: Ability OnBackPressed test when ability info is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackPressed_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    ability->OnBackPressed();
+
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -1059,6 +1411,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // branch when abilityContext_ is nullptr
     auto ret = ability->IsRestoredInContinuation();
@@ -1094,6 +1447,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // branch when abilityRecovery_ is nullptr
     Want want;
@@ -1140,6 +1494,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0300, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
@@ -1164,6 +1519,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0400, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
     auto state = ability->GetContinuationState();
     EXPECT_EQ(state, ContinuationState::LOCAL_RUNNING);
 
@@ -1192,6 +1548,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0500, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // branch when abilityInfo_ is nullptr
     auto regMgr = ability->GetContinuationRegisterManager();
@@ -1242,6 +1599,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0600, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Want want;
     want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
@@ -1282,20 +1640,53 @@ HWTEST_F(AbilityBaseTest, AbilityStartAbilityForResult_0100, TestSize.Level1)
 
     // branch when abilityInfo_ is nullptr
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    ASSERT_NE(ability, nullptr);
+    auto ret = ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    EXPECT_EQ(ret, ERR_NULL_OBJECT);
 
     // branch when type is not PAGE
     std::shared_ptr<AbilityHandler> handler = nullptr;
     std::shared_ptr<AbilityInfo> serviceAbilityInfo = std::make_shared<AbilityInfo>();
     serviceAbilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     ability->Init(serviceAbilityInfo, nullptr, handler, nullptr);
-    ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    ret = ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     // branch when type is PAGE
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
-    ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    ret = ability->StartAbilityForResult(want, requestCode, abilityStartSetting);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AbilityStartAbility_0100
+ * @tc.desc: Ability StartAbility test when type is not PAGE ans SERVICE.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AbilityStartAbility_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    Want want;
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    want.SetElementName(bundleName, abilityName);
+    AbilityStartSetting abilityStartSetting;
+
+    // branch when type is not PAGE
+    std::shared_ptr<AbilityHandler> handler = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->type = AppExecFwk::AbilityType::DATA;
+    ability->Init(abilityInfo, nullptr, handler, nullptr);
+    auto ret = ability->StartAbility(want, abilityStartSetting);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1310,6 +1701,7 @@ HWTEST_F(AbilityBaseTest, AbilityGetType_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Uri uri("test_get_type");
     auto type = ability->GetType(uri);
@@ -1333,6 +1725,7 @@ HWTEST_F(AbilityBaseTest, AbilityInsert_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Uri uri("test_insert");
     NativeRdb::ValuesBucket value;
@@ -1365,6 +1758,7 @@ HWTEST_F(AbilityBaseTest, AbilityCall_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Uri uri("test_call");
     std::string method;
@@ -1380,6 +1774,58 @@ HWTEST_F(AbilityBaseTest, AbilityCall_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: InitConfigurationProperties_0100
+ * @tc.desc: Ability InitConfigurationProperties test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, InitConfigurationProperties_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en");
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
+    config.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
+    std::string language;
+    std::string colormode;
+    std::string hasPointerDevice;
+    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
+    EXPECT_EQ(language, "en");
+    EXPECT_EQ(colormode, "dark");
+    EXPECT_EQ(hasPointerDevice, "true");
+
+    // branch when setting is not nullptr
+    auto setting = std::make_shared<AbilityStartSetting>();
+    ability->SetStartAbilitySetting(setting);
+    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
+    EXPECT_EQ(language, "en");
+    EXPECT_EQ(colormode, "dark");
+    EXPECT_EQ(hasPointerDevice, "true");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: OnKeyUp_0100
+ * @tc.desc: Ability OnKeyUp test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, OnKeyUp_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    auto keyEvent = std::make_shared<MMI::KeyEvent>(MMI::KeyEvent::KEYCODE_BACK);
+    ability->OnKeyUp(keyEvent);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: AbilityOnMemoryLevel_0100
  * @tc.desc: Ability OnMemoryLevel test.
  * @tc.type: FUNC
@@ -1389,12 +1835,16 @@ HWTEST_F(AbilityBaseTest, AbilityOnMemoryLevel_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     int level = 0;
     ability->OnMemoryLevel(level);
 
     ability->scene_ = std::make_shared<Rosen::WindowScene>();
     ability->OnMemoryLevel(level);
+
+    auto contentInfo = ability->GetContentInfo();
+    EXPECT_EQ(contentInfo, "");
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1409,6 +1859,7 @@ HWTEST_F(AbilityBaseTest, AbilityOpenRawFile_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Uri uri("test_open_file");
     std::string mode;
@@ -1431,6 +1882,7 @@ HWTEST_F(AbilityBaseTest, AbilityVirtualFunc_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Configuration configuration;
     ability->OnConfigurationUpdated(configuration);
@@ -1466,6 +1918,7 @@ HWTEST_F(AbilityBaseTest, AbilityVirtualFunc_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     bool ret = ability->OnStartContinuation();
     EXPECT_EQ(ret, false);
@@ -1498,6 +1951,30 @@ HWTEST_F(AbilityBaseTest, AbilityVirtualFunc_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.name: DispatchLifecycleOnForeground_0200
+ * @tc.desc: Ability DispatchLifecycleOnForeground test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, DispatchLifecycleOnForeground_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // lifecycle executor is nullptr
+    Want want;
+    ability->DispatchLifecycleOnForeground(want);
+
+    // lifecycle is nullptr and lifecycle executor is not nullptr
+    auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->DispatchLifecycleOnForeground(want);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: AbilityBackgroundRunning_0100
  * @tc.desc: Ability function test, including StopBackgroundRunning and StartBackgroundRunning
  * @tc.type: FUNC
@@ -1507,6 +1984,11 @@ HWTEST_F(AbilityBaseTest, AbilityBackgroundRunning_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    // branch when ability info is nullptr
+    AbilityRuntime::WantAgent::WantAgent wantAgent;
+    ability->StartBackgroundRunning(wantAgent);
 
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
@@ -1516,8 +1998,6 @@ HWTEST_F(AbilityBaseTest, AbilityBackgroundRunning_0100, TestSize.Level1)
 
     auto bundleMgr = ability->GetBundleMgr();
     ability->SetBundleManager(bundleMgr);
-
-    AbilityRuntime::WantAgent::WantAgent wantAgent;
     ability->StartBackgroundRunning(wantAgent);
 
     int id = 0;
@@ -1541,6 +2021,7 @@ HWTEST_F(AbilityBaseTest, AbilityParseValuesBucketReference_0100, TestSize.Level
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     std::shared_ptr<DataAbilityOperation> operation = nullptr;
@@ -1565,6 +2046,7 @@ HWTEST_F(AbilityBaseTest, AbilityChangeRef2Value_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // index larger than or equal to numRefs
     std::vector<std::shared_ptr<DataAbilityResult>> results;
@@ -1609,6 +2091,7 @@ HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // queryResult is nullptr
     std::shared_ptr<NativeRdb::AbsSharedResultSet> queryResult = nullptr;
@@ -1638,6 +2121,7 @@ HWTEST_F(AbilityBaseTest, AbilityStartFeatureAbilityForResult_0100, TestSize.Lev
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     Want want;
     int requestCode = 0;
@@ -1646,6 +2130,9 @@ HWTEST_F(AbilityBaseTest, AbilityStartFeatureAbilityForResult_0100, TestSize.Lev
     };
     auto ret = ability->StartFeatureAbilityForResult(want, requestCode, std::move(task));
     EXPECT_EQ(ret, ERR_NULL_OBJECT);
+
+    int resultCode = 0;
+    ability->OnFeatureAbilityResult(requestCode, resultCode, want);
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1660,6 +2147,7 @@ HWTEST_F(AbilityBaseTest, AbilityFuncList_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     auto object = ability->CallRequest();
     EXPECT_EQ(object, nullptr);
@@ -1692,6 +2180,7 @@ HWTEST_F(AbilityBaseTest, AbilityFuncList_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     ability->OnLeaveForeground();
 
@@ -1716,6 +2205,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetShowOnLockScreen_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     ability->SetShowOnLockScreen(true);
     ability->SetShowOnLockScreen(false);
@@ -1746,6 +2236,7 @@ HWTEST_F(AbilityBaseTest, AbilityScene_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     ability->OnSceneCreated();
     ability->OnSceneRestored();
@@ -1767,6 +2258,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetUIContent_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     ComponentContainer componentContainer;
     ability->SetUIContent(componentContainer);
@@ -1786,6 +2278,7 @@ HWTEST_F(AbilityBaseTest, AbilityFormFunction_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     int64_t formId = 0;
     ability->OnUpdate(formId);
@@ -1810,12 +2303,19 @@ HWTEST_F(AbilityBaseTest, AbilityGetCurrentWindowMode_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // scene_ is nullptr
     int windowMode = ability->GetCurrentWindowMode();
     EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
 
     ability->scene_ = std::make_shared<Rosen::WindowScene>();
+    windowMode = ability->GetCurrentWindowMode();
+    EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
+
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
     windowMode = ability->GetCurrentWindowMode();
     EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
 
@@ -1832,6 +2332,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetMissionLabel_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     std::string label = "test_label";
     auto ret = ability->SetMissionLabel(label);
@@ -1856,6 +2357,12 @@ HWTEST_F(AbilityBaseTest, AbilitySetMissionLabel_0100, TestSize.Level1)
     ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
 
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
+    ret = ability->SetMissionLabel(label);
+    EXPECT_EQ(ret, -1);
+
     // fa mode
     pageAbilityInfo->isStageBasedModel = false;
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
@@ -1875,6 +2382,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetMissionIcon_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     auto icon = std::make_shared<Media::PixelMap>();
     auto ret = ability->SetMissionIcon(icon);
@@ -1899,6 +2407,12 @@ HWTEST_F(AbilityBaseTest, AbilitySetMissionIcon_0100, TestSize.Level1)
     ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
 
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability->InitWindow(displayId, option);
+    ret = ability->SetMissionIcon(icon);
+    EXPECT_EQ(ret, -1);
+
     // fa mode
     pageAbilityInfo->isStageBasedModel = false;
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
@@ -1918,6 +2432,7 @@ HWTEST_F(AbilityBaseTest, AbilityOnChange_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
@@ -1931,7 +2446,11 @@ HWTEST_F(AbilityBaseTest, AbilityOnChange_0100, TestSize.Level1)
     ability->OnDestroy(displayId);
     ability->OnChange(displayId);
 
-    auto application = std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName());
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
+    application->SetConfiguration(config);
     ability->Init(pageAbilityInfo, application, handler, nullptr);
     ability->OnChange(displayId);
 
@@ -1948,6 +2467,7 @@ HWTEST_F(AbilityBaseTest, AbilityOnDisplayMove_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
@@ -1960,7 +2480,11 @@ HWTEST_F(AbilityBaseTest, AbilityOnDisplayMove_0100, TestSize.Level1)
     Rosen::DisplayId toDisplayId = 0;
     ability->OnDisplayMove(fromDisplayId, toDisplayId);
 
-    auto application = std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName());
+    auto application = std::make_shared<OHOSApplication>();
+    EXPECT_NE(application, nullptr);
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
+    application->SetConfiguration(config);
     ability->Init(pageAbilityInfo, application, handler, nullptr);
     ability->OnDisplayMove(fromDisplayId, toDisplayId);
 
@@ -1977,6 +2501,7 @@ HWTEST_F(AbilityBaseTest, AbilityRequestFocus_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // ability window is nullptr
     Want want;
@@ -2010,6 +2535,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetWakeUpScreen_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // ability window is nullptr
     bool wakeUp = false;
@@ -2043,6 +2569,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
 
     // ability window is nullptr
     int orientation = static_cast<int>(DisplayOrientation::FOLLOWRECENT);
