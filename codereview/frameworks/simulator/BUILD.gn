@@ -1,0 +1,159 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+if (is_mac) {
+  dylib_suffix = ".dylib"
+  exec_suffix = ""
+  platform = "mac"
+} else {
+  dylib_suffix = ".dll"
+  exec_suffix = ".exe"
+  platform = "windows"
+}
+
+not_needed("*",
+           [
+             "dylib_suffix",
+             "exec_suffix",
+             "platform",
+           ])
+
+ohos_copy("ability_simulator_copy_ability_modules") {
+  deps = []
+  sources = []
+
+  napi_modules = [ "napi_module/want_constant:wantconstant_napi" ]
+
+  foreach(module, napi_modules) {
+    deps += [ module ]
+    out_path = get_label_info(module, "root_out_dir")
+    out_name = get_label_info(module, "name")
+    sources += [ out_path + "/ability/simulator/lib" + out_name + dylib_suffix ]
+  }
+
+  target_path = get_label_info(":copy_ability_simulator", "target_out_dir")
+
+  outputs = [ target_path + "/bin/module/ability/{{source_file_part}}" ]
+}
+
+ohos_copy("ability_simulator_copy_application_modules") {
+  deps = []
+  sources = []
+
+  napi_modules = [
+    "napi_module/ability:ability_napi",
+    "napi_module/ability_constant:abilityconstant_napi",
+    "napi_module/ability_context:ability_context_napi",
+    "napi_module/ability_stage:ability_stage_napi",
+    "napi_module/ability_stage_context:ability_stage_context_napi",
+    "napi_module/application_context:application_context_napi",
+    "napi_module/caller:caller_napi",
+    "napi_module/callee:callee_napi",
+    "napi_module/context:context_napi",
+    "napi_module/configuration_constant:configurationconstant_napi",
+  ]
+
+  foreach(module, napi_modules) {
+    deps += [ module ]
+    out_path = get_label_info(module, "root_out_dir")
+    out_name = get_label_info(module, "name")
+    sources += [ out_path + "/ability/simulator/lib" + out_name + dylib_suffix ]
+  }
+
+  target_path = get_label_info(":copy_ability_simulator", "target_out_dir")
+
+  outputs = [ target_path + "/bin/module/application/{{source_file_part}}" ]
+}
+
+ohos_copy("copy_ability_simulator") {
+  deps = [
+    ":ability_simulator_copy_ability_modules",
+    ":ability_simulator_copy_application_modules",
+  ]
+  sources = []
+
+  deps += [ "test:ability_simulator_test" ]
+  out_path = get_label_info("test:ability_simulator_test", "root_out_dir")
+  sources +=
+      [ out_path + "/ability/simulator/ability_simulator_test" + exec_suffix ]
+
+  deps += [ "ability_simulator:ability_simulator" ]
+  out_path =
+      get_label_info("ability_simulator:ability_simulator", "root_out_dir")
+  sources +=
+      [ out_path + "/ability/simulator/libability_simulator" + dylib_suffix ]
+
+  deps += [ "//foundation/arkui/napi:ace_napi" ]
+  out_path = get_label_info("//foundation/arkui/napi:ace_napi", "root_out_dir")
+  sources += [ out_path + "/arkui/napi/libace_napi" + dylib_suffix ]
+
+  deps += [ "//foundation/arkui/napi:ace_napi_ark" ]
+  out_path =
+      get_label_info("//foundation/arkui/napi:ace_napi_ark", "root_out_dir")
+  sources += [ out_path + "/arkui/napi/libace_napi_ark" + dylib_suffix ]
+
+  deps += [ "//arkcompiler/ets_runtime:libark_jsruntime" ]
+  out_path = get_label_info("//arkcompiler/ets_runtime:libark_jsruntime",
+                            "root_out_dir")
+  sources +=
+      [ out_path + "/arkcompiler/ets_runtime/libark_jsruntime" + dylib_suffix ]
+
+  deps += [ "//arkcompiler/toolchain/tooling:libark_ecma_debugger" ]
+  out_path =
+      get_label_info("//arkcompiler/toolchain/tooling:libark_ecma_debugger",
+                     "root_out_dir")
+  sources += [ out_path + "/arkcompiler/toolchain/libark_ecma_debugger" +
+               dylib_suffix ]
+
+  deps += [ "//arkcompiler/toolchain/inspector:ark_debugger" ]
+  out_path = get_label_info("//arkcompiler/toolchain/inspector:ark_debugger",
+                            "root_out_dir")
+  sources +=
+      [ out_path + "/arkcompiler/toolchain/libark_debugger" + dylib_suffix ]
+
+  deps += [ "//third_party/libuv:uv" ]
+  out_path = get_label_info("//third_party/libuv:uv", "root_out_dir")
+  sources += [ out_path + "/thirdparty/libuv/libuv" + dylib_suffix ]
+
+  deps += [
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
+  ]
+  out_path = get_label_info(
+          "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
+          "root_out_dir")
+  sources +=
+      [ out_path + "/hiviewdfx/hilog_native/libhilog_$platform" + dylib_suffix ]
+
+  deps += [ "//third_party/icu/icu4c:shared_icui18n" ]
+  out_path =
+      get_label_info("//third_party/icu/icu4c:shared_icui18n", "root_out_dir")
+  sources += [ out_path + "/thirdparty/icu/libhmicui18n" + dylib_suffix ]
+
+  deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+  out_path =
+      get_label_info("//third_party/icu/icu4c:shared_icuuc", "root_out_dir")
+  sources += [ out_path + "/thirdparty/icu/libhmicuuc" + dylib_suffix ]
+
+  deps += [ "//third_party/bounds_checking_function:libsec_shared" ]
+  out_path =
+      get_label_info("//third_party/bounds_checking_function:libsec_shared",
+                     "root_out_dir")
+  sources += [ out_path + "/thirdparty/bounds_checking_function/libsec_shared" +
+               dylib_suffix ]
+
+  outputs = [ target_out_dir + "/bin/{{source_file_part}}" ]
+  module_source_dir = target_out_dir + "/bin"
+  module_install_name = ""
+}
