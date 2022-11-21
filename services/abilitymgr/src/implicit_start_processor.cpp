@@ -45,8 +45,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
         return false;
     }
     
-    if (!want.GetAction().empty() &&
-        std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
+    if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
         HILOG_INFO("implicit start, the action is %{public}s", want.GetAction().data());
         return true;
     }
