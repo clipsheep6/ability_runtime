@@ -18,6 +18,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 AppResidentProcessInfo *AppResidentProcessInfo::Unmarshalling(Parcel &parcel)
 {
     AppResidentProcessInfo *residentProcess = new (std::nothrow) OHOS::AppExecFwk::AppResidentProcessInfo();
@@ -45,6 +46,10 @@ bool AppResidentProcessInfo::ReadFromParcel(Parcel &parcel)
 {
     isKeepAliveApp_ = parcel.ReadBool();
     auto size = parcel.ReadInt32();
+    if (size > CYCLE_LIMIT) {
+        HILOG_ERROR("size is too large");
+        return false;
+    }
     for (int32_t i = 0; i < size; i++) {
         std::unique_ptr<HapModuleInfo> hapModuleInfo(parcel.ReadParcelable<HapModuleInfo>());
         if (!hapModuleInfo) {
