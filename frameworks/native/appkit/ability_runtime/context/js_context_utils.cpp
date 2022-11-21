@@ -29,7 +29,7 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
-NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
+NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachApplicationContext");
     if (value == nullptr || engine == nullptr) {
@@ -484,7 +484,7 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
 }
 } // namespace
 
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
+NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachBaseContext");
     if (value == nullptr || engine == nullptr) {

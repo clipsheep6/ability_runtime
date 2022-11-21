@@ -35,26 +35,26 @@ unsigned int WantAgentHelper::FlagsTransformer(const std::vector<WantAgentConsta
 {
     unsigned int wantFlags = 0;
     if (flags.empty()) {
-        wantFlags |= (unsigned int)FLAG_UPDATE_CURRENT;
+        wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
         return wantFlags;
     }
 
     for (auto flag : flags) {
         switch (flag) {
             case WantAgentConstant::Flags::ONE_TIME_FLAG:
-                wantFlags |= (unsigned int)FLAG_ONE_SHOT;
+                wantFlags |= static_cast<unsigned int>(FLAG_ONE_SHOT);
                 break;
             case WantAgentConstant::Flags::NO_BUILD_FLAG:
-                wantFlags |= (unsigned int)FLAG_NO_CREATE;
+                wantFlags |= static_cast<unsigned int>(FLAG_NO_CREATE);
                 break;
             case WantAgentConstant::Flags::CANCEL_PRESENT_FLAG:
-                wantFlags |= (unsigned int)FLAG_CANCEL_CURRENT;
+                wantFlags |= static_cast<unsigned int>(FLAG_CANCEL_CURRENT);
                 break;
             case WantAgentConstant::Flags::UPDATE_PRESENT_FLAG:
-                wantFlags |= (unsigned int)FLAG_UPDATE_CURRENT;
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
                 break;
             case WantAgentConstant::Flags::CONSTANT_FLAG:
-                wantFlags |= (unsigned int)FLAG_IMMUTABLE;
+                wantFlags |= static_cast<unsigned int>(FLAG_IMMUTABLE);
                 break;
             default:
                 WANT_AGENT_LOGE("WantAgentHelper::flags is error.");
@@ -155,7 +155,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = want->GetOperation().GetBundleName();
     wantSenderInfo.flags = FlagsTransformer(paramsInfo.GetFlags());
-    wantSenderInfo.type = (int32_t)paramsInfo.GetOperationType();
+    wantSenderInfo.type = static_cast<int32_t>(paramsInfo.GetOperationType());
     wantSenderInfo.userId = userId;
 
     sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);

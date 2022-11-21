@@ -124,11 +124,13 @@ NativeValue *AbilityStateInit(NativeEngine *engine)
         return nullptr;
     }
 
-    object->SetProperty("INITIAL", CreateJsValue(*engine, (int32_t)AAFwk::AbilityState::INITIAL));
-    object->SetProperty("FOREGROUND", CreateJsValue(*engine, (int32_t)AAFwk::AbilityState::FOREGROUND));
-    object->SetProperty("BACKGROUND", CreateJsValue(*engine, (int32_t)AAFwk::AbilityState::BACKGROUND));
-    object->SetProperty("FOREGROUNDING", CreateJsValue(*engine, (int32_t)AAFwk::AbilityState::FOREGROUNDING));
-    object->SetProperty("BACKGROUNDING", CreateJsValue(*engine, (int32_t)AAFwk::AbilityState::BACKGROUNDING));
+    object->SetProperty("INITIAL", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::INITIAL)));
+    object->SetProperty("FOREGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::FOREGROUND)));
+    object->SetProperty("BACKGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::BACKGROUND)));
+    object->SetProperty("FOREGROUNDING", CreateJsValue(*engine,
+        static_cast<int32_t>(AAFwk::AbilityState::FOREGROUNDING)));
+    object->SetProperty("BACKGROUNDING", CreateJsValue(*engine,
+        static_cast<int32_t>(AAFwk::AbilityState::BACKGROUNDING)));
 
     return objValue;
 }
