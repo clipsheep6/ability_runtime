@@ -726,9 +726,6 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
 
     abilityRecord->SetMinimizeReason(fromUser);
     MoveToBackgroundTask(abilityRecord);
-    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
-        UpdateMissionTimeStamp(abilityRecord);
-    }
 
     return ERR_OK;
 }
@@ -1063,9 +1060,6 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         abilityRecord->SetMinimizeReason(true);
         MoveToBackgroundTask(abilityRecord);
-        if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
-            UpdateMissionTimeStamp(abilityRecord);
-        }
     } else if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
@@ -2060,16 +2054,6 @@ sptr<IRemoteObject> MissionListManager::GetAbilityTokenByMissionId(int32_t missi
     }
 
     return defaultStandardList_->GetAbilityTokenByMissionId((missionId));
-}
-
-void MissionListManager::UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord)
-{
-    auto mission = abilityRecord->GetMission();
-    if (!mission) {
-        return;
-    }
-    std::string curTime = GetCurrentTime();
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionTimeStamp(mission->GetMissionId(), curTime);
 }
 
 void MissionListManager::PostStartWaitingAbility()
