@@ -88,9 +88,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
     abilityms->GetAbilityRunningInfo(abilityRunningInfo, abilityRecord);
     abilityms->VerifyAccountPermission(int32Param);
+#ifdef ABILITY_COMMAND_FOR_TEST
     abilityms->BlockAmsService();
     abilityms->BlockAbility(int32Param);
     abilityms->BlockAppService();
+#endif
     abilityms->FreeInstallAbilityFromRemote(*want, token, int32Param, intParam);
 
     return true;

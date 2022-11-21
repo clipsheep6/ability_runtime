@@ -40,12 +40,12 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (!abilitymgr) {
         return false;
     }
-
+#ifdef ABILITY_COMMAND_FOR_TEST
     int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
     if (abilitymgr->BlockAbility(abilityRecordId) != 0) {
         return false;
     }
-
+#endif
     return true;
 }
 }

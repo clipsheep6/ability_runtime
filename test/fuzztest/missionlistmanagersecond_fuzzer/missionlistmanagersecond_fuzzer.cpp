@@ -165,7 +165,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->GetForegroundAbilities(missionList, foregroundList);
     missionListManager->RemoveMissionLocked(int32Param, boolParam);
     missionListManager->IsExcludeFromMissions(mission);
+#ifdef ABILITY_COMMAND_FOR_TEST
     missionListManager->BlockAbility(int32Param);
+#endif
     std::vector<sptr<IRemoteObject>> tokens;
     missionListManager->SetMissionANRStateByTokens(tokens);
     

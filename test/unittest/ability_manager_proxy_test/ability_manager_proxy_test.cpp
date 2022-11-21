@@ -1027,6 +1027,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_KillProcess_001, TestSize.
     EXPECT_EQ(res, NO_ERROR);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: ForceTimeoutForTest
@@ -1046,6 +1047,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceTimeoutForTest_001, T
     EXPECT_EQ(IAbilityManager::FORCE_TIMEOUT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
 /*
  * Feature: AbilityManagerService
@@ -1843,9 +1845,11 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAmsService_001, TestS
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+#ifdef ABILITY_COMMAND_FOR_TEST
     auto res = proxy_->BlockAmsService();
     EXPECT_EQ(IAbilityManager::BLOCK_AMS_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
+#endif
 }
 
 /*
@@ -1861,10 +1865,12 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAbility_001, TestSize
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+#ifdef ABILITY_COMMAND_FOR_TEST
     int32_t abilityRecordId = 0;
     auto res = proxy_->BlockAbility(abilityRecordId);
     EXPECT_EQ(IAbilityManager::BLOCK_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
+#endif
 }
 
 /*
@@ -1880,9 +1886,11 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAppService_001, TestS
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+#ifdef ABILITY_COMMAND_FOR_TEST
     auto res = proxy_->BlockAppService();
     EXPECT_EQ(IAbilityManager::BLOCK_APP_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
+#endif
 }
 
 /*
