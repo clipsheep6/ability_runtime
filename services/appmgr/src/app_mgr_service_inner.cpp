@@ -324,6 +324,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
 
     appRecord->LaunchApplication(*configuration_);
     appRecord->SetState(ApplicationState::APP_STATE_READY);
+    appRecord->SetRestartResidentProcCount(RESTART_RESIDENT_PROCESS_MAX_TIMES);
 
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
