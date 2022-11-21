@@ -58,7 +58,7 @@ public:
      *
      * @return
      */
-    virtual void ScheduleShrinkMemory(const int32_t) override;
+    virtual void ScheduleShrinkMemory(const int32_t level) override;
 
     /**
      * ScheduleLowMemory, call ScheduleLowMemory() through proxy project,
@@ -84,7 +84,7 @@ public:
      *
      * @return
      */
-    virtual void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) override;
+    virtual void ScheduleLaunchApplication(const AppLaunchData &launchData, const Configuration &config) override;
 
     /**
      * Notify application to launch ability stage.
@@ -112,7 +112,7 @@ public:
      * @param The ability token.
      * @return
      */
-    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &) override;
+    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
 
     /**
      * ScheduleProfileChanged, call ScheduleProfileChanged() through proxy project,
@@ -121,7 +121,7 @@ public:
      * @param The profile data.
      * @return
      */
-    virtual void ScheduleProfileChanged(const Profile &) override;
+    virtual void ScheduleProfileChanged(const Profile &profile) override;
 
     /**
      * ScheduleConfigurationUpdated, call ScheduleConfigurationUpdated() through proxy project,

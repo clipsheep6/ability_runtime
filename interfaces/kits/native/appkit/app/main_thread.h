@@ -150,7 +150,7 @@ public:
      *
      * @param level Indicates the memory trim level, which shows the current memory usage status.
      */
-    void ScheduleMemoryLevel(int level) override;
+    void ScheduleMemoryLevel(const int level) override;
 
     /**
      *
@@ -422,7 +422,7 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    void LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication);
 
     /**
      *
@@ -457,7 +457,7 @@ private:
         void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override;
 
     private:
-        sptr<MainThread> mainThreadObj_ = nullptr;
+        wptr<MainThread> mainThreadObj_ = nullptr;
     };
 
     bool isRunnerStarted_ = false;
@@ -477,7 +477,7 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> signalHandler_;
-    static std::shared_ptr<OHOSApplication> applicationForDump_;
+    static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

@@ -123,6 +123,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(co
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
+std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenID(
+    const uint32_t accessTokenId)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
+        [&accessTokenId](const auto &pair) {
+            return pair.second->GetApplicationInfo()->accessTokenId == accessTokenId;
+        });
+    return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilityToken(
     const sptr<IRemoteObject> &abilityToken)
 {
@@ -226,6 +237,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
+    HILOG_INFO("On remot died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -424,6 +436,22 @@ void AppRunningManager::GetRunningProcessInfoByToken(
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::GetRunningProcessInfoByAccessTokenID(
+    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    auto appRecord = GetAppRunningRecordByTokenID(accessTokenId);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::AssignRunningProcessInfoByAppRecord(
+    std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
+{
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr");
         return;

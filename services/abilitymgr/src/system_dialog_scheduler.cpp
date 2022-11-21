@@ -87,8 +87,9 @@ bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &w
 {
     HILOG_DEBUG("GetANRDialogWant start");
     AppExecFwk::ApplicationInfo appInfo;
+    bool debug;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) != ERR_OK) {
         HILOG_ERROR("Get application info failed.");
         return false;
     }
@@ -138,19 +139,18 @@ Want SystemDialogScheduler::GetTipsDialogWant()
     return want;
 }
 
-Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos)
+Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant)
 {
     HILOG_DEBUG("GetSelectorDialogWant start");
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
     std::string params = GetSelectorParams(dialogAppInfos);
 
-    AAFwk::Want want;
-    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
-    want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
-    want.SetParam(DIALOG_PARAMS, params);
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    targetWant.SetParam(DIALOG_PARAMS, params);
 
-    return want;
+    return targetWant;
 }
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos) const
@@ -170,6 +170,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
         aObj["icon"] = std::to_string(aInfo.iconId);
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
+        aObj["module"] = aInfo.moduleName;
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;
@@ -279,8 +280,8 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                     position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
                     position.offsetY = (display->GetHeight() - position.height) / UI_HALF;
                 } else {
-                    position.window_width = position.window_width/UI_HALF;
-                    position.window_height = position.window_height/UI_HALF;
+                    position.window_width = position.window_width / UI_HALF;
+                    position.window_height = position.window_height / UI_HALF;
                     position.offsetX = LINE_NUMS_ZERO;
                     position.offsetY = LINE_NUMS_ZERO;
                 }

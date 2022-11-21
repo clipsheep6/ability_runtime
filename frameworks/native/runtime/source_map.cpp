@@ -418,6 +418,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     std::string filePath = BundleCodeDir + ABILITYPATH_FLAG + "sourceMaps.map";
     if (!ReadSourceMapData(filePath, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
+        return "";
     }
     std::size_t s = 0;
     std::size_t j = 0;
@@ -454,7 +455,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
             break;
         }
         static SourceMapData curMapData;
-        if(!bindSourceMaps.isStageModel) {
+        if (!bindSourceMaps.isStageModel) {
             if (i == 1) {   // The non module scenario initializes curmapdata only at the first traversal
                 if (!bindSourceMaps.nonModularMap_) {
                     return NOT_FOUNDMAP + stackStr;

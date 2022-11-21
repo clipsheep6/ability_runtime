@@ -56,6 +56,8 @@ class CallContainer;
 const std::string ABILITY_TOKEN_NAME = "AbilityToken";
 const std::string LINE_SEPARATOR = "\n";
 
+const int32_t RESTART_RESIDENT_ABILITY_MAX_TIMES = 15;
+
 /**
  * @class Token
  * Token is identification of ability and used to interact with kit and wms.
@@ -755,6 +757,7 @@ public:
     void SetRestarting(const bool isRestart);
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
+    void SetRestartCount(int32_t restartCount);
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
     bool IsRestarting() const;

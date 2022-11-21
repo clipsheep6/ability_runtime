@@ -48,35 +48,35 @@ public:
      *
      * @param ApplicationInfo&, the current application info.
      */
-    void SetApplicationInfo(const ApplicationInfo &);
+    void SetApplicationInfo(const ApplicationInfo &info);
 
     /**
      * @brief Setting information for the profile.
      *
      * @param Profile&, the current profile.
      */
-    void SetProfile(const Profile &);
+    void SetProfile(const Profile &profile);
 
     /**
      * @brief Setting information for the process.
      *
      * @param Profile&, the current process info.
      */
-    void SetProcessInfo(const ProcessInfo &);
+    void SetProcessInfo(const ProcessInfo &info);
 
     /**
      * @brief Setting id for app record.
      *
      * @param int32_t, the current app record id.
      */
-    void SetRecordId(const int32_t);
+    void SetRecordId(const int32_t recordId);
 
     /**
      * @brief Setting id for User.
      *
      * @param int32_t, the current app User.
      */
-    void SetUId(const int32_t);
+    void SetUId(const int32_t uId);
 
     /**
      * @brief set user test info.

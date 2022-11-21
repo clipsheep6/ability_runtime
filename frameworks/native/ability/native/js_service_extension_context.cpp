@@ -805,15 +805,15 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &Info)
+NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info)
 {
     HILOG_INFO("CreateJsMetadata");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    object->SetProperty("name", CreateJsValue(engine, Info.name));
-    object->SetProperty("value", CreateJsValue(engine, Info.value));
-    object->SetProperty("resource", CreateJsValue(engine, Info.resource));
+    object->SetProperty("name", CreateJsValue(engine, info.name));
+    object->SetProperty("value", CreateJsValue(engine, info.value));
+    object->SetProperty("resource", CreateJsValue(engine, info.resource));
     return objValue;
 }
 
@@ -878,7 +878,44 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
 
 JSServiceExtensionConnection::JSServiceExtensionConnection(NativeEngine& engine) : engine_(engine) {}
 
-JSServiceExtensionConnection::~JSServiceExtensionConnection() = default;
+JSServiceExtensionConnection::~JSServiceExtensionConnection()
+{
+    if (jsConnectionObject_ == nullptr) {
+        return;
+    }
+
+    uv_loop_t *loop = engine_.GetUVLoop();
+    if (loop == nullptr) {
+        return;
+    }
+
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return;
+    }
+    work->data = reinterpret_cast<void *>(jsConnectionObject_.release());
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work == nullptr) {
+            return;
+        }
+        if (work->data == nullptr) {
+            delete work;
+            work = nullptr;
+            return;
+        }
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    });
+    if (ret != 0) {
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
+}
 
 void JSServiceExtensionConnection::SetConnectionId(int64_t id)
 {

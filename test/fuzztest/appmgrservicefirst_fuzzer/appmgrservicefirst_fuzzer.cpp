@@ -124,7 +124,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->NotifyLoadRepairPatch(bundleName, callback);
     appMgrService->NotifyHotReloadPage(bundleName, callback);
     appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
+#ifdef ABILITY_COMMAND_FOR_TEST
     appMgrService->BlockAppService();
+#endif
     appMgrService->ApplicationBackgrounded(recordId);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     appMgrService->AbilityCleaned(token);

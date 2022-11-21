@@ -113,13 +113,13 @@ public:
      *
      * @param token, the token of ability.
      * @param preToken, the token of ability's caller.
-     * @param abilityinfo, ability info.
-     * @param application, application info.
+     * @param abilityInfo, ability info.
+     * @param applicationInfo, application info.
      * @param want ability want
      * @return true on success ,false on failure.
      */
     int LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const AppExecFwk::AbilityInfo &abilityinfo, const AppExecFwk::ApplicationInfo &application,
+        const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo,
         const Want &want);
 
     /**
@@ -233,6 +233,9 @@ public:
     void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
+    void GetRunningProcessInfoByAccessTokenID(const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
     /**
      * Start a resident process
      */
@@ -284,9 +287,10 @@ public:
      *
      * @param pid The process id.
      * @param application The application info.
+     * @param debug The app is or not debug.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**

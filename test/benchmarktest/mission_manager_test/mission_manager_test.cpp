@@ -20,6 +20,7 @@
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "mission_listener_stub.h"
+#include "mock_native_token.h"
 
 using namespace std;
 using namespace OHOS;
@@ -74,6 +75,7 @@ public:
 
     void SetUp(const ::benchmark::State &state) override
     {
+        OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
     }

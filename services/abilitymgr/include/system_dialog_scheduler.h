@@ -53,6 +53,7 @@ struct DialogAppInfo {
     int32_t labelId = 0;
     std::string bundleName = {};
     std::string abilityName = {};
+    std::string moduleName = {};
 };
 /**
  * @class SystemDialogScheduler
@@ -65,7 +66,7 @@ public:
     virtual ~SystemDialogScheduler() = default;
 
     bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
-    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos);
+    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant);
     Want GetTipsDialogWant();
 
     void SetDeviceType(const std::string &deviceType)

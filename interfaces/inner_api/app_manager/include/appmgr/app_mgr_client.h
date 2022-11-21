@@ -193,6 +193,10 @@ public:
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
+    virtual void GetRunningProcessInfoByAccessTokenID(
+        const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
     /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
@@ -291,7 +295,7 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

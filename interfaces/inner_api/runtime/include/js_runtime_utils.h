@@ -168,6 +168,7 @@ public:
     void ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value);
     void ResolveWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value);
     void RejectWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value);
+
 private:
     static void Execute(NativeEngine* engine, void* data);
     static void Complete(NativeEngine* engine, int32_t status, void* data);

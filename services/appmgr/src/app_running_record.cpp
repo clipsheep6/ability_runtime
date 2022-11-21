@@ -409,6 +409,12 @@ void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     if (eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
         eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG);
     }
@@ -1236,6 +1242,11 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
 {
     HILOG_INFO("SetDebugApp come, value is %{public}d", isDebugApp);
     isDebugApp_ = isDebugApp;
+}
+
+bool AppRunningRecord::IsDebugApp()
+{
+    return isDebugApp_;
 }
 
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)

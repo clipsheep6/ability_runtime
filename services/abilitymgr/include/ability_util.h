@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_UTIL_H
 
 #include <string>
+#include <unordered_set>
 
 #include "ability_config.h"
 #include "ability_manager_errors.h"
@@ -40,6 +41,9 @@ constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
+const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
+// dlp White list
+const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
 static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
@@ -176,6 +180,11 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
+    if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
+        HILOG_INFO("%{public}s, enter special app", __func__);
+        return false;
+    }
+
     AppExecFwk::ElementName element = want.GetElement();
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty() &&
         !element.GetAbilityName().empty()) {

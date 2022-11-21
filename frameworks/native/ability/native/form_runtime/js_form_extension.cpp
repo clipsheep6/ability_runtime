@@ -377,8 +377,8 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     }
 
     HILOG_INFO("%{public}s, state: %{public}d", __func__, state);
-    if (state <= static_cast<int32_t>(AppExecFwk::FormState::UNKNOWN) 
-        || state > static_cast<int32_t>(AppExecFwk::FormState::READY)) {
+    if (state <= static_cast<int32_t>(AppExecFwk::FormState::UNKNOWN) ||
+        state > static_cast<int32_t>(AppExecFwk::FormState::READY)) {
         return AppExecFwk::FormState::UNKNOWN;
     } else {
         return static_cast<AppExecFwk::FormState>(state);

@@ -18,7 +18,8 @@
 
 #include <string>
 
-namespace OHOS::AbilityRuntime {
+namespace OHOS {
+namespace AbilityRuntime {
 class HdcRegister final {
 public:
     static HdcRegister& Get();
@@ -37,6 +38,7 @@ private:
     HdcRegister& operator=(const HdcRegister&) = delete;
     HdcRegister& operator=(HdcRegister&&) = delete;
 };
-} // namespace OHOS::AbilityRuntime
+} // namespace AbilityRuntime
+} // namespace OHOS
 
 #endif // OHOS_ABILITY_RUNTIME_HDC_REGISTER_H

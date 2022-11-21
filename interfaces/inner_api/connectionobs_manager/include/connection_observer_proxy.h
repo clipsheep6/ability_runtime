@@ -32,13 +32,13 @@ public:
 
     virtual ~ConnectionObserverProxy() = default;
 
-    virtual void OnExtensionConnected(const ConnectionData &data) override;
+    virtual void OnExtensionConnected(const ConnectionData &connectionData) override;
 
-    virtual void OnExtensionDisconnected(const ConnectionData &data) override;
+    virtual void OnExtensionDisconnected(const ConnectionData &connectionData) override;
 
-    virtual void OnDlpAbilityOpened(const DlpStateData &data) override;
+    virtual void OnDlpAbilityOpened(const DlpStateData &dlpData) override;
 
-    virtual void OnDlpAbilityClosed(const DlpStateData &data) override;
+    virtual void OnDlpAbilityClosed(const DlpStateData &dlpData) override;
 
 private:
     static inline BrokerDelegator<ConnectionObserverProxy> delegator_;

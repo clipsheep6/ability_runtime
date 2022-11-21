@@ -151,8 +151,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::vector<std::string> stringVector;
     abilitySchedulerProxy->DumpAbilityInfo(stringVector, stringVector);
     abilitySchedulerProxy->CallRequest();
+#ifdef ABILITY_COMMAND_FOR_TEST
     abilitySchedulerProxy->BlockAbility();
-
+#endif
     // fuzz for AmsConfigurationParameter
     auto amsConfigurationParameter = std::make_shared<AmsConfigurationParameter>();
     amsConfigurationParameter->Parse();
