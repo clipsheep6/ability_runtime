@@ -198,10 +198,7 @@ public:
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override
     {}
 
-    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
-    {
-        return 0;
-    }
+    MOCK_METHOD2(StartUserTest, int(const Want &want, const sptr<IRemoteObject> &observer));
 
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override
@@ -225,10 +222,7 @@ public:
     }
 
     #ifdef ABILITY_COMMAND_FOR_TEST
-    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
-    {
-        return 0;
-    }
+    MOCK_METHOD2(ForceTimeoutForTest, int(const std::string &abilityName, const std::string &state));
 
     virtual int BlockAmsService()
     {
