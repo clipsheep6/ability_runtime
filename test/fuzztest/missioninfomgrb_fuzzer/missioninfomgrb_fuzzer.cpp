@@ -53,7 +53,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionInfoMgr->GetMissionInfoById(int32Param, missionInfo);
     missionInfoMgr->GetInnerMissionInfoById(int32Param, innerMissionInfo);
     missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, innerMissionInfo);
-    missionInfoMgr->UpdateMissionTimeStamp(int32Param, stringParam);
 
     return true;
 }

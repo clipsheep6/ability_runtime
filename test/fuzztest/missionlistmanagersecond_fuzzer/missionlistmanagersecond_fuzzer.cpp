@@ -119,7 +119,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->GetTargetMissionList(intParam, mission);
     missionListManager->GetMissionIdByAbilityToken(token);
     missionListManager->GetAbilityTokenByMissionId(int32Param);
-    missionListManager->UpdateMissionTimeStamp(abilityRecord);
     missionListManager->PostStartWaitingAbility();
     missionListManager->HandleAbilityDied(abilityRecord);
     missionListManager->HandleLauncherDied(abilityRecord);
