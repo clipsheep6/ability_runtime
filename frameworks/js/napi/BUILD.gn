@@ -42,6 +42,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/caller:caller_napi",
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant",
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant_napi",
+    "${ability_runtime_napi_path}/abilityDataUriUtils:abilitydatauriutils_napi",
     "${ability_runtime_napi_path}/dataUriUtils:datauriutils_napi",
     "${ability_runtime_napi_path}/extension_ability:extensionability_napi",
     "${ability_runtime_napi_path}/extensioncontext:extensioncontext_napi",
