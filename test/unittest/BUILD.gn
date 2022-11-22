@@ -341,6 +341,7 @@ group("unittest") {
     "lifecycle_deal_test:unittest",
     "lifecycle_test:unittest",
     "mission_listener_stub_test:unittest",
+    "mission_data_storage_test:unittest",
     "mission_listener_test:unittest",
     "os_account_manager_wrapper_test:unittest",
     "pending_want_key_test:unittest",
