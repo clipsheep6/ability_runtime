@@ -73,6 +73,7 @@ namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
+std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
@@ -1697,11 +1698,20 @@ void MainThread::HandleSignal(int signal)
 void MainThread::HandleDumpHeap(bool isPrivate)
 {
     HILOG_DEBUG("Dump heap start.");
-    auto app = applicationForDump_.lock();
-    if (app != nullptr && app->GetRuntime() != nullptr) {
-        HILOG_DEBUG("Send dump heap to ark start.");
-        app->GetRuntime()->DumpHeapSnapshot(isPrivate);
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("HandleDumpHeap failed, mainHandler is nullptr");
+        return;
     }
+
+    auto task = [isPrivate] {
+        auto app = applicationForDump_.lock();
+        if (app == nullptr || app->GetRuntime() == nullptr) {
+            HILOG_ERROR("runtime is nullptr.");
+            return;
+        }
+        app->GetRuntime()->DumpHeapSnapshot(isPrivate);
+    };
+    mainHandler_->PostTask(task);
 }
 
 void MainThread::Start()
