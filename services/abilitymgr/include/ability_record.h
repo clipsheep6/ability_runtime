@@ -56,6 +56,8 @@ class CallContainer;
 const std::string ABILITY_TOKEN_NAME = "AbilityToken";
 const std::string LINE_SEPARATOR = "\n";
 
+const int32_t RESTART_RESIDENT_ABILITY_MAX_TIMES = 15;
+
 /**
  * @class Token
  * Token is identification of ability and used to interact with kit and wms.
@@ -215,6 +217,11 @@ struct AbilityRequest {
             return true;
         }
         return false;
+    }
+
+    bool IsAppRecovery() const
+    {
+        return want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
     }
 
     bool IsCallType(const AbilityCallType & type) const
@@ -409,15 +416,6 @@ public:
      */
     bool IsReady() const;
 
-    inline void SetNeedSnapShot(bool needTakeSnapShot)
-    {
-        needTakeSnapShot_ = needTakeSnapShot;
-    }
-
-    inline bool IsNeedTakeSnapShot()
-    {
-        return needTakeSnapShot_;
-    }
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -759,6 +757,7 @@ public:
     void SetRestarting(const bool isRestart);
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
+    void SetRestartCount(int32_t restartCount);
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
     bool IsRestarting() const;
@@ -960,7 +959,6 @@ private:
     mutable std::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
-    bool needTakeSnapShot_ = true;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
 
 #ifdef SUPPORT_GRAPHICS

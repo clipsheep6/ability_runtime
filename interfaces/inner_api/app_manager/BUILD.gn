@@ -73,6 +73,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/process_data.cpp",
     "src/appmgr/process_info.cpp",
     "src/appmgr/profile.cpp",
+    "src/appmgr/quick_fix_callback_proxy.cpp",
+    "src/appmgr/quick_fix_callback_stub.cpp",
     "src/appmgr/render_scheduler_host.cpp",
     "src/appmgr/render_scheduler_proxy.cpp",
     "src/appmgr/running_process_info.cpp",

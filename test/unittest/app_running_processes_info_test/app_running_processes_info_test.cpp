@@ -75,6 +75,12 @@ protected:
         const static int VALID_UID_VALUE = 1010;
         return VALID_UID_VALUE;
     }
+    static uint32_t GetTestAccessTokenID()
+    {
+        // a valid accessTokenID value which is not border value.
+        const static int ACCESS_TOKEN_ID = 10000;
+        return ACCESS_TOKEN_ID;
+    }
 
     std::shared_ptr<AppRunningRecord> GetTestAppRunningRecord();
     sptr<IAppScheduler> GetMockedAppSchedulerClient() const;
@@ -365,5 +371,37 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_004, TestSize.Level
     service_->appRunningManager_->GetRunningProcessInfoByToken(GetMockToken(), info);
     EXPECT_TRUE(info.processName_ == GetTestProcessName());
 }
+
+/*
+ * Feature: AppMgrServiceInner
+ * Function: GetRunningProcessInfoByAccessTokenID
+ * SubFunction: NA
+ * FunctionPoints: get running process info by AccessTokenID.
+ * EnvConditions: NA
+ * CaseDescription: creat apprunningrecords, set record state, call query function.
+ */
+HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_005, TestSize.Level1)
+{
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->accessTokenId = GetTestAccessTokenID();
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+    record->SetState(ApplicationState::APP_STATE_BACKGROUND);
+    record->SetApplicationClient(GetMockedAppSchedulerClient());
+    RunningProcessInfo info;
+    service_->appRunningManager_->GetRunningProcessInfoByAccessTokenID(GetTestAccessTokenID(), info);
+    EXPECT_TRUE(info.processName_ == GetTestProcessName());
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -57,14 +57,23 @@ public:
      * Get singleton mission by name.
      *
      * @param missionName target mission name.
-     * @return finded mission.
+     * @return founded mission.
      */
     std::shared_ptr<Mission> GetSingletonMissionByName(const std::string& missionName) const;
 
     /**
+     * Get specified mission by name and flag.
+     *
+     * @param missionName target mission name.
+     * @param flag target mission specified flag.
+     * @return founded mission.
+     */
+    std::shared_ptr<Mission> GetSpecifiedMission(const std::string& missionName, const std::string& flag) const;
+
+    /**
      * Get top mission of this mission list.
      *
-     * @return finded mission.
+     * @return founded mission.
      */
     std::shared_ptr<Mission> GetTopMission() const;
 

@@ -42,6 +42,8 @@ using StartServer = void (*)(const std::string&);
 using SendMessage = void (*)(const std::string&);
 using StopServer = void (*)(const std::string&);
 using StoreMessage = void (*)(int32_t, const std::string&);
+using StoreInspectorInfo = void (*)(const std::string&, const std::string&);
+using SetSwitchCallBack = void (*)(const std::function<void(bool)>& setSwitchStatus);
 using RemoveMessage = void (*)(int32_t);
 using WaitForDebugger = bool (*)();
 
@@ -112,6 +114,14 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
             return false;
         }
     }
+
+    auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
+        dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
+    if (setSwitchCallBack == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
+        return false;
+    }
+    setSwitchCallBack(std::bind(&ConnectServerManager::SetLayoutInspectorStatus, this, std::placeholders::_1));
 
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName);
@@ -186,4 +196,24 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
     sendMessage(message);
 }
+
+void ConnectServerManager::SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr)
+{
+    auto sendMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendMessage"));
+    if (sendMessage == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'SendMessage'");
+        return;
+    }
+
+    sendMessage(jsonTreeStr);
+    sendMessage(jsonSnapshotStr);
+    auto storeInspectorInfo = reinterpret_cast<StoreInspectorInfo>(
+        dlsym(handlerConnectServerSo_, "StoreInspectorInfo"));
+    if (storeInspectorInfo == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreInspectorInfo'");
+        return;
+    }
+    storeInspectorInfo(jsonTreeStr, jsonSnapshotStr);
+}
+
 } // namespace OHOS::AbilityRuntime

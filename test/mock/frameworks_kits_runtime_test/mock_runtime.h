@@ -34,9 +34,18 @@ public:
     }
     void StartDebugMode(bool needBreakPoint) {}
     void FinishPreload() {}
-    void LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) {}
-    void NotifyHotReloadPage() {}
-    void UnLoadRepairPatch(const std::string& patchFile) {}
+    bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile)
+    {
+        return true;
+    }
+    bool NotifyHotReloadPage()
+    {
+        return true;
+    }
+    bool UnLoadRepairPatch(const std::string& patchFile)
+    {
+        return true;
+    }
     bool RunScript(const std::string& path, const std::string& hapPath)
     {
         return true;

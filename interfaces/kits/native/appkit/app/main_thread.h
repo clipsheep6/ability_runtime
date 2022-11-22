@@ -26,15 +26,18 @@
 #include "application_impl.h"
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
+#include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/source_map.h"
 #include "ipc_singleton.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
+class ModSourceMap;
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Global;
 using OHOS::AbilityRuntime::Runtime;
+using OHOS::AbilityRuntime::ModSourceMap;
 enum class MainThreadState { INIT, ATTACH, READY, RUNNING };
 struct BundleInfo;
 class ContextDeal;
@@ -147,7 +150,7 @@ public:
      *
      * @param level Indicates the memory trim level, which shows the current memory usage status.
      */
-    void ScheduleMemoryLevel(int level) override;
+    void ScheduleMemoryLevel(const int level) override;
 
     /**
      *
@@ -225,11 +228,13 @@ public:
      */
     void CheckMainThreadIsAlive();
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyHotReloadPage() override;
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback) override;
 
 private:
     /**
@@ -417,7 +422,7 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    void LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication);
 
     /**
      *
@@ -434,7 +439,7 @@ private:
 
     bool Timer();
     bool WaitForDuration(uint32_t duration);
-    void reportEvent();
+    void ReportEvent();
     bool IsStopWatchdog();
 
     class MainHandler : public EventHandler {
@@ -452,7 +457,7 @@ private:
         void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override;
 
     private:
-        sptr<MainThread> mainThreadObj_ = nullptr;
+        wptr<MainThread> mainThreadObj_ = nullptr;
     };
 
     bool isRunnerStarted_ = false;
@@ -472,7 +477,7 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> signalHandler_;
-    static std::shared_ptr<OHOSApplication> applicationForDump_;
+    static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

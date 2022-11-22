@@ -16,13 +16,16 @@
 #include <cstdlib>
 #include <gtest/gtest.h>
 
-#include "hilog_wrapper.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 #define private public
 #include "main_thread.h"
 #undef private
+
+#include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
 #include "mock_bundle_manager.h"
+#include "process_info.h"
+#include "quick_fix_callback_stub.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -31,6 +34,27 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
+public:
+    QuickFixCallbackImpl() = default;
+    virtual ~QuickFixCallbackImpl() = default;
+
+    void OnLoadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnUnloadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnReloadPageDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+};
+
 class MainThreadTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -81,7 +105,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
-    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -95,7 +120,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-    auto ret = mainThread_->ScheduleNotifyHotReloadPage();
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -109,6 +135,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ProcessInfo processInfo("test_quickfix", 1);
+    mainThread_->processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     std::string bundleName = "com.ohos.quickfix";
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
@@ -131,9 +159,85 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
-    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: InitResourceManager_0100
+ * @tc.desc: init resourceManager.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    EXPECT_TRUE(resourceManager != nullptr);
+    AppExecFwk::BundleInfo bundleInfo;
+    Configuration config;
+    bundleInfo.applicationInfo.multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+    bundleInfo.applicationInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+
+    HapModuleInfo info;
+    info.name = "com.ohos.contactsdataability";
+    info.moduleName = "entry";
+    info.description = "dataability_description";
+    info.iconPath = "$media:icon";
+    info.deviceTypes = {"smartVision"};
+    info.bundleName = "com.ohos.contactsdataability";
+    bundleInfo.hapModuleInfos.push_back(info);
+    bundleInfo.applicationInfo.multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+
+    bundleInfo.applicationInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+
+    info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
+        "/com.ohos.contactsdataability/assets/entry/resources.index";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+
+    info.hapPath = "/system/app/com.ohos.contactsdataability/Contacts_DataAbility.hap";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+
+    info.resourcePath = "";
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+}
+
+/**
+ * @tc.name: HandleLaunchApplication_0100
+ * @tc.desc: Handle launch application.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(MainThreadTest, HandleLaunchApplication_0100, TestSize.Level1)
+{
+    Configuration config;
+    AppLaunchData lanchdate;
+    ProcessInfo processing("TestProcess", 9999);
+    ApplicationInfo appinf;
+    appinf.name = "MockTestApplication";
+    appinf.moduleSourceDirs.push_back("/hos/lib/libabilitydemo_native.z.so");
+    lanchdate.SetApplicationInfo(appinf);
+    lanchdate.SetProcessInfo(processing);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

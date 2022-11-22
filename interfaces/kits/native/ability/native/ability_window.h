@@ -45,10 +45,8 @@ public:
      */
     void Init(std::shared_ptr<AbilityHandler> &handler, std::shared_ptr<Ability> ability);
 
-    bool InitWindow(Rosen::WindowType winType,
-        std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option,
-        bool isPrivacy);
+    bool InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
+        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option, bool isPrivacy);
 
     /**
      * @brief Called when this ability is background.
@@ -100,7 +98,6 @@ private:
     std::weak_ptr<IAbilityEvent> ability_;
     std::shared_ptr<Rosen::WindowScene> windowScene_;
     bool isWindowAttached = false;
-    Rosen::WindowType winType_ = Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

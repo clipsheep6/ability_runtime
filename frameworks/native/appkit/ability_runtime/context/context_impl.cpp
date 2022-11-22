@@ -28,6 +28,7 @@
 #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
+#include "parameters.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
@@ -207,23 +208,23 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
 
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    std::vector<std::string> moduleResPaths;
-    for (auto &info : bundleInfo.hapModuleInfos) {
-        if (info.moduleName == moduleName) {
-            moduleResPaths.emplace_back(info.resourcePath);
-            appContext->InitHapModuleInfo(info);
-            break;
-        }
+    bool hasModule = false;
+    auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
+        [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
+            return hapModuleInfo.moduleName == moduleName;
+        });
+    if (info != bundleInfo.hapModuleInfos.end()) {
+        hasModule = true;
+        appContext->InitHapModuleInfo(*info);
     }
 
-    if (moduleResPaths.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext hapModuleInfos is error.");
+    if (!hasModule) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
         return nullptr;
     }
 
-    bundleInfo.moduleResPaths.swap(moduleResPaths);
     appContext->SetConfiguration(config_);
-    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, true);
+    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
@@ -345,22 +346,26 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 }
 
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, bool moduleContext) const
+    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
         HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }
-    if (moduleContext || !bundleInfo.applicationInfo.multiProjects) {
+    if (!moduleName.empty() || !bundleInfo.applicationInfo.multiProjects) {
         HILOG_DEBUG("InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
         std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
         std::regex outer_pattern(ABS_CODE_PATH);
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+            if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
-            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            std::string loadPath =  (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
+                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
+            if (loadPath.empty()) {
+                continue;
+            }
             if (currentBundle) {
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
             } else {

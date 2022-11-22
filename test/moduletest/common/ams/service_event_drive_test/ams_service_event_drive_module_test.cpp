@@ -134,7 +134,7 @@ public:
     }
 
 private:
-    Semaphore lock_ = {0};
+    Semaphore lock_;
     int32_t count_ = 1;
     int32_t currentCount_ = 1;
     AmsInnerState state_ = AmsInnerState::STATE_NO_OPERATION;

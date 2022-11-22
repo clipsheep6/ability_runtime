@@ -176,6 +176,9 @@ bool BundleMgrService::GetApplicationInfo(
         appInfo.appDistributionType = "crowdtesting";
         appInfo.crowdtestDeadline = 0;
     }
+    if (appName.compare("com.test.control") == 0) {
+        isAppControlProxyNull_ = true;
+    }
     return true;
 }
 

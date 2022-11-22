@@ -20,6 +20,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
+static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+}
+
 int64_t AppRunningRecord::appEventId_ = 0;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
@@ -134,6 +139,12 @@ AppRunningRecord::AppRunningRecord(
         isLauncherApp_ = info->isLauncherApp;
         mainAppName_ = info->name;
     }
+
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    startTimeMillis_ = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
 }
 
 void AppRunningRecord::SetApplicationClient(const sptr<IAppScheduler> &thread)
@@ -225,6 +236,7 @@ void AppRunningRecord::SetState(const ApplicationState state)
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()
 {
     std::list<std::shared_ptr<ApplicationInfo>> appInfoList;
+    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
     for (const auto &item : appInfos_) {
         appInfoList.push_back(item.second);
     }
@@ -240,11 +252,6 @@ const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>>
         abilitysMap.insert(abilities.begin(), abilities.end());
     }
     return abilitysMap;
-}
-
-std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> &AppRunningRecord::GetModules()
-{
-    return hapModules_;
 }
 
 sptr<IAppScheduler> AppRunningRecord::GetApplicationClient() const
@@ -308,6 +315,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
 {
     HILOG_INFO("Remove module record.");
 
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     for (auto &item : hapModules_) {
         auto iter = std::find_if(item.second.begin(),
             item.second.end(),
@@ -315,7 +323,10 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
         if (iter != item.second.end()) {
             iter = item.second.erase(iter);
             if (item.second.empty()) {
-                appInfos_.erase(item.first);
+                {
+                    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+                    appInfos_.erase(item.first);
+                }
                 hapModules_.erase(item.first);
             }
             return;
@@ -341,9 +352,12 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
         return;
     }
     AppLaunchData launchData;
-    auto moduleRecords = appInfos_.find(mainBundleName_);
-    if (moduleRecords != appInfos_.end()) {
-        launchData.SetApplicationInfo(*(moduleRecords->second));
+    {
+        std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+        auto moduleRecords = appInfos_.find(mainBundleName_);
+        if (moduleRecords != appInfos_.end()) {
+            launchData.SetApplicationInfo(*(moduleRecords->second));
+        }
     }
     ProcessInfo processInfo(processName_, GetPriorityObject()->GetPid());
     launchData.SetProcessInfo(processInfo);
@@ -395,6 +409,12 @@ void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     if (eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
         eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG);
     }
@@ -526,7 +546,6 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     }
 
     std::shared_ptr<ModuleRunningRecord> moduleRecord;
-    std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
 
     auto initModuleRecord = [=](const std::shared_ptr<ModuleRunningRecord> &moduleRecord) {
         moduleRecord->Init(hapModuleInfo);
@@ -534,6 +553,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         moduleRecord->SetApplicationClient(appLifeCycleDeal_);
     };
 
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     const auto &iter = hapModules_.find(appInfo->bundleName);
     if (iter != hapModules_.end()) {
         moduleRecord = GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
@@ -544,9 +564,13 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         }
     } else {
         moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, eventHandler_);
+        std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
         moduleList.push_back(moduleRecord);
         hapModules_.emplace(appInfo->bundleName, moduleList);
-        appInfos_.emplace(appInfo->bundleName, appInfo);
+        {
+            std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+            appInfos_.emplace(appInfo->bundleName, appInfo);
+        }
         initModuleRecord(moduleRecord);
     }
 
@@ -891,6 +915,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRecord() const
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
             moduleRecordList.push_back(list);
@@ -1072,13 +1097,16 @@ void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
 bool AppRunningRecord::GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info)
 {
     bool result = false;
+    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
     auto moduleInfoVectorIter = hapModules_.find(bundleName);
     if (moduleInfoVectorIter == hapModules_.end() || moduleInfoVectorIter->second.empty()) {
         return result;
     }
-    auto findCondition = [](const std::shared_ptr<ModuleRunningRecord> &record) {
+    std::string moduleName = moduleName_;
+    auto findCondition = [moduleName](const std::shared_ptr<ModuleRunningRecord> &record) {
         if (record) {
-            return record->GetModuleRecordState() == ModuleRecordState::INITIALIZED_STATE;
+            return (moduleName.empty() || (moduleName == record->GetModuleName())) &&
+                (record->GetModuleRecordState() == ModuleRecordState::INITIALIZED_STATE);
         }
         return false;
     };
@@ -1115,6 +1143,7 @@ bool AppRunningRecord::CanRestartResidentProc()
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
+    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }
@@ -1215,6 +1244,11 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
     isDebugApp_ = isDebugApp;
 }
 
+bool AppRunningRecord::IsDebugApp()
+{
+    return isDebugApp_;
+}
+
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
 {
     appIndex_ = appIndex;
@@ -1255,7 +1289,7 @@ void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObjec
     (void)moduleRecord->RemoveTerminateAbilityTimeoutTask(token);
 }
 
-int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1263,10 +1297,10 @@ int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName);
+    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppRunningRecord::NotifyHotReloadPage()
+int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1274,10 +1308,11 @@ int32_t AppRunningRecord::NotifyHotReloadPage()
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyHotReloadPage();
+    return appLifeCycleDeal_->NotifyHotReloadPage(callback);
 }
 
-int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1285,7 +1320,7 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName);
+    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
 bool AppRunningRecord::IsContinuousTask()
@@ -1301,6 +1336,11 @@ void AppRunningRecord::SetContinuousTaskAppState(bool isContinuousTask)
 bool AppRunningRecord::GetFocusFlag() const
 {
     return isFocused_;
+}
+
+int64_t AppRunningRecord::GetAppStartTime() const
+{
+    return startTimeMillis_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

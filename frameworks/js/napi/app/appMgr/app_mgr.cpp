@@ -37,7 +37,7 @@ constexpr size_t ARGC_TWO = 2;
 
 class JsAppManager final {
 public:
-    JsAppManager(sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : abilityManager_(abilityManager) {}
+    explicit JsAppManager(sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : abilityManager_(abilityManager) {}
     ~JsAppManager() = default;
 
     static void Finalizer(NativeEngine *engine, void *data, void *hint)
@@ -55,7 +55,7 @@ public:
 private:
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
 
-    NativeValue* OnKillProcessByBundleName(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnKillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_DEBUG("%{public}s is called", __FUNCTION__);
         std::string bundleName;

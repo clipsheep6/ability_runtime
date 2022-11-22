@@ -12,6 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef OHOS_ABILITY_APP_RECOVERY_H
+#define OHOS_ABILITY_APP_RECOVERY_H
+
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -25,9 +29,6 @@
 #include "parcel.h"
 #include "want.h"
 #include "want_params.h"
-
-#ifndef OHOS_ABILITY_APP_RECOVERY_H
-#define OHOS_ABILITY_APP_RECOVERY_H
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -44,6 +45,7 @@ public:
     bool ScheduleRecoverApp(StateReason reason);
     bool ScheduleSaveAppState(StateReason reason);
     bool TryRecoverApp(StateReason reason);
+    bool PersistAppState();
 
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;

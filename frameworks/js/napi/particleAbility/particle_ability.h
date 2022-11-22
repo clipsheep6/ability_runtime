@@ -21,7 +21,6 @@
 #include "napi/native_node_api.h"
 #include "js_runtime_utils.h"
 #include "js_napi_common_ability.h"
-#include "want_agent.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -39,16 +38,14 @@ public:
     ~JsParticleAbility() = default;
     Ability* GetAbility(napi_env env);
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
-    static NativeValue* PACancelBackgroundRunning(NativeEngine *engine, NativeCallbackInfo *info);
-
-private:
-    NativeValue* OnPAStartBackgroundRunning(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnPACancelBackgroundRunning(NativeEngine &engine, NativeCallbackInfo &info);
+    static NativeValue* PAConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PADisConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PAStartAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PATerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
 };
 
 NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj);
 napi_value ParticleAbilityInit(napi_env env, napi_value exports);
-napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRuntime::WantAgent::WantAgent *&wantAgent);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H */

@@ -259,6 +259,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_005, Function | MediumTest |
         abilityRequest.abilityInfo.moduleName + ":" + abilityRequest.abilityInfo.name;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    missionListMgr->Init();
     std::shared_ptr<AbilityRecord> abilityRecord =
         std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();

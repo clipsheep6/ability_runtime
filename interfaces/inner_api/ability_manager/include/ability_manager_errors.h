@@ -283,6 +283,26 @@ enum {
      * Result(2097204) for application abnormal.
      */
     ERR_DISPOSED_STATUS,
+
+    /**
+     * Result(2097205) for invalid caller.
+     */
+    ERR_INVALID_CALLER,
+
+    /**
+     * Result(2097206) for not allowed continuation flag.
+     */
+    ERR_INVALID_CONTINUATION_FLAG,
+
+    /**
+     * Result(2097207) for not allowed to cross user.
+     */
+    ERR_CROSS_USER,
+
+    /**
+     * Result(2097208) for not granted for static permission.
+     */
+    ERR_STATIC_CFG_PERMISSION,
 };
 
 enum {

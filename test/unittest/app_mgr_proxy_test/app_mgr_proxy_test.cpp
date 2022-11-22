@@ -18,6 +18,7 @@
 #include "mock_app_mgr_service.h"
 #include "app_mgr_proxy.h"
 #include "hilog_wrapper.h"
+#include "quick_fix_callback_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -27,6 +28,27 @@ namespace AppExecFwk {
 namespace {
 const int32_t USER_ID = 100;
 }  // namespace
+
+class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
+public:
+    QuickFixCallbackImpl() = default;
+    virtual ~QuickFixCallbackImpl() = default;
+
+    void OnLoadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnUnloadPatchDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+
+    void OnReloadPageDone(int32_t resultCode) override
+    {
+        HILOG_DEBUG("function called.");
+    }
+};
 
 class AppMgrProxyTest : public testing::Test {
 public:
@@ -116,7 +138,8 @@ HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
 
     std::string bundleName = "testBundleName";
-    appMgrProxy_->NotifyLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    appMgrProxy_->NotifyLoadRepairPatch(bundleName, callback);
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH));
 
@@ -138,7 +161,8 @@ HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
 
     std::string bundleName = "testBundleName";
-    appMgrProxy_->NotifyHotReloadPage(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    appMgrProxy_->NotifyHotReloadPage(bundleName, callback);
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE));
 
@@ -160,9 +184,30 @@ HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
 
     std::string bundleName = "testBundleName";
-    appMgrProxy_->NotifyUnLoadRepairPatch(bundleName);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    appMgrProxy_->NotifyUnLoadRepairPatch(bundleName, callback);
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PreStartNWebSpawnProcess_001
+ * @tc.desc: prestart nwebspawn process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    appMgrProxy_->PreStartNWebSpawnProcess();
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS));
 
     HILOG_INFO("%{public}s end.", __func__);
 }

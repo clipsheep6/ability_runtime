@@ -30,3 +30,23 @@ ohos_shared_library("configurationconstant_napi") {
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
+
+ohos_shared_library("configurationconstant") {
+  include_dirs = []
+
+  sources = [ "configuration_constant_module.cpp" ]
+
+  deps = []
+
+  external_deps = [
+    "c_utils:utils",
+    "napi:ace_napi",
+    "resource_management:global_resmgr",
+  ]
+
+  defines = [ "ENABLE_ERRCODE" ]
+
+  relative_install_dir = "module/app/ability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

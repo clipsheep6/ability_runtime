@@ -103,7 +103,7 @@ public:
 private:
     void Timer();
     bool WaitForDuration(uint32_t duration);
-    void reportEvent();
+    void ReportEvent();
 
     std::atomic_bool appMainThreadIsAlive_ = false;
     std::atomic_bool stopWatchdog_ = false;
@@ -114,7 +114,7 @@ private:
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;
     static std::shared_ptr<EventHandler> appMainHandler_;
-    uint64_t lastWatchTime_ = 0;
+    int64_t lastWatchTime_ = 0;
 };
 
 class MainHandlerDumper : public Dumper {

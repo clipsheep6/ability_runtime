@@ -90,7 +90,7 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Leve
     MixStackDumper mixDumper;
     pid_t pid = GetServicePid("com.ohos.systemui");
     mixDumper.Init(pid);
-    bool ret = mixDumper.DumpMixFrame(1, pid);
+    bool ret = mixDumper.DumpMixFrame(1, pid, pid);
     mixDumper.Destroy();
     EXPECT_FALSE(ret);
 }
@@ -103,12 +103,12 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Leve
 HWTEST_F(MixStackDumperTest, MixStackDumperTest002, Function | MediumTest | Level3)
 {
     MixStackDumper mixDumper;
-    bool ret = mixDumper.DumpMixFrame(1, getpid());
+    bool ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
     EXPECT_FALSE(ret);
     mixDumper.Init(getpid());
-    ret = mixDumper.DumpMixFrame(1, -1);
+    ret = mixDumper.DumpMixFrame(1, -1, -1);
     EXPECT_FALSE(ret);
-    ret = mixDumper.DumpMixFrame(1, getpid());
+    ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
     mixDumper.Destroy();
     EXPECT_TRUE(ret);
 }

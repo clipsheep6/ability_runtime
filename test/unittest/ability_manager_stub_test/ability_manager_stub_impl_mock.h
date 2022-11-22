@@ -19,7 +19,9 @@
 #include <iremote_object.h>
 #include <iremote_stub.h>
 #include "ability_manager_interface.h"
+#define private public
 #include "ability_manager_stub.h"
+#undef private
 
 namespace OHOS {
 namespace AAFwk {

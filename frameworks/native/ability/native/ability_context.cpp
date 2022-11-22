@@ -123,10 +123,6 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     }
 
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
-    if (elementName == nullptr) {
-        HILOG_ERROR("AbilityContext::GetElementName elementName == nullptr");
-        return nullptr;
-    }
     elementName->SetAbilityName(info->name);
     elementName->SetBundleName(info->bundleName);
     elementName->SetDeviceID(info->deviceId);
@@ -139,11 +135,6 @@ std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
-
-    if (elementName == nullptr) {
-        HILOG_ERROR("AbilityContext::GetElementName elementName == nullptr");
-        return nullptr;
-    }
     elementName->SetAbilityName(callingAbilityName_);
     elementName->SetBundleName(callingBundleName_);
     elementName->SetDeviceID(callingDeviceId_);
@@ -165,7 +156,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
 
     HILOG_INFO("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
 
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::ConnectAbility AbilityType = %{public}d", type);
         return false;
     }
@@ -187,7 +178,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
     HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::DisconnectAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
@@ -203,7 +194,7 @@ bool AbilityContext::StopAbility(const AAFwk::Want &want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::StopAbility AbilityType = %{public}d", type);
         return false;
     }

@@ -38,7 +38,7 @@ ohos_shared_library("quickfixmanager_napi") {
     "napi:ace_napi",
   ]
 
-  relative_install_dir = "module/application"
+  relative_install_dir = "module/app/ability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

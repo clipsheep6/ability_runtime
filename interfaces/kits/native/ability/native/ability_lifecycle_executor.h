@@ -48,7 +48,7 @@ public:
      * @return return  Returns the int value of the ability lifecycle state represented
      * by the AbilityLifecycleExecutor.LifecycleState enum constant.
      */
-    int GetState();
+    int GetState() const;
 
 private:
     AbilityLifecycleExecutor::LifecycleState state_ = UNINITIALIZED;

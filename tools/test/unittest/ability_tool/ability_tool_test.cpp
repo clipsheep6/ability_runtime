@@ -304,33 +304,6 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0700, TestSize.Level1)
 }
 
 /**
- * @tc.name: AbilityTool_Start_0800
- * @tc.desc: start ability test.
- * "ability_tool start --ability com.ohos.settings.MainAbility --bundle com.ohos.settings"
- *  --options windowMode 102 --flags 8"
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityToolTest, AbilityTool_Start_0800, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("com.ohos.settings.MainAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.ohos.settings"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("windowMode"),
-        const_cast<char *>("102"),
-        const_cast<char *>("--flags"),
-        const_cast<char *>("8"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
-}
-
-/**
  * @tc.name: AbilityTool_StopService_0100
  * @tc.desc: "ability_tool stop-service" test.
  * @tc.type: FUNC
@@ -439,35 +412,6 @@ HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0100, TestSize.Level1)
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_FORCE_STOP);
-}
-
-/**
- * @tc.name: AbilityTool_ForceStop_0200
- * @tc.desc: "ability_tool force-stop --help" test.
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0200, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("com.ohos.settings.MainAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.ohos.settings"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
-
-    char *argv1[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("force-stop"),
-        const_cast<char *>("com.ohos.settings"),
-    };
-    int argc1 = sizeof(argv1) / sizeof(argv1[0]);
-    AbilityToolCommand cmd1(argc1, argv1);
-    EXPECT_EQ(cmd1.ExecCommand(), STRING_FORCE_STOP_OK + "\n");
 }
 
 /**

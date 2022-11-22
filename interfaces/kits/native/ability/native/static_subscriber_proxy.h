@@ -28,7 +28,7 @@ public:
 
     virtual ~StaticSubscriberProxy() {}
 
-    ErrCode OnReceiveEvent(CommonEventData* data) override;
+    ErrCode OnReceiveEvent(CommonEventData* inData) override;
 
 private:
     static constexpr int COMMAND_ON_RECEIVE_EVENT = MIN_TRANSACTION_ID;

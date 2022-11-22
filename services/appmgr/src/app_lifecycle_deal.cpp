@@ -163,7 +163,7 @@ int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
     return ERR_OK;
 }
 
-int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call %{public}s", __func__);
@@ -171,10 +171,10 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyLoadRepairPatch(bundleName);
+    return appThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback);
 }
 
-int32_t AppLifeCycleDeal::NotifyHotReloadPage()
+int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call %{public}s", __func__);
@@ -182,10 +182,11 @@ int32_t AppLifeCycleDeal::NotifyHotReloadPage()
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyHotReloadPage();
+    return appThread_->ScheduleNotifyHotReloadPage(callback);
 }
 
-int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -193,7 +194,7 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName)
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyUnLoadRepairPatch(bundleName);
+    return appThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

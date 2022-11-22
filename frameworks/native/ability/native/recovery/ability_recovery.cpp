@@ -21,6 +21,7 @@
 
 #include <unistd.h>
 
+#include "file_ex.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "js_runtime.h"
@@ -47,8 +48,8 @@ static std::string GetSaveAppCachePath(int32_t savedStateId)
 
     std::string fileDir = context->GetFilesDir();
     HILOG_DEBUG("AppRecovery GetSaveAppCachePath fileDir %{public}s.", fileDir.c_str());
-    if (fileDir.empty()) {
-        HILOG_INFO("AppRecovery GetSaveAppCachePath fileDir.empty().");
+    if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
+        HILOG_ERROR("AppRecovery GetSaveAppCachePath fileDir is empty or fileDir is not exists.");
         return "";
     }
 
@@ -73,6 +74,13 @@ bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<Ability>& ability,
     ability_ = ability;
     abilityInfo_ = abilityInfo;
     token_ = token;
+    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
+    if (ams == nullptr) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
+        return false;
+    }
+
+    ams->EnableRecoverAbility(token);
     return true;
 }
 
@@ -93,8 +101,7 @@ bool AbilityRecovery::SaveAbilityState()
         return false;
     }
 
-    AAFwk::Want want;
-    AAFwk::WantParams wantParams = want.GetParams();
+    AAFwk::WantParams wantParams;
     int32_t status = ability->OnSaveState(AppExecFwk::StateType::APP_RECOVERY, wantParams);
     if (!(status == AppExecFwk::OnSaveResult::ALL_AGREE || status == AppExecFwk::OnSaveResult::RECOVERY_AGREE)) {
         HILOG_ERROR("AppRecovery Failed to save user params.");
@@ -112,7 +119,7 @@ bool AbilityRecovery::SaveAbilityState()
     if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
         SerializeDataToFile(abilityInfo->descriptionId, wantParams);
     } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
-        HILOG_DEBUG("AppRecovery save to SHARED_MEMORY");
+        params_ = wantParams;
     }
     return true;
 }
@@ -131,6 +138,7 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
     }
     int fd = open(file.c_str(), O_RDWR | O_CREAT, (mode_t)0600);
     if (fd <= 0) {
+        HILOG_ERROR("AppRecovery %{public}s failed to open %{public}s.", __func__, file.c_str());
         return false;
     }
     size_t sz = parcel.GetDataSize();
@@ -140,8 +148,8 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
         close(fd);
         return false;
     }
-    size_t nwrite = write(fd, (uint8_t*)buf, sz);
-    if (nwrite != sz) {
+    ssize_t nwrite = write(fd, reinterpret_cast<uint8_t*>(buf), sz);
+    if (nwrite <= 0) {
         HILOG_ERROR("AppRecovery%{public}s failed to persist parcel data %{public}d.", __func__, errno);
     }
     close(fd);
@@ -176,7 +184,7 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
         return false;
     }
 
-    auto mapFile = (uint8_t*) mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    auto mapFile = static_cast<uint8_t*>(mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
     if (mapFile == MAP_FAILED) {
         close(fd);
         remove(path);
@@ -221,6 +229,41 @@ bool AbilityRecovery::ScheduleSaveAbilityState(StateReason reason)
     return SaveAbilityState();
 }
 
+bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason)
+{
+    if (!isEnable_) {
+        HILOG_ERROR("AppRecovery not enable");
+        return false;
+    }
+
+    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
+    if (ams == nullptr) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
+        return false;
+    }
+
+    auto token = token_.promote();
+    if (token == nullptr) {
+        return false;
+    }
+    ams->ScheduleRecoverAbility(token, reason);
+    return true;
+}
+
+bool AbilityRecovery::PersistState()
+{
+    auto abilityInfo = abilityInfo_.lock();
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("AppRecovery ability is nullptr");
+        return false;
+    }
+
+    if (!params_.IsEmpty()) {
+        SerializeDataToFile(abilityInfo->descriptionId, params_);
+    }
+    return true;
+}
+
 bool AbilityRecovery::LoadSavedState(StateReason reason)
 {
     auto abilityInfo = abilityInfo_.lock();
@@ -250,7 +293,7 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
     return hasLoaded_;
 }
 
-bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason)
+bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason, const Want &want)
 {
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery not enable");
@@ -267,43 +310,11 @@ bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason)
         return false;
     }
 
-    auto ability = ability_.lock();
-    if (ability == nullptr) {
-        HILOG_ERROR("AppRecovery ability is nullptr");
-        return false;
+    const WantParams &wantParams = want.GetParams();
+    WantParams &wantCurrent = const_cast<WantParams&>(wantParams);
+    for (auto& i : params_.GetParams()) {
+        wantCurrent.SetParam(i.first, i.second.GetRefPtr());
     }
-    bool ret = ability->OnRestoreData(params_);
-    if (!ret) {
-        HILOG_ERROR("AppRecovery::ScheduleRestoreAbilityState failed. Ability restore data failed.");
-    }
-    ability->OnRestoreState(StateType::APP_RECOVERY, params_);
-    return true;
-}
-
-bool AbilityRecovery::CallOnRestoreAbilityState(StateReason reason)
-{
-    if (!isEnable_) {
-        HILOG_ERROR("AppRecovery not enable");
-        return false;
-    }
-
-    if (!IsSaveAbilityState(reason)) {
-        HILOG_ERROR("AppRecovery ts not save ability state");
-        return false;
-    }
-
-    if (!LoadSavedState(reason)) {
-        HILOG_ERROR("AppRecovery CallOnRestoreAbilityState no saved state ");
-        return false;
-    }
-
-    auto ability = ability_.lock();
-    if (ability == nullptr) {
-        HILOG_ERROR("AppRecovery ability is nullptr");
-        return false;
-    }
-
-    ability->OnRestoreState(StateType::APP_RECOVERY, params_);
     return true;
 }
 

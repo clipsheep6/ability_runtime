@@ -25,8 +25,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context,
-                                             DetachCallback detach, AttachCallback attach);
+NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context);
 
 class JSServiceExtensionConnection : public AbilityConnectCallback {
 public:
@@ -41,6 +40,7 @@ public:
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
+    int64_t GetConnectionId();
 private:
     NativeEngine& engine_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

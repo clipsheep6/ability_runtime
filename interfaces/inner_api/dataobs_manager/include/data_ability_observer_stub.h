@@ -57,7 +57,7 @@ private:
 class DataObsCallbackRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-    DataObsCallbackRecipient(RemoteDiedHandler handler);
+    explicit DataObsCallbackRecipient(RemoteDiedHandler handler);
     virtual ~DataObsCallbackRecipient();
     virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
 

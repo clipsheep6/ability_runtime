@@ -49,6 +49,7 @@ ohos_unittest("pending_want_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
+    "ability_runtime:ability_runtime_error_util",
     "ability_runtime:abilitykit_native",
     "ability_runtime:wantagent_innerkits",
     "access_token:libnativetoken",

@@ -49,6 +49,7 @@ public:
     #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     #endif
+    MOCK_METHOD0(PreStartNWebSpawnProcess, int());
     MOCK_METHOD4(StartRenderProcess, int(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
@@ -58,9 +59,11 @@ public:
     MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
     MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
     MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string &bundleName));
-    MOCK_METHOD1(NotifyLoadRepairPatch, int32_t(const std::string &bundleName));
-    MOCK_METHOD1(NotifyHotReloadPage, int32_t(const std::string &bundleName));
-    MOCK_METHOD1(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName));
+    MOCK_METHOD2(NotifyLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string &bundleName, const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName,
+        const sptr<IQuickFixCallback> &callback));
 
     void AttachApplication(const sptr<IRemoteObject> &app)
     {

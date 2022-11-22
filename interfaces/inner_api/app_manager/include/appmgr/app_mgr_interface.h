@@ -30,6 +30,7 @@
 #include "system_memory_attr.h"
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
+#include "iquick_fix_callback.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -208,6 +209,13 @@ public:
     #endif
 
     /**
+     * Prestart nwebspawn process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreStartNWebSpawnProcess() = 0;
+
+    /**
      * Start nweb render process, called by nweb host.
      *
      * @param renderParam, params passed to renderprocess.
@@ -255,25 +263,28 @@ public:
      * @brief Notify application load patch.
      *
      * @param bundleName Bundle name
+     * @param callback called when LoadPatch finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t NotifyLoadRepairPatch(const std::string &bundleName) = 0;
+    virtual int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) = 0;
 
     /**
      * @brief Notify application reload page.
      *
      * @param bundleName Bundle name
+     * @param callback called when HotReload finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t NotifyHotReloadPage(const std::string &bundleName) = 0;
+    virtual int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) = 0;
 
     /**
      * @brief Notify application unload patch.
      *
      * @param bundleName Bundle name
+     * @param callback called when UnloadPatch finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t NotifyUnLoadRepairPatch(const std::string &bundleName) = 0;
+    virtual int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) = 0;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
@@ -323,6 +334,7 @@ public:
         NOTIFY_HOT_RELOAD_PAGE,
         SET_CONTINUOUSTASK_PROCESS,
         NOTIFY_UNLOAD_REPAIR_PATCH,
+        PRE_START_NWEBSPAWN_PROCESS,
     };
 };
 }  // namespace AppExecFwk

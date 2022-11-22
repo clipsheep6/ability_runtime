@@ -293,19 +293,12 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
         dmsFreeInstallCbs_.push_back(info);
     }
 
-    auto freeInstallTask = [manager = shared_from_this(), info]() {
-        auto result = manager->StartFreeInstall(info.want, info.userId, info.requestCode, nullptr);
-        if (result != ERR_OK) {
-            manager->NotifyDmsCallback(info.want, result);
-        }
-    };
-
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-
-    handler->PostTask(freeInstallTask, "FreeInstallAbilityFromRemote");
-    return ERR_OK;
+    auto result = StartFreeInstall(info.want, info.userId, info.requestCode, nullptr);
+    if (result != ERR_OK) {
+        HILOG_ERROR("StartFreeInstall failed, errCode: %{public}d", result);
+        NotifyDmsCallback(info.want, result);
+    }
+    return result;
 }
 
 int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,

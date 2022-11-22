@@ -25,7 +25,7 @@ public:
     /**
      * A constructor used to create a {@link ohos.aafwk.ability.continuation.ContinuationDeviceCallbackProxy} instance.
      */
-    ContinuationDeviceCallbackProxy(std::shared_ptr<IContinuationDeviceCallback> &callback);
+    explicit ContinuationDeviceCallbackProxy(std::shared_ptr<IContinuationDeviceCallback> &callback);
     /**
      * A destructor used to release a {@link ohos.aafwk.ability.continuation.ContinuationDeviceCallbackProxy} instance.
      */

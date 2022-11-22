@@ -261,6 +261,7 @@ HWTEST_F(AbilityManagerClientTest, DumpState_0100, TestSize.Level1)
     EXPECT_EQ(ERR_OK, result);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /**
  * @tc.name: AbilityManagerClient_ForceTimeoutForTest_0100
  * @tc.desc: ForceTimeoutForTest
@@ -274,6 +275,7 @@ HWTEST_F(AbilityManagerClientTest, ForceTimeoutForTest_0100, TestSize.Level1)
     auto result = client_->ForceTimeoutForTest(abilityName, state);
     EXPECT_EQ(ERR_OK, result);
 }
+#endif
 
 /**
  * @tc.name: AbilityManagerClient_ClearUpApplicationData_0100

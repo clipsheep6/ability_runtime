@@ -81,7 +81,7 @@ void ToolSystemTest::StartAbility(
     }
 }
 
-bool ToolSystemTest::IsSubSequence(std::string str, std::string subStr)
+bool ToolSystemTest::IsSubSequence(const std::string &str, const std::string &subStr)
 {
     return str.find(subStr) != std::string::npos;
 }

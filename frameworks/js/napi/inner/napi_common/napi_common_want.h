@@ -39,15 +39,15 @@ bool BlackListFilter(const std::string &strProName);
 napi_value WrapWant(napi_env env, const Want &want);
 bool UnwrapWant(napi_env env, napi_value param, Want &want);
 
-void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string strProName,
+void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string &strProName,
     AAFwk::WantParams &wantParams);
 
-bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std::string type,
+bool IsSpecialObject(napi_env env, napi_value param, std::string &strProName, std::string type,
     napi_valuetype jsValueProType);
 
-bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams);
+bool HandleFdObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams);
 
-bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams);
+bool HandleRemoteObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams);
 
 NativeValue* CreateJsWant(NativeEngine &engine, const Want &want);
 NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams);

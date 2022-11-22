@@ -118,7 +118,6 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_services_path}/dialog_ui/dialog_anr/js:dialog_anr_js_files_etc",
     "${ability_runtime_services_path}/dialog_ui/dialog_selector/js:dialog_selector_js_files_etc",
     "${ability_runtime_services_path}/dialog_ui/dialog_tips/js:dialog_tips_js_files_etc",
-    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
     "//third_party/icu/icu4c:shared_icuuc",
   ]
 

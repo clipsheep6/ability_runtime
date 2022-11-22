@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-class ServiceExtensionAbility {
+var ExtensionAbility = requireNapi("app.ability.ExtensionAbility")
+
+class ServiceExtensionAbility extends ExtensionAbility {
     onCreate(want) {
         console.log('onCreate, want:' + want.abilityName);
     }
@@ -32,10 +34,6 @@ class ServiceExtensionAbility {
 
     onDestroy() {
         console.log('onDestroy');
-    }
-
-    dump(params) {
-        console.log('dump');
     }
 }
 

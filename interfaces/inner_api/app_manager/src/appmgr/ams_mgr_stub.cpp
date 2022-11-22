@@ -59,6 +59,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleKillApplicationSelf;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN)] =
         &AmsMgrStub::HandleGetRunningProcessInfoByToken;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_ACCESS_TOKEN_ID)] =
+        &AmsMgrStub::HandleGetRunningProcessInfoByAccessTokenID;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
         &AmsMgrStub::HandleStartSpecifiedAbility;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
@@ -172,10 +174,10 @@ ErrCode AmsMgrStub::HandleAbilityBehaviorAnalysis(MessageParcel &data, MessagePa
         preToke = data.ReadRemoteObject();
     }
     int32_t visibility = data.ReadInt32();
-    int32_t Perceptibility = data.ReadInt32();
+    int32_t perceptibility = data.ReadInt32();
     int32_t connectionState = data.ReadInt32();
 
-    AbilityBehaviorAnalysis(token, preToke, visibility, Perceptibility, connectionState);
+    AbilityBehaviorAnalysis(token, preToke, visibility, perceptibility, connectionState);
     return NO_ERROR;
 }
 
@@ -276,6 +278,18 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByToken(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
+int32_t AmsMgrStub::HandleGetRunningProcessInfoByAccessTokenID(MessageParcel &data, MessageParcel &reply)
+{
+    RunningProcessInfo processInfo;
+    uint32_t accessTokenId = static_cast<uint32_t>(data.ReadInt32());
+    GetRunningProcessInfoByAccessTokenID(accessTokenId, processInfo);
+    if (reply.WriteParcelable(&processInfo)) {
+        HILOG_ERROR("process info write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AmsMgrStub::HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply)
 {
     AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
@@ -309,13 +323,18 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t pid = data.ReadInt32();
     AppExecFwk::ApplicationInfo application;
-    int32_t result = GetApplicationInfoByProcessID(pid, application);
+    bool debug;
+    int32_t result = GetApplicationInfoByProcessID(pid, application, debug);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result error.");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteParcelable(&application)) {
         HILOG_ERROR("write application info failed");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteBool(debug)) {
+        HILOG_ERROR("write debug info failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

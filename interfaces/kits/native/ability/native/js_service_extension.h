@@ -33,7 +33,7 @@ class JsRuntime;
 class JsServiceExtension : public ServiceExtension,
                            public std::enable_shared_from_this<JsServiceExtension> {
 public:
-    JsServiceExtension(JsRuntime& jsRuntime);
+    explicit JsServiceExtension(JsRuntime& jsRuntime);
     virtual ~JsServiceExtension() override;
 
     /**

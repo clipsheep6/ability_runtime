@@ -53,7 +53,7 @@ private:
 
     class BMSDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        BMSDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
+        explicit BMSDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
         ~BMSDeathRecipient() = default;
         virtual void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote) override;
 

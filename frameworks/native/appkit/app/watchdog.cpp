@@ -69,7 +69,6 @@ void Watchdog::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applic
 
 void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
 {
-    HILOG_DEBUG("appMainThread has handle the event");
     appMainThreadIsAlive_.store(appMainThreadState);
 }
 
@@ -87,7 +86,6 @@ void Watchdog::AllowReportEvent()
 bool Watchdog::IsReportEvent()
 {
     if (appMainThreadIsAlive_) {
-        HILOG_DEBUG("AppMainThread is alive");
         appMainThreadIsAlive_.store(false);
         return false;
     }
@@ -130,7 +128,7 @@ void Watchdog::Timer()
         const char *hook_mode = "startup:";
         int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
         if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
-            reportEvent();
+            ReportEvent();
         }
     }
     if (appMainHandler_ != nullptr) {
@@ -140,9 +138,9 @@ void Watchdog::Timer()
         system_clock::now().time_since_epoch()).count();
 }
 
-void Watchdog::reportEvent()
+void Watchdog::ReportEvent()
 {
-    uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+    int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     constexpr int RESET_RATIO = 2;
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {

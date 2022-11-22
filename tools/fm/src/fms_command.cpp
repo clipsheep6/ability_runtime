@@ -450,7 +450,7 @@ int FormMgrShellCommand::GetStringInfo(IFormMgr::Message code, MessageParcel &da
         HILOG_INFO("%{public}s, No string info", __func__);
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
-    for (auto &info : stringInfoList) {
+    for (const auto &info : stringInfoList) {
         stringInfo += info;
     }
     HILOG_DEBUG("%{public}s, get string info success", __func__);

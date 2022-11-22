@@ -327,7 +327,6 @@ private:
 
     void HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int resultCode);
     void HandleStopTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void HandleDisconnectTask(const ConnectListType &connectlist);
     void HandleTerminateDisconnectTask(const ConnectListType& connectlist);
     void HandleCommandTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
@@ -411,6 +410,8 @@ private:
      * @param abilityRecord, died ability.
      */
     void HandleAbilityDiedTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
+
+    void RestartAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
 
     /**
      * PostTimeOutTask.

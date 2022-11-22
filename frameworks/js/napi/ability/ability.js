@@ -33,11 +33,12 @@ class Ability {
     }
     onContinue(wantParams) {}
     onConfigurationUpdated(config) {}
+    onConfigurationUpdate(newConfig) {}
     onNewWant(want, param) {}
     dump(params) {}
+    onDump(params) {}
 
     onSaveState(state, wantParams) {}
-    onRestoreState(state, wantParams) {}
 }
 
 export default Ability

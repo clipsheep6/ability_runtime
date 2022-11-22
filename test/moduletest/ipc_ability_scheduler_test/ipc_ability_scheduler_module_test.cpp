@@ -505,7 +505,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, Query_001, TestSize.Level1)
         testColumns.emplace_back("col2");
         NativeRdb::DataAbilityPredicates testPred;
 
-        auto mockHandler = [&](const Uri &uri, std::vector<std::string> &columns,
+        auto mockHandler = [&sem, &testResult, testColumns](const Uri &uri, const std::vector<std::string> &columns,
             const NativeRdb::DataAbilityPredicates &pred) {
             testResult = (columns == testColumns);
             sem.Post();

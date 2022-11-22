@@ -95,6 +95,11 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
 void AppStateObserverManager::OnAppStateChanged(
     const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnAppStateChanged failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), appRecord, state, needNotifyApp]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -109,6 +114,11 @@ void AppStateObserverManager::OnAppStateChanged(
 
 void AppStateObserverManager::OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessDied failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), appRecord]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -123,6 +133,11 @@ void AppStateObserverManager::OnProcessDied(const std::shared_ptr<AppRunningReco
 
 void AppStateObserverManager::OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnRenderProcessDied failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), renderRecord]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -137,6 +152,11 @@ void AppStateObserverManager::OnRenderProcessDied(const std::shared_ptr<RenderRe
 
 void AppStateObserverManager::OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessStateChanged failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), appRecord]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -151,6 +171,11 @@ void AppStateObserverManager::OnProcessStateChanged(const std::shared_ptr<AppRun
 
 void AppStateObserverManager::OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessCreated failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), appRecord]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -165,6 +190,11 @@ void AppStateObserverManager::OnProcessCreated(const std::shared_ptr<AppRunningR
 
 void AppStateObserverManager::OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &renderRecord)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnRenderProcessCreated failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), renderRecord]() {
         auto self = weak.lock();
         if (self == nullptr) {
@@ -179,6 +209,11 @@ void AppStateObserverManager::OnRenderProcessCreated(const std::shared_ptr<Rende
 
 void AppStateObserverManager::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
 {
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, StateChangedNotifyObserver failed.");
+        return;
+    }
+
     auto task = [weak = weak_from_this(), abilityStateData, isAbility]() {
         auto self = weak.lock();
         if (self == nullptr) {

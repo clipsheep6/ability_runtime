@@ -64,5 +64,44 @@ std::shared_ptr<C> ExtensionBase<C>::GetContext()
 {
     return context_;
 }
+
+template<class C>
+void ExtensionBase<C>::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
+{
+    Extension::OnConfigurationUpdated(configuration);
+    HILOG_INFO("%{public}s called.", __func__);
+
+    if (!context_) {
+        HILOG_ERROR("context is nullptr.");
+        return;
+    }
+
+    auto fullConfig = context_->GetConfiguration();
+    if (!fullConfig) {
+        HILOG_ERROR("configuration is nullptr.");
+        return;
+    }
+
+    if (extensionCommon_) {
+        extensionCommon_->OnConfigurationUpdated(fullConfig);
+    }
+}
+
+template<class C>
+void ExtensionBase<C>::OnMemoryLevel(int level)
+{
+    Extension::OnMemoryLevel(level);
+    HILOG_INFO("%{public}s called.", __func__);
+
+    if (extensionCommon_) {
+        extensionCommon_->OnMemoryLevel(level);
+    }
+}
+
+template<class C>
+void ExtensionBase<C>::SetExtensionCommon(const std::shared_ptr<ExtensionCommon> &common)
+{
+    extensionCommon_ = common;
+}
 }
 }

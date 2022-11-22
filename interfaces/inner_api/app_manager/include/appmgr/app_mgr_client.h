@@ -193,6 +193,10 @@ public:
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
+    virtual void GetRunningProcessInfoByAccessTokenID(
+        const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+
     /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
@@ -257,6 +261,13 @@ public:
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
 
     /**
+     * Prestart nwebspawn process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreStartNWebSpawnProcess();
+
+    /**
      * Start nweb render process, called by nweb host.
      *
      * @param renderParam, params passed to renderprocess.
@@ -284,7 +295,7 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

@@ -151,11 +151,11 @@ public:
      */
     int32_t UpdateConfiguration(const Configuration &config);
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyHotReloadPage();
+    int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback);
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
 private:
     sptr<IAppScheduler> appThread_ = nullptr;

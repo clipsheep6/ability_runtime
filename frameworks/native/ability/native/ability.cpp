@@ -187,51 +187,19 @@ void Ability::OnStart(const Want &want)
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        Rosen::WindowType winType = Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW;
-        if (abilityInfo_->bundleName == SYSTEM_UI) {
-            if (abilityInfo_->name == STATUS_BAR) {
-                winType = Rosen::WindowType::WINDOW_TYPE_STATUS_BAR;
-            }
-            if (abilityInfo_->name == NAVIGATION_BAR) {
-                winType = Rosen::WindowType::WINDOW_TYPE_NAVIGATION_BAR;
-            }
-        }
-        if (abilityInfo_->bundleName == OHOS_REQUEST_PERMISSION_BUNDLENAME &&
-            abilityInfo_->name == OHOS_REQUEST_PERMISSION_ABILITY_NAME) {
-            winType = Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW;
-        }
-
-        if (abilityInfo_->bundleName == KEYGUARD) {
-            winType = Rosen::WindowType::WINDOW_TYPE_DRAGGING_EFFECT;
-        }
-
-        if (abilityInfo_->bundleName == DEVICE_MANAGER_BUNDLE_NAME && abilityInfo_->name == DEVICE_MANAGER_NAME) {
-            winType = Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW;
-        }
-
-        if (abilityInfo_->bundleName == LAUNCHER_BUNDLE_NAME && abilityInfo_->name == LAUNCHER_ABILITY_NAME) {
-            winType = Rosen::WindowType::WINDOW_TYPE_DESKTOP;
-        }
-
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        HILOG_DEBUG("abilityName:%{public}s, windowType:%{public}d, displayId:%{public}d",
-            abilityInfo_->name.c_str(), winType, displayId);
+        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
         auto option = GetWindowOption(want);
-        InitWindow(winType, displayId, option);
+        InitWindow(displayId, option);
 
         if (abilityWindow_ != nullptr) {
             HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
             auto window = abilityWindow_->GetWindow();
             if (window) {
-                HILOG_DEBUG("%{public}s get window id from window.", __func__);
-                auto windowId = window->GetWindowId();
-                if (winType == Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW) {
-                    HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", windowId);
-                    std::weak_ptr<Ability> weakAbility = shared_from_this();
-                    abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
-                    window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-                }
+                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+                window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
             }
         }
 
@@ -297,6 +265,12 @@ void Ability::OnStop()
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
 #ifdef SUPPORT_GRAPHICS
+    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    auto && window = GetWindow();
+    if (window != nullptr) {
+        HILOG_DEBUG("Call UnregisterDisplayMoveListener");
+        window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
+    }
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();
@@ -413,16 +387,16 @@ bool Ability::ShouldRecoverState(const Want& want)
         return false;
     }
 
+    if (abilityContext_->GetContentStorage() == nullptr) {
+        HILOG_ERROR("AppRecovery abilityContext_ GetContentStorage is null");
+        return false;
+    }
+
     if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
         HILOG_ERROR("AppRecovery not recovery restart");
         return false;
     }
 
-    std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::LIFECYCLE);
-    if (pageStack.empty()) {
-        HILOG_ERROR("AppRecovery pageStack is not exist, no need to restore window state.");
-        return false;
-    }
     return true;
 }
 
@@ -534,14 +508,14 @@ void Ability::OnConfigurationUpdated(const Configuration &configuration)
     HILOG_DEBUG("%{public}s called.", __func__);
 }
 
-void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfiguration)
+void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
 
     std::string language;
     std::string colormode;
     std::string hasPointerDevice;
-    InitConfigurationProperties(changeConfiguration, language, colormode, hasPointerDevice);
+    InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
@@ -576,7 +550,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
         abilityContext_->SetConfiguration(application_->GetConfiguration());
     }
     // Notify Ability Subclass
-    OnConfigurationUpdated(changeConfiguration);
+    OnConfigurationUpdated(configuration);
     HILOG_DEBUG("%{public}s Notify Ability Subclass.", __func__);
 }
 
@@ -908,7 +882,7 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
 
 int32_t Ability::OnContinue(WantParams &wantParams)
 {
-    return ContinuationManager::OnContinueResult::Reject;
+    return ContinuationManager::OnContinueResult::REJECT;
 }
 
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
@@ -959,14 +933,14 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
     return 0;
 }
 
-void Ability::OnRestoreState(int32_t reason, WantParams &wantParams)
-{
-    return;
-}
-
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
+    if (continuationManager_ == nullptr) {
+        HILOG_ERROR("Continuation manager is nullptr.");
+        return;
+    }
+
     continuationManager_->ChangeProcessStateToInit();
 }
 
@@ -979,7 +953,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         HILOG_ERROR("Ability::OnForeground error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
-    if (abilityInfo_->isStageBasedModel) {
+    if (abilityInfo_ != nullptr && abilityInfo_->isStageBasedModel) {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::FOREGROUND_NEW);
     } else {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
@@ -1044,7 +1018,7 @@ void Ability::HandleCreateAsRecovery(const Want &want)
     }
 
     if (abilityRecovery_ != nullptr) {
-        abilityRecovery_->ScheduleRestoreAbilityState(StateReason::LIFECYCLE);
+        abilityRecovery_->ScheduleRestoreAbilityState(StateReason::DEVELOPER_REQUEST, want);
     }
 }
 
@@ -1643,13 +1617,13 @@ void Ability::SetUIContent(
 void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag)
 {}
 
-void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option)
+void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::InitWindow abilityWindow_ is nullptr");
         return;
     }
-    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option, securityFlag_);
+    abilityWindow_->InitWindow(abilityContext_, sceneListener_, displayId, option, securityFlag_);
 }
 
 const sptr<Rosen::Window> Ability::GetWindow()
@@ -2024,6 +1998,11 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return;
+    }
+
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
@@ -2110,13 +2089,13 @@ int Ability::GetDisplayOrientation()
     HILOG_DEBUG("%{public}s called.", __func__);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
-        return 0;
+        return -1;
     }
     HILOG_DEBUG("FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
         HILOG_ERROR("window is nullptr.");
-        return 0;
+        return -1;
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {

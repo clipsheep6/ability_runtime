@@ -52,6 +52,12 @@ public:
     void CloseConnection();
 
     /**
+     * Start request to nwebspawn process.
+     *
+     */
+    virtual ErrCode PreStartNWebSpawnProcess();
+
+    /**
      * AppSpawnClient core function, Start request to appSpawn.
      *
      * @param startMsg, request message.
@@ -85,6 +91,12 @@ private:
      * @param pid, pid of app process, get it from appSpawn.
      */
     ErrCode StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t &pid);
+
+    /**
+     * Start request to nwebspawn process.
+     *
+     */
+    ErrCode PreStartNWebSpawnProcessImpl();
 
 private:
     std::shared_ptr<AppSpawnSocket> socket_;

@@ -25,7 +25,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<ApplicationContext> applicationContext,
-    DetachCallback detach, AttachCallback attach, bool keepApplicationContext = false);
+    bool keepApplicationContext = false);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H

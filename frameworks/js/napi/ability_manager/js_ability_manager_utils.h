@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
+
 #include "ability_running_info.h"
 #include "extension_running_info.h"
 #include "element_name.h"
 #include "native_engine/native_engine.h"
-
-#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
-#define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
 
 namespace OHOS {
 namespace AbilityRuntime {

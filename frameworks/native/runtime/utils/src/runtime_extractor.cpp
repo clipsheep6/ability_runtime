@@ -109,7 +109,6 @@ bool RuntimeExtractor::GetFileList(const std::string& srcPath, std::vector<std::
     std::regex replacePattern(srcPath);
     for (auto value : fileList) {
         if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
-            std::string realpath = std::regex_replace(value, replacePattern, "");
             assetList.emplace_back(value);
         }
     }
@@ -192,7 +191,7 @@ bool RuntimeExtractor::GetZipFileNames(std::vector<std::string> &fileNames)
 void RuntimeExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix)
 {
     auto &entryMap = zipFile_.GetAllEntries();
-    for (auto &entry : entryMap) {
+    for (const auto &entry : entryMap) {
         std::string fileName = entry.first;
         auto position = fileName.rfind('.');
         if (position != std::string::npos) {
@@ -202,7 +201,6 @@ void RuntimeExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames
             }
         }
     }
-    return;
 }
 
 bool RuntimeExtractor::IsStageBasedModel(std::string abilityName)

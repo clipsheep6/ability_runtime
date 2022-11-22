@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 bool AbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityManagerProxy::GetDescriptor())) {
@@ -841,6 +842,11 @@ template <typename T>
 int AbilityManagerProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos)
 {
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {
@@ -911,7 +917,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token
     return;
 }
 
-void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, int32_t savedStateId)
+void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;
     MessageParcel data;
@@ -922,13 +928,42 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
         HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
         return;
     }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
+        return;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::ABILITY_RECOVERY_ENABLE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AppRecovery Send request error: %{public}d", error);
+        return;
+    }
+    return;
+}
+
+void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
+        return;
+    }
+
     if (!data.WriteRemoteObject(token)) {
         HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
         return;
     }
 
     data.WriteInt32(reason);
-    data.WriteInt32(savedStateId);
 
     auto remote = Remote();
     if (remote == nullptr) {

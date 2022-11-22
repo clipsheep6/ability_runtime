@@ -78,7 +78,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, StartRemoteAbility_0001, TestSize
 {
     Want want;
     int result = abilityMs_->StartRemoteAbility(want, 0, USER_ID_U100, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_NE(result, ERR_OK);
 }
 
 /**
@@ -91,7 +91,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, StartRemoteAbility_0002, TestSize
 {
     Want want;
     int result = abilityMs_->StartRemoteAbility(want, 0, USER_ID_U100, abilityRecord_->GetToken());
-    EXPECT_TRUE(result != ERR_OK);
+    EXPECT_NE(result, ERR_OK);
 }
 
 /**
@@ -105,7 +105,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, StartRemoteAbility_0003, TestSize
     Want want;
     want.AddFlags(want.FLAG_ABILITY_CONTINUATION);
     int result = abilityMs_->StartRemoteAbility(want, 0, USER_ID_U100, abilityRecord_->GetToken());
-    EXPECT_TRUE(result != ERR_OK);
+    EXPECT_NE(result, ERR_OK);
 }
 
 /**
@@ -133,7 +133,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, ConnectRemoteAbility_0001, TestSi
 {
     Want want;
     int result = abilityMs_->ConnectRemoteAbility(want, nullptr, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_NE(result, ERR_OK);
 }
 
 /**
@@ -159,7 +159,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, StartRemoteAbilityByCall_0001, Te
 {
     Want want;
     int result = abilityMs_->StartRemoteAbilityByCall(want, nullptr, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_NE(result, ERR_OK);
 }
 
 /**
@@ -185,7 +185,7 @@ HWTEST_F(AbilityManagerServiceDistributedTest, AddStartControlParam_0001, TestSi
 {
     Want want;
     int result = abilityMs_->AddStartControlParam(want, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**

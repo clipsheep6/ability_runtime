@@ -69,8 +69,8 @@ static napi_module _module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = ApplicationContextConstantInit,
-    .nm_modname = "application.contextConstant",
-    .nm_priv = ((void *)0),
+    .nm_modname = "app.ability.contextConstant",
+    .nm_priv = (static_cast<void *>(0)),
     .reserved = {0}
 };
 

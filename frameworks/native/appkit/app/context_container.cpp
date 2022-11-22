@@ -22,6 +22,7 @@
 #include "app_context.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -583,15 +584,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     }
 
     std::shared_ptr<AppContext> appContext = std::make_shared<AppContext>();
-    if (appContext == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext appContext is nullptr");
-        return nullptr;
-    }
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>(true);
-    if (deal == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext bundleName is empty");
-        return nullptr;
-    }
 
     // init resourceManager.
     InitResourceManager(bundleInfo, deal);
@@ -613,14 +606,15 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         "ContextContainer::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
     std::regex pattern(AbilityRuntime::Constants::ABS_CODE_PATH);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
-            continue;
-        }
         std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
+        if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
+            !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
+        }
+        if (loadPath.empty()) {
+            continue;
         }
         loadPath = std::regex_replace(loadPath, pattern, AbilityRuntime::Constants::LOCAL_BUNDLES);
         HILOG_DEBUG("ContextContainer::InitResourceManager loadPath: %{public}s", loadPath.c_str());

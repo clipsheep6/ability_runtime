@@ -32,7 +32,6 @@
 #include "recovery_param.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
-#include "ability_manager_client.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -91,9 +90,9 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
         return false;
     }
 
-    if (reason == StateReason::APP_FREEZE || reason == StateReason::DEVELOPER_REQUEST) {
-        DoSaveAppState(reason);
-        return true;
+    if (reason == StateReason::APP_FREEZE) {
+        HILOG_ERROR("ScheduleSaveAppState not support APP_FREEZE");
+        return false;
     }
 
     auto handler = mainHandler_.lock();
@@ -130,7 +129,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
         return false;
     }
 
-    if (reason == StateReason::APP_FREEZE || reason == StateReason::DEVELOPER_REQUEST) {
+    if (reason == StateReason::APP_FREEZE) {
         DoRecoverApp(reason);
         return true;
     }
@@ -147,7 +146,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
 	// 3. create an recovery thread for saving state, just block jsvm mult-thread checking mechaism
 
     auto task = [reason]() {
-        AppRecovery::GetInstance().DoSaveAppState(reason);
+        AppRecovery::GetInstance().DoRecoverApp(reason);
     };
     if (!handler->PostTask(task)) {
         HILOG_ERROR("Failed to schedule save app state.");
@@ -163,26 +162,17 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
     }
 
     ScheduleSaveAppState(reason);
+    PersistAppState();
     return ScheduleRecoverApp(reason);
 }
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
-    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
-    if (ams == nullptr) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
-        return;
-    }
-
-    sptr<IRemoteObject> token = nullptr;
     for (auto& i : abilityRecoverys_) {
-        auto tmp = i->GetToken().promote();
-        if (tmp != nullptr) {
-            token = tmp;
+        if (i->ScheduleRecoverAbility(reason)) {
             break;
         }
     }
-    ams->ScheduleRecoverAbility(token, reason, 0);
 }
 
 void AppRecovery::DoSaveAppState(StateReason reason)
@@ -258,6 +248,19 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
                 ret = false;
             }
             break;
+    }
+    return ret;
+}
+
+bool AppRecovery::PersistAppState()
+{
+    if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
+        return true;
+    }
+
+    bool ret = true;
+    for (auto& abilityRecovery : abilityRecoverys_) {
+        ret = ret && abilityRecovery->PersistState();
     }
     return ret;
 }

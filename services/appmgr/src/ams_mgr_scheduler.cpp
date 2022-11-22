@@ -230,6 +230,16 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
+void AmsMgrScheduler::GetRunningProcessInfoByAccessTokenID(
+    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    amsMgrServiceInner_->GetRunningProcessInfoByAccessTokenID(accessTokenId, info);
+}
+
 void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
     if (!IsReady()) {
@@ -249,12 +259,12 @@ void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpe
     amsHandler_->PostTask(task);
 }
 
-int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
 {
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application);
+    return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application, debug);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

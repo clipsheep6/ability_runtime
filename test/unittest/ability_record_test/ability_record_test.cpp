@@ -727,5 +727,79 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SetPendingState_001, TestSize.Level1)
     abilityRecord_->SetPendingState(OHOS::AAFwk::AbilityState::FOREGROUND);
     EXPECT_EQ(abilityRecord_->GetPendingState(), OHOS::AAFwk::AbilityState::FOREGROUND);
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: PostCancelStartingWindowHotTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: PostCancelStartingWindowHotTask
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PostCancelStartingWindowHotTask_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    want.SetParam("debugApp", true);
+    abilityRecord.SetWant(want);
+    abilityRecord.PostCancelStartingWindowHotTask();
+    EXPECT_TRUE(want.GetBoolParam("debugApp", false));
+
+    want.SetParam("debugApp", false);
+    abilityRecord.PostCancelStartingWindowHotTask();
+    EXPECT_FALSE(want.GetBoolParam("debugApp", false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PostCancelStartingWindowColdTask
+ * SubFunction: PostCancelStartingWindowColdTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: PostCancelStartingWindowColdTask
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PostCancelStartingWindowColdTask_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    want.SetParam("debugApp", true);
+    abilityRecord.SetWant(want);
+    abilityRecord.PostCancelStartingWindowColdTask();
+    EXPECT_TRUE(want.GetBoolParam("debugApp", false));
+
+    want.SetParam("debugApp", false);
+    abilityRecord.PostCancelStartingWindowColdTask();
+    EXPECT_FALSE(want.GetBoolParam("debugApp", false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateResourceManager
+ * SubFunction: CreateResourceManager
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: CreateResourceManager
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CreateResourceManager_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.hapPath = "abc";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.resourcePath = "abc";
+    abilityInfo.hapPath = "";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+
+    abilityInfo.hapPath = "abc";
+    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

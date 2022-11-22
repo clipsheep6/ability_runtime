@@ -21,26 +21,26 @@
 
 namespace OHOS {
 namespace AAFwk {
-void StopUserCallbackProxy::OnStopUserDone(int accountId, int errcode)
+void StopUserCallbackProxy::OnStopUserDone(int userId, int errcode)
 {
-    SendRequestCommon(accountId, errcode, IStopUserCallback::StopUserCallbackCmd::ON_STOP_USER_DONE);
+    SendRequestCommon(userId, errcode, IStopUserCallback::StopUserCallbackCmd::ON_STOP_USER_DONE);
 }
 
-void StopUserCallbackProxy::SendRequestCommon(int accountId, int errcode, IStopUserCallback::StopUserCallbackCmd cmd)
+void StopUserCallbackProxy::SendRequestCommon(int userId, int errcode, IStopUserCallback::StopUserCallbackCmd cmd)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
-    HILOG_INFO("StopUserCallbackProxy, sendrequest, cmd:%{public}d, accountId:%{public}d, errcode:%{public}d",
-        cmd, accountId, errcode);
+    HILOG_INFO("StopUserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d",
+        cmd, userId, errcode);
     if (!data.WriteInterfaceToken(IStopUserCallback::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
         return;
     }
 
-    if (!data.WriteInt32(accountId)) {
-        HILOG_ERROR("Write accountId error.");
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Write userId error.");
         return;
     }
 

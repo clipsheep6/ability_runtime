@@ -23,6 +23,7 @@
 #include "ability_util.h"
 #include "distributed_client.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "permission_verification.h"
 
 namespace OHOS {
@@ -64,9 +65,12 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
 {
     HILOG_INFO("%{public}s:begin.", __func__);
 
-    bool needCreate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::NO_BUILD_FLAG) == 0;
-    bool needCancel = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::CANCEL_PRESENT_FLAG) != 0;
-    bool needUpdate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::UPDATE_PRESENT_FLAG) != 0;
+    bool needCreate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::NO_BUILD_FLAG)) == 0;
+    bool needCancel = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::CANCEL_PRESENT_FLAG)) != 0;
+    bool needUpdate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::UPDATE_PRESENT_FLAG)) != 0;
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
     std::shared_ptr<PendingWantKey> pendingKey = std::make_shared<PendingWantKey>();
@@ -219,8 +223,8 @@ int32_t PendingWantManager::DeviceIdDetermine(
     std::string localDeviceId;
     DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
-        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            want, callerToken, requestCode, callerUid);
+        result = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
+            want, callerToken, requestCode, callerUid));
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             HILOG_ERROR("%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
         }

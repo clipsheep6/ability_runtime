@@ -48,9 +48,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 
     auto recordId = AppRecordId::Create();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
-    if (!appRecord) {
-        return nullptr;
-    }
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
@@ -123,6 +120,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(co
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         return pair.second->GetPriorityObject()->GetPid() == pid;
     });
+    return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+}
+
+std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenID(
+    const uint32_t accessTokenId)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
+        [&accessTokenId](const auto &pair) {
+            return pair.second->GetApplicationInfo()->accessTokenId == accessTokenId;
+        });
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
@@ -229,6 +237,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
+    HILOG_INFO("On remot died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -427,6 +436,22 @@ void AppRunningManager::GetRunningProcessInfoByToken(
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::GetRunningProcessInfoByAccessTokenID(
+    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    auto appRecord = GetAppRunningRecordByTokenID(accessTokenId);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::AssignRunningProcessInfoByAppRecord(
+    std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
+{
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr");
         return;
@@ -440,6 +465,7 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.isContinuousTask = appRecord->IsContinuousTask();
     info.isKeepAlive = appRecord->IsKeepAliveApp();
     info.isFocused = appRecord->GetFocusFlag();
+    info.startTimeMillis_ = appRecord->GetAppStartTime();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
@@ -601,7 +627,7 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
     return false;
 }
 
-int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -612,7 +638,7 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyLoadRepairPatch(bundleName);
+            result = appRecord->NotifyLoadRepairPatch(bundleName, callback);
             if (result == ERR_OK) {
                 loadSucceed = true;
             }
@@ -621,7 +647,7 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
     return loadSucceed == true ? ERR_OK : result;
 }
 
-int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -631,13 +657,14 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] reload page.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyHotReloadPage();
+            result = appRecord->NotifyHotReloadPage(callback);
         }
     }
     return result;
 }
 
-int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -648,7 +675,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] unload patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
             }

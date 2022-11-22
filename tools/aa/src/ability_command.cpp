@@ -244,8 +244,6 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
     int option = -1;
     int counter = 0;
 
-    std::string powerState = "";
-
     while (true) {
         counter++;
 
@@ -314,15 +312,6 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
                 // 'aa screen -h'
                 // 'aa screen --help'
                 result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 'p': {
-                // 'aa screen -p xxx'
-
-                // save powerState
-                if (optarg != nullptr) {
-                    powerState = optarg;
-                }
                 break;
             }
             case 0: {

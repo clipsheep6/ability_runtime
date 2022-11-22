@@ -54,7 +54,7 @@ public:
     DECLEAR_SYSTEM_ABILITY(AppMgrService);
 
     AppMgrService();
-    AppMgrService(const int32_t serviceId, bool runOnCreate = false);
+    explicit AppMgrService(const int32_t serviceId, bool runOnCreate = false);
     virtual ~AppMgrService() override;
 
     // the function about application
@@ -214,6 +214,8 @@ public:
 
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
 
+    virtual int PreStartNWebSpawnProcess() override;
+
     virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid) override;
 
@@ -240,11 +242,11 @@ public:
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName) override;
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName) override;
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t NotifyHotReloadPage(const std::string &bundleName) override;
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName) override;
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;

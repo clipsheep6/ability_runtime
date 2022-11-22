@@ -38,7 +38,7 @@ class JsAbility : public Ability {
 public:
     static Ability *Create(const std::unique_ptr<Runtime> &runtime);
 
-    JsAbility(JsRuntime &jsRuntime);
+    explicit JsAbility(JsRuntime &jsRuntime);
     ~JsAbility() override;
 
     void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
@@ -54,7 +54,6 @@ public:
     void OnMemoryLevel(int level) override;
     void OnNewWant(const Want &want) override;
     int32_t OnSaveState(int32_t reason, WantParams &wantParams) override;
-    void OnRestoreState(int32_t reason, WantParams &wantParams) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
@@ -87,6 +86,8 @@ protected:
     void ContinuationRestore(const Want &want) override;
 
 private:
+    bool IsRestorePageStack(const Want &want);
+    void RestorePageStack(const Want &want);
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
     void AbilityContinuationOrRecover(const Want &want);
     std::shared_ptr<NativeReference> jsWindowStageObj_;

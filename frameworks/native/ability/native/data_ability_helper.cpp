@@ -113,7 +113,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
         return nullptr;
     }
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(context->GetToken(), dataShareUri.ToString());
     if (dataShareHelper) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
     }

@@ -45,6 +45,7 @@
 #include "js_runtime.h"
 #include "mix_stack_dumper.h"
 #include "ohos_application.h"
+#include "parameters.h"
 #include "resource_manager.h"
 #include "runtime.h"
 #include "service_extension.h"
@@ -58,6 +59,7 @@
 
 #if defined(NWEB)
 #include <thread>
+#include "app_mgr_client.h"
 #include "nweb_pre_dns_adapter.h"
 #endif
 
@@ -69,7 +71,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
-std::shared_ptr<OHOSApplication> MainThread::applicationForDump_ = nullptr;
+std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
@@ -116,6 +118,7 @@ void AppMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 
 MainThread::MainThread()
 {
+    HILOG_INFO("MainThread::MainThread call constructor.");
 #ifdef ABILITY_LIBRARY_LOADER
     fileEntries_.clear();
     nativeFileEntries_.clear();
@@ -125,6 +128,7 @@ MainThread::MainThread()
 
 MainThread::~MainThread()
 {
+    HILOG_INFO("MainThread::MainThread call destructor.");
 #ifdef ABILITY_LIBRARY_LOADER
     CloseAbilityLibrary();
 #endif  // ABILITY_LIBRARY_LOADER
@@ -768,10 +772,11 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     } else {
         std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+            std::string loadPath =  (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
+                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
+            if (loadPath.empty()) {
                 continue;
             }
-            std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
             loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
             HILOG_DEBUG("ModuleResPath: %{public}s", loadPath.c_str());
             if (!resourceManager->AddResource(loadPath.c_str())) {
@@ -885,7 +890,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
-    mixStackDumper_->InstallDumpHandler(applicationForDump_, signalHandler_);
+    mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
 
     // init resourceManager.
     HILOG_DEBUG("MainThread handle launch application, CreateResourceManager Start.");
@@ -923,7 +928,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
         isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
     }
-
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
     }
@@ -946,7 +950,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
-
+    std::string BundleCodeDir = applicationContext->GetBundleCodeDir();
     if (isStageBased) {
         // Create runtime
         AbilityRuntime::Runtime::Options options;
@@ -956,6 +960,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
         options.isBundle = (bundleInfo.hapModuleInfos.back().compileMode != AppExecFwk::CompileMode::ES_MODULE);
+        options.isDebugVersion = bundleInfo.applicationInfo.debug;
+        options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         std::string nativeLibraryPath = appInfo.nativeLibraryPath;
         if (!nativeLibraryPath.empty()) {
             if (nativeLibraryPath.back() == '/') {
@@ -986,13 +992,35 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode](NativeValue* v) {
+        auto uncaughtTask = [weak, bundleName, versionCode, BundleCodeDir](NativeValue* v) {
             HILOG_INFO("Js uncaught exception callback come.");
+            auto appThread = weak.promote();
+            if (appThread == nullptr) {
+                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
+                return;
+            }
             NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
             std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-            std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
+            std::string summary = "Error message:" + errorMsg + "\n";
+            if (appThread->application_ == nullptr) {
+                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
+                return;
+            }
+            auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*
+                (appThread->application_->GetRuntime()))).GetSourceMap();
+            // bindRuntime.bindSourceMaps lazy loading
+            auto errorPos = ModSourceMap::GetErrorPos(errorStack);
+            std::string error;
+            if (obj != nullptr) {
+                NativeValue* value = obj->GetProperty("errorfunc");
+                NativeFunction* fuc = AbilityRuntime::ConvertNativeValueTo<NativeFunction>(value);
+                error = fuc->GetSourceCodeInfo(errorPos);
+            }
+            summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
+                bindSourceMaps, BundleCodeDir);
+            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
@@ -1007,11 +1035,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
                 return;
             }
-            auto appThread = weak.promote();
-            if (appThread == nullptr) {
-                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failed.");
-                return;
-            }
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorName.c_str(), summary.c_str());
@@ -1020,17 +1043,38 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
         application_->SetRuntime(std::move(runtime));
 
-        AbilityLoader::GetInstance().RegisterAbility("Ability", [application = application_]() {
-            return Ability::Create(application->GetRuntime());
+        std::weak_ptr<OHOSApplication> wpApplication = application_;
+        AbilityLoader::GetInstance().RegisterAbility("Ability",
+            [wpApplication]() -> Ability* {
+            auto app = wpApplication.lock();
+            if (app != nullptr) {
+                return Ability::Create(app->GetRuntime());
+            }
+            HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
+            return nullptr;
         });
 #ifdef SUPPORT_GRAPHICS
-        AbilityLoader::GetInstance().RegisterExtension("FormExtension", [application = application_]() {
-            return AbilityRuntime::FormExtension::Create(application->GetRuntime());
+        AbilityLoader::GetInstance().RegisterExtension("FormExtension",
+            [wpApplication]() -> AbilityRuntime::Extension* {
+            auto app = wpApplication.lock();
+            if (app != nullptr) {
+                return AbilityRuntime::FormExtension::Create(app->GetRuntime());
+            }
+            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: FormExtension");
+            return nullptr;
         });
 #endif
-        AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension", [application = application_]() {
-            return AbilityRuntime::StaticSubscriberExtension::Create(application->GetRuntime());
+        AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension",
+            [wpApplication]() -> AbilityRuntime::Extension* {
+            auto app = wpApplication.lock();
+            if (app != nullptr) {
+                return AbilityRuntime::StaticSubscriberExtension::Create(app->GetRuntime());
+            }
+            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: StaticSubscriberExtension");
+            return nullptr;
         });
+
+        if (application_ != nullptr) {
 #ifdef __aarch64__
         LoadAllExtensions("system/lib64/extensionability");
         LoadAndRegisterExtension("system/lib64/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
@@ -1057,7 +1101,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAndRegisterExtension(
         "system/lib/libprint_extension_module.z.so", "PrintExtension",
             application_->GetRuntime());
+        LoadAllExtensions("system/lib64/extensionability", wpApplication);
+#else
+        LoadAllExtensions("system/lib/extensionability", wpApplication);
 #endif
+        }
     }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
@@ -1094,6 +1142,22 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #if defined(NWEB)
     // pre dns for nweb
     std::thread(&OHOS::NWeb::PreDnsInThread).detach();
+
+    // start nwebspawn process
+    std::weak_ptr<OHOSApplication> weakApp = application_;
+    wptr<IAppMgr> weakMgr = appMgr_;
+    std::thread([weakApp, weakMgr] {
+        auto app = weakApp.lock();
+        auto appmgr = weakMgr.promote();
+        if (app == nullptr || appmgr == nullptr) {
+            HILOG_ERROR("HandleLaunchApplication app or appmgr is null");
+            return;
+        }
+        std::string nwebPath = app->GetAppContext()->GetCacheDir() + "/web";
+        if (access(nwebPath.c_str(), F_OK) != -1) {
+            appmgr->PreStartNWebSpawnProcess();
+        }
+    }).detach();
 #endif
 
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
@@ -1171,13 +1235,9 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
 }
 
-void MainThread::LoadAllExtensions(const std::string &filePath)
+void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication)
 {
     HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s", filePath.c_str());
-    if (application_ == nullptr) {
-        HILOG_ERROR("application launch failed");
-        return;
-    }
     // scan all extensions in path
     std::vector<std::string> extensionFiles;
     ScanDir(filePath, extensionFiles);
@@ -1217,8 +1277,14 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
 
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
         HILOG_INFO("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
-        AbilityLoader::GetInstance().RegisterExtension(extensionName, [application = application_, file]() {
-            return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(application->GetRuntime());
+        AbilityLoader::GetInstance().RegisterExtension(extensionName,
+            [wpApplication, file]() -> AbilityRuntime::Extension* {
+            auto app = wpApplication.lock();
+            if (app != nullptr) {
+                return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(app->GetRuntime());
+            }
+            HILOG_ERROR("AbilityLoader::GetExtensionByName failed.");
+            return nullptr;
         });
     }
     application_->SetExtensionTypeMap(extensionTypeMap);
@@ -1233,10 +1299,6 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         return false;
     }
     auto args = std::make_shared<AbilityDelegatorArgs>(record->want);
-    if (!args) {
-        HILOG_ERROR("args is null");
-        return false;
-    }
     if (isStageBased) { // Stage model
         HILOG_DEBUG("PrepareAbilityDelegator for Stage model.");
         auto testRunner = TestRunner::Create(application_->GetRuntime(), args, false);
@@ -1251,6 +1313,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.eventRunner = mainHandler_->GetEventRunner();
         options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
         options.loadAce = false;
+        options.isStageModel = false;
         if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
@@ -1635,8 +1698,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
-
-    TaskHandlerClient::GetInstance()->CreateRunner();
     HILOG_DEBUG("MainThread:Init end.");
 }
 
@@ -1661,9 +1722,10 @@ void MainThread::HandleSignal(int signal)
 void MainThread::HandleDumpHeap(bool isPrivate)
 {
     HILOG_DEBUG("Dump heap start.");
-    if (applicationForDump_ != nullptr && applicationForDump_->GetRuntime() != nullptr) {
+    auto app = applicationForDump_.lock();
+    if (app != nullptr && app->GetRuntime() != nullptr) {
         HILOG_DEBUG("Send dump heap to ark start.");
-        applicationForDump_->GetRuntime()->DumpHeapSnapshot(isPrivate);
+        app->GetRuntime()->DumpHeapSnapshot(isPrivate);
     }
 }
 
@@ -1718,8 +1780,9 @@ void MainThread::MainHandler::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::P
 {
     auto eventId = event->GetInnerEventId();
     if (eventId == CHECK_MAIN_THREAD_IS_ALIVE) {
-        if (mainThreadObj_ != nullptr) {
-            mainThreadObj_->CheckMainThreadIsAlive();
+        auto mt = mainThreadObj_.promote();
+        if (mt != nullptr) {
+            mt->CheckMainThreadIsAlive();
         }
     }
 }
@@ -1946,28 +2009,32 @@ void MainThread::CheckMainThreadIsAlive()
 }
 #endif  // ABILITY_LIBRARY_LOADER
 
-int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
+int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ScheduleNotifyLoadRepairPatch function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak, bundleName]() {
+    auto task = [weak, bundleName, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("ScheduleNotifyLoadRepairPatch, app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("ScheduleNotifyLoadRepairPatch, parameter is nullptr.");
             return;
         }
 
+        bool ret = true;
         std::vector<std::pair<std::string, std::string>> hqfFilePair;
         if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
             for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
                 HILOG_INFO("ScheduleNotifyLoadRepairPatch, LoadPatch, hqfFile: %{private}s, hapPath: %{private}s.",
                     it->first.c_str(), it->second.c_str());
-                appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
+                ret = appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
             }
         } else {
             HILOG_DEBUG("ScheduleNotifyLoadRepairPatch, There's no hqfFile need to load.");
         }
+
+        callback->OnLoadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Post task failed.");
@@ -1977,18 +2044,19 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
     return NO_ERROR;
 }
 
-int32_t MainThread::ScheduleNotifyHotReloadPage()
+int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak]() {
+    auto task = [weak, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("parameter is nullptr.");
             return;
         }
-        appThread->application_->NotifyHotReloadPage();
+        auto ret = appThread->application_->NotifyHotReloadPage();
+        callback->OnReloadPageDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("Post task failed.");
@@ -2020,53 +2088,51 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
         return false;
     }
 
-    std::vector<HqfInfo> hqfInfos = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
-    HILOG_INFO("[%{public}s] has %{public}zu hqf.", bundleName.c_str(), hqfInfos.size());
-    for (auto hqfInfo : hqfInfos) {
-        std::string moduleName = hqfInfo.moduleName;
-        std::string resolvedHapPath;
-        for (auto hapInfo : bundleInfo.hapModuleInfos) {
-            if (hapInfo.moduleName != moduleName) {
-                continue;
-            }
+    for (auto hapInfo : bundleInfo.hapModuleInfos) {
+        if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
+            (!hapInfo.hqfInfo.hqfFilePath.empty())) {
+            std::string resolvedHapPath;
             std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
             auto position = hapPath.rfind('/');
             if (position != std::string::npos) {
-                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + moduleName;
+                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
             }
-            break;
+            std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
+            HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
+                "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
+                hapInfo.process.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
+            fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
         }
-
-        std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hqfInfo.hqfFilePath));
-        HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, hqf file: %{private}s, hap path: %{private}s.",
-            bundleName.c_str(), moduleName.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
-        fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
     }
 
     return true;
 }
 
-int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ScheduleNotifyUnLoadRepairPatch function called.");
     wptr<MainThread> weak = this;
-    auto task = [weak, bundleName]() {
+    auto task = [weak, bundleName, callback]() {
         auto appThread = weak.promote();
-        if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, app thread or application is nullptr.");
+        if (appThread == nullptr || appThread->application_ == nullptr || callback == nullptr) {
+            HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, parameter is nullptr.");
             return;
         }
 
+        bool ret = true;
         std::vector<std::pair<std::string, std::string>> hqfFilePair;
         if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
             for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
                 HILOG_INFO("ScheduleNotifyUnLoadRepairPatch, UnloadPatch, hqfFile: %{private}s.", it->first.c_str());
-                appThread->application_->NotifyUnLoadRepairPatch(it->first);
+                ret = appThread->application_->NotifyUnLoadRepairPatch(it->first);
             }
         } else {
             HILOG_DEBUG("ScheduleNotifyUnLoadRepairPatch, There's no hqfFile need to unload.");
         }
+
+        callback->OnUnloadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION);
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
         HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, Post task failed.");

@@ -65,7 +65,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbility(
     }
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::START_ABILITY;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITY);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
@@ -94,7 +94,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbilities(
     }
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::START_ABILITIES;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITIES);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
     wantSenderInfo.userId = -1; // -1 : invalid user id
@@ -138,7 +138,7 @@ std::shared_ptr<PendingWant> PendingWant::GetCommonEventAsUser(
     wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::SEND_COMMON_EVENT;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::SEND_COMMON_EVENT);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
@@ -182,7 +182,7 @@ std::shared_ptr<PendingWant> PendingWant::BuildServicePendingWant(
     wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)serviceKind;
+    wantSenderInfo.type = static_cast<int32_t>(serviceKind);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
@@ -422,5 +422,17 @@ std::shared_ptr<WantSenderInfo> PendingWant::GetWantSenderInfo(const sptr<AAFwk:
     std::shared_ptr<WantSenderInfo> info = std::make_shared<WantSenderInfo>();
     int ret = WantAgentClient::GetInstance().GetWantSenderInfo(target, info);
     return ret ? nullptr : info;
+}
+
+ErrCode PendingWant::GetType(const sptr<AAFwk::IWantSender> &target, int32_t &operType)
+{
+    ErrCode result = WantAgentClient::GetInstance().GetPendingWantType(target, operType);
+    return result;
+}
+
+ErrCode PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target, std::shared_ptr<AAFwk::Want> &want)
+{
+    ErrCode result = WantAgentClient::GetInstance().GetPendingRequestWant(target, want);
+    return result;
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent

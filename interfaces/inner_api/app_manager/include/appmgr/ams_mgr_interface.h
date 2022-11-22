@@ -157,11 +157,14 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
 
+    virtual void GetRunningProcessInfoByAccessTokenID(
+        const uint32_t accessTokenId, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
+
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
-    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) = 0;
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
 
     enum class Message {
         LOAD_ABILITY = 0,
@@ -183,7 +186,8 @@ public:
         UPDATE_CONFIGURATION,
         GET_CONFIGURATION,
         GET_APPLICATION_INFO_BY_PROCESS_ID,
-        KILL_APPLICATION_SELF
+        KILL_APPLICATION_SELF,
+        GET_RUNNING_PROCESS_INFO_BY_ACCESS_TOKEN_ID
     };
 };
 }  // namespace AppExecFwk

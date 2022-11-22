@@ -15,6 +15,7 @@
 
 #include "want_agent_client.h"
 
+#include "ability_runtime_error_util.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_interface.h"
 #include "ability_util.h"
@@ -23,6 +24,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
+using namespace OHOS::AbilityRuntime;
 namespace OHOS {
 namespace AAFwk {
 WantAgentClient &WantAgentClient::GetInstance()
@@ -171,13 +173,13 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
 
 ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int32_t &type)
 {
-    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, abms, target->AsObject(), reply, error)) {
-        return error;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     type = reply.ReadInt32();
     type < 0 ? type = 0 : type;
@@ -249,33 +251,33 @@ void WantAgentClient::UnregisterCancelListener(
 
 ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
-    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     CHECK_POINTER_AND_RETURN(want, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     if (!data.WriteRemoteObject(target->AsObject())) {
         HILOG_ERROR("GetPendingRequestWant, target write failed.");
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     if (!data.WriteParcelable(want.get())) {
         HILOG_ERROR("GetPendingRequestWant, want write failed.");
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     auto error = abms->SendRequest(IAbilityManager::GET_PENDING_REQUEST_WANT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("GetPendingRequestWant, Send request error: %{public}d", error);
-        return error;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     std::unique_ptr<Want> wantInfo(reply.ReadParcelable<Want>());
     if (!wantInfo) {
         HILOG_ERROR("GetPendingRequestWant, readParcelableInfo failed");
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     want = std::move(wantInfo);
 

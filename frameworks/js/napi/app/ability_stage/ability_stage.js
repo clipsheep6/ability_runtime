@@ -20,6 +20,7 @@ class AbilityStage {
         console.log('onAcceptWant, want:' + want.abilityName);
     }
     onConfigurationUpdated(config) {}
+    onConfigurationUpdate(newConfig) {}
     onMemoryLevel(level) {}
 }
 

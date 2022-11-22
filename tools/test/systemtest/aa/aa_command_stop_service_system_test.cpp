@@ -58,34 +58,6 @@ void AaCommandStopServiceSystemTest::TearDown()
 {}
 
 /**
- * @tc.number: Aa_Command_StopService_SystemTest_0100
- * @tc.name: ExecCommand
- * @tc.desc: Verify the "aa stop-service -d <device-id> -a <ability-name> -b <bundle-name>" command.
- */
-HWTEST_F(AaCommandStopServiceSystemTest, Aa_Command_StopService_SystemTest_0100, Function | MediumTest | Level1)
-{
-    // uninstall the bundle
-    ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
-
-    // install the bundle
-    ToolSystemTest::InstallBundle(STRING_SERVICE_ABILITY_BUNDLE_PATH, true);
-
-    // start the service ability
-    ToolSystemTest::StartAbility(
-        STRING_DEVICE_NAME, STRING_SERVICE_ABILITY_NAME, STRING_SERVICE_ABILITY_BUNDLE_NAME, true);
-
-    // stop the service ability
-    std::string command = "aa stop-service -d " + STRING_DEVICE_NAME + " -a " + STRING_SERVICE_ABILITY_NAME + " -b " +
-                          STRING_SERVICE_ABILITY_BUNDLE_NAME;
-    std::string commandResult = ToolSystemTest::ExecuteCommand(command);
-
-    EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_STOP_SERVICE_ABILITY_OK + "\n");
-
-    // uninstall the bundle
-    ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
-}
-
-/**
  * @tc.number: Aa_Command_StopService_SystemTest_0200
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa stop-service -d <device-id> -a <ability-name> -b <bundle-name>" command.

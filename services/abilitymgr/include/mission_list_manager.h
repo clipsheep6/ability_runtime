@@ -388,8 +388,13 @@ private:
     std::shared_ptr<MissionList> GetTargetMissionListByDefault(
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
+    std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
+    bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
+        std::shared_ptr<AbilityRecord> &targetRecord);
+    std::string GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const;
+    bool CreateOrReusedMissionInfo(const AbilityRequest &abilityRequest, InnerMissionInfo &info) const;
     void MoveMissionToTargetList(bool isCallFromLauncher,
         const std::shared_ptr<MissionList> &targetMissionList,
         const std::shared_ptr<Mission> &mission);
@@ -415,7 +420,6 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
-    void UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PostStartWaitingAbility();
     void HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleLauncherDied(std::shared_ptr<AbilityRecord> ability);
@@ -441,7 +445,7 @@ private:
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
-    void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void EraseWaitingAbility(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId, bool excludeFromMissions);
@@ -449,7 +453,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const bool isSingleton, const int32_t startMethod, const AbilityRequest &abilityRequest);
+        const AbilityRequest &abilityRequest) const;
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

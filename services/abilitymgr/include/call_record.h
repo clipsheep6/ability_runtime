@@ -30,7 +30,7 @@ class AbilityCallRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
 
-    AbilityCallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
+    explicit AbilityCallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
     virtual ~AbilityCallRecipient() = default;
 
     void OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote) override

@@ -34,6 +34,23 @@ gen_js_obj("ability_stage_abc") {
   dep = ":gen_ability_stage_abc"
 }
 
+ohos_shared_library("abilitystage") {
+  sources = [ "ability_stage_module.cpp" ]
+
+  deps = [
+    ":ability_stage_abc",
+    ":ability_stage_js",
+  ]
+
+  external_deps = [ "napi:ace_napi" ]
+
+  defines = [ "ENABLE_ERRCODE" ]
+
+  relative_install_dir = "module/app/ability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("abilitystage_napi") {
   sources = [ "ability_stage_module.cpp" ]
 

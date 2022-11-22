@@ -41,23 +41,23 @@ enum StateType {
 };
 
 enum RestartFlag {
-    ALWAYS_RESTART = 0,
-    CPP_CRASH_NO_RESTART = 1,
-    JS_CRASH_NO_RESTART = 2,
-    APP_FREEZE_NO_RESTART = 4,
-    NO_RESTART = 0xFF,
+    ALWAYS_RESTART = 0x0000,
+    CPP_CRASH_NO_RESTART = 0x0001,
+    JS_CRASH_NO_RESTART = 0x0002,
+    APP_FREEZE_NO_RESTART = 0x0004,
+    NO_RESTART = 0xFFFF,
 };
 
 enum SaveOccasionFlag {
-    NO_SAVE = 0,
-    SAVE_WHEN_ERROR = 1,
-    SAVE_WHEN_BACKGROUND = 2,
-    SAVE_ALL = 0xFF,
+    NO_SAVE = 0x0000,
+    SAVE_WHEN_ERROR = 0x0001,
+    SAVE_WHEN_BACKGROUND = 0x0002,
+    SAVE_ALL = 0xFFFF,
 };
 
 enum SaveModeFlag {
-    SAVE_WITH_FILE = 1,
-    SAVE_WITH_SHARED_MEMORY = 2,
+    SAVE_WITH_FILE = 0x0001,
+    SAVE_WITH_SHARED_MEMORY = 0x0002,
 };
 
 enum StateReason {

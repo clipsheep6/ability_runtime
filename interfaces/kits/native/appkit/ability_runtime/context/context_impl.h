@@ -287,7 +287,7 @@ private:
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
-                             bool currentBundle = false, bool moduleContext = false) const;
+                             bool currentBundle = false, const std::string &moduleName = "") const;
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
