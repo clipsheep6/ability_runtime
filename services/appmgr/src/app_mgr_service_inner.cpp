@@ -845,6 +845,10 @@ int64_t AppMgrServiceInner::SystemTimeMillisecond()
 
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByPid(const pid_t pid) const
 {
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return nullptr;
+    }
     return appRunningManager_->GetAppRunningRecordByPid(pid);
 }
 
