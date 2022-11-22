@@ -266,7 +266,7 @@ void Ability::OnStop()
     }
 #ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
-    auto&& window = GetWindow();
+    auto && window = GetWindow();
     if (window != nullptr) {
         HILOG_DEBUG("Call UnregisterDisplayMoveListener");
         window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);

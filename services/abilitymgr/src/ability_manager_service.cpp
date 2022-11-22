@@ -1247,7 +1247,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
 }
 
-int AbilityManagerService::SendResultToAbility(int requestCode, int resultCode, Want &resultWant)
+int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)
 {
     HILOG_INFO("%{public}s", __func__);
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
