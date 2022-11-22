@@ -464,7 +464,7 @@ private:
     std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
     std::shared_ptr<OHOSApplication> application_ = nullptr;
     std::shared_ptr<ApplicationImpl> applicationImpl_ = nullptr;
-    std::shared_ptr<MainHandler> mainHandler_ = nullptr;
+    static std::shared_ptr<MainHandler> mainHandler_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
     std::shared_ptr<Watchdog> watchdog_ = nullptr;
     MainThreadState mainThreadState_ = MainThreadState::INIT;
