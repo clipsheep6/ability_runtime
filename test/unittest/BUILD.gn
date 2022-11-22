@@ -378,6 +378,7 @@ group("unittest") {
       "mission_list_manager_test:unittest",
       "mission_list_manager_ut_test:unittest",
       "mission_list_test:unittest",
+      "mission_test:unittest",
       "specified_mission_list_test:unittest",
       "start_option_display_id_test:unittest",
     ]
