@@ -40,6 +40,13 @@ const std::string REALPATH_FLAG = "/temprary/";
 const std::string ABILITYPATH_FLAG = "/entry/ets/";
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * (1 << 20);
+constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
+constexpr int32_t INDEX_FOUR = 4;
+constexpr int32_t ANS_MAP_SIZE = 5;
+constexpr int32_t NUM_TWENTY = 20;
+constexpr int32_t NUM_TWENTYSIX = 26;
+constexpr int32_t DIGIT_NUM = 64;
 
 bool ModSourceMap::ReadSourceMapData(const std::string& filePath, std::string& content)
 {
@@ -123,7 +130,7 @@ void ModSourceMap::ExtractKeyInfo(const std::string& sourceMap, std::vector<std:
         if (sourceMap[i] == '"') {
             cnt++;
         }
-        if (cnt == 2) {
+        if (cnt == INDEX_TWO) {
             sourceKeyInfo.push_back(tempStr);
             tempStr = "";
             cnt = 0;
@@ -247,10 +254,10 @@ void ModSourceMap::Init(const std::string& sourceMap, SourceMapData& curMapData)
         // after decode, assgin each value to the position
         curMapData.nowPos_.afterColumn += ans[0];
         curMapData.nowPos_.sourcesVal += ans[1];
-        curMapData.nowPos_.beforeRow += ans[2];
-        curMapData.nowPos_.beforeColumn += ans[3];
-        if (ans.size() == 5) {
-            curMapData.nowPos_.namesVal += ans[4];
+        curMapData.nowPos_.beforeRow += ans[INDEX_TWO];
+        curMapData.nowPos_.beforeColumn += ans[INDEX_THREE];
+        if (ans.size() == ANS_MAP_SIZE) {
+            curMapData.nowPos_.namesVal += ans[INDEX_FOUR];
         }
         curMapData.afterPos_.push_back({
             curMapData.nowPos_.beforeRow,
@@ -309,7 +316,7 @@ uint32_t ModSourceMap::Base64CharToInt(char charCode)
         // 63: /
         return 63;
     }
-    return 64;
+    return DIGIT_NUM;
 };
 
 bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans)
@@ -326,7 +333,7 @@ bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans
     bool continuation = 0;
     for (uint32_t i = 0; i < vStr.size(); i++) {
         uint32_t digit = Base64CharToInt(vStr[i]);
-        if (digit == 64) {
+        if (digit == DIGIT_NUM) {
             return false;
         }
         continuation = digit & VLQ_CONTINUATION_BIT;
@@ -429,10 +436,10 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         j = curSourceMap.find("},", s);
         uint32_t q = s;
         uint32_t jj = j;
-        value = curSourceMap.substr(q + 1, jj - q+2);
+        value = curSourceMap.substr(q + 1, jj - q + INDEX_TWO);
         uint32_t sources = value.find("\"sources\": [");
         uint32_t names = value.find("],");
-        key = value.substr(sources + 20, names - sources - 26);
+        key = value.substr(sources + NUM_TWENTY, names - sources - NUM_TWENTYSIX);
         MapData.insert(std::pair<std::string, std::string>(key, value));
     }
 
@@ -519,14 +526,14 @@ std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> target
         return sourceCode;
     }
     std::vector<std::string> names = targetMapData->names_;
-    if (names.size() % 2 != 0) {
+    if (names.size() % INDEX_TWO != 0) {
         HILOG_ERROR("Names in sourcemap is wrong.");
         return sourceCode;
     }
 
     std::string jsCode = sourceCode;
     int32_t posDiff = 0;
-    for (uint32_t i = 0; i < names.size(); i += 2) {
+    for (uint32_t i = 0; i < names.size(); i += INDEX_TWO) {
         auto found = jsCode.find(names[i]);
         while (found != std::string::npos) {
             // names_[i + 1] is the original name of names_[i]
