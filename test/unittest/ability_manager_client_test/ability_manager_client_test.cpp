@@ -511,5 +511,303 @@ HWTEST_F(AbilityManagerClientTest, GetAbilityRunningInfos_0100, TestSize.Level1)
     auto result = client_->GetAbilityRunningInfos(myInfo);
     EXPECT_EQ(result, ERR_OK);
 }
+
+/**
+ * @tc.name: GetMissionInfo_0100
+ * @tc.desc: GetMissionInfo
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, GetMissionInfo_0100, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    int32_t missionId = 1;
+    MissionInfo missionInfo;
+    auto result = client_->GetMissionInfo(deviceId, missionId, missionInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetExtensionRunningInfos_0100s
+ * @tc.desc: GetExtensionRunningInfos
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, GetExtensionRunningInfos_0100, TestSize.Level1)
+{
+    int upperLimit = 1;
+    std::vector<ExtensionRunningInfo> info;
+    auto result = client_->GetExtensionRunningInfos(upperLimit, info);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetProcessRunningInfos_0100
+ * @tc.desc: GetProcessRunningInfos
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, GetProcessRunningInfos_0100, TestSize.Level1)
+{
+    std::vector<AppExecFwk::RunningProcessInfo> myInfo;
+    auto result = client_->GetProcessRunningInfos(myInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: StopSyncRemoteMissions_0100
+ * @tc.desc: StopSyncRemoteMissions
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, StopSyncRemoteMissions_0100, TestSize.Level1)
+{
+    std::string devId = "123";
+    auto result = client_->StopSyncRemoteMissions(devId);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: StartUser_0100
+ * @tc.desc: StartUser
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, StartUser_0100, TestSize.Level1)
+{
+    int accountId = 1;
+    auto result = client_->StartUser(accountId);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: StopUser_0100
+ * @tc.desc: StopUser
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, StopUser_0100, TestSize.Level1)
+{
+    int accountId = 1;
+    sptr<IStopUserCallback> callback = nullptr;
+    auto result = client_->StopUser(accountId, callback);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: RegisterSnapshotHandler_0100
+ * @tc.desc: RegisterSnapshotHandler
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterSnapshotHandler_0100, TestSize.Level1)
+{
+    sptr<ISnapshotHandler> handler = nullptr;
+    auto result = client_->RegisterSnapshotHandler(handler);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SetMissionLabel_0100
+ * @tc.desc: SetMissionLabel
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, SetMissionLabel_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> abilityToken = nullptr;
+    std::string label = "myLable";
+    auto result = client_->SetMissionLabel(abilityToken, label);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: RegisterWindowManagerServiceHandler_0100
+ * @tc.desc: RegisterWindowManagerServiceHandler
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterWindowManagerServiceHandler_0100, TestSize.Level1)
+{
+    sptr<IWindowManagerServiceHandler> handler = nullptr;
+    auto result = client_->RegisterWindowManagerServiceHandler(handler);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: StartUserTest_0100
+ * @tc.desc: StartUserTest
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, StartUserTest_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> observer = nullptr;
+    auto result = client_->StartUserTest(want, observer);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: FinishUserTest_0100
+ * @tc.desc: FinishUserTest
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, FinishUserTest_0100, TestSize.Level1)
+{
+    std::string msg = "myMsg";
+    int64_t resultCode = 1;
+    std::string bundleName = "myBundleName";
+    auto result = client_->FinishUserTest(msg, resultCode, bundleName);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetTopAbility_0100
+ * @tc.desc: GetTopAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, GetTopAbility_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->GetTopAbility(token);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DelegatorDoAbilityForeground_0100
+ * @tc.desc: DelegatorDoAbilityForeground
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, DelegatorDoAbilityForeground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->DelegatorDoAbilityForeground(token);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DoAbilityForeground_0100
+ * @tc.desc: DoAbilityForeground
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, DoAbilityForeground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    uint32_t flag = 1;
+    auto result = client_->DoAbilityForeground(token, flag);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DelegatorDoAbilityBackground_0100
+ * @tc.desc: DelegatorDoAbilityBackground
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, DelegatorDoAbilityBackground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->DelegatorDoAbilityBackground(token);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DoAbilityBackground_0100
+ * @tc.desc: DoAbilityBackground
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, DoAbilityBackground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    uint32_t flag = 1;
+    auto result = client_->DoAbilityBackground(token, flag);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SendANRProcessID_0100
+ * @tc.desc: SendANRProcessID
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, SendANRProcessID_0100, TestSize.Level1)
+{
+    int myPid = 1;
+    auto result = client_->SendANRProcessID(myPid);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: BlockAmsService_0100
+ * @tc.desc: BlockAmsService
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAmsService_0100, TestSize.Level1)
+{
+    auto result = client_->BlockAmsService();
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: BlockAbility_0100
+ * @tc.desc: BlockAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAbility_0100, TestSize.Level1)
+{
+    int32_t abilityRecordId = 1;
+    auto result = client_->BlockAbility(abilityRecordId);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: BlockAppService_0100
+ * @tc.desc: BlockAppService
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAppService_0100, TestSize.Level1)
+{
+    auto result = client_->BlockAppService();
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: FreeInstallAbilityFromRemote_0100
+ * @tc.desc: FreeInstallAbilityFromRemote
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, FreeInstallAbilityFromRemote_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> callBackTest = nullptr;
+    int32_t userId = 1;
+    int requestCode = DEFAULT_INVAL_VALUE;
+    auto result = client_->FreeInstallAbilityFromRemote(want, callBackTest, userId, requestCode);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DumpAbilityInfoDone_0100
+ * @tc.desc: DumpAbilityInfoDone
+ * @tc.type: FUNC
+ * @tc.require: issueI5Q5AF
+ */
+HWTEST_F(AbilityManagerClientTest, DumpAbilityInfoDone_0100, TestSize.Level1)
+{
+    std::vector<std::string> myInfos;
+    sptr<IRemoteObject> callerTokenTest = nullptr;
+    auto result = client_->DumpAbilityInfoDone(myInfos, callerTokenTest);
+    EXPECT_EQ(result, ERR_OK);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
