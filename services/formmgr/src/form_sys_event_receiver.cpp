@@ -49,7 +49,7 @@ FormSysEventReceiver::FormSysEventReceiver(const EventFwk::CommonEventSubscribeI
  * @brief Receive common event.
  * @param eventData Common event data.
  */
-void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &eventData)
+void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData eventData)
 {
     const AAFwk::Want& want = eventData.GetWant();
     std::string action = want.GetAction();
