@@ -34,17 +34,17 @@ public:
     QuickFixCallbackImpl() = default;
     virtual ~QuickFixCallbackImpl() = default;
 
-    void OnLoadPatchDone(int32_t resultCode) override
+    void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }
 
-    void OnUnloadPatchDone(int32_t resultCode) override
+    void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }
 
-    void OnReloadPageDone(int32_t resultCode) override
+    void OnReloadPageDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }

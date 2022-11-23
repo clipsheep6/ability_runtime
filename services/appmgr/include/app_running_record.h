@@ -522,11 +522,13 @@ public:
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId);
 
-    int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId);
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId);
 
     bool IsContinuousTask();
 

@@ -70,7 +70,8 @@ HWTEST_F(QuickFixCallbackProxyTest, OnLoadPatchDone_0100, TestSize.Level1)
         .WillOnce(Invoke(mockCallbackService_.GetRefPtr(), &MockQuickFixCallbackStub::InvokeSendRequest));
 
     int32_t resultCode = 0;
-    quickFixMgrProxy_->OnLoadPatchDone(resultCode);
+    int32_t recordId = 0;
+    quickFixMgrProxy_->OnLoadPatchDone(resultCode, recordId);
 
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH));
@@ -93,7 +94,8 @@ HWTEST_F(QuickFixCallbackProxyTest, OnUnloadPatchDone_0100, TestSize.Level1)
         .WillOnce(Invoke(mockCallbackService_.GetRefPtr(), &MockQuickFixCallbackStub::InvokeSendRequest));
 
     int32_t resultCode = 0;
-    quickFixMgrProxy_->OnUnloadPatchDone(resultCode);
+    int32_t recordId = 0;
+    quickFixMgrProxy_->OnUnloadPatchDone(resultCode, recordId);
 
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_PATCH));
@@ -116,7 +118,8 @@ HWTEST_F(QuickFixCallbackProxyTest, OnReloadPageDone_0100, TestSize.Level1)
         .WillOnce(Invoke(mockCallbackService_.GetRefPtr(), &MockQuickFixCallbackStub::InvokeSendRequest));
 
     int32_t resultCode = 0;
-    quickFixMgrProxy_->OnReloadPageDone(resultCode);
+    int32_t recordId = 0;
+    quickFixMgrProxy_->OnReloadPageDone(resultCode, recordId);
 
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_RELOAD_PAGE));

@@ -163,7 +163,8 @@ int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
     return ERR_OK;
 }
 
-int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
+int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+    const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call %{public}s", __func__);
@@ -171,10 +172,10 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback);
+    return appThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
 }
 
-int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
+int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call %{public}s", __func__);
@@ -182,11 +183,11 @@ int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &cal
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyHotReloadPage(callback);
+    return appThread_->ScheduleNotifyHotReloadPage(callback, recordId);
 }
 
 int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
-    const sptr<IQuickFixCallback> &callback)
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -194,7 +195,7 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback);
+    return appThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
