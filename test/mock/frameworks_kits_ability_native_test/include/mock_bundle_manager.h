@@ -70,6 +70,13 @@ public:
     bool GetBundleInfo(const std::string &bundleName,
         const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override
     {
+        if (bundleName == "test_contextImpl") {
+            bundleInfo.name = "test_contextImpl";
+            bundleInfo.applicationInfo.name = "test_contextImpl";
+            HapModuleInfo moduleInfo1;
+            moduleInfo1.moduleName = "test_moduleName";
+            bundleInfo.hapModuleInfos.push_back(moduleInfo1);
+        }
         return true;
     }
     std::string GetAppType(const std::string &bundleName) override;

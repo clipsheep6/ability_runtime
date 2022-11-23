@@ -84,7 +84,7 @@ AbilityRequest MissionTest::GenerateAbilityRequest(const std::string &deviceName
  */
 HWTEST_F(MissionTest, mission_set_mission_list_001, TestSize.Level1)
 {
-    auto mission = std::make_shared<Mission>(nullptr, "");
+    auto mission = std::make_shared<Mission>(1, nullptr);
     EXPECT_EQ(nullptr, mission->GetMissionList());
 }
 
@@ -98,7 +98,7 @@ HWTEST_F(MissionTest, mission_set_mission_list_001, TestSize.Level1)
  */
 HWTEST_F(MissionTest, mission_set_mission_list_002, TestSize.Level1)
 {
-    auto mission = std::make_shared<Mission>(nullptr, "");
+    auto mission = std::make_shared<Mission>(1, nullptr);
     mission->SetMissionList(nullptr);
     EXPECT_EQ(nullptr, mission->GetMissionList());
 }
@@ -113,7 +113,7 @@ HWTEST_F(MissionTest, mission_set_mission_list_002, TestSize.Level1)
  */
 HWTEST_F(MissionTest, mission_set_mission_list_003, TestSize.Level1)
 {
-    auto mission = std::make_shared<Mission>(nullptr, "");
+    auto mission = std::make_shared<Mission>(1, nullptr);
     auto missionList = std::make_shared<MissionList>();
     mission->SetMissionList(missionList);
     EXPECT_EQ(missionList, mission->GetMissionList());
@@ -129,7 +129,7 @@ HWTEST_F(MissionTest, mission_set_mission_list_003, TestSize.Level1)
  */
 HWTEST_F(MissionTest, mission_set_mission_list_004, TestSize.Level1)
 {
-    auto mission = std::make_shared<Mission>(nullptr, "");
+    auto mission = std::make_shared<Mission>(1, nullptr);
     auto missionList = std::make_shared<MissionList>();
     mission->SetMissionList(missionList);
     auto missionList1 = std::make_shared<MissionList>();
@@ -147,7 +147,7 @@ HWTEST_F(MissionTest, mission_set_mission_list_004, TestSize.Level1)
  */
 HWTEST_F(MissionTest, mission_is_singleton_001, TestSize.Level1)
 {
-    auto mission = std::make_shared<Mission>(nullptr, "");
+    auto mission = std::make_shared<Mission>(1, nullptr);
     EXPECT_FALSE(mission->IsSingletonAbility());
 }
 
@@ -166,7 +166,7 @@ HWTEST_F(MissionTest, mission_is_singleton_002, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord);
+    auto mission = std::make_shared<Mission>(0, abilityRecord);
     EXPECT_FALSE(mission->IsSingletonAbility());
 }
 
@@ -185,7 +185,7 @@ HWTEST_F(MissionTest, mission_is_singleton_003, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord);
+    auto mission = std::make_shared<Mission>(0, abilityRecord);
     EXPECT_TRUE(mission->IsSingletonAbility());
 }
 
@@ -204,7 +204,7 @@ HWTEST_F(MissionTest, mission_get_mission_name_001, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord);
+    auto mission = std::make_shared<Mission>(0, abilityRecord);
     EXPECT_TRUE("" == mission->GetMissionName());
 }
 
@@ -223,7 +223,7 @@ HWTEST_F(MissionTest, mission_get_mission_name_002, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord, "");
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "");
     EXPECT_TRUE("" == mission->GetMissionName());
 }
 
@@ -242,7 +242,7 @@ HWTEST_F(MissionTest, mission_get_mission_name_003, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord, "name1");
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "name1");
     EXPECT_TRUE("name1" == mission->GetMissionName());
 }
 
@@ -261,7 +261,7 @@ HWTEST_F(MissionTest, mission_locked_state_001, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord, "name1");
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "name1");
     EXPECT_FALSE(mission->IsLockedState());
 }
 
@@ -280,7 +280,7 @@ HWTEST_F(MissionTest, mission_locked_state_002, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord, "name1");
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "name1");
     mission->SetLockedState(true);
     EXPECT_TRUE(mission->IsLockedState());
 }
@@ -300,11 +300,249 @@ HWTEST_F(MissionTest, mission_locked_state_003, TestSize.Level1)
     Want want;
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto mission = std::make_shared<Mission>(abilityRecord, "name1");
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "name1");
     mission->SetLockedState(true);
     EXPECT_TRUE(mission->IsLockedState());
     mission->SetLockedState(false);
     EXPECT_FALSE(mission->IsLockedState());
+}
+
+/*
+ * Feature: Mission
+ * Function: copy constructor
+ * SubFunction: NA
+ * FunctionPoints: Mission copy constructor
+ * EnvConditions: NA
+ * CaseDescription: deep copy a object, with same content but different pointer address
+ */
+HWTEST_F(MissionTest, mission_copy_constructor_001, TestSize.Level1)
+{
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission1 = std::make_shared<Mission>(0, abilityRecord, "name1");
+    auto mission2= std::make_shared<Mission>(mission1);
+    EXPECT_NE(mission1, mission2); 
+    EXPECT_NE(&(mission1->missionId_), &(mission2->missionId_));
+    EXPECT_NE(&(mission1->startMethod_), &(mission2->startMethod_));
+    EXPECT_NE(&(mission1->abilityRecord_), &(mission2->abilityRecord_));
+    EXPECT_NE(&(mission1->missionName_), &(mission2->missionName_));
+    EXPECT_EQ(mission1->missionId_, mission2->missionId_);
+    EXPECT_EQ(mission1->startMethod_, mission2->startMethod_);
+    EXPECT_EQ(mission1->abilityRecord_, mission2->abilityRecord_);
+    EXPECT_EQ(mission1->missionName_, mission2->missionName_);
+}
+
+/*
+ * Feature: Mission
+ * Function: IsSpecifiedAbility
+ * SubFunction: NA
+ * FunctionPoints: Mission IsSpecifiedAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsSpecifiedAbility
+ */
+HWTEST_F(MissionTest, mission_is_specified_001, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    EXPECT_FALSE(mission->IsSpecifiedAbility());
+}
+
+/*
+ * Feature: Mission
+ * Function: IsSpecifiedAbility
+ * SubFunction: NA
+ * FunctionPoints: Mission IsSpecifiedAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsSpecifiedAbility
+ */
+HWTEST_F(MissionTest, mission_is_specified_002, TestSize.Level1)
+{
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(0, abilityRecord);
+    EXPECT_FALSE(mission->IsSpecifiedAbility());
+}
+
+/*
+ * Feature: Mission
+ * Function: IsSpecifiedAbility
+ * SubFunction: NA
+ * FunctionPoints: Mission IsSpecifiedAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsSpecifiedAbility
+ */
+HWTEST_F(MissionTest, mission_is_specified_003, TestSize.Level1)
+{
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(0, abilityRecord);
+    EXPECT_TRUE(mission->IsSpecifiedAbility());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetSpecifiedFlag and GetSpecifiedFlag
+ * SubFunction: NA
+ * FunctionPoints: Mission SetSpecifiedFlag
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSpecifiedFlag
+ */
+HWTEST_F(MissionTest, mission_set_specified_flag_001, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    EXPECT_EQ("", mission->GetSpecifiedFlag());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetSpecifiedFlag and GetSpecifiedFlag
+ * SubFunction: NA
+ * FunctionPoints: Mission SetSpecifiedFlag
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSpecifiedFlag
+ */
+HWTEST_F(MissionTest, mission_set_specified_flag_002, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    mission->SetSpecifiedFlag("");
+    EXPECT_EQ("", mission->GetSpecifiedFlag());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetSpecifiedFlag and GetSpecifiedFlag
+ * SubFunction: NA
+ * FunctionPoints: Mission SetSpecifiedFlag
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSpecifiedFlag
+ */
+HWTEST_F(MissionTest, mission_set_specified_flag_003, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    mission->SetSpecifiedFlag("test_string");
+    EXPECT_EQ("test_string", mission->GetSpecifiedFlag());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetSpecifiedFlag and GetSpecifiedFlag
+ * SubFunction: NA
+ * FunctionPoints: Mission SetSpecifiedFlag
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSpecifiedFlag
+ */
+HWTEST_F(MissionTest, mission_set_specified_flag_004, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    mission->SetSpecifiedFlag("test_string");
+    mission->SetSpecifiedFlag("test_string2");
+    EXPECT_EQ("test_string2", mission->GetSpecifiedFlag());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetMovingState and IsMovingState
+ * SubFunction: NA
+ * FunctionPoints: Mission SetMovingState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMovingState
+ */
+HWTEST_F(MissionTest, mission_set_moving_state_001, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    EXPECT_EQ(false, mission->IsMovingState());
+}
+
+
+/*
+ * Feature: Mission
+ * Function: SetMovingState and IsMovingState
+ * SubFunction: NA
+ * FunctionPoints: Mission SetMovingState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMovingState
+ */
+HWTEST_F(MissionTest, mission_set_moving_state_002, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    mission->SetMovingState(true);
+    EXPECT_EQ(true, mission->IsMovingState());
+}
+
+/*
+ * Feature: Mission
+ * Function: SetANRState and IsANRState
+ * SubFunction: NA
+ * FunctionPoints: Mission SetANRState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetANRState
+ */
+HWTEST_F(MissionTest, mission_set_anr_state_001, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    EXPECT_EQ(false, mission->IsANRState());
+}
+
+
+/*
+ * Feature: Mission
+ * Function: SetANRState and IsANRState
+ * SubFunction: NA
+ * FunctionPoints: Mission SetANRState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetANRState
+ */
+HWTEST_F(MissionTest, mission_set_anr_state_002, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr);
+    mission->SetANRState(true);
+    EXPECT_EQ(true, mission->IsANRState());
+}
+
+/*
+ * Feature: Mission
+ * Function: Dump
+ * SubFunction: NA
+ * FunctionPoints: Mission Dump
+ * EnvConditions: NA
+ * CaseDescription: Test Dump
+ */
+HWTEST_F(MissionTest, mission_dump, TestSize.Level1)
+{
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(0, abilityRecord, "name1");
+    std::vector<std::string> info;
+    mission->Dump(info);
+}
+
+/*
+ * Feature: Mission
+ * Function: UpdateMissionId
+ * SubFunction: NA
+ * FunctionPoints: Mission UpdateMissionId
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateMissionId
+ */
+HWTEST_F(MissionTest, mission_update_mission_id, TestSize.Level1)
+{
+    auto mission = std::make_shared<Mission>(1, nullptr, "name1", 0);
+    EXPECT_EQ(1,mission->GetMissionId());
+    EXPECT_EQ(false, mission->UpdateMissionId(2, 0));
+    EXPECT_EQ(1,mission->GetMissionId());
+    EXPECT_EQ(true, mission->UpdateMissionId(2, 1));
+    EXPECT_EQ(2,mission->GetMissionId());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

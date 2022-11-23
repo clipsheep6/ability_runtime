@@ -265,6 +265,7 @@ int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessagePar
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     int32_t infoSize = data.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
         return ERR_INVALID_VALUE;
     }
     for (int32_t i = 0; i < infoSize; i++) {

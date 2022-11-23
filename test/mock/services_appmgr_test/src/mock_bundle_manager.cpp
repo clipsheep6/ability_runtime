@@ -50,9 +50,13 @@ void ConstructHqfInfo(BundleInfo &bundleInfo)
     HapModuleInfo moduleInfo1;
     moduleInfo1.moduleName = "entry1";
     moduleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry1";
+    moduleInfo1.hqfInfo = hqfInfo1;
+    moduleInfo1.process = "test_quickfix";
     HapModuleInfo moduleInfo2;
     moduleInfo2.moduleName = "entry2";
     moduleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry2";
+    moduleInfo2.hqfInfo = hqfInfo2;
+    moduleInfo2.process = "test_quickfix";
     hapModuleInfos.push_back(moduleInfo1);
     hapModuleInfos.push_back(moduleInfo2);
     bundleInfo.hapModuleInfos = hapModuleInfos;

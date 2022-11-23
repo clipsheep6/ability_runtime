@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 bool AbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityManagerProxy::GetDescriptor())) {
@@ -841,6 +842,11 @@ template <typename T>
 int AbilityManagerProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos)
 {
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {

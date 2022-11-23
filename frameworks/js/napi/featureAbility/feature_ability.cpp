@@ -254,7 +254,7 @@ Ability* JsFeatureAbility::GetAbility(NativeEngine &engine)
     }
 
     Ability *ability = nullptr;
-    ret = napi_get_value_external(env, abilityObj, (void **)&ability);
+    ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
         HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
@@ -1031,7 +1031,6 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
 
     uv_loop_t *loop = nullptr;
     loop = callbackInfo.engine->GetUVLoop();
-
     if (loop == nullptr) {
         HILOG_ERROR("loop instance is nullptr");
         return;

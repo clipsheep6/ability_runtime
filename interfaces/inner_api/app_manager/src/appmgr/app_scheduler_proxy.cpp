@@ -132,7 +132,7 @@ void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
     ScheduleMemoryCommon(level, operation);
 }
 
-void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, uint32_t operation)
+void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, const uint32_t operation)
 {
     MessageParcel data;
     MessageParcel reply;

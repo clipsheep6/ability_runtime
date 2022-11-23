@@ -38,9 +38,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     }
 
     std::string bundleName(data, size);
-    if (abilitymgr->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+    abilitymgr->ClearUpApplicationData(bundleName);
 
     // fuzz for AppMgrClient
     auto appMgrClient = new AppMgrClient();
@@ -48,9 +46,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         return false;
     }
 
-    if (appMgrClient->ClearUpApplicationData(bundleName) != 0) {
-        return false;
-    }
+    appMgrClient->ClearUpApplicationData(bundleName);
 
     return true;
 }

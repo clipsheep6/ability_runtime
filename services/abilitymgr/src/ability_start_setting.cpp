@@ -24,6 +24,7 @@ namespace AAFwk {
 const std::string AbilityStartSetting::BOUNDS_KEY = "bounds";
 const std::string AbilityStartSetting::WINDOW_DISPLAY_ID_KEY = "windowId";
 const std::string AbilityStartSetting::WINDOW_MODE_KEY = "windowMode";
+constexpr uint32_t CYCLE_LIMIT = 1000;
 
 /**
  * @brief Construct copy function.
@@ -160,6 +161,11 @@ AbilityStartSetting *AbilityStartSetting::Unmarshalling(Parcel &parcel)
     // 1. Number of key value pairs read
     uint32_t size = 0;
     parcel.ReadUint32(size);
+
+    if (size > CYCLE_LIMIT) {
+        return nullptr;
+    }
+
     std::u16string keyReadString16;
     std::u16string dataReadString16;
     for (size_t i = 0; (i < size) && abilityStartSetting; i++) {

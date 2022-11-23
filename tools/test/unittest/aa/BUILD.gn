@@ -188,15 +188,102 @@ ohos_unittest("aa_command_screen_test") {
   ]
 }
 
+ohos_unittest("aa_command_force_stop_test") {
+  module_out_path = module_output_path
+
+  sources = [ "aa_command_force_stop_test.cpp" ]
+  sources += tools_aa_mock_sources
+
+  configs = [ ":tools_aa_config_mock" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("aa_command_force_timeout_test") {
+  module_out_path = module_output_path
+
+  sources = [ "aa_command_force_timeout_test.cpp" ]
+  sources += tools_aa_mock_sources
+
+  configs = [ ":tools_aa_config_mock" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("aa_command_test_test") {
+  module_out_path = module_output_path
+
+  sources = [ "aa_command_test_test.cpp" ]
+  sources += tools_aa_mock_sources
+
+  configs = [ ":tools_aa_config_mock" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 group("unittest") {
   testonly = true
 
   deps = [
     ":aa_command_dump_test",
     ":aa_command_dumpsys_test",
+    ":aa_command_force_stop_test",
     ":aa_command_screen_test",
     ":aa_command_start_test",
     ":aa_command_stop_service_test",
     ":aa_command_test",
+    ":aa_command_test_test",
   ]
+
+  if (ability_command_for_test) {
+    deps += [ ":aa_command_force_timeout_test" ]
+  }
 }

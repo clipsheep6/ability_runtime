@@ -41,7 +41,7 @@ static napi_module _module = {
 #else
     .nm_modname = "ability.wantConstant",
 #endif
-    .nm_priv = ((void *)0),
+    .nm_priv = (static_cast<void *>(0)),
     .reserved = {0}
 };
 

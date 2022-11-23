@@ -367,12 +367,12 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         targetRecord->SetIsNewWant(true);
     }
     /* No need to update condition:
-        *      1. not start by call
-        *      2. start by call, but call to background again
-        * Need to update condition:
-        *      1. start by call, but this time is not start by call
-        *      2. start by call, and call to foreground again
-        */
+     *      1. not start by call
+     *      2. start by call, but call to background again
+     * Need to update condition:
+     *      1. start by call, but this time is not start by call
+     *      2. start by call, and call to foreground again
+     */
     if (!(targetMission->IsStartByCall()
         && (!CallTypeFilter(startMethod) ||
             abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
@@ -726,9 +726,6 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
 
     abilityRecord->SetMinimizeReason(fromUser);
     MoveToBackgroundTask(abilityRecord);
-    if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
-        UpdateMissionTimeStamp(abilityRecord);
-    }
 
     return ERR_OK;
 }
@@ -969,7 +966,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     }
 
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetEventId());
-    auto self(shared_from_this());
+    auto self(weak_from_this());
     if (success) {
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("%{public}s foreground succeeded.", __func__);
@@ -977,15 +974,23 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_hot";
         handler->RemoveTask(taskName);
 #endif
-        auto task = [self, abilityRecord]() { self->CompleteForegroundSuccess(abilityRecord); };
-        handler->PostTask(task);
-    } else {
-        auto task = [self, abilityRecord, isInvalidMode]() {
-            if (!self) {
+        auto task = [self, abilityRecord]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
                 HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
-            self->CompleteForegroundFailed(abilityRecord, isInvalidMode);
+            selfObj->CompleteForegroundSuccess(abilityRecord);
+        };
+        handler->PostTask(task);
+    } else {
+        auto task = [self, abilityRecord, isInvalidMode]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
+                HILOG_WARN("Mission list mgr is invalid.");
+                return;
+            }
+            selfObj->CompleteForegroundFailed(abilityRecord, isInvalidMode);
         };
         handler->PostTask(task);
     }
@@ -1055,9 +1060,6 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         abilityRecord->SetMinimizeReason(true);
         MoveToBackgroundTask(abilityRecord);
-        if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD) {
-            UpdateMissionTimeStamp(abilityRecord);
-        }
     } else if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
@@ -1648,7 +1650,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             return;
     }
     std::string eventType = "LIFECYCLE_TIMEOUT";
-    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
         EVENT_KEY_UID, processInfo.uid_,
         EVENT_KEY_PID, processInfo.pid_,
@@ -2052,16 +2054,6 @@ sptr<IRemoteObject> MissionListManager::GetAbilityTokenByMissionId(int32_t missi
     }
 
     return defaultStandardList_->GetAbilityTokenByMissionId((missionId));
-}
-
-void MissionListManager::UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord)
-{
-    auto mission = abilityRecord->GetMission();
-    if (!mission) {
-        return;
-    }
-    std::string curTime = GetCurrentTime();
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionTimeStamp(mission->GetMissionId(), curTime);
 }
 
 void MissionListManager::PostStartWaitingAbility()
