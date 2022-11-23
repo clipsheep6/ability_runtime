@@ -16,6 +16,7 @@
 #ifndef FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_PROVIDER_RECEIVER_H
 #define FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_PROVIDER_RECEIVER_H
 
+#include "bundle_event_callback_host.h"
 #include "common_event_subscriber.h"
 #include "common_event_subscribe_info.h"
 #include "event_handler.h"
@@ -30,7 +31,7 @@ namespace AppExecFwk {
  * @class FormSysEventReceiver
  * Receive system common event.
  */
-class FormSysEventReceiver : public EventFwk::CommonEventSubscriber {
+class FormSysEventReceiver : public EventFwk::CommonEventSubscriber , public BundleEventCallbackHost {
 public:
     FormSysEventReceiver() = default;
     FormSysEventReceiver(const EventFwk::CommonEventSubscribeInfo &subscriberInfo);
@@ -39,7 +40,7 @@ public:
      * @brief System common event receiver.
      * @param eventData Common event data.
      */
-    virtual void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override;
+    void OnReceiveEvent(const EventFwk::CommonEventData eventData) override;
 
     /**
      * @brief SetEventHandler.
@@ -77,6 +78,7 @@ private:
     FormTimerCfg &cfg);
     void HandleTimerUpdate(const int64_t formId, const FormRecord &record, const FormTimerCfg &timerCfg);
 private:
+    DISALLOW_COPY_AND_MOVE(FormSysEventReceiver);
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_ = nullptr;
 };
 }  // namespace AppExecFwk
