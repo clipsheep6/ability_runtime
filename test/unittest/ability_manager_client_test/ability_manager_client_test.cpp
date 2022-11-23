@@ -17,9 +17,9 @@
 #define private public
 #define protected public
 #include "ability_manager_client.h"
+#include "ability_manager_stub_mock_test.h"
 #undef private
 #undef protected
-#include "ability_manager_stub_mock_test.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -29,7 +29,11 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int USER_ID = 100;
+const int NULL_TARGET = 2097154;
+const int INIT_VALUE = 0;
 const size_t SIZE_ZERO = 0;
+const std::string BUNDLE_NAME = "BUNDLE_NAME";
+const std::string EMPTY_STRING = "";
 }  // namespace
 
 class AbilityManagerClientTest : public testing::Test {
@@ -511,5 +515,632 @@ HWTEST_F(AbilityManagerClientTest, GetAbilityRunningInfos_0100, TestSize.Level1)
     auto result = client_->GetAbilityRunningInfos(myInfo);
     EXPECT_EQ(result, ERR_OK);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_ScheduleCommandAbilityDone_0100
+ * @tc.desc: ScheduleCommandAbilityDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, ScheduleCommandAbilityDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->ScheduleCommandAbilityDone(token);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CloseAbility_0100
+ * @tc.desc: CloseAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, CloseAbility_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    Want resultWant;
+    auto result = client_->CloseAbility(token, DEFAULT_INVAL_VALUE, &resultWant);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ConnectDataShareExtensionAbility_0100
+ * @tc.desc: ConnectDataShareExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, ConnectDataShareExtensionAbility_0100, TestSize.Level1)
+{
+    sptr<IAbilityConnection> connect = nullptr;
+    Want want;
+    auto result = client_->ConnectDataShareExtensionAbility(want, connect, DEFAULT_INVAL_VALUE);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ConnectExtensionAbility_0100
+ * @tc.desc: ConnectExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, ConnectExtensionAbility_0100, TestSize.Level1)
+{
+    sptr<IAbilityConnection> connect = nullptr;
+    Want want;
+    auto result = client_->ConnectExtensionAbility(want, connect, DEFAULT_INVAL_VALUE);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ReleaseDataAbility_0100
+ * @tc.desc: ReleaseDataAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, ReleaseDataAbility_0100, TestSize.Level1)
+{
+    sptr<IAbilityScheduler> dataAbilityScheduler = nullptr;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->ReleaseDataAbility(dataAbilityScheduler, callerToken);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_KillProcess_0100
+ * @tc.desc: KillProcess
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, KillProcess_0100, TestSize.Level1)
+{
+    auto result = client_->KillProcess(BUNDLE_NAME);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingWantUid_0100
+ * @tc.desc: GetPendingWantUid
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingWantUid_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    int32_t uid = INIT_VALUE;
+    auto result = client_->GetPendingWantUid(target, uid);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingWantUserId_0100
+ * @tc.desc: GetPendingWantUserId
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingWantUserId_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    int32_t userId = INIT_VALUE;
+    auto result = client_->GetPendingWantUserId(target, userId);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingWantBundleName_0100
+ * @tc.desc: GetPendingWantBundleName
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingWantBundleName_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    std::string bundleName = EMPTY_STRING;
+    auto result = client_->GetPendingWantBundleName(target, bundleName);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingWantCode_0100
+ * @tc.desc: GetPendingWantCode
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingWantCode_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    int32_t code = INIT_VALUE;
+    auto result = client_->GetPendingWantCode(target, code);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingWantType_0100
+ * @tc.desc: GetPendingWantType
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingWantType_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    int32_t type = INIT_VALUE;
+    auto result = client_->GetPendingWantType(target, type);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetPendingRequestWant_0100
+ * @tc.desc: GetPendingRequestWant
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetPendingRequestWant_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    std::shared_ptr<Want> want = nullptr;
+    auto result = client_->GetPendingRequestWant(target, want);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetWantSenderInfo_0100
+ * @tc.desc: GetWantSenderInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetWantSenderInfo_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    std::shared_ptr<WantSenderInfo> info = nullptr;
+    auto result = client_->GetWantSenderInfo(target, info);
+    EXPECT_EQ(NULL_TARGET, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CancelWantSender_0100
+ * @tc.desc: CancelWantSender
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, CancelWantSender_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CancelWantSender_0100 start";
+    sptr<IWantSender> sender = nullptr;
+    client_->CancelWantSender(sender);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "CancelWantSender_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterCancelListener_0100
+ * @tc.desc: RegisterCancelListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterCancelListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterCancelListener_0100 start";
+    sptr<IWantSender> sender = nullptr;
+    sptr<IWantReceiver> receiver = nullptr;
+    client_->RegisterCancelListener(sender, receiver);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "RegisterCancelListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnregisterCancelListener_0100
+ * @tc.desc: UnregisterCancelListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, UnregisterCancelListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UnregisterCancelListener_0100 start";
+    sptr<IWantSender> sender = nullptr;
+    sptr<IWantReceiver> receiver = nullptr;
+    client_->UnregisterCancelListener(sender, receiver);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "UnregisterCancelListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_IsRamConstrainedDevice_0100
+ * @tc.desc: IsRamConstrainedDevice
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, IsRamConstrainedDevice_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "IsRamConstrainedDevice_0100 start";
+    auto result = client_->IsRamConstrainedDevice();
+
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "IsRamConstrainedDevice_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0100
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, ContinueMission_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0100 start";
+    std::string srcDeviceId = "123";
+    std::string dstDeviceId = "ABC";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callBack = nullptr;
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_NotifyCompleteContinuation_0100
+ * @tc.desc: NotifyCompleteContinuation
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, NotifyCompleteContinuation_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyCompleteContinuation_0100 start";
+    std::string deviceId = BUNDLE_NAME;
+    int32_t sessionId = 1;
+    bool isSuccess = true;
+    client_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "NotifyCompleteContinuation_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetMissionIdByToken_0100
+ * @tc.desc: GetMissionIdByToken
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetMissionIdByToken_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetMissionIdByToken_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    int32_t missionId = 1;
+    auto result = client_->GetMissionIdByToken(token, missionId);
+
+    EXPECT_EQ(result, MISSION_NOT_FOUND);
+    GTEST_LOG_(INFO) << "GetMissionIdByToken_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetExtensionRunningInfos_0100
+ * @tc.desc: GetExtensionRunningInfos
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetExtensionRunningInfos_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetExtensionRunningInfos_0100 start";
+    EXPECT_CALL(*mock_,GetExtensionRunningInfos(_, _))
+    .Times(1)
+    .WillOnce(Return(0));
+    int upperLimit = 1;
+    std::vector<ExtensionRunningInfo> info;
+    auto result = client_->GetExtensionRunningInfos(upperLimit, info);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "GetExtensionRunningInfos_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetProcessRunningInfos_0100
+ * @tc.desc: GetProcessRunningInfos
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, GetProcessRunningInfos_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetProcessRunningInfos_0100 start";
+    EXPECT_CALL(*mock_, GetProcessRunningInfos(_))
+    .Times(1)
+    .WillOnce(Return(0));
+    std::vector<RunningProcessInfo> info;
+    auto result = client_->GetProcessRunningInfos(info);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "GetProcessRunningInfos_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartSyncRemoteMissions_0100
+ * @tc.desc: StartSyncRemoteMissions
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, StartSyncRemoteMissions_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartSyncRemoteMissions_0100 start";
+    std::string devId = BUNDLE_NAME;
+    bool fixConflict = true;
+    int64_t tag = 1;
+    auto result = client_->StartSyncRemoteMissions(devId, fixConflict, tag);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "StartSyncRemoteMissions_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StopSyncRemoteMissions_0100
+ * @tc.desc: StopSyncRemoteMissions
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, StopSyncRemoteMissions_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StopSyncRemoteMissions_0100 start";
+    std::string devId = BUNDLE_NAME;
+    auto result = client_->StopSyncRemoteMissions(devId);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "StopSyncRemoteMissions_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUser_0100
+ * @tc.desc: StartUser
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, StartUser_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartUser_0100 start";
+    int userId = 1;
+    auto result = client_->StartUser(userId);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "StartUser_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StopUser_0100
+ * @tc.desc: StopUser
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, StopUser_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StopUser_0100 start";
+    int userId = 1;
+    sptr<IStopUserCallback> callback = nullptr;
+    auto result = client_->StopUser(userId, callback);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "StopUser_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterSnapshotHandler_0100
+ * @tc.desc: RegisterSnapshotHandler
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterSnapshotHandler_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterSnapshotHandler_0100 start";
+    sptr<ISnapshotHandler> handler = nullptr;
+    auto result = client_->RegisterSnapshotHandler(handler);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "RegisterSnapshotHandler_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterWindowManagerServiceHandler_0100
+ * @tc.desc: RegisterWindowManagerServiceHandler
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterWindowManagerServiceHandler_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterWindowManagerServiceHandler_0100 start";
+    sptr<IWindowManagerServiceHandler> handler = nullptr;
+    auto result = client_->RegisterWindowManagerServiceHandler(handler);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "RegisterWindowManagerServiceHandler_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CompleteFirstFrameDrawing_0100
+ * @tc.desc: CompleteFirstFrameDrawing
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, CompleteFirstFrameDrawing_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CompleteFirstFrameDrawing_0100 start";
+    sptr<IRemoteObject> abilityToken = nullptr;
+    client_->CompleteFirstFrameDrawing(abilityToken);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "CompleteFirstFrameDrawing_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUserTest_0100
+ * @tc.desc: StartUserTest
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, StartUserTest_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartUserTest_0100 start";
+    Want want;
+    sptr<IRemoteObject> observer = nullptr;
+    auto result = client_->StartUserTest(want, observer);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "StartUserTest_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DoAbilityForeground_0100
+ * @tc.desc: DoAbilityForeground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, DoAbilityForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DoAbilityForeground_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    uint32_t flag = 1;
+    auto result = client_->DoAbilityForeground(token, flag);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "DoAbilityForeground_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DoAbilityBackground_0100
+ * @tc.desc: DoAbilityBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, DoAbilityBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DoAbilityBackground_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    uint32_t flag = 1;
+    auto result = client_->DoAbilityBackground(token, flag);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "DoAbilityBackground_0100 end";
+}
+
+/**
+ *
+ * @tc.name: AbilityManagerClient_SetAbilityController_0100
+ * @tc.desc: SetAbilityController
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, SetAbilityController_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetAbilityController_0100 start";
+    sptr<IAbilityController> abilityController = nullptr;
+    bool imAStabilityTest = 0;
+    auto result = client_->SetAbilityController(abilityController, imAStabilityTest);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "SetAbilityController_0100 end";
+}
+
+
+#ifdef ABILITY_COMMAND_FOR_TEST
+/**
+ * @tc.name: AbilityManagerClient_BlockAmsService_0100
+ * @tc.desc: BlockAmsService
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAmsService_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "BlockAmsService_0100 start";
+    EXPECT_CALL(*mock_, BlockAmsService())
+    .Times(1)
+    .WillOnce(Return(0));
+    auto result = client_->BlockAmsService();
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "BlockAmsService_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_BlockAppService_0100
+ * @tc.desc: BlockAppService
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAppService_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "BlockAppService_0100 start";
+    EXPECT_CALL(*mock_, BlockAppService())
+    .Times(1)
+    .WillOnce(Return(0));
+    auto result = client_->BlockAppService(info);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "BlockAppService_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_BlockAbility_0100
+ * @tc.desc: BlockAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, BlockAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "BlockAbility_0100 start";
+    EXPECT_CALL(*mock_, BlockAbility(_))
+    .Times(1)
+    .WillOnce(Return(0));
+    int32_t abilityRecordId = 1;
+    auto result = client_->BlockAbility(abilityRecordId);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "BlockAbility_0100 end";
+}
+#endif
+
+/**
+ * @tc.name: AbilityManagerClient_DumpAbilityInfoDone_0100
+ * @tc.desc: DumpAbilityInfoDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, DumpAbilityInfoDone_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DumpAbilityInfoDone_0100 start";
+    std::vector<std::string> infos;
+    infos.emplace_back("DumpAbilityInfoDone");
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->DumpAbilityInfoDone(infos,callerToken);
+
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "DumpAbilityInfoDone_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_FreeInstallAbilityFromRemote_0100
+ * @tc.desc: FreeInstallAbilityFromRemote
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, FreeInstallAbilityFromRemote_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FreeInstallAbilityFromRemote_0100 start";
+    Want want;
+    sptr<IRemoteObject> callback = nullptr;
+    int32_t userId = 0;
+    auto result = client_->FreeInstallAbilityFromRemote(want,callback,userId);
+
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "FreeInstallAbilityFromRemote_0100 end";
+}
+
+
+/**
+ * @tc.name: AbilityManagerClient_SendANRProcessID_0100
+ * @tc.desc: SendANRProcessID
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, SendANRProcessID_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SendANRProcessID_0100 start";
+    int pid = 0;
+    auto result = client_->SendANRProcessID(pid);
+
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "SendANRProcessID_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UpdateMissionSnapShot_0100
+ * @tc.desc: UpdateMissionSnapShot
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, UpdateMissionSnapShot_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UpdateMissionSnapShot_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    client_->UpdateMissionSnapShot(token);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "UpdateMissionSnapShot_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_OnRemoteDied_0100
+ * @tc.desc: OnRemoteDied
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, OnRemoteDied_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "OnRemoteDied_0100 start";
+    AbilityManagerClient::AbilityMgrDeathRecipient recipient;
+    wptr<IRemoteObject> remote = nullptr;
+    recipient.OnRemoteDied(remote);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "OnRemoteDied_0100 end";
+}
+
+
 }  // namespace AAFwk
 }  // namespace OHOS
