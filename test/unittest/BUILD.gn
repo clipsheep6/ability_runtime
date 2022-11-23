@@ -365,6 +365,7 @@ group("unittest") {
   if (ability_runtime_graphics) {
     deps += [
       "call_container_test:unittest",
+      "mission_info_test:unittest",
       "mission_list_dump_test:unittest",
       "mission_list_manager_dump_test:unittest",
       "mission_list_manager_test:unittest",

@@ -538,11 +538,11 @@ HWTEST_F(MissionTest, mission_dump, TestSize.Level1)
 HWTEST_F(MissionTest, mission_update_mission_id, TestSize.Level1)
 {
     auto mission = std::make_shared<Mission>(1, nullptr, "name1", 0);
-    EXPECT_EQ(1,mission->GetMissionId());
+    EXPECT_EQ(1, mission->GetMissionId());
     EXPECT_EQ(false, mission->UpdateMissionId(2, 0));
-    EXPECT_EQ(1,mission->GetMissionId());
+    EXPECT_EQ(1, mission->GetMissionId());
     EXPECT_EQ(true, mission->UpdateMissionId(2, 1));
-    EXPECT_EQ(2,mission->GetMissionId());
+    EXPECT_EQ(2, mission->GetMissionId());
 }
 }  // namespace AAFwk
 }  // namespace OHOS
