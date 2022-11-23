@@ -161,9 +161,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->ClearAbility(ability);
     appRecord->RemoveTerminateAbilityTimeoutTask(token);
     sptr<IQuickFixCallback> callback;
-    appRecord->NotifyLoadRepairPatch(bundleName, callback);
-    appRecord->NotifyHotReloadPage(callback);
-    appRecord->NotifyUnLoadRepairPatch(bundleName, callback);
+    appRecord->NotifyLoadRepairPatch(bundleName, callback, recordId);
+    appRecord->NotifyHotReloadPage(callback, recordId);
+    appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
     return appRecord->IsLauncherApp();
 }
 }

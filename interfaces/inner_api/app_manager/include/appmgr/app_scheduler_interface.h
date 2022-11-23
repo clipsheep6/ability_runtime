@@ -148,7 +148,7 @@ public:
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback) = 0;
+        const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
     /**
      * @brief Notify application reload page.
@@ -156,7 +156,7 @@ public:
      * @param callback called when HotReload finished.
      * @return Returns 0 on success, error code on failure.
      */
-    virtual int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) = 0;
+    virtual int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
     /**
      * @brief Notify application unload patch.
@@ -166,7 +166,7 @@ public:
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback) = 0;
+        const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,

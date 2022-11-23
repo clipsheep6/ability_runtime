@@ -13,28 +13,42 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_PROXY_H
-#define OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_WITH_RECORD_H
+#define OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_WITH_RECORD_H
 
-#include "iquick_fix_callback.h"
-#include "iremote_proxy.h"
+#include <atomic>
+#include <list>
+#include <mutex>
+
+#include "quick_fix_callback_stub.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class QuickFixCallbackProxy : public IRemoteProxy<IQuickFixCallback> {
+class QuickFixCallbackWithRecord : public QuickFixCallbackStub {
 public:
-    explicit QuickFixCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IQuickFixCallback>(impl) {};
-    virtual ~QuickFixCallbackProxy() = default;
+    explicit QuickFixCallbackWithRecord(sptr<IQuickFixCallback> callback)
+        : callback_(callback)
+    {}
+
+    virtual ~QuickFixCallbackWithRecord();
 
     void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override;
     void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override;
     void OnReloadPageDone(int32_t resultCode, int32_t recordId) override;
 
-private:
-    bool SendRequestWithCmd(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    void AddRecordId(int32_t recordId);
+    void RemoveRecordId(int32_t recordId);
 
-    static inline BrokerDelegator<QuickFixCallbackProxy> delegator_;
+private:
+    void ProcessCallback(int32_t resultCode, int32_t recordId);
+    bool IsRecordExist(const int32_t recordId);
+    bool IsRecordListEmpty();
+
+    sptr<IQuickFixCallback> callback_ = nullptr;
+    std::mutex mutex_;
+    std::list<int32_t> recordIds_;
+    std::atomic<int32_t> finalResult = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_PROXY_H
+#endif  // OHOS_ABILITY_RUNTIME_QUICK_FIX_CALLBACK_WITH_RECORD_H

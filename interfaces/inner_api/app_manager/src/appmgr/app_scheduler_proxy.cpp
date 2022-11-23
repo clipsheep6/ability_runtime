@@ -381,7 +381,7 @@ void AppSchedulerProxy::ScheduleAcceptWant(const AAFwk::Want &want, const std::s
 }
 
 int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
-    const sptr<IQuickFixCallback> &callback)
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
@@ -397,6 +397,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
         HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(recordId)) {
+        HILOG_ERROR("Write record id failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -418,7 +423,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     return reply.ReadInt32();
 }
 
-int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
+int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
@@ -429,6 +434,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
         HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(recordId)) {
+        HILOG_ERROR("Write record id failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -451,7 +461,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
 }
 
 int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-    const sptr<IQuickFixCallback> &callback)
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
@@ -467,6 +477,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
         HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(recordId)) {
+        HILOG_ERROR("Write record id failed.");
         return ERR_INVALID_DATA;
     }
 

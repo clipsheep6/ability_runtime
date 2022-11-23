@@ -192,7 +192,7 @@ public:
         HILOG_DEBUG("destroyed.");
     }
 
-    void OnLoadPatchDone(int32_t resultCode) override
+    void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
         if (resultCode != 0) {
@@ -205,7 +205,7 @@ public:
         applyTask_->PostDeleteQuickFixTask();
     }
 
-    void OnUnloadPatchDone(int32_t resultCode) override
+    void OnUnloadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
         if (resultCode != 0) {
@@ -218,7 +218,7 @@ public:
         applyTask_->PostSwitchQuickFixTask();
     }
 
-    void OnReloadPageDone(int32_t resultCode) override
+    void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
         if (resultCode != 0) {
@@ -304,7 +304,8 @@ void QuickFixManagerApplyTask::HandlePatchDeleted()
 
 void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles)
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new QuickFixManagerStatusCallback(shared_from_this());
+    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
+        shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deployTask = [thisWeakPtr, quickFixFiles, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -336,7 +337,8 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
 
 void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new QuickFixManagerStatusCallback(shared_from_this());
+    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
+        shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto switchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -493,9 +495,9 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
 
 void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
-    auto deleteTask = [thisWeakPtr, callback]() {
+    auto loadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
             HILOG_ERROR("Apply task is nullptr.");
@@ -516,7 +518,7 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deleteTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask)) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -524,9 +526,9 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 
 void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
-    auto deleteTask = [thisWeakPtr, callback]() {
+    auto unloadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
             HILOG_ERROR("Apply task is nullptr.");
@@ -547,7 +549,7 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deleteTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(unloadPatchTask)) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -555,9 +557,9 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 
 void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new QuickFixNotifyCallback(shared_from_this());
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
-    auto deleteTask = [thisWeakPtr, callback]() {
+    auto reloadPageTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
             HILOG_ERROR("Apply task is nullptr.");
@@ -578,7 +580,7 @@ void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deleteTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(reloadPageTask)) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -596,7 +598,8 @@ void QuickFixManagerApplyTask::RegAppStateObserver()
 
     std::vector<std::string> bundleNameList;
     bundleNameList.push_back(bundleName_);
-    sptr<AppExecFwk::IApplicationStateObserver> callback = new QuickFixMgrAppStateObserver(shared_from_this());
+    sptr<AppExecFwk::IApplicationStateObserver> callback = new (std::nothrow) QuickFixMgrAppStateObserver(
+        shared_from_this());
     auto ret = appMgr_->RegisterApplicationStateObserver(callback, bundleNameList);
     if (ret != 0) {
         HILOG_ERROR("Register application state observer failed.");
