@@ -33,6 +33,7 @@ group("fuzztest") {
     "abilitymanagerservicefirst_fuzzer:fuzztest",
     "abilitymanagerservicefourth_fuzzer:fuzztest",
     "abilitymanagerserviceg_fuzzer:fuzztest",
+    "abilitymanagerserviceh_fuzzer:fuzztest",
     "abilitymanagerserviceninth_fuzzer:fuzztest",
     "abilitymanagerservicesecond_fuzzer:fuzztest",
     "abilitymanagerserviceseventh_fuzzer:fuzztest",

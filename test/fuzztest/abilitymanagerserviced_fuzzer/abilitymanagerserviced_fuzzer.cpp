@@ -51,20 +51,8 @@ std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
     return abilityRecord;
 }
 
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
-}
-
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    int intParam = static_cast<int>(GetU32Data(data));
-    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
     Parcel wantParcel;
     Want *want = nullptr;
@@ -74,7 +62,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
             return false;
         }
     }
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
@@ -82,18 +69,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AbilityRequest abilityRequest;
     abilityms->VerifyUriPermission(abilityRequest, *want);
     abilityms->GetValidDataAbilityUri(stringParam, stringParam);
-    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-    abilityms->GetDataAbilityUri(abilityInfos, stringParam, stringParam);
-    std::vector<AbilityRunningInfo> abilityRunningInfo;
-    std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
-    abilityms->GetAbilityRunningInfo(abilityRunningInfo, abilityRecord);
-    abilityms->VerifyAccountPermission(int32Param);
-#ifdef ABILITY_COMMAND_FOR_TEST
-    abilityms->BlockAmsService();
-    abilityms->BlockAbility(int32Param);
-    abilityms->BlockAppService();
-#endif
-    abilityms->FreeInstallAbilityFromRemote(*want, token, int32Param, intParam);
 
     return true;
 }

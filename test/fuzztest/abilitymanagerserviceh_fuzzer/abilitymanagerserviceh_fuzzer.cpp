@@ -13,12 +13,17 @@
  * limitations under the License.
  */
 
-#include "sendresulttoability_fuzzer.h"
+#include "abilitymanagerserviceh_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#define private public
+#define protected public
+#include "ability_manager_service.h"
+#undef protected
+#undef private
+
 #include "ability_record.h"
 
 using namespace OHOS::AAFwk;
@@ -36,21 +41,29 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
+std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
+{
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    return abilityRecord;
+}
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    int intParam = static_cast<int>(GetU32Data(data));
-    auto abilitymgr = AbilityManagerClient::GetInstance();
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    std::string stringParam(data, size);
 
-    // fuzz for want
-    Parcel wantParcel;
-    Want *resultWant = nullptr;
-    if (wantParcel.WriteBuffer(data, size)) {
-        resultWant = Want::Unmarshalling(wantParcel);
-        if (!resultWant) {
-            return false;
-        }
-    }
-    abilitymgr->SendResultToAbility(intParam, intParam, *resultWant);
+    // fuzz for AbilityManagerService
+    auto abilityms = std::make_shared<AbilityManagerService>();
+    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
+    abilityms->GetDataAbilityUri(abilityInfos, stringParam, stringParam);
+    std::vector<AbilityRunningInfo> abilityRunningInfo;
+    std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
+    abilityms->GetAbilityRunningInfo(abilityRunningInfo, abilityRecord);
+    abilityms->VerifyAccountPermission(int32Param);
 
     return true;
 }
@@ -61,12 +74,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
     if (data == nullptr) {
-        std::cout << "invalid data" << std::endl;
         return 0;
     }
 
     /* Validate the length of size */
-    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+    if (size < OHOS::U32_AT_SIZE || size > OHOS::FOO_MAX_LEN) {
         return 0;
     }
 
