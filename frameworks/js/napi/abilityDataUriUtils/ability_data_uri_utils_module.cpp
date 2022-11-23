@@ -21,19 +21,19 @@ extern const char _binary_ability_data_uri_utils_abc_start[];
 extern const char _binary_ability_data_uri_utils_abc_end[];
 
 extern "C" __attribute__((constructor))
-void NAPI_ability_dataUriUtils_AutoRegister()
+void NAPI_app_ability_dataUriUtils_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
         .name = "app.ability.dataUriUtils",
-        .fileName = "ability/libabilitydatauriutils_napi.so/ability_data_uri_utils.js",
+        .fileName = "app/ability/libdatauriutils.so/ability_data_uri_utils.js",
     };
 
     moduleManager->Register(&newModuleInfo);
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_ability_dataUriUtils_GetJSCode(const char **buf, int *bufLen)
+void NAPI_app_ability_dataUriUtils_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_ability_data_uri_utils_js_start;
@@ -46,7 +46,7 @@ void NAPI_ability_dataUriUtils_GetJSCode(const char **buf, int *bufLen)
 
 // dataUriUtils js register
 extern "C" __attribute__((visibility("default")))
-void NAPI_ability_dataUriUtils_GetABCCode(const char **buf, int *buflen)
+void NAPI_app_ability_dataUriUtils_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_ability_data_uri_utils_abc_start;

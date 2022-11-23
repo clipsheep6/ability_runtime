@@ -34,7 +34,7 @@ gen_js_obj("ability_data_uri_utils_abc") {
   dep = ":gen_ability_data_uri_utils_abc"
 }
 
-ohos_shared_library("abilitydatauriutils_napi") {
+ohos_shared_library("datauriutils") {
   sources = [ "ability_data_uri_utils_module.cpp" ]
 
   deps = [
@@ -44,7 +44,7 @@ ohos_shared_library("abilitydatauriutils_napi") {
 
   external_deps = [ "napi:ace_napi" ]
 
-  relative_install_dir = "module/ability"
+  relative_install_dir = "module/app/ability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
