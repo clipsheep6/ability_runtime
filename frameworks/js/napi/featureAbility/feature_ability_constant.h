@@ -18,6 +18,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,6 +31,9 @@ namespace AppExecFwk {
  * @return The return value from Init is treated as the exports object for the module.
  */
 napi_value FAConstantInit(napi_env env, napi_value exports);
+NativeValue* FAConstantInitForAbilityStartSetting(NativeEngine *engine);
+NativeValue* FAConstantInitForAbilityWindowConfiguration(NativeEngine *engine);
+NativeValue* FAConstantInitForErrorCode(NativeEngine *engine);
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName);
 void SetNamedProperty(napi_env env, napi_value dstObj, const int32_t objValue, const char *propName);
 }  // namespace AppExecFwk

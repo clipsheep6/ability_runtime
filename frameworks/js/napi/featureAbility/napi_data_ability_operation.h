@@ -32,7 +32,7 @@ namespace AppExecFwk {
  *
  * @return The return value from Init is treated as the exports object for the module.
  */
-napi_value DataAbilityOperationInit(napi_env env, napi_value exports);
+NativeValue* DataAbilityOperationInit(NativeEngine *engine);
 void SetNamedProperty(napi_env env, napi_value obj, const char *propName, int propValue);
 /**
  * @brief Parse the dataAbilityOperation parameters.

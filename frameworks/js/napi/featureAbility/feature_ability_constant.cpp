@@ -19,9 +19,14 @@
 
 #include "hilog_wrapper.h"
 #include "securec.h"
+#include "data_ability_predicates.h"
+#include "napi_common_want.h"
+#include "napi_data_ability_helper.h"
+#include "values_bucket.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::AbilityRuntime;
 /**
  * @brief FeatureAbilityConstantInit NAPI module registration.
  *
@@ -30,46 +35,76 @@ namespace AppExecFwk {
  *
  * @return The return value from Init is treated as the exports object for the module.
  */
-napi_value FAConstantInit(napi_env env, napi_value exports)
+NativeValue* FAConstantInitForAbilityStartSetting(NativeEngine *engine)
 {
+    HILOG_DEBUG("enter");
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+    object->SetProperty("BOUNDS_KEY", CreateJsValue(*engine, "abilityBounds"));
+    object->SetProperty("WINDOW_MODE_KEY", CreateJsValue(*engine, "windowMode"));
+    object->SetProperty("DISPLAY_ID_KEY", CreateJsValue(*engine, "displayId"));
+
+    return objValue;
+}
+
+NativeValue* FAConstantInitForAbilityWindowConfiguration(NativeEngine *engine)
+{
+    HILOG_DEBUG("enter");
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
     const int Window_Configuration_Zero = 100;
     const int Window_Configuration_One = 101;
     const int Window_Configuration_Two = 102;
+
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+    object->SetProperty("WINDOW_MODE_UNDEFINED", CreateJsValue(*engine, 0));
+    object->SetProperty("WINDOW_MODE_FULLSCREEN", CreateJsValue(*engine, 1));
+    object->SetProperty("WINDOW_MODE_SPLIT_PRIMARY", CreateJsValue(*engine, Window_Configuration_Zero));
+    object->SetProperty("WINDOW_MODE_SPLIT_SECONDARY", CreateJsValue(*engine, Window_Configuration_One));
+    object->SetProperty("WINDOW_MODE_FLOATING", CreateJsValue(*engine, Window_Configuration_Two));
+
+    return objValue;
+}
+
+NativeValue* FAConstantInitForErrorCode(NativeEngine *engine)
+{
+    HILOG_DEBUG("enter");
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
     const int NO_ERROR = 0;
     const int INVALID_PARAMETER = -1;
     const int ABILITY_NOT_FOUND = -2;
     const int PERMISSION_DENY = -3;
-    HILOG_INFO("%{public}s,called", __func__);
-    napi_value abilityStartSetting = nullptr;
-    napi_value abilityWindowConfiguration = nullptr;
-    napi_value errorCode = nullptr;
-    napi_create_object(env, &abilityStartSetting);
-    napi_create_object(env, &abilityWindowConfiguration);
-    napi_create_object(env, &errorCode);
 
-    SetNamedProperty(env, abilityStartSetting, "abilityBounds", "BOUNDS_KEY");
-    SetNamedProperty(env, abilityStartSetting, "windowMode", "WINDOW_MODE_KEY");
-    SetNamedProperty(env, abilityStartSetting, "displayId", "DISPLAY_ID_KEY");
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+    object->SetProperty("NO_ERROR", CreateJsValue(*engine, NO_ERROR));
+    object->SetProperty("INVALID_PARAMETER", CreateJsValue(*engine, INVALID_PARAMETER));
+    object->SetProperty("ABILITY_NOT_FOUND", CreateJsValue(*engine, ABILITY_NOT_FOUND));
+    object->SetProperty("PERMISSION_DENY", CreateJsValue(*engine, PERMISSION_DENY));
 
-    SetNamedProperty(env, abilityWindowConfiguration, 0, "WINDOW_MODE_UNDEFINED");
-    SetNamedProperty(env, abilityWindowConfiguration, 1, "WINDOW_MODE_FULLSCREEN");
-    SetNamedProperty(env, abilityWindowConfiguration, Window_Configuration_Zero, "WINDOW_MODE_SPLIT_PRIMARY");
-    SetNamedProperty(env, abilityWindowConfiguration, Window_Configuration_One, "WINDOW_MODE_SPLIT_SECONDARY");
-    SetNamedProperty(env, abilityWindowConfiguration, Window_Configuration_Two, "WINDOW_MODE_FLOATING");
-
-    SetNamedProperty(env, errorCode, NO_ERROR, "NO_ERROR");
-    SetNamedProperty(env, errorCode, INVALID_PARAMETER, "INVALID_PARAMETER");
-    SetNamedProperty(env, errorCode, ABILITY_NOT_FOUND, "ABILITY_NOT_FOUND");
-    SetNamedProperty(env, errorCode, PERMISSION_DENY, "PERMISSION_DENY");
-
-    napi_property_descriptor exportFuncs[] = {
-        DECLARE_NAPI_PROPERTY("AbilityStartSetting", abilityStartSetting),
-        DECLARE_NAPI_PROPERTY("AbilityWindowConfiguration", abilityWindowConfiguration),
-        DECLARE_NAPI_PROPERTY("ErrorCode", errorCode),
-    };
-    napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
-
-    return exports;
+    return objValue;
 }
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName)
