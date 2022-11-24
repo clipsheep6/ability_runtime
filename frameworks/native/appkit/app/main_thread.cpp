@@ -1103,6 +1103,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             application_->GetRuntime());
 #endif
         }
+    }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
     if (usertestInfo) {
