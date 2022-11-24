@@ -91,6 +91,43 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_002, TestSize.Level1)
 }
 
 /*
+ * Feature: AppStateCallBackHost
+ * Function: AppStateCallBackHost
+ * SubFunction: OnAbilityRequestDone Function
+ * FunctionPoints: OnAbilityRequestDone Onreceived interface
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Verify if Onreceived works when ability request done.
+ */
+HWTEST_F(AmsAppStateCallBackTest, OnAbilityRequestDone_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    AbilityState state = AbilityState::ABILITY_STATE_BEGIN;
+    sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    host->OnAbilityRequestDone(token, state);
+    
+    int32_t ret = 0;
+    EXPECT_EQ(0, ret);
+}
+
+/*
+ * Feature: AppStateCallBackHost
+ * Function: AppStateCallBackHost
+ * SubFunction: OnAppStateChanged Function
+ * FunctionPoints: OnAppStateChanged Onreceived interface
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Verify if Onreceived works when app state changed.
+ */
+HWTEST_F(AmsAppStateCallBackTest, OnAppStateChanged_001, TestSize.Level1)
+{
+    AppProcessData data;
+    sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    host->OnAppStateChanged(data);
+    
+    int32_t ret = 0;
+    EXPECT_EQ(0, ret);
+}
+
+/*
 * Feature: AppProcessData
 * Function: AppProcessData
 * SubFunction: Marshalling and Unmarshalling

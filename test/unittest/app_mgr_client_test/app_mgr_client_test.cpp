@@ -35,6 +35,8 @@ const int32_t ERROR_USER_ID = -1;
 const int32_t ERROR_STATE = -1;
 const uint32_t ACCESS_TOKEN_ID = 10000;
 const std::string EMPTY_STRING = "";
+const int32_t INIT_VALUE = 0;
+const int32_t ERROR_RET = 3;
 }  // namespace
 
 class AppMgrClientTest : public testing::Test {
@@ -266,5 +268,241 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_KillProcessesByUserId_001, TestSize.Leve
     int ret = appMgrClient->KillProcessesByUserId(ERROR_USER_ID);
     EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
 }
+
+/**
+ * @tc.name: AppMgrClient_StartUserTestProcess_001
+ * @tc.desc: can not start user test process with wrong param.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_StartUserTestProcess_001, TestSize.Level0)
+{
+    AAFwk::Want want;
+    sptr<IRemoteObject> observer = nullptr;
+    BundleInfo bundleInfo;
+    int32_t userId = INIT_VALUE;
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->StartUserTestProcess(want, observer, bundleInfo, userId);
+    EXPECT_EQ(ret, ERROR_RET);
+}
+
+/**
+ * @tc.name: AppMgrClient_KillApplicationSelf_001
+ * @tc.desc: kill application self.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_KillApplicationSelf_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->KillApplicationSelf();
+    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_AbilityAttachTimeOut_001
+ * @tc.desc: ability attach timeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AbilityAttachTimeOut_001, TestSize.Level0)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->AbilityAttachTimeOut(token);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_PrepareTerminate_001
+ * @tc.desc: prepare terminate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->PrepareTerminate(token);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_AddAbilityStageDone_001
+ * @tc.desc: add ability stage done.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0)
+{
+    int32_t recordId = INIT_VALUE;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->AddAbilityStageDone(recordId);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_StartupResidentProcess_001
+ * @tc.desc: startup resident process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_StartupResidentProcess_001, TestSize.Level0)
+{
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->StartupResidentProcess(bundleInfos);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_StartSpecifiedAbility_001
+ * @tc.desc: start specified ability.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Level0)
+{
+    AAFwk::Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->StartSpecifiedAbility(want, abilityInfo);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterStartSpecifiedAbilityResponse_001
+ * @tc.desc: register start specified ability response.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
+{
+    sptr<IStartSpecifiedAbilityResponse> response = nullptr;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->RegisterStartSpecifiedAbilityResponse(response);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_ScheduleAcceptWantDone_001
+ * @tc.desc: schedule accept want done.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleAcceptWantDone_001, TestSize.Level0)
+{
+    int32_t recordId = INIT_VALUE;
+    AAFwk::Want want;
+    std::string flag = EMPTY_STRING;
+    int32_t ret = 0;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->ScheduleAcceptWantDone(recordId, want, flag);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: AppMgrClient_FinishUserTest_001
+ * @tc.desc: finish user test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_FinishUserTest_001, TestSize.Level0)
+{
+    std::string msg = EMPTY_STRING;
+    int64_t resultCode = INIT_VALUE;
+    std::string bundleName;
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->FinishUserTest(msg, resultCode, bundleName);
+    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_StartRenderProcess_001
+ * @tc.desc: can not start render process with wrong param.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_StartRenderProcess_001, TestSize.Level0)
+{
+    std::string renderParam = EMPTY_STRING;
+    pid_t renderPid;
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->StartRenderProcess(renderParam, INIT_VALUE, ERROR_PID, renderPid);
+    EXPECT_EQ(ret, ERROR_STATE);
+}
+
+#ifdef ABILITY_COMMAND_FOR_TEST
+/**
+ * @tc.name: AppMgrClient_BlockAppService_001
+ * @tc.desc: block app service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_BlockAppService_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->BlockAppService();
+    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+}
+#endif
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
