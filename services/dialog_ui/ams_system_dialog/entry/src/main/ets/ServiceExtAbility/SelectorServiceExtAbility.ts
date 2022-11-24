@@ -102,7 +102,7 @@ export default class SelectorServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+            this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
             winNum++;
         })
     }
