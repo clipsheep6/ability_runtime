@@ -138,7 +138,7 @@ HWTEST_F(TaskDataPersistenceMgrTest, RemoveUserDir_001, TestSize.Level1)
     auto taskDataPersistenceMgr = std::make_shared<TaskDataPersistenceMgr>();
     int32_t userId = 0;
     bool res = taskDataPersistenceMgr->RemoveUserDir(userId);
-    EXPECT_FALSE(res);
+    EXPECT_TRUE(res);
 }
 
 /*

@@ -1832,6 +1832,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionIdByToken_001, T
     EXPECT_EQ(res, NO_ERROR);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAmsService
@@ -1845,13 +1846,13 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAmsService_001, TestS
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-#ifdef ABILITY_COMMAND_FOR_TEST
     auto res = proxy_->BlockAmsService();
     EXPECT_EQ(IAbilityManager::BLOCK_AMS_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
-#endif
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAbility
@@ -1865,14 +1866,14 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAbility_001, TestSize
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-#ifdef ABILITY_COMMAND_FOR_TEST
     int32_t abilityRecordId = 0;
     auto res = proxy_->BlockAbility(abilityRecordId);
     EXPECT_EQ(IAbilityManager::BLOCK_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
-#endif
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAppService
@@ -1886,12 +1887,11 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAppService_001, TestS
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-#ifdef ABILITY_COMMAND_FOR_TEST
     auto res = proxy_->BlockAppService();
     EXPECT_EQ(IAbilityManager::BLOCK_APP_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
-#endif
 }
+#endif
 
 /*
  * Feature: AbilityManagerService
