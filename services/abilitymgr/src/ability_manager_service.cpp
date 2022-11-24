@@ -5423,11 +5423,10 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     } else {
-        auto callerAccessToken = IPCSkeleton::GetCallingTokenID();
-        DelayedSingleton<AppScheduler>::GetInstance()->
-            GetRunningProcessInfoByAccessTokenID(callerAccessToken, processInfo);
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
         if (processInfo.processName_.empty()) {
-            HILOG_ERROR("Can not find caller application by token, callerToken: %{private}d.", callerAccessToken);
+            HILOG_ERROR("Can not find caller application by callerPid, callerPid: %{private}d.", callerPid);
             return ERR_INVALID_VALUE;
         }
     }

@@ -137,13 +137,6 @@ protected:
         return mockToken_;
     }
 
-    uint32_t GetTestAccessTokenID()
-    {
-        // a valid accessTokenID value which is not border value.
-        const static int ACCESS_TOKEN_ID = 10000;
-        return ACCESS_TOKEN_ID;
-    }
-
 private:
     std::vector<std::string> appName_ = {
         "test_app_name1",
@@ -436,9 +429,9 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_004, TestSize.Level
 
 /*
  * Feature: AppMgrServiceInner
- * Function: GetRunningProcessInfoByAccessTokenID
+ * Function: GetRunningProcessInfoByPid
  * SubFunction: NA
- * FunctionPoints: get running process info by AccessTokenID.
+ * FunctionPoints: get running process info by pid.
  * EnvConditions: NA
  * CaseDescription: creat apprunningrecord, set record state, mock object, call query function.
  */
@@ -453,7 +446,6 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_005, TestSize.Level
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName(index);
     appInfo->uid = uid;
-    appInfo->accessTokenId = GetTestAccessTokenID();
     std::string processName = GetTestAppName(index);
     RecordQueryResult result;
     BundleInfo bundleInfo;
@@ -462,6 +454,8 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_005, TestSize.Level
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
+    pid_t pid = 16738;
+    record->GetPriorityObject()->SetPid(pid);
     EXPECT_TRUE(record != nullptr) << ",create apprunningrecord fail!";
 
     // check apprunningrecord
@@ -489,16 +483,16 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_005, TestSize.Level
     EXPECT_EQ(stateFromRec, ApplicationState::APP_STATE_FOREGROUND);
 
     RunningProcessInfo info;
-    service_->GetRunningProcessInfoByAccessTokenID(GetTestAccessTokenID(), info);
+    service_->GetRunningProcessInfoByPid(pid, info);
     EXPECT_TRUE(info.processName_ == processName);
     EXPECT_TRUE(info.uid_ == uid);
 }
 
 /*
  * Feature: AppMgrServiceInner
- * Function: GetRunningProcessInfoByAccessTokenID
+ * Function: GetRunningProcessInfoByPid
  * SubFunction: NA
- * FunctionPoints: get running process info by token.
+ * FunctionPoints: get running process info by pid.
  * EnvConditions: NA
  * CaseDescription: creat apprunningrecords, set record state, mock object, call query function.
  */
@@ -513,7 +507,6 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_006, TestSize.Level
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName(index);
     appInfo->uid = uid;
-    appInfo->accessTokenId = GetTestAccessTokenID();
     std::string processName = GetTestAppName(index);
     RecordQueryResult result;
     BundleInfo bundleInfo;
@@ -522,6 +515,8 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_006, TestSize.Level
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
+    pid_t pid = 16739;
+    record->GetPriorityObject()->SetPid(pid);
     EXPECT_TRUE(record != nullptr) << ",create apprunningrecord fail!";
 
     CheckAppRunningRecording(appInfo, abilityInfo, record, index, result);
@@ -547,7 +542,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_006, TestSize.Level
     EXPECT_EQ(stateFromRec, ApplicationState::APP_STATE_BACKGROUND);
 
     RunningProcessInfo info;
-    service_->appRunningManager_->GetRunningProcessInfoByAccessTokenID(GetTestAccessTokenID(), info);
+    service_->appRunningManager_->GetRunningProcessInfoByPid(pid, info);
     EXPECT_TRUE(info.processName_ == processName);
     EXPECT_TRUE(info.uid_ == uid);
 }
