@@ -1076,7 +1076,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
         if (application_ != nullptr) {
 #ifdef __aarch64__
-        LoadAllExtensions("system/lib64/extensionability");
+        LoadAllExtensions("system/lib64/extensionability", wpApplication);
         LoadAndRegisterExtension("system/lib64/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
             application_->GetRuntime());
         LoadAndRegisterExtension("system/lib64/libworkschedextension.z.so", "WorkSchedulerExtension",
@@ -1089,7 +1089,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         "system/lib64/libprint_extension_module.z.so", "PrintExtension",
             application_->GetRuntime());
 #else
-        LoadAllExtensions("system/lib/extensionability");
+        LoadAllExtensions("system/lib64/extensionability", wpApplication);
         LoadAndRegisterExtension("system/lib/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
             application_->GetRuntime());
         LoadAndRegisterExtension("system/lib/libworkschedextension.z.so", "WorkSchedulerExtension",
@@ -1101,9 +1101,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAndRegisterExtension(
         "system/lib/libprint_extension_module.z.so", "PrintExtension",
             application_->GetRuntime());
-        LoadAllExtensions("system/lib64/extensionability", wpApplication);
 #endif
-        }
     }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
