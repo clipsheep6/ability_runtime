@@ -1102,8 +1102,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         "system/lib/libprint_extension_module.z.so", "PrintExtension",
             application_->GetRuntime());
         LoadAllExtensions("system/lib64/extensionability", wpApplication);
-#else
-        LoadAllExtensions("system/lib/extensionability", wpApplication);
 #endif
         }
     }
