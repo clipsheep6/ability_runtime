@@ -75,12 +75,6 @@ protected:
         const static int VALID_UID_VALUE = 1010;
         return VALID_UID_VALUE;
     }
-    static uint32_t GetTestAccessTokenID()
-    {
-        // a valid accessTokenID value which is not border value.
-        const static int ACCESS_TOKEN_ID = 10000;
-        return ACCESS_TOKEN_ID;
-    }
 
     std::shared_ptr<AppRunningRecord> GetTestAppRunningRecord();
     sptr<IAppScheduler> GetMockedAppSchedulerClient() const;
@@ -374,9 +368,9 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_004, TestSize.Level
 
 /*
  * Feature: AppMgrServiceInner
- * Function: GetRunningProcessInfoByAccessTokenID
+ * Function: GetRunningProcessInfoByPid
  * SubFunction: NA
- * FunctionPoints: get running process info by AccessTokenID.
+ * FunctionPoints: get running process info by pid.
  * EnvConditions: NA
  * CaseDescription: creat apprunningrecords, set record state, call query function.
  */
@@ -386,7 +380,6 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_005, TestSize.Level
     abilityInfo->name = GetTestAbilityName();
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
-    appInfo->accessTokenId = GetTestAccessTokenID();
     BundleInfo bundleInfo;
     bundleInfo.appId = "com.ohos.test.helloworld_code123";
     bundleInfo.jointUserId = "joint456";
@@ -398,8 +391,10 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_005, TestSize.Level
     EXPECT_TRUE(record != nullptr);
     record->SetState(ApplicationState::APP_STATE_BACKGROUND);
     record->SetApplicationClient(GetMockedAppSchedulerClient());
+    pid_t pid = 16738;
+    record->GetPriorityObject()->SetPid(pid);
     RunningProcessInfo info;
-    service_->appRunningManager_->GetRunningProcessInfoByAccessTokenID(GetTestAccessTokenID(), info);
+    service_->appRunningManager_->GetRunningProcessInfoByPid(pid, info);
     EXPECT_TRUE(info.processName_ == GetTestProcessName());
 }
 

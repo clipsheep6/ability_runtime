@@ -194,8 +194,7 @@ public:
 
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
-    virtual void GetRunningProcessInfoByAccessTokenID(
-        const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const;
+    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Notify that the ability stage has been updated

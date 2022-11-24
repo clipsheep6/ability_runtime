@@ -1880,24 +1880,24 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByToken_001, TestSize.Leve
 }
 
 /**
- * @tc.name: GetRunningProcessInfoByAccessTokenID_001
- * @tc.desc: get running process info by access token id.
+ * @tc.name: GetRunningProcessInfoByPid_001
+ * @tc.desc: get running process info by pid.
  * @tc.type: FUNC
  * @tc.require: issueI5W4S7
  */
-HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByAccessTokenID_001, TestSize.Level0)
+HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("GetRunningProcessInfoByAccessTokenID_001 start");
+    HILOG_INFO("GetRunningProcessInfoByPid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     AppExecFwk::RunningProcessInfo info;
-    appMgrServiceInner->GetRunningProcessInfoByAccessTokenID(0, info);
+    appMgrServiceInner->GetRunningProcessInfoByPid(0, info);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->GetRunningProcessInfoByAccessTokenID(0, info);
+    appMgrServiceInner->GetRunningProcessInfoByPid(0, info);
 
-    HILOG_INFO("GetRunningProcessInfoByAccessTokenID_001 end");
+    HILOG_INFO("GetRunningProcessInfoByPid_001 end");
 }
 
 /**

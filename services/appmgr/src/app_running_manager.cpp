@@ -124,17 +124,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(co
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenID(
-    const uint32_t accessTokenId)
-{
-    std::lock_guard<std::recursive_mutex> guard(lock_);
-    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
-        [&accessTokenId](const auto &pair) {
-            return pair.second->GetApplicationInfo()->accessTokenId == accessTokenId;
-        });
-    return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
-}
-
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilityToken(
     const sptr<IRemoteObject> &abilityToken)
 {
@@ -441,11 +430,10 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     AssignRunningProcessInfoByAppRecord(appRecord, info);
 }
 
-void AppRunningManager::GetRunningProcessInfoByAccessTokenID(
-    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+void AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
-    auto appRecord = GetAppRunningRecordByTokenID(accessTokenId);
+    auto appRecord = GetAppRunningRecordByPid(pid);
 
     AssignRunningProcessInfoByAppRecord(appRecord, info);
 }

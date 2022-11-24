@@ -1695,15 +1695,14 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
     appRunningManager_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AppMgrServiceInner::GetRunningProcessInfoByAccessTokenID(
-    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const
+void AppMgrServiceInner::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
 {
     HILOG_INFO("%{public}s called", __func__);
     if (!CheckGetRunningInfoPermission()) {
         return;
     }
 
-    appRunningManager_->GetRunningProcessInfoByAccessTokenID(accessTokenId, info);
+    appRunningManager_->GetRunningProcessInfoByPid(pid, info);
 }
 
 bool AppMgrServiceInner::CheckGetRunningInfoPermission() const

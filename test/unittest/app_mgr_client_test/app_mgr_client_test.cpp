@@ -33,7 +33,6 @@ const int32_t APP_NUMBER_ZERO = 0;
 const int32_t ERROR_PID = 999999;
 const int32_t ERROR_USER_ID = -1;
 const int32_t ERROR_STATE = -1;
-const uint32_t ACCESS_TOKEN_ID = 10000;
 const std::string EMPTY_STRING = "";
 const int32_t INIT_VALUE = 0;
 const int32_t ERROR_RET = 3;
@@ -146,11 +145,11 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRunningProcessInfoByToken_001, TestSi
 }
 
 /**
- * @tc.name: AppMgrClient_GetRunningProcessInfoByAccessTokenID_001
+ * @tc.name: AppMgrClient_GetRunningProcessInfoByPid_001
  * @tc.desc: can not get the not running process info by AccessTokenID.
  * @tc.type: FUNC
  */
-HWTEST_F(AppMgrClientTest, AppMgrClient_GetRunningProcessInfoByAccessTokenID_001, TestSize.Level0)
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetRunningProcessInfoByPid_001, TestSize.Level0)
 {
     AppExecFwk::RunningProcessInfo info;
 
@@ -160,7 +159,8 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRunningProcessInfoByAccessTokenID_001
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    appMgrClient->GetRunningProcessInfoByAccessTokenID(ACCESS_TOKEN_ID, info);
+    pid_t pid = 23689;
+    appMgrClient->GetRunningProcessInfoByPid(pid, info);
     EXPECT_EQ(info.bundleNames.size(), APP_NUMBER_ZERO);
 }
 

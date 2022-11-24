@@ -74,15 +74,6 @@ public:
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByPid(const pid_t pid);
 
     /**
-     * GetAppRunningRecordByTokenID, Get process record by accessTokenId.
-     *
-     * @param accessTokenId, the aaccessTokenId.
-     *
-     * @return process record.
-     */
-    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByTokenID(const uint32_t accessTokenId);
-
-    /**
      * GetAppRunningRecordByAbilityToken, Get process record by ability token.
      *
      * @param abilityToken, the ability token.
@@ -163,7 +154,7 @@ public:
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
-    void GetRunningProcessInfoByAccessTokenID(const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info);
+    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
