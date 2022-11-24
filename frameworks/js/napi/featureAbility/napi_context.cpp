@@ -3641,7 +3641,7 @@ NativeValue* NapiJsContext::OnSetShowOnLockScreen(NativeEngine &engine, NativeCa
             return;
         }
         obj->ability_->SetShowOnLockScreen(isShow);
-        task.Resolve(engine, engine.CreateNull());
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
@@ -3673,7 +3673,7 @@ NativeValue* NapiJsContext::OnSetWakeUpScreen(NativeEngine &engine, NativeCallba
             return;
         }
         obj->ability_->SetWakeUpScreen(wakeUp);
-        task.Resolve(engine, engine.CreateNull());
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
@@ -3711,7 +3711,7 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
             return;
         }
         obj->ability_->SetDisplayOrientation(orientationData);
-        task.Resolve(engine, CreateJsValue(engine, 1));
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
