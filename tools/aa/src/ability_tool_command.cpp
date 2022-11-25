@@ -96,6 +96,8 @@ const struct option LONG_OPTIONS_FOR_TEST[] = {
     {"debug", no_argument, nullptr, 'D'},
     {nullptr, 0, nullptr, 0},
 };
+
+const int32_t ARG_LIST_INDEX_OFFSET = 2;
 } // namespace
 
 AbilityToolCommand::AbilityToolCommand(int argc, char *argv[]) : ShellCommand(argc, argv, ABILITY_TOOL_NAME)
@@ -279,14 +281,10 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
                 bundleName = optarg;
                 break;
             case 'o':
-                if (optind >= argc_ - 1 || optind < 0) {
-                    HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                        ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
-                    resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
+                if (!GetKeyAndValueByOpt(optind, paramName, paramValue)) {
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                paramName = optarg;
-                paramValue = argv_[optind + 1];
+                HILOG_DEBUG("paramName: %{public}s, paramValue: %{public}s", paramName.c_str(), paramValue.c_str());
                 if (paramName == "windowMode" &&
                     std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
                     windowMode = std::stoi(paramValue);
@@ -412,6 +410,7 @@ ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
 
 ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::string>& params)
 {
+    std::string tempKey;
     std::string paramKey;
     std::string paramValue;
     std::smatch sm;
@@ -428,15 +427,13 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
                 params["-b"] = optarg;
                 break;
             case 'o':
-                if (optind >= argc_ - 1 || optind < 0) {
-                    HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                        ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
-                    resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
+                if (!GetKeyAndValueByOpt(optind, tempKey, paramValue)) {
                     return OHOS::ERR_INVALID_VALUE;
                 }
+                HILOG_DEBUG("tempKey: %{public}s, paramValue: %{public}s", tempKey.c_str(), paramValue.c_str());
                 paramKey = "-s ";
-                paramKey.append(optarg);
-                params[paramKey] = argv_[optind + 1];
+                paramKey.append(tempKey);
+                params[paramKey] = paramValue;
                 break;
             case 'p':
                 params["-p"] = optarg;
@@ -462,6 +459,28 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
     }
 
     return OHOS::ERR_OK;
+}
+
+bool AbilityToolCommand::GetKeyAndValueByOpt(int optind, std::string &key, std::string &value)
+{
+    int argListIndex = optind - ARG_LIST_INDEX_OFFSET;
+    if (argListIndex < 1) {
+        return false;
+    }
+
+    bool isOption = (argList_[argListIndex - 1] == "-o" || argList_[argListIndex - 1] == "--options") ? true : false;
+    int keyIndex = isOption ? argListIndex : argListIndex - 1;
+    int valueIndex = isOption ? argListIndex + 1 : argListIndex;
+    if (keyIndex >= argList_.size() || keyIndex < 0 || valueIndex >= argList_.size() || valueIndex < 0) {
+        HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
+            ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
+        resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
+        return false;
+    }
+
+    key = argList_[keyIndex];
+    value = argList_[valueIndex];
+    return true;
 }
 } // namespace AAFwk
 } // namespace OHOS
