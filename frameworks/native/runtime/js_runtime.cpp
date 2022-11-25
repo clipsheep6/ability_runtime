@@ -309,15 +309,10 @@ private:
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
             pandaOption.SetLogBufPrint(PrintVmLog);
 
-            // Fix a problem that if vm will crash if preloaded
-            if (options.preload) {
-                pandaOption.SetEnableAsmInterpreter(false);
-            } else {
-                bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
-                std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
-                pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
-                pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-            }
+            bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+            std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
+            pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
+            pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
 
             // aot related
             bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
