@@ -21,7 +21,6 @@
 #include "../inner/napi_common/napi_common_ability.h"
 #include "ability_util.h"
 #include "ability_process.h"
-#include "accesstoken_kit.h"
 #include "directory_ex.h"
 #include "feature_ability_common.h"
 #include "file_ex.h"
@@ -33,9 +32,6 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
-using OHOS::Security::AccessToken::AccessTokenKit;
-using OHOS::Security::AccessToken::PermissionListState;
-using OHOS::Security::AccessToken::TypePermissionOper;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -792,6 +788,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
 
     uv_loop_t *loop = nullptr;
     loop = callbackInfo.engine->GetUVLoop();
+
     if (loop == nullptr) {
         HILOG_ERROR("CallOnRequestPermissionsFromUserResult loop is nullptr.");
         return;
@@ -2825,11 +2822,11 @@ private:
     NativeValue* OnGetProcessName(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetCallingBundle(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetOrCreateLocalDir(NativeEngine &engine, NativeCallbackInfo &info);
+#ifdef SUPPORT_GRAPHICS
     NativeValue* OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetWakeUpScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetDisplayOrientation(NativeEngine &engine, NativeCallbackInfo &info);
-    void JsGetSelfPermissionsState(PermissionRequestTask &&task, const std::vector<std::string> &permissionList,
-        std::vector<int> &permissionsState);
+#endif
 };
 
 static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object)
@@ -2851,8 +2848,8 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
     BindNativeFunction(engine, *object, "getCallingBundle", moduleName, NapiJsContext::JsGetCallingBundle);
     BindNativeFunction(engine, *object, "getOrCreateLocalDir", moduleName, NapiJsContext::JsGetOrCreateLocalDir);
     BindNativeFunction(engine, *object, "getFilesDir", moduleName, NapiJsContext::JsGetFilesDir);
-    BindNativeFunction(
-        engine, *object, "isUpdatingConfigurations", moduleName, NapiJsContext::JsIsUpdatingConfigurations);
+    BindNativeFunction(engine, *object, "isUpdatingConfigurations", moduleName,
+        NapiJsContext::JsIsUpdatingConfigurations);
     BindNativeFunction(engine, *object, "printDrawnCompleted", moduleName, NapiJsContext::JsPrintDrawnCompleted);
     BindNativeFunction(engine, *object, "getCacheDir", moduleName, NapiJsContext::JsGetCacheDir);
     BindNativeFunction(engine, *object, "getAppType", moduleName, NapiJsContext::JsGetCtxAppType);
@@ -2861,10 +2858,9 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
     BindNativeFunction(engine, *object, "getApplicationContext", moduleName, NapiJsContext::JsGetApplicationContext);
     BindNativeFunction(engine, *object, "getAbilityInfo", moduleName, NapiJsContext::JsGetCtxAbilityInfo);
     BindNativeFunction(engine, *object, "setShowOnLockScreen", moduleName, NapiJsContext::JsSetShowOnLockScreen);
-    BindNativeFunction(
-        engine, *object, "getOrCreateDistributedDir", moduleName, NapiJsContext::JsGetOrCreateDistributedDir);
-    BindNativeFunction(
-        engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
+    BindNativeFunction(engine, *object, "getOrCreateDistributedDir", moduleName,
+        NapiJsContext::JsGetOrCreateDistributedDir);
+    BindNativeFunction(engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
     BindNativeFunction(engine, *object, "setDisplayOrientation", moduleName, NapiJsContext::JsSetDisplayOrientation);
     BindNativeFunction(engine, *object, "getDisplayOrientation", moduleName, NapiJsContext::JsGetDisplayOrientation);
     BindNativeFunction(engine, *object, "getExternalCacheDir", moduleName, NapiJsContext::JsGetExternalCacheDir);
@@ -3112,6 +3108,7 @@ NativeValue* NapiJsContext::JsGetCtxAbilityInfo(NativeEngine *engine, NativeCall
 
 NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3119,6 +3116,9 @@ NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCa
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetShowOnLockScreen(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, NativeCallbackInfo *info)
@@ -3134,6 +3134,7 @@ NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, Na
 
 NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3141,10 +3142,14 @@ NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallba
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetWakeUpScreen(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3152,10 +3157,14 @@ NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, Native
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetDisplayOrientation(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3163,6 +3172,9 @@ NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, Native
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetDisplayOrientation(*engine, *info, AbilityType::PAGE);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
@@ -3189,41 +3201,6 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     HILOG_INFO("Get Ability to done");
 
     return true;
-}
-
-void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
-    const std::vector<std::string> &permissionList, std::vector<int> &permissionsState)
-{
-    HILOG_DEBUG("%{public}s called", __func__);
-    std::vector<PermissionListState> permList;
-    for (auto permission : permissionList) {
-        HILOG_DEBUG("JsGetSelfPermissionsState permission: %{public}s.", permission.c_str());
-        PermissionListState permState;
-        permState.permissionName = permission;
-        permState.state = -1;
-        permList.emplace_back(permState);
-    }
-    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
-        permList.size(), permissionList.size());
-
-    auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
-    if (permList.size() != permissionList.size()) {
-        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
-        return;
-    }
-
-    for (auto permState : permList) {
-        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
-            permState.permissionName.c_str(), permState.state);
-        permissionsState.emplace_back(permState.state);
-    }
-    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
-        permissionList.size(), permissionsState.size());
-
-    if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        HILOG_DEBUG("No dynamic popup required.");
-        task(permissionList, permissionsState);
-    }
 }
 
 NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, NativeCallbackInfo &info)
@@ -3619,6 +3596,7 @@ NativeValue* NapiJsContext::OnGetOrCreateLocalDir(NativeEngine &engine, NativeCa
     return result;
 }
 
+#ifdef SUPPORT_GRAPHICS
 NativeValue* NapiJsContext::OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
@@ -3721,5 +3699,6 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
 
     return result;
 }
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

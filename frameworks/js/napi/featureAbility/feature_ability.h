@@ -46,26 +46,6 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
 EXTERN_C_END
 
 /**
- * @brief FeatureAbility NAPI method : startAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_StartAbility(napi_env env, napi_callback_info info);
-
-/**
- * @brief FeatureAbility NAPI method : startAbilityForResult.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_StartAbilityForResult(napi_env env, napi_callback_info info);
-
-/**
  * @brief FeatureAbility NAPI method : setResult.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -74,56 +54,6 @@ napi_value NAPI_StartAbilityForResult(napi_env env, napi_callback_info info);
  * @return The return value from NAPI C++ to JS for the module.
  */
 napi_value NAPI_SetResult(napi_env env, napi_callback_info info);
-
-/**
- * @brief FeatureAbility NAPI method : terminateAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_TerminateAbility(napi_env env, napi_callback_info info);
-
-/**
- * @brief Checks whether the main window of this ability has window focus.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_HasWindowFocus(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get context.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetContext(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get window.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetWindow(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get want.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetWant(napi_env env, napi_callback_info info);
 
 /**
  * @brief Get want(sync).
@@ -217,19 +147,6 @@ napi_value UnwrapAbilityResult(CallAbilityParam &param, napi_env env, napi_value
 AppInfoCB *CreateAppInfoCBInfo(napi_env env);
 
 /**
- * @brief HasWindowFocus processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value HasWindowFocusWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value HasWindowFocusAsync(
-    napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value HasWindowFocusPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
-
-/**
  * @brief SetResult processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -241,18 +158,6 @@ napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInf
 napi_value SetResultAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
-
-/**
- * @brief StartAbilityForResult processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value StartAbilityForResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value StartAbilityForResultAsync(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value StartAbilityForResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 
 /**
  * @brief ContinueAbility processing function.
@@ -324,26 +229,6 @@ void GetDataAbilityHelperAsyncCompleteCB(napi_env env, napi_status status, void 
  * @param data Point to asynchronous processing of data.
  */
 void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-/**
- * @brief FeatureAbility NAPI method : connectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_FAConnectAbility(napi_env env, napi_callback_info info);
-
-/**
- * @brief FeatureAbility NAPI method : disconnectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_FADisConnectAbility(napi_env env, napi_callback_info info);
 
 /**
  * @brief FeatureAbility NAPI method : continueAbility.
