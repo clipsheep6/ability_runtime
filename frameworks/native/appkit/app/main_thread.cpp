@@ -1077,30 +1077,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         if (application_ != nullptr) {
 #ifdef __aarch64__
         LoadAllExtensions("system/lib64/extensionability", wpApplication);
-        LoadAndRegisterExtension("system/lib64/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libworkschedextension.z.so", "WorkSchedulerExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libaccessibility_extension_module.z.so", "AccessibilityExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libwallpaper_extension_module.z.so", "WallpaperExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension(
-        "system/lib64/libprint_extension_module.z.so", "PrintExtension",
-            application_->GetRuntime());
 #else
         LoadAllExtensions("system/lib/extensionability", wpApplication);
-        LoadAndRegisterExtension("system/lib/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libworkschedextension.z.so", "WorkSchedulerExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libaccessibility_extension_module.z.so", "AccessibilityExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libwallpaper_extension_module.z.so", "WallpaperExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension(
-        "system/lib/libprint_extension_module.z.so", "PrintExtension",
-            application_->GetRuntime());
 #endif
         }
     }
