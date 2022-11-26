@@ -36,9 +36,11 @@ public:
 
     sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
 
+    ErrCode GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken, sptr<IWantSender> &wantSender);
+
     ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);
 
-    void CancelWantSender(const sptr<IWantSender> &sender);
+    ErrCode CancelWantSender(const sptr<IWantSender> &sender);
 
     ErrCode GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid);
 
