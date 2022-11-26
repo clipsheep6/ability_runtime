@@ -397,14 +397,13 @@ void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token
     }
 }
 
-void AppMgrClient::GetRunningProcessInfoByAccessTokenID(
-    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info) const
+void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            amsService->GetRunningProcessInfoByAccessTokenID(accessTokenId, info);
+            amsService->GetRunningProcessInfoByPid(pid, info);
         }
     }
 }

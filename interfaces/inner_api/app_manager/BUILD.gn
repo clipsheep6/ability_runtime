@@ -49,6 +49,8 @@ ohos_shared_library("app_manager") {
   sources = [
     "src/appmgr/ability_controller_proxy.cpp",
     "src/appmgr/ability_controller_stub.cpp",
+    "src/appmgr/ability_info_callback_proxy.cpp",
+    "src/appmgr/ability_info_callback_stub.cpp",
     "src/appmgr/ability_state_data.cpp",
     "src/appmgr/ams_mgr_proxy.cpp",
     "src/appmgr/ams_mgr_stub.cpp",

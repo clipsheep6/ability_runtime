@@ -78,6 +78,8 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+const int32_t SYSTEM_UID = 1000;
+
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -3022,6 +3024,13 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
+    if (IPCSkeleton::GetCallingUid() == SYSTEM_UID) {
+        sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject("abilityInfoCallback");
+        if (abilityInfoCallback != nullptr) {
+            request.abilityInfoCallback = abilityInfoCallback;
+        }
+    }
+
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
 #ifdef SUPPORT_GRAPHICS
@@ -5423,11 +5432,10 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     } else {
-        auto callerAccessToken = IPCSkeleton::GetCallingTokenID();
-        DelayedSingleton<AppScheduler>::GetInstance()->
-            GetRunningProcessInfoByAccessTokenID(callerAccessToken, processInfo);
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
         if (processInfo.processName_.empty()) {
-            HILOG_ERROR("Can not find caller application by token, callerToken: %{private}d.", callerAccessToken);
+            HILOG_ERROR("Can not find caller application by callerPid, callerPid: %{private}d.", callerPid);
             return ERR_INVALID_VALUE;
         }
     }

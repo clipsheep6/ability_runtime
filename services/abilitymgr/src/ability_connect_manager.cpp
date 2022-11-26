@@ -1272,9 +1272,15 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     extensionInfo.startTime = abilityRecord->GetStartTime();
     ConnectListType connectRecordList = abilityRecord->GetConnectRecordList();
     for (auto &connectRecord : connectRecordList) {
-        CHECK_POINTER(connectRecord);
+        if (connectRecord == nullptr) {
+            HILOG_DEBUG("connectRecord is nullptr.");
+            continue;
+        }
         auto callerAbilityRecord = Token::GetAbilityRecordByToken(connectRecord->GetToken());
-        CHECK_POINTER(callerAbilityRecord);
+        if (callerAbilityRecord == nullptr) {
+            HILOG_DEBUG("callerAbilityRecord is nullptr.");
+            continue;
+        }
         std::string package = callerAbilityRecord->GetAbilityInfo().bundleName;
         extensionInfo.clientPackage.emplace_back(package);
     }

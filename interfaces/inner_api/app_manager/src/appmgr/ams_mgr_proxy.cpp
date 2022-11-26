@@ -521,8 +521,7 @@ void AmsMgrProxy::GetRunningProcessInfoByToken(
     info = *processInfo;
 }
 
-void AmsMgrProxy::GetRunningProcessInfoByAccessTokenID(
-    const uint32_t accessTokenId, AppExecFwk::RunningProcessInfo &info)
+void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -531,7 +530,7 @@ void AmsMgrProxy::GetRunningProcessInfoByAccessTokenID(
         return;
     }
 
-    if (!data.WriteInt32(static_cast<int32_t>(accessTokenId))) {
+    if (!data.WriteInt32(static_cast<int32_t>(pid))) {
         HILOG_ERROR("parcel WriteInt32 failed");
         return;
     }
@@ -542,7 +541,7 @@ void AmsMgrProxy::GetRunningProcessInfoByAccessTokenID(
         return;
     }
     auto ret = remote->SendRequest(
-        static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_ACCESS_TOKEN_ID), data, reply, option);
+        static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return;

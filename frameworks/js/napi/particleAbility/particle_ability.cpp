@@ -115,20 +115,6 @@ napi_value NAPI_PAGetAbilityName(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief ParticleAbility NAPI method : startAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_PAStartAbility(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_StartAbilityCommon(env, info, AbilityType::UNKNOWN);
-}
-
-/**
  * @brief ParticleAbility NAPI method : stopAbility.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -140,34 +126,6 @@ napi_value NAPI_PAStopAbility(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
     return NAPI_StopAbilityCommon(env, info, AbilityType::UNKNOWN);
-}
-
-/**
- * @brief ParticleAbility NAPI method : connectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_PAConnectAbility(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_ConnectAbilityCommon(env, info, AbilityType::UNKNOWN);
-}
-
-/**
- * @brief ParticleAbility NAPI method : disconnectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_PADisConnectAbility(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_DisConnectAbilityCommon(env, info, AbilityType::UNKNOWN);
 }
 
 /**
@@ -210,12 +168,6 @@ napi_value NAPI_PACancelBackgroundRunning(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
     return NAPI_CancelBackgroundRunningCommon(env, info);
-}
-
-napi_value NAPI_PATerminateAbility(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    return NAPI_TerminateAbilityCommon(env, info);
 }
 
 /**

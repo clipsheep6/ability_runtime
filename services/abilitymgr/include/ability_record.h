@@ -207,6 +207,7 @@ struct AbilityRequest {
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::string specifiedFlag;
+    sptr<IRemoteObject> abilityInfoCallback = nullptr;
 
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 

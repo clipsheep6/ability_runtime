@@ -31,7 +31,6 @@ export default class NotificationDialogServiceExtensionAbility extends extension
 
     onRequest(want, startId) {
         globalThis.abilityWant = want;
-        globalThis.resolution = display.getDefaultDisplaySync().densityDPI;
         console.log(TAG, "globalThis.resolution" + JSON.stringify(globalThis.resolution));
         display.getDefaultDisplay().then(dis => {
             let thisWidth;
@@ -54,8 +53,8 @@ export default class NotificationDialogServiceExtensionAbility extends extension
                 width: thisWidth,
                 height: thisHeight
             }
-            globalThis.popWidth = navigationBarRect.width;
-            globalThis.popHeight = navigationBarRect.height;
+            globalThis.width = navigationBarRect.width;
+            globalThis.height = navigationBarRect.height;
             this.createWindow("NotificationDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
         })
     }
@@ -68,8 +67,6 @@ export default class NotificationDialogServiceExtensionAbility extends extension
         console.info(TAG, "create window");
         try {
             const win = await window.create(globalThis.notificationExtensionContext, name, windowType);
-            await win.moveTo(rect.left, rect.top);
-            await win.resetSize(rect.width, rect.height - 22);
             await win.loadContent('pages/notificationDialog');
             await win.setBackgroundColor("#00000000");
             await win.show();
