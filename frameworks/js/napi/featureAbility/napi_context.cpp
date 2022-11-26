@@ -236,8 +236,7 @@ void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data)
 
     int orientation = asyncCallbackInfo->param.paramArgs.GetIntValue("orientation");
     asyncCallbackInfo->ability->SetDisplayOrientation(orientation);
-    asyncCallbackInfo->native_data.data_type = NVT_INT32;
-    asyncCallbackInfo->native_data.int32_value = 1;
+    asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
 }
 
 bool UnwrapSetDisplayOrientation(napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo)
