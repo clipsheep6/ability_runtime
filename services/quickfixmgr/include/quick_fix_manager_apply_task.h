@@ -48,6 +48,8 @@ public:
     void PostSwitchQuickFixTask();
     void PostDeleteQuickFixTask();
 
+    void UnregAppStateObserver();
+
 private:
     void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostTimeOutTask();
@@ -58,6 +60,7 @@ private:
 
     sptr<AppExecFwk::IQuickFixManager> bundleQfMgr_ = nullptr;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
+    sptr<AppExecFwk::IApplicationStateObserver> appStateCallback_ = nullptr;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_ = nullptr;
     wptr<QuickFixManagerService> quickFixMgrService_ = nullptr;
     std::string bundleName_;

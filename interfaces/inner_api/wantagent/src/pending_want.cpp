@@ -65,7 +65,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbility(
     }
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::START_ABILITY;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITY);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
@@ -94,7 +94,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbilities(
     }
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::START_ABILITIES;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITIES);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
     wantSenderInfo.userId = -1; // -1 : invalid user id
@@ -138,7 +138,7 @@ std::shared_ptr<PendingWant> PendingWant::GetCommonEventAsUser(
     wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)WantAgentConstant::OperationType::SEND_COMMON_EVENT;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::SEND_COMMON_EVENT);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;
@@ -182,7 +182,7 @@ std::shared_ptr<PendingWant> PendingWant::BuildServicePendingWant(
     wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
 
     WantSenderInfo wantSenderInfo;
-    wantSenderInfo.type = (int32_t)serviceKind;
+    wantSenderInfo.type = static_cast<int32_t>(serviceKind);
     wantSenderInfo.allWants.push_back(wantsInfo);
     wantSenderInfo.bundleName = context->GetBundleName();
     wantSenderInfo.flags = flags;

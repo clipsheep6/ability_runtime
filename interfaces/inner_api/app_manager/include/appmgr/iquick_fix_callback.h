@@ -24,9 +24,9 @@ class IQuickFixCallback : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.QuickFixCallback");
 
-    virtual void OnLoadPatchDone(int32_t resultCode) = 0;
-    virtual void OnUnloadPatchDone(int32_t resultCode) = 0;
-    virtual void OnReloadPageDone(int32_t resultCode) = 0;
+    virtual void OnLoadPatchDone(int32_t resultCode, int32_t recordId) = 0;
+    virtual void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) = 0;
+    virtual void OnReloadPageDone(int32_t resultCode, int32_t recordId) = 0;
 
     enum QuickFixCallbackCmd {
         ON_NOTIFY_LOAD_PATCH = 0,   // ipc id for OnLoadPatchDone

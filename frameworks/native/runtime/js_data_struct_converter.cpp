@@ -27,6 +27,10 @@ NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want)
 {
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("deviceId", CreateJsValue(engine, want.GetOperation().GetDeviceId()));
     object->SetProperty("bundleName", CreateJsValue(engine, want.GetBundle()));
@@ -43,6 +47,10 @@ NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::Ability
 {
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("bundleName", CreateJsValue(engine, abilityInfo.bundleName));
     object->SetProperty("name", CreateJsValue(engine, abilityInfo.name));
@@ -89,6 +97,11 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
 {
     NativeValue* arrayValue = engine.CreateArray(info.size());
     NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    if (array == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return arrayValue;
+    }
+
     uint32_t index = 0;
     for (const auto& item : info) {
         array->SetElement(index++, CreateJsMetadata(engine, item));
@@ -100,6 +113,10 @@ NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("name", CreateJsValue(engine, info.name));
     object->SetProperty("value", CreateJsValue(engine, info.value));
@@ -111,6 +128,10 @@ NativeValue* CreateJsCustomizeData(NativeEngine& engine, const AppExecFwk::Custo
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("name", CreateJsValue(engine, info.name));
     object->SetProperty("value", CreateJsValue(engine, info.value));
@@ -122,6 +143,11 @@ NativeValue* CreateJsCustomizeDataArray(NativeEngine& engine, const std::vector<
 {
     NativeValue* arrayValue = engine.CreateArray(info.size());
     NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    if (array == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return arrayValue;
+    }
+
     uint32_t index = 0;
     for (const auto& item : info) {
         array->SetElement(index++, CreateJsCustomizeData(engine, item));
@@ -133,6 +159,10 @@ NativeValue* CreateJsModuleInfo(NativeEngine& engine, const AppExecFwk::ModuleIn
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("moduleName", CreateJsValue(engine, moduleInfo.moduleName));
     object->SetProperty("moduleSourceDir", CreateJsValue(engine, moduleInfo.moduleSourceDir));
@@ -144,6 +174,10 @@ NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::App
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("name", CreateJsValue(engine, applicationInfo.name));
     object->SetProperty("description", CreateJsValue(engine, applicationInfo.description));
@@ -188,6 +222,10 @@ NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam&
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("launchReason", CreateJsValue(engine, launchParam.launchReason));
     object->SetProperty("lastExitReason", CreateJsValue(engine, launchParam.lastExitReason));
@@ -199,6 +237,10 @@ NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Confi
 {
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
 
     object->SetProperty("language", CreateJsValue(engine,
         configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
@@ -229,6 +271,7 @@ NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk
     if (object == nullptr) {
         return objValue;
     }
+
     object->SetProperty("bundleName", CreateJsValue(engine, info.bundleName));
     object->SetProperty("moduleName", CreateJsValue(engine, info.moduleName));
     object->SetProperty("name", CreateJsValue(engine, info.name));
@@ -240,7 +283,7 @@ NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk
     NativeValue *permissionArrayValue = engine.CreateArray(info.permissions.size());
     NativeArray *permissionArray = ConvertNativeValueTo<NativeArray>(permissionArrayValue);
     if (permissionArray != nullptr) {
-        int index = 0;
+        uint32_t index = 0;
         for (auto permission : info.permissions) {
             permissionArray->SetElement(index++, CreateJsValue(engine, permission));
         }

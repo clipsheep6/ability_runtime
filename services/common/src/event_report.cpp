@@ -36,7 +36,7 @@ const std::string EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
 void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
-    HiSysEvent::Write(
+    HiSysEventWrite(
         HiSysEvent::Domain::AAFWK,
         eventName,
         type,
@@ -51,7 +51,7 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
     const EventInfo& eventInfo)
 {
     if (eventName == START_ABILITY_ERROR || eventName == TERMINATE_ABILITY_ERROR) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -61,7 +61,7 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
             EVENT_KEY_ERROR_CODE, eventInfo.errCode);
     } else if (eventName == START_ABILITY) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -70,14 +70,14 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     } else if (eventName == TERMINATE_ABILITY || eventName == CLOSE_ABILITY) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
             EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     } else if (eventName == ABILITY_ONFOREGROUND || eventName == ABILITY_ONBACKGROUND) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -91,12 +91,12 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
     const EventInfo& eventInfo)
 {
     if (eventName == DISCONNECT_SERVICE) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type);
     } else if (eventName == CONNECT_SERVICE) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -105,7 +105,7 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     } else if (eventName == START_SERVICE || eventName == STOP_SERVICE) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -116,7 +116,7 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
             EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
     } else if (eventName == START_EXTENSION_ERROR || eventName == STOP_EXTENSION_ERROR ||
         eventName == CONNECT_SERVICE_ERROR) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -126,7 +126,7 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
             EVENT_KEY_ERROR_CODE, eventInfo.errCode);
     } else if (eventName == DISCONNECT_SERVICE_ERROR) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -138,12 +138,12 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
     const EventInfo& eventInfo)
 {
     if (eventName == DELETE_INVALID_FORM) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type);
     } else if (eventName == ACQUIREFORMSTATE_FORM || eventName == MESSAGE_EVENT_FORM) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -151,7 +151,7 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     } else if (eventName == ADD_FORM || eventName == REQUEST_FORM || eventName == ROUTE_EVENT_FORM) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
@@ -161,7 +161,7 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     } else if (eventName == DELETE_FORM || eventName == CASTTEMP_FORM || eventName == RELEASE_FORM ||
         eventName == SET_NEXT_REFRESH_TIME_FORM) {
-        HiSysEvent::Write(
+        HiSysEventWrite(
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,

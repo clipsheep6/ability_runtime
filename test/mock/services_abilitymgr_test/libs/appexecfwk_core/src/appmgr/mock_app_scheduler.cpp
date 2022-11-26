@@ -163,6 +163,11 @@ void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token
     HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByToken()");
 }
 
+void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+{
+    HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByPid()");
+}
+
 void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {}
 

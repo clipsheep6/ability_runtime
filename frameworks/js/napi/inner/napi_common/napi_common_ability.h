@@ -159,16 +159,6 @@ napi_value NAPI_GetWantCommon(napi_env env, napi_callback_info info, AbilityType
 napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 /**
- * @brief startAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_StartAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
-
-/**
  * @brief stopAbility.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -216,29 +206,6 @@ napi_value GetContinueAbilityOptionsDeviceID(
 
 bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilityStartSetting &setting);
 
-/**
- * @brief terminateAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info);
-
-/**
- * @brief TerminateAbility processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value TerminateAbilityWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value TerminateAbilityAsync(
-    napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
-
 class NAPIAbilityConnection : public AAFwk::AbilityConnectionStub {
 public:
     void OnAbilityConnectDone(
@@ -253,26 +220,6 @@ private:
     napi_ref connectRef_;
     napi_ref disconnectRef_;
 };
-
-/**
- * @brief connectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_ConnectAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
-
-/**
- * @brief disconnectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_DisConnectAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 /**
  * @brief acquireDataAbilityHelper processing function.

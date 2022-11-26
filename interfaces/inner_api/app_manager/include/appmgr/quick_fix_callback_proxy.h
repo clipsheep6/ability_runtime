@@ -26,9 +26,9 @@ public:
     explicit QuickFixCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IQuickFixCallback>(impl) {};
     virtual ~QuickFixCallbackProxy() = default;
 
-    void OnLoadPatchDone(int32_t resultCode) override;
-    void OnUnloadPatchDone(int32_t resultCode) override;
-    void OnReloadPageDone(int32_t resultCode) override;
+    void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override;
+    void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override;
+    void OnReloadPageDone(int32_t resultCode, int32_t recordId) override;
 
 private:
     bool SendRequestWithCmd(uint32_t code, MessageParcel &data, MessageParcel &reply);

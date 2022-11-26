@@ -193,6 +193,9 @@ public:
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+
+    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+
     /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.

@@ -230,6 +230,15 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
+void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
+}
+
 void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
     if (!IsReady()) {

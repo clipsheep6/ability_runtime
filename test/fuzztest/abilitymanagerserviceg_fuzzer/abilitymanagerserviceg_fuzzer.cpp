@@ -72,7 +72,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AbilityRequest abilityRequest;
 
     // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();  
+    auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->CheckCallAbilityPermission(abilityRequest);
     abilityms->CheckStartByCallPermission(abilityRequest);
     abilityms->IsCallFromBackground(abilityRequest, boolParam);

@@ -21,7 +21,6 @@
 #include "../inner/napi_common/napi_common_ability.h"
 #include "ability_util.h"
 #include "ability_process.h"
-#include "accesstoken_kit.h"
 #include "directory_ex.h"
 #include "feature_ability_common.h"
 #include "file_ex.h"
@@ -33,9 +32,6 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
-using OHOS::Security::AccessToken::AccessTokenKit;
-using OHOS::Security::AccessToken::PermissionListState;
-using OHOS::Security::AccessToken::TypePermissionOper;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -69,7 +65,7 @@ static Ability* GetJSAbilityObject(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
     return ability;
 }
 
@@ -435,7 +431,7 @@ static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, Set
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     cbData->cbBase.ability = ability;
     napi_value ret = nullptr;
@@ -1220,7 +1216,7 @@ AppInfoCB *CreateAppInfoCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     AppInfoCB *appInfoCB = new (std::nothrow) AppInfoCB;
     if (appInfoCB == nullptr) {
@@ -1488,7 +1484,7 @@ ProcessInfoCB *CreateProcessInfoCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     ProcessInfoCB *processInfoCB = new (std::nothrow) ProcessInfoCB;
     if (processInfoCB == nullptr) {
@@ -1514,7 +1510,7 @@ ElementNameCB *CreateElementNameCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     ElementNameCB *elementNameCB = new (std::nothrow) ElementNameCB;
     if (elementNameCB == nullptr) {
@@ -1733,7 +1729,7 @@ ProcessNameCB *CreateProcessNameCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     ProcessNameCB *processNameCB = new (std::nothrow) ProcessNameCB;
     if (processNameCB == nullptr) {
@@ -1924,7 +1920,7 @@ CallingBundleCB *CreateCallingBundleCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     CallingBundleCB *callingBundleCB = new (std::nothrow) CallingBundleCB;
     if (callingBundleCB == nullptr) {
@@ -2116,7 +2112,7 @@ GetOrCreateLocalDirCB *CreateGetOrCreateLocalDirCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     GetOrCreateLocalDirCB *getOrCreateLocalDirCB = new (std::nothrow) GetOrCreateLocalDirCB;
     if (getOrCreateLocalDirCB == nullptr) {
@@ -2466,7 +2462,7 @@ DatabaseDirCB *CreateGetDatabaseDirCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     DatabaseDirCB *getDatabaseDirCB = new (std::nothrow) DatabaseDirCB;
     if (getDatabaseDirCB == nullptr) {
@@ -2564,7 +2560,7 @@ PreferencesDirCB *CreateGetPreferencesDirCBInfo(napi_env env)
     NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
 
     Ability *ability = nullptr;
-    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability)));
 
     PreferencesDirCB *getPreferencesDirCB = new (std::nothrow) PreferencesDirCB;
     if (getPreferencesDirCB == nullptr) {
@@ -2826,11 +2822,11 @@ private:
     NativeValue* OnGetProcessName(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetCallingBundle(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetOrCreateLocalDir(NativeEngine &engine, NativeCallbackInfo &info);
+#ifdef SUPPORT_GRAPHICS
     NativeValue* OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetWakeUpScreen(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnSetDisplayOrientation(NativeEngine &engine, NativeCallbackInfo &info);
-    void JsGetSelfPermissionsState(PermissionRequestTask &&task, const std::vector<std::string> &permissionList,
-        std::vector<int> &permissionsState);
+#endif
 };
 
 static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object)
@@ -2852,8 +2848,8 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
     BindNativeFunction(engine, *object, "getCallingBundle", moduleName, NapiJsContext::JsGetCallingBundle);
     BindNativeFunction(engine, *object, "getOrCreateLocalDir", moduleName, NapiJsContext::JsGetOrCreateLocalDir);
     BindNativeFunction(engine, *object, "getFilesDir", moduleName, NapiJsContext::JsGetFilesDir);
-    BindNativeFunction(
-        engine, *object, "isUpdatingConfigurations", moduleName, NapiJsContext::JsIsUpdatingConfigurations);
+    BindNativeFunction(engine, *object, "isUpdatingConfigurations", moduleName,
+        NapiJsContext::JsIsUpdatingConfigurations);
     BindNativeFunction(engine, *object, "printDrawnCompleted", moduleName, NapiJsContext::JsPrintDrawnCompleted);
     BindNativeFunction(engine, *object, "getCacheDir", moduleName, NapiJsContext::JsGetCacheDir);
     BindNativeFunction(engine, *object, "getAppType", moduleName, NapiJsContext::JsGetCtxAppType);
@@ -2862,10 +2858,9 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
     BindNativeFunction(engine, *object, "getApplicationContext", moduleName, NapiJsContext::JsGetApplicationContext);
     BindNativeFunction(engine, *object, "getAbilityInfo", moduleName, NapiJsContext::JsGetCtxAbilityInfo);
     BindNativeFunction(engine, *object, "setShowOnLockScreen", moduleName, NapiJsContext::JsSetShowOnLockScreen);
-    BindNativeFunction(
-        engine, *object, "getOrCreateDistributedDir", moduleName, NapiJsContext::JsGetOrCreateDistributedDir);
-    BindNativeFunction(
-        engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
+    BindNativeFunction(engine, *object, "getOrCreateDistributedDir", moduleName,
+        NapiJsContext::JsGetOrCreateDistributedDir);
+    BindNativeFunction(engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
     BindNativeFunction(engine, *object, "setDisplayOrientation", moduleName, NapiJsContext::JsSetDisplayOrientation);
     BindNativeFunction(engine, *object, "getDisplayOrientation", moduleName, NapiJsContext::JsGetDisplayOrientation);
     BindNativeFunction(engine, *object, "getExternalCacheDir", moduleName, NapiJsContext::JsGetExternalCacheDir);
@@ -3113,6 +3108,7 @@ NativeValue* NapiJsContext::JsGetCtxAbilityInfo(NativeEngine *engine, NativeCall
 
 NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3120,6 +3116,9 @@ NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCa
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetShowOnLockScreen(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, NativeCallbackInfo *info)
@@ -3135,6 +3134,7 @@ NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, Na
 
 NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3142,10 +3142,14 @@ NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallba
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetWakeUpScreen(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3153,10 +3157,14 @@ NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, Native
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->OnSetDisplayOrientation(*engine, *info);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
 {
+#ifdef SUPPORT_GRAPHICS
     CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
@@ -3164,6 +3172,9 @@ NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, Native
     CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
     return object->JsNapiCommon::JsGetDisplayOrientation(*engine, *info, AbilityType::PAGE);
+#else
+   return nullptr;
+#endif
 }
 
 NativeValue* NapiJsContext::JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
@@ -3186,45 +3197,10 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     HILOG_INFO("Get Ability to start");
     NAPI_CALL_BASE(env, napi_get_global(env, &global), false);
     NAPI_CALL_BASE(env, napi_get_named_property(env, global, "ability", &abilityObj), false);
-    NAPI_CALL_BASE(env, napi_get_value_external(env, abilityObj, (void **)&ability_), false);
+    NAPI_CALL_BASE(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability_)), false);
     HILOG_INFO("Get Ability to done");
 
     return true;
-}
-
-void NapiJsContext::JsGetSelfPermissionsState(PermissionRequestTask &&task,
-    const std::vector<std::string> &permissionList, std::vector<int> &permissionsState)
-{
-    HILOG_DEBUG("%{public}s called", __func__);
-    std::vector<PermissionListState> permList;
-    for (auto permission : permissionList) {
-        HILOG_DEBUG("JsGetSelfPermissionsState permission: %{public}s.", permission.c_str());
-        PermissionListState permState;
-        permState.permissionName = permission;
-        permState.state = -1;
-        permList.emplace_back(permState);
-    }
-    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
-        permList.size(), permissionList.size());
-
-    auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
-    if (permList.size() != permissionList.size()) {
-        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
-        return;
-    }
-
-    for (auto permState : permList) {
-        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
-            permState.permissionName.c_str(), permState.state);
-        permissionsState.emplace_back(permState.state);
-    }
-    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
-        permissionList.size(), permissionsState.size());
-
-    if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        HILOG_DEBUG("No dynamic popup required.");
-        task(permissionList, permissionsState);
-    }
 }
 
 NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, NativeCallbackInfo &info)
@@ -3620,6 +3596,7 @@ NativeValue* NapiJsContext::OnGetOrCreateLocalDir(NativeEngine &engine, NativeCa
     return result;
 }
 
+#ifdef SUPPORT_GRAPHICS
 NativeValue* NapiJsContext::OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
@@ -3642,7 +3619,7 @@ NativeValue* NapiJsContext::OnSetShowOnLockScreen(NativeEngine &engine, NativeCa
             return;
         }
         obj->ability_->SetShowOnLockScreen(isShow);
-        task.Resolve(engine, engine.CreateNull());
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
@@ -3674,7 +3651,7 @@ NativeValue* NapiJsContext::OnSetWakeUpScreen(NativeEngine &engine, NativeCallba
             return;
         }
         obj->ability_->SetWakeUpScreen(wakeUp);
-        task.Resolve(engine, engine.CreateNull());
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
@@ -3698,15 +3675,21 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
         HILOG_ERROR("input params int error");
         return engine.CreateUndefined();
     }
-    auto complete = [obj = this, orientation]
+
+    int32_t maxRange = 3;
+    if (orientation < 0 || orientation > maxRange) {
+        HILOG_ERROR("wrong parameter orientation : %{public}d", orientation);
+        return engine.CreateNull();
+    }
+    auto complete = [obj = this, orientationData = orientation]
         (NativeEngine &engine, AsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
             task.Reject(engine,
                 CreateJsError(engine, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
-        obj->ability_->SetDisplayOrientation(orientation);
-        task.Resolve(engine, CreateJsValue(engine, 1));
+        obj->ability_->SetDisplayOrientation(orientationData);
+        task.Resolve(engine, engine.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
@@ -3716,5 +3699,6 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
 
     return result;
 }
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

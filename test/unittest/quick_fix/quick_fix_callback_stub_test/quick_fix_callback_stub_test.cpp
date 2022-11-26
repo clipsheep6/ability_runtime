@@ -67,9 +67,11 @@ HWTEST_F(QuickFixCallbackStubTest, OnLoadPatchDone_0100, TestSize.Level1)
 
     data.WriteInterfaceToken(QuickFixCallbackStub::GetDescriptor());
     int32_t resultCode = 0;
+    int32_t recordId = 0;
     data.WriteInt32(resultCode);
+    data.WriteInt32(recordId);
 
-    EXPECT_CALL(*mockQuickFixCallback_, OnLoadPatchDone(_)).Times(1);
+    EXPECT_CALL(*mockQuickFixCallback_, OnLoadPatchDone(_, _)).Times(1);
 
     auto result = mockQuickFixCallback_->OnRemoteRequest(
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH, data, reply, option);
@@ -94,9 +96,11 @@ HWTEST_F(QuickFixCallbackStubTest, OnUnloadPatchDone_0100, TestSize.Level1)
 
     data.WriteInterfaceToken(QuickFixCallbackStub::GetDescriptor());
     int32_t resultCode = 0;
+    int32_t recordId = 0;
     data.WriteInt32(resultCode);
+    data.WriteInt32(recordId);
 
-    EXPECT_CALL(*mockQuickFixCallback_, OnUnloadPatchDone(_)).Times(1);
+    EXPECT_CALL(*mockQuickFixCallback_, OnUnloadPatchDone(_, _)).Times(1);
 
     auto result = mockQuickFixCallback_->OnRemoteRequest(
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_PATCH, data, reply, option);
@@ -121,9 +125,11 @@ HWTEST_F(QuickFixCallbackStubTest, OnReloadPageDone_0100, TestSize.Level1)
 
     data.WriteInterfaceToken(QuickFixCallbackStub::GetDescriptor());
     int32_t resultCode = 0;
+    int32_t recordId = 0;
     data.WriteInt32(resultCode);
+    data.WriteInt32(recordId);
 
-    EXPECT_CALL(*mockQuickFixCallback_, OnReloadPageDone(_)).Times(1);
+    EXPECT_CALL(*mockQuickFixCallback_, OnReloadPageDone(_, _)).Times(1);
 
     auto result = mockQuickFixCallback_->OnRemoteRequest(
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_RELOAD_PAGE, data, reply, option);

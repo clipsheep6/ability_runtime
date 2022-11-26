@@ -266,7 +266,7 @@ void Ability::OnStop()
     }
 #ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
-    auto&& window = GetWindow();
+    auto && window = GetWindow();
     if (window != nullptr) {
         HILOG_DEBUG("Call UnregisterDisplayMoveListener");
         window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
@@ -953,7 +953,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         HILOG_ERROR("Ability::OnForeground error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
-    if (abilityInfo_->isStageBasedModel) {
+    if (abilityInfo_ != nullptr && abilityInfo_->isStageBasedModel) {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::FOREGROUND_NEW);
     } else {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);

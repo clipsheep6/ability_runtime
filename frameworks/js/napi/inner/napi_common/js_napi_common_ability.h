@@ -98,8 +98,10 @@ public:
     NativeValue* JsGetCtxAbilityInfo(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetOrCreateDistributedDir(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+#ifdef SUPPORT_GRAPHICS
     NativeValue* JsGetDisplayOrientation(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+#endif
     NativeValue* JsGetWant(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsAcquireDataAbility(NativeEngine &engine, NativeCallbackInfo &info,
         AbilityType abilityType);

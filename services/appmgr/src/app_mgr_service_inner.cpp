@@ -324,6 +324,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
 
     appRecord->LaunchApplication(*configuration_);
     appRecord->SetState(ApplicationState::APP_STATE_READY);
+    appRecord->SetRestartResidentProcCount(RESTART_RESIDENT_PROCESS_MAX_TIMES);
 
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
@@ -844,6 +845,10 @@ int64_t AppMgrServiceInner::SystemTimeMillisecond()
 
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByPid(const pid_t pid) const
 {
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return nullptr;
+    }
     return appRunningManager_->GetAppRunningRecordByPid(pid);
 }
 
@@ -854,10 +859,12 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
         return nullptr;
     }
     auto appRecord = appRunningManager_->CreateAppRunningRecord(appInfo, processName, bundleInfo);
     if (!appRecord) {
+        HILOG_ERROR("get app record failed");
         return nullptr;
     }
 
@@ -970,12 +977,22 @@ void AppMgrServiceInner::UpdateExtensionState(const sptr<IRemoteObject> &token, 
 
 void AppMgrServiceInner::OnStop()
 {
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return;
+    }
+
     appRunningManager_->ClearAppRunningRecordMap();
     CloseAppSpawnConnection();
 }
 
 ErrCode AppMgrServiceInner::OpenAppSpawnConnection()
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ is null");
+        return ERR_INVALID_VALUE;
+    }
+
     if (remoteClientManager_->GetSpawnClient()) {
         return remoteClientManager_->GetSpawnClient()->OpenConnection();
     }
@@ -984,6 +1001,11 @@ ErrCode AppMgrServiceInner::OpenAppSpawnConnection()
 
 void AppMgrServiceInner::CloseAppSpawnConnection() const
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ is null");
+        return;
+    }
+
     if (remoteClientManager_->GetSpawnClient()) {
         remoteClientManager_->GetSpawnClient()->CloseConnection();
     }
@@ -991,6 +1013,11 @@ void AppMgrServiceInner::CloseAppSpawnConnection() const
 
 SpawnConnectionState AppMgrServiceInner::QueryAppSpawnConnectionState() const
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ is null");
+        return SpawnConnectionState::STATE_NOT_CONNECT;
+    }
+
     if (remoteClientManager_->GetSpawnClient()) {
         return remoteClientManager_->GetSpawnClient()->QueryConnectionState();
     }
@@ -999,16 +1026,32 @@ SpawnConnectionState AppMgrServiceInner::QueryAppSpawnConnectionState() const
 
 std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppMgrServiceInner::GetRecordMap() const
 {
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap;
+        return appRunningRecordMap;
+    }
+
     return appRunningManager_->GetAppRunningRecordMap();
 }
 
 void AppMgrServiceInner::SetAppSpawnClient(std::shared_ptr<AppSpawnClient> spawnClient)
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ is null");
+        return;
+    }
+
     remoteClientManager_->SetSpawnClient(std::move(spawnClient));
 }
 
 void AppMgrServiceInner::SetBundleManager(sptr<IBundleMgr> bundleManager)
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ is null");
+        return;
+    }
+
     remoteClientManager_->SetBundleManager(bundleManager);
 }
 
@@ -1178,6 +1221,11 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAbilityToken(
     const sptr<IRemoteObject> &abilityToken) const
 {
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return nullptr;
+    }
+
     return appRunningManager_->GetAppRunningRecordByAbilityToken(abilityToken);
 }
 
@@ -1640,18 +1688,37 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
     const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     HILOG_INFO("%{public}s called", __func__);
+    if (!CheckGetRunningInfoPermission()) {
+        return;
+    }
+
+    appRunningManager_->GetRunningProcessInfoByToken(token, info);
+}
+
+void AppMgrServiceInner::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+{
+    HILOG_INFO("%{public}s called", __func__);
+    if (!CheckGetRunningInfoPermission()) {
+        return;
+    }
+
+    appRunningManager_->GetRunningProcessInfoByPid(pid, info);
+}
+
+bool AppMgrServiceInner::CheckGetRunningInfoPermission() const
+{
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
-        return;
+        return false;
     }
 
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
     if (!isPerm) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return;
+        return false;
     }
 
-    appRunningManager_->GetRunningProcessInfoByToken(token, info);
+    return true;
 }
 
 void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::BundleInfo> &infos)
@@ -2343,7 +2410,7 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
         eventName.c_str(), uid, pid, packageName.c_str(), processName.c_str(), msg.c_str());
 
-    OHOS::HiviewDFX::HiSysEvent::Write(
+    HiSysEventWrite(
         OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
         eventName,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,

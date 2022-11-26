@@ -29,27 +29,28 @@ namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
+
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
+    int intParam = static_cast<int>(GetU32Data(data));
     auto abilitymgr = AbilityManagerClient::GetInstance();
-    int requestCode = 0;
-    int resultCode = 0;
-    if (!abilitymgr) {
-        return false;
-    }
 
     // fuzz for want
     Parcel wantParcel;
     Want *resultWant = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         resultWant = Want::Unmarshalling(wantParcel);
-        if (resultWant) {
-            ErrCode result = abilitymgr->SendResultToAbility(requestCode, resultCode, *resultWant);
-            if (result != 0) {
-                return false;
-            }
+        if (!resultWant) {
+            return false;
         }
     }
+    abilitymgr->SendResultToAbility(intParam, intParam, *resultWant);
 
     return true;
 }

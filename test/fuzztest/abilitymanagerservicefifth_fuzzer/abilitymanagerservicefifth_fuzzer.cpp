@@ -80,7 +80,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->DelegatorMoveMissionToFront(int32Param);
     abilityms->UpdateCallerInfo(*want);
     abilityms->JudgeMultiUserConcurrency(int32Param);
+#ifdef ABILITY_COMMAND_FOR_TEST
     abilityms->ForceTimeoutForTest(stringParam, stringParam);
+#endif
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms->CheckStaticCfgPermission(abilityInfo);
 

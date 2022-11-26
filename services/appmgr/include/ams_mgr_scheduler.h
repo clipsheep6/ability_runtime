@@ -156,6 +156,8 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
 
+    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
+
     virtual void StartSpecifiedAbility(
         const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
 

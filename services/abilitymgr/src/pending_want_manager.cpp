@@ -223,8 +223,8 @@ int32_t PendingWantManager::DeviceIdDetermine(
     std::string localDeviceId;
     DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
-        result = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            want, callerToken, requestCode, callerUid));
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
+            want, callerToken, requestCode, callerUid);
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             HILOG_ERROR("%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
         }

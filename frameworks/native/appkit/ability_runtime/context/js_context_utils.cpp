@@ -450,7 +450,7 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
 }
 } // namespace
 
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
+NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachBaseContext");
     if (value == nullptr || engine == nullptr) {
@@ -484,7 +484,7 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
     return contextObj;
 }
 
-NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
+NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachApplicationContext");
     if (value == nullptr || engine == nullptr) {

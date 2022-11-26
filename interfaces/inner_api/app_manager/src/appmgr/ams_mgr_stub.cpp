@@ -59,6 +59,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleKillApplicationSelf;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN)] =
         &AmsMgrStub::HandleGetRunningProcessInfoByToken;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID)] =
+        &AmsMgrStub::HandleGetRunningProcessInfoByPid;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
         &AmsMgrStub::HandleStartSpecifiedAbility;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
@@ -269,6 +271,18 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByToken(MessageParcel &data, Mess
     RunningProcessInfo processInfo;
     auto token = data.ReadRemoteObject();
     GetRunningProcessInfoByToken(token, processInfo);
+    if (reply.WriteParcelable(&processInfo)) {
+        HILOG_ERROR("process info write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply)
+{
+    RunningProcessInfo processInfo;
+    auto pid = static_cast<pid_t>(data.ReadInt32());
+    GetRunningProcessInfoByPid(pid, processInfo);
     if (reply.WriteParcelable(&processInfo)) {
         HILOG_ERROR("process info write failed.");
         return ERR_INVALID_VALUE;

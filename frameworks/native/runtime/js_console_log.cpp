@@ -23,6 +23,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+constexpr uint32_t JS_CONSOLE_LOG_MAX_LOG_LEN = 1024;
 constexpr uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
 constexpr char JS_CONSOLE_LOG_TAG[] = "JsApp";
 
@@ -43,6 +44,11 @@ std::string MakeLogContent(NativeCallbackInfo& info)
         }
 
         size_t bufferLen = str->GetLength();
+        if (bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
+            HILOG_ERROR("Log length exceeds maximum");
+            return content;
+        }
+
         auto buff = new (std::nothrow) char[bufferLen + 1];
         if (buff == nullptr) {
             HILOG_ERROR("Failed to allocate buffer, size = %zu", bufferLen + 1);

@@ -103,14 +103,6 @@ public:
     bool FindReusedMissionInfo(const std::string &missionName, const std::string &flag, InnerMissionInfo &info);
 
     /**
-     * @brief Update mission timestamp.
-     *
-     * @param missionId indicates this mission id.
-     * @param timestamp indicates this mission timestamp.
-     */
-    void UpdateMissionTimeStamp(int32_t missionId, const std::string& timestamp);
-
-    /**
      * @brief Delete all the mission info.
      *
      * @param listenerController The mission listener controller.

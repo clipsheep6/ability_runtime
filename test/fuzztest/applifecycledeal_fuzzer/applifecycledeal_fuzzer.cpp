@@ -76,9 +76,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::string bundleName(data, size);
     appLifeCycleDeal.ScheduleAcceptWant(want, bundleName);
     sptr<IQuickFixCallback> callback = nullptr;
-    appLifeCycleDeal.NotifyLoadRepairPatch(bundleName, callback);
-    appLifeCycleDeal.NotifyHotReloadPage(callback);
-    appLifeCycleDeal.NotifyUnLoadRepairPatch(bundleName, callback);
+    int32_t recordId = 0;
+    appLifeCycleDeal.NotifyLoadRepairPatch(bundleName, callback, recordId);
+    appLifeCycleDeal.NotifyHotReloadPage(callback, recordId);
+    appLifeCycleDeal.NotifyUnLoadRepairPatch(bundleName, callback, recordId);
     appLifeCycleDeal.GetApplicationClient();
     appLifeCycleDeal.LowMemoryWarning();
     appLifeCycleDeal.ScheduleForegroundRunning();
