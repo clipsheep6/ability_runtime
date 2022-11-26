@@ -1,0 +1,8 @@
+{
+  "src": [
+    "pages/selectorPhoneDialog",
+    "pages/selectorPcDialog",
+    "pages/tipsDialog",
+    "pages/notificationDialog"
+  ]
+}

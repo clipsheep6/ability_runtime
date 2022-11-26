@@ -29,6 +29,7 @@
 #include "snapshot.h"
 #include "start_options.h"
 #include "want.h"
+#include "iability_info_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -420,7 +421,6 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
-    void UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PostStartWaitingAbility();
     void HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleLauncherDied(std::shared_ptr<AbilityRecord> ability);

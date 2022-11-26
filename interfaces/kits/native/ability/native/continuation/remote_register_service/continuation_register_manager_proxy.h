@@ -68,7 +68,7 @@ private:
 
 class ContinuationRequestUnRegister : public ContinuationRequestBase {
 public:
-    ContinuationRequestUnRegister(int token);
+    explicit ContinuationRequestUnRegister(int token);
     virtual ~ContinuationRequestUnRegister() = default;
     virtual void Execute() override;
 
@@ -101,7 +101,7 @@ private:
 
 class ContinuationRegisterManagerProxy : public IContinuationRegisterManager {
 public:
-    ContinuationRegisterManagerProxy(const std::weak_ptr<Context> &context);
+    explicit ContinuationRegisterManagerProxy(const std::weak_ptr<Context> &context);
     virtual ~ContinuationRegisterManagerProxy();
 
     /**

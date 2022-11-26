@@ -320,28 +320,6 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
     return true;
 }
 
-void MissionInfoMgr::UpdateMissionTimeStamp(int32_t missionId, const std::string& timestamp)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("UpdateMissionTimeStamp failed, missionId %{public}d not exists", missionId);
-        return;
-    }
-
-    if (timestamp == it->missionInfo.time) {
-        return;
-    }
-    InnerMissionInfo updateInfo = *it;
-    updateInfo.missionInfo.time = timestamp;
-
-    missionInfoList_.erase(it);
-    missionIdMap_.erase(missionId);
-    (void)AddMissionInfo(updateInfo);
-}
-
 int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& label)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);

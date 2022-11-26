@@ -33,7 +33,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsAbilityContext final {
 public:
-    JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
+    explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
     ~JsAbilityContext() = default;
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint);

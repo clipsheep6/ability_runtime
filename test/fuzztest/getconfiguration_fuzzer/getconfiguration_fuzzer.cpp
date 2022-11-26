@@ -28,26 +28,29 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-    constexpr size_t FOO_MAX_LEN = 1024;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+}
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        Configuration config;
-        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, reinterpret_cast<const char*>(data))) {
-            return false;
-        }
-
-        if (appMgrClient->GetConfiguration(config) != 0) {
-            return false;
-        }
-
-        return true;
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
     }
+
+    Configuration config;
+    if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, reinterpret_cast<const char*>(data))) {
+        return false;
+    }
+
+    if (appMgrClient->GetConfiguration(config) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -60,8 +63,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
-        std::cout << "invalid size" << std::endl;
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

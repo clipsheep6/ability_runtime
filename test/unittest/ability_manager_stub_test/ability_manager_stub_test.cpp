@@ -1884,6 +1884,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetDlpConnectionInfos_001, T
     EXPECT_EQ(res, NO_ERROR);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: ForceTimeoutForTestInner
@@ -1899,7 +1900,9 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ForceTimeoutForTestInner_001
     auto res = stub_->ForceTimeoutForTestInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAbilityInner
@@ -1915,7 +1918,9 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_BlockAbilityInner_001, TestS
     auto res = stub_->BlockAbilityInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAmsServiceInner
@@ -1931,7 +1936,9 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_BlockAmsServiceInner_001, Te
     auto res = stub_->BlockAmsServiceInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: BlockAppServiceInner
@@ -1947,6 +1954,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_BlockAppServiceInner_001, Te
     auto res = stub_->BlockAppServiceInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
+#endif
 
 /*
  * Feature: AbilityManagerService
@@ -1996,6 +2004,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UpdateMissionSnapShotInner_0
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: ScheduleRecoverAbilityInner
@@ -2011,7 +2020,9 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ScheduleRecoverAbilityInner_
     auto res = stub_->ScheduleRecoverAbilityInner(data, reply);
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
+#endif
 
+#ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService
  * Function: EnableRecoverAbilityInner
@@ -2027,6 +2038,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_EnableRecoverAbilityInner_00
     auto res = stub_->EnableRecoverAbilityInner(data, reply);
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
+#endif
 
 /*
  * Feature: AbilityManagerService

@@ -35,7 +35,7 @@ namespace OHOS::AbilityRuntime::WantAgent {
 class PendingWant final : public std::enable_shared_from_this<PendingWant>, public Parcelable {
 public:
     PendingWant() {};
-    PendingWant(const sptr<AAFwk::IWantSender> &target);
+    explicit PendingWant(const sptr<AAFwk::IWantSender> &target);
     PendingWant(const sptr<AAFwk::IWantSender> &target, const sptr<IRemoteObject> whitelistToken);
     virtual ~PendingWant() = default;
 

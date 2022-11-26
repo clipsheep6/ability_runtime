@@ -50,9 +50,9 @@ public:
 
     ErrCode GetPendingWantType(const sptr<IWantSender> &target, int32_t &type);
 
-    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
+    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 
-    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
+    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 
     ErrCode GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
 

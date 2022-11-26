@@ -1,0 +1,58 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "srcEntrance": "./ets/Application/AbilityStage.ts",
+    "description": "$string:entry_desc",
+    "mainElement": "MainAbility",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "uiSyntax": "ets",
+    "abilities": [],
+    "extensionAbilities": [
+      {
+        "name": "SelectorDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/SelectorServiceExtAbility.ts",
+        "description": "$string:SelectorServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:SelectorServiceExtAbility_label",
+        "visible": true,
+        "type": "service"
+      },
+      {
+        "name": "TipsDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/TipsServiceExtAbility.ts",
+        "description": "$string:TipsServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:TipsServiceExtAbility_label",
+        "visible": true,
+        "type": "service"
+      },
+      {
+        "name": "EnableNotificationDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/NotificationServiceExtAbility.ts",
+        "description": "$string:NotificationServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:NotificationServiceExtAbility_label",
+        "visible": true,
+        "type": "service"
+      }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"
+      },
+      {
+        "name": "ohos.permission.START_ABILITIES_FROM_BACKGROUND"
+      },
+      {
+        "name": "ohos.permission.NOTIFICATION_CONTROLLER"
+      }
+    ]
+  }
+}

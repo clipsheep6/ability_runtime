@@ -24,9 +24,9 @@ namespace AppExecFwk {
 class MockQuickFixCallbackStub : public QuickFixCallbackStub {
 public:
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
-    MOCK_METHOD1(OnLoadPatchDone, void(int32_t resultCode));
-    MOCK_METHOD1(OnUnloadPatchDone, void(int32_t resultCode));
-    MOCK_METHOD1(OnReloadPageDone, void(int32_t resultCode));
+    MOCK_METHOD2(OnLoadPatchDone, void(int32_t resultCode, int32_t recordId));
+    MOCK_METHOD2(OnUnloadPatchDone, void(int32_t resultCode, int32_t recordId));
+    MOCK_METHOD2(OnReloadPageDone, void(int32_t resultCode, int32_t recordId));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

@@ -63,7 +63,7 @@ public:
     virtual void OnMemoryLevel(int level) override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc);
+    NativeValue* CallObjectMethod(const char* name, NativeValue* const * argv, size_t argc);
 
 private:
     JsRuntime& jsRuntime_;

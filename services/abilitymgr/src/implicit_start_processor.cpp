@@ -24,10 +24,18 @@
 namespace OHOS {
 namespace AAFwk {
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
-const std::string URI = "uri";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
+};
+
+const std::unordered_set<AppExecFwk::ExtensionAbilityType> ImplicitStartProcessor::extensionWhiteList = {
+    AppExecFwk::ExtensionAbilityType::FORM,
+    AppExecFwk::ExtensionAbilityType::INPUTMETHOD,
+    AppExecFwk::ExtensionAbilityType::WALLPAPER,
+    AppExecFwk::ExtensionAbilityType::WINDOW,
+    AppExecFwk::ExtensionAbilityType::THUMBNAIL,
+    AppExecFwk::ExtensionAbilityType::PREVIEW
 };
 
 bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
@@ -37,8 +45,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
         return false;
     }
     
-    if (!want.GetAction().empty() &&
-        std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
+    if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
         HILOG_INFO("implicit start, the action is %{public}s", want.GetAction().data());
         return true;
     }
@@ -90,9 +97,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos);
-    want.SetType(request.want.GetType());
-    want.SetParam(URI, request.want.GetStringParam(URI));
+    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     return abilityMgr->StartAbility(want);
 }
@@ -122,14 +127,14 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         DialogAppInfo dialogAppInfo;
         dialogAppInfo.abilityName = info.name;
         dialogAppInfo.bundleName = info.bundleName;
+        dialogAppInfo.moduleName = info.moduleName;
         dialogAppInfo.iconId = info.iconId;
         dialogAppInfo.labelId = info.labelId;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
     
     for (const auto &info : extensionInfos) {
-        if (request.callType == AbilityCallType::START_OPTIONS_TYPE ||
-            request.callType == AbilityCallType::START_SETTINGS_TYPE) {
+        if (!isExtension || !CheckImplicitStartExtensionIsVailable(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;
@@ -141,6 +146,20 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     return ERR_OK;
+}
+
+bool ImplicitStartProcessor::CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,
+    const AppExecFwk::ExtensionAbilityInfo &extensionInfo)
+{
+    if (!request.want.GetElement().GetBundleName().empty()) {
+        return true;
+    }
+    HILOG_DEBUG("ImplicitStartExtension type: %{public}d.", static_cast<int32_t>(extensionInfo.type));
+    if (extensionWhiteList.find(extensionInfo.type) == extensionWhiteList.end()) {
+        HILOG_ERROR("The extension without UI is not allowed ImplicitStart");
+        return false;
+    }
+    return true;
 }
 
 int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant,

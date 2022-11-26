@@ -260,6 +260,12 @@ void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }
 
+void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+{
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByPid(pid, info));
+}
+
 void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {
     CHECK_POINTER(appMgrClient_);
@@ -362,10 +368,10 @@ int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
     return ERR_OK;
 }
 
-int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
-    auto ret = static_cast<int>(appMgrClient_->GetApplicationInfoByProcessID(pid, application));
+    auto ret = static_cast<int>(appMgrClient_->GetApplicationInfoByProcessID(pid, application, debug));
     if (ret != ERR_OK) {
         HILOG_ERROR("GetApplicationInfoByProcessID failed.");
         return ret;

@@ -27,6 +27,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
@@ -34,10 +35,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (!abilitymgr) {
         return false;
     }
-
+#ifdef ABILITY_COMMAND_FOR_TEST
     if (abilitymgr->BlockAppService() != 0) {
         return false;
     }
+#endif
 
     return true;
 }
@@ -53,8 +55,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
-        std::cout << "invalid size" << std::endl;
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

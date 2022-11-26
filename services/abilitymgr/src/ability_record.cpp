@@ -1825,6 +1825,11 @@ int32_t AbilityRecord::GetRestartCount() const
     return restartCount_;
 }
 
+void AbilityRecord::SetRestartCount(int32_t restartCount)
+{
+    restartCount_ = restartCount;
+}
+
 bool AbilityRecord::IsRestarting() const
 {
     return isRestarting_;

@@ -53,18 +53,18 @@ private:
     bool CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri);
     bool UnWrapRequestParams(napi_env env, napi_value param, DistributeReqParam &requestParam);
     static NativeValue* CreateJsResult(NativeEngine &engine, int32_t errCode, const std::string &message);
-    void GetExtraParams(DistributeReqParam &requestParam, Want &want);
+    void GetExtraParams(const DistributeReqParam &requestParam, const Want &want);
     NativeValue* OnStartAbility(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnFinishWithResult(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDeviceList(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnCallAbility(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnContinueAbility(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnUnsubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSendMsg(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnUnsubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetDeviceList(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnCallAbility(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnContinueAbility(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnSubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnUnsubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnSendMsg(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnSubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnUnsubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info);
 
     int requestCode_ = 0;
 };

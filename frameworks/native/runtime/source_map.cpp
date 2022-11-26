@@ -40,6 +40,13 @@ const std::string REALPATH_FLAG = "/temprary/";
 const std::string ABILITYPATH_FLAG = "/entry/ets/";
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * (1 << 20);
+constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
+constexpr int32_t INDEX_FOUR = 4;
+constexpr int32_t ANS_MAP_SIZE = 5;
+constexpr int32_t NUM_TWENTY = 20;
+constexpr int32_t NUM_TWENTYSIX = 26;
+constexpr int32_t DIGIT_NUM = 64;
 
 bool ModSourceMap::ReadSourceMapData(const std::string& filePath, std::string& content)
 {
@@ -110,7 +117,6 @@ MappingInfo ModSourceMap::Find(int32_t row, int32_t col, const SourceMapData& ta
 
 void ModSourceMap::ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo)
 {
-
     uint32_t cnt = 0;
     std::string tempStr;
     for (uint32_t i = 0; i < sourceMap.size(); i++) {
@@ -124,7 +130,7 @@ void ModSourceMap::ExtractKeyInfo(const std::string& sourceMap, std::vector<std:
         if (sourceMap[i] == '"') {
             cnt++;
         }
-        if (cnt == 2) {
+        if (cnt == INDEX_TWO) {
             sourceKeyInfo.push_back(tempStr);
             tempStr = "";
             cnt = 0;
@@ -248,10 +254,10 @@ void ModSourceMap::Init(const std::string& sourceMap, SourceMapData& curMapData)
         // after decode, assgin each value to the position
         curMapData.nowPos_.afterColumn += ans[0];
         curMapData.nowPos_.sourcesVal += ans[1];
-        curMapData.nowPos_.beforeRow += ans[2];
-        curMapData.nowPos_.beforeColumn += ans[3];
-        if (ans.size() == 5) {
-            curMapData.nowPos_.namesVal += ans[4];
+        curMapData.nowPos_.beforeRow += ans[INDEX_TWO];
+        curMapData.nowPos_.beforeColumn += ans[INDEX_THREE];
+        if (ans.size() == ANS_MAP_SIZE) {
+            curMapData.nowPos_.namesVal += ans[INDEX_FOUR];
         }
         curMapData.afterPos_.push_back({
             curMapData.nowPos_.beforeRow,
@@ -310,7 +316,7 @@ uint32_t ModSourceMap::Base64CharToInt(char charCode)
         // 63: /
         return 63;
     }
-    return 64;
+    return DIGIT_NUM;
 };
 
 bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans)
@@ -327,7 +333,7 @@ bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans
     bool continuation = 0;
     for (uint32_t i = 0; i < vStr.size(); i++) {
         uint32_t digit = Base64CharToInt(vStr[i]);
-        if (digit == 64) {
+        if (digit == DIGIT_NUM) {
             return false;
         }
         continuation = digit & VLQ_CONTINUATION_BIT;
@@ -377,7 +383,8 @@ bool ModSourceMap::GetSourceMapData(ModSourceMap& bindSourceMaps, const std::str
     return true;
 }
 
-std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps, const std::string& BundleCodeDir)
+std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps,
+    const std::string& BundleCodeDir)
 {
     const std::string closeBrace = ")";
     const std::string openBrace = "(";
@@ -418,21 +425,21 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     std::string filePath = BundleCodeDir + ABILITYPATH_FLAG + "sourceMaps.map";
     if (!ReadSourceMapData(filePath, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
+        return "";
     }
     std::size_t s = 0;
     std::size_t j = 0;
     std::string value;
     std::string key;
     std::map<std::string, std::string> MapData;
-    while((s = curSourceMap.find(": {", j)) != std::string::npos)
-    {
-        j = curSourceMap.find("}," , s);
+    while ((s = curSourceMap.find(": {", j)) != std::string::npos) {
+        j = curSourceMap.find("},", s);
         uint32_t q = s;
         uint32_t jj = j;
-        value = curSourceMap.substr(q + 1, jj - q+2);
+        value = curSourceMap.substr(q + 1, jj - q + INDEX_TWO);
         uint32_t sources = value.find("\"sources\": [");
         uint32_t names = value.find("],");
-        key = value.substr(sources + 20 , names - sources - 26);
+        key = value.substr(sources + NUM_TWENTY, names - sources - NUM_TWENTYSIX);
         MapData.insert(std::pair<std::string, std::string>(key, value));
     }
 
@@ -440,7 +447,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         std::string temp = res[i];
         uint32_t start = temp.find("(");
         uint32_t end  = temp.find(":");
-        std::string key = temp.substr(start + 1 , end - start - 1);
+        std::string key = temp.substr(start + 1, end - start - 1);
         int32_t closeBracePos = static_cast<int32_t>(temp.find(closeBrace));
         int32_t openBracePos = static_cast<int32_t>(temp.find(openBrace));
 
@@ -455,7 +462,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
             break;
         }
         static SourceMapData curMapData;
-        if(!bindSourceMaps.isStageModel) {    
+        if (!bindSourceMaps.isStageModel) {
             if (i == 1) {   // The non module scenario initializes curmapdata only at the first traversal
                 if (!bindSourceMaps.nonModularMap_) {
                     return NOT_FOUNDMAP + stackStr;
@@ -465,7 +472,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         } else {
             auto iter = MapData.find(key);
             if (iter != MapData.end()) {
-                Init(iter->second, curMapData);    
+                Init(iter->second, curMapData);
             } else {
                 ans += NOT_FOUNDMAP + temp + "\n";
                 continue;
@@ -485,7 +492,8 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     return ans;
 }
 
-std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::string& column, const SourceMapData& targetMap, const std::string& key)
+std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::string& column,
+    const SourceMapData& targetMap, const std::string& key)
 {
     int32_t offSet = 0;
     std::string sourceInfo;
@@ -503,29 +511,29 @@ std::string ModSourceMap::GetSourceInfo(const std::string& line, const std::stri
     return sourceInfo;
 }
 
-void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::string& targetMap) {
+void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::string& targetMap)
+{
     if (!targetMaps.nonModularMap_) {
         targetMaps.nonModularMap_ = std::make_shared<SourceMapData>();
     }
-    // SourceMapData curMapData;
     Init(targetMap, *targetMaps.nonModularMap_);
-    // targetMaps.sourceMaps_.insert(std::pair<std::string, SourceMapData>(isPageFlag, curMapData));
 }
 
-std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData, const std::string& sourceCode, uint32_t& errorPos)
+std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
+    const std::string& sourceCode, uint32_t& errorPos)
 {
     if (sourceCode.empty() || sourceCode.find("SourceCode:\n") == std::string::npos) {
         return sourceCode;
     }
     std::vector<std::string> names = targetMapData->names_;
-    if (names.size() % 2 != 0) {
+    if (names.size() % INDEX_TWO != 0) {
         HILOG_ERROR("Names in sourcemap is wrong.");
         return sourceCode;
     }
 
     std::string jsCode = sourceCode;
     int32_t posDiff = 0;
-    for (uint32_t i = 0; i < names.size(); i += 2) {
+    for (uint32_t i = 0; i < names.size(); i += INDEX_TWO) {
         auto found = jsCode.find(names[i]);
         while (found != std::string::npos) {
             // names_[i + 1] is the original name of names_[i]

@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char* ERR_MSG_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
-}
+} // namespace
 
 void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorMsg)
 {

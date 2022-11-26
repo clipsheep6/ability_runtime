@@ -18,7 +18,13 @@ module_output_path = "ability_runtime/interfaces"
 
 ohos_benchmarktest("BenchmarkTestForMissionManager") {
   module_out_path = module_output_path
-  sources = [ "mission_manager_test.cpp" ]
+
+  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "mission_manager_test.cpp",
+  ]
 
   cflags = []
   if (target_cpu == "arm") {
@@ -36,6 +42,8 @@ ohos_benchmarktest("BenchmarkTestForMissionManager") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

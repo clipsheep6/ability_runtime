@@ -31,7 +31,7 @@ class Mission : public std::enable_shared_from_this<Mission> {
 public:
     Mission(int32_t id, const std::shared_ptr<AbilityRecord> abilityRecord, const std::string &missionName = "",
         int32_t startMethod = 0);
-    Mission(const std::shared_ptr<Mission> &mission);
+    explicit Mission(const std::shared_ptr<Mission> &mission);
     virtual ~Mission();
 
     /**

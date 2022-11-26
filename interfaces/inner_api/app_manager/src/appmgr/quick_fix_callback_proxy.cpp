@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode)
+void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode, int32_t recordId)
 {
     HILOG_DEBUG("function called.");
 
@@ -29,6 +29,7 @@ void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode)
     MessageParcel reply;
     WRITE_PARCEL_AND_RETURN(InterfaceToken, data, QuickFixCallbackProxy::GetDescriptor());
     WRITE_PARCEL_AND_RETURN(Int32, data, resultCode);
+    WRITE_PARCEL_AND_RETURN(Int32, data, recordId);
     if (!SendRequestWithCmd(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH, data, reply)) {
         return;
     }
@@ -37,7 +38,7 @@ void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode)
     return;
 }
 
-void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode)
+void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode, int32_t recordId)
 {
     HILOG_DEBUG("function called.");
 
@@ -45,6 +46,7 @@ void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode)
     MessageParcel reply;
     WRITE_PARCEL_AND_RETURN(InterfaceToken, data, QuickFixCallbackProxy::GetDescriptor());
     WRITE_PARCEL_AND_RETURN(Int32, data, resultCode);
+    WRITE_PARCEL_AND_RETURN(Int32, data, recordId);
     if (!SendRequestWithCmd(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_PATCH, data, reply)) {
         return;
     }
@@ -53,7 +55,7 @@ void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode)
     return;
 }
 
-void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode)
+void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode, int32_t recordId)
 {
     HILOG_DEBUG("function called.");
 
@@ -61,6 +63,7 @@ void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode)
     MessageParcel reply;
     WRITE_PARCEL_AND_RETURN(InterfaceToken, data, QuickFixCallbackProxy::GetDescriptor());
     WRITE_PARCEL_AND_RETURN(Int32, data, resultCode);
+    WRITE_PARCEL_AND_RETURN(Int32, data, recordId);
     if (!SendRequestWithCmd(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_RELOAD_PAGE, data, reply)) {
         return;
     }

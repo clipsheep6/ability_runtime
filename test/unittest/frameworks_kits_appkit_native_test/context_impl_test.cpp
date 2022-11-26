@@ -20,16 +20,27 @@
 #include "context_impl.h"
 #undef private
 
+#include "ability_constants.h"
 #include "ability_local_record.h"
 #include "application_context.h"
 #include "context.h"
+#include "hap_module_info.h"
+#include "hilog_wrapper.h"
 #include "iremote_object.h"
+#include "mock_ability_token.h"
+#include "mock_bundle_manager.h"
+#include "system_ability_definition.h"
+#include "sys_mgr_client.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
+
+namespace {
+const int64_t CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
+} // namespace
 
 class ContextImplTest : public testing::Test {
 public:
@@ -53,6 +64,9 @@ void ContextImplTest::TearDownTestCase(void)
 void ContextImplTest::SetUp(void)
 {
     contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
+    sptr<IRemoteObject> bundleObject = new (std::nothrow) BundleMgrService();
+    DelayedSingleton<SysMrgClient>::GetInstance()->RegisterSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID,
+        bundleObject);
 }
 
 void ContextImplTest::TearDown(void)
@@ -92,6 +106,373 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_002, Function | M
 }
 
 /**
+ * @tc.name: AppExecFwk_ContextImpl_GetBundleName_003
+ * @tc.desc: Get bundle name when parent context is not nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_003, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->bundleName = "com.test.parentcontext";
+    parentContext->SetApplicationInfo(applicationInfo);
+
+    contextImpl->SetParentContext(parentContext);
+    std::string bundleName = contextImpl->GetBundleName();
+    EXPECT_EQ(bundleName, "com.test.parentcontext");
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetBundleCodeDir_0100
+ * @tc.desc: Get bundle code directory.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetBundleCodeDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // branch when application info is nullptr
+    auto codeDir = contextImpl->GetBundleCodeDir();
+    EXPECT_EQ(codeDir, "");
+
+    // construct application info
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->codePath = "/data/app/el1/bundle/public/testCodeDir";
+    contextImpl->SetApplicationInfo(applicationInfo);
+
+    // not create by system app
+    codeDir = contextImpl->GetBundleCodeDir();
+    EXPECT_EQ(codeDir, AbilityRuntime::Constants::LOCAL_CODE_PATH);
+
+    // create by system app(flag is ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP)
+    contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    codeDir = contextImpl->GetBundleCodeDir();
+    EXPECT_EQ(codeDir, "/data/bundles/testCodeDir");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: IsUpdatingConfigurations_0100
+ * @tc.desc: IsUpdatingConfigurations basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, IsUpdatingConfigurations_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto isUpdating = contextImpl->IsUpdatingConfigurations();
+    EXPECT_EQ(isUpdating, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PrintDrawnCompleted_0100
+ * @tc.desc: PrintDrawnCompleted basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, PrintDrawnCompleted_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto isComplete = contextImpl->PrintDrawnCompleted();
+    EXPECT_EQ(isComplete, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetDatabaseDir_0100
+ * @tc.desc: Get base directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetDatabaseDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // not create by system app and parent context is nullptr
+    auto databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/storage/el2/database");
+
+    // create by system app and parent context is not nullptr
+    contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->bundleName = "com.test.database";
+    parentContext->SetApplicationInfo(applicationInfo);
+    contextImpl->SetParentContext(parentContext);
+    databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/app/el2/0/database/com.test.database/");
+
+    // create by system app and hap module info of parent context is not nullptr
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "test_moduleName";
+    contextImpl->InitHapModuleInfo(hapModuleInfo);
+    databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/app/el2/0/database/com.test.database/test_moduleName");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetPreferencesDir_0100
+ * @tc.desc: Get preference directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetPreferencesDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto preferenceDir = contextImpl->GetPreferencesDir();
+    EXPECT_EQ(preferenceDir, "/data/storage/el2/base/preferences");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetTempDir_0100
+ * @tc.desc: Get temp directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetTempDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto tempDir = contextImpl->GetTempDir();
+    EXPECT_EQ(tempDir, "/data/storage/el2/base/temp");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetFilesDir_0100
+ * @tc.desc: Get files directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetFilesDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto filesDir = contextImpl->GetFilesDir();
+    EXPECT_EQ(filesDir, "/data/storage/el2/base/files");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetDistributedFilesDir_0100
+ * @tc.desc: Get distributed directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // not create by system app
+    auto distributedDir = contextImpl->GetDistributedFilesDir();
+    EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
+
+    // create by system app and bundleName is empty
+    contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    distributedDir = contextImpl->GetDistributedFilesDir();
+    EXPECT_EQ(distributedDir, "/mnt/hmdfs/0/device_view/local/data/");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetBaseDir_0100
+ * @tc.desc: Get base directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetBaseDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // not create by system app and parent context is nullptr
+    auto baseDir = contextImpl->GetBaseDir();
+    EXPECT_EQ(baseDir, "/data/storage/el2/base");
+
+    // create by system app and parent context is not nullptr
+    contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->bundleName = "com.test.base";
+    parentContext->SetApplicationInfo(applicationInfo);
+    contextImpl->SetParentContext(parentContext);
+    baseDir = contextImpl->GetBaseDir();
+    EXPECT_EQ(baseDir, "/data/app/el2/0/base/com.test.base/haps/");
+
+    // create by system app and hap module info of parent context is not nullptr
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "test_moduleName";
+    contextImpl->InitHapModuleInfo(hapModuleInfo);
+    baseDir = contextImpl->GetBaseDir();
+    EXPECT_EQ(baseDir, "/data/app/el2/0/base/com.test.base/haps/test_moduleName");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SwitchArea_0100
+ * @tc.desc: Switch area basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, SwitchArea_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // invalid mode
+    contextImpl->SwitchArea(-1);
+    contextImpl->SwitchArea(2);
+
+    // valid mode
+    contextImpl->SwitchArea(0);
+    contextImpl->SwitchArea(1);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetAreaArea_0100
+ * @tc.desc: Get area basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetAreaArea_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    contextImpl->SwitchArea(0);
+    auto mode = contextImpl->GetArea();
+    EXPECT_EQ(mode, 0);
+
+    contextImpl->SwitchArea(1);
+    mode = contextImpl->GetArea();
+    EXPECT_EQ(mode, 1);
+
+    // invalid area_
+    contextImpl->currArea_ = "invalid";
+    mode = contextImpl->GetArea();
+    EXPECT_EQ(mode, 1); // default is AbilityRuntime::ContextImpl::EL_DEFAULT
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetCurrentAccountId_0100
+ * @tc.desc: Get current account id test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetCurrentAccountId_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto accountId = contextImpl->GetCurrentAccountId();
+    EXPECT_EQ(accountId, 0); // default account id
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetCurrentActiveAccountId_0100
+ * @tc.desc: Get current active account id test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetCurrentActiveAccountId_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto accountId = contextImpl->GetCurrentActiveAccountId();
+    EXPECT_EQ(accountId, 100); // default active account id is 100
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CreateBundleContext_0100
+ * @tc.desc: Create bundle context test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, CreateBundleContext_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // bundle name is empty
+    auto context = contextImpl->CreateBundleContext("");
+    EXPECT_EQ(context, nullptr);
+
+    // bundle name is invalid
+    context = contextImpl->CreateBundleContext("invalid_bundleName");
+    EXPECT_EQ(context, nullptr);
+
+    context = contextImpl->CreateBundleContext("test_contextImpl");
+    EXPECT_NE(context, nullptr);
+
+    // parent context is not nullptr
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    contextImpl->SetParentContext(parentContext);
+    context = contextImpl->CreateBundleContext("");
+    EXPECT_EQ(context, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AppExecFwk_ContextImpl_SetApplicationInfo_001
  * @tc.name: SetApplicationInfo
  * @tc.desc: Test whether SetApplicationInfo is called normally.
@@ -101,6 +482,8 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_002, Function | M
 HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_SetApplicationInfo_001, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_SetApplicationInfo_001 start";
+    contextImpl_->SetApplicationInfo(nullptr);
+    EXPECT_EQ(contextImpl_->GetApplicationInfo(), nullptr);
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
     contextImpl_->SetApplicationInfo(applicationInfo);
     EXPECT_NE(contextImpl_->GetApplicationInfo(), nullptr);
@@ -132,6 +515,15 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetApplicationContext_001, Func
 {
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetApplicationContext_001 start";
     EXPECT_TRUE(contextImpl_->GetApplicationContext() == nullptr);
+
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    contextImpl->SetParentContext(parentContext);
+    EXPECT_EQ(contextImpl->GetApplicationInfo(), nullptr);
+
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetApplicationContext_001 end";
 }
 
@@ -166,17 +558,47 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetHapModuleInfo_001, Function 
 }
 
 /**
- * @tc.number: AppExecFwk_ContextImpl_CreateModuleContext_001
+ * @tc.number: CreateModuleContext_001
  * @tc.name: CreateModuleContext
  * @tc.desc: Test whether CreateModuleContext is called normally.
  * @tc.type: FUNC
  * @tc.require: SR000H6I25
  */
-HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_CreateModuleContext_001, Function | MediumTest | Level1)
+HWTEST_F(ContextImplTest, CreateModuleContext_001, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
     EXPECT_EQ(contextImpl_->CreateModuleContext("module_name"), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
+
+/**
+ * @tc.name: CreateModuleContext_002
+ * @tc.desc: Create module context test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, CreateModuleContext_002, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // bundleName is valid, but module name is empty
+    auto moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "");
+    EXPECT_EQ(moduleContext, nullptr);
+
+    // bundle name is invalid
+    moduleContext = contextImpl->CreateModuleContext("invalid_bundleName", "invalid_moduleName");
+    EXPECT_EQ(moduleContext, nullptr);
+
+    // module didn't exist
+    moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "invalid_moduleName");
+    EXPECT_EQ(moduleContext, nullptr);
+
+    moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "test_moduleName");
+    EXPECT_NE(moduleContext, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -317,7 +739,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_003, Functio
     bundleInfo.hapModuleInfos.push_back(info);
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "entry");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
-    
+
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
@@ -326,7 +748,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_003, Functio
     bundleInfo.hapModuleInfos.push_back(info);
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "entry");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
-    
+
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
@@ -360,7 +782,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_004, Functio
     bundleInfo.hapModuleInfos.push_back(info);
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "entry");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
-    
+
     contextImpl_->InitResourceManager(bundleInfo, appContext, false, "entry");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
@@ -371,6 +793,157 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_004, Functio
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
     GTEST_LOG_(INFO) << "AppExecFwk_AppContext_InitResourceManager_004 end";
+}
+
+/**
+ * @tc.name: AppExecFwk_AppContext_InitResourceManager_005
+ * @tc.desc: abnornal branch test for InitResourceManager.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_005, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // branch when appContext is nullptr
+    AppExecFwk::BundleInfo bundleInfo;
+    contextImpl->InitResourceManager(bundleInfo, nullptr, true, "");
+
+    // parent context is not nullptr
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    contextImpl->SetParentContext(parentContext);
+    EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetBundleCodePath_0100
+ * @tc.desc: Get bundle code path test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetBundleCodePath_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto codePath = contextImpl->GetBundleCodePath();
+    EXPECT_EQ(codePath, "");
+
+    // construt application info
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->codePath = "/data/app/el1";
+    contextImpl->SetApplicationInfo(applicationInfo);
+    EXPECT_EQ(contextImpl->GetBundleCodePath(), "/data/app/el1");
+
+    // parent context is not nullptr
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    contextImpl->SetParentContext(parentContext);
+    EXPECT_EQ(contextImpl->GetBundleCodePath(), "");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: InitHapModuleInfo_0100
+ * @tc.desc: Init hap module info test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, InitHapModuleInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    contextImpl->InitHapModuleInfo(hapModuleInfo);
+    EXPECT_NE(contextImpl->GetHapModuleInfo(), nullptr);
+
+    // branch when hap module info has been assigned
+    auto abilityInfo = std::make_shared<AppExecFwk::AbilityInfo>();
+    contextImpl->InitHapModuleInfo(abilityInfo);
+    EXPECT_NE(contextImpl->GetHapModuleInfo(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: InitHapModuleInfo_0200
+ * @tc.desc: Init hap module info test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, InitHapModuleInfo_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto abilityInfo = std::make_shared<AppExecFwk::AbilityInfo>();
+    contextImpl->InitHapModuleInfo(nullptr);
+    contextImpl->InitHapModuleInfo(abilityInfo);
+    EXPECT_NE(contextImpl->GetHapModuleInfo(), nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SetToken_0100
+ * @tc.desc: set token and get token test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, SetToken_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    contextImpl->SetToken(nullptr);
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    contextImpl->SetToken(token);
+    auto after = contextImpl->GetToken();
+    EXPECT_EQ(token, after);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetDeviceType_0100
+ * @tc.desc: Get device type test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetDeviceType_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // branch when config is nullptr
+    auto deviceType = contextImpl->GetDeviceType();
+    EXPECT_EQ(deviceType, Global::Resource::DeviceType::DEVICE_PHONE);
+
+    // get device type again
+    deviceType = contextImpl->GetDeviceType();
+    EXPECT_EQ(deviceType, Global::Resource::DeviceType::DEVICE_PHONE);
+
+    // construct configuration
+    auto config = std::make_shared<AppExecFwk::Configuration>();
+    EXPECT_NE(config, nullptr);
+    config->AddItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, "phone");
+    contextImpl->SetConfiguration(config);
+    deviceType = contextImpl->GetDeviceType();
+    EXPECT_EQ(deviceType, Global::Resource::DeviceType::DEVICE_PHONE);
+
+    HILOG_INFO("%{public}s end.", __func__);
 }
 }  // namespace AppExecFwk
 }

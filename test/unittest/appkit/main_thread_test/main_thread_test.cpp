@@ -39,17 +39,17 @@ public:
     QuickFixCallbackImpl() = default;
     virtual ~QuickFixCallbackImpl() = default;
 
-    void OnLoadPatchDone(int32_t resultCode) override
+    void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }
 
-    void OnUnloadPatchDone(int32_t resultCode) override
+    void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }
 
-    void OnReloadPageDone(int32_t resultCode) override
+    void OnReloadPageDone(int32_t resultCode, int32_t recordId) override
     {
         HILOG_DEBUG("function called.");
     }
@@ -106,7 +106,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
-    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback);
+    int32_t recordId = 0;
+    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -121,7 +122,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
-    auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback);
+    int32_t recordId = 0;
+    auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -135,6 +137,8 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ProcessInfo processInfo("test_quickfix", 1);
+    mainThread_->processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     std::string bundleName = "com.ohos.quickfix";
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
@@ -157,8 +161,9 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string bundleName;
+    int32_t recordId = 0;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
-    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback);
+    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
     HILOG_INFO("%{public}s end.", __func__);
 }
