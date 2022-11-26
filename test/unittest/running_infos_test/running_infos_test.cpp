@@ -465,7 +465,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Le
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
-    
+
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);

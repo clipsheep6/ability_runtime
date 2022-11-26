@@ -258,7 +258,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             it++;
             continue;
         }
-        
+
         if (resultCode == ERR_OK) {
             HILOG_INFO("FreeInstall success.");
             (*it).promise->set_value(resultCode);

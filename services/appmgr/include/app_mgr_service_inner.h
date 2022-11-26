@@ -433,7 +433,7 @@ public:
 
     void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
-	 /**
+     /**
      * UpdateConfiguration, ANotify application update system environment changes.
      *
      * @param config, System environment change parameters.

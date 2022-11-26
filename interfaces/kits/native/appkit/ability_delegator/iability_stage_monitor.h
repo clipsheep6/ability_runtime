@@ -66,7 +66,7 @@ public:
      * returns null otherwise.
      */
     virtual std::shared_ptr<DelegatorAbilityStageProperty> WaitForAbilityStage(const int64_t timeoutMs);
-    
+
     /**
      * Waits for and returns the started AbilityStage object that matches the conditions specified in this monitor
      * within 5 seconds.

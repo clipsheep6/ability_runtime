@@ -324,7 +324,7 @@ HWTEST_F(MissionTest, mission_copy_constructor_001, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     auto mission1 = std::make_shared<Mission>(0, abilityRecord, "name1");
     auto mission2= std::make_shared<Mission>(mission1);
-    EXPECT_NE(mission1, mission2); 
+    EXPECT_NE(mission1, mission2);
     EXPECT_NE(&(mission1->missionId_), &(mission2->missionId_));
     EXPECT_NE(&(mission1->startMethod_), &(mission2->startMethod_));
     EXPECT_NE(&(mission1->abilityRecord_), &(mission2->abilityRecord_));

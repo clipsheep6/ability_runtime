@@ -72,7 +72,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         delete want;
         want = nullptr;
     }
-    
+
     delete abilityRecord;
 
     return true;

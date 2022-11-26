@@ -136,7 +136,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->OnAbilityRequestDone(token, int32Param);
     AppInfo appInfo;
     abilityms->OnAppStateChanged(appInfo);
-    
+
     return true;
 }
 }

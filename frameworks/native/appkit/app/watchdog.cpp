@@ -149,7 +149,7 @@ void Watchdog::ReportEvent()
         lastWatchTime_ = now;
         return;
     }
-    
+
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
         return;

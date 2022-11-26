@@ -411,7 +411,7 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
 
-	/**
+    /**
      * Start Ability, connect session with common ability.
      *
      * @param want, Special want for service type's ability.

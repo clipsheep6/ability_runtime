@@ -677,7 +677,7 @@ napi_value RegisterMissionWrap(napi_env &env, napi_callback_info info,
         errInfo = "Parameter error. The type of \"number of parameters\" must be 2 or 3";
         return nullptr;
     }
-    
+
     if (!RegisterMissionWrapDeviceId(env, args[0], registerMissionCB, errInfo)) {
         HILOG_INFO("%{public}s, RegisterMissionWrapDeviceId failed.", __func__);
         return nullptr;
@@ -1385,7 +1385,7 @@ bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
         errInfo = "Parameter error. The number of \"ContinueMission\" must be 4";
         return false;
     }
-    
+
     if (!CheckContinueDeviceInfoSrcDeviceId(env, napiSrcDeviceId, continueAbilityCB, errInfo) ||
         !CheckContinueDeviceInfoDstDeviceId(env, napiDstDeviceId, continueAbilityCB, errInfo) ||
         !CheckContinueDeviceInfoMissionId(env, napiMissionId, continueAbilityCB, errInfo) ||

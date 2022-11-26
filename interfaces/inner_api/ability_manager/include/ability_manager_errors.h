@@ -188,7 +188,7 @@ enum {
      */
     CLEAR_APPLICATION_DATA_FAIL,
 
-	// for call ability
+    // for call ability
     /**
      * Result(2097186) for resolve ability failed, there is no permissions
      */

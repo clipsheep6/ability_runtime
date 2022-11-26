@@ -219,7 +219,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, startInstallTime);
-    
+
     for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
@@ -249,7 +249,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_002, TestSize.Level1)
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(1, want, userId, startInstallTime);
-    
+
     for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
@@ -280,7 +280,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_003, TestSize.Level1)
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, startInstallTime);
-    
+
     int size = freeInstallManager_->freeInstallList_.size();
     EXPECT_EQ(size, 1);
 }
@@ -320,7 +320,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnRemoteInstallFinished_001, TestSize.Leve
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnRemoteInstallFinished(0, want, userId, startInstallTime);
-    
+
     for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();

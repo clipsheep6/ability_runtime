@@ -170,7 +170,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 #endif
     std::vector<sptr<IRemoteObject>> tokens;
     missionListManager->SetMissionANRStateByTokens(tokens);
-    
+
     return true;
 }
 }

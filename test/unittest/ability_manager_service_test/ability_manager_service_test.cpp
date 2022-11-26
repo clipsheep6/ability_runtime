@@ -370,15 +370,15 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Lev
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_NO_PERMISSIONS);
-    
+
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-    
+
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::DATA;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-    
+
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::DATA;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);

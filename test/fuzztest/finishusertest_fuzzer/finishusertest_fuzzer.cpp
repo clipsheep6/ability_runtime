@@ -53,7 +53,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (!appMgrClient) {
         return false;
     }
-    
+
     if (appMgrClient->FinishUserTest(data, resultCode, bundleName) != 0) {
         return false;
     }

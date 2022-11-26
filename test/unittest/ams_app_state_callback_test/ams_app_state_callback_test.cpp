@@ -104,7 +104,7 @@ HWTEST_F(AmsAppStateCallBackTest, OnAbilityRequestDone_001, TestSize.Level1)
     AbilityState state = AbilityState::ABILITY_STATE_BEGIN;
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
     host->OnAbilityRequestDone(token, state);
-    
+
     int32_t ret = 0;
     EXPECT_EQ(0, ret);
 }
@@ -122,7 +122,7 @@ HWTEST_F(AmsAppStateCallBackTest, OnAppStateChanged_001, TestSize.Level1)
     AppProcessData data;
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
     host->OnAppStateChanged(data);
-    
+
     int32_t ret = 0;
     EXPECT_EQ(0, ret);
 }

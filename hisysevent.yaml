@@ -64,7 +64,7 @@ START_ABILITY_ERROR:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 TERMINATE_ABILITY_ERROR:
   __BASE: {type: FAULT, level: MINOR, tag: ability, desc: terminate ability error}
   USER_ID: {type: INT32, desc: userId}
@@ -72,7 +72,7 @@ TERMINATE_ABILITY_ERROR:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 START_EXTENSION_ERROR:
   __BASE: {type: FAULT, level: MINOR, tag: ability, desc: start extensionAbility error}
   USER_ID: {type: INT32, desc: userId}
@@ -80,7 +80,7 @@ START_EXTENSION_ERROR:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 STOP_EXTENSION_ERROR:
   __BASE: {type: FAULT, level: MINOR, tag: ability, desc: stop extensionAbility error}
   USER_ID: {type: INT32, desc: userId}
@@ -88,7 +88,7 @@ STOP_EXTENSION_ERROR:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 CONNECT_SERVICE_ERROR:
   __BASE: {type: FAULT, level: MINOR, tag: ability, desc: connect serviceExtensionAbility error}
   USER_ID: {type: INT32, desc: userId}
@@ -96,7 +96,7 @@ CONNECT_SERVICE_ERROR:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 DISCONNECT_SERVICE_ERROR:
   __BASE: {type: FAULT, level: MINOR, tag: ability, desc: disconnect serviceExtensionAbility error}
   USER_ID: {type: INT32, desc: userId}
@@ -141,7 +141,7 @@ START_SERVICE:
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
   EXTENSION_TYPE: {type: STRING, desc: extension type}
-  
+
 STOP_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: stop serviceExtensionAbility}
   USER_ID: {type: INT32, desc: userId}
@@ -149,14 +149,14 @@ STOP_SERVICE:
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
   EXTENSION_TYPE: {type: STRING, desc: extension type}
-  
+
 CONNECT_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: connect serviceAbility}
   USER_ID: {type: INT32, desc: userId}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
 DISCONNECT_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: disconnect serviceAbility}
 

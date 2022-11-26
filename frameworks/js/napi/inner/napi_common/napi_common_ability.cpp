@@ -1447,7 +1447,7 @@ napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_va
         NAPI_CALL(env,
             napi_create_string_utf8(env, appInfo.moduleInfos.at(i).moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
         NAPI_CALL(env, napi_set_named_property(env, jsModuleInfoObject, "moduleName", proValue));
-        
+
         NAPI_CALL(env,
             napi_create_string_utf8(
                 env, appInfo.moduleInfos.at(i).moduleSourceDir.c_str(), NAPI_AUTO_LENGTH, &proValue));

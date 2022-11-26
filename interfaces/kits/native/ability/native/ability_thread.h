@@ -388,7 +388,7 @@ public:
      */
     bool CheckObsPermission();
 
-	/**
+    /**
      * @brief Dump ability runner info.
      *
      * @param runnerInfo ability runner info.

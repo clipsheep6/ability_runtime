@@ -47,7 +47,7 @@ private:
     using StartAbilityClosure = std::function<int32_t()>;
     int CallStartAbilityInner(int32_t userId, const Want &want, const StartAbilityClosure &callBack,
         const AbilityCallType &callType);
-    
+
     int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
 
     bool CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,

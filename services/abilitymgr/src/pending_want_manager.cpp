@@ -545,10 +545,10 @@ void PendingWantManager::Dump(std::vector<std::string> &info)
         info.push_back(dumpInfo);
         auto Wants = pendingKey->GetAllWantsInfos();
         for (const auto &Want : Wants) {
-            dumpInfo = "  	    uri [" + Want.want.GetElement().GetDeviceID() + "//" +
+            dumpInfo = "          uri [" + Want.want.GetElement().GetDeviceID() + "//" +
                 Want.want.GetElement().GetBundleName() + "/" + Want.want.GetElement().GetAbilityName() + "]";
             info.push_back(dumpInfo);
-            dumpInfo = "  	    resolved types [" + Want.resolvedTypes + "]";
+            dumpInfo = "          resolved types [" + Want.resolvedTypes + "]";
             info.push_back(dumpInfo);
         }
     }
@@ -577,10 +577,10 @@ void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const st
             info.push_back(dumpInfo);
             auto Wants = pendingKey->GetAllWantsInfos();
             for (const auto& Want : Wants) {
-                dumpInfo = "  	    uri [" + Want.want.GetElement().GetDeviceID() + "//" +
+                dumpInfo = "          uri [" + Want.want.GetElement().GetDeviceID() + "//" +
                     Want.want.GetElement().GetBundleName() + "/" + Want.want.GetElement().GetAbilityName() + "]";
                 info.push_back(dumpInfo);
-                dumpInfo = "  	    resolved types [" + Want.resolvedTypes + "]";
+                dumpInfo = "          resolved types [" + Want.resolvedTypes + "]";
                 info.push_back(dumpInfo);
             }
         }

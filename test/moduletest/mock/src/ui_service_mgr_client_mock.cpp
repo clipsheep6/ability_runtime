@@ -97,7 +97,7 @@ ErrCode UIServiceMgrClient::ShowDialog(const std::string& name, const std::strin
         callback(0, EVENT_CHOOSE_CODE, callbackParams);
         return ERR_OK;
     }
-    
+
     if (code_ == EVENT_MULT_APP_CLOSE) {
         params_ = params;
         callback(0, EVENT_CLOSE_CODE, "");

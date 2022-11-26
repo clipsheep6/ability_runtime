@@ -59,7 +59,7 @@ public:
 
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    
+
     int32_t GetDisposedStatus(const std::string &bundleName) override;
 
     virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,

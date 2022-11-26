@@ -56,7 +56,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (token) {
         abilitymgr->UpdateMissionSnapShot(token);
     }
-    
+
     return true;
 }
 }

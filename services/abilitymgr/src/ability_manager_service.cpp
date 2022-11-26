@@ -4174,7 +4174,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         appRecoveryHistory_[record->GetUid()] = now;
         want = record->GetWant();
         want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
-        
+
         HiSysEventWrite(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
             "APP_UID", record->GetUid(),
             "VERSION_CODE", std::to_string(appInfo.versionCode),
@@ -5425,7 +5425,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         isBackgroundCall = false;
         return ERR_OK;
     }
-    
+
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {

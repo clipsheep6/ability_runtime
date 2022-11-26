@@ -49,7 +49,7 @@ class SourceMapData final {
 public:
     SourceMapData() = default;
     ~SourceMapData() = default;
-    
+
     SourceMapInfo nowPos_;
     std::vector<std::string> files_;
     std::vector<std::string> sources_;

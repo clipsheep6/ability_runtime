@@ -134,7 +134,7 @@ static constexpr unsigned int CHANGE_CONFIG_DENSITY = 0x00000010;
             AbilityConfig::MISSION_NAME_SEPARATOR + moduleName +
             AbilityConfig::MISSION_NAME_SEPARATOR + name;
     }
-    
+
     return strName;
 }
 

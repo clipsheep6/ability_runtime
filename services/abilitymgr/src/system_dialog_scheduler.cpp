@@ -124,7 +124,7 @@ const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition posit
 Want SystemDialogScheduler::GetTipsDialogWant()
 {
     HILOG_DEBUG("GetTipsDialogWant start");
-    
+
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_TIPS, position);
 
@@ -270,7 +270,7 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
             position.width = position.width_narrow;
             position.height = position.height_narrow;
         }
-        
+
         if (type == DialogType::DIALOG_SELECTOR) {
             DialogPositionAdaptive(position, lineNums);
         }

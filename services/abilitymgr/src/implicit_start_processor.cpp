@@ -44,7 +44,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     if (!element.GetAbilityName().empty()) {
         return false;
     }
-    
+
     if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
         HILOG_INFO("implicit start, the action is %{public}s", want.GetAction().data());
         return true;
@@ -119,7 +119,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         abilityInfos.size(), extensionInfos.size());
 
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
-    
+
     for (const auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
@@ -132,7 +132,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         dialogAppInfo.labelId = info.labelId;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
-    
+
     for (const auto &info : extensionInfos) {
         if (!isExtension || !CheckImplicitStartExtensionIsVailable(request, info)) {
             continue;

@@ -941,7 +941,7 @@ private:
     int32_t ownerMissionUserId_ = -1;
     bool isSwitchingPause_ = false;
 
-	// new version
+    // new version
     std::shared_ptr<CallContainer> callContainer_ = nullptr;
     bool isStartedByCall_ = false;
     bool isStartToBackground_ = false;

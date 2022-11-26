@@ -390,7 +390,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     const std::string openBrace = "(";
     std::string ans = "";
     std::string tempStack = stackStr;
-    
+
     // find per line of stack
     std::vector<std::string> res;
     std::string tempStr = "";

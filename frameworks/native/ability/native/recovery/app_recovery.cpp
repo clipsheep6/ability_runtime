@@ -100,7 +100,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
         HILOG_ERROR("ScheduleSaveAppState. main handler is not exist");
         return false;
     }
-    
+
     auto task = [reason]() {
         AppRecovery::GetInstance().DoSaveAppState(reason);
     };
@@ -143,7 +143,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
     // may we save state in other thread or just restart.
     // 1. check whether main handler is still avaliable
     // 2. do state saving in main thread or just restart app with no state?
-	// 3. create an recovery thread for saving state, just block jsvm mult-thread checking mechaism
+    // 3. create an recovery thread for saving state, just block jsvm mult-thread checking mechaism
 
     auto task = [reason]() {
         AppRecovery::GetInstance().DoRecoverApp(reason);
