@@ -332,11 +332,6 @@ void JsServiceExtension::GetSrcPath(std::string &srcPath)
 
 NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
-    HandleScope handleScope(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
-    NativeValue *argv[] = { nativeWant };
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
         return nullptr;
@@ -355,6 +350,11 @@ NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool 
         return nullptr;
     }
 
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
+    NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
+    NativeValue *argv[] = { nativeWant };
     if (withResult) {
         return handleScope.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
     } else {

@@ -104,6 +104,7 @@ public:
      *
      * You can override this function to implement your own processing logic.
      *
+     * @param want Indicates the {@link Want} structure containing connection information about the Service extension.
      */
     virtual void OnDisconnect(const AAFwk::Want &want);
 
@@ -111,6 +112,7 @@ public:
      * @brief Called when all abilities connected to this Service extension are disconnected.
      *
      * You can override this function to implement your own processing logic.
+     * @param want Indicates the {@link Want} structure containing connection information about the Service extension.
      * @param callbackInfo Indicates the lifecycle transaction callback information
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
