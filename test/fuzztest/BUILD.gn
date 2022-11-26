@@ -60,9 +60,11 @@ group("fuzztest") {
     "applifecycledeal_fuzzer:fuzztest",
     "appmanager_fuzzer:fuzztest",
     "appmgrrest_fuzzer:fuzztest",
-    "appmgrservicefirst_fuzzer:fuzztest",
+
+    # "appmgrservicefirst_fuzzer:fuzztest",
     "appmgrserviceinnerfirst_fuzzer:fuzztest",
-    "appmgrserviceinnersecond_fuzzer:fuzztest",
+
+    # "appmgrserviceinnersecond_fuzzer:fuzztest",
     "apprunningmanager_fuzzer:fuzztest",
     "apprunningrecordfirst_fuzzer:fuzztest",
     "apprunningrecordsecond_fuzzer:fuzztest",
@@ -111,7 +113,8 @@ group("fuzztest") {
     "getmissionsnapshot_fuzzer:fuzztest",
     "getprocessrunninginfos_fuzzer:fuzztest",
     "getprocessrunninginfosbyuserid_fuzzer:fuzztest",
-    "getrenderprocessterminationstatus_fuzzer:fuzztest",
+
+    # "getrenderprocessterminationstatus_fuzzer:fuzztest",
     "getrunningprocessinfobytoken_fuzzer:fuzztest",
     "gettopability_fuzzer:fuzztest",
     "getwantsender_fuzzer:fuzztest",
