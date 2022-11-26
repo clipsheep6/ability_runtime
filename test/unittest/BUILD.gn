@@ -358,6 +358,7 @@ group("unittest") {
     "runtime_extractor_test:unittest",
     "runtime_test:unittest",
     "sender_info_test:unittest",
+    "start_options_test:unittest",
     "system_ability_token_callback_stub_test:unittest",
     "task_data_persistence_mgr_test:unittest",
     "trigger_Info_test:unittest",
