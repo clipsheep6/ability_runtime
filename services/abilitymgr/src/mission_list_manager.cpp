@@ -1326,7 +1326,7 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
         return;
     }
 
-    if (!needTopAbility->IsForeground() && !needTopAbility->IsMinimizeFromUser()) {
+    if (!needTopAbility->IsForeground() && !needTopAbility->IsMinimizeFromUser() && needTopAbility->IsReady()) {
         HILOG_DEBUG("%{public}s is need to foreground.", elementName.GetURI().c_str());
         abilityRecord->SetNextAbilityRecord(needTopAbility);
     }
