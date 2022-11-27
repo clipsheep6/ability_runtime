@@ -47,9 +47,11 @@ public:
     bool RemoveJsObserverObject(const int32_t observerId);
     bool FindObserverByObserverId(const int32_t observerId);
     size_t GetJsObserverMapSize();
+    void SetValid(const bool valid);
 
 private:
     NativeEngine& engine_;
+    volatile bool valid_ = true;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMap_;
 };
 }  // namespace AbilityRuntime

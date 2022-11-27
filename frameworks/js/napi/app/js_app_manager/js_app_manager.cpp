@@ -53,7 +53,13 @@ public:
     JsAppManager(sptr<OHOS::AppExecFwk::IAppMgr> appManager,
         sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : appManager_(appManager),
         abilityManager_(abilityManager) {}
-    ~JsAppManager() = default;
+    ~JsAppManager()
+    {
+        if (observer_ != nullptr){
+            HILOG_INFO("Set valid false");
+            observer_->SetValid(false);
+        }
+    }
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint)
     {

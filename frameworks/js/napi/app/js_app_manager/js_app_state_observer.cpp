@@ -30,6 +30,10 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
 {
     HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, appStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -61,6 +65,10 @@ void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData
 void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("OnAbilityStateChanged begin");
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -91,6 +99,10 @@ void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abi
 void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("OnExtensionStateChanged begin");
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -121,6 +133,10 @@ void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &a
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
     HILOG_INFO("OnProcessCreated begin");
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -151,6 +167,10 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
     HILOG_INFO("OnProcessStateChanged begin");
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -181,6 +201,10 @@ void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processD
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
     HILOG_INFO("OnProcessDied begin");
+    if (!valid_) {
+        HILOG_ERROR("the app manager may has destoryed");
+        return;
+    }
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -250,6 +274,11 @@ size_t JSAppStateObserver::GetJsObserverMapSize()
 {
     size_t length = jsObserverObjectMap_.size();
     return length;
+}
+
+void JSAppStateObserver::SetValid(const bool valid)
+{
+    valid_ = valid;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
