@@ -31,12 +31,12 @@ const std::string PARAM_FORM_NAME = "com.form.name.test";
 const std::string DEVICE_ID = "ohos-phone1";
 
 bool BundleMgrProxy::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
 
-int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const int userId)
+int BundleMgrService::GetUidByBundleName(const std::string& bundleName, const int userId)
 {
     if (bundleName.compare("com.form.host.app600") == 0) {
         return 600;
@@ -45,25 +45,25 @@ int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const in
 }
 
 bool BundleMgrProxy::GetFormsInfoByModule(
-    const std::string &bundleName,
-    const std::string &moduleName,
-    std::vector<FormInfo> &formInfo)
+    const std::string& bundleName,
+    const std::string& moduleName,
+    std::vector<FormInfo>& formInfo)
 {
     return true;
 }
 
-int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
 
-std::string BundleMgrService::GetAppType(const std::string &bundleName)
+std::string BundleMgrService::GetAppType(const std::string& bundleName)
 {
     return "system";
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     std::vector<AbilityInfo> abilityInfos;
     ApplicationInfo applicationInfo;
@@ -88,7 +88,7 @@ bool BundleMgrService::GetBundleInfo(
     return true;
 }
 
-bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfo)
+bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo>& formInfo)
 {
     FormInfo form;
     form.abilityName = FORM_PROVIDER_ABILITY_NAME;
@@ -99,12 +99,12 @@ bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfo)
     form.scheduledUpdateTime = "06:06";
     form.jsComponentName = FORM_JS_COMPOMENT_NAME;
     form.formVisibleNotify = true;
-    form.supportDimensions = {1, 2};
+    form.supportDimensions = { 1, 2 };
     form.defaultDimension = 1;
     formInfo.emplace_back(form);
     return true;
 }
-bool BundleMgrService::GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo)
+bool BundleMgrService::GetFormsInfoByApp(const std::string& bundleName, std::vector<FormInfo>& formInfo)
 {
     FormInfo form;
     form.bundleName = bundleName;
@@ -116,15 +116,15 @@ bool BundleMgrService::GetFormsInfoByApp(const std::string &bundleName, std::vec
     form.scheduledUpdateTime = "06:06";
     form.jsComponentName = FORM_JS_COMPOMENT_NAME;
     form.formVisibleNotify = true;
-    form.supportDimensions = {1, 2};
+    form.supportDimensions = { 1, 2 };
     form.defaultDimension = 1;
     formInfo.emplace_back(form);
     return true;
 }
 bool BundleMgrService::GetFormsInfoByModule(
-    const std::string &bundleName,
-    const std::string &moduleName,
-    std::vector<FormInfo> &formInfo)
+    const std::string& bundleName,
+    const std::string& moduleName,
+    std::vector<FormInfo>& formInfo)
 {
     FormInfo form;
     form.bundleName = bundleName;
@@ -136,7 +136,7 @@ bool BundleMgrService::GetFormsInfoByModule(
     form.scheduledUpdateTime = "06:06";
     form.jsComponentName = FORM_JS_COMPOMENT_NAME;
     form.formVisibleNotify = true;
-    form.supportDimensions = {1, 2};
+    form.supportDimensions = { 1, 2 };
     form.defaultDimension = 1;
     formInfo.emplace_back(form);
     return true;

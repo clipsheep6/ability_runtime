@@ -35,7 +35,7 @@ public:
         return true;
     }
 
-    bool OnSaveData(WantParams &saveData)
+    bool OnSaveData(WantParams& saveData)
     {
         GTEST_LOG_(INFO) << "MockContinuationAbility::OnSaveData called";
         return true;

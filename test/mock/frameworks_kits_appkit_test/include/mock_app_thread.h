@@ -26,10 +26,10 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockHandler : public EventHandler {
 public:
-    explicit MockHandler(const std::shared_ptr<EventRunner> &runner);
+    explicit MockHandler(const std::shared_ptr<EventRunner>& runner);
     ~MockHandler()
     {}
-    void ProcessEvent(const InnerEvent::Pointer &event) override;
+    void ProcessEvent(const InnerEvent::Pointer& event) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

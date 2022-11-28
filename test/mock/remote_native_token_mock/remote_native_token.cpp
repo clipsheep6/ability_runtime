@@ -20,7 +20,7 @@ namespace AppExecFwk {
 void RemoteNativeToken::SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[1];
+    const char** perms = new const char* [1];
     perms[0] = "ohos.permission.DISTRIBUTED_DATASYNC"; // system_core
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

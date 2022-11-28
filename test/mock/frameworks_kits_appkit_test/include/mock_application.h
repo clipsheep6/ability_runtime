@@ -26,13 +26,13 @@ public:
     MockModuleLifecycleCallbacks() = default;
     virtual ~MockModuleLifecycleCallbacks() = default;
 
-    void OnAbilityStart(const std::shared_ptr<Ability> &ability);
-    void OnAbilityInactive(const std::shared_ptr<Ability> &ability);
-    void OnAbilityBackground(const std::shared_ptr<Ability> &ability);
-    void OnAbilityForeground(const std::shared_ptr<Ability> &ability);
-    void OnAbilityActive(const std::shared_ptr<Ability> &ability);
-    void OnAbilityStop(const std::shared_ptr<Ability> &ability);
-    void OnAbilitySaveState(const PacMap &outState);
+    void OnAbilityStart(const std::shared_ptr<Ability>& ability);
+    void OnAbilityInactive(const std::shared_ptr<Ability>& ability);
+    void OnAbilityBackground(const std::shared_ptr<Ability>& ability);
+    void OnAbilityForeground(const std::shared_ptr<Ability>& ability);
+    void OnAbilityActive(const std::shared_ptr<Ability>& ability);
+    void OnAbilityStop(const std::shared_ptr<Ability>& ability);
+    void OnAbilitySaveState(const PacMap& outState);
 };
 
 class MockModuleElementsCallback : public ElementsCallback {
@@ -40,7 +40,7 @@ public:
     MockModuleElementsCallback() = default;
     virtual ~MockModuleElementsCallback() = default;
 
-    virtual void OnConfigurationUpdated(const std::shared_ptr<Ability> &ability, const Configuration &config);
+    virtual void OnConfigurationUpdated(const std::shared_ptr<Ability>& ability, const Configuration& config);
 
     virtual void OnMemoryLevel(int level);
 };
@@ -50,7 +50,7 @@ public:
     MockApplication();
     virtual ~MockApplication() = default;
 
-    virtual void OnConfigurationUpdated(const Configuration &config);
+    virtual void OnConfigurationUpdated(const Configuration& config);
     virtual void OnMemoryLevel(int level);
     virtual void OnForeground();
     virtual void OnBackground();

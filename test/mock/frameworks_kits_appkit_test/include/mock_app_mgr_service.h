@@ -28,44 +28,44 @@ namespace AppExecFwk {
 class MockAppMgrService : public AppMgrStub {
 public:
     MOCK_METHOD5(LoadAbility,
-        void(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-            const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-            const std::shared_ptr<AAFwk::Want> &want));
-    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject> &token, bool isClearMissionFlag));
-    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject> &token, const AbilityState state));
+        void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+            const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
+            const std::shared_ptr<AAFwk::Want>& want));
+    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool isClearMissionFlag));
+    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
-    MOCK_METHOD1(GetAppFreezingTime, void(int &time));
+    MOCK_METHOD1(GetAppFreezingTime, void(int& time));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
-    MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo> &bundleInfos));
+    MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(NotifyMemoryLevel, int(int32_t level));
-    MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo> &info, int32_t userId));
-    MOCK_METHOD4(StartUserTestProcess, int(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
-        const BundleInfo &bundleInfo, int32_t userId));
-    MOCK_METHOD3(FinishUserTest, int(const std::string &msg, const int64_t &resultCode,
-        const std::string &bundleName));
-    MOCK_METHOD3(ScheduleAcceptWantDone, void(const int32_t recordId, const AAFwk::Want &want,
-        const std::string &flag));
-    MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>> &tokens));
-    #ifdef ABILITY_COMMAND_FOR_TEST
+    MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
+    MOCK_METHOD4(StartUserTestProcess, int(const AAFwk::Want& want, const sptr<IRemoteObject>& observer,
+        const BundleInfo& bundleInfo, int32_t userId));
+    MOCK_METHOD3(FinishUserTest, int(const std::string& msg, const int64_t& resultCode,
+        const std::string& bundleName));
+    MOCK_METHOD3(ScheduleAcceptWantDone, void(const int32_t recordId, const AAFwk::Want& want,
+        const std::string& flag));
+    MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>>& tokens));
+#ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
-    #endif
+#endif
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD4(StartRenderProcess, int(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid));
-    MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
-    MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int &status));
+    MOCK_METHOD4(StartRenderProcess, int(const std::string& renderParam, int32_t ipcFd,
+        int32_t sharedFd, pid_t& renderPid));
+    MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
+    MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
-    MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration &config));
-    MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
-    MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
-    MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string &bundleName));
-    MOCK_METHOD2(NotifyLoadRepairPatch, int32_t(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback));
-    MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string &bundleName, const sptr<IQuickFixCallback> &callback));
-    MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback));
+    MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
+    MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver>& observer));
+    MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver>& observer));
+    MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string& bundleName));
+    MOCK_METHOD2(NotifyLoadRepairPatch, int32_t(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback));
+    MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string& bundleName, const sptr<IQuickFixCallback>& callback));
+    MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback));
 
-    void AttachApplication(const sptr<IRemoteObject> &app)
+    void AttachApplication(const sptr<IRemoteObject>& app)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AttachApplication called";
         Attached_ = true;
@@ -93,53 +93,53 @@ public:
         Terminated_ = true;
         EXPECT_TRUE(Terminated_);
     }
-    MOCK_METHOD2(CheckPermission, int32_t(const int32_t recordId, const std::string &permission));
+    MOCK_METHOD2(CheckPermission, int32_t(const int32_t recordId, const std::string& permission));
 
-    virtual void AbilityCleaned(const sptr<IRemoteObject> &token)
+    virtual void AbilityCleaned(const sptr<IRemoteObject>& token)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AbilityCleaned called";
         Cleaned_ = true;
         EXPECT_TRUE(Cleaned_);
     }
 
-    MOCK_METHOD1(KillApplication, int(const std::string &appName));
-    MOCK_METHOD2(KillApplicationByUid, int(const std::string &, const int uid));
+    MOCK_METHOD1(KillApplication, int(const std::string& appName));
+    MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
 
     virtual sptr<IAmsMgr> GetAmsMgr() override
     {
         return nullptr;
     };
-    virtual int32_t ClearUpApplicationData(const std::string &appName) override
+    virtual int32_t ClearUpApplicationData(const std::string& appName) override
     {
         return 0;
     }
 
-    int IsBackgroundRunningRestricted(const std::string &appName)
+    int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
     };
-    virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override
+    virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) override
     {
         return 0;
     };
 
-    virtual void RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
+    virtual void RegisterAppStateCallback(const sptr<IAppStateCallback>& callback)
     {
         callback_ = callback;
     }
 
-    int32_t CheckPermissionImpl([[maybe_unused]] const int32_t recordId, const std::string &data)
+    int32_t CheckPermissionImpl([[maybe_unused]] const int32_t recordId, const std::string& data)
     {
         data_ = data;
         return 0;
     }
 
-    void KillApplicationImpl(const std::string &data)
+    void KillApplicationImpl(const std::string& data)
     {
         data_ = data;
     }
 
-    const std::string &GetData() const
+    const std::string& GetData() const
     {
         return data_;
     }
@@ -165,7 +165,7 @@ public:
         callback_->OnAppStateChanged(processData);
     }
 
-    void Terminate(const sptr<IRemoteObject> &token) const
+    void Terminate(const sptr<IRemoteObject>& token) const
     {
         if (!callback_) {
             return;
@@ -181,7 +181,7 @@ public:
         }
     }
 
-    void ScheduleLaunchApplication(const AppLaunchData &lanchdata, const Configuration & config)
+    void ScheduleLaunchApplication(const AppLaunchData& lanchdata, const Configuration& config)
     {
         if (Appthread_ != nullptr) {
             Appthread_->ScheduleLaunchApplication(lanchdata, config);
@@ -216,29 +216,29 @@ public:
         }
     }
 
-    void ScheduleLaunchAbility(const AbilityInfo &abilityinf, const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AAFwk::Want> &want)
+    void ScheduleLaunchAbility(const AbilityInfo& abilityinf, const sptr<IRemoteObject>& token,
+        const std::shared_ptr<AAFwk::Want>& want)
     {
         if (Appthread_ != nullptr) {
             Appthread_->ScheduleLaunchAbility(abilityinf, token, want);
         }
     }
 
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+    void ScheduleCleanAbility(const sptr<IRemoteObject>& token)
     {
         if (Appthread_ != nullptr) {
             Appthread_->ScheduleCleanAbility(token);
         }
     }
 
-    void ScheduleProfileChanged(const Profile &profile)
+    void ScheduleProfileChanged(const Profile& profile)
     {
         if (Appthread_ != nullptr) {
             Appthread_->ScheduleProfileChanged(profile);
         }
     }
 
-    void ScheduleConfigurationUpdated(const Configuration &config)
+    void ScheduleConfigurationUpdated(const Configuration& config)
     {
         if (Appthread_ != nullptr) {
             Appthread_->ScheduleConfigurationUpdated(config);
@@ -280,7 +280,7 @@ public:
         Attached_ = false;
     }
 
-    bool AddDeathRecipient(const sptr<DeathRecipient> &recipient)
+    bool AddDeathRecipient(const sptr<DeathRecipient>& recipient)
     {
         return true;
     }

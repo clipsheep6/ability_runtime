@@ -32,7 +32,7 @@ MockApplication::MockApplication()
     lifecycleCallBack_ = std::make_shared<MockModuleLifecycleCallbacks>();
 }
 
-void MockApplication::OnConfigurationUpdated(const Configuration &config)
+void MockApplication::OnConfigurationUpdated(const Configuration& config)
 {
     GTEST_LOG_(INFO) << "MockApplication::OnConfigurationUpdated called";
     bool iscalled = true;
@@ -141,7 +141,7 @@ void MockApplication::OnTerminate()
 }
 
 void MockModuleElementsCallback::OnConfigurationUpdated(
-    const std::shared_ptr<Ability> &ability, const Configuration &config)
+    const std::shared_ptr<Ability>& ability, const Configuration& config)
 {
     GTEST_LOG_(INFO) << "MockModuleElementsCallback::OnConfigurationUpdated called";
     EXPECT_STREQ(config.GetName().c_str(), "testConfig");
@@ -153,37 +153,37 @@ void MockModuleElementsCallback::OnMemoryLevel(int level)
     EXPECT_EQ(level, NUMBER);
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityStart(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityStart(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityStart called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityInactive(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityInactive called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityBackground(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityBackground(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityBackground called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityForeground(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityForeground(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityForeground called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityActive(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityActive(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityActive called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilityStop(const std::shared_ptr<Ability> &ability)
+void MockModuleLifecycleCallbacks::OnAbilityStop(const std::shared_ptr<Ability>& ability)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilityStop called";
 }
 
-void MockModuleLifecycleCallbacks::OnAbilitySaveState(const PacMap &outState)
+void MockModuleLifecycleCallbacks::OnAbilitySaveState(const PacMap& outState)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilitySaveState called";
 }

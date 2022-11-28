@@ -21,7 +21,7 @@ namespace AppExecFwk {
 void MockNativeToken::SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[5];
+    const char** perms = new const char* [5];
     perms[0] = "ohos.permission.DISTRIBUTED_DATASYNC";
     perms[1] = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
     perms[2] = "ohos.permission.UPDATE_CONFIGURATION";

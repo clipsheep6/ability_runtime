@@ -34,7 +34,7 @@ public:
     MockAbilityToken() = default;
     virtual ~MockAbilityToken() = default;
 
-    virtual int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    virtual int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         return 0;
     }
@@ -45,7 +45,7 @@ private:
 
 class AbilityTokenProxy : public IRemoteProxy<IAbilityToken> {
 public:
-    explicit AbilityTokenProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAbilityToken>(impl)
+    explicit AbilityTokenProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IAbilityToken>(impl)
     {}
 
     virtual ~AbilityTokenProxy() = default;

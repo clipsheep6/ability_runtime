@@ -34,50 +34,50 @@ public:
 
     enum Event { ON_ACTIVE = 0, ON_BACKGROUND, ON_FOREGROUND, ON_INACTIVE, ON_START, ON_STOP, UNDEFINED };
 
-    virtual int OpenFile(const Uri &uri, const std::string &mode)
+    virtual int OpenFile(const Uri& uri, const std::string& mode)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::OpenFile called";
 
         return 1;
     }
 
-    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+    virtual int Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::Insert called";
 
         return 1;
     }
 
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates)
+    virtual int Update(const Uri& uri, const NativeRdb::ValuesBucket& value,
+        const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::Update called";
 
         return 1;
     }
 
-    virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+    virtual int Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::Delete called";
 
         return 1;
     }
 
-    virtual int OpenRawFile(const Uri &uri, const std::string &mode)
+    virtual int OpenRawFile(const Uri& uri, const std::string& mode)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::OpenRawFile called";
 
         return 1;
     }
 
-    virtual bool Reload(const Uri &uri, const PacMap &extras)
+    virtual bool Reload(const Uri& uri, const PacMap& extras)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::Reload called";
 
         return 1;
     }
 
-    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+    virtual int BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::BatchInsert called";
 
@@ -85,7 +85,7 @@ public:
     }
 
     virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+        const Uri& uri, const std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::Query called";
         std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
@@ -93,14 +93,14 @@ public:
         return set;
     }
 
-    virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+    virtual std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::GetFileTypes called";
         value.push_back(mimeTypeFilter);
         return value;
     }
 
-    virtual std::string GetType(const Uri &uri)
+    virtual std::string GetType(const Uri& uri)
     {
         GTEST_LOG_(INFO) << "MockDataAbility::GetType called";
         std::string value("Type1");

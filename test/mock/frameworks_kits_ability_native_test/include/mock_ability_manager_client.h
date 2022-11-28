@@ -49,94 +49,94 @@ public:
 
 class MockAbilityThread : public IRemoteStub<AAFwk::IAbilityScheduler> {
 public:
-    virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) {};
-    virtual void SendResult(int requestCode, int resultCode, const Want &resultWant) {};
-    virtual void ScheduleConnectAbility(const Want &want) {};
-    virtual void ScheduleDisconnectAbility(const Want &want) {};
-    virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) {};
+    virtual void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState) {};
+    virtual void SendResult(int requestCode, int resultCode, const Want& resultWant) {};
+    virtual void ScheduleConnectAbility(const Want& want) {};
+    virtual void ScheduleDisconnectAbility(const Want& want) {};
+    virtual void ScheduleCommandAbility(const Want& want, bool restart, int startId) {};
     virtual void ScheduleSaveAbilityState() {};
-    virtual void ScheduleRestoreAbilityState(const PacMap &inState) {};
-    virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+    virtual void ScheduleRestoreAbilityState(const PacMap& inState) {};
+    virtual std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
     {
         return std::vector<std::string>();
     };
-    virtual int OpenFile(const Uri &uri, const std::string &mode)
+    virtual int OpenFile(const Uri& uri, const std::string& mode)
     {
         return OPENFILENUM;
     };
-    virtual int OpenRawFile(const Uri &uri, const std::string &mode)
+    virtual int OpenRawFile(const Uri& uri, const std::string& mode)
     {
         return OPENRAWFILENUM;
     };
-    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+    virtual int Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
     {
         return INSERTNUM;
     };
     virtual int Update(
-        const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+        const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return UPDATENUM;
     };
-    virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+    virtual int Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return DELETENUM;
     };
     virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+        const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return std::make_shared<NativeRdb::AbsSharedResultSet>("resultset");
     };
     std::shared_ptr<AppExecFwk::PacMap> Call(
-        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+        const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
     {
         return nullptr;
     }
-    virtual std::string GetType(const Uri &uri)
+    virtual std::string GetType(const Uri& uri)
     {
         return std::string("Type1");
     };
-    virtual bool Reload(const Uri &uri, const PacMap &extras)
+    virtual bool Reload(const Uri& uri, const PacMap& extras)
     {
         return true;
     };
-    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+    virtual int BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
     {
         return BATCHINSERTNUM;
     };
-    virtual bool ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+    virtual bool ScheduleRegisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
     {
         return true;
     };
-    virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+    virtual bool ScheduleUnregisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
     {
         return true;
     };
-    virtual bool ScheduleNotifyChange(const Uri &uri)
+    virtual bool ScheduleNotifyChange(const Uri& uri)
     {
         return true;
     };
-    virtual Uri NormalizeUri(const Uri &uri)
+    virtual Uri NormalizeUri(const Uri& uri)
     {
         return Uri("dataability:///test.aaa");
     };
-    virtual Uri DenormalizeUri(const Uri &uri)
+    virtual Uri DenormalizeUri(const Uri& uri)
     {
         return Uri("dataability:///test.aaa");
     };
     virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
-        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>>& operations)
     {
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     };
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility()
     {
         return 0;
     };
-    #endif
+#endif
     virtual void NotifyContinuationResult(int32_t result) {};
     virtual void ContinueAbility(const std::string& deviceId, uint32_t versionCode) {};
-    virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) {};
+    virtual void DumpAbilityInfo(const std::vector<std::string>& params, std::vector<std::string>& info) {};
     virtual sptr<IRemoteObject> CallRequest()
     {
         return sptr<IRemoteObject>(nullptr);

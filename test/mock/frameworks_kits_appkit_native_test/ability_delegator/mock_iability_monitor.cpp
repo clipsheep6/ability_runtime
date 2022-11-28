@@ -22,7 +22,7 @@ const std::string ABILITY_NAME = "com.example.myapplication.MainAbility";
 
 namespace OHOS {
 namespace AppExecFwk {
-MockIabilityMonitor::MockIabilityMonitor(const std::string &abilityName) : IAbilityMonitor(abilityName)
+MockIabilityMonitor::MockIabilityMonitor(const std::string& abilityName) : IAbilityMonitor(abilityName)
 {
     start_ = false;
     foreground_ = false;
@@ -33,49 +33,49 @@ MockIabilityMonitor::MockIabilityMonitor(const std::string &abilityName) : IAbil
     windowStageDestroy_ = false;
 }
 
-void MockIabilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnAbilityStart is called");
     start_ = true;
 }
 
-void MockIabilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnAbilityForeground is called");
     foreground_ = true;
 }
 
-void MockIabilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnAbilityBackground is called");
     background_ = true;
 }
 
-void MockIabilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnAbilityStop is called");
     stop_ = true;
 }
 
-void MockIabilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnWindowStageCreate is called");
     windowStageCreate_ = true;
 }
 
-void MockIabilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnWindowStageRestore is called");
     windowStageRestore_ = true;
 }
 
-void MockIabilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+void MockIabilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference>& abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnWindowStageDestroy is called");
     windowStageDestroy_ = true;
 }
 
-bool MockIabilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ability, bool isNotify)
+bool MockIabilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty>& ability, bool isNotify)
 {
     HILOG_INFO("MockIabilityMonitor::Match is called");
 

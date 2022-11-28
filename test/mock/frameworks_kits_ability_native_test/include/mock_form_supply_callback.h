@@ -36,7 +36,7 @@ public:
      * @param providerFormInfo providerFormInfo
      * @param want data
      */
-    int OnAcquire(const FormProviderInfo &formInfo, const Want& want) override;
+    int OnAcquire(const FormProviderInfo& formInfo, const Want& want) override;
 
     /**
      * onEventHandle
@@ -53,11 +53,11 @@ public:
      * @param wantArg The want of onAcquireFormState.
      * @param want input data
      */
-    int OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
-                                     const Want &want) override;
+    int OnAcquireStateResult(FormState state, const std::string& provider, const Want& wantArg,
+        const Want& want) override;
 
-    void OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
-        const AAFwk::WantParams &wantParams, int64_t requestCode, const bool &result) override;
+    void OnShareAcquire(int64_t formId, const std::string& remoteDeviceId,
+        const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result) override;
 
 private:
     static std::mutex mutex;

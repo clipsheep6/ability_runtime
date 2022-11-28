@@ -21,9 +21,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
-    std::shared_ptr<ContextDeal> &contextDeal)
+void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std::shared_ptr<AbilityLocalRecord>& record,
+    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token,
+    std::shared_ptr<ContextDeal>& contextDeal)
 {
     HILOG_INFO("AbilityImpl::init begin");
 
@@ -67,7 +67,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     HILOG_INFO("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want &want)
+void AbilityImpl::Start(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Start called";
 }
@@ -92,28 +92,28 @@ void AbilityImpl::DispatchSaveAbilityState()
     GTEST_LOG_(INFO) << "Mock AbilityImpl::DispatchSaveAbilityState called";
 }
 
-void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
+void AbilityImpl::DispatchRestoreAbilityState(const PacMap& inState)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::DispatchRestoreAbilityState called";
 }
 
-void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void AbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::HandleAbilityTransaction called";
 }
 
-sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
+sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::ConnectAbility called";
     return nullptr;
 }
 
-void AbilityImpl::DisconnectAbility(const Want &want)
+void AbilityImpl::DisconnectAbility(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::DisconnectAbility called";
 }
 
-void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
+void AbilityImpl::CommandAbility(const Want& want, bool restart, int startId)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::CommandAbility called";
 }
@@ -123,12 +123,12 @@ int AbilityImpl::GetCurrentState()
     return lifecycleState_;
 }
 
-void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
+void AbilityImpl::SendResult(int requestCode, int resultCode, const Want& resultData)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::SendResult called";
 }
 
-void AbilityImpl::NewWant(const Want &want)
+void AbilityImpl::NewWant(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::NewWant called";
     if (ability_ == nullptr) {
@@ -142,7 +142,7 @@ void AbilityImpl::NewWant(const Want &want)
 #endif
 }
 
-std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> AbilityImpl::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     std::vector<std::string> value;
     value.push_back(mimeTypeFilter);
@@ -150,46 +150,46 @@ std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::st
     return value;
 }
 
-int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
+int AbilityImpl::OpenFile(const Uri& uri, const std::string& mode)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::OpenFile called";
     return 1;
 }
 
-int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int AbilityImpl::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Insert called";
     return 1;
 }
 
-int AbilityImpl::Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-    const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityImpl::Update(const Uri& uri, const NativeRdb::ValuesBucket& value,
+    const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Update called";
     return 1;
 }
 
-int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityImpl::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Delete called";
     return 1;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Query called";
     return nullptr;
 }
 
-std::string AbilityImpl::GetType(const Uri &uri)
+std::string AbilityImpl::GetType(const Uri& uri)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::GetType called";
     return "";
 }
 
 #ifdef SUPPORT_GRAPHICS
-void AbilityImpl::Foreground(const Want &want)
+void AbilityImpl::Foreground(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Foreground called";
 }

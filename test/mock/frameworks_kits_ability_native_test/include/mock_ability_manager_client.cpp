@@ -42,67 +42,67 @@ AbilityManagerClient::~AbilityManagerClient()
 {}
 
 ErrCode AbilityManagerClient::AttachAbilityThread(
-    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
+    const sptr<IAbilityScheduler>& scheduler, const sptr<IRemoteObject>& token)
 {
     GTEST_LOG_(INFO) << "Mock AbilityManagerClient::AttachAbilityThread called";
     return -1;
 }
 
-ErrCode AbilityManagerClient::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
+ErrCode AbilityManagerClient::AbilityTransitionDone(const sptr<IRemoteObject>& token, int state, const PacMap& saveData)
 {
     return -1;
 }
 
 ErrCode AbilityManagerClient::ScheduleConnectAbilityDone(
-    const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject)
+    const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject> &token)
+ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>& token)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token)
+ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObject>& token)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, int32_t userId)
+ErrCode AbilityManagerClient::StartAbility(const Want& want, int requestCode, int32_t userId)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
+ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& callerToken, int requestCode)
 {
     GTEST_LOG_(INFO) << "Mock AbilityManagerClient::TerminateAbility called";
     return -1;
 }
 
-ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
+ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
 {
     return -1;
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken, int32_t userId)
 {
     return -1;
 }
 
-ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection> &connect)
+ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection>& connect)
 {
     return -1;
 }
 
 sptr<IAbilityScheduler> AbilityManagerClient::AcquireDataAbility(
-    const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
+    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
 {
     GTEST_LOG_(INFO) << "Mock AcquireDataAbility called";
     sptr<IAbilityScheduler> dataScheduler = new (std::nothrow) OHOS::AppExecFwk::MockAbilityThread();
@@ -110,13 +110,13 @@ sptr<IAbilityScheduler> AbilityManagerClient::AcquireDataAbility(
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
 {
     GTEST_LOG_(INFO) << "Mock ReleaseDataAbility called";
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::DumpState(const std::string &args, std::vector<std::string> &state)
+ErrCode AbilityManagerClient::DumpState(const std::string& args, std::vector<std::string>& state)
 {
     return -1;
 }
@@ -126,7 +126,7 @@ ErrCode AbilityManagerClient::Connect()
     return -1;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want &want)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want& want)
 {
     return -1;
 }

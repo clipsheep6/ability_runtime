@@ -38,7 +38,7 @@ sptr<MockFormSupplyCallback> MockFormSupplyCallback::GetInstance()
  * @param formInfo Form Provider Info.
  * @param want data
  */
-int MockFormSupplyCallback::OnAcquire(const FormProviderInfo &formProviderInfo, const Want& want)
+int MockFormSupplyCallback::OnAcquire(const FormProviderInfo& formProviderInfo, const Want& want)
 {
     HILOG_INFO("MockFormSupplyCallback::OnAcquire called.");
     return 1;
@@ -64,15 +64,15 @@ int MockFormSupplyCallback::OnEventHandle(const Want& want)
  * @param wantArg The want of onAcquireFormState.
  * @param want input data
  */
-int MockFormSupplyCallback::OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
-                                                 const Want &want)
+int MockFormSupplyCallback::OnAcquireStateResult(FormState state, const std::string& provider, const Want& wantArg,
+    const Want& want)
 {
     HILOG_INFO("MockFormSupplyCallback::OnAcquireStateResult called.");
     return 1;
 }
 
-void MockFormSupplyCallback::OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
-    const AAFwk::WantParams &wantParams, int64_t requestCode, const bool &result)
+void MockFormSupplyCallback::OnShareAcquire(int64_t formId, const std::string& remoteDeviceId,
+    const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result)
 {
     HILOG_INFO("MockFormSupplyCallback::OnShareAcquire called.");
 }

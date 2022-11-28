@@ -28,7 +28,7 @@ public:
     AbilityTest() = default;
     virtual ~AbilityTest() = default;
 
-    MOCK_METHOD1(OnConfigurationUpdated, void(const Configuration &));
+    MOCK_METHOD1(OnConfigurationUpdated, void(const Configuration&));
 
     static std::shared_ptr<AbilityTest> GetInstance()
     {

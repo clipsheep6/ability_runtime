@@ -30,36 +30,36 @@ public:
     MockAbilitySchedulerStub() = default;
     virtual ~MockAbilitySchedulerStub() = default;
 
-    MOCK_METHOD2(ScheduleAbilityTransaction, void(const AAFwk::Want &, const AAFwk::LifeCycleStateInfo &));
-    MOCK_METHOD3(SendResult, void(int, int, const AAFwk::Want &));
-    MOCK_METHOD1(ScheduleConnectAbility, void(const AAFwk::Want &));
-    MOCK_METHOD1(ScheduleDisconnectAbility, void(const AAFwk::Want &));
-    MOCK_METHOD3(ScheduleCommandAbility, void(const AAFwk::Want &, bool, int));
+    MOCK_METHOD2(ScheduleAbilityTransaction, void(const AAFwk::Want&, const AAFwk::LifeCycleStateInfo&));
+    MOCK_METHOD3(SendResult, void(int, int, const AAFwk::Want&));
+    MOCK_METHOD1(ScheduleConnectAbility, void(const AAFwk::Want&));
+    MOCK_METHOD1(ScheduleDisconnectAbility, void(const AAFwk::Want&));
+    MOCK_METHOD3(ScheduleCommandAbility, void(const AAFwk::Want&, bool, int));
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
-    MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap &));
-    MOCK_METHOD1(ScheduleUpdateConfiguration, void(const AppExecFwk::Configuration &));
-    MOCK_METHOD2(GetFileTypes, std::vector<std::string>(const Uri &, const std::string &));
-    MOCK_METHOD2(OpenFile, int(const Uri &, const std::string &));
-    MOCK_METHOD2(OpenRawFile, int(const Uri &, const std::string &));
-    MOCK_METHOD2(Insert, int(const Uri &, const NativeRdb::ValuesBucket &));
-    MOCK_METHOD3(Update, int(const Uri &, const NativeRdb::ValuesBucket &, const NativeRdb::DataAbilityPredicates &));
-    MOCK_METHOD2(Delete, int(const Uri &, const NativeRdb::DataAbilityPredicates &));
-    MOCK_METHOD3(Query, std::shared_ptr<NativeRdb::AbsSharedResultSet>(const Uri &,
-        std::vector<std::string> &, const NativeRdb::DataAbilityPredicates &));
-    MOCK_METHOD4(Call, std::shared_ptr<PacMap>(const Uri &, const std::string &, const std::string &, const PacMap &));
-    MOCK_METHOD1(GetType, std::string(const Uri &));
-    MOCK_METHOD2(Reload, bool(const Uri &, const PacMap &));
-    MOCK_METHOD2(BatchInsert, int(const Uri &, const std::vector<NativeRdb::ValuesBucket> &));
-    MOCK_METHOD1(DenormalizeUri, Uri(const Uri &));
-    MOCK_METHOD1(NormalizeUri, Uri(const Uri &));
-    MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver));
-    MOCK_METHOD2(ScheduleUnregisterObserver, bool(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver));
-    MOCK_METHOD1(ScheduleNotifyChange, bool(const Uri &uri));
+    MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap&));
+    MOCK_METHOD1(ScheduleUpdateConfiguration, void(const AppExecFwk::Configuration&));
+    MOCK_METHOD2(GetFileTypes, std::vector<std::string>(const Uri&, const std::string&));
+    MOCK_METHOD2(OpenFile, int(const Uri&, const std::string&));
+    MOCK_METHOD2(OpenRawFile, int(const Uri&, const std::string&));
+    MOCK_METHOD2(Insert, int(const Uri&, const NativeRdb::ValuesBucket&));
+    MOCK_METHOD3(Update, int(const Uri&, const NativeRdb::ValuesBucket&, const NativeRdb::DataAbilityPredicates&));
+    MOCK_METHOD2(Delete, int(const Uri&, const NativeRdb::DataAbilityPredicates&));
+    MOCK_METHOD3(Query, std::shared_ptr<NativeRdb::AbsSharedResultSet>(const Uri&,
+        std::vector<std::string>&, const NativeRdb::DataAbilityPredicates&));
+    MOCK_METHOD4(Call, std::shared_ptr<PacMap>(const Uri&, const std::string&, const std::string&, const PacMap&));
+    MOCK_METHOD1(GetType, std::string(const Uri&));
+    MOCK_METHOD2(Reload, bool(const Uri&, const PacMap&));
+    MOCK_METHOD2(BatchInsert, int(const Uri&, const std::vector<NativeRdb::ValuesBucket>&));
+    MOCK_METHOD1(DenormalizeUri, Uri(const Uri&));
+    MOCK_METHOD1(NormalizeUri, Uri(const Uri&));
+    MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
+    MOCK_METHOD2(ScheduleUnregisterObserver, bool(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
+    MOCK_METHOD1(ScheduleNotifyChange, bool(const Uri& uri));
     MOCK_METHOD1(ExecuteBatch, std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>(
-        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operation));
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>>& operation));
     MOCK_METHOD1(NotifyContinuationResult, void(int32_t result));
     MOCK_METHOD2(ContinueAbility, void(const std::string& deviceId, uint32_t versionCode));
-    MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string> &params, std::vector<std::string> &info));
+    MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string>& params, std::vector<std::string>& info));
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() override
     {

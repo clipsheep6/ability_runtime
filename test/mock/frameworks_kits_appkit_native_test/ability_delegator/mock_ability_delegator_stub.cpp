@@ -26,28 +26,28 @@ bool MockAbilityDelegatorStub::finishFlag_ = false;
 MockAbilityDelegatorStub::MockAbilityDelegatorStub()
 {}
 
-int MockAbilityDelegatorStub::StartAbility(const Want &want, int32_t userId, int requestCode)
+int MockAbilityDelegatorStub::StartAbility(const Want& want, int32_t userId, int requestCode)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+int MockAbilityDelegatorStub::CloseAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+int MockAbilityDelegatorStub::StartAbility(const Want& want, const StartOptions& startOptions,
+    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
+int MockAbilityDelegatorStub::MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser)
 {
     return 0;
 }
 
-void MockAbilityDelegatorStub::DumpState(const std::string &args, std::vector<std::string> &state)
+void MockAbilityDelegatorStub::DumpState(const std::string& args, std::vector<std::string>& state)
 {
     return;
 }
@@ -57,7 +57,7 @@ int MockAbilityDelegatorStub::StartUser(int userId)
     return 0;
 }
 
-int MockAbilityDelegatorStub::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int MockAbilityDelegatorStub::StopUser(int userId, const sptr<IStopUserCallback>& callback)
 {
     return 0;
 }
@@ -72,26 +72,26 @@ int MockAbilityDelegatorStub::StopSyncRemoteMissions(const std::string& devId)
     return 0;
 }
 
-int MockAbilityDelegatorStub::RegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
+int MockAbilityDelegatorStub::RegisterMissionListener(const std::string& deviceId,
+    const sptr<IRemoteMissionListener>& listener)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::UnRegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
+int MockAbilityDelegatorStub::UnRegisterMissionListener(const std::string& deviceId,
+    const sptr<IRemoteMissionListener>& listener)
 {
     return 0;
 }
 
 int MockAbilityDelegatorStub::StartAbilityByCall(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element)
+int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection>& connect,
+    const AppExecFwk::ElementName& element)
 {
     return 0;
 }
@@ -117,7 +117,7 @@ int MockAbilityDelegatorStub::SendANRProcessID(int pid)
     return 0;
 }
 
-int MockAbilityDelegatorStub::SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+int MockAbilityDelegatorStub::SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
     bool imAStabilityTest)
 {
     return 0;
@@ -134,7 +134,7 @@ void MockAbilityDelegatorStub::DumpSysState(
     return;
 }
 
-int MockAbilityDelegatorStub::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer)
+int MockAbilityDelegatorStub::StartUserTest(const Want& want, const sptr<IRemoteObject>& observer)
 {
     if (want.GetStringParam("-p") == STRING_BUNDLENAME_EX) {
         return ERR_INVALID_VALUE;
@@ -142,49 +142,49 @@ int MockAbilityDelegatorStub::StartUserTest(const Want &want, const sptr<IRemote
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::StopServiceAbility(const Want &want, int32_t userId)
+int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userId)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::GetTopAbility(sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub::GetTopAbility(sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub::GetTopAbility is called");
     token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub::DelegatorDoAbilityForeground is called");
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub::DelegatorDoAbilityBackground is called");
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::FinishUserTest(const std::string &msg,
-    const int64_t &resultCode, const std::string &bundleName)
+int MockAbilityDelegatorStub::FinishUserTest(const std::string& msg,
+    const int64_t& resultCode, const std::string& bundleName)
 {
     HILOG_INFO("MockAbilityDelegatorStub::FinishUserTest is called");
     finishFlag_ = true;
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
+int MockAbilityDelegatorStub::DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
+int MockAbilityDelegatorStub::DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag)
 {
     return 0;
 }
 
-int32_t MockAbilityDelegatorStub::GetMissionIdByToken(const sptr<IRemoteObject> &token)
+int32_t MockAbilityDelegatorStub::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
 }
@@ -209,33 +209,33 @@ bool MockAbilityDelegatorStub2::finishFlag_ = false;
 MockAbilityDelegatorStub2::MockAbilityDelegatorStub2()
 {}
 
-int MockAbilityDelegatorStub2::StartAbility(const Want &want, int32_t userId, int requestCode)
+int MockAbilityDelegatorStub2::StartAbility(const Want& want, int32_t userId, int requestCode)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+int MockAbilityDelegatorStub2::StartAbility(const Want& want, const StartOptions& startOptions,
+    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+int MockAbilityDelegatorStub2::CloseAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
+int MockAbilityDelegatorStub2::MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser)
 {
     return 0;
 }
 
-void MockAbilityDelegatorStub2::DumpState(const std::string &args, std::vector<std::string> &state)
+void MockAbilityDelegatorStub2::DumpState(const std::string& args, std::vector<std::string>& state)
 {
     return;
 }
 
-int MockAbilityDelegatorStub2::StopServiceAbility(const Want &want, int32_t userId)
+int MockAbilityDelegatorStub2::StopServiceAbility(const Want& want, int32_t userId)
 {
     return 0;
 }
@@ -245,7 +245,7 @@ int MockAbilityDelegatorStub2::StartUser(int userId)
     return 0;
 }
 
-int MockAbilityDelegatorStub2::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int MockAbilityDelegatorStub2::StopUser(int userId, const sptr<IStopUserCallback>& callback)
 {
     return 0;
 }
@@ -260,25 +260,25 @@ int MockAbilityDelegatorStub2::StopSyncRemoteMissions(const std::string& devId)
     return 0;
 }
 
-int MockAbilityDelegatorStub2::RegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
+int MockAbilityDelegatorStub2::RegisterMissionListener(const std::string& deviceId,
+    const sptr<IRemoteMissionListener>& listener)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::UnRegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
+int MockAbilityDelegatorStub2::UnRegisterMissionListener(const std::string& deviceId,
+    const sptr<IRemoteMissionListener>& listener)
 {
     return 0;
 }
 
 int MockAbilityDelegatorStub2::StartAbilityByCall(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
 {
     return 0;
 }
-int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element)
+int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection>& connect,
+    const AppExecFwk::ElementName& element)
 {
     return 0;
 }
@@ -304,7 +304,7 @@ int MockAbilityDelegatorStub2::SendANRProcessID(int pid)
     return 0;
 }
 
-int MockAbilityDelegatorStub2::SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+int MockAbilityDelegatorStub2::SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
     bool imAStabilityTest)
 {
     return 0;
@@ -321,7 +321,7 @@ void MockAbilityDelegatorStub2::DumpSysState(
     return;
 }
 
-int MockAbilityDelegatorStub2::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer)
+int MockAbilityDelegatorStub2::StartUserTest(const Want& want, const sptr<IRemoteObject>& observer)
 {
     if (want.GetStringParam("-p") == STRING_BUNDLENAME_EX) {
         return ERR_INVALID_VALUE;
@@ -329,43 +329,43 @@ int MockAbilityDelegatorStub2::StartUserTest(const Want &want, const sptr<IRemot
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub2::GetTopAbility is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
-int MockAbilityDelegatorStub2::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub2::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub2::DelegatorDoAbilityForeground is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
-int MockAbilityDelegatorStub2::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
+int MockAbilityDelegatorStub2::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub2::DelegatorDoAbilityBackground is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
-int MockAbilityDelegatorStub2::FinishUserTest(const std::string &msg,
-    const int64_t &resultCode, const std::string &bundleName)
+int MockAbilityDelegatorStub2::FinishUserTest(const std::string& msg,
+    const int64_t& resultCode, const std::string& bundleName)
 {
     HILOG_INFO("MockAbilityDelegatorStub2::FinishUserTest is called");
     finishFlag_ = false;
     return OHOS::ERR_INVALID_VALUE;
 }
 
-int MockAbilityDelegatorStub2::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
+int MockAbilityDelegatorStub2::DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
+int MockAbilityDelegatorStub2::DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag)
 {
     return 0;
 }
 
-int32_t MockAbilityDelegatorStub2::GetMissionIdByToken(const sptr<IRemoteObject> &token)
+int32_t MockAbilityDelegatorStub2::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
 }
@@ -386,12 +386,12 @@ int MockAbilityDelegatorStub2::BlockAppService()
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
-int MockAbilityDelegatorStub::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+int MockAbilityDelegatorStub::ForceTimeoutForTest(const std::string& abilityName, const std::string& state)
 {
     return 0;
 }
 
-int MockAbilityDelegatorStub2::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+int MockAbilityDelegatorStub2::ForceTimeoutForTest(const std::string& abilityName, const std::string& state)
 {
     return 0;
 }
@@ -399,7 +399,7 @@ int MockAbilityDelegatorStub2::ForceTimeoutForTest(const std::string &abilityNam
 
 #ifdef SUPPORT_GRAPHICS
 int MockAbilityDelegatorStub::SetMissionIcon(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+    const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon)
 {
     return 0;
 }
@@ -410,7 +410,7 @@ int MockAbilityDelegatorStub::RegisterWindowManagerServiceHandler(const sptr<IWi
 }
 
 int MockAbilityDelegatorStub2::SetMissionIcon(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+    const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon)
 {
     return 0;
 }

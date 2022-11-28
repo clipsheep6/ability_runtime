@@ -59,7 +59,7 @@ public:
      *
      * @param want Indicates the startup information.
      */
-    virtual void OnStart(const Want &want)
+    virtual void OnStart(const Want& want)
     {
         (void)want;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStart called";
@@ -83,7 +83,7 @@ public:
      * @param event Indicates the lifecycle event.
      * @param want Indicates the state change information.
      */
-    virtual void OnStateChanged(LifeCycle::Event event, const Want &want)
+    virtual void OnStateChanged(LifeCycle::Event event, const Want& want)
     {
         (void)event;
         (void)want;
@@ -123,7 +123,7 @@ public:
      *
      * @param want Indicates the information for the ability or ability slice to go back to the ACTIVE state.
      */
-    virtual void OnForeground(const Want &want)
+    virtual void OnForeground(const Want& want)
     {
         (void)want;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnForeground called";

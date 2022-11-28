@@ -33,15 +33,15 @@ public:
 
     void OnBackground() override;
 
-    void OnForeground(const Want &want) override;
+    void OnForeground(const Want& want) override;
 
     void OnInactive() override;
 
-    void OnStart(const Want &want) override;
+    void OnStart(const Want& want) override;
 
     void OnStop() override;
 
-    void OnStateChanged(LifeCycle::Event event, const Want &want) override;
+    void OnStateChanged(LifeCycle::Event event, const Want& want) override;
 
     void OnStateChanged(LifeCycle::Event event) override;
 };

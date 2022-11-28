@@ -53,7 +53,7 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
     info->name = std::string("MockAbilityTest");
     info->type = AbilityType::DATA;
     info->isNativeAbility = true;
-    std::cout << "info->name : " << (*info).name <<std::endl;
+    std::cout << "info->name : " << (*info).name << std::endl;
 
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new AbilityThread());
 
