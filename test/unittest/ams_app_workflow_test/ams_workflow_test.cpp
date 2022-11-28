@@ -34,11 +34,11 @@ namespace OHOS {
 namespace AppExecFwk {
 struct TestApplicationPreRecord {
     TestApplicationPreRecord(
-        const std::shared_ptr<AppRunningRecord> &appRecord, const sptr<MockAppScheduler> &mockAppScheduler)
+        const std::shared_ptr<AppRunningRecord>& appRecord, const sptr<MockAppScheduler>& mockAppScheduler)
         : appRecord_(appRecord), mockAppScheduler_(mockAppScheduler)
     {}
 
-    std::shared_ptr<AbilityRunningRecord> GetAbility(const sptr<IRemoteObject> &token) const
+    std::shared_ptr<AbilityRunningRecord> GetAbility(const sptr<IRemoteObject>& token) const
     {
         return appRecord_->GetAbilityRunningRecordByToken(token);
     }
@@ -59,11 +59,11 @@ public:
     void TearDown();
 
 protected:
-    std::shared_ptr<AbilityInfo> CreateAbilityInfo(const std::string &ability, const std::string &app) const;
-    std::shared_ptr<ApplicationInfo> CreateApplication(const std::string &app) const;
-    sptr<MockAppScheduler> AddApplicationClient(const std::shared_ptr<AppRunningRecord> &appRecord) const;
-    TestApplicationPreRecord CreateTestApplicationRecord(const std::string &ability, const sptr<IRemoteObject> &token,
-        const std::string &app, const AbilityState abilityState, const ApplicationState appState) const;
+    std::shared_ptr<AbilityInfo> CreateAbilityInfo(const std::string& ability, const std::string& app) const;
+    std::shared_ptr<ApplicationInfo> CreateApplication(const std::string& app) const;
+    sptr<MockAppScheduler> AddApplicationClient(const std::shared_ptr<AppRunningRecord>& appRecord) const;
+    TestApplicationPreRecord CreateTestApplicationRecord(const std::string& ability, const sptr<IRemoteObject>& token,
+        const std::string& app, const AbilityState abilityState, const ApplicationState appState) const;
 
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_;
@@ -91,7 +91,7 @@ void AmsWorkFlowTest::TearDown()
 }
 
 std::shared_ptr<AbilityInfo> AmsWorkFlowTest::CreateAbilityInfo(
-    const std::string &ability, const std::string &app) const
+    const std::string& ability, const std::string& app) const
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->visible = true;
@@ -102,7 +102,7 @@ std::shared_ptr<AbilityInfo> AmsWorkFlowTest::CreateAbilityInfo(
     return abilityInfo;
 }
 
-std::shared_ptr<ApplicationInfo> AmsWorkFlowTest::CreateApplication(const std::string &app) const
+std::shared_ptr<ApplicationInfo> AmsWorkFlowTest::CreateApplication(const std::string& app) const
 {
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = "test_app" + app;
@@ -111,7 +111,7 @@ std::shared_ptr<ApplicationInfo> AmsWorkFlowTest::CreateApplication(const std::s
     return appInfo;
 }
 
-sptr<MockAppScheduler> AmsWorkFlowTest::AddApplicationClient(const std::shared_ptr<AppRunningRecord> &appRecord) const
+sptr<MockAppScheduler> AmsWorkFlowTest::AddApplicationClient(const std::shared_ptr<AppRunningRecord>& appRecord) const
 {
     if (appRecord->GetApplicationClient()) {
         return nullptr;
@@ -123,8 +123,8 @@ sptr<MockAppScheduler> AmsWorkFlowTest::AddApplicationClient(const std::shared_p
 }
 
 // create one application that include one ability, and set state
-TestApplicationPreRecord AmsWorkFlowTest::CreateTestApplicationRecord(const std::string &ability,
-    const sptr<IRemoteObject> &token, const std::string &app, const AbilityState abilityState,
+TestApplicationPreRecord AmsWorkFlowTest::CreateTestApplicationRecord(const std::string& ability,
+    const sptr<IRemoteObject>& token, const std::string& app, const AbilityState abilityState,
     const ApplicationState appState) const
 {
     auto abilityInfo = CreateAbilityInfo(ability, app);

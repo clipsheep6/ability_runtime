@@ -42,14 +42,14 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName,
-        const std::string &moduleName, bool mode);
-    ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
-    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
+    AbilityInfo CreateAbilityInfo(const std::string& name, const std::string& appName, const std::string& bundleName,
+        const std::string& moduleName, bool mode);
+    ApplicationInfo CreateAppInfo(const std::string& appName, const std::string& name);
+    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
 };
 
-AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(const std::string &name, const std::string &appName,
-    const std::string &bundleName, const std::string &moduleName, bool mode)
+AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(const std::string& name, const std::string& appName,
+    const std::string& bundleName, const std::string& moduleName, bool mode)
 {
     AbilityInfo abilityInfo;
     abilityInfo.visible = true;
@@ -72,7 +72,7 @@ AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(const std::string &name, cons
     return abilityInfo;
 }
 
-ApplicationInfo OnNewWantModuleTest::CreateAppInfo(const std::string &appName, const std::string &bundleName)
+ApplicationInfo OnNewWantModuleTest::CreateAppInfo(const std::string& appName, const std::string& bundleName)
 {
     ApplicationInfo appInfo;
     appInfo.name = appName;

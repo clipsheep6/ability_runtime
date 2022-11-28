@@ -31,29 +31,29 @@ public:
     {}
 
     MOCK_METHOD5(LoadAbility,
-        void(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-            const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-            const std::shared_ptr<AAFwk::Want> &want));
-    MOCK_METHOD2(AttachApplication, void(const pid_t pid, const sptr<IAppScheduler> &app));
+        void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+            const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
+            const std::shared_ptr<AAFwk::Want>& want));
+    MOCK_METHOD2(AttachApplication, void(const pid_t pid, const sptr<IAppScheduler>& app));
     MOCK_METHOD1(ApplicationForegrounded, void(const int32_t recordId));
     MOCK_METHOD1(ApplicationBackgrounded, void(const int32_t recordId));
     MOCK_METHOD1(ApplicationTerminated, void(const int32_t recordId));
-    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject> &token, const AbilityState state));
-    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject> &token, bool clearMissionFlag));
-    MOCK_METHOD1(KillApplication, int32_t(const std::string &bundleName));
-    MOCK_METHOD2(KillApplicationByUid, int(const std::string &, const int uid));
-    MOCK_METHOD1(AbilityTerminated, void(const sptr<IRemoteObject> &token));
-    MOCK_METHOD3(ClearUpApplicationData, void(const std::string &, const int32_t, const pid_t));
-    MOCK_METHOD1(IsBackgroundRunningRestricted, int32_t(const std::string &));
-    MOCK_METHOD1(GetAllRunningProcesses, int32_t(std::vector<RunningProcessInfo> &));
-    MOCK_METHOD1(RegisterAppStateCallback, void(const sptr<IAppStateCallback> &callback));
+    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool clearMissionFlag));
+    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
+    MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
+    MOCK_METHOD1(AbilityTerminated, void(const sptr<IRemoteObject>& token));
+    MOCK_METHOD3(ClearUpApplicationData, void(const std::string&, const int32_t, const pid_t));
+    MOCK_METHOD1(IsBackgroundRunningRestricted, int32_t(const std::string&));
+    MOCK_METHOD1(GetAllRunningProcesses, int32_t(std::vector<RunningProcessInfo>&));
+    MOCK_METHOD1(RegisterAppStateCallback, void(const sptr<IAppStateCallback>& callback));
     MOCK_METHOD0(StopAllProcess, void());
     MOCK_CONST_METHOD0(QueryAppSpawnConnectionState, SpawnConnectionState());
-    MOCK_CONST_METHOD2(AddAppDeathRecipient, void(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient));
-    MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject> &token));
+    MOCK_CONST_METHOD2(AddAppDeathRecipient, void(const pid_t pid, const sptr<AppDeathRecipient>& appDeathRecipient));
+    MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, void(int32_t userId));
     MOCK_METHOD5(AbilityBehaviorAnalysis,
-        void(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken, const int32_t visibility,
+        void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken, const int32_t visibility,
             const int32_t perceptibility, const int32_t connectionState));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());

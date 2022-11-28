@@ -54,34 +54,34 @@ public:
     {}
     void ScheduleMemoryLevel(const int) override
     {}
-    void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) override
+    void ScheduleLaunchApplication(const AppLaunchData&, const Configuration&) override
     {}
-    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &) override
+    void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&) override
     {}
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
     {}
-    void ScheduleProfileChanged(const Profile &) override
+    void ScheduleProfileChanged(const Profile&) override
     {}
-    void ScheduleConfigurationUpdated(const Configuration &) override
+    void ScheduleConfigurationUpdated(const Configuration&) override
     {}
     void ScheduleProcessSecurityExit() override
     {}
-    void ScheduleAbilityStage(const HapModuleInfo &) override
+    void ScheduleAbilityStage(const HapModuleInfo&) override
     {}
-    void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override
+    void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
     {}
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }
-    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }
@@ -94,9 +94,9 @@ public:
     void TearDown();
 
 protected:
-    inline static std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_ {nullptr};
-    inline static std::shared_ptr<AppMgrService> appMgrService_ {nullptr};
-    inline static sptr<IRemoteObject> testRemoteObject_ {nullptr};
+    inline static std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_{ nullptr };
+    inline static std::shared_ptr<AppMgrService> appMgrService_{ nullptr };
+    inline static sptr<IRemoteObject> testRemoteObject_{ nullptr };
 };
 
 void AppMgrServiceModuleTest::SetUpTestCase()
@@ -116,7 +116,7 @@ void AppMgrServiceModuleTest::SetUpTestCase()
     }
 
     if (!testRemoteObject_) {
-        testRemoteObject_ = static_cast<IRemoteObject *>(new TestAppSchedulerImpl);
+        testRemoteObject_ = static_cast<IRemoteObject*>(new TestAppSchedulerImpl);
     }
 }
 
@@ -293,7 +293,7 @@ HWTEST_F(AppMgrServiceModuleTest, AbilityCleaned_001, TestSize.Level1)
     bool testResult = false;
     Semaphore sem(0);
 
-    auto mockHandler = [&testResult, &sem](const sptr<IRemoteObject> &token) {
+    auto mockHandler = [&testResult, &sem](const sptr<IRemoteObject>& token) {
         testResult = (token == testRemoteObject_);
         sem.Post();
     };
@@ -327,7 +327,7 @@ HWTEST_F(AppMgrServiceModuleTest, ClearUpApplicationData_001, TestSize.Level1)
     bool testResult = false;
     Semaphore sem(0);
 
-    auto mockHandler = [&testResult, testAppName, &sem](const std::string &appName, const int32_t, const pid_t) {
+    auto mockHandler = [&testResult, testAppName, &sem](const std::string& appName, const int32_t, const pid_t) {
         testResult = (appName == testAppName);
         sem.Post();
     };
@@ -363,8 +363,8 @@ HWTEST_F(AppMgrServiceModuleTest, GetAllRunningProcesses_001, TestSize.Level1)
     std::string testProcessName = "testProcess";
 
     Semaphore sem(0);
-    auto mockHandler = [testProcessName, testPid, &sem](std::vector<RunningProcessInfo> &runningProcessInfo) {
-        auto &it = runningProcessInfo.emplace_back();
+    auto mockHandler = [testProcessName, testPid, &sem](std::vector<RunningProcessInfo>& runningProcessInfo) {
+        auto& it = runningProcessInfo.emplace_back();
         it.processName_ = testProcessName;
         it.pid_ = testPid;
         sem.Post();
@@ -401,7 +401,7 @@ HWTEST_F(AppMgrServiceModuleTest, KillApplication_001, TestSize.Level1)
     bool testResult = false;
     Semaphore sem(0);
 
-    auto mockHandler = [&testResult, testBundleName, &sem](const std::string &bundleName) {
+    auto mockHandler = [&testResult, testBundleName, &sem](const std::string& bundleName) {
         testResult = (bundleName == testBundleName);
         sem.Post();
         return 0;

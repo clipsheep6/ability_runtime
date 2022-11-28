@@ -75,7 +75,7 @@ public:
         }
     }
 
-    const std::shared_ptr<MockAppSpawnSocket> &GetSocket() const
+    const std::shared_ptr<MockAppSpawnSocket>& GetSocket() const
     {
         return socket_;
     }
@@ -214,7 +214,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_005, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -244,7 +244,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_006, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -270,7 +270,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_007, TestSize.Level1)
     appSpawnClient->SetSocket(socketMock);
     EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillRepeatedly(Return(ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED));
     EXPECT_EQ(ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED, appSpawnClient->OpenConnection());
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED, result);
@@ -295,7 +295,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_008, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -319,7 +319,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_009, TestSize.Level1)
     std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(socketMock);
     EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillRepeatedly(Return(ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED));
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED, result);
@@ -344,7 +344,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_010, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillRepeatedly(Return(ERR_APPEXECFWK_SOCKET_WRITE_FAILED));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(AtLeast(1));
     EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_SOCKET_WRITE_FAILED, result);
@@ -370,7 +370,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_011, TestSize.Level1)
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillRepeatedly(Return(ERR_APPEXECFWK_SOCKET_READ_FAILED));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(AtLeast(1));
     EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_SOCKET_READ_FAILED, result);
@@ -394,7 +394,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_012, TestSize.Level1)
     EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillRepeatedly(Return(ERR_OK));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(AtLeast(1));
     EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -424,7 +424,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_013, TestSize.Level1)
 
     EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
 
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "", ""};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "", "" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -452,7 +452,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_014, TestSize.Level1)
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid\
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid\
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid";
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, invalidParam, "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, invalidParam, "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -480,7 +480,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_015, TestSize.Level1)
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid\
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid\
                                 invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinvalid";
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", invalidParam};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", invalidParam };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -573,7 +573,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_019, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -677,7 +677,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, ReConnectAppSpawn_004, TestSize.Level1)
         .WillOnce(Return(ERR_APPEXECFWK_SOCKET_READ_FAILED))
         .WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(AtLeast(1));
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -712,7 +712,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, ReConnectAppSpawn_005, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t expectPid = 11111;
     pid_t newPid = 0;
     socketMock->SetExpectPid(expectPid);
@@ -740,7 +740,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, ReConnectAppSpawn_006, TestSize.Level1)
     EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillRepeatedly(Return(ERR_OK));
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillRepeatedly(Return(ERR_APPEXECFWK_SOCKET_READ_FAILED));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(AtLeast(1));
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     pid_t newPid = 0;
     ErrCode result = appSpawnClient->StartProcess(params, newPid);
     EXPECT_EQ(ERR_APPEXECFWK_SOCKET_READ_FAILED, result);

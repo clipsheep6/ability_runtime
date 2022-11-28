@@ -113,7 +113,7 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Leve
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSize.Level0)
 {
     MockNativeEngine engine;
-    NativeValue *result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, ERR_OK);
+    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, ERR_OK);
     EXPECT_EQ(result, nullptr);
 }
 
@@ -126,7 +126,7 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSiz
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0200, TestSize.Level0)
 {
     MockNativeEngine engine;
-    NativeValue *result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, 1);
+    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, 1);
     EXPECT_EQ(result, nullptr);
 }
 

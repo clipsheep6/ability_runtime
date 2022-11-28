@@ -249,7 +249,7 @@ HWTEST_F(AbilityExtensionBaseTest, SetExtensionCommon_0100, TestSize.Level1)
     std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options);
     std::unique_ptr<NativeReference> jsObj;
     extensionBase.SetExtensionCommon(JsExtensionCommon::Create(
-        static_cast<JsRuntime &>(*jsRuntime), static_cast<NativeReference &>(*jsObj), nullptr));
+        static_cast<JsRuntime&>(*jsRuntime), static_cast<NativeReference&>(*jsObj), nullptr));
     EXPECT_NE(extensionBase.extensionCommon_, nullptr);
     EXPECT_TRUE(true);
 

@@ -26,22 +26,22 @@ namespace AAFwk {
 class AppMgrEventHandler : public AppExecFwk::EventHandler {
 public:
     AppMgrEventHandler(
-        const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::shared_ptr<AbilityManagerService> &server);
+        const std::shared_ptr<AppExecFwk::EventRunner>& runner, const std::shared_ptr<AbilityManagerService>& server);
     virtual ~AppMgrEventHandler()
     {}
 
-    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 
 private:
     static constexpr int BLOCK_TEST_TIME = 500000; /* Blocked test time is 500ms */
-    void ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointer &event);
+    void ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointer& event);
 
-    void ProcessUpdateAppState(const AppExecFwk::InnerEvent::Pointer &event);
+    void ProcessUpdateAppState(const AppExecFwk::InnerEvent::Pointer& event);
 
-    void ScheduleAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event);
+    void ScheduleAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event);
 
-    void ScheduleConnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event);
-    void ScheduleDisconnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event);
+    void ScheduleConnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event);
+    void ScheduleDisconnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event);
 
     std::shared_ptr<AbilityManagerService> server_;
     std::map<sptr<IAbilityScheduler>, sptr<IRemoteObject>> tokenMap_;

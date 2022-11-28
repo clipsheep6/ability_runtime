@@ -46,8 +46,8 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<AbilityManagerProxy> proxy_ {nullptr};
-    sptr<AbilityManagerStubMock> mock_ {nullptr};
+    std::shared_ptr<AbilityManagerProxy> proxy_{ nullptr };
+    sptr<AbilityManagerStubMock> mock_{ nullptr };
 };
 
 void AbilityManagerProxyTest::SetUpTestCase(void)
@@ -1280,7 +1280,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMission_001, TestS
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
     int32_t missionId = 1;
-    const sptr<IRemoteObject> &callBack = nullptr;
+    const sptr<IRemoteObject>& callBack = nullptr;
     AAFwk::WantParams wantParams;
     auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
     EXPECT_EQ(res, INNER_ERR);

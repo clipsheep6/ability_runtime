@@ -44,8 +44,8 @@ public:
     static void TearDownTestCase();
     void SetUp() override;
     void TearDown() override;
-    AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName);
 };
 
 void AppMgrClientTest::SetUpTestCase(void)
@@ -60,8 +60,8 @@ void AppMgrClientTest::SetUp()
 void AppMgrClientTest::TearDown()
 {}
 
-AbilityRequest AppMgrClientTest::GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-    const std::string &appName, const std::string &bundleName)
+AbilityRequest AppMgrClientTest::GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+    const std::string& appName, const std::string& bundleName)
 {
     ElementName element(deviceName, abilityName, bundleName);
     AAFwk::Want want;

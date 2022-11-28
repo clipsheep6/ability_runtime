@@ -38,11 +38,11 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string DEVICE_ID = "15010038475446345206a332922cb765";
-    const std::string BUNDLE_NAME = "testBundle";
-    const std::string NAME = ".testMainAbility";
-    const std::string EVENT_WAITING_CODE = "0";
-    const std::string EVENT_CLOSE_CODE = "1";
+const std::string DEVICE_ID = "15010038475446345206a332922cb765";
+const std::string BUNDLE_NAME = "testBundle";
+const std::string NAME = ".testMainAbility";
+const std::string EVENT_WAITING_CODE = "0";
+const std::string EVENT_CLOSE_CODE = "1";
 }
 
 namespace OHOS {
@@ -157,11 +157,10 @@ void AbilityManagerServiceAnrTest::TearDown()
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
     pid_t pid;
-    if ((pid=fork()) == 0) {
+    if ((pid = fork()) == 0) {
         for (;;) {
         }
-    }
-    else {
+    } else {
         Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);
@@ -184,12 +183,11 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {
     pid_t pid;
-    if ((pid=fork()) == 0) {
+    if ((pid = fork()) == 0) {
         for (;;) {
             usleep(500);
         }
-    }
-    else {
+    } else {
         Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);

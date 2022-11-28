@@ -24,43 +24,43 @@ namespace AppExecFwk {
 class MockAmsMgrScheduler : public AmsMgrStub {
 public:
     MOCK_METHOD5(LoadAbility,
-        void(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-            const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-            const std::shared_ptr<AAFwk::Want> &want));
+        void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+            const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
+            const std::shared_ptr<AAFwk::Want>& want));
     MOCK_METHOD5(AbilityBehaviorAnalysis,
-        void(const sptr<OHOS::IRemoteObject> &token, const sptr<OHOS::IRemoteObject> &preToken,
+        void(const sptr<OHOS::IRemoteObject>& token, const sptr<OHOS::IRemoteObject>& preToken,
             const int32_t visibility, const int32_t perceptibility, const int32_t connectionState));
-    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject> &token, bool clearMissionFlag));
-    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject> &token, const AbilityState state));
+    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool clearMissionFlag));
+    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD0(Reset, void());
-    MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject> &token));
+    MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, void(int32_t userId));
-    MOCK_METHOD2(KillProcessWithAccount, int(const std::string &, const int));
-    MOCK_METHOD1(KillApplication, int32_t(const std::string &bundleName));
-    MOCK_METHOD2(KillApplicationByUid, int(const std::string &, const int uid));
+    MOCK_METHOD2(KillProcessWithAccount, int(const std::string&, const int));
+    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
+    MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD0(IsReady, bool());
-    MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject> &token));
-    MOCK_METHOD1(PrepareTerminate, void(const sptr<IRemoteObject> &token));
+    MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject>& token));
+    MOCK_METHOD1(PrepareTerminate, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD2(GetRunningProcessInfoByToken,
-        void(const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info));
-    MOCK_METHOD2(GetRunningProcessInfoByPid, void(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info));
-    MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
-    MOCK_METHOD1(RegisterStartSpecifiedAbilityResponse, void(const sptr<IStartSpecifiedAbilityResponse> &response));
-    MOCK_METHOD3(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo &application,
-        bool &debug));
+        void(const sptr<IRemoteObject>& token, OHOS::AppExecFwk::RunningProcessInfo& info));
+    MOCK_METHOD2(GetRunningProcessInfoByPid, void(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info));
+    MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo));
+    MOCK_METHOD1(RegisterStartSpecifiedAbilityResponse, void(const sptr<IStartSpecifiedAbilityResponse>& response));
+    MOCK_METHOD3(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo& application,
+        bool& debug));
 
     MockAmsMgrScheduler() : AmsMgrStub() {};
     virtual ~MockAmsMgrScheduler() {};
-    virtual void RegisterAppStateCallback(const sptr<IAppStateCallback> &callback) override
+    virtual void RegisterAppStateCallback(const sptr<IAppStateCallback>& callback) override
     {
         callback->OnAbilityRequestDone(nullptr, AbilityState::ABILITY_STATE_BACKGROUND);
         AppProcessData appProcessData;
         callback->OnAppStateChanged(appProcessData);
     }
 
-    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
 

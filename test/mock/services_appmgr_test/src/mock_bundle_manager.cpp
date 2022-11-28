@@ -26,7 +26,7 @@ const int32_t HQF_VERSION_CODE = 1000;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-void ConstructHqfInfo(BundleInfo &bundleInfo)
+void ConstructHqfInfo(BundleInfo& bundleInfo)
 {
     std::vector<HqfInfo> hqfInfos;
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = HQF_VERSION_CODE;
@@ -65,7 +65,7 @@ void ConstructHqfInfo(BundleInfo &bundleInfo)
 }
 } // namespace
 
-bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     ElementName eleName = want.GetElement();
     if (eleName.GetBundleName().empty()) {
@@ -78,13 +78,13 @@ bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abil
     return true;
 }
 
-bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo)
 {
     return false;
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -94,12 +94,12 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrProxy::GetAppType(const std::string &bundleName)
+std::string BundleMgrProxy::GetAppType(const std::string& bundleName)
 {
     return "system";
 }
 
-int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
@@ -109,7 +109,7 @@ BundleMgrService::BundleMgrService()
     MakingPackageData();
 }
 
-bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     ElementName elementName = want.GetElement();
     if (elementName.GetBundleName().empty()) {
@@ -130,13 +130,13 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
     return true;
 }
 
-bool BundleMgrService::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo)
 {
     return false;
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -146,37 +146,37 @@ bool BundleMgrService::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrService::GetAppType(const std::string &bundleName)
+std::string BundleMgrService::GetAppType(const std::string& bundleName)
 {
     return "system";
 }
 
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     int32_t userUid = 10001;
     int32_t userGid = 10001;
@@ -226,7 +226,7 @@ bool BundleMgrService::GetBundleInfo(
     }
     return true;
 }
-bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
+bool BundleMgrService::GetBundleGids(const std::string& bundleName, std::vector<int>& gids)
 {
     int32_t userGid1 = 10001;
     int32_t userGid2 = 10002;
@@ -238,7 +238,7 @@ bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<
 }
 
 bool BundleMgrService::GetBundleInfos(
-    const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId)
+    const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId)
 {
     GTEST_LOG_(INFO) << "BundleMgrService::GetBundleInfos";
     bundleInfos = bundleInfos_;
@@ -246,7 +246,7 @@ bool BundleMgrService::GetBundleInfos(
 }
 
 bool BundleMgrService::GetBundleGidsByUid(
-    const std::string &bundleName, const int &uid, std::vector<int> &gids)
+    const std::string& bundleName, const int& uid, std::vector<int>& gids)
 {
     return true;
 }
@@ -319,7 +319,7 @@ void BundleMgrService::MakingPackageData()
     PushTestSpecialAbility();
     PushTestHelloAbility();
     MakingResidentProcData();
-    for (int i = 0; i<= APPLICATION_NUMHELLO; i++) {
+    for (int i = 0; i <= APPLICATION_NUMHELLO; i++) {
         PushTestHelloIndexAbility(i);
     }
 }

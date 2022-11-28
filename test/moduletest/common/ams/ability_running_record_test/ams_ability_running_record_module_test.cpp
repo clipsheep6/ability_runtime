@@ -94,26 +94,26 @@ public:
     {
         scheduled_ |= MEMORY_LEVEL_SCHEDULED;
     }
-    void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) override
+    void ScheduleLaunchApplication(const AppLaunchData&, const Configuration&) override
     {
         scheduled_ |= LAUNCH_APPLICATION_SCHEDULED;
         appLaunchTime++;
     }
-    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &) override
+    void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&) override
     {
         scheduled_ |= LAUNCH_ABILITY_SCHEDULED;
         abilityLaunchTime++;
     }
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
     {
         scheduled_ |= CLEAN_ABILITY_SCHEDULED;
     }
-    void ScheduleProfileChanged(const Profile &) override
+    void ScheduleProfileChanged(const Profile&) override
     {
         scheduled_ |= PROFILE_CHANGED_SCHEDULED;
     }
-    void ScheduleConfigurationUpdated(const Configuration &config)
+    void ScheduleConfigurationUpdated(const Configuration& config)
     {
         scheduled_ |= SCHEDULE_CONFIGURATION_UPDATED;
     }
@@ -128,25 +128,25 @@ public:
         return abilityLaunchTime;
     }
 
-    void ScheduleAbilityStage(const HapModuleInfo &) override
+    void ScheduleAbilityStage(const HapModuleInfo&) override
     {}
 
-    void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override
+    void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
     {}
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }
 
-    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }
 
-    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
         return 0;
     }

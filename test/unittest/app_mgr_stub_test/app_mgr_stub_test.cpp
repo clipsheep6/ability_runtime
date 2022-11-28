@@ -37,7 +37,7 @@ public:
 
     sptr<MockAppMgrService> mockAppMgrService_;
 
-    void WriteInterfaceToken(MessageParcel &data);
+    void WriteInterfaceToken(MessageParcel& data);
 };
 
 void AppMgrStubTest::SetUpTestCase(void)
@@ -56,7 +56,7 @@ void AppMgrStubTest::SetUp()
 void AppMgrStubTest::TearDown()
 {}
 
-void AppMgrStubTest::WriteInterfaceToken(MessageParcel &data)
+void AppMgrStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     GTEST_LOG_(INFO) << "AppMgrStubTest::WriteInterfaceToken()";
 

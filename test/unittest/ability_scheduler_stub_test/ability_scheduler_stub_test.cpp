@@ -26,8 +26,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void WriteInterfaceToken(MessageParcel &data);
-    sptr<AbilitySchedulerStubMock> stub_ {nullptr};
+    void WriteInterfaceToken(MessageParcel& data);
+    sptr<AbilitySchedulerStubMock> stub_{ nullptr };
 };
 
 void AbilitySchedulerStubTest::SetUpTestCase(void)
@@ -41,7 +41,7 @@ void AbilitySchedulerStubTest::SetUp(void)
 {
     stub_ = new AbilitySchedulerStubMock();
 }
-void AbilitySchedulerStubTest::WriteInterfaceToken(MessageParcel &data)
+void AbilitySchedulerStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(AbilitySchedulerStub::GetDescriptor());
 }

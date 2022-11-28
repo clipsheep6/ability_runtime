@@ -29,7 +29,7 @@ using namespace testing::ext;
 const int32_t DEFAULT_USERID = 100;
 
 namespace OHOS {
-namespace AAFwk  {
+namespace AAFwk {
 class AbilityMgrServiceDialogTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -144,7 +144,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Lev
     DialogAppInfo dialogAppInfo = {
         0, 0, "com.example.test", "MainAbility", "entry"
     };
-    std::vector<DialogAppInfo> dialogAppInfos = {dialogAppInfo};
+    std::vector<DialogAppInfo> dialogAppInfos = { dialogAppInfo };
     auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);
     nlohmann::json jsonObj = nlohmann::json::parse(params);
     EXPECT_EQ(jsonObj["hapList"].size(), 1);

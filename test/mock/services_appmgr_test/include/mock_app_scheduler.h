@@ -31,23 +31,23 @@ public:
     MOCK_METHOD0(ScheduleForegroundApplication, void());
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
     MOCK_METHOD0(ScheduleTerminateApplication, void());
-    MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData &, const Configuration &config));
-    MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &));
-    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject> &));
-    MOCK_METHOD1(ScheduleProfileChanged, void(const Profile &));
-    MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration &config));
+    MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData&, const Configuration& config));
+    MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&));
+    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
+    MOCK_METHOD1(ScheduleProfileChanged, void(const Profile&));
+    MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
     MOCK_METHOD0(ScheduleLowMemory, void());
     MOCK_METHOD0(ScheduleProcessSecurityExit, void());
-    MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo &));
+    MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo&));
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
-    MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want &want, const std::string &moduleName));
-    MOCK_METHOD3(ScheduleNotifyLoadRepairPatch, int32_t(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId));
-    MOCK_METHOD2(ScheduleNotifyHotReloadPage, int32_t(const sptr<IQuickFixCallback> &callback, const int32_t recordId));
-    MOCK_METHOD3(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId));
+    MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want& want, const std::string& moduleName));
+    MOCK_METHOD3(ScheduleNotifyLoadRepairPatch, int32_t(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId));
+    MOCK_METHOD2(ScheduleNotifyHotReloadPage, int32_t(const sptr<IQuickFixCallback>& callback, const int32_t recordId));
+    MOCK_METHOD3(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
+        const sptr<IQuickFixCallback>& callback, const int32_t recordId));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

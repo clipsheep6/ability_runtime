@@ -30,7 +30,7 @@ public:
     virtual ~MockStatusReceiver() override = default;
 
     virtual void OnStatusNotify(const int32_t progress) override;
-    virtual void OnFinished(const int32_t resultCode, [[maybe_unused]] const std::string &resultMsg) override;
+    virtual void OnFinished(const int32_t resultCode, [[maybe_unused]] const std::string& resultMsg) override;
     virtual sptr<IRemoteObject> AsObject() override;
     int32_t GetResultCode();
 

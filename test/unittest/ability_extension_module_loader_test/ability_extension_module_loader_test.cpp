@@ -53,7 +53,7 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_0100, TestSize.
 
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
-    Extension *extension = ExtensionModuleLoader::GetLoader(nullptr).Create(runtime);
+    Extension* extension = ExtensionModuleLoader::GetLoader(nullptr).Create(runtime);
     EXPECT_EQ(extension, nullptr);
 
     HILOG_INFO("ExtensionModuleLoader end");

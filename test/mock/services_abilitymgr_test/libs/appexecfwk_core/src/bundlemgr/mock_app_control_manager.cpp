@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AppControlProxy::AppControlProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IAppControlMgr>(object)
+AppControlProxy::AppControlProxy(const sptr<IRemoteObject>& object) : IRemoteProxy<IAppControlMgr>(object)
 {
 }
 
@@ -25,14 +25,14 @@ AppControlProxy::~AppControlProxy()
 {
 }
 
-ErrCode AppControlProxy::AddAppInstallControlRule(const std::vector<std::string> &appIds,
+ErrCode AppControlProxy::AddAppInstallControlRule(const std::vector<std::string>& appIds,
     const AppInstallControlRuleType controlRuleType, int32_t userId)
 {
     return ERR_OK;
 }
 
 ErrCode AppControlProxy::DeleteAppInstallControlRule(const AppInstallControlRuleType controlRuleType,
-    const std::vector<std::string> &appIds, int32_t userId)
+    const std::vector<std::string>& appIds, int32_t userId)
 {
     return ERR_OK;
 }
@@ -44,19 +44,19 @@ ErrCode AppControlProxy::DeleteAppInstallControlRule(
 }
 
 ErrCode AppControlProxy::GetAppInstallControlRule(
-    const AppInstallControlRuleType controlRuleType, int32_t userId, std::vector<std::string> &appIds)
+    const AppInstallControlRuleType controlRuleType, int32_t userId, std::vector<std::string>& appIds)
 {
     return ERR_OK;
 }
 
 ErrCode AppControlProxy::AddAppRunningControlRule(
-    const std::vector<AppRunningControlRule> &controlRules, int32_t userId)
+    const std::vector<AppRunningControlRule>& controlRules, int32_t userId)
 {
     return ERR_OK;
 }
 
 ErrCode AppControlProxy::DeleteAppRunningControlRule(
-    const std::vector<AppRunningControlRule> &controlRules, int32_t userId)
+    const std::vector<AppRunningControlRule>& controlRules, int32_t userId)
 {
     return ERR_OK;
 }
@@ -66,13 +66,13 @@ ErrCode AppControlProxy::DeleteAppRunningControlRule(int32_t userId)
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::GetAppRunningControlRule(int32_t userId, std::vector<std::string> &appIds)
+ErrCode AppControlProxy::GetAppRunningControlRule(int32_t userId, std::vector<std::string>& appIds)
 {
     return ERR_OK;
 }
 
 ErrCode AppControlProxy::GetAppRunningControlRule(
-    const std::string &bundleName, int32_t userId, AppRunningControlRuleResult &controlRuleResult)
+    const std::string& bundleName, int32_t userId, AppRunningControlRuleResult& controlRuleResult)
 {
     if (bundleName.compare("com.test.control2") == 0) {
         return ERR_INVALID_VALUE;
@@ -90,17 +90,17 @@ ErrCode AppControlProxy::GetAppRunningControlRule(
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::SetDisposedStatus(const std::string &appId, const Want &want)
+ErrCode AppControlProxy::SetDisposedStatus(const std::string& appId, const Want& want)
 {
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::DeleteDisposedStatus(const std::string &appId)
+ErrCode AppControlProxy::DeleteDisposedStatus(const std::string& appId)
 {
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::GetDisposedStatus(const std::string &appId, Want &want)
+ErrCode AppControlProxy::GetDisposedStatus(const std::string& appId, Want& want)
 {
     return ERR_OK;
 }

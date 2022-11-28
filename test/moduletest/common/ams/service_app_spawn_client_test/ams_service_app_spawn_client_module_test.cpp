@@ -76,7 +76,7 @@ public:
         HILOG_INFO("MockedAppSpawnSocket::CloseAppSpawnConnection ready to openConnection!");
     }
 
-    int32_t WriteMessage([[maybe_unused]] const void *buf, [[maybe_unused]] int32_t len) override
+    int32_t WriteMessage([[maybe_unused]] const void* buf, [[maybe_unused]] int32_t len) override
     {
         if (!gHasConnected_) {
             HILOG_ERROR("MockedAppSpawnSocket::WriteMessage mock case not openConnection!");
@@ -93,7 +93,7 @@ public:
         return ERR_OK;
     }
 
-    int32_t ReadMessage(void *buf, [[maybe_unused]] int32_t len) override
+    int32_t ReadMessage(void* buf, [[maybe_unused]] int32_t len) override
     {
         if (!gHasConnected_) {
             HILOG_ERROR("MockedAppSpawnSocket::ReadMessage mock case not openConnection!");
@@ -321,7 +321,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_005, TestSize
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
         int32_t pid = PID_VALUE;
         int32_t newPid = 0;
         appSpawnClient->StartProcess(params, newPid);
@@ -349,12 +349,12 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_006, TestSize
     std::shared_ptr<MockedAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockedAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     std::string illegalAppName = "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "0123456789012345";  // The length is 256.
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
+        "0123456789012345";  // The length is 256.
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", illegalAppName};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", illegalAppName };
         int32_t newPid = 0;
         ErrCode result = appSpawnClient->StartProcess(params, newPid);
         EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -381,14 +381,14 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_007, TestSize
     std::shared_ptr<MockedAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockedAppSpawnSocket>();
 
     std::string illegalClsName = "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                                 "0123456789012345";  // The length is 256.
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
+        "0123456789012345";  // The length is 256.
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
 
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", illegalClsName};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", illegalClsName };
         int32_t newPid = 0;
         ErrCode result = appSpawnClient->StartProcess(params, newPid);
         EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -415,14 +415,14 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_008, TestSize
     std::shared_ptr<MockedAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockedAppSpawnSocket>();
 
     std::string illegalFuncName = "0123456789012345678901234567890123456789012345678901234567890123456789012345678"
-                                  "0123456789012345678901234567890123456789012345678901234567890123456789012345678"
-                                  "0123456789012345678901234567890123456789012345678901234567890123456789012345678"
-                                  "0123456789012345999";  // The length is 256.
+        "0123456789012345678901234567890123456789012345678901234567890123456789012345678"
+        "0123456789012345678901234567890123456789012345678901234567890123456789012345678"
+        "0123456789012345999";  // The length is 256.
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
 
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", illegalFuncName};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", illegalFuncName };
         int32_t newPid = 0;
         ErrCode result = appSpawnClient->StartProcess(params, newPid);
         EXPECT_EQ(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED, result);
@@ -450,7 +450,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_009, TestSize
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
 
         int32_t newPid = 0;
         ErrCode result = appSpawnClient->StartProcess(params, newPid);
@@ -479,7 +479,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ConnectAppSpawnDaemon_010, TestSize
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
     for (uint32_t i = 0; i < CYCLE_NUMBER; i++) {
         EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
-        AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+        AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
 
         int32_t newPid = 0;
         ErrCode result = appSpawnClient->StartProcess(params, newPid);
@@ -505,7 +505,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_001, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
 
     int32_t pid = PID_VALUE;
     int32_t newPid = 0;
@@ -540,7 +540,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_002, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
 
     int32_t pid = PID_VALUE;
     int32_t newPid = 0;
@@ -577,7 +577,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_003, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
 
     int32_t pid = PID_VALUE;
     int32_t newPid = 0;
@@ -608,7 +608,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_004, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     int32_t pid = PID_VALUE;
     int32_t newPid = 0;
     InSequence sequence;
@@ -649,7 +649,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_005, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     int32_t newPid = 0;
 
     EXPECT_CALL(*mockedAppSpawnSocket, OpenAppSpawnConnection()).WillRepeatedly(Return(ERR_OK));
@@ -679,7 +679,7 @@ HWTEST_F(AmsServiceAppSpawnClientModuleTest, ReconnectAppSpawnDaemon_006, TestSi
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
     std::shared_ptr<MockAppSpawnSocket> mockedAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
     appSpawnClient->SetSocket(mockedAppSpawnSocket);
-    AppSpawnStartMsg params = {10001, 10001, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
     int32_t pid = PID_VALUE;
     int32_t newPid = 0;
     InSequence sequence;

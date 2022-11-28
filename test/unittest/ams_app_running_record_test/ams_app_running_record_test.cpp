@@ -71,8 +71,8 @@ protected:
 
     std::shared_ptr<AppRunningRecord> GetTestAppRunningRecord();
     sptr<IAppScheduler> GetMockedAppSchedulerClient() const;
-    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject>& token,
+        const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
         const pid_t newPid) const;
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -130,8 +130,8 @@ std::shared_ptr<AppRunningRecord> AmsAppRunningRecordTest::GetTestAppRunningReco
     return testAppRecord_;
 }
 
-std::shared_ptr<AppRunningRecord> AmsAppRunningRecordTest::StartLoadAbility(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+std::shared_ptr<AppRunningRecord> AmsAppRunningRecordTest::StartLoadAbility(const sptr<IRemoteObject>& token,
+    const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
     const pid_t newPid) const
 {
     std::shared_ptr<MockAppSpawnClient> mockClientPtr = std::make_shared<MockAppSpawnClient>();
@@ -476,7 +476,7 @@ HWTEST_F(AmsAppRunningRecordTest, UpdateAppRunningRecord_001, TestSize.Level1)
 {
     auto record = GetTestAppRunningRecord();
     for (ApplicationState state = ApplicationState::APP_STATE_BEGIN; state < ApplicationState::APP_STATE_END;
-         state = (ApplicationState)(static_cast<std::underlying_type<ApplicationState>::type>(state) + 1)) {
+        state = (ApplicationState)(static_cast<std::underlying_type<ApplicationState>::type>(state) + 1)) {
         record->SetState(state);
         EXPECT_EQ(record->GetState(), state);
     }
@@ -1436,7 +1436,7 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, UpdateConfiguration_001, TestSize.Level1)
 {
     auto testLanguge = std::string("ch-zh");
-    auto configUpdate = [testLanguge](const Configuration &config) {
+    auto configUpdate = [testLanguge](const Configuration& config) {
         auto l = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == l);
     };
@@ -1462,7 +1462,7 @@ HWTEST_F(AmsAppRunningRecordTest, UpdateConfiguration_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, UpdateConfiguration_002, TestSize.Level1)
 {
     auto test = std::string("colour");
-    auto configUpdate = [test](const Configuration &config) {
+    auto configUpdate = [test](const Configuration& config) {
         auto l = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
         EXPECT_TRUE(test == l);
     };

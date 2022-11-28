@@ -25,8 +25,8 @@ namespace AAFwk {
 class MockAbilityConnectCallback : public IAbilityConnection {
 public:
     MOCK_METHOD3(OnAbilityConnectDone,
-        void(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode));
-    MOCK_METHOD2(OnAbilityDisconnectDone, void(const AppExecFwk::ElementName &element, int resultCode));
+        void(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode));
+    MOCK_METHOD2(OnAbilityDisconnectDone, void(const AppExecFwk::ElementName& element, int resultCode));
     sptr<IRemoteObject> AsObject()
     {
         return nullptr;

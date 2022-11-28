@@ -85,7 +85,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleAbilityTransaction_001, TestSize
         Want::ClearWant(&stubState.want);
         stubState.lifeCycleStateInfo.isNewWant = false;
 
-        auto stubHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
+        auto stubHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
             stubState.want.SetAction(want.GetAction());
             stubState.lifeCycleStateInfo.isNewWant = lifeCycleStateInfo.isNewWant;
             sem.Post();
@@ -130,7 +130,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, SendResult_001, TestSize.Level3)
         stubState.requestCode = 0;
         Want::ClearWant(&stubState.resultWant);
 
-        auto stubHandler = [&](int requestCode, int resultCode, const Want &resultWant) {
+        auto stubHandler = [&](int requestCode, int resultCode, const Want& resultWant) {
             stubState.requestCode = requestCode;
             stubState.resultCode = resultCode;
             stubState.resultWant.SetAction(resultWant.GetAction());
@@ -172,7 +172,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleConnectAbility_001, TestSize.Lev
 
         Want::ClearWant(&stubState.want);
 
-        auto stubHandler = [&](const Want &want) {
+        auto stubHandler = [&](const Want& want) {
             stubState.want.SetAction(want.GetAction());
             sem.Post();
         };
@@ -209,7 +209,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleDisconnectAbility_001, TestSize.
         sptr<IAbilityScheduler> proxy = iface_cast<IAbilityScheduler>(stub);
 
         Want::ClearWant(&stubState.want);
-        auto stubHandler = [&](const Want &want) {
+        auto stubHandler = [&](const Want& want) {
             stubState.want.SetAction(want.GetAction());
             sem.Post();
         };
@@ -270,7 +270,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleRestoreAbilityState_001, TestSiz
         sptr<IAbilityScheduler> proxy = iface_cast<IAbilityScheduler>(stub);
 
         bool testResult = false;
-        auto mockHandler = [&](const PacMap &pacMap) {
+        auto mockHandler = [&](const PacMap& pacMap) {
             testResult = true;
             sem.Post();
         };
@@ -306,7 +306,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, GetFileType_001, TestSize.Level1)
         std::string testUri("dataability://test/path");
         std::string testMime("text");
 
-        auto mockHandler = [&](const Uri &uri, const std::string &mime) {
+        auto mockHandler = [&](const Uri& uri, const std::string& mime) {
             testResult = (mime == testMime);
             std::vector<std::string> ret;
             ret.emplace_back("type1");
@@ -349,7 +349,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, OpenFile_001, TestSize.Level1)
         std::string testMode("RW");
         int testRet = 123;
 
-        auto mockHandler = [&](const Uri &uri, const std::string &mode) {
+        auto mockHandler = [&](const Uri& uri, const std::string& mode) {
             testResult = (mode == testMode);
             sem.Post();
             return testRet;
@@ -387,7 +387,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, Insert_001, TestSize.Level1)
         NativeRdb::ValuesBucket testValues;
         int testRet = 123;
 
-        auto mockHandler = [&](const Uri &uri, const NativeRdb::ValuesBucket &vb) {
+        auto mockHandler = [&](const Uri& uri, const NativeRdb::ValuesBucket& vb) {
             testResult = true;
             sem.Post();
             return testRet;
@@ -426,11 +426,11 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, Update_001, TestSize.Level1)
         NativeRdb::DataAbilityPredicates testPred;
         int testRet = 123;
 
-        auto mockHandler = [&](const Uri &uri, const NativeRdb::ValuesBucket &vb,
-            const NativeRdb::DataAbilityPredicates &pred) {
-            testResult = true;
-            sem.Post();
-            return testRet;
+        auto mockHandler = [&](const Uri& uri, const NativeRdb::ValuesBucket& vb,
+            const NativeRdb::DataAbilityPredicates& pred) {
+                testResult = true;
+                sem.Post();
+                return testRet;
         };
 
         EXPECT_CALL(*stub, Update(_, _, _)).Times(1).WillOnce(Invoke(mockHandler));
@@ -465,7 +465,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, Delete_001, TestSize.Level1)
         NativeRdb::DataAbilityPredicates testPred;
         int testRet = 123;
 
-        auto mockHandler = [&](const Uri &uri, const NativeRdb::DataAbilityPredicates &pred) {
+        auto mockHandler = [&](const Uri& uri, const NativeRdb::DataAbilityPredicates& pred) {
             testResult = true;
             sem.Post();
             return testRet;
@@ -505,11 +505,11 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, Query_001, TestSize.Level1)
         testColumns.emplace_back("col2");
         NativeRdb::DataAbilityPredicates testPred;
 
-        auto mockHandler = [&sem, &testResult, testColumns](const Uri &uri, const std::vector<std::string> &columns,
-            const NativeRdb::DataAbilityPredicates &pred) {
-            testResult = (columns == testColumns);
-            sem.Post();
-            return std::make_shared<NativeRdb::AbsSharedResultSet>("DataAbilityTest");
+        auto mockHandler = [&sem, &testResult, testColumns](const Uri& uri, const std::vector<std::string>& columns,
+            const NativeRdb::DataAbilityPredicates& pred) {
+                testResult = (columns == testColumns);
+                sem.Post();
+                return std::make_shared<NativeRdb::AbsSharedResultSet>("DataAbilityTest");
         };
 
         EXPECT_CALL(*stub, Query(_, _, _)).Times(1).WillOnce(Invoke(mockHandler));
@@ -545,7 +545,7 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleCommandAbility_001, TestSize.Lev
         sptr<AbilitySchedulerProxy> proxy(new AbilitySchedulerProxy(stub));
 
         Want::ClearWant(&stubState.want);
-        auto stubHandler = [&](const Want &want, bool reStart, int startId) {
+        auto stubHandler = [&](const Want& want, bool reStart, int startId) {
             stubState.want.SetAction(want.GetAction());
             count++;
             sem.Post();

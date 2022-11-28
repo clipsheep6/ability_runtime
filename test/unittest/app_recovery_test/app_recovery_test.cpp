@@ -121,7 +121,7 @@ HWTEST_F(AppRecoveryUnitTest, EnableAppRecovery_001, TestSize.Level1)
 {
     EXPECT_FALSE(AppRecovery::GetInstance().IsEnabled());
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_TRUE(AppRecovery::GetInstance().IsEnabled());
 }
 
@@ -134,7 +134,7 @@ HWTEST_F(AppRecoveryUnitTest, EnableAppRecovery_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, EnableAppRecovery_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_EQ(RestartFlag::ALWAYS_RESTART, AppRecovery::GetInstance().GetRestartFlag());
     EXPECT_EQ(SaveOccasionFlag::SAVE_WHEN_ERROR, AppRecovery::GetInstance().GetSaveOccasionFlag());
     EXPECT_EQ(SaveModeFlag::SAVE_WITH_FILE, AppRecovery::GetInstance().GetSaveModeFlag());
@@ -149,7 +149,7 @@ HWTEST_F(AppRecoveryUnitTest, EnableAppRecovery_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, EnableAppRecovery_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_ALL,
-                                  SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
+        SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(RestartFlag::NO_RESTART, AppRecovery::GetInstance().GetRestartFlag());
     EXPECT_EQ(SaveOccasionFlag::SAVE_ALL, AppRecovery::GetInstance().GetSaveOccasionFlag());
     EXPECT_EQ(SaveModeFlag::SAVE_WITH_SHARED_MEMORY, AppRecovery::GetInstance().GetSaveModeFlag());
@@ -205,7 +205,7 @@ HWTEST_F(AppRecoveryUnitTest, AddAbility_003, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_001, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
 }
@@ -219,7 +219,7 @@ HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::LIFECYCLE);
     EXPECT_FALSE(ret);
 }
@@ -233,7 +233,7 @@ HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldSaveAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::CPP_CRASH);
     EXPECT_FALSE(ret);
     ret = AppRecovery::GetInstance().ShouldSaveAppState(StateReason::JS_ERROR);
@@ -263,7 +263,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::LIFECYCLE);
     EXPECT_FALSE(ret);
 }
@@ -277,7 +277,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
     EXPECT_FALSE(ret);
 }
@@ -291,7 +291,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     AppRecovery::GetInstance().mainHandler_.reset();
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST);
     EXPECT_FALSE(ret);
@@ -306,7 +306,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_005, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::CPP_CRASH);
     EXPECT_FALSE(ret);
 }
@@ -320,7 +320,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_005, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_001, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_FALSE(ret);
 }
@@ -334,19 +334,19 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::LIFECYCLE);
     EXPECT_FALSE(ret);
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::CPP_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::CPP_CRASH);
     EXPECT_FALSE(ret);
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::JS_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
     EXPECT_FALSE(ret);
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::APP_FREEZE_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_FALSE(ret);
 }
@@ -360,7 +360,7 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
@@ -388,7 +388,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_FALSE(ret);
 }
@@ -402,7 +402,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_FALSE(ret);
 }
@@ -416,7 +416,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_003, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
@@ -434,7 +434,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_005, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
@@ -453,7 +453,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_005, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_006, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
@@ -483,7 +483,7 @@ HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
     auto ability = std::make_shared<Ability>();
     sptr<IRemoteObject> token = new MockAbilityToken();
@@ -501,7 +501,7 @@ HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, PersistAppState_001, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+        SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
 }
 
@@ -514,7 +514,7 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_001, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
+        SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
 }
 
@@ -527,7 +527,7 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
 HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
+        SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_);
     EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
 }

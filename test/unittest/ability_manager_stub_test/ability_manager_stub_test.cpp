@@ -35,8 +35,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void WriteInterfaceToken(MessageParcel &data);
-    sptr<AbilityManagerStubImplMock> stub_ {nullptr};
+    void WriteInterfaceToken(MessageParcel& data);
+    sptr<AbilityManagerStubImplMock> stub_{ nullptr };
 };
 
 void AbilityManagerStubTest::SetUpTestCase(void)
@@ -51,7 +51,7 @@ void AbilityManagerStubTest::SetUp()
     stub_ = new AbilityManagerStubImplMock();
 }
 
-void AbilityManagerStubTest::WriteInterfaceToken(MessageParcel &data)
+void AbilityManagerStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(AbilityManagerStub::GetDescriptor());
 }

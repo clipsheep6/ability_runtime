@@ -29,118 +29,118 @@ public:
     virtual ~AbilitySchedulerMock()
     {}
 
-    MOCK_METHOD2(ScheduleAbilityTransaction, void(const Want &, const LifeCycleStateInfo &));
-    MOCK_METHOD3(SendResult, void(int, int, const Want &));
-    MOCK_METHOD1(ScheduleConnectAbility, void(const Want &));
-    MOCK_METHOD1(ScheduleDisconnectAbility, void(const Want &));
+    MOCK_METHOD2(ScheduleAbilityTransaction, void(const Want&, const LifeCycleStateInfo&));
+    MOCK_METHOD3(SendResult, void(int, int, const Want&));
+    MOCK_METHOD1(ScheduleConnectAbility, void(const Want&));
+    MOCK_METHOD1(ScheduleDisconnectAbility, void(const Want&));
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
-    MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap &));
-    MOCK_METHOD1(ScheduleNewWant, void(const Want &));
-    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
-    MOCK_METHOD3(ScheduleCommandAbility, void(const Want &, bool, int));
+    MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap&));
+    MOCK_METHOD1(ScheduleNewWant, void(const Want&));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
+    MOCK_METHOD3(ScheduleCommandAbility, void(const Want&, bool, int));
     MOCK_METHOD1(NotifyContinuationResult, void(int32_t result));
     MOCK_METHOD2(ContinueAbility, void(const std::string& deviceId, uint32_t versionCode));
-    MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string> &params, std::vector<std::string> &info));
+    MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string>& params, std::vector<std::string>& info));
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return 0;
     }
 
-    int InvokeErrorSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeErrorSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return UNKNOWN_ERROR;
     }
 
-    std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+    std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
     {
         std::vector<std::string> types;
         return types;
     }
 
-    int OpenFile(const Uri &uri, const std::string &mode)
+    int OpenFile(const Uri& uri, const std::string& mode)
     {
         return -1;
     }
 
-    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+    int Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
     {
         return -1;
     }
 
-    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    int Update(const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return -1;
     }
 
-    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+    int Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return -1;
     }
 
     std::shared_ptr<AppExecFwk::PacMap> Call(
-        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+        const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
     {
         return nullptr;
     }
 
     std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+        const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
     {
         return nullptr;
     }
 
-    virtual std::string GetType(const Uri &uri) override
+    virtual std::string GetType(const Uri& uri) override
     {
         return " ";
     }
 
-    int OpenRawFile(const Uri &uri, const std::string &mode)
+    int OpenRawFile(const Uri& uri, const std::string& mode)
     {
         return -1;
     }
 
-    bool Reload(const Uri &uri, const PacMap &extras)
+    bool Reload(const Uri& uri, const PacMap& extras)
     {
         return false;
     }
 
-    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+    int BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
     {
         return -1;
     }
 
-    Uri NormalizeUri(const Uri &uri)
+    Uri NormalizeUri(const Uri& uri)
     {
         Uri urivalue("");
         return urivalue;
     }
 
-    Uri DenormalizeUri(const Uri &uri)
+    Uri DenormalizeUri(const Uri& uri)
     {
         Uri urivalue("");
         return urivalue;
     }
 
-    virtual bool ScheduleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    virtual bool ScheduleRegisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
     {
         return true;
     }
 
-    virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    virtual bool ScheduleUnregisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
     {
         return true;
     }
 
-    virtual bool ScheduleNotifyChange(const Uri &uri)
+    virtual bool ScheduleNotifyChange(const Uri& uri)
     {
         return true;
     }
 
     virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
-        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>>& operations)
     {
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     }

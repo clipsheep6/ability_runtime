@@ -59,8 +59,8 @@ public:
             lastState_ == AmsInnerState::STATE_APPLICATION_TER_TO_BACK) {
             state_ = AmsInnerState::STATE_APPLICATION_BACK_TO_FORE;
         } else if (lastState_ == AmsInnerState::STATE_APPLICATION_TERMINATED ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_BACK_TO_TER ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_TER) {
+            lastState_ == AmsInnerState::STATE_APPLICATION_BACK_TO_TER ||
+            lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_TER) {
             state_ = AmsInnerState::STATE_APPLICATION_TER_TO_FORE;
         } else {
             state_ = AmsInnerState::STATE_APPLICATION_FOREGROUNDED;
@@ -77,8 +77,8 @@ public:
             lastState_ == AmsInnerState::STATE_APPLICATION_TER_TO_FORE) {
             state_ = AmsInnerState::STATE_APPLICATION_FORE_TO_BACK;
         } else if (lastState_ == AmsInnerState::STATE_APPLICATION_TERMINATED ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_BACK_TO_TER ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_TER) {
+            lastState_ == AmsInnerState::STATE_APPLICATION_BACK_TO_TER ||
+            lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_TER) {
             state_ = AmsInnerState::STATE_APPLICATION_TER_TO_BACK;
         } else {
             state_ = AmsInnerState::STATE_APPLICATION_BACKGROUNDED;
@@ -95,8 +95,8 @@ public:
             lastState_ == AmsInnerState::STATE_APPLICATION_TER_TO_FORE) {
             state_ = AmsInnerState::STATE_APPLICATION_FORE_TO_TER;
         } else if (lastState_ == AmsInnerState::STATE_APPLICATION_BACKGROUNDED ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_BACK ||
-                   lastState_ == AmsInnerState::STATE_APPLICATION_TER_TO_BACK) {
+            lastState_ == AmsInnerState::STATE_APPLICATION_FORE_TO_BACK ||
+            lastState_ == AmsInnerState::STATE_APPLICATION_TER_TO_BACK) {
             state_ = AmsInnerState::STATE_APPLICATION_BACK_TO_TER;
         } else {
             state_ = AmsInnerState::STATE_APPLICATION_TERMINATED;
@@ -122,7 +122,7 @@ public:
         return state_;
     }
 
-    AmsInnerState SetInnerServiceState(const AmsInnerState &state)
+    AmsInnerState SetInnerServiceState(const AmsInnerState& state)
     {
         state_ = state;
         return state_;

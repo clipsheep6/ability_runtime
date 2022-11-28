@@ -31,9 +31,9 @@ public:
     void SetUp();
     void TearDown();
 
-    sptr<AbilitySchedulerProxy> abilitySchedulerProxy_ {nullptr};
-    sptr<AbilitySchedulerMock> mock_ {nullptr};
-    sptr<AbilitySchedulerRecipient> abilitySchedulerRecipient_ {nullptr};
+    sptr<AbilitySchedulerProxy> abilitySchedulerProxy_{ nullptr };
+    sptr<AbilitySchedulerMock> mock_{ nullptr };
+    sptr<AbilitySchedulerRecipient> abilitySchedulerRecipient_{ nullptr };
 };
 
 void AbilitySchedulerProxyTest::SetUpTestCase(void)

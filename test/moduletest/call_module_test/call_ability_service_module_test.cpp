@@ -39,9 +39,9 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string DEVICE_ID = "15010038475446345206a332922cb765";
-    const std::string BUNDLE_NAME = "testBundle";
-    const std::string NAME = ".testMainAbility";
+const std::string DEVICE_ID = "15010038475446345206a332922cb765";
+const std::string BUNDLE_NAME = "testBundle";
+const std::string NAME = ".testMainAbility";
 }
 
 namespace OHOS {
@@ -73,7 +73,7 @@ const std::string WaitUntilTaskFinishedByTimer = "BundleMgrService";
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char *perms[] = {
+    const char* perms[] = {
         "ohos.permission.START_INVISIBLE_ABILITY",
         "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
         "ohos.permission.START_ABILIIES_FROM_BACKGROUND",
@@ -103,16 +103,16 @@ public:
     void TearDown();
     void OnStartAms();
     void OnStopAms();
-    int StartAbility(const Want &want);
+    int StartAbility(const Want& want);
     static constexpr int TEST_WAIT_TIME = 100000;
 
 public:
     AbilityRequest abilityRequest_;
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
+    std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
-int AbilityManagerServiceTest::StartAbility(const Want &want)
+int AbilityManagerServiceTest::StartAbility(const Want& want)
 {
     int ref = -1;
     return ref;

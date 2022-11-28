@@ -69,14 +69,14 @@ public:
     WantSenderInfo GetForegroundService();
     WantSenderInfo GetCommonEvent();
     std::shared_ptr<AAFwk::Want> GetWant(std::string abilityName, std::string bundleName);
-    WantAgentInfo MakeWantAgentInfo(WantAgentConstant::OperationType &type, int requestCode,
-        std::vector<WantAgentConstant::Flags> &flags, std::vector<std::shared_ptr<AAFwk::Want>> wants);
+    WantAgentInfo MakeWantAgentInfo(WantAgentConstant::OperationType& type, int requestCode,
+        std::vector<WantAgentConstant::Flags>& flags, std::vector<std::shared_ptr<AAFwk::Want>> wants);
 
 public:
-    MockWantReceiver *receiver = new MockWantReceiver();
-    inline static MockAppMgrClient *appClient = nullptr;
+    MockWantReceiver* receiver = new MockWantReceiver();
+    inline static MockAppMgrClient* appClient = nullptr;
     inline static std::shared_ptr<AbilityManagerService> abilityManager = nullptr;
-    MockAbilityMgrService *amsSerice = new MockAbilityMgrService();
+    MockAbilityMgrService* amsSerice = new MockAbilityMgrService();
 };
 
 void PandingWantManagerTest::SetUpTestCase(void)
@@ -237,8 +237,8 @@ WantSenderInfo PandingWantManagerTest::GetCommonEvent()
     return wantSenderInfo;
 }
 
-WantAgentInfo PandingWantManagerTest::MakeWantAgentInfo(WantAgentConstant::OperationType &type, int requestCode,
-    std::vector<WantAgentConstant::Flags> &flags, std::vector<std::shared_ptr<AAFwk::Want>> wants)
+WantAgentInfo PandingWantManagerTest::MakeWantAgentInfo(WantAgentConstant::OperationType& type, int requestCode,
+    std::vector<WantAgentConstant::Flags>& flags, std::vector<std::shared_ptr<AAFwk::Want>> wants)
 {
     WantAgentInfo info;
     info.operationType_ = type;
@@ -273,16 +273,16 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_005, TestSize.Level1)
     std::shared_ptr<AbilityRuntime::Context> context = OHOS::AbilityRuntime::Context::GetApplicationContext();
 
     // proxy start
-    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo &wantSenderInfo,
-                                           const sptr<IRemoteObject> &callerToken) {
-        EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::SEND_COMMON_EVENT);
-        return abilityManager->GetWantSender(wantSenderInfo, callerToken);
+    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo& wantSenderInfo,
+        const sptr<IRemoteObject>& callerToken) {
+            EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::SEND_COMMON_EVENT);
+            return abilityManager->GetWantSender(wantSenderInfo, callerToken);
     };
     EXPECT_CALL(*amsSerice, GetWantSender(_, _)).Times(1).WillOnce(Invoke(amsProxyGetWantSenderReturn));
 
-    auto amsProxySendWantSenderReturn = [&abilityManager](const sptr<IWantSender> &target,
-        const SenderInfo &senderInfo) {
-        return abilityManager->SendWantSender(target, senderInfo);
+    auto amsProxySendWantSenderReturn = [&abilityManager](const sptr<IWantSender>& target,
+        const SenderInfo& senderInfo) {
+            return abilityManager->SendWantSender(target, senderInfo);
     };
     EXPECT_CALL(*amsSerice, SendWantSender(_, _)).Times(1).WillOnce(Invoke(amsProxySendWantSenderReturn));
     EXPECT_CALL(*amsSerice, GetPendingWantType(_)).Times(1).WillOnce(Return(0));
@@ -295,7 +295,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_005, TestSize.Level1)
     EXPECT_NE(pandingWant, nullptr);
 
     std::shared_ptr<CompletedCallback> callback;
-    MockCompletedCallback *call = new MockCompletedCallback();
+    MockCompletedCallback* call = new MockCompletedCallback();
     callback.reset(call);
 
     TriggerInfo paramsInfo("", nullptr, abilityWant, 11);
@@ -328,29 +328,29 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_006, TestSize.Level1)
     std::shared_ptr<AbilityRuntime::Context> context = OHOS::AbilityRuntime::Context::GetApplicationContext();
 
     // proxy start
-    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo &wantSenderInfo,
-                                           const sptr<IRemoteObject> &callerToken) {
-        EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::START_ABILITY);
-        return abilityManager->GetWantSender(wantSenderInfo, callerToken);
+    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo& wantSenderInfo,
+        const sptr<IRemoteObject>& callerToken) {
+            EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::START_ABILITY);
+            return abilityManager->GetWantSender(wantSenderInfo, callerToken);
     };
     EXPECT_CALL(*amsSerice, GetWantSender(_, _)).Times(1).WillOnce(Invoke(amsProxyGetWantSenderReturn));
 
     auto amsProxyGetPendingWantType =
-        [&abilityManager](const sptr<IWantSender> &target) { return abilityManager->GetPendingWantType(target); };
+        [&abilityManager](const sptr<IWantSender>& target) { return abilityManager->GetPendingWantType(target); };
     EXPECT_CALL(*amsSerice, GetPendingWantType(_)).Times(1).WillOnce(Invoke(amsProxyGetPendingWantType));
 
     auto amsProxyGetPendingWantCode =
-        [&abilityManager](const sptr<IWantSender> &target) { return abilityManager->GetPendingWantCode(target); };
+        [&abilityManager](const sptr<IWantSender>& target) { return abilityManager->GetPendingWantCode(target); };
     EXPECT_CALL(*amsSerice, GetPendingWantCode(_)).Times(1).WillOnce(Invoke(amsProxyGetPendingWantCode));
 
-    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender> &sender,
-        const sptr<IWantReceiver> &recevier) {
-        return abilityManager->RegisterCancelListener(sender, recevier);
+    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender>& sender,
+        const sptr<IWantReceiver>& recevier) {
+            return abilityManager->RegisterCancelListener(sender, recevier);
     };
     EXPECT_CALL(*amsSerice, RegisterCancelListener(_, _)).Times(1).WillOnce(Invoke(amsProxyRegisterCancelListener));
 
     auto amsProxyCancelWantSender =
-        [&abilityManager](const sptr<IWantSender> &sender) { return abilityManager->CancelWantSender(sender); };
+        [&abilityManager](const sptr<IWantSender>& sender) { return abilityManager->CancelWantSender(sender); };
     EXPECT_CALL(*amsSerice, CancelWantSender(_)).Times(1).WillOnce(Invoke(amsProxyCancelWantSender));
     // proxy end
 
@@ -399,10 +399,10 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
     std::shared_ptr<AbilityRuntime::Context> context = OHOS::AbilityRuntime::Context::GetApplicationContext();
 
     // proxy start
-    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo &wantSenderInfo,
-                                           const sptr<IRemoteObject> &callerToken) {
-        EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::START_ABILITY);
-        return abilityManager->GetWantSender(wantSenderInfo, callerToken);
+    auto amsProxyGetWantSenderReturn = [&abilityManager](const WantSenderInfo& wantSenderInfo,
+        const sptr<IRemoteObject>& callerToken) {
+            EXPECT_EQ(wantSenderInfo.type, (int32_t)WantAgentConstant::OperationType::START_ABILITY);
+            return abilityManager->GetWantSender(wantSenderInfo, callerToken);
     };
     EXPECT_CALL(*amsSerice, GetWantSender(_, _))
         .Times(4)
@@ -411,9 +411,9 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
         .WillOnce(Invoke(amsProxyGetWantSenderReturn))
         .WillOnce(Invoke(amsProxyGetWantSenderReturn));
 
-    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender> &sender,
-        const sptr<IWantReceiver> &recevier) {
-        return abilityManager->RegisterCancelListener(sender, recevier);
+    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender>& sender,
+        const sptr<IWantReceiver>& recevier) {
+            return abilityManager->RegisterCancelListener(sender, recevier);
     };
     EXPECT_CALL(*amsSerice, RegisterCancelListener(_, _)).Times(1).WillOnce(Invoke(amsProxyRegisterCancelListener));
     // proxy end

@@ -41,8 +41,8 @@ public:
      * @param appInfo, Application information.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want);
+    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want);
 
     /**
      * Terminate ability.
@@ -51,7 +51,7 @@ public:
      *
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode TerminateAbility(const sptr<IRemoteObject> &token);
+    virtual AppMgrResultCode TerminateAbility(const sptr<IRemoteObject>& token);
 
     /**
      * Update ability state.
@@ -60,7 +60,7 @@ public:
      * @param state Ability running state.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state);
+    virtual AppMgrResultCode UpdateAbilityState(const sptr<IRemoteObject>& token, const AbilityState state);
 
     /**
      * Register Application state callback.
@@ -68,7 +68,7 @@ public:
      * @param callback IAppStateCallback
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode RegisterAppStateCallback(const sptr<IAppStateCallback> &callback);
+    virtual AppMgrResultCode RegisterAppStateCallback(const sptr<IAppStateCallback>& callback);
 
     /**
      * Connect service.
@@ -94,8 +94,8 @@ public:
      * @param connectionState, the service ability connection state.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token,
-        const sptr<IRemoteObject> &preToken, const int32_t visibility, const int32_t perceptibility,
+    virtual AppMgrResultCode AbilityBehaviorAnalysis(const sptr<IRemoteObject>& token,
+        const sptr<IRemoteObject>& preToken, const int32_t visibility, const int32_t perceptibility,
         const int32_t connectionState);
 
     /**
@@ -105,7 +105,7 @@ public:
      * @param token, the unique identification to the ability.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode KillProcessByAbilityToken(const sptr<IRemoteObject> &token);
+    virtual AppMgrResultCode KillProcessByAbilityToken(const sptr<IRemoteObject>& token);
 
     /**
      * KillProcessesByUserId, call KillProcessesByUserId() through proxy object,
@@ -122,7 +122,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual AppMgrResultCode KillApplication(const std::string &bundleName);
+    virtual AppMgrResultCode KillApplication(const std::string& bundleName);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -131,7 +131,7 @@ public:
      * @param bundleName, bundle name in Application record.
      * @return
      */
-    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName);
+    virtual AppMgrResultCode ClearUpApplicationData(const std::string& bundleName);
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -140,7 +140,7 @@ public:
      * @param info, app name in Application record.
      * @return ERR_OK ,return back success��others fail.
      */
-    virtual AppMgrResultCode GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
+    virtual AppMgrResultCode GetAllRunningProcesses(std::vector<RunningProcessInfo>& info);
 
     /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
@@ -158,14 +158,14 @@ public:
      *
      * @return Success or Failure .
      */
-    virtual AppMgrResultCode GetAppFreezingTime(int &time);
-    virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token);
+    virtual AppMgrResultCode GetAppFreezingTime(int& time);
+    virtual void AbilityAttachTimeOut(const sptr<IRemoteObject>& token);
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject>& token);
 
-    void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+    void GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info);
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const;
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

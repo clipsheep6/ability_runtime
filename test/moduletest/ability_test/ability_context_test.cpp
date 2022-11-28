@@ -58,7 +58,7 @@ void AbilityContextTest::SetUpTestCase(void)
     sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, abilityObject);
 
     AbilityLoader::GetInstance().RegisterAbility(
-        ACE_SERVICE_ABILITY_NAME, []()->Ability *{ return new (std::nothrow) Ability; });
+        ACE_SERVICE_ABILITY_NAME, []()->Ability* { return new (std::nothrow) Ability; });
 }
 
 void AbilityContextTest::TearDownTestCase(void)

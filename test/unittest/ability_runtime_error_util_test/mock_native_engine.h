@@ -137,9 +137,9 @@ public:
     }
 
     NativeValue* CreateTypedArray(NativeTypedArrayType type,
-                                          NativeValue* value,
-                                          size_t length,
-                                          size_t offset) override
+        NativeValue* value,
+        size_t length,
+        size_t offset) override
     {
         return nullptr;
     }
@@ -157,12 +157,12 @@ public:
     void SetPromiseRejectCallback(NativeReference* rejectCallbackRef, NativeReference* checkCallbackRef) override
     {}
 
-    MOCK_METHOD2(CreateError, NativeValue*(NativeValue*, NativeValue*));
+    MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
     NativeValue* CallFunction(NativeValue* thisVar,
-                                      NativeValue* function,
-                                      NativeValue* const *argv,
-                                      size_t argc) override
+        NativeValue* function,
+        NativeValue* const* argv,
+        size_t argc) override
     {
         return nullptr;
     }
@@ -193,15 +193,15 @@ public:
     }
 
     NativeValue* DefineClass(const char* name,
-                                     NativeCallback callback,
-                                     void* data,
-                                     const NativePropertyDescriptor* properties,
-                                     size_t length) override
+        NativeCallback callback,
+        void* data,
+        const NativePropertyDescriptor* properties,
+        size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue* CreateInstance(NativeValue* constructor, NativeValue* const *argv, size_t argc) override
+    NativeValue* CreateInstance(NativeValue* constructor, NativeValue* const* argv, size_t argc) override
     {
         return nullptr;
     }
@@ -286,12 +286,12 @@ public:
         return true;
     }
 
-    bool BuildNativeAndJsStackTrace(std::string &stackTraceStr) override
+    bool BuildNativeAndJsStackTrace(std::string& stackTraceStr) override
     {
         return true;
     }
 
-    bool BuildJsStackTrace(std::string &stackTraceStr) override
+    bool BuildJsStackTrace(std::string& stackTraceStr) override
     {
         return true;
     }
@@ -311,7 +311,7 @@ public:
         return true;
     }
 
-    bool StopHeapTracking(const std::string &filePath) override
+    bool StopHeapTracking(const std::string& filePath) override
     {
         return true;
     }
@@ -351,7 +351,7 @@ public:
         bool isPrivate = false) override
     {}
 
-    void DumpHeapSnapshot(const std::string &path, bool isVmMode = true,
+    void DumpHeapSnapshot(const std::string& path, bool isVmMode = true,
         DumpFormat dumpFormat = DumpFormat::JSON) override
     {}
 

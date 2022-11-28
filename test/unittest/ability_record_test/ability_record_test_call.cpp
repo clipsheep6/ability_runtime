@@ -42,9 +42,9 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
-    std::shared_ptr<AbilityResult> abilityResult_ {nullptr};
-    std::shared_ptr<AbilityRequest> abilityRequest_ {nullptr};
+    std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
+    std::shared_ptr<AbilityResult> abilityResult_{ nullptr };
+    std::shared_ptr<AbilityRequest> abilityRequest_{ nullptr };
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
 };
 
@@ -78,17 +78,17 @@ void AbilityRecordTest::TearDown(void)
     abilityRequest_.reset();
 }
 
-bool IsTestAbilityExist(const std::string &data)
+bool IsTestAbilityExist(const std::string& data)
 {
     return std::string::npos != data.find("previous ability app name [NULL]");
 }
 
-bool IsTestAbilityExist1(const std::string &data)
+bool IsTestAbilityExist1(const std::string& data)
 {
     return std::string::npos != data.find("test_pre_app");
 }
 
-bool IsTestAbilityExist2(const std::string &data)
+bool IsTestAbilityExist2(const std::string& data)
 {
     return std::string::npos != data.find("test_next_app");
 }
@@ -190,11 +190,11 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
     abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
-        public:
-            virtual sptr<IRemoteObject> CallRequest() override
-            {
-                return sptr<IRemoteObject>(this);
-            }
+    public:
+        virtual sptr<IRemoteObject> CallRequest() override
+        {
+            return sptr<IRemoteObject>(this);
+        }
     };
 
     OHOS::sptr<AbilitySchedulerMockFunction> scheduler = new AbilitySchedulerMockFunction();
@@ -376,7 +376,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetStartToBackground_002, TestSize.L
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetSpecifiedFlag_001, TestSize.Level1)
 {
-    const std::string specifiedFlag= "flag";
+    const std::string specifiedFlag = "flag";
     abilityRecord_->SetSpecifiedFlag(specifiedFlag);
     EXPECT_EQ(specifiedFlag, abilityRecord_->GetSpecifiedFlag());
 }

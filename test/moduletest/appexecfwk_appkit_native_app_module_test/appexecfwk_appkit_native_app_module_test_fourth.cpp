@@ -32,7 +32,7 @@ using namespace OHOS::AAFwk;
 const int TestProcessInfo = 9999;
 
 template<typename F>
-static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<EventHandler> &handler, std::atomic<bool> &taskCalled)
+static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<EventHandler>& handler, std::atomic<bool>& taskCalled)
 {
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
@@ -49,7 +49,7 @@ static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<EventHandler> 
     }
 }
 
-static void WaitUntilTaskDone(const std::shared_ptr<EventHandler> &handler)
+static void WaitUntilTaskDone(const std::shared_ptr<EventHandler>& handler)
 {
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
@@ -63,7 +63,7 @@ public:
     ~AppkitNativeModuleTestThird()
     {}
     OHOS::sptr<OHOS::IRemoteObject> AppMgrObject_ = nullptr;
-    MockAppMgrService *mockAppMgr = nullptr;
+    MockAppMgrService* mockAppMgr = nullptr;
     std::shared_ptr<MockHandler> mockHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     static void SetUpTestCase(void);

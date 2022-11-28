@@ -33,40 +33,40 @@ AppMgrClient::AppMgrClient()
 AppMgrClient::~AppMgrClient()
 {}
 
-void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, RunningProcessInfo &info)
+void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, RunningProcessInfo& info)
 {}
 
-void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const {}
+void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const {}
 
-AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-    const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want)
+AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+    const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
+AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+AppMgrResultCode AppMgrClient::UpdateAbilityState(const sptr<IRemoteObject>& token, const AbilityState state)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
+AppMgrResultCode AppMgrClient::RegisterAppStateCallback(const sptr<IAppStateCallback>& callback)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token,
-    const sptr<IRemoteObject> &preToken, const int32_t visibility, const int32_t perceptibility,
+AppMgrResultCode AppMgrClient::AbilityBehaviorAnalysis(const sptr<IRemoteObject>& token,
+    const sptr<IRemoteObject>& preToken, const int32_t visibility, const int32_t perceptibility,
     const int32_t connectionState)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
+AppMgrResultCode AppMgrClient::KillProcessByAbilityToken(const sptr<IRemoteObject>& token)
 {
     return AppMgrResultCode::RESULT_OK;
 }
@@ -76,17 +76,17 @@ AppMgrResultCode AppMgrClient::KillProcessesByUserId(int32_t userId)
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName)
+AppMgrResultCode AppMgrClient::KillApplication(const std::string& bundleName)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName)
+AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string& bundleName)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
+AppMgrResultCode AppMgrClient::GetAllRunningProcesses(std::vector<RunningProcessInfo>& info)
 {
     return AppMgrResultCode::RESULT_OK;
 }
@@ -99,10 +99,10 @@ AppMgrResultCode AppMgrClient::ConnectAppMgrService()
 // void AppMgrClient::SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr)
 // {}
 
-void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
+void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject>& token)
 {}
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

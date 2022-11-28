@@ -114,7 +114,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0100, TestSize.Level1)
     Parcel parcel;
     parcel.WriteParcelable(&elementName);
 
-    ExtensionRunningInfo *extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
+    ExtensionRunningInfo* extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
     EXPECT_NE(extensionRunningInfo, nullptr);
 
     HILOG_INFO("Unmarshalling end");
@@ -131,7 +131,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0200, TestSize.Level1)
     HILOG_INFO("Unmarshalling start");
 
     Parcel parcel;
-    ExtensionRunningInfo *extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
+    ExtensionRunningInfo* extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
     EXPECT_EQ(extensionRunningInfo, nullptr);
 
     HILOG_INFO("Unmarshalling end");

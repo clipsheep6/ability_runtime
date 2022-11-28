@@ -29,7 +29,7 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string BUNDLE_NAME = "testBundle";
+const std::string BUNDLE_NAME = "testBundle";
 }
 
 namespace OHOS {

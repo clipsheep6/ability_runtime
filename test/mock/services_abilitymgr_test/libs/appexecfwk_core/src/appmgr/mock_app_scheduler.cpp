@@ -33,7 +33,7 @@ AppScheduler::~AppScheduler()
     HILOG_INFO("Test AppScheduler::~AppScheduler()");
 }
 
-bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
+bool AppScheduler::Init(const std::weak_ptr<AppStateCallback>& callback)
 {
     HILOG_INFO("Test AppScheduler::Init()");
     if (!callback.lock()) {
@@ -42,9 +42,9 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     return true;
 }
 
-int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-    const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo,
-    const AAFwk::Want &want)
+int AppScheduler::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+    const AppExecFwk::AbilityInfo& abilityInfo, const AppExecFwk::ApplicationInfo& applicationInfo,
+    const AAFwk::Want& want)
 {
     HILOG_INFO("Test AppScheduler::LoadAbility()");
     if (applicationInfo.bundleName.find("com.ix.First.Test") != std::string::npos) {
@@ -53,29 +53,29 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     return ERR_OK;
 }
 
-int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
+int AppScheduler::TerminateAbility(const sptr<IRemoteObject>& token, bool isClearMissionFlag)
 {
     HILOG_INFO("Test AppScheduler::TerminateAbility()");
     return ERR_OK;
 }
 
-void AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
+void AppScheduler::MoveToForeground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Test AppScheduler::MoveToForeground()");
 }
 
-void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
+void AppScheduler::MoveToBackground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Test AppScheduler::MoveToBackground()");
 }
 
-void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
+void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
 {
     HILOG_INFO("Test AppScheduler::AbilityBehaviorAnalysis()");
 }
 
-void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
+void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Test AppScheduler::KillProcessByAbilityToken()");
 }
@@ -105,79 +105,79 @@ AppAbilityState AppScheduler::GetAbilityState() const
     return appAbilityState_;
 }
 
-void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
+void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject>& token, const AppExecFwk::AbilityState state)
 {
     HILOG_INFO("Test AppScheduler::OnAbilityRequestDone()");
 }
 
-int AppScheduler::KillApplication(const std::string &bundleName)
+int AppScheduler::KillApplication(const std::string& bundleName)
 {
     HILOG_INFO("Test AppScheduler::KillApplication()");
     return ERR_OK;
 }
 
-void AppScheduler::AttachTimeOut(const sptr<IRemoteObject> &token)
+void AppScheduler::AttachTimeOut(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Test AppScheduler::AttachTimeOut()");
 }
 
-void AppScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Test AppScheduler::PrepareTerminate()");
 }
 
-void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
+void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData& appData)
 {
     HILOG_INFO("Test AppScheduler::OnAppStateChanged()");
 }
 
-int AppScheduler::ClearUpApplicationData(const std::string &bundleName)
+int AppScheduler::ClearUpApplicationData(const std::string& bundleName)
 {
     HILOG_INFO("Test AppScheduler::ClearUpApplicationData()");
     return ERR_OK;
 }
 
-void AppScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
+void AppScheduler::UpdateAbilityState(const sptr<IRemoteObject>& token, const AppExecFwk::AbilityState state)
 {
     HILOG_INFO("Test AppScheduler::UpdateAbilityState()");
 }
 
-void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const AppExecFwk::ExtensionState state)
+void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject>& token, const AppExecFwk::ExtensionState state)
 {
     HILOG_INFO("Test AppScheduler::UpdateExtensionState()");
 }
 
-void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo>& bundleInfos)
 {
     HILOG_INFO("Test AppScheduler::StartupResidentProcess()");
 }
 
-int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
+int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo>& info)
 {
     HILOG_INFO("Test AppScheduler::GetProcessRunningInfos()");
     return 0;
 }
 
-void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
+void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info)
 {
     HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByToken()");
 }
 
-void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const
 {
     HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByPid()");
 }
 
-void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AppScheduler::StartSpecifiedAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo)
 {}
 
 int AppScheduler::StartUserTest(
-    const Want &want, const sptr<IRemoteObject> &observer, const AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
+    const Want& want, const sptr<IRemoteObject>& observer, const AppExecFwk::BundleInfo& bundleInfo, int32_t userId)
 {
     return 0;
 }
 
-int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo& application, bool& debug)
 {
     if (pid < 0) {
         return -1;
@@ -186,7 +186,7 @@ int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return 0;
 }
 
-int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
+int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>>& tokens)
 {
     return 0;
 }

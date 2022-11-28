@@ -30,7 +30,7 @@ public:
     void SetUp();
     void TearDown();
 
-    void WriteInterfaceToken(MessageParcel &data);
+    void WriteInterfaceToken(MessageParcel& data);
 };
 
 void AbilityConnectCallBackStubTest::SetUpTestCase(void)
@@ -42,7 +42,7 @@ void AbilityConnectCallBackStubTest::SetUp()
 void AbilityConnectCallBackStubTest::TearDown()
 {}
 
-void AbilityConnectCallBackStubTest::WriteInterfaceToken(MessageParcel &data)
+void AbilityConnectCallBackStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(AbilityConnectionProxy::GetDescriptor());
 }

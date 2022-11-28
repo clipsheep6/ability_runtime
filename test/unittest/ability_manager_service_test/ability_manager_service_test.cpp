@@ -70,13 +70,13 @@ public:
     void TearDown();
     sptr<Token> MockToken();
 
-    AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName, const std::string &moduleName);
+    AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName, const std::string& moduleName);
 
 public:
-    inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
-    AbilityRequest abilityRequest_ {};
-    Want want_ {};
+    inline static std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
+    AbilityRequest abilityRequest_{};
+    Want want_{};
 };
 
 sptr<Token> AbilityManagerServiceTest::MockToken()
@@ -93,9 +93,9 @@ sptr<Token> AbilityManagerServiceTest::MockToken()
     return abilityRecord->GetToken();
 }
 
-AbilityRequest AbilityManagerServiceTest::GenerateAbilityRequest(const std::string &deviceName,
-    const std::string &abilityName, const std::string &appName, const std::string &bundleName,
-    const std::string &moduleName)
+AbilityRequest AbilityManagerServiceTest::GenerateAbilityRequest(const std::string& deviceName,
+    const std::string& abilityName, const std::string& appName, const std::string& bundleName,
+    const std::string& moduleName)
 {
     ElementName element(deviceName, bundleName, abilityName, moduleName);
     want_.SetElement(element);

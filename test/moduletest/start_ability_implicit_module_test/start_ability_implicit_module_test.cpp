@@ -34,12 +34,12 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 namespace {
-    const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
-    const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
-    const std::string EVENT_TIPS_APP = "EVENT_TIPS_APP";
-    const std::string ACTION_VIEW = "ohos.want.action.viewData";
-    const std::string WANT_TYPE = "image/png";
-    const int32_t MOCK_MAIN_USER_ID = 100;
+const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
+const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
+const std::string EVENT_TIPS_APP = "EVENT_TIPS_APP";
+const std::string ACTION_VIEW = "ohos.want.action.viewData";
+const std::string WANT_TYPE = "image/png";
+const int32_t MOCK_MAIN_USER_ID = 100;
 }
 namespace OHOS {
 namespace AAFwk {
@@ -73,7 +73,7 @@ public:
 
 public:
     AbilityRequest abilityRequest_;
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
+    std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 

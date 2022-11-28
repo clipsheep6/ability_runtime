@@ -62,19 +62,19 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    Want CreateWant(const std::string &entity);
-    AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName);
-    ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
+    Want CreateWant(const std::string& entity);
+    AbilityInfo CreateAbilityInfo(const std::string& name, const std::string& appName, const std::string& bundleName);
+    ApplicationInfo CreateAppInfo(const std::string& appName, const std::string& name);
     bool MockAppClient() const;
     void WaitAMS();
 
-    inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_ {nullptr};
-    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
-    sptr<MockAbilityScheduler> scheduler_ {nullptr};
+    inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_{ nullptr };
+    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
+    sptr<MockAbilityScheduler> scheduler_{ nullptr };
     inline static bool doOnce_ = false;  // In order for mock to execute once
 };
 
-Want SpecifiedAbilityServiceTest::CreateWant(const std::string &entity)
+Want SpecifiedAbilityServiceTest::CreateWant(const std::string& entity)
 {
     Want want;
     if (!entity.empty()) {
@@ -84,7 +84,7 @@ Want SpecifiedAbilityServiceTest::CreateWant(const std::string &entity)
 }
 
 AbilityInfo SpecifiedAbilityServiceTest::CreateAbilityInfo(
-    const std::string &name, const std::string &appName, const std::string &bundleName)
+    const std::string& name, const std::string& appName, const std::string& bundleName)
 {
     AbilityInfo abilityInfo;
     abilityInfo.visible = true;
@@ -100,7 +100,7 @@ AbilityInfo SpecifiedAbilityServiceTest::CreateAbilityInfo(
     return abilityInfo;
 }
 
-ApplicationInfo SpecifiedAbilityServiceTest::CreateAppInfo(const std::string &appName, const std::string &bundleName)
+ApplicationInfo SpecifiedAbilityServiceTest::CreateAppInfo(const std::string& appName, const std::string& bundleName)
 {
     ApplicationInfo appInfo;
     appInfo.name = appName;

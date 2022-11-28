@@ -48,17 +48,17 @@ public:
     ErrCode Request(const AAFwk::Want& want, const std::string& name, const std::string& data);
 
     ErrCode ReturnRequest(
-        const AAFwk::Want& want, const std::string& source,  const std::string& data,  const std::string& extraData);
+        const AAFwk::Want& want, const std::string& source, const std::string& data, const std::string& extraData);
 
     ErrCode ShowDialog(const std::string& name,
-                       const std::string& params,
-                       OHOS::Rosen::WindowType windowType,
-                       int x,
-                       int y,
-                       int width,
-                       int height,
-                       DialogCallback callback,
-                       int* id = nullptr);
+        const std::string& params,
+        OHOS::Rosen::WindowType windowType,
+        int x,
+        int y,
+        int width,
+        int height,
+        DialogCallback callback,
+        int* id = nullptr);
 
     ErrCode CancelDialog(int32_t id);
 

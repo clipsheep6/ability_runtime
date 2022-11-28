@@ -32,8 +32,8 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-    const int32_t API_VERSION = 9;
-    const int32_t USER_ID_U100 = 100;
+const int32_t API_VERSION = 9;
+const int32_t USER_ID_U100 = 100;
 }
 class AbilityManagerServiceDistributedTest : public testing::Test {
 public:
@@ -42,8 +42,8 @@ public:
     void SetUp() override;
     void TearDown() override;
 public:
-    inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
-    inline static std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
+    inline static std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
+    inline static std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
 };
 
 void AbilityManagerServiceDistributedTest::SetUpTestCase(void)

@@ -85,7 +85,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0100, Function | MediumTe
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
     EXPECT_FALSE(callback->IsCallBack());
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
@@ -125,7 +125,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTe
 {
     Want want;
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
     EXPECT_FALSE(callback->IsCallBack());
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
@@ -143,7 +143,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0100, Function | MediumTes
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == 0);
@@ -160,7 +160,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0100, Function | MediumTes
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_FALSE(ret == 0);
@@ -178,8 +178,8 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0100, Function | Medium
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     bool isSetOnReleaseCalled = false;
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
-    callback->SetOnRelease([&isSetOnReleaseCalled](const std::string &result) mutable {
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
+    callback->SetOnRelease([&isSetOnReleaseCalled](const std::string& result) mutable {
         GTEST_LOG_(ERROR) << "OnRelease-----------" << result;
         EXPECT_TRUE(result == "died");
         isSetOnReleaseCalled = true;
@@ -207,12 +207,12 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0200, Function | Medium
 {
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     bool isSetOnReleaseCalled = false;
-    callback->SetOnRelease([&isSetOnReleaseCalled](const std::string &result) mutable {
+    callback->SetOnRelease([&isSetOnReleaseCalled](const std::string& result) mutable {
         GTEST_LOG_(ERROR) << "OnRelease-----------" << result;
         isSetOnReleaseCalled = true;
     });
 
-    AppExecFwk::ElementName elementName ("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     LocalCallRecord localCallRecord(elementName);
 
     sptr<IRemoteObject> callRemoteObject =

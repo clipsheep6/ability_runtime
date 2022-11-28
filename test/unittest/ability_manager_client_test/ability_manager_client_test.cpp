@@ -43,8 +43,8 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<AbilityManagerClient> client_ {nullptr};
-    sptr<AbilityManagerStubTestMock> mock_ {nullptr};
+    std::shared_ptr<AbilityManagerClient> client_{ nullptr };
+    sptr<AbilityManagerStubTestMock> mock_{ nullptr };
 };
 
 void AbilityManagerClientTest::SetUpTestCase(void)
@@ -803,9 +803,9 @@ HWTEST_F(AbilityManagerClientTest, GetMissionIdByToken_0100, TestSize.Level1)
 HWTEST_F(AbilityManagerClientTest, GetExtensionRunningInfos_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "GetExtensionRunningInfos_0100 start";
-    EXPECT_CALL(*mock_,GetExtensionRunningInfos(_, _))
-    .Times(1)
-    .WillOnce(Return(0));
+    EXPECT_CALL(*mock_, GetExtensionRunningInfos(_, _))
+        .Times(1)
+        .WillOnce(Return(0));
     int upperLimit = 1;
     std::vector<ExtensionRunningInfo> info;
     auto result = client_->GetExtensionRunningInfos(upperLimit, info);
@@ -823,8 +823,8 @@ HWTEST_F(AbilityManagerClientTest, GetProcessRunningInfos_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "GetProcessRunningInfos_0100 start";
     EXPECT_CALL(*mock_, GetProcessRunningInfos(_))
-    .Times(1)
-    .WillOnce(Return(0));
+        .Times(1)
+        .WillOnce(Return(0));
     std::vector<RunningProcessInfo> info;
     auto result = client_->GetProcessRunningInfos(info);
 
@@ -1016,8 +1016,8 @@ HWTEST_F(AbilityManagerClientTest, BlockAmsService_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "BlockAmsService_0100 start";
     EXPECT_CALL(*mock_, BlockAmsService())
-    .Times(1)
-    .WillOnce(Return(0));
+        .Times(1)
+        .WillOnce(Return(0));
     auto result = client_->BlockAmsService();
 
     EXPECT_EQ(result, ERR_OK);
@@ -1033,8 +1033,8 @@ HWTEST_F(AbilityManagerClientTest, BlockAppService_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "BlockAppService_0100 start";
     EXPECT_CALL(*mock_, BlockAppService())
-    .Times(1)
-    .WillOnce(Return(0));
+        .Times(1)
+        .WillOnce(Return(0));
     auto result = client_->BlockAppService(info);
 
     EXPECT_EQ(result, ERR_OK);
@@ -1050,8 +1050,8 @@ HWTEST_F(AbilityManagerClientTest, BlockAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "BlockAbility_0100 start";
     EXPECT_CALL(*mock_, BlockAbility(_))
-    .Times(1)
-    .WillOnce(Return(0));
+        .Times(1)
+        .WillOnce(Return(0));
     int32_t abilityRecordId = 1;
     auto result = client_->BlockAbility(abilityRecordId);
 
@@ -1071,7 +1071,7 @@ HWTEST_F(AbilityManagerClientTest, DumpAbilityInfoDone_0100, TestSize.Level1)
     std::vector<std::string> infos;
     infos.emplace_back("DumpAbilityInfoDone");
     sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->DumpAbilityInfoDone(infos,callerToken);
+    auto result = client_->DumpAbilityInfoDone(infos, callerToken);
 
     EXPECT_EQ(ERR_OK, result);
     GTEST_LOG_(INFO) << "DumpAbilityInfoDone_0100 end";
@@ -1088,7 +1088,7 @@ HWTEST_F(AbilityManagerClientTest, FreeInstallAbilityFromRemote_0100, TestSize.L
     Want want;
     sptr<IRemoteObject> callback = nullptr;
     int32_t userId = 0;
-    auto result = client_->FreeInstallAbilityFromRemote(want,callback,userId);
+    auto result = client_->FreeInstallAbilityFromRemote(want, callback, userId);
 
     EXPECT_EQ(ERR_OK, result);
     GTEST_LOG_(INFO) << "FreeInstallAbilityFromRemote_0100 end";

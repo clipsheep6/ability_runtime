@@ -533,7 +533,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -570,7 +570,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -607,7 +607,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -644,7 +644,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -681,7 +681,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -713,7 +713,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -745,7 +745,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -777,7 +777,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -809,7 +809,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0100, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_001 StartAbility";
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
@@ -842,7 +842,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0200, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_002 BackGround";
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);

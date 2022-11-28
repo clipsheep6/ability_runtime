@@ -38,7 +38,7 @@ public:
     void TearDown();
 
 public:
-    std::shared_ptr<AbilityManagerService> aams_ {nullptr};
+    std::shared_ptr<AbilityManagerService> aams_{ nullptr };
 };
 
 void AbilityServiceStartTest::SetUpTestCase()
@@ -189,8 +189,8 @@ HWTEST_F(AbilityServiceStartTest, StartUpEvent_001, TestSize.Level1)
 {
     aams_->OnStart();
     const int bufferLen = 128;
-    char paramOutBuf[bufferLen] = {0};
-    const char *hookMode = "true";
+    char paramOutBuf[bufferLen] = { 0 };
+    const char* hookMode = "true";
     int ret = GetParameter("bootevent.bootanimation.started", "", paramOutBuf, bufferLen);
     EXPECT_TRUE(strncmp(paramOutBuf, hookMode, strlen(hookMode)) == 0);
 

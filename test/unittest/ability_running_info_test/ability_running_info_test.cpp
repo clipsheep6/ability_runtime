@@ -25,7 +25,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AAFwk {
-const int32_t USER_ID_U100  = 100;
+const int32_t USER_ID_U100 = 100;
 class AbilityRunningInfoTest : public testing::Test {
 public:
     static void SetUpTestCase();

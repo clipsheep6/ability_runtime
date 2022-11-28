@@ -27,12 +27,12 @@ const int32_t ERROR_USER_ID_U256 = 256;
 }
 
 int BundleMgrProxy::QueryWantAbility(
-    const AAFwk::Want &__attribute__((unused)) want, std::vector<AbilityInfo> &__attribute__((unused)) abilityInfos)
+    const AAFwk::Want& __attribute__((unused)) want, std::vector<AbilityInfo>& __attribute__((unused)) abilityInfos)
 {
     return 0;
 }
 
-bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     ElementName eleName = want.GetElement();
     if (eleName.GetBundleName().empty()) {
@@ -49,13 +49,13 @@ bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abil
 }
 
 bool BundleMgrProxy::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -65,20 +65,20 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     bundleInfo.uid = 0;
     return true;
 }
 
-bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags, int32_t userId,
-    AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want& want, int32_t flags, int32_t userId,
+    AbilityInfo& abilityInfo)
 {
     auto flag = QueryAbilityInfo(want, abilityInfo);
     if (userId == ERROR_USER_ID_U256) {
@@ -87,7 +87,7 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags, 
     return flag;
 }
 
-bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     if (CheckWantEntity(want, abilityInfo)) {
         return true;
@@ -137,7 +137,7 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     appInfo.name = appName;
     appInfo.bundleName = appName;
@@ -145,14 +145,14 @@ bool BundleMgrService::GetApplicationInfo(
     return true;
 }
 
-bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrService::CheckWantEntity(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     auto entityVector = want.GetEntities();
     ElementName element = want.GetElement();
 
     auto find = false;
     // filter ams onstart
-    for (const auto &entity : entityVector) {
+    for (const auto& entity : entityVector) {
         if (entity == Want::FLAG_HOME_INTENT_FROM_SYSTEM && element.GetAbilityName().empty() &&
             element.GetBundleName().empty()) {
             find = true;
@@ -163,23 +163,23 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
     auto bundleName = element.GetBundleName();
     auto abilityName = element.GetAbilityName();
     if (find || (bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME &&
-                    (abilityName == AbilityConfig::SYSTEM_UI_STATUS_BAR ||
-                        abilityName == AbilityConfig::SYSTEM_UI_NAVIGATION_BAR))) {
+        (abilityName == AbilityConfig::SYSTEM_UI_STATUS_BAR ||
+            abilityName == AbilityConfig::SYSTEM_UI_NAVIGATION_BAR))) {
         return true;
     }
 
     return false;
 }
 
-bool BundleMgrService::ImplicitQueryInfos(const Want &want, int32_t flags, int32_t userId,
-    std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> &extensionInfos)
+bool BundleMgrService::ImplicitQueryInfos(const Want& want, int32_t flags, int32_t userId,
+    std::vector<AbilityInfo>& abilityInfos, std::vector<ExtensionAbilityInfo>& extensionInfos)
 {
     if (want.GetAction() == "ohos.want.action.viewData") {
         auto num = want.GetIntParam("numMock", 0);
         if (num == 0) {
             return true;
         }
-        for (auto i = 0 ; i < num; i++) {
+        for (auto i = 0; i < num; i++) {
             AbilityInfo info;
             int labelId = 1;
             int iconId = 1;

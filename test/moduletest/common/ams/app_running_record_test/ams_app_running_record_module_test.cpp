@@ -66,8 +66,8 @@ protected:
         return "";
     }
 
-    void CheckLaunchApplication(const sptr<MockApplication> &mockApplication, const unsigned long index,
-        std::shared_ptr<AppRunningRecord> record, const std::string &testPoint) const
+    void CheckLaunchApplication(const sptr<MockApplication>& mockApplication, const unsigned long index,
+        std::shared_ptr<AppRunningRecord> record, const std::string& testPoint) const
     {
         EXPECT_TRUE(record != nullptr) << "record is nullptr!";
         sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
@@ -97,7 +97,7 @@ protected:
 
     void CheckAppRunningRecording(const std::shared_ptr<ApplicationInfo> appInfo,
         const std::shared_ptr<AbilityInfo> abilityInfo, const std::shared_ptr<AppRunningRecord> record, const int index,
-        RecordQueryResult &result) const
+        RecordQueryResult& result) const
     {
         EXPECT_TRUE(service_ != nullptr) << "init service fail!";
         EXPECT_TRUE(appInfo != nullptr) << "appInfo is nullptr!";
@@ -128,8 +128,8 @@ protected:
         EXPECT_EQ(abilityName, abilityNameFromServ) << "fail, app record name is not equal!";
     }
 
-    std::unique_ptr<AppMgrServiceInner> service_ {nullptr};
-    sptr<BundleMgrService> mockBundleMgr_ {nullptr};
+    std::unique_ptr<AppMgrServiceInner> service_{ nullptr };
+    sptr<BundleMgrService> mockBundleMgr_{ nullptr };
 
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -151,7 +151,7 @@ private:
         "test_ability_name4",
         "test_ability_name5",
     };
-    sptr<MockAbilityToken> mockToken_ {nullptr};
+    sptr<MockAbilityToken> mockToken_{ nullptr };
 };
 
 void AmsAppRunningRecordModuleTest::SetUpTestCase()

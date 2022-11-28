@@ -25,106 +25,106 @@ AbilityScheduler::AbilityScheduler()
 AbilityScheduler::~AbilityScheduler()
 {}
 
-void AbilityScheduler::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState)
+void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("AbilityScheduler ScheduleAbilityTransaction %d", targetState.state);
     (void)want;
 }
 
-void AbilityScheduler::SendResult(int requestCode, int resultCode, const Want &resultWant)
+void AbilityScheduler::SendResult(int requestCode, int resultCode, const Want& resultWant)
 {
     HILOG_INFO("AbilityScheduler SendResult %d resultCode %d", requestCode, resultCode);
     result_ = AbilityResult(requestCode, resultCode, resultWant);
 }
 
-const AbilityResult &AbilityScheduler::GetResult() const
+const AbilityResult& AbilityScheduler::GetResult() const
 {
     return result_;
 }
 
-void AbilityScheduler::ScheduleConnectAbility(const Want &want)
+void AbilityScheduler::ScheduleConnectAbility(const Want& want)
 {
     (void)want;
 }
 
-void AbilityScheduler::ScheduleDisconnectAbility(const Want &want)
+void AbilityScheduler::ScheduleDisconnectAbility(const Want& want)
 {}
 
-void AbilityScheduler::ScheduleCommandAbility(const Want &want, bool restart, int startId)
+void AbilityScheduler::ScheduleCommandAbility(const Want& want, bool restart, int startId)
 {}
 
 void AbilityScheduler::ScheduleSaveAbilityState()
 {}
 
-void AbilityScheduler::ScheduleRestoreAbilityState(const PacMap &inState)
+void AbilityScheduler::ScheduleRestoreAbilityState(const PacMap& inState)
 {}
 
-std::vector<std::string> AbilityScheduler::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> AbilityScheduler::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     std::vector<std::string> values;
     return values;
 }
 
-int AbilityScheduler::OpenFile(const Uri &uri, const std::string &mode)
+int AbilityScheduler::OpenFile(const Uri& uri, const std::string& mode)
 {
     return -1;
 }
 
-int AbilityScheduler::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int AbilityScheduler::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     return -1;
 }
 
-int AbilityScheduler::Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-    const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityScheduler::Update(const Uri& uri, const NativeRdb::ValuesBucket& value,
+    const NativeRdb::DataAbilityPredicates& predicates)
 {
     return -1;
 }
 
-int AbilityScheduler::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityScheduler::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     return -1;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityScheduler::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     return nullptr;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityScheduler::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
 {
     return nullptr;
 }
 
-std::string AbilityScheduler::GetType(const Uri &uri)
+std::string AbilityScheduler::GetType(const Uri& uri)
 {
     return result_.resultWant_.GetType();
 }
 
-int AbilityScheduler::OpenRawFile(const Uri &uri, const std::string &mode)
+int AbilityScheduler::OpenRawFile(const Uri& uri, const std::string& mode)
 {
     return -1;
 }
 
-bool AbilityScheduler::Reload(const Uri &uri, const PacMap &extras)
+bool AbilityScheduler::Reload(const Uri& uri, const PacMap& extras)
 {
     return false;
 }
 
-int AbilityScheduler::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int AbilityScheduler::BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     return -1;
 }
 
-Uri AbilityScheduler::NormalizeUri(const Uri &uri)
+Uri AbilityScheduler::NormalizeUri(const Uri& uri)
 {
     Uri urivalue("");
     return urivalue;
 }
 
-Uri AbilityScheduler::DenormalizeUri(const Uri &uri)
+Uri AbilityScheduler::DenormalizeUri(const Uri& uri)
 {
     Uri urivalue("");
     return urivalue;

@@ -279,7 +279,7 @@ HWTEST_F(AmsIpcAppSchedulerModuleTest, ExcuteApplicationIPCInterface_010, TestSi
         sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler);
         bool testResult = false;
 
-        auto mockHandler = [&](const Configuration &config) {
+        auto mockHandler = [&](const Configuration& config) {
             testResult = (val == config.GetItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
             sem.Post();
         };

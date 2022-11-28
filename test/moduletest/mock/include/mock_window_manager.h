@@ -26,15 +26,15 @@ class WindowManagerServiceMock : public IWindowManagerService {
 public:
     virtual ~WindowManagerServiceMock() = default;
 
-    MOCK_METHOD1(GetDisplays, WMError(std::vector<struct WMDisplayInfo> &displays));
+    MOCK_METHOD1(GetDisplays, WMError(std::vector<struct WMDisplayInfo>& displays));
     MOCK_METHOD1(GetDisplayPower, sptr<PromisePowerStatus>(int32_t did));
     MOCK_METHOD2(SetDisplayPower, sptr<PromiseWMError>(int32_t did, DispPowerStatus status));
     MOCK_METHOD1(GetDisplayBacklight, sptr<PromiseBacklight>(int32_t did));
     MOCK_METHOD2(SetDisplayBacklight, sptr<PromiseWMError>(int32_t did, uint32_t level));
-    MOCK_METHOD1(GetDisplayModes, WMError(uint32_t &displayModes));
+    MOCK_METHOD1(GetDisplayModes, WMError(uint32_t& displayModes));
     MOCK_METHOD1(SetDisplayMode, sptr<PromiseWMError>(WMSDisplayMode modes));
-    MOCK_METHOD1(AddDisplayChangeListener, WMError(IWindowManagerDisplayListenerClazz *listener));
-    MOCK_METHOD1(OnWindowListChange, sptr<PromiseWMError>(IWindowChangeListenerClazz *listener));
+    MOCK_METHOD1(AddDisplayChangeListener, WMError(IWindowManagerDisplayListenerClazz* listener));
+    MOCK_METHOD1(OnWindowListChange, sptr<PromiseWMError>(IWindowChangeListenerClazz* listener));
     MOCK_METHOD1(SetDisplayDirection, WMError(WMSDisplayDirection direction));
     MOCK_METHOD1(OnDisplayDirectionChange, WMError(DisplayDirectionChangeFunc func));
     MOCK_METHOD1(SetStatusBarVisibility, sptr<PromiseWMError>(bool visibility));

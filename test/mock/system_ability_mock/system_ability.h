@@ -24,11 +24,11 @@ namespace OHOS {
 #define REGISTER_SYSTEM_ABILITY(abilityClassName, abilityId, runOnCreate)
 #define DECLEAR_SYSTEM_ABILITY(className)
 
-static constexpr HiviewDFX::HiLogLabel LABEL = {LOG_CORE, 0xD001100, "MockSystemAbility"};
+static constexpr HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD001100, "MockSystemAbility" };
 
 class SystemAbility {
 public:
-    static bool MakeAndRegisterAbility(SystemAbility *)
+    static bool MakeAndRegisterAbility(SystemAbility*)
     {
         return true;
     }

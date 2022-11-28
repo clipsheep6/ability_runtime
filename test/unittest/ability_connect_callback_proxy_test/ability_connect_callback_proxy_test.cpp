@@ -29,7 +29,7 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<AbilityConnectionProxy> proxy_ {nullptr};
+    std::shared_ptr<AbilityConnectionProxy> proxy_{ nullptr };
 };
 
 void AbilityConnectCallBackProxyTest::SetUpTestCase(void)

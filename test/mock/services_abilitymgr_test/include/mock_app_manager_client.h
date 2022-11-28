@@ -28,18 +28,18 @@ public:
     {}
     ~MockAppMgrClient()
     {}
-    MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want));
+    MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want));
 
-    MOCK_METHOD1(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject> &));
-    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject> &token, const AbilityState state));
-    MOCK_METHOD1(RegisterAppStateCallback, AppMgrResultCode(const sptr<IAppStateCallback> &callback));
+    MOCK_METHOD1(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&));
+    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD1(RegisterAppStateCallback, AppMgrResultCode(const sptr<IAppStateCallback>& callback));
     MOCK_METHOD0(ConnectAppMgrService, AppMgrResultCode());
-    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string &));
+    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
     MOCK_METHOD5(AbilityBehaviorAnalysis,
-        AppMgrResultCode(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
+        AppMgrResultCode(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
             const int32_t visibility, const int32_t perceptibility, const int32_t connectionState));
-    MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject> &token));
+    MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, AppMgrResultCode(int32_t userId));
 };
 }  // namespace AppExecFwk

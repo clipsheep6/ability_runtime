@@ -32,27 +32,27 @@ public:
     virtual ~AppControlProxy();
 
     // for app install control rule
-    virtual ErrCode AddAppInstallControlRule(const std::vector<std::string> &appIds,
+    virtual ErrCode AddAppInstallControlRule(const std::vector<std::string>& appIds,
         const AppInstallControlRuleType controlRuleType, int32_t userId) override;
     virtual ErrCode DeleteAppInstallControlRule(const AppInstallControlRuleType controlRuleType,
-        const std::vector<std::string> &appIds, int32_t userId) override;
+        const std::vector<std::string>& appIds, int32_t userId) override;
     virtual ErrCode DeleteAppInstallControlRule(
         const AppInstallControlRuleType controlRuleType, int32_t userId) override;
     virtual ErrCode GetAppInstallControlRule(
-        const AppInstallControlRuleType controlRuleType, int32_t userId, std::vector<std::string> &appIds) override;
+        const AppInstallControlRuleType controlRuleType, int32_t userId, std::vector<std::string>& appIds) override;
     // for app running control rule
     virtual ErrCode AddAppRunningControlRule(
-        const std::vector<AppRunningControlRule> &controlRule, int32_t userId) override;
+        const std::vector<AppRunningControlRule>& controlRule, int32_t userId) override;
     virtual ErrCode DeleteAppRunningControlRule(
-        const std::vector<AppRunningControlRule> &controlRule, int32_t userId) override;
+        const std::vector<AppRunningControlRule>& controlRule, int32_t userId) override;
     virtual ErrCode DeleteAppRunningControlRule(int32_t userId) override;
-    virtual ErrCode GetAppRunningControlRule(int32_t userId, std::vector<std::string> &appIds) override;
+    virtual ErrCode GetAppRunningControlRule(int32_t userId, std::vector<std::string>& appIds) override;
     virtual ErrCode GetAppRunningControlRule(
-        const std::string &bundleName, int32_t userId, AppRunningControlRuleResult &controlRuleResult) override;
+        const std::string& bundleName, int32_t userId, AppRunningControlRuleResult& controlRuleResult) override;
 
-    virtual ErrCode SetDisposedStatus(const std::string &appId, const Want &want) override;
-    virtual ErrCode DeleteDisposedStatus(const std::string &appId) override;
-    virtual ErrCode GetDisposedStatus(const std::string &appId, Want &want) override;
+    virtual ErrCode SetDisposedStatus(const std::string& appId, const Want& want) override;
+    virtual ErrCode DeleteDisposedStatus(const std::string& appId) override;
+    virtual ErrCode GetDisposedStatus(const std::string& appId, Want& want) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

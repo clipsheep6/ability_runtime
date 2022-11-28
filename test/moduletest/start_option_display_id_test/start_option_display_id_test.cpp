@@ -71,7 +71,7 @@ public:
     void OnStopAms();
 
 public:
-    std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
+    std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
 };
 
 void StartOptionDisplayIdTest::SetUpTestCase()

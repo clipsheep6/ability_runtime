@@ -38,7 +38,7 @@ public:
     ~AppkitNativeModuleTestThird()
     {}
     OHOS::sptr<OHOS::IRemoteObject> AppMgrObject_ = nullptr;
-    MockAppMgrService *mockAppMgr = nullptr;
+    MockAppMgrService* mockAppMgr = nullptr;
     std::shared_ptr<MockHandler> mockHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     static void SetUpTestCase(void);

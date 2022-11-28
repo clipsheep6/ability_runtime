@@ -59,7 +59,7 @@ void AbilityServiceExtensionTest::TearDown()
  */
 HWTEST_F(AbilityServiceExtensionTest, Create_0100, TestSize.Level1)
 {
-    ServiceExtension *serviceExtension = ServiceExtension::Create(nullptr);
+    ServiceExtension* serviceExtension = ServiceExtension::Create(nullptr);
     EXPECT_NE(serviceExtension, nullptr);
 }
 
@@ -87,7 +87,7 @@ HWTEST_F(AbilityServiceExtensionTest, CreateAndInitContext_0100, TestSize.Level1
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
 
-    ServiceExtension *serviceExtension = ServiceExtension::Create(nullptr);
+    ServiceExtension* serviceExtension = ServiceExtension::Create(nullptr);
     EXPECT_NE(serviceExtension, nullptr);
 
     serviceExtension->Init(record, application, handler, token);
@@ -121,7 +121,7 @@ HWTEST_F(AbilityServiceExtensionTest, Init_0100, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
 
-    ServiceExtension *serviceExtension = ServiceExtension::Create(nullptr);
+    ServiceExtension* serviceExtension = ServiceExtension::Create(nullptr);
     EXPECT_NE(serviceExtension, nullptr);
 
     GTEST_LOG_(INFO) << "service extension Init start";
