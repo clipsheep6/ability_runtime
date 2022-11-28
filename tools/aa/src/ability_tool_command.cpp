@@ -471,7 +471,8 @@ bool AbilityToolCommand::GetKeyAndValueByOpt(int optind, std::string &key, std::
     bool isOption = (argList_[argListIndex - 1] == "-o" || argList_[argListIndex - 1] == "--options") ? true : false;
     int keyIndex = isOption ? argListIndex : argListIndex - 1;
     int valueIndex = isOption ? argListIndex + 1 : argListIndex;
-    if (keyIndex >= argList_.size() || keyIndex < 0 || valueIndex >= argList_.size() || valueIndex < 0) {
+    if (keyIndex >= static_cast<int>(argList_.size()) || keyIndex < 0 ||
+        valueIndex >= static_cast<int>(argList_.size()) || valueIndex < 0) {
         HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
             ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
         resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
