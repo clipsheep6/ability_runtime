@@ -22,7 +22,7 @@
 #ifdef A11Y_ENABLE
 #include "accessibility_ability_command.h"
 #endif // A11Y_ENABLE
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     if (strstr(argv[0], "aa") != nullptr) {
         OHOS::AAFwk::AbilityManagerShellCommand cmd(argc, argv);

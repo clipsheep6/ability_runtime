@@ -72,7 +72,7 @@ public:
     void OnStopAms();
 
 public:
-    std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
+    std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
 };
 
 void StartOptionDisplayIdTest::SetUpTestCase()

@@ -26,12 +26,12 @@ const int TIME_DELAY_FOR_SERVICES = 2;
 
 class ToolSystemTest {
 public:
-    static std::string ExecuteCommand(const std::string &command);
-    static void InstallBundle(const std::string &bundlePath, const bool checkResult = false);
-    static void UninstallBundle(const std::string &bundleName, const bool checkResult = false);
-    static void StartAbility(const std::string &device, const std::string &abilityName, const std::string &bundleName,
+    static std::string ExecuteCommand(const std::string& command);
+    static void InstallBundle(const std::string& bundlePath, const bool checkResult = false);
+    static void UninstallBundle(const std::string& bundleName, const bool checkResult = false);
+    static void StartAbility(const std::string& device, const std::string& abilityName, const std::string& bundleName,
         const bool checkResult = false);
-    static bool IsSubSequence(const std::string &str, const std::string &subStr);
+    static bool IsSubSequence(const std::string& str, const std::string& subStr);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

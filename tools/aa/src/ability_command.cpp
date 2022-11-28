@@ -69,7 +69,7 @@ constexpr struct option LONG_OPTIONS_DUMPSYS[] = {
 };
 }  // namespace
 
-AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, TOOL_NAME)
+AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char* argv[]) : ShellCommand(argc, argv, TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
         HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
@@ -674,7 +674,7 @@ ErrCode AbilityManagerShellCommand::RunForceTimeoutForTest()
 }
 #endif
 
-ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &windowMode)
+ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& windowMode)
 {
     int result = OHOS::ERR_OK;
 
@@ -972,11 +972,11 @@ ErrCode AbilityManagerShellCommand::RunAsTestCommand()
     return StartUserTest(params);
 }
 
-bool AbilityManagerShellCommand::IsTestCommandIntegrity(const std::map<std::string, std::string> &params)
+bool AbilityManagerShellCommand::IsTestCommandIntegrity(const std::map<std::string, std::string>& params)
 {
     HILOG_INFO("enter");
 
-    std::vector<std::string> opts = {"-b", "-s unittest"};
+    std::vector<std::string> opts = { "-b", "-s unittest" };
     for (auto opt : opts) {
         auto it = params.find(opt);
         if (it == params.end()) {
@@ -987,14 +987,14 @@ bool AbilityManagerShellCommand::IsTestCommandIntegrity(const std::map<std::stri
     return true;
 }
 
-ErrCode AbilityManagerShellCommand::TestCommandError(const std::string &info)
+ErrCode AbilityManagerShellCommand::TestCommandError(const std::string& info)
 {
     resultReceiver_.append(info);
     resultReceiver_.append(HELP_MSG_TEST);
     return OHOS::ERR_INVALID_VALUE;
 }
 
-ErrCode AbilityManagerShellCommand::StartUserTest(const std::map<std::string, std::string> &params)
+ErrCode AbilityManagerShellCommand::StartUserTest(const std::map<std::string, std::string>& params)
 {
     HILOG_INFO("enter");
 
@@ -1077,7 +1077,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithUnknownOption()
     return OHOS::ERR_INVALID_VALUE;
 }
 
-ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithOption(int32_t option, std::string &pid)
+ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithOption(int32_t option, std::string& pid)
 {
     ErrCode result = ERR_OK;
     switch (option) {
@@ -1133,7 +1133,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
             abilityMs_->SendANRProcessID(atoi(pid.c_str()));
         }
     } else {
-        resultReceiver_.append(HELP_ApplicationNotResponding+ "\n");
+        resultReceiver_.append(HELP_ApplicationNotResponding + "\n");
         result = OHOS::ERR_INVALID_VALUE;
     }
     return result;

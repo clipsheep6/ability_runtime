@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-TestObserverProxy::TestObserverProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<ITestObserver>(object)
+TestObserverProxy::TestObserverProxy(const sptr<IRemoteObject>& object) : IRemoteProxy<ITestObserver>(object)
 {
     HILOG_INFO("test observer proxy instance is created");
 }
@@ -28,7 +28,7 @@ TestObserverProxy::~TestObserverProxy()
     HILOG_INFO("test observer proxy is destroyed");
 }
 
-void TestObserverProxy::TestStatus(const std::string &msg, const int64_t &resultCode)
+void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
     HILOG_INFO("start");
 
@@ -64,7 +64,7 @@ void TestObserverProxy::TestStatus(const std::string &msg, const int64_t &result
     }
 }
 
-void TestObserverProxy::TestFinished(const std::string &msg, const int64_t &resultCode)
+void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resultCode)
 {
     HILOG_INFO("start");
 
@@ -101,7 +101,7 @@ void TestObserverProxy::TestFinished(const std::string &msg, const int64_t &resu
 }
 
 ShellCommandResult TestObserverProxy::ExecuteShellCommand(
-    const std::string &cmd, const int64_t timeoutSec)
+    const std::string& cmd, const int64_t timeoutSec)
 {
     HILOG_INFO("start");
 
@@ -136,7 +136,7 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
         HILOG_ERROR("Failed to SendRequest, error code: %{public}d", ret);
         return result;
     }
-    ShellCommandResult *resultPtr = reply.ReadParcelable<ShellCommandResult>();
+    ShellCommandResult* resultPtr = reply.ReadParcelable<ShellCommandResult>();
     if (!resultPtr) {
         HILOG_ERROR("Failed to read result");
         return result;

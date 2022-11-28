@@ -32,7 +32,7 @@ public:
      * @param cmd, Indicates the specified shell command.
      * @param timeoutSec, Indicates the specified time out time, in seconds.
      */
-    ShellCommandExecutor(const std::string &cmd, const int64_t timeoutSec);
+    ShellCommandExecutor(const std::string& cmd, const int64_t timeoutSec);
 
     /**
      * Deconstructor used to deconstruct.
@@ -51,9 +51,9 @@ private:
 
 private:
     std::string cmd_;
-    int64_t timeoutSec_ {0};
+    int64_t timeoutSec_{ 0 };
     ShellCommandResult cmdResult_;
-    bool isDone_ {false};
+    bool isDone_{ false };
 
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::condition_variable cvWork_;

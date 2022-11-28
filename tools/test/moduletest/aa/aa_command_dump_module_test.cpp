@@ -75,11 +75,11 @@ void AaCommandDumpModuleTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandDumpModuleTest, Aa_Command_Dump_ModuleTest_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -94,11 +94,11 @@ HWTEST_F(AaCommandDumpModuleTest, Aa_Command_Dump_ModuleTest_0100, Function | Me
  */
 HWTEST_F(AaCommandDumpModuleTest, Aa_Command_Dump_ModuleTest_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--all",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--all",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

@@ -66,7 +66,7 @@ HWTEST_F(AaCommandStopServiceSystemTest, Aa_Command_StopService_SystemTest_0200,
 {
     // stop the invalid service ability
     std::string command = "aa stop-service -d " + STRING_DEVICE_NAME + " -a " + STRING_SERVICE_ABILITY_NAME_INVALID +
-                          " -b " + STRING_SERVICE_ABILITY_BUNDLE_NAME_INVALID;
+        " -b " + STRING_SERVICE_ABILITY_BUNDLE_NAME_INVALID;
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_STOP_SERVICE_ABILITY_NG + "\n");

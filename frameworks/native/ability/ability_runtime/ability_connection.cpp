@@ -27,7 +27,7 @@ constexpr int32_t DIED = -1;
 } // namespace
 
 void AbilityConnection::OnAbilityConnectDone(
-    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
+    const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     mutex_.lock();
@@ -53,7 +53,7 @@ void AbilityConnection::OnAbilityConnectDone(
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
-void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
     HILOG_DEBUG("%{public}s begin, resultCode:%{public}d.", __func__, resultCode);
     mutex_.lock();
@@ -85,7 +85,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &e
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
-void AbilityConnection::AddConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
+void AbilityConnection::AddConnectCallback(const sptr<AbilityConnectCallback>& abilityConnectCallback)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     auto item = abilityConnectCallbackList_.begin();
@@ -98,7 +98,7 @@ void AbilityConnection::AddConnectCallback(const sptr<AbilityConnectCallback> &a
     abilityConnectCallbackList_.push_back(abilityConnectCallback);
 }
 
-void AbilityConnection::RemoveConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
+void AbilityConnection::RemoveConnectCallback(const sptr<AbilityConnectCallback>& abilityConnectCallback)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     auto item = abilityConnectCallbackList_.begin();
@@ -112,7 +112,7 @@ void AbilityConnection::RemoveConnectCallback(const sptr<AbilityConnectCallback>
     }
 }
 
-void AbilityConnection::SetRemoteObject(const sptr<IRemoteObject> &remoteObject)
+void AbilityConnection::SetRemoteObject(const sptr<IRemoteObject>& remoteObject)
 {
     remoteObject_ = remoteObject;
 }

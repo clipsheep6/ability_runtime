@@ -83,10 +83,10 @@ void AaCommandForceStopTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -101,11 +101,11 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0100, Function | MediumTe
  */
 HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -116,7 +116,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0200, Function | MediumTe
     EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_))
         .Times(1)
         .WillOnce(Return(-1));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_FORCE_STOP_NG + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);
@@ -129,11 +129,11 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0200, Function | MediumTe
  */
 HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"STRING_BUNDLE_NAME",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"STRING_BUNDLE_NAME",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -144,7 +144,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0300, Function | MediumTe
     EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_))
         .Times(1)
         .WillOnce(Return(0));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_FORCE_STOP_OK + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);

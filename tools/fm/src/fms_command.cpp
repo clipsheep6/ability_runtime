@@ -48,7 +48,7 @@ const struct option LONG_OPTIONS[] = {
 };
 }  // namespace
 
-FormMgrShellCommand::FormMgrShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, FM_TOOL_NAME)
+FormMgrShellCommand::FormMgrShellCommand(int argc, char* argv[]) : ShellCommand(argc, argv, FM_TOOL_NAME)
 {
 }
 ErrCode FormMgrShellCommand::init()
@@ -216,7 +216,7 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
  * @return Returns ERR_OK on success, others on failure.
  */
 int32_t FormMgrShellCommand::HandleNormalOption(
-    const int option, std::string &bundleName, int64_t &formId, int32_t &cmdFlag)
+    const int option, std::string& bundleName, int64_t& formId, int32_t& cmdFlag)
 {
     HILOG_INFO("%{public}s start, option: %{public}d", __func__, option);
     int32_t result = OHOS::ERR_OK;
@@ -278,7 +278,7 @@ int32_t FormMgrShellCommand::HandleNormalOption(
  * @param cmdFlag Command Flag.
  * @return Returns ERR_OK on success, others on failure.
  */
-int32_t FormMgrShellCommand::ExecuteQuery(const std::string &bundleName, const int64_t formId, const int32_t cmdFlag)
+int32_t FormMgrShellCommand::ExecuteQuery(const std::string& bundleName, const int64_t formId, const int32_t cmdFlag)
 {
     HILOG_INFO("%{public}s start, bundleName: %{public}s, formId:%{public}" PRId64 "", __func__,
         bundleName.c_str(), formId);
@@ -337,7 +337,7 @@ int32_t FormMgrShellCommand::QueryStorageFormInfos()
 
     int result = GetStringInfo(IFormMgr::Message::FORM_MGR_STORAGE_FORM_INFOS, data, formInfos);
     if (result == ERR_OK) {
-        resultReceiver_= formInfos;
+        resultReceiver_ = formInfos;
     } else {
         HILOG_ERROR("'fm query' failed to query form info.");
     }
@@ -419,7 +419,7 @@ int32_t FormMgrShellCommand::QueryFormInfoByFormId(const std::int64_t formId)
 
     return result;
 }
-bool FormMgrShellCommand::WriteInterfaceToken(MessageParcel &data)
+bool FormMgrShellCommand::WriteInterfaceToken(MessageParcel& data)
 {
     if (!data.WriteInterfaceToken(IFormMgr::GetDescriptor())) {
         HILOG_ERROR("%{public}s, failed to write interface token", __func__);
@@ -427,7 +427,7 @@ bool FormMgrShellCommand::WriteInterfaceToken(MessageParcel &data)
     }
     return true;
 }
-int FormMgrShellCommand::GetStringInfo(IFormMgr::Message code, MessageParcel &data, std::string &stringInfo)
+int FormMgrShellCommand::GetStringInfo(IFormMgr::Message code, MessageParcel& data, std::string& stringInfo)
 {
     int error;
     MessageParcel reply;
@@ -450,13 +450,13 @@ int FormMgrShellCommand::GetStringInfo(IFormMgr::Message code, MessageParcel &da
         HILOG_INFO("%{public}s, No string info", __func__);
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
-    for (const auto &info : stringInfoList) {
+    for (const auto& info : stringInfoList) {
         stringInfo += info;
     }
     HILOG_DEBUG("%{public}s, get string info success", __func__);
     return ERR_OK;
 }
-int FormMgrShellCommand::SendTransactCmd(IFormMgr::Message code, MessageParcel &data, MessageParcel &reply)
+int FormMgrShellCommand::SendTransactCmd(IFormMgr::Message code, MessageParcel& data, MessageParcel& reply)
 {
     MessageOption option(MessageOption::TF_SYNC);
 

@@ -100,7 +100,7 @@ const struct option LONG_OPTIONS_FOR_TEST[] = {
 const int32_t ARG_LIST_INDEX_OFFSET = 2;
 } // namespace
 
-AbilityToolCommand::AbilityToolCommand(int argc, char *argv[]) : ShellCommand(argc, argv, ABILITY_TOOL_NAME)
+AbilityToolCommand::AbilityToolCommand(int argc, char* argv[]) : ShellCommand(argc, argv, ABILITY_TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
         HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
@@ -461,7 +461,7 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
     return OHOS::ERR_OK;
 }
 
-bool AbilityToolCommand::GetKeyAndValueByOpt(int optind, std::string &key, std::string &value)
+bool AbilityToolCommand::GetKeyAndValueByOpt(int optind, std::string& key, std::string& value)
 {
     int argListIndex = optind - ARG_LIST_INDEX_OFFSET;
     if (argListIndex < 1) {

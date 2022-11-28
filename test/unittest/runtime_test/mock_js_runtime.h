@@ -34,7 +34,7 @@ public:
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::FinishPreload called";
     }
-    bool LoadRepairPatch(const std::string &patchFile, const std::string &baseFile)
+    bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile)
     {
         return true;
     }
@@ -42,44 +42,44 @@ public:
     {
         return true;
     }
-    bool UnLoadRepairPatch(const std::string &patchFile)
+    bool UnLoadRepairPatch(const std::string& patchFile)
     {
         return true;
     }
-    bool RunScript(const std::string &path, const std::string &hapPath)
+    bool RunScript(const std::string& path, const std::string& hapPath)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::RunScript called";
         return true;
     }
-    bool Initialize(const Options &options)
+    bool Initialize(const Options& options)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::Initialize called";
         return true;
     }
     void Deinitialize()
     {}
-    NativeValue *LoadJsBundle(const std::string &path, const std::string &hapPath)
+    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadJsBundle called";
         return nullptr;
     }
-    NativeValue *LoadJsModule(const std::string &path, const std::string &hapPath)
+    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadJsModule called";
         return nullptr;
     }
-    void PreloadSystemModule(const std::string &moduleName)
+    void PreloadSystemModule(const std::string& moduleName)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::PreloadSystemModule called";
     }
     std::unique_ptr<NativeReference> LoadModule(
-        const std::string &moduleName, const std::string &modulePath, const std::string &hapPath, bool esmodule = false)
+        const std::string& moduleName, const std::string& modulePath, const std::string& hapPath, bool esmodule = false)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadModule called";
         return nullptr;
     }
     std::unique_ptr<NativeReference> LoadSystemModule(
-        const std::string &moduleName, NativeValue *const *argv = nullptr, size_t argc = 0)
+        const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadSystemModule called";
         return nullptr;

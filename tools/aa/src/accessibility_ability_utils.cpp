@@ -37,7 +37,7 @@ const std::string PROCESS_NAME = "aa";
 const std::string APL_STR = "system_basic";
 } // namespace
 
-std::string AccessibilityUtils::GetStaticCapabilityNames(const Accessibility::AccessibilityAbilityInfo &abilityInfo)
+std::string AccessibilityUtils::GetStaticCapabilityNames(const Accessibility::AccessibilityAbilityInfo& abilityInfo)
 {
     std::string capabilityNames = "";
     std::map<uint32_t, std::string> capabilityNameMap = {
@@ -54,30 +54,30 @@ std::string AccessibilityUtils::GetStaticCapabilityNames(const Accessibility::Ac
 }
 
 std::string AccessibilityUtils::FormatAbilityInfos(
-    const std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities)
+    const std::vector<Accessibility::AccessibilityAbilityInfo>& installedAbilities)
 {
     std::string result = "";
     std::stringstream headerStream;
     headerStream << std::left << std::setw(NUM_COLUMN_WIDTH) << "NO"
-    << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << "bundleName"
-    << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << "abilityName"
-    << std::left << std::setw(CAPABILITIES_ABBR_COLUMN_WIDTH) << "capabilities-abbr" << std::endl;
+        << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << "bundleName"
+        << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << "abilityName"
+        << std::left << std::setw(CAPABILITIES_ABBR_COLUMN_WIDTH) << "capabilities-abbr" << std::endl;
     result.append(headerStream.str());
     int num = 1;
-    for (auto &ability : installedAbilities) {
+    for (auto& ability : installedAbilities) {
         std::stringstream lineStream;
         std::string capabilityNames = GetStaticCapabilityNames(ability);
         lineStream << std::left << std::setw(NUM_COLUMN_WIDTH) << std::to_string(num)
-        << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << ability.GetPackageName()
-        << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << ability.GetName()
-        << std::left << capabilityNames << std::endl;
+            << std::left << std::setw(BUNDLE_NAME_COLUMN_WIDTH) << ability.GetPackageName()
+            << std::left << std::setw(ABILITY_NAME_COLUMN_WIDTH) << ability.GetName()
+            << std::left << capabilityNames << std::endl;
         num++;
         result.append(lineStream.str());
     }
     return result;
 }
 
-std::uint32_t AccessibilityUtils::GetCapabilityValue(const std::string &capabilityNames)
+std::uint32_t AccessibilityUtils::GetCapabilityValue(const std::string& capabilityNames)
 {
     uint32_t result = 0;
     std::map<char, uint32_t> capabilityValueMap = {
@@ -89,8 +89,8 @@ std::uint32_t AccessibilityUtils::GetCapabilityValue(const std::string &capabili
     return result;
 }
 
-std::string AccessibilityUtils::GetInvalidCapabilityNames(const std::string &enabledCapabilityNames,
-    const std::string &installedCapabilityNames)
+std::string AccessibilityUtils::GetInvalidCapabilityNames(const std::string& enabledCapabilityNames,
+    const std::string& installedCapabilityNames)
 {
     std::string result = "";
     std::set<char> installedCapabilityNameSet;
@@ -105,16 +105,16 @@ std::string AccessibilityUtils::GetInvalidCapabilityNames(const std::string &ena
     return result;
 }
 
-std::string AccessibilityUtils::GetUnknownArgumentsMsg(const std::vector<std::string> &unknownArguments)
+std::string AccessibilityUtils::GetUnknownArgumentsMsg(const std::vector<std::string>& unknownArguments)
 {
     std::string result = "";
-    for (const auto &argument : unknownArguments) {
+    for (const auto& argument : unknownArguments) {
         result.append(argument + " ");
     };
     return result;
 }
 
-bool AccessibilityUtils::IsValidStateString(std::string &stateString)
+bool AccessibilityUtils::IsValidStateString(std::string& stateString)
 {
     std::string valueStr = Trim(stateString);
     if (valueStr.size() != 1) {
@@ -126,7 +126,7 @@ bool AccessibilityUtils::IsValidStateString(std::string &stateString)
     return false;
 }
 
-bool AccessibilityUtils::IsValidIntString(std::string &intString, const int32_t lowBound, const int32_t highBound)
+bool AccessibilityUtils::IsValidIntString(std::string& intString, const int32_t lowBound, const int32_t highBound)
 {
     int32_t value = 0;
     const int32_t base = 10;
@@ -159,7 +159,7 @@ bool AccessibilityUtils::IsValidIntString(std::string &intString, const int32_t 
     return value >= lowBound;
 }
 
-std::string& AccessibilityUtils::Trim(std::string &inputStr)
+std::string& AccessibilityUtils::Trim(std::string& inputStr)
 {
     if (inputStr.empty()) {
         return inputStr;
@@ -171,7 +171,7 @@ std::string& AccessibilityUtils::Trim(std::string &inputStr)
 
 int32_t AccessibilityUtils::AddPermission()
 {
-    const char *perms[2];
+    const char* perms[2];
     perms[0] = OHOS::Accessibility::OHOS_PERMISSION_READ_ACCESSIBILITY_CONFIG.c_str();
     perms[1] = OHOS::Accessibility::OHOS_PERMISSION_WRITE_ACCESSIBILITY_CONFIG.c_str();
     NativeTokenInfoParams infoInstance = {

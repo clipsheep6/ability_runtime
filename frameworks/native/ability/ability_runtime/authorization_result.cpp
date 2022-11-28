@@ -18,8 +18,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void AuthorizationResult::GrantResultsCallback(const std::vector<std::string> &permissions,
-    const std::vector<int> &grantResults)
+void AuthorizationResult::GrantResultsCallback(const std::vector<std::string>& permissions,
+    const std::vector<int>& grantResults)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (task_) {

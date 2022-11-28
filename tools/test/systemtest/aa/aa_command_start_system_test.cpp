@@ -80,7 +80,7 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0100, Function | 
 
     // start the page ability
     std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_PAGE_ABILITY_NAME + " -b " +
-                          STRING_PAGE_ABILITY_BUNDLE_NAME;
+        STRING_PAGE_ABILITY_BUNDLE_NAME;
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_OK + "\n");
@@ -98,7 +98,7 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0300, Function | 
 {
     // start the invalid page ability
     std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_PAGE_ABILITY_NAME_INVALID + " -b " +
-                          STRING_PAGE_ABILITY_BUNDLE_NAME_INVALID;
+        STRING_PAGE_ABILITY_BUNDLE_NAME_INVALID;
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_NG + "\n");
@@ -113,7 +113,7 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0400, Function | 
 {
     // start the invalid service ability
     std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_SERVICE_ABILITY_NAME_INVALID + " -b " +
-                          STRING_SERVICE_ABILITY_BUNDLE_NAME_INVALID;
+        STRING_SERVICE_ABILITY_BUNDLE_NAME_INVALID;
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_NG + "\n");
@@ -136,7 +136,7 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0500, Function | 
 
     // start the page ability
     std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_PAGE_ABILITY_NAME + " -b " +
-                          STRING_PAGE_ABILITY_BUNDLE_NAME + " -D";
+        STRING_PAGE_ABILITY_BUNDLE_NAME + " -D";
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_OK + "\n");
@@ -156,7 +156,7 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0600, Function | 
 {
     // start the invalid page ability
     std::string command = "aa start -d " + STRING_DEVICE_NAME + " -a " + STRING_PAGE_ABILITY_NAME_INVALID + " -b " +
-                          STRING_PAGE_ABILITY_BUNDLE_NAME_INVALID + " -D";
+        STRING_PAGE_ABILITY_BUNDLE_NAME_INVALID + " -D";
     std::string commandResult = ToolSystemTest::ExecuteCommand(command);
 
     EXPECT_PRED2(ToolSystemTest::IsSubSequence, commandResult, STRING_START_ABILITY_NG + "\n");

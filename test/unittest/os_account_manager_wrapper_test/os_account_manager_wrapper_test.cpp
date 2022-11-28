@@ -67,7 +67,7 @@ HWTEST_F(OsAccountManagerWrapperTest, GetOsAccountLocalIdFromUid_0100, TestSize.
  * @tc.desc: get os account local Id from process.
  * @tc.type: FUNC
  */
-HWTEST_F(OsAccountManagerWrapperTest,GetOsAccountLocalIdFromProcess_0100, TestSize.Level0)
+HWTEST_F(OsAccountManagerWrapperTest, GetOsAccountLocalIdFromProcess_0100, TestSize.Level0)
 {
     int account = ACCOUNT_VALUE;
     int ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromProcess(account);
@@ -79,7 +79,7 @@ HWTEST_F(OsAccountManagerWrapperTest,GetOsAccountLocalIdFromProcess_0100, TestSi
  * @tc.desc: Is os account exists.
  * @tc.type: FUNC
  */
-HWTEST_F(OsAccountManagerWrapperTest,IsOsAccountExists_0100, TestSize.Level0)
+HWTEST_F(OsAccountManagerWrapperTest, IsOsAccountExists_0100, TestSize.Level0)
 {
     bool isOsAccountExists = false;
     DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->IsOsAccountExists(ACCOUNT_VALUE, isOsAccountExists);
@@ -91,7 +91,7 @@ HWTEST_F(OsAccountManagerWrapperTest,IsOsAccountExists_0100, TestSize.Level0)
  * @tc.desc: Create os account.
  * @tc.type: FUNC
  */
-HWTEST_F(OsAccountManagerWrapperTest,CreateOsAccount_0100, TestSize.Level0)
+HWTEST_F(OsAccountManagerWrapperTest, CreateOsAccount_0100, TestSize.Level0)
 {
     int account = ACCOUNT_VALUE;
     int ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->CreateOsAccount(ACCOUNT_NAME, account);
@@ -103,7 +103,7 @@ HWTEST_F(OsAccountManagerWrapperTest,CreateOsAccount_0100, TestSize.Level0)
  * @tc.desc: Remove os account.
  * @tc.type: FUNC
  */
-HWTEST_F(OsAccountManagerWrapperTest,RemoveOsAccount_0100, TestSize.Level0)
+HWTEST_F(OsAccountManagerWrapperTest, RemoveOsAccount_0100, TestSize.Level0)
 {
     int account = ACCOUNT_VALUE;
     int ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->CreateOsAccount(ACCOUNT_NAME, account);

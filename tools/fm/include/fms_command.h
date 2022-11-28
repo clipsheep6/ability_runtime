@@ -26,9 +26,9 @@ namespace {
 const std::string FM_TOOL_NAME = "fm";
 
 const std::string FM_HELP_MSG = "usage: fm <command> <options>\n"
-                             "These are common fm commands list:\n"
-                             "  help         list available commands\n"
-                             "  query        query form info with options\n";
+    "These are common fm commands list:\n"
+    "  help         list available commands\n"
+    "  query        query form info with options\n";
 
 const std::string HELP_MSG_QUERY =
     "usage: fm query <options>\n"
@@ -51,7 +51,7 @@ const std::string STRING_QUERY_FORM_INFO_NG = "error: failed to query form info.
 
 class FormMgrShellCommand : public OHOS::AAFwk::ShellCommand {
 public:
-    FormMgrShellCommand(int argc, char *argv[]);
+    FormMgrShellCommand(int argc, char* argv[]);
     ~FormMgrShellCommand() override
     {}
 
@@ -108,7 +108,7 @@ private:
      * @param cmdFlag Command Flag.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t HandleNormalOption(const int option, std::string &bundleName, int64_t &formId, int32_t &cmdFlag);
+    int32_t HandleNormalOption(const int option, std::string& bundleName, int64_t& formId, int32_t& cmdFlag);
 
     /**
      * @brief Execute query form info command.
@@ -117,7 +117,7 @@ private:
      * @param cmdFlag Command Flag.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t ExecuteQuery(const std::string &bundleName, const int64_t formId, const int32_t cmdFlag);
+    int32_t ExecuteQuery(const std::string& bundleName, const int64_t formId, const int32_t cmdFlag);
 
     /**
      * @brief Connect form manager service.
@@ -125,9 +125,9 @@ private:
      */
     int32_t ConnectFms();
 
-    bool WriteInterfaceToken(MessageParcel &data);
-    int GetStringInfo(IFormMgr::Message code, MessageParcel &data, std::string &stringInfo);
-    int SendTransactCmd(IFormMgr::Message code, MessageParcel &data, MessageParcel &reply);
+    bool WriteInterfaceToken(MessageParcel& data);
+    int GetStringInfo(IFormMgr::Message code, MessageParcel& data, std::string& stringInfo);
+    int SendTransactCmd(IFormMgr::Message code, MessageParcel& data, MessageParcel& reply);
 private:
     sptr<IRemoteObject> remoteObject_;
 };

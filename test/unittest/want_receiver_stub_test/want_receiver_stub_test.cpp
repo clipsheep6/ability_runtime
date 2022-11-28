@@ -28,8 +28,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void WriteInterfaceToken(MessageParcel &data);
-    sptr<WantReceiverStubImplMock> stub_ {nullptr};
+    void WriteInterfaceToken(MessageParcel& data);
+    sptr<WantReceiverStubImplMock> stub_{ nullptr };
 };
 
 void WantReceiverStubTest::SetUpTestCase(void)
@@ -44,7 +44,7 @@ void WantReceiverStubTest::SetUp()
     stub_ = new WantReceiverStubImplMock();
 }
 
-void WantReceiverStubTest::WriteInterfaceToken(MessageParcel &data)
+void WantReceiverStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(WantReceiverStubImplMock::GetDescriptor());
 }

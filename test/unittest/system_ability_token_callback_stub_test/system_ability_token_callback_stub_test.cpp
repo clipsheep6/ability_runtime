@@ -32,8 +32,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void WriteInterfaceToken(MessageParcel &data);
-    sptr<MockSystemAbilityTokenCallbackStub> stub_ {nullptr};
+    void WriteInterfaceToken(MessageParcel& data);
+    sptr<MockSystemAbilityTokenCallbackStub> stub_{ nullptr };
 };
 
 void SystemAbilityTokenCallbackStubTest::SetUpTestCase(void)
@@ -48,7 +48,7 @@ void SystemAbilityTokenCallbackStubTest::SetUp()
     stub_ = new MockSystemAbilityTokenCallbackStub();
 }
 
-void SystemAbilityTokenCallbackStubTest::WriteInterfaceToken(MessageParcel &data)
+void SystemAbilityTokenCallbackStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(SYSTEM_ABILITY_TOKEN_CALLBACK_INTERFACE_TOKEN);
 }

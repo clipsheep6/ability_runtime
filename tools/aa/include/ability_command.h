@@ -25,20 +25,20 @@ namespace {
 const std::string TOOL_NAME = "aa";
 
 const std::string HELP_MSG = "usage: aa <command> <options>\n"
-                             "These are common aa commands list:\n"
-                             "  help                        list available commands\n"
-                             "  start                       start ability with options\n"
-                             "  stop-service                stop service with options\n"
-                             "  dump                        dump the ability info\n"
-                             "  force-stop <bundle-name>    force stop the process with bundle name\n"
+    "These are common aa commands list:\n"
+    "  help                        list available commands\n"
+    "  start                       start ability with options\n"
+    "  stop-service                stop service with options\n"
+    "  dump                        dump the ability info\n"
+    "  force-stop <bundle-name>    force stop the process with bundle name\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
-                             "  test                        start the test framework with options\n"
-                             "  ApplicationNotResponding     Pass in pid with options\n"
-                             "  block-ability <ability-record-id>       block ability with ability record id\n"
-                             "  block-ams-service                       block ams service\n"
-                             "  block-app-service                       block app service\n";
+    "  test                        start the test framework with options\n"
+    "  ApplicationNotResponding     Pass in pid with options\n"
+    "  block-ability <ability-record-id>       block ability with ability record id\n"
+    "  block-ams-service                       block ams service\n"
+    "  block-app-service                       block app service\n";
 #else
-                             "  test                        start the test framework with options\n";
+    "  test                        start the test framework with options\n";
 #endif
 
 const std::string HELP_MSG_SCREEN =
@@ -68,21 +68,21 @@ const std::string HELP_MSG_STOP_SERVICE =
     "  stop service with an element name\n";
 
 const std::string HELP_MSG_DUMPSYS = "usage: aa dump <options>\n"
-                                  "options list:\n"
-                                  "  -h, --help                   list available commands\n"
-                                  "  -a, --all                    dump all abilities\n"
-                                  "  -l, --mission-list           dump mission list\n"
-                                  "  -i, --ability                dump abilityRecordId\n"
-                                  "  -e, --extension              dump elementName (FA: serviceAbilityRecords,"
-                                                                  "Stage: ExtensionRecords)\n"
-                                  "  -p, --pending                dump pendingWantRecordId\n"
-                                  "  -r, --process                dump process\n"
-                                  "  -d, --data                   dump the data abilities\n"
-                                  "  -u, --userId                 userId\n"
-                                  "  -c, --client                 client\n"
-                                  "  -c, -u are auxiliary parameters and cannot be used alone\n"
-                                  "  The original -s parameter is invalid\n"
-                                  "  The original -m parameter is invalid\n";
+    "options list:\n"
+    "  -h, --help                   list available commands\n"
+    "  -a, --all                    dump all abilities\n"
+    "  -l, --mission-list           dump mission list\n"
+    "  -i, --ability                dump abilityRecordId\n"
+    "  -e, --extension              dump elementName (FA: serviceAbilityRecords,"
+    "Stage: ExtensionRecords)\n"
+    "  -p, --pending                dump pendingWantRecordId\n"
+    "  -r, --process                dump process\n"
+    "  -d, --data                   dump the data abilities\n"
+    "  -u, --userId                 userId\n"
+    "  -c, --client                 client\n"
+    "  -c, -u are auxiliary parameters and cannot be used alone\n"
+    "  The original -s parameter is invalid\n"
+    "  The original -m parameter is invalid\n";
 
 const std::string HELP_MSG_TEST =
     "usage: aa test <options>\n"
@@ -150,13 +150,13 @@ const std::string STRING_TEST_REGEX_INTEGER_NUMBERS = "^(0|[1-9][0-9]*|-[1-9][0-
 
 class AbilityManagerShellCommand : public ShellCommand {
 public:
-    AbilityManagerShellCommand(int argc, char *argv[]);
+    AbilityManagerShellCommand(int argc, char* argv[]);
     ~AbilityManagerShellCommand() override
     {}
 
     ErrCode CreateMessageMap() override;
-    bool IsTestCommandIntegrity(const std::map<std::string, std::string> &params);
-    ErrCode StartUserTest(const std::map<std::string, std::string> &params);
+    bool IsTestCommandIntegrity(const std::map<std::string, std::string>& params);
+    ErrCode StartUserTest(const std::map<std::string, std::string>& params);
 
 private:
     ErrCode CreateCommandMap() override;
@@ -168,20 +168,20 @@ private:
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
     ErrCode RunAsSendAppNotRespondingProcessID();
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
     ErrCode RunAsBlockAppServiceCommand();
     ErrCode RunAsSendAppNotRespondingWithUnknownOption();
-    ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string &pid);
-    #endif
+    ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string& pid);
+#endif
     sptr<IAbilityManager> GetAbilityManagerService();
 
-    ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);
+    ErrCode MakeWantFromCmd(Want& want, std::string& windowMode);
     ErrCode RunAsTestCommand();
-    ErrCode TestCommandError(const std::string &info);
+    ErrCode TestCommandError(const std::string& info);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

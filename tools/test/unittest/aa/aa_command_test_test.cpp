@@ -84,15 +84,15 @@ void AaCommandTestTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandTestTest, Aa_Command_Test_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-b",
-        (char *)"xxx",
-        (char *)"-s",
-        (char *)"unittest",
-        (char *)"1",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-b",
+        (char*)"xxx",
+        (char*)"-s",
+        (char*)"unittest",
+        (char*)"1",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -103,7 +103,7 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0100, Function | MediumTest | Level1
     EXPECT_CALL(*mockAbilityManagerStub, StartUserTest(_, _))
         .Times(1)
         .WillOnce(Return(-1));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_START_USER_TEST_NG + "\n");
 }
@@ -115,16 +115,16 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0100, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandTestTest, Aa_Command_Test_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-b",
-        (char *)"xxx",
-        (char *)"-s",
-        (char *)"unittest",
-        (char *)"1",
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-b",
+        (char*)"xxx",
+        (char*)"-s",
+        (char*)"unittest",
+        (char*)"1",
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -135,7 +135,7 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0200, Function | MediumTest | Level1
     EXPECT_CALL(*mockAbilityManagerStub, StartUserTest(_, _))
         .Times(1)
         .WillOnce(Return(-1));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_START_USER_TEST_NG + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);
@@ -148,17 +148,17 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0200, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandTestTest, Aa_Command_Test_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"-s",
-        (char *)"unittest",
-        (char *)"1",
-        (char *)"-w",
-        (char *)"1",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-s",
+        (char*)"unittest",
+        (char*)"1",
+        (char*)"-w",
+        (char*)"1",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -169,7 +169,7 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0300, Function | MediumTest | Level1
     EXPECT_CALL(*mockAbilityManagerStub, StartUserTest(_, _))
         .Times(1)
         .WillOnce(Return(0));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), "Timeout: user test is not completed within the specified time.\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);
@@ -182,22 +182,22 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0300, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandTestTest, Aa_Command_Test_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"-s",
-        (char *)"unittest",
-        (char *)"1",
-        (char *)"-w",
-        (char *)"0",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-s",
+        (char*)"unittest",
+        (char*)"1",
+        (char*)"-w",
+        (char*)"0",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
 
-    auto mockHandler = [](const Want &want, const sptr<IRemoteObject> &observer) -> int {
+    auto mockHandler = [](const Want& want, const sptr<IRemoteObject>& observer) -> int {
         sptr<ITestObserver> testObserver = iface_cast<ITestObserver>(observer);
         if (!testObserver) {
             return -1;
@@ -211,7 +211,7 @@ HWTEST_F(AaCommandTestTest, Aa_Command_Test_0400, Function | MediumTest | Level1
     EXPECT_CALL(*mockAbilityManagerStub, StartUserTest(_, _))
         .Times(1)
         .WillOnce(Invoke(mockHandler));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_USER_TEST_FINISHED + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);

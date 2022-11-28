@@ -72,7 +72,7 @@ public:
     void OnStopAms();
 
 public:
-    std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
+    std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
 };
 
 void RunningInfosTest::OnStartAms()
@@ -168,7 +168,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_001, TestSize.Level1)
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -195,7 +195,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_002, TestSize.Level1)
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -222,7 +222,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -259,7 +259,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
@@ -292,7 +292,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -331,7 +331,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
@@ -363,7 +363,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->GetAbilityRunningInfos(infos);
 
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -389,7 +389,7 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_001, TestSize.Level1)
 
     if (result == OHOS::ERR_OK) {
         std::vector<ExtensionRunningInfo> infos;
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         int upperLimit = 10;
         abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
         EXPECT_TRUE(infos.size() == infoCount);
@@ -422,7 +422,7 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_002, TestSize.Level1)
         std::vector<ExtensionRunningInfo> infos;
         int upperLimit = 10;
         abilityMs_->GetExtensionRunningInfos(upperLimit, infos);
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
@@ -469,7 +469,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Le
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -501,7 +501,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_002, TestSize.Le
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
 
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -531,7 +531,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_001, TestSize.
         std::vector<ExtensionRunningInfo> infos;
         int upperLimit = 10;
         int userId = 100;
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
@@ -563,7 +563,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
         std::vector<ExtensionRunningInfo> infos;
         int upperLimit = 10;
         int userId = 100;
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
@@ -591,7 +591,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
-        size_t infoCount {1};
+        size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -629,7 +629,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
         std::vector<AbilityRunningInfo> infos;
         abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
 
-        size_t infoCount {2};
+        size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].ability.GetAbilityName() == element2.GetAbilityName());
@@ -670,7 +670,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -708,7 +708,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
@@ -761,7 +761,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());

@@ -332,7 +332,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleByEngineTest_0100, TestSize.Lev
     HILOG_INFO("LoadSystemModuleByEngine start");
 
     auto runtime = AbilityRuntime::JsRuntime::Create(options_);
-    auto &jsEngine = (static_cast<AbilityRuntime::MockJsRuntime &>(*runtime)).GetNativeEngine();
+    auto& jsEngine = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNativeEngine();
 
     std::string moduleName = "";
     std::unique_ptr<NativeReference> ref = MockJsRuntime::LoadSystemModuleByEngine(&jsEngine, moduleName, nullptr, 0);
@@ -397,7 +397,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeGetSourceMapTest_0100, TestSize.Level0)
     options_.isStageModel = true;
     jsRuntime->bindSourceMaps_ = std::make_unique<ModSourceMap>(options_.bundleCodeDir, options_.isStageModel);
 
-    auto &sourceMap = jsRuntime->GetSourceMap();
+    auto& sourceMap = jsRuntime->GetSourceMap();
     EXPECT_NE(&sourceMap, nullptr);
 
     HILOG_INFO("GetSourceMap end");

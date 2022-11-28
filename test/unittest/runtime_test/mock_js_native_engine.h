@@ -27,225 +27,225 @@ public:
     virtual ~MockJsNativeEngine()
     {}
 
-    NativeValue *GetGlobal() override
+    NativeValue* GetGlobal() override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::GetGlobal called";
         return nullptr;
     }
 
-    NativeValue *CreateNull() override
+    NativeValue* CreateNull() override
     {
         return nullptr;
     }
 
-    NativeValue *CreateUndefined() override
+    NativeValue* CreateUndefined() override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBoolean(bool value) override
+    NativeValue* CreateBoolean(bool value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateNumber(int32_t value) override
+    NativeValue* CreateNumber(int32_t value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateNumber(uint32_t value) override
+    NativeValue* CreateNumber(uint32_t value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateNumber(int64_t value) override
+    NativeValue* CreateNumber(int64_t value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateNumber(double value) override
+    NativeValue* CreateNumber(double value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBigInt(int64_t value) override
+    NativeValue* CreateBigInt(int64_t value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBigInt(uint64_t value) override
+    NativeValue* CreateBigInt(uint64_t value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateString(const char *value, size_t length) override
+    NativeValue* CreateString(const char* value, size_t length) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::CreateString called";
         return nullptr;
     }
 
-    NativeValue *CreateString16(const char16_t *value, size_t length) override
+    NativeValue* CreateString16(const char16_t* value, size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateSymbol(NativeValue *value) override
+    NativeValue* CreateSymbol(NativeValue* value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateExternal(void *value, NativeFinalize callback, void *hint, size_t nativeBindingSize = 0) override
+    NativeValue* CreateExternal(void* value, NativeFinalize callback, void* hint, size_t nativeBindingSize = 0) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateObject() override
+    NativeValue* CreateObject() override
     {
         return nullptr;
     }
 
-    NativeValue *CreateFunction(const char *name, size_t length, NativeCallback cb, void *value) override
+    NativeValue* CreateFunction(const char* name, size_t length, NativeCallback cb, void* value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateArray(size_t length) override
+    NativeValue* CreateArray(size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBuffer(void **value, size_t length) override
+    NativeValue* CreateBuffer(void** value, size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBufferCopy(void **value, size_t length, const void *data) override
+    NativeValue* CreateBufferCopy(void** value, size_t length, const void* data) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBufferExternal(void *value, size_t length, NativeFinalize cb, void *hint) override
+    NativeValue* CreateBufferExternal(void* value, size_t length, NativeFinalize cb, void* hint) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateArrayBuffer(void **value, size_t length) override
+    NativeValue* CreateArrayBuffer(void** value, size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateArrayBufferExternal(void *value, size_t length, NativeFinalize cb, void *hint) override
+    NativeValue* CreateArrayBufferExternal(void* value, size_t length, NativeFinalize cb, void* hint) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateTypedArray(NativeTypedArrayType type, NativeValue *value, size_t length, size_t offset) override
+    NativeValue* CreateTypedArray(NativeTypedArrayType type, NativeValue* value, size_t length, size_t offset) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateDataView(NativeValue *value, size_t length, size_t offset) override
+    NativeValue* CreateDataView(NativeValue* value, size_t length, size_t offset) override
     {
         return nullptr;
     }
 
-    NativeValue *CreatePromise(NativeDeferred **deferred) override
+    NativeValue* CreatePromise(NativeDeferred** deferred) override
     {
         return nullptr;
     }
 
-    void SetPromiseRejectCallback(NativeReference *rejectCallbackRef, NativeReference *checkCallbackRef) override
+    void SetPromiseRejectCallback(NativeReference* rejectCallbackRef, NativeReference* checkCallbackRef) override
     {}
 
-    MOCK_METHOD2(CreateError, NativeValue *(NativeValue *, NativeValue *));
+    MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
-    NativeValue *CallFunction(
-        NativeValue *thisVar, NativeValue *function, NativeValue *const *argv, size_t argc) override
+    NativeValue* CallFunction(
+        NativeValue* thisVar, NativeValue* function, NativeValue* const* argv, size_t argc) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::CallFunction called";
         return nullptr;
     }
 
-    NativeValue *RunScript(NativeValue *script) override
+    NativeValue* RunScript(NativeValue* script) override
     {
         return nullptr;
     }
 
-    NativeValue *RunScriptPath(const char *path) override
+    NativeValue* RunScriptPath(const char* path) override
     {
         return nullptr;
     }
 
-    NativeValue *RunScriptBuffer(const char *path, std::vector<uint8_t> &buffer, bool isBundle) override
+    NativeValue* RunScriptBuffer(const char* path, std::vector<uint8_t>& buffer, bool isBundle) override
     {
         return nullptr;
     }
 
-    NativeValue *RunBufferScript(std::vector<uint8_t> &buffer) override
+    NativeValue* RunBufferScript(std::vector<uint8_t>& buffer) override
     {
         return nullptr;
     }
 
-    NativeValue *RunActor(std::vector<uint8_t> &buffer, const char *descriptor) override
+    NativeValue* RunActor(std::vector<uint8_t>& buffer, const char* descriptor) override
     {
         return nullptr;
     }
 
-    NativeValue *DefineClass(const char *name, NativeCallback callback, void *data,
-        const NativePropertyDescriptor *properties, size_t length) override
+    NativeValue* DefineClass(const char* name, NativeCallback callback, void* data,
+        const NativePropertyDescriptor* properties, size_t length) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateInstance(NativeValue *constructor, NativeValue *const *argv, size_t argc) override
+    NativeValue* CreateInstance(NativeValue* constructor, NativeValue* const* argv, size_t argc) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::CreateInstance called";
         return nullptr;
     }
 
-    NativeReference *CreateReference(NativeValue *value, uint32_t initialRefcount, NativeFinalize callback = nullptr,
-        void *data = nullptr, void *hint = nullptr) override
+    NativeReference* CreateReference(NativeValue* value, uint32_t initialRefcount, NativeFinalize callback = nullptr,
+        void* data = nullptr, void* hint = nullptr) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::CreateReference called";
         return nullptr;
     }
 
-    MOCK_METHOD1(Throw, bool(NativeValue *error));
+    MOCK_METHOD1(Throw, bool(NativeValue* error));
 
-    bool Throw(NativeErrorType type, const char *code, const char *message) override
+    bool Throw(NativeErrorType type, const char* code, const char* message) override
     {
         return true;
     }
 
-    void *CreateRuntime() override
+    void* CreateRuntime() override
     {
         return nullptr;
     }
 
-    NativeValue *Serialize(NativeEngine *context, NativeValue *value, NativeValue *transfer) override
+    NativeValue* Serialize(NativeEngine* context, NativeValue* value, NativeValue* transfer) override
     {
         return nullptr;
     }
 
-    NativeValue *Deserialize(NativeEngine *context, NativeValue *recorder) override
+    NativeValue* Deserialize(NativeEngine* context, NativeValue* recorder) override
     {
         return nullptr;
     }
 
-    ExceptionInfo *GetExceptionForWorker() const override
+    ExceptionInfo* GetExceptionForWorker() const override
     {
         return nullptr;
     }
 
-    void DeleteSerializationData(NativeValue *value) const override
+    void DeleteSerializationData(NativeValue* value) const override
     {}
 
-    NativeValue *LoadModule(NativeValue *str, const std::string &fileName) override
+    NativeValue* LoadModule(NativeValue* str, const std::string& fileName) override
     {
         return nullptr;
     }
 
-    void StartCpuProfiler(const std::string &fileName = "") override
+    void StartCpuProfiler(const std::string& fileName = "") override
     {}
 
     void StopCpuProfiler() override
@@ -254,17 +254,17 @@ public:
     void ResumeVM() override
     {}
 
-    NativeValue *ValueToNativeValue(JSValueWrapper &value) override
+    NativeValue* ValueToNativeValue(JSValueWrapper& value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateDate(double value) override
+    NativeValue* CreateDate(double value) override
     {
         return nullptr;
     }
 
-    NativeValue *CreateBigWords(int sign_bit, size_t word_count, const uint64_t *words) override
+    NativeValue* CreateBigWords(int sign_bit, size_t word_count, const uint64_t* words) override
     {
         return nullptr;
     }
@@ -284,23 +284,23 @@ public:
         return true;
     }
 
-    bool BuildNativeAndJsStackTrace(std::string &stackTraceStr) override
+    bool BuildNativeAndJsStackTrace(std::string& stackTraceStr) override
     {
         return true;
     }
 
-    bool BuildJsStackTrace(std::string &stackTraceStr) override
+    bool BuildJsStackTrace(std::string& stackTraceStr) override
     {
         return true;
     }
 
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrameInfo> &jsFrames) override
+    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrameInfo>& jsFrames) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::BuildJsStackInfoList called";
         return true;
     }
 
-    bool DeleteWorker(NativeEngine *hostEngine, NativeEngine *workerEngine) override
+    bool DeleteWorker(NativeEngine* hostEngine, NativeEngine* workerEngine) override
     {
         return true;
     }
@@ -310,17 +310,17 @@ public:
         return true;
     }
 
-    bool StopHeapTracking(const std::string &filePath) override
+    bool StopHeapTracking(const std::string& filePath) override
     {
         return true;
     }
 
-    bool TriggerFatalException(NativeValue *error) override
+    bool TriggerFatalException(NativeValue* error) override
     {
         return true;
     }
 
-    bool AdjustExternalMemory(int64_t ChangeInBytes, int64_t *AdjustedValue) override
+    bool AdjustExternalMemory(int64_t ChangeInBytes, int64_t* AdjustedValue) override
     {
         return true;
     }
@@ -355,7 +355,7 @@ public:
     }
 
     void DumpHeapSnapshot(
-        const std::string &path, bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON) override
+        const std::string& path, bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON) override
     {}
 
     size_t GetArrayBufferSize() override
@@ -372,7 +372,7 @@ public:
     {
         return 0;
     }
-    NativeScopeManager *GetScopeManager()
+    NativeScopeManager* GetScopeManager()
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::GetScopeManager called";
         return nullptr;

@@ -30,20 +30,20 @@ ConnectionManager& ConnectionManager::GetInstance()
     return connectionManager;
 }
 
-ErrCode ConnectionManager::ConnectAbility(const sptr<IRemoteObject> &connectCaller,
-    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback)
+ErrCode ConnectionManager::ConnectAbility(const sptr<IRemoteObject>& connectCaller,
+    const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
 {
     return ConnectAbilityInner(connectCaller, want, AAFwk::DEFAULT_INVAL_VALUE, connectCallback);
 }
 
-ErrCode ConnectionManager::ConnectAbilityWithAccount(const sptr<IRemoteObject> &connectCaller,
-    const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback)
+ErrCode ConnectionManager::ConnectAbilityWithAccount(const sptr<IRemoteObject>& connectCaller,
+    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback)
 {
     return ConnectAbilityInner(connectCaller, want, accountId, connectCallback);
 }
 
-ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connectCaller,
-    const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback)
+ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connectCaller,
+    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback)
 {
     if (connectCaller == nullptr || connectCallback == nullptr) {
         HILOG_ERROR("connectCaller or connectCallback is nullptr.");
@@ -57,7 +57,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
     sptr<AbilityConnection> abilityConnection;
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
         [&connectCaller, &connectReceiver](const std::map<ConnectionInfo,
-            std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
+            std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
                 return connectCaller == obj.first.connectCaller &&
                     connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
                     connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
@@ -86,9 +86,9 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
     }
 }
 
-ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject> &connectCaller,
-    const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback,
-    const AppExecFwk::ElementName &connectReceiver)
+ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCaller,
+    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback,
+    const AppExecFwk::ElementName& connectReceiver)
 {
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
     if (abilityConnection == nullptr) {
@@ -111,8 +111,8 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject> &connectCa
     return ret;
 }
 
-ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectCaller,
-    const AppExecFwk::ElementName &connectReceiver, const sptr<AbilityConnectCallback> &connectCallback)
+ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectCaller,
+    const AppExecFwk::ElementName& connectReceiver, const sptr<AbilityConnectCallback>& connectCallback)
 {
     if (connectCaller == nullptr || connectCallback == nullptr) {
         HILOG_ERROR("connectCaller or connectCallback is nullptr.");
@@ -124,10 +124,10 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
 
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
         [&connectCaller, &connectReceiver](
-            const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
-            return connectCaller == obj.first.connectCaller &&
-                   connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                   connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
+            const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
+                return connectCaller == obj.first.connectCaller &&
+                    connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
+                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
         HILOG_DEBUG("remove callback, Size:%{public}zu.", item->second.size());
@@ -160,7 +160,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
     }
 }
 
-bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject> &connectCaller)
+bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject>& connectCaller)
 {
     HILOG_DEBUG("diconenctCaller begin.");
     if (connectCaller == nullptr) {
@@ -192,7 +192,7 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject> &connectCalle
     return isDisconnect;
 }
 
-bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName &connectReceiver)
+bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName& connectReceiver)
 {
     HILOG_DEBUG("abilityConnectionsSize:%{public}zu, bundleName:%{public}s, abilityName:%{public}s.",
         abilityConnections_.size(), connectReceiver.GetBundleName().c_str(),
@@ -234,17 +234,17 @@ void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)
     }
 }
 
-bool ConnectionManager::IsConnectCallerEqual(const sptr<IRemoteObject> &connectCaller,
-    const sptr<IRemoteObject> &connectCallerOther)
+bool ConnectionManager::IsConnectCallerEqual(const sptr<IRemoteObject>& connectCaller,
+    const sptr<IRemoteObject>& connectCallerOther)
 {
     return connectCaller == connectCallerOther;
 }
 
-bool ConnectionManager::IsConnectReceiverEqual(const AppExecFwk::ElementName &connectReceiver,
-    const AppExecFwk::ElementName &connectReceiverOther)
+bool ConnectionManager::IsConnectReceiverEqual(const AppExecFwk::ElementName& connectReceiver,
+    const AppExecFwk::ElementName& connectReceiverOther)
 {
     return connectReceiver.GetBundleName() == connectReceiverOther.GetBundleName() &&
-           connectReceiver.GetAbilityName() == connectReceiverOther.GetAbilityName();
+        connectReceiver.GetAbilityName() == connectReceiverOther.GetAbilityName();
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

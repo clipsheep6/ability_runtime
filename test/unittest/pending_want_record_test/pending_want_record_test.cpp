@@ -57,8 +57,8 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    WantSenderInfo MakeWantSenderInfo(Want &want, int32_t flags, int32_t userId, int32_t type = 1);
-    std::shared_ptr<PendingWantKey> MakeWantKey(WantSenderInfo &wantSenderInfo);
+    WantSenderInfo MakeWantSenderInfo(Want& want, int32_t flags, int32_t userId, int32_t type = 1);
+    std::shared_ptr<PendingWantKey> MakeWantKey(WantSenderInfo& wantSenderInfo);
     static constexpr int TEST_WAIT_TIME = 100000;
 
     class CancelReceiver : public AAFwk::WantReceiverStub {
@@ -66,8 +66,8 @@ public:
         static int performReceiveCount;
         static int sendCount;
         void Send(const int32_t resultCode) override;
-        void PerformReceive(const AAFwk::Want &want, int resultCode, const std::string &data,
-            const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser) override;
+        void PerformReceive(const AAFwk::Want& want, int resultCode, const std::string& data,
+            const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser) override;
         virtual sptr<IRemoteObject> AsObject() override
         {
             return nullptr;
@@ -75,7 +75,7 @@ public:
     };
 
 public:
-    std::shared_ptr<PendingWantManager> pendingManager_ {nullptr};
+    std::shared_ptr<PendingWantManager> pendingManager_{ nullptr };
 };
 
 int PendingWantRecordTest::CancelReceiver::performReceiveCount = 0;
@@ -86,8 +86,8 @@ void PendingWantRecordTest::CancelReceiver::Send(const int32_t resultCode)
     sendCount = SEND_COUNT;
 }
 
-void PendingWantRecordTest::CancelReceiver::PerformReceive(const AAFwk::Want &want, int resultCode,
-    const std::string &data, const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser)
+void PendingWantRecordTest::CancelReceiver::PerformReceive(const AAFwk::Want& want, int resultCode,
+    const std::string& data, const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser)
 {
     performReceiveCount = PERFORM_RECEIVE_COUNT;
 }
@@ -111,7 +111,7 @@ void PendingWantRecordTest::TearDown()
 {
 }
 
-WantSenderInfo PendingWantRecordTest::MakeWantSenderInfo(Want &want, int32_t flags, int32_t userId, int32_t type)
+WantSenderInfo PendingWantRecordTest::MakeWantSenderInfo(Want& want, int32_t flags, int32_t userId, int32_t type)
 {
     WantSenderInfo wantSenderInfo;
     wantSenderInfo.type = type;
@@ -131,7 +131,7 @@ WantSenderInfo PendingWantRecordTest::MakeWantSenderInfo(Want &want, int32_t fla
     return wantSenderInfo;
 }
 
-std::shared_ptr<PendingWantKey> PendingWantRecordTest::MakeWantKey(WantSenderInfo &wantSenderInfo)
+std::shared_ptr<PendingWantKey> PendingWantRecordTest::MakeWantKey(WantSenderInfo& wantSenderInfo)
 {
     std::shared_ptr<PendingWantKey> pendingKey = std::make_shared<PendingWantKey>();
     pendingKey->SetBundleName(wantSenderInfo.bundleName);

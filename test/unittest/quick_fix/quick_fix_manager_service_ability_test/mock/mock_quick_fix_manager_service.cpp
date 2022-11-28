@@ -58,13 +58,13 @@ bool QuickFixManagerService::Init()
     return g_mockInitState;
 }
 
-int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
+int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string>& quickFixFiles)
 {
     return 0;
 }
 
-int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundleName,
-    ApplicationQuickFixInfo &quickFixInfo)
+int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string& bundleName,
+    ApplicationQuickFixInfo& quickFixInfo)
 {
     return 0;
 }

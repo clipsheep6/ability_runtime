@@ -85,11 +85,11 @@ void AbilityCommandModuleTest::MakeMockObjects() const
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0100, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0100 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-h",
-        (char *)"-hhhhhhhhhhhhhhhhhhhhhh",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-h",
+        (char*)"-hhhhhhhhhhhhhhhhhhhhhh",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -105,11 +105,11 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0100, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0200, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0200 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-hhhhhhhhhhhhhhhhhhhhhh",
-        (char *)"-h",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-hhhhhhhhhhhhhhhhhhhhhh",
+        (char*)"-h",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -125,10 +125,10 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0200, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0300, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0300 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-hhhhhhhhhhhhhhhhhhhhhh",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-hhhhhhhhhhhhhhhhhhhhhh",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -144,11 +144,11 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0300, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0400, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0400 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--help",
-        (char *)"-hhhhhhhhhhhhhhhhhhhhhh",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--help",
+        (char*)"-hhhhhhhhhhhhhhhhhhhhhh",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -164,11 +164,11 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0400, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0500, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0500 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-hhhhhhhhhhhhhhhhhhhhhh",
-        (char *)"-help",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-hhhhhhhhhhhhhhhhhhhhhh",
+        (char*)"-help",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -185,18 +185,18 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0500, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0600, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0600 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-p",
-        (char *)STRING_BUNDLENAME.c_str(),
-        (char *)"-s",
-        (char *)UNITTEST.c_str(),
-        (char *)STRING_USER_TESTRUNNER.c_str(),
-        (char *)"-s",
-        (char *)CLASS.c_str(),
-        (char *)STRING_CLASS_NAME.c_str(),
-        (char *)"-h",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)"-s",
+        (char*)UNITTEST.c_str(),
+        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)"-s",
+        (char*)CLASS.c_str(),
+        (char*)STRING_CLASS_NAME.c_str(),
+        (char*)"-h",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -212,11 +212,11 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0600, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0700, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0700 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-w",
-        (char *)TIME.c_str(),
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-w",
+        (char*)TIME.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -233,21 +233,21 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0700, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0800, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0800 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-p",
-        (char *)STRING_BUNDLENAME.c_str(),
-        (char *)"-s",
-        (char *)UNITTEST.c_str(),
-        (char *)STRING_USER_TESTRUNNER.c_str(),
-        (char *)"-s",
-        (char *)CLASS.c_str(),
-        (char *)STRING_CLASS_NAME.c_str(),
-        (char *)"-w",
-        (char *)TIME.c_str(),
-        (char *)"-z",
-        (char *)TIME.c_str(),
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)"-s",
+        (char*)UNITTEST.c_str(),
+        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)"-s",
+        (char*)CLASS.c_str(),
+        (char*)STRING_CLASS_NAME.c_str(),
+        (char*)"-w",
+        (char*)TIME.c_str(),
+        (char*)"-z",
+        (char*)TIME.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -264,21 +264,21 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0800, Function | 
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0900, Function | MediumTest | Level1)
 {
     HILOG_INFO("Ability_Command_Module_Test_0900 is called");
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-p",
-        (char *)STRING_BUNDLENAME.c_str(),
-        (char *)"-s",
-        (char *)UNITTEST.c_str(),
-        (char *)STRING_USER_TESTRUNNER.c_str(),
-        (char *)"-z",
-        (char *)TIME.c_str(),
-        (char *)"-s",
-        (char *)CLASS.c_str(),
-        (char *)STRING_CLASS_NAME.c_str(),
-        (char *)"-w",
-        (char *)TIME.c_str(),
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)"-s",
+        (char*)UNITTEST.c_str(),
+        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)"-z",
+        (char*)TIME.c_str(),
+        (char*)"-s",
+        (char*)CLASS.c_str(),
+        (char*)STRING_CLASS_NAME.c_str(),
+        (char*)"-w",
+        (char*)TIME.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

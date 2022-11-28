@@ -79,10 +79,10 @@ void AaCommandForceTimeOut::MakeMockObjects() const
  */
 HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -97,11 +97,11 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0100, Function | Medium
  */
 HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -116,11 +116,11 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0200, Function | Medium
  */
 HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"clean",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"clean",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -135,11 +135,11 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0300, Function | Medium
  */
 HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"clean",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"clean",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -150,7 +150,7 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0400, Function | Medium
     EXPECT_CALL(*mockAbilityManagerStub, ForceTimeoutForTest(_, _))
         .Times(1)
         .WillOnce(Return(-1));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_FORCE_TIMEOUT_NG + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);
@@ -163,11 +163,11 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0400, Function | Medium
  */
 HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"clean",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"clean",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AbilityManagerShellCommand cmd(argc, argv);
@@ -178,7 +178,7 @@ HWTEST_F(AaCommandForceTimeOut, Aa_Command_Force_Timeout_0500, Function | Medium
     EXPECT_CALL(*mockAbilityManagerStub, ForceTimeoutForTest(_, _))
         .Times(1)
         .WillOnce(Return(0));
-    managerClientPtr->proxy_ = static_cast<IAbilityManager *>(mockAbilityManagerStub);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
 
     EXPECT_EQ(cmd.ExecCommand(), STRING_FORCE_TIMEOUT_OK + "\n");
     testing::Mock::AllowLeak(mockAbilityManagerStub);

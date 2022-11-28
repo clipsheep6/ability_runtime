@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityToolCommand : public ShellCommand {
 public:
-    AbilityToolCommand(int argc, char *argv[]);
+    AbilityToolCommand(int argc, char* argv[]);
     ~AbilityToolCommand() override {}
 
 private:
@@ -42,7 +42,7 @@ private:
     ErrCode ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startoptions);
     ErrCode ParseStopServiceArgsFromCmd(Want& want);
     ErrCode ParseTestArgsFromCmd(std::map<std::string, std::string>& params);
-    bool GetKeyAndValueByOpt(int optind, std::string &key, std::string &value);
+    bool GetKeyAndValueByOpt(int optind, std::string& key, std::string& value);
 
     std::shared_ptr<AbilityManagerShellCommand> aaShellCmd_;
 };

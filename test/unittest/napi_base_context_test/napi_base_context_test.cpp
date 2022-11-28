@@ -51,7 +51,7 @@ HWTEST_F(NapiBaseContextTest, GetFAModeContextClassObject_0100, TestSize.Level1)
 {
     HILOG_INFO("GetFAModeContextClassObject start");
 
-    napi_value *object = AbilityRuntime::GetFAModeContextClassObject();
+    napi_value* object = AbilityRuntime::GetFAModeContextClassObject();
     EXPECT_TRUE(object != nullptr);
 
     napi_env env = nullptr;

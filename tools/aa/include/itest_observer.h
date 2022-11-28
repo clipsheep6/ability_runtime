@@ -31,7 +31,7 @@ public:
      * @param msg, Indicates the status information.
      * @param resultCode, Indicates the result code.
      */
-    virtual void TestStatus(const std::string &msg, const int64_t &resultCode) = 0;
+    virtual void TestStatus(const std::string& msg, const int64_t& resultCode) = 0;
 
     /**
      * Outputs information and result code that the test has finished.
@@ -39,7 +39,7 @@ public:
      * @param msg, Indicates the status information.
      * @param resultCode, Indicates the result code.
      */
-    virtual void TestFinished(const std::string &msg, const int64_t &resultCode) = 0;
+    virtual void TestFinished(const std::string& msg, const int64_t& resultCode) = 0;
 
     /**
      * Executes the specified shell command.
@@ -48,7 +48,7 @@ public:
      * @param timeoutSec, Indicates the specified time out time, in seconds.
      * @return the result of the specified shell command.
      */
-    virtual ShellCommandResult ExecuteShellCommand(const std::string &cmd, const int64_t timeoutSec) = 0;
+    virtual ShellCommandResult ExecuteShellCommand(const std::string& cmd, const int64_t timeoutSec) = 0;
 
     enum class Message {
         // ipc id for test status (1)

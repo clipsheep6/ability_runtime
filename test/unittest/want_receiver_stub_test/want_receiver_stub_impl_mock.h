@@ -34,13 +34,13 @@ public:
     virtual ~WantReceiverStubImplMock()
     {}
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return 0;
     }
 
-    int InvokeErrorSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeErrorSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return UNKNOWN_ERROR;
@@ -49,7 +49,7 @@ public:
     int code_ = 0;
 
     virtual void Send(const int32_t resultCode) {};
-    virtual void PerformReceive(const Want &want, int resultCode, const std::string &data, const WantParams &extras,
+    virtual void PerformReceive(const Want& want, int resultCode, const std::string& data, const WantParams& extras,
         bool serialized, bool sticky, int sendingUser) {};
 };
 }  // namespace AAFwk

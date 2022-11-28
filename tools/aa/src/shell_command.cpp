@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-ShellCommand::ShellCommand(int argc, char *argv[], std::string name)
+ShellCommand::ShellCommand(int argc, char* argv[], std::string name)
 {
     opterr = 0;
     argc_ = argc;
@@ -89,7 +89,7 @@ std::string ShellCommand::GetCommandErrorMsg() const
     return commandErrorMsg;
 }
 
-std::string ShellCommand::GetUnknownOptionMsg(std::string &unknownOption) const
+std::string ShellCommand::GetUnknownOptionMsg(std::string& unknownOption) const
 {
     std::string result = "";
 

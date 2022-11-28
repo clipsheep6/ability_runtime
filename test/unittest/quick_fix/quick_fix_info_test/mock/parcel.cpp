@@ -66,7 +66,7 @@ bool Parcel::WriteUint32(uint32_t) const
     return g_mockWriteUint32;
 }
 
-bool Parcel::WriteString(const std::string &) const
+bool Parcel::WriteString(const std::string&) const
 {
     if (g_mockWriteStringCount < g_mockWriteStringMax) {
         g_mockWriteStringCount++;
@@ -75,7 +75,7 @@ bool Parcel::WriteString(const std::string &) const
     return g_mockWriteString;
 }
 
-bool Parcel::WriteParcelable(const Parcelable *) const
+bool Parcel::WriteParcelable(const Parcelable*) const
 {
     return g_mockWriteParcelable;
 }

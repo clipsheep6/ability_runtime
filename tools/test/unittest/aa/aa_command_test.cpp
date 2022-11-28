@@ -73,9 +73,9 @@ void AaCommandTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandTest, Aa_Command_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -90,10 +90,10 @@ HWTEST_F(AaCommandTest, Aa_Command_0100, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -108,10 +108,10 @@ HWTEST_F(AaCommandTest, Aa_Command_0200, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)"-xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)"-xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -126,10 +126,10 @@ HWTEST_F(AaCommandTest, Aa_Command_0300, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)"--xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)"--xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -144,10 +144,10 @@ HWTEST_F(AaCommandTest, Aa_Command_0400, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)"help",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)"help",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

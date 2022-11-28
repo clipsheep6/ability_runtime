@@ -29,9 +29,9 @@ public:
     WantSenderStubMock() : code_(0) {}
     virtual ~WantSenderStubMock() {}
 
-    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return NO_ERROR;
@@ -39,7 +39,7 @@ public:
 
     int code_ = 0;
 
-    virtual void Send(SenderInfo &senderInfo) {}
+    virtual void Send(SenderInfo& senderInfo) {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

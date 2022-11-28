@@ -80,10 +80,10 @@ void AaCommandDumpTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -98,11 +98,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0100, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -117,11 +117,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0200, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -136,11 +136,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0300, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -155,11 +155,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0400, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -174,11 +174,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0500, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0600, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -193,11 +193,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0600, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0700, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-h",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-h",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -212,11 +212,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0700, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0800, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--help",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--help",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -231,11 +231,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0800, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0900, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -250,11 +250,11 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0900, Function | MediumTest | Level1
  */
 HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_1000, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--all",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--all",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 int LocalCallContainer::StartAbilityByCallInner(
-    const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken)
+    const Want& want, const std::shared_ptr<CallerCallBack>& callback, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_DEBUG("start ability by call.");
 
@@ -77,7 +77,7 @@ int LocalCallContainer::StartAbilityByCallInner(
 int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
 {
     HILOG_DEBUG("LocalCallContainer::ReleaseCall begin.");
-    auto isExist = [&callback](auto &record) {
+    auto isExist = [&callback](auto& record) {
         return record.second->RemoveCaller(callback);
     };
 
@@ -117,18 +117,18 @@ int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callb
     return ERR_OK;
 }
 
-void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
+void LocalCallContainer::DumpCalls(std::vector<std::string>& info) const
 {
     HILOG_DEBUG("LocalCallContainer::DumpCalls called.");
     info.emplace_back("          caller connections:");
     for (auto iter = callProxyRecords_.begin(); iter != callProxyRecords_.end(); iter++) {
         std::string tempstr = "            LocalCallRecord";
-        tempstr += " ID #" + std::to_string (iter->second->GetRecordId()) + "\n";
+        tempstr += " ID #" + std::to_string(iter->second->GetRecordId()) + "\n";
         tempstr += "              callee";
         tempstr += " uri[" + iter->first + "]" + "\n";
-        tempstr += "              callers #" + std::to_string (iter->second->GetCallers().size());
+        tempstr += "              callers #" + std::to_string(iter->second->GetCallers().size());
         bool flag = true;
-        for (auto &callBack : iter->second->GetCallers()) {
+        for (auto& callBack : iter->second->GetCallers()) {
             if (callBack != nullptr && !callBack->IsCallBack()) {
                 HILOG_INFO("%{public}s call back is not called.", __func__);
                 flag = false;
@@ -148,7 +148,7 @@ void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
 }
 
 void LocalCallContainer::OnAbilityConnectDone(
-    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
+    const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
     HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone start %{public}s .", element.GetURI().c_str());
     if (resultCode != ERR_OK) {
@@ -166,12 +166,12 @@ void LocalCallContainer::OnAbilityConnectDone(
     return;
 }
 
-void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
 }
 
 bool LocalCallContainer::GetCallLocalRecord(
-    const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord)
+    const AppExecFwk::ElementName& elementName, std::shared_ptr<LocalCallRecord>& localCallRecord)
 {
     for (auto pair : callProxyRecords_) {
         AppExecFwk::ElementName callElement;
@@ -190,10 +190,10 @@ bool LocalCallContainer::GetCallLocalRecord(
     return false;
 }
 
-void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject> &remote)
+void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject>& remote)
 {
     auto diedRemote = remote.promote();
-    auto isExist = [&diedRemote](auto &record) {
+    auto isExist = [&diedRemote](auto& record) {
         return record.second->IsSameObject(diedRemote);
     };
 

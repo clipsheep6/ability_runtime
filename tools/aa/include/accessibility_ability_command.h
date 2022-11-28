@@ -40,7 +40,7 @@ struct AccessibilityCommandArgument {
 
 class AccessibilityAbilityShellCommand : public ShellCommand {
 public:
-    AccessibilityAbilityShellCommand(int argc, char *argv[]);
+    AccessibilityAbilityShellCommand(int argc, char* argv[]);
     ~AccessibilityAbilityShellCommand() override
     {}
 
@@ -54,28 +54,28 @@ private:
     ErrCode RunAsGetEnabledAbilities();
     ErrCode RunAsGetInstalledAbilities();
 
-    ErrCode MakeEnableCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
-    ErrCode MakeDisableCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
+    ErrCode MakeEnableCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
+    ErrCode MakeDisableCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
     const std::vector<std::string> GetEnabledAbilities();
     const std::vector<Accessibility::AccessibilityAbilityInfo> GetInstalledAbilities();
     bool CheckBundleArgument(
-        const AccessibilityCommandArgument &argument,
-        std::string &resultMessage);
+        const AccessibilityCommandArgument& argument,
+        std::string& resultMessage);
     bool CheckAbilityArgument(
-        const AccessibilityCommandArgument &argument,
-        std::string &resultMessage);
+        const AccessibilityCommandArgument& argument,
+        std::string& resultMessage);
     bool CheckCapabilitiesArgument(
-        const AccessibilityCommandArgument &argument,
-        std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
-        std::string &resultMessage);
+        const AccessibilityCommandArgument& argument,
+        std::vector<Accessibility::AccessibilityAbilityInfo>& installedAbilities,
+        std::string& resultMessage);
     bool CheckParamValidity(
-        const AccessibilityCommandArgument &argument,
-        std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
-        std::string &resultMessage);
-    ErrCode CheckEnableCommandArgument(const AccessibilityCommandArgument &argument, std::string &resultMessage);
-    ErrCode CheckDisableCommandArgument(const AccessibilityCommandArgument &argument, std::string &resultMessage);
-    ErrCode CheckCommandArgument(const AccessibilityCommandArgument &argument, std::string &resultMessage);
-    ErrCode CheckSetCommandArgument(const AccessibilityCommandArgument &argument, std::string &resultMessage);
+        const AccessibilityCommandArgument& argument,
+        std::vector<Accessibility::AccessibilityAbilityInfo>& installedAbilities,
+        std::string& resultMessage);
+    ErrCode CheckEnableCommandArgument(const AccessibilityCommandArgument& argument, std::string& resultMessage);
+    ErrCode CheckDisableCommandArgument(const AccessibilityCommandArgument& argument, std::string& resultMessage);
+    ErrCode CheckCommandArgument(const AccessibilityCommandArgument& argument, std::string& resultMessage);
+    ErrCode CheckSetCommandArgument(const AccessibilityCommandArgument& argument, std::string& resultMessage);
 
     ErrCode RunAsSetScreenMagnificationState();
     ErrCode RunAsSetShortKeyState();
@@ -91,9 +91,9 @@ private:
     ErrCode RunAsSetBrightnessDiscount();
     ErrCode RunAsSetAudioMonoState();
     ErrCode RunAsSetAudioBalance();
-    ErrCode MakeSetShortKeyTargetCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
-    ErrCode MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
-    ErrCode MakeCommandArgumentFromCmd(AccessibilityCommandArgument &argument);
+    ErrCode MakeSetShortKeyTargetCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
+    ErrCode MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
+    ErrCode MakeCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
 
     std::shared_ptr<Accessibility::AccessibilitySystemAbilityClient> abilityClientPtr_ = nullptr;
 };

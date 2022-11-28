@@ -236,7 +236,7 @@ constexpr struct option SET_LONG_OPTIONS[] = {
 };
 }  // namespace
 
-AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, char *argv[])
+AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, char* argv[])
     : ShellCommand(argc, argv, ACCESSIBILITY_TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
@@ -343,7 +343,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsHelpCommand()
     return OHOS::ERR_OK;
 }
 
-ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(AccessibilityCommandArgument &argument)
+ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
     int counter = 0;
@@ -414,7 +414,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
     return CheckEnableCommandArgument(argument, resultReceiver_);
 }
 
-ErrCode AccessibilityAbilityShellCommand::MakeDisableCommandArgumentFromCmd(AccessibilityCommandArgument &argument)
+ErrCode AccessibilityAbilityShellCommand::MakeDisableCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     argument.command = "disable";
     ErrCode result = MakeCommandArgumentFromCmd(argument);
@@ -429,7 +429,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsEnableAbility()
     AccessibilityCommandArgument argument;
     ErrCode result = MakeEnableCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         std::string name = argument.bundleName + "/" + argument.abilityName;
         std::string capabilityNames = argument.capabilityNames;
@@ -455,7 +455,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsDisableAbility()
     AccessibilityCommandArgument argument;
     ErrCode result = MakeDisableCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         std::string name = argument.bundleName + "/" + argument.abilityName;
         Accessibility::RetError ret = config.DisableAbility(name);
@@ -479,7 +479,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsGetEnabledAbilities()
     ErrCode result = OHOS::ERR_OK;
     std::vector<std::string> enabledAbilities = GetEnabledAbilities();
     if (!enabledAbilities.empty()) {
-        for (const auto &ability : enabledAbilities) {
+        for (const auto& ability : enabledAbilities) {
             resultReceiver_.append(ability + "\n");
         }
     } else {
@@ -524,8 +524,8 @@ const std::vector<Accessibility::AccessibilityAbilityInfo> AccessibilityAbilityS
 }
 
 bool AccessibilityAbilityShellCommand::CheckBundleArgument(
-    const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+    const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     if (argument.bundleArgumentNum == 0) {
         resultMessage.append(ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT);
@@ -543,8 +543,8 @@ bool AccessibilityAbilityShellCommand::CheckBundleArgument(
 }
 
 bool AccessibilityAbilityShellCommand::CheckAbilityArgument(
-    const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+    const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     if (argument.abilityArgumentNum == 0) {
         resultMessage.append(ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT);
@@ -562,9 +562,9 @@ bool AccessibilityAbilityShellCommand::CheckAbilityArgument(
 }
 
 bool AccessibilityAbilityShellCommand::CheckCapabilitiesArgument(
-    const AccessibilityCommandArgument &argument,
-    std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
-    std::string &resultMessage)
+    const AccessibilityCommandArgument& argument,
+    std::vector<Accessibility::AccessibilityAbilityInfo>& installedAbilities,
+    std::string& resultMessage)
 {
     if (argument.capabilityNamesArgumentNum == 0) {
         resultMessage.append(ACCESSIBILITY_ABILITY_NO_CAPABILITIES_ARGUMENT);
@@ -582,20 +582,20 @@ bool AccessibilityAbilityShellCommand::CheckCapabilitiesArgument(
 }
 
 bool AccessibilityAbilityShellCommand::CheckParamValidity(
-    const AccessibilityCommandArgument &argument,
-    std::vector<Accessibility::AccessibilityAbilityInfo> &installedAbilities,
-    std::string &resultMessage)
+    const AccessibilityCommandArgument& argument,
+    std::vector<Accessibility::AccessibilityAbilityInfo>& installedAbilities,
+    std::string& resultMessage)
 {
-    const std::string &abilityName = argument.abilityName;
-    const std::string &bundleName = argument.bundleName;
-    const std::string &capabilityNames = argument.capabilityNames;
+    const std::string& abilityName = argument.abilityName;
+    const std::string& bundleName = argument.bundleName;
+    const std::string& capabilityNames = argument.capabilityNames;
     bool isExisted = false;
-    for (auto &ability : installedAbilities) {
+    for (auto& ability : installedAbilities) {
         if (ability.GetName() == abilityName && ability.GetPackageName() == bundleName) {
             isExisted = true;
             const std::string staticCapabilityNames = AccessibilityUtils::GetStaticCapabilityNames(ability);
             std::string invalidCapabilityNames = AccessibilityUtils::GetInvalidCapabilityNames(capabilityNames,
-            staticCapabilityNames);
+                staticCapabilityNames);
             if (!invalidCapabilityNames.empty()) {
                 resultMessage.append("the capabilities " + invalidCapabilityNames + ACCESSIBILITY_ABILITY_NOT_FOUND);
                 return false;
@@ -610,8 +610,8 @@ bool AccessibilityAbilityShellCommand::CheckParamValidity(
     return true;
 }
 
-ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     ErrCode result = OHOS::ERR_OK;
     resultMessage.append(argument.command + ": ");
@@ -654,7 +654,7 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
     }
     std::vector<std::string> enabledAbilities = GetEnabledAbilities();
     std::string currentAbility = argument.bundleName + "/" + argument.abilityName;
-    for (const auto &ability : enabledAbilities) {
+    for (const auto& ability : enabledAbilities) {
         if (ability == currentAbility) {
             resultMessage.append("the auxiliary application has been enabled.");
             return OHOS::ERR_INVALID_VALUE;
@@ -663,15 +663,15 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
     return result;
 }
 
-ErrCode AccessibilityAbilityShellCommand::CheckDisableCommandArgument(const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+ErrCode AccessibilityAbilityShellCommand::CheckDisableCommandArgument(const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     ErrCode result = CheckCommandArgument(argument, resultMessage);
     if (result == OHOS::ERR_OK) {
         std::vector<std::string> enabledAbilities = GetEnabledAbilities();
         std::string currentAbility = argument.bundleName + "/" + argument.abilityName;
         bool isEnabled = false;
-        for (const auto &ability : enabledAbilities) {
+        for (const auto& ability : enabledAbilities) {
             if (ability == currentAbility) {
                 isEnabled = true;
                 break;
@@ -685,8 +685,8 @@ ErrCode AccessibilityAbilityShellCommand::CheckDisableCommandArgument(const Acce
     return result;
 }
 
-ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     resultMessage.append(argument.command + ": ");
     int32_t totalArgumentNum = argument.bundleArgumentNum + argument.abilityArgumentNum +
@@ -724,8 +724,8 @@ ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const Accessibili
     return OHOS::ERR_OK;
 }
 
-ErrCode AccessibilityAbilityShellCommand::CheckSetCommandArgument(const AccessibilityCommandArgument &argument,
-    std::string &resultMessage)
+ErrCode AccessibilityAbilityShellCommand::CheckSetCommandArgument(const AccessibilityCommandArgument& argument,
+    std::string& resultMessage)
 {
     resultMessage.append(argument.command + ": ");
     int32_t totalArgumentNum = argument.setArgumentNum + argument.unknownArgumentNum;
@@ -762,7 +762,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetScreenMagnificationState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetScreenMagnificationState(state);
@@ -791,7 +791,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetShortKeyState(state);
@@ -820,7 +820,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseKeyState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetMouseKeyState(state);
@@ -849,7 +849,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetCaptionState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetCaptionsState(state);
@@ -879,7 +879,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetMouseAutoClick()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         float time = 1.0 * std::atoi(argument.value.c_str()) / 100;
         Accessibility::RetError ret = config.SetMouseAutoClick(time);
@@ -903,7 +903,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetShortKeyTarget()
     AccessibilityCommandArgument argument;
     ErrCode result = MakeSetShortKeyTargetCommandArgumentFromCmd(argument);
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         std::string name = argument.bundleName + "/" + argument.abilityName;
         Accessibility::RetError ret = config.SetShortkeyTarget(name);
@@ -932,7 +932,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetHighContrastTextState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetHighContrastTextState(state);
@@ -961,7 +961,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetInvertColorState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetInvertColorState(state);
@@ -991,7 +991,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetDaltonizationColorFilter()
         return OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         int32_t value = std::atoi(argument.value.c_str());
         AccessibilityConfig::DALTONIZATION_TYPE type = AccessibilityConfig::DALTONIZATION_TYPE::Normal;
@@ -1043,7 +1043,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetContentTimeout()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         int32_t time = std::atoi(argument.value.c_str());
         Accessibility::RetError ret = config.SetContentTimeout(time);
@@ -1072,7 +1072,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAnimationOffState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetAnimationOffState(state);
@@ -1102,7 +1102,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetBrightnessDiscount()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         float discount = 1.0 * std::atoi(argument.value.c_str()) / 100;
         Accessibility::RetError ret = config.SetBrightnessDiscount(discount);
@@ -1131,7 +1131,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioMonoState()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         bool state = std::atoi(argument.value.c_str()) == 1;
         Accessibility::RetError ret = config.SetAudioMonoState(state);
@@ -1161,7 +1161,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioBalance()
         result = OHOS::ERR_INVALID_VALUE;
     }
     if (result == OHOS::ERR_OK) {
-        auto &config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
+        auto& config = OHOS::AccessibilityConfig::AccessibilityConfig::GetInstance();
         (void)config.InitializeContext();
         float balance = 1.0 * std::atoi(argument.value.c_str()) / 100;
         Accessibility::RetError ret = config.SetAudioBalance(balance);
@@ -1180,7 +1180,7 @@ ErrCode AccessibilityAbilityShellCommand::RunAsSetAudioBalance()
 }
 
 ErrCode AccessibilityAbilityShellCommand::MakeSetShortKeyTargetCommandArgumentFromCmd(
-    AccessibilityCommandArgument &argument)
+    AccessibilityCommandArgument& argument)
 {
     argument.command = "setShortkeyTarget";
     ErrCode result = MakeCommandArgumentFromCmd(argument);
@@ -1190,7 +1190,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetShortKeyTargetCommandArgumentFr
     return result;
 }
 
-ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(AccessibilityCommandArgument &argument)
+ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
     int counter = 0;
@@ -1250,7 +1250,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
     return OHOS::ERR_OK;
 }
 
-ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument &argument)
+ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
     int counter = 0;

@@ -48,7 +48,7 @@ public:
     void SetUp() override;
     void TearDown() override;
     void MakeMockObjects() const;
-    static void thfunc(TestObserver &observer);
+    static void thfunc(TestObserver& observer);
 };
 
 void TestObserverTest::SetUpTestCase()
@@ -63,7 +63,7 @@ void TestObserverTest::SetUp()
 void TestObserverTest::TearDown()
 {}
 
-void TestObserverTest::thfunc(TestObserver &observer)
+void TestObserverTest::thfunc(TestObserver& observer)
 {
     HILOG_INFO("thfunc");
     sleep(1);

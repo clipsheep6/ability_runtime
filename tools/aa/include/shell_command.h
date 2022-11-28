@@ -33,13 +33,13 @@ const int OFFSET_REQUIRED_ARGUMENT = 2;
 
 class ShellCommand {
 public:
-    ShellCommand(int argc, char *argv[], std::string name);
+    ShellCommand(int argc, char* argv[], std::string name);
     virtual ~ShellCommand();
 
     ErrCode OnCommand();
     std::string ExecCommand();
     std::string GetCommandErrorMsg() const;
-    std::string GetUnknownOptionMsg(std::string &unknownOption) const;
+    std::string GetUnknownOptionMsg(std::string& unknownOption) const;
     std::string GetMessageFromCode(const int32_t code) const;
 
     virtual ErrCode CreateCommandMap() = 0;
@@ -51,7 +51,7 @@ protected:
     static constexpr int MAX_ARGUMENT_NUMBER = 4096;
 
     int argc_;
-    char **argv_;
+    char** argv_;
 
     std::string cmd_;
     std::vector<std::string> argList_;

@@ -23,12 +23,12 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockQuickFixCallbackStub : public QuickFixCallbackStub {
 public:
-    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
     MOCK_METHOD2(OnLoadPatchDone, void(int32_t resultCode, int32_t recordId));
     MOCK_METHOD2(OnUnloadPatchDone, void(int32_t resultCode, int32_t recordId));
     MOCK_METHOD2(OnReloadPageDone, void(int32_t resultCode, int32_t recordId));
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return 0;

@@ -27,16 +27,16 @@ const std::string STRING_INSTALL_BUNDLE_OK = "install bundle successfully.";
 const std::string STRING_UNINSTALL_BUNDLE_OK = "uninstall bundle successfully.";
 }  // namespace
 
-std::string ToolSystemTest::ExecuteCommand(const std::string &command)
+std::string ToolSystemTest::ExecuteCommand(const std::string& command)
 {
     std::string result = "";
-    FILE *file = popen(command.c_str(), "r");
+    FILE* file = popen(command.c_str(), "r");
 
     // wait for services
     std::this_thread::sleep_for(std::chrono::seconds(TIME_DELAY_FOR_SERVICES));
 
     if (file != nullptr) {
-        char commandResult[1024] = {0};
+        char commandResult[1024] = { 0 };
         while ((fgets(commandResult, sizeof(commandResult), file)) != nullptr) {
             result.append(commandResult);
         }
@@ -47,7 +47,7 @@ std::string ToolSystemTest::ExecuteCommand(const std::string &command)
     return result;
 }
 
-void ToolSystemTest::InstallBundle(const std::string &bundlePath, const bool checkResult)
+void ToolSystemTest::InstallBundle(const std::string& bundlePath, const bool checkResult)
 {
     // install a bundle
     std::string command = "bm install -p " + bundlePath;
@@ -58,7 +58,7 @@ void ToolSystemTest::InstallBundle(const std::string &bundlePath, const bool che
     }
 }
 
-void ToolSystemTest::UninstallBundle(const std::string &bundleName, const bool checkResult)
+void ToolSystemTest::UninstallBundle(const std::string& bundleName, const bool checkResult)
 {
     // uninstall a bundle
     std::string command = "bm uninstall -n " + bundleName;
@@ -70,7 +70,7 @@ void ToolSystemTest::UninstallBundle(const std::string &bundleName, const bool c
 }
 
 void ToolSystemTest::StartAbility(
-    const std::string &device, const std::string &abilityName, const std::string &bundleName, const bool checkResult)
+    const std::string& device, const std::string& abilityName, const std::string& bundleName, const bool checkResult)
 {
     // start an ability
     std::string command = "aa start -d " + device + " -a " + abilityName + " -b " + bundleName;
@@ -81,7 +81,7 @@ void ToolSystemTest::StartAbility(
     }
 }
 
-bool ToolSystemTest::IsSubSequence(const std::string &str, const std::string &subStr)
+bool ToolSystemTest::IsSubSequence(const std::string& str, const std::string& subStr)
 {
     return str.find(subStr) != std::string::npos;
 }
