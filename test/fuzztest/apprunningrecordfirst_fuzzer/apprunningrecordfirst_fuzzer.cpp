@@ -100,8 +100,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->SetState(state);
     std::weak_ptr<AppMgrServiceInner> inner;
     appRecord->SetAppMgrServiceInner(inner);
-    sptr<AppDeathRecipient> appDeathRecipient;
-    appRecord->SetAppDeathRecipient(appDeathRecipient);
     std::shared_ptr<AMSEventHandler> handler;
     appRecord->SetEventHandler(handler);
     bool isKeepAlive = *data % ENABLE;
@@ -139,7 +137,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->GetStartMsg();
     appRecord->GetAppIndex();
     appRecord->GetSecurityFlag();
-    appRecord->IsKilling();
     return appRecord->IsKilling();
 }
 }
@@ -154,7 +151,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

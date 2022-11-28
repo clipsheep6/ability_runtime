@@ -156,7 +156,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
 
     HILOG_INFO("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
 
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::ConnectAbility AbilityType = %{public}d", type);
         return false;
     }
@@ -178,7 +178,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
     HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::DisconnectAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
@@ -194,7 +194,7 @@ bool AbilityContext::StopAbility(const AAFwk::Want &want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::StopAbility AbilityType = %{public}d", type);
         return false;
     }

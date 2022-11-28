@@ -110,10 +110,6 @@ void AbilityManagerServiceAnrTest::OnStartAms()
         DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
 #endif
 
-        auto timeout = abilityMs_->amsConfigResolver_->GetANRTimeOutTime();
-        abilityMs_->anrDisposer_ = std::make_shared<AppNoResponseDisposer>(timeout);
-        EXPECT_TRUE(abilityMs_->anrDisposer_);
-
         abilityMs_->eventLoop_->Run();
         return;
     }

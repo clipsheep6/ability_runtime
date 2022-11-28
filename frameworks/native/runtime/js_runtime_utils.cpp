@@ -287,6 +287,22 @@ void AsyncTask::ResolveWithCustomize(NativeEngine& engine, NativeValue* error, N
     HILOG_DEBUG("AsyncTask::Resolve is called end.");
 }
 
+void AsyncTask::RejectWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value)
+{
+    if (deferred_) {
+        deferred_->Reject(error);
+        deferred_.reset();
+    }
+    if (callbackRef_) {
+        NativeValue* argv[] = {
+            error,
+            value,
+        };
+        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
+        callbackRef_.reset();
+    }
+}
+
 void AsyncTask::Execute(NativeEngine* engine, void* data)
 {
     if (engine == nullptr || data == nullptr) {

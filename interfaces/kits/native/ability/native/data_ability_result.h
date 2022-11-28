@@ -29,19 +29,19 @@ public:
      * @brief A constructor used to create a DataAbilityResult instance
      * with the input parameter count specified.
      */
-    DataAbilityResult(int count);
+    explicit DataAbilityResult(int count);
 
     /**
      * @brief A constructor used to create a DataAbilityResult instance
      * with the input parameter uri specified
      */
-    DataAbilityResult(const Uri &uri);
+    explicit DataAbilityResult(const Uri &uri);
 
     /**
      * @brief A constructor used to create a DataAbilityResult instance
      * with a Parcel object specified.
      */
-    DataAbilityResult(Parcel &parcel);
+    explicit DataAbilityResult(Parcel &parcel);
 
     /**
      * @brief A constructor used to create a DataAbilityResult instance

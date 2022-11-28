@@ -133,7 +133,7 @@ private:
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionIdByTokenInner(MessageParcel &data, MessageParcel &reply);
 
-	// for new version ability (call ability)
+    // for new version ability (call ability)
     int StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply);
     int ReleaseCallInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
@@ -185,10 +185,9 @@ private:
     int BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply);
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
     int BlockAppServiceInner(MessageParcel &data, MessageParcel &reply);
+    #endif
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
-    #endif
-
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
 };

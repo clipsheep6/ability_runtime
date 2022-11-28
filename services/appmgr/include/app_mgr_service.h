@@ -54,7 +54,7 @@ public:
     DECLEAR_SYSTEM_ABILITY(AppMgrService);
 
     AppMgrService();
-    AppMgrService(const int32_t serviceId, bool runOnCreate = false);
+    explicit AppMgrService(const int32_t serviceId, bool runOnCreate = false);
     virtual ~AppMgrService() override;
 
     // the function about application

@@ -167,7 +167,7 @@ public:
      * @param start Indicates the zip content location start position.
      * @param length Indicates the zip content length.
      */
-    void SetContentLocation(ZipPos start, size_t length);
+    void SetContentLocation(const ZipPos start, const size_t length);
     /**
      * @brief Get all entries in the zip file.
      * @param start Indicates the zip content location start position.

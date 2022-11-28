@@ -17,16 +17,20 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 
 #include "remote_mission_listener_stub.h"
 #include "message_parcel.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 
 namespace OHOS {
-constexpr size_t THRESHOLD = 10;
-constexpr int32_t OFFSET = 4;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.RemoteMissionListener";
+}
 
 class RemoteMissionListenerStubFuzzTest : public RemoteMissionListenerStub {
 public:
@@ -41,32 +45,27 @@ public:
     {}
 };
 
-uint32_t Convert2Uint32(const uint8_t* ptr)
+uint32_t GetU32Data(const char* ptr)
 {
-    if (ptr == nullptr) {
-        return 0;
-    }
-    // 将第0个数字左移24位，将第1个数字左移16位，将第2个数字左移8位，第3个数字不左移
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-bool DoSomethingInterestingWithMyAPI(const uint8_t* rawData, size_t size)
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = Convert2Uint32(rawData);
-    rawData = rawData + OFFSET;
-    size = size - OFFSET;
+    uint32_t code = GetU32Data(data);
 
-    MessageParcel data;
-    data.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
-    data.WriteBuffer(rawData, size);
-    data.RewindRead(0);
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
+    parcel.WriteBuffer(data, size);
+    parcel.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
 
     std::shared_ptr<RemoteMissionListenerStub> remotemissionlistenerstub
         = std::make_shared<RemoteMissionListenerStubFuzzTest>();
 
-    remotemissionlistenerstub->OnRemoteRequest(code, data, reply, option);
+    remotemissionlistenerstub->OnRemoteRequest(code, parcel, reply, option);
 
     return true;
 }
@@ -75,12 +74,34 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t* rawData, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < OHOS::THRESHOLD) {
+    /* Run your code on data */
+    if (data == nullptr) {
+        std::cout << "invalid data" << std::endl;
         return 0;
     }
 
-    /* Run your code on data */
-    OHOS::DoSomethingInterestingWithMyAPI(data, size);
+    /* Validate the length of size */
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
+        return 0;
+    }
+
+    char* ch = (char *)malloc(size + 1);
+    if (ch == nullptr) {
+        std::cout << "malloc failed." << std::endl;
+        return 0;
+    }
+
+    (void)memset_s(ch, size + 1, 0x00, size + 1);
+    if (memcpy_s(ch, size, data, size) != EOK) {
+        std::cout << "copy failed." << std::endl;
+        free(ch);
+        ch = nullptr;
+        return 0;
+    }
+
+    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    free(ch);
+    ch = nullptr;
     return 0;
 }
 

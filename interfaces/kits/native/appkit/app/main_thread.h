@@ -150,7 +150,7 @@ public:
      *
      * @param level Indicates the memory trim level, which shows the current memory usage status.
      */
-    void ScheduleMemoryLevel(int level) override;
+    void ScheduleMemoryLevel(const int level) override;
 
     /**
      *
@@ -228,13 +228,13 @@ public:
      */
     void CheckMainThreadIsAlive();
 
-    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback) override;
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId) override;
 
-    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback) override;
+    int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback) override;
+        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
 private:
     /**
@@ -422,7 +422,7 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    void LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication);
 
     /**
      *
@@ -439,7 +439,7 @@ private:
 
     bool Timer();
     bool WaitForDuration(uint32_t duration);
-    void reportEvent();
+    void ReportEvent();
     bool IsStopWatchdog();
 
     class MainHandler : public EventHandler {
@@ -457,7 +457,7 @@ private:
         void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override;
 
     private:
-        sptr<MainThread> mainThreadObj_ = nullptr;
+        wptr<MainThread> mainThreadObj_ = nullptr;
     };
 
     bool isRunnerStarted_ = false;
@@ -467,7 +467,7 @@ private:
     std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
     std::shared_ptr<OHOSApplication> application_ = nullptr;
     std::shared_ptr<ApplicationImpl> applicationImpl_ = nullptr;
-    std::shared_ptr<MainHandler> mainHandler_ = nullptr;
+    static std::shared_ptr<MainHandler> mainHandler_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
     std::shared_ptr<Watchdog> watchdog_ = nullptr;
     MainThreadState mainThreadState_ = MainThreadState::INIT;
@@ -477,7 +477,7 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> signalHandler_;
-    static std::shared_ptr<OHOSApplication> applicationForDump_;
+    static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

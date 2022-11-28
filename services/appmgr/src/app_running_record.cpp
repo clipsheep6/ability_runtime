@@ -409,6 +409,12 @@ void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     if (eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
         eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG);
     }
@@ -1238,6 +1244,11 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
     isDebugApp_ = isDebugApp;
 }
 
+bool AppRunningRecord::IsDebugApp()
+{
+    return isDebugApp_;
+}
+
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
 {
     appIndex_ = appIndex;
@@ -1278,7 +1289,8 @@ void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObjec
     (void)moduleRecord->RemoveTerminateAbilityTimeoutTask(token);
 }
 
-int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
+int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+    const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1286,10 +1298,10 @@ int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, c
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback);
+    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback, recordId);
 }
 
-int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback)
+int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1297,11 +1309,11 @@ int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &cal
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyHotReloadPage(callback);
+    return appLifeCycleDeal_->NotifyHotReloadPage(callback, recordId);
 }
 
 int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
-    const sptr<IQuickFixCallback> &callback)
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -1309,7 +1321,7 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback);
+    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
 }
 
 bool AppRunningRecord::IsContinuousTask()

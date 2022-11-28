@@ -63,7 +63,7 @@ METHODDEF(void) mission_error_exit(j_common_ptr cinfo)
         HILOG_ERROR("%{public}s param is invalid.", __func__);
         return;
     }
-    auto err = (mission_error_mgr*)cinfo->err;
+    auto err = static_cast<mission_error_mgr*>(cinfo->err);
     longjmp(err->environment, 1);
 }
 #endif

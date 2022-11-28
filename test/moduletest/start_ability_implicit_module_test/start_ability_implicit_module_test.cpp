@@ -286,7 +286,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_005, TestSize.Level1)
 
     Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(EVENT_MULT_APP_CHOOSE);
     auto ret = abilityMs_->StartAbility(want, MOCK_MAIN_USER_ID);
-    
+
     EXPECT_EQ(ret, ERR_OK);
 }
 }

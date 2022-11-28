@@ -24,18 +24,29 @@ ohos_unittest("ability_extension_test") {
 
   cflags = []
 
+  include_dirs = [
+    "./",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
+
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
   deps = [
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "ability_runtime:abilitykit_native",
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "ipc_js:rpc",
   ]
 }

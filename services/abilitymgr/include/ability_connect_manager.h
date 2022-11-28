@@ -411,6 +411,8 @@ private:
      */
     void HandleAbilityDiedTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
 
+    void RestartAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
+
     /**
      * PostTimeOutTask.
      *

@@ -54,21 +54,24 @@ int QuickFixCallbackStub::OnRemoteRequest(
 int32_t QuickFixCallbackStub::HandleOnLoadPatchDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t resultCode = data.ReadInt32();
-    OnLoadPatchDone(resultCode);
+    int32_t recordId = data.ReadInt32();
+    OnLoadPatchDone(resultCode, recordId);
     return ERR_OK;
 }
 
 int32_t QuickFixCallbackStub::HandleOnUnloadPatchDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t resultCode = data.ReadInt32();
-    OnUnloadPatchDone(resultCode);
+    int32_t recordId = data.ReadInt32();
+    OnUnloadPatchDone(resultCode, recordId);
     return ERR_OK;
 }
 
 int32_t QuickFixCallbackStub::HandleOnReloadPageDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t resultCode = data.ReadInt32();
-    OnReloadPageDone(resultCode);
+    int32_t recordId = data.ReadInt32();
+    OnReloadPageDone(resultCode, recordId);
     return ERR_OK;
 }
 } // namespace AAFwk

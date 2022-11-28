@@ -29,6 +29,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr int CYCLE_LIMIT = 2000;
 AbilitySchedulerStub::AbilitySchedulerStub()
 {
     requestFuncMap_[SCHEDULE_ABILITY_TRANSACTION] = &AbilitySchedulerStub::AbilityTransactionInner;
@@ -418,6 +419,10 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
         return ERR_INVALID_VALUE;
     }
 
+    if (count > CYCLE_LIMIT) {
+        HILOG_ERROR("count is too large");
+        return ERR_INVALID_VALUE;
+    }
     std::vector<NativeRdb::ValuesBucket> values;
     for (int i = 0; i < count; i++) {
         std::unique_ptr<NativeRdb::ValuesBucket> value(data.ReadParcelable<NativeRdb::ValuesBucket>());
@@ -537,6 +542,10 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("AbilitySchedulerStub::ExecuteBatchInner count:%{public}d", count);
+    if (count > CYCLE_LIMIT) {
+        HILOG_ERROR("count is too large");
+        return ERR_INVALID_VALUE;
+    }
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> operations;
     for (int i = 0; i < count; i++) {
         AppExecFwk::DataAbilityOperation *operation = data.ReadParcelable<AppExecFwk::DataAbilityOperation>();

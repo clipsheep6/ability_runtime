@@ -40,7 +40,7 @@ void AbilityConnection::OnAbilityConnectDone(
     SetRemoteObject(remoteObject);
     SetResultCode(resultCode);
     SetConnectionState(CONNECTION_STATE_CONNECTED);
-    
+
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
 

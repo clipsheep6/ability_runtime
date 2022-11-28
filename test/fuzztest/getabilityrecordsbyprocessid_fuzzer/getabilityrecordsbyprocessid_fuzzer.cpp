@@ -28,44 +28,51 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
-    constexpr size_t FOO_MAX_LEN = 1024;
+namespace {
+constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t U32_AT_SIZE = 4;
+}
+uint32_t GetU32Data(const char* ptr)
+{
+    // convert fuzz input data to an integer
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+}
+sptr<Token> GetFuzzAbilityToken()
+{
+    sptr<Token> token = nullptr;
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    if (abilityRecord) {
+        token = abilityRecord->GetToken();
+    }
+    return token;
+}
 
-    sptr<Token> GetFuzzAbilityToken()
-    {
-        sptr<Token> token = nullptr;
-        AbilityRequest abilityRequest;
-        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-        abilityRequest.abilityInfo.name = "MainAbility";
-        abilityRequest.abilityInfo.type = AbilityType::DATA;
-        std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        if (abilityRecord) {
-            token = abilityRecord->GetToken();
-        }
-        return token;
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
     }
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        int pid = 100;
-        sptr<IRemoteObject> token = GetFuzzAbilityToken();
-        if (!token) {
-            std::cout << "Get ability token failed." << std::endl;
-            return false;
-        }
-        std::vector<sptr<IRemoteObject>> tokens;
-        tokens.emplace_back(token);
-
-        if (appMgrClient->GetAbilityRecordsByProcessID(pid, tokens) != 0) {
-            return false;
-        }
-
-        return true;
+    int pid = static_cast<int>(GetU32Data(data));
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    if (!token) {
+        std::cout << "Get ability token failed." << std::endl;
+        return false;
     }
+    std::vector<sptr<IRemoteObject>> tokens;
+    tokens.emplace_back(token);
+
+    if (appMgrClient->GetAbilityRecordsByProcessID(pid, tokens) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -78,8 +85,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Validate the length of size */
-    if (size == 0 || size > OHOS::FOO_MAX_LEN) {
-        std::cout << "invalid size" << std::endl;
+    if (size > OHOS::FOO_MAX_LEN || size < OHOS::U32_AT_SIZE) {
         return 0;
     }
 

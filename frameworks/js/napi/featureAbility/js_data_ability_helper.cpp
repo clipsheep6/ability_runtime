@@ -2419,7 +2419,7 @@ bool CheckUnregisterParam(const napi_env &env, napi_value *args, uint32_t argCou
             return false;
         }
         return true;
-    } 
+    }
 
     // parse uri or callback
     napi_typeof(env, args[PARAM1], &valuetype);

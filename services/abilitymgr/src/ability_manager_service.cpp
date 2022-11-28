@@ -78,6 +78,8 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+const int32_t SYSTEM_UID = 1000;
+
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -97,13 +99,9 @@ const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
 const std::string BUNDLE_NAME_INPUTMETHOD_TEST = "com.acts.inputmethodtest";
-const std::string BUNDLE_NAME_KEY_BOARD = "com.example.kikakeyboard";
-const std::string BUNDLE_NAME_MESSAGE_DATA = "com.ohos.smsmmsability";
-const std::string BUNDLE_NAME_CALL_LOG = "com.ohos.calllogability";
 const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
 const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
 const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
-const std::string BUNDLE_NAME_MESSAGE = "com.ohos.mms";
 const std::string BUNDLE_NAME_PHOTO = "com.ohos.photos";
 const std::string BUNDLE_NAME_SCREENSHOT = "com.huawei.ohos.screenshot";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
@@ -124,9 +122,7 @@ const std::string BUNDLE_NAME_APPSELECT_SERVER_TEST = "bserviceabilityrelyhap";
 // White list
 const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
                                                                 BUNDLE_NAME_INPUTMETHOD_TEST,
-                                                                BUNDLE_NAME_KEY_BOARD,
                                                                 BUNDLE_NAME_NOTE,
-                                                                BUNDLE_NAME_MESSAGE,
                                                                 BUNDLE_NAME_PHOTO,
                                                                 BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
@@ -143,11 +139,8 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_SERVICE_SERVER_TEST,
                                                                 BUNDLE_NAME_APPSELECT_SERVER_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER2_TEST };
-const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA,
-                                                                    BUNDLE_NAME_MESSAGE_DATA,
-                                                                    BUNDLE_NAME_CALL_LOG,
+const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_TELE_DATA,
                                                                     BUNDLE_NAME_CONTACTS_DATA,
-                                                                    BUNDLE_NAME_TELE_DATA,
                                                                     BUNDLE_NAME_DEVICE_TEST };
 } // namespace
 
@@ -339,7 +332,6 @@ bool AbilityManagerService::Init()
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
     WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
-    anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -965,7 +957,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     HILOG_INFO("Start extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
-    eventInfo.extensionType = (int32_t)extensionType;
+    eventInfo.extensionType = static_cast<int32_t>(extensionType);
     AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
@@ -1055,7 +1047,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     HILOG_INFO("Stop extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
-    eventInfo.extensionType = (int32_t)extensionType;
+    eventInfo.extensionType = static_cast<int32_t>(extensionType);
     AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
@@ -1248,7 +1240,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
 }
 
-int AbilityManagerService::SendResultToAbility(int requestCode, int resultCode, Want &resultWant)
+int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)
 {
     HILOG_INFO("%{public}s", __func__);
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
@@ -3032,6 +3024,13 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
+    if (IPCSkeleton::GetCallingUid() == SYSTEM_UID) {
+        sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject("abilityInfoCallback");
+        if (abilityInfoCallback != nullptr) {
+            request.abilityInfoCallback = abilityInfoCallback;
+        }
+    }
+
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
 #ifdef SUPPORT_GRAPHICS
@@ -4175,8 +4174,8 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         appRecoveryHistory_[record->GetUid()] = now;
         want = record->GetWant();
         want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
-        
-        HiSysEvent::Write(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
+
+        HiSysEventWrite(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
             "APP_UID", record->GetUid(),
             "VERSION_CODE", std::to_string(appInfo.versionCode),
             "VERSION_NAME", appInfo.versionName,
@@ -4431,12 +4430,18 @@ int AbilityManagerService::SendANRProcessID(int pid)
     }
 
     AppExecFwk::ApplicationInfo appInfo;
+    bool debug;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK) {
+    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) == ERR_OK) {
         auto it = appRecoveryHistory_.find(appInfo.uid);
         if (it != appRecoveryHistory_.end()) {
             return ERR_OK;
         }
+    }
+
+    if (debug) {
+        HILOG_ERROR("SendANRProcessID error, debug mode.");
+        return ERR_INVALID_VALUE;
     }
 
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
@@ -4643,6 +4648,14 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
+    if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        HILOG_DEBUG("pending state is FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        return ERR_OK;
+    } else {
+        HILOG_DEBUG("pending state is not FOREGROUND.");
+        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
+    }
     abilityRecord->ProcessForegroundAbility(flag);
     return ERR_OK;
 }
@@ -5408,30 +5421,25 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         return ERR_OK;
     }
 
-    // Temp, solve FormIssue
-    if (abilityRequest.callerToken == nullptr) {
-        auto callerUid = IPCSkeleton::GetCallingUid();
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-        std::string callerBundleName;
-        bool ret = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, callerBundleName));
-        if (!ret) {
-            HILOG_ERROR("Can not find bundleName by callerUid: %{private}d.", callerUid);
+    if (AbilityUtil::IsStartFreeInstall(abilityRequest.want)) {
+        isBackgroundCall = false;
+        return ERR_OK;
+    }
+
+    AppExecFwk::RunningProcessInfo processInfo;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility) {
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
+    } else {
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+        if (processInfo.processName_.empty()) {
+            HILOG_ERROR("Can not find caller application by callerPid, callerPid: %{private}d.", callerPid);
             return ERR_INVALID_VALUE;
-        } else if (callerBundleName == BUNDLE_NAME_LAUNCHER) {
-            auto callerToken = IPCSkeleton::GetCallingTokenID();
-            HILOG_INFO("Temp, just for solve FormIssue, callerUid: %{private}d  callerToken: %{private}d.",
-                callerUid, callerToken);
-            isBackgroundCall = false;
-            return ERR_OK;
         }
     }
 
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
-    AppExecFwk::RunningProcessInfo processInfo;
-    DelayedSingleton<AppScheduler>::GetInstance()->
-        GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
         isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
             !processInfo.isFocused;

@@ -557,7 +557,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
         if (abilityContext == nullptr) {
             return;
         }
-        
+
         std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
             abilityContext->GetApplicationContext();
         if (applicationContext != nullptr && !applicationContext->IsAbilityLifecycleCallbackEmpty()) {

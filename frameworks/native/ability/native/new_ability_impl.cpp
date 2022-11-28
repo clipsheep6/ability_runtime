@@ -135,7 +135,7 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
             break;
         }
     }
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
+    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 }  // namespace AppExecFwk

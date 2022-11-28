@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class ReverseContinuationSchedulerPrimaryProxy : public IRemoteProxy<IReverseContinuationSchedulerPrimary> {
 public:
-    ReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject);
+    explicit ReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject);
     virtual ~ReverseContinuationSchedulerPrimaryProxy() = default;
 
     /**

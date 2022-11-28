@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 AppMgrProxy::AppMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAppMgr>(impl)
 {}
 
@@ -361,6 +362,10 @@ template<typename T>
 int AppMgrProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos)
 {
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {
@@ -448,6 +453,10 @@ int AppMgrProxy::GetForegroundApplications(std::vector<AppStateData> &list)
         return error;
     }
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<AppStateData> info(reply.ReadParcelable<AppStateData>());
         if (!info) {
@@ -558,6 +567,10 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
         return ERR_NULL_OBJECT;
     }
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < infoSize; i++) {
         auto iRemote = reply.ReadRemoteObject();
         tokens.emplace_back(iRemote);

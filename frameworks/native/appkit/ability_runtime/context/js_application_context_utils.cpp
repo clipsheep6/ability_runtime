@@ -85,6 +85,7 @@ public:
     static NativeValue* GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
 
     void KeepApplicationContext(std::shared_ptr<ApplicationContext> applicationContext)
     {
@@ -99,6 +100,7 @@ private:
     NativeValue* OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
     std::shared_ptr<ApplicationContext> keepApplicationContext_;
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
@@ -811,6 +813,50 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
+
+NativeValue* JsApplicationContextUtils::GetApplicationContext(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetApplicationContext(*engine, *info) : nullptr;
+}
+
+NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("GetApplicationContext start");
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    NativeValue* value = CreateJsApplicationContext(engine, applicationContext, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
+    if (systemModule == nullptr) {
+        HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    auto contextObj = systemModule->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("OnGetApplicationContext, Failed to get context native object");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachApplicationContext,
+        workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr application context is called");
+            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+        },
+        nullptr);
+    return contextObj;
+}
 }  // namespace
 
 NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<ApplicationContext> applicationContext,
@@ -833,10 +879,6 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     auto appInfo = applicationContext->GetApplicationInfo();
     if (appInfo != nullptr) {
         object->SetProperty("applicationInfo", CreateJsApplicationInfo(engine, *appInfo));
-    }
-    auto hapModuleInfo = applicationContext->GetHapModuleInfo();
-    if (hapModuleInfo != nullptr) {
-        object->SetProperty("currentHapModuleInfo", CreateJsHapModuleInfo(engine, *hapModuleInfo));
     }
     auto resourceManager = applicationContext->GetResourceManager();
     std::shared_ptr<Context> context = std::dynamic_pointer_cast<Context>(applicationContext);
@@ -865,6 +907,8 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
     BindNativeFunction(engine, *object, "on", MD_NAME, JsApplicationContextUtils::On);
     BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
+    BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
+        JsApplicationContextUtils::GetApplicationContext);
 
     return objValue;
 }

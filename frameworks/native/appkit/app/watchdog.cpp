@@ -128,7 +128,7 @@ void Watchdog::Timer()
         const char *hook_mode = "startup:";
         int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
         if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
-            reportEvent();
+            ReportEvent();
         }
     }
     if (appMainHandler_ != nullptr) {
@@ -138,7 +138,7 @@ void Watchdog::Timer()
         system_clock::now().time_since_epoch()).count();
 }
 
-void Watchdog::reportEvent()
+void Watchdog::ReportEvent()
 {
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
@@ -149,7 +149,7 @@ void Watchdog::reportEvent()
         lastWatchTime_ = now;
         return;
     }
-    
+
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
         return;
@@ -172,7 +172,7 @@ void Watchdog::reportEvent()
     appMainHandler_->Dump(handlerDumper);
     msgContent += handlerDumper.GetDumpInfo();
 
-    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
         EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
         EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent);

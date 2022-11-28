@@ -25,6 +25,7 @@ const std::u16string ABILITY_MGR_DESCRIPTOR = u"ohos.aafwk.AbilityManager";
 constexpr uint32_t REGISTER_CONNECTION_OBSERVER = 2502;
 constexpr uint32_t UNREGISTER_CONNECTION_OBSERVER = 2503;
 constexpr uint32_t GET_DLP_CONNECTION_INFOS = 2504;
+constexpr int32_t CYCLE_LIMIT = 1000;
 }
 int32_t ServiceProxyAdapter::RegisterObserver(const sptr<IConnectionObserver> &observer)
 {
@@ -123,6 +124,11 @@ int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo
     }
 
     int32_t infoSize = reply.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<DlpConnectionInfo> info(reply.ReadParcelable<DlpConnectionInfo>());
         if (info == nullptr) {

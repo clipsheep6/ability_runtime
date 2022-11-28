@@ -840,7 +840,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
     sptr<JSAbilityConnection> connection = nullptr;
     napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[0]), &connectId);
-    HILOG_INFO("Disconnect ability begin, connection:%{public}d.", (int32_t)connectId);
+    HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(abilityConnects_.begin(),
         abilityConnects_.end(),
         [&connectId](const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
