@@ -1385,6 +1385,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
     startMsg.procName = processName;
     startMsg.soPath = SO_PATH;
+    startMsg.accessTokenIdEx = (*bundleInfoIter).applicationInfo.accessTokenIdEx;
 
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;

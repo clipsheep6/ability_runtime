@@ -76,6 +76,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             return false;
         }
         msg_->flags = startMsg.flags;
+        msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {
@@ -137,6 +138,8 @@ void AppSpawnMsgWrapper::DumpMsg() const
     }
     HILOG_INFO("************AppSpawnMsg*************");
     HILOG_INFO("uid: %{public}d, gid: %{public}d, procName: %{public}s", msg_->uid, msg_->gid, msg_->processName);
+    std::string accessTokenIdExString = std::to_string(msg_->accessTokenIdEx);
+    HILOG_INFO("Assembling accessTokenIdEx :%{public}s", accessTokenIdExString.c_str());
     HILOG_INFO("************************************");
 }
 
