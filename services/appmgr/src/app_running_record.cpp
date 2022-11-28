@@ -1187,6 +1187,12 @@ void AppRunningRecord::ScheduleAcceptWantDone()
 {
     HILOG_INFO("Schedule accept want done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
 }
 
