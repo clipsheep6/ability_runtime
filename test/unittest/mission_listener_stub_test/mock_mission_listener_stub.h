@@ -33,7 +33,7 @@ public:
     MOCK_METHOD1(OnMissionDestroyed, void(int32_t missionId));
     MOCK_METHOD1(OnMissionSnapshotChanged, void(int32_t missionId));
     MOCK_METHOD1(OnMissionMovedToFront, void(int32_t missionId));
-    MOCK_METHOD2(OnMissionIconUpdated, void(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon));
+    MOCK_METHOD2(OnMissionIconUpdated, void(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& icon));
     MOCK_METHOD1(OnMissionClosed, void(int32_t missionId));
     MOCK_METHOD1(OnMissionLabelUpdated, void(int32_t missionId));
 };

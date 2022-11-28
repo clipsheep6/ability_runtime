@@ -36,7 +36,7 @@ using OHOS::AppExecFwk::ElementName;
 using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
 namespace {
-    const int32_t SEND_FINISHED_CODE = 100;
+const int32_t SEND_FINISHED_CODE = 100;
 }
 
 namespace OHOS::AbilityRuntime::WantAgent {
@@ -62,8 +62,8 @@ public:
          * @param resultExtras The final extras collected by a broadcast.
          */
     public:
-        void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
-            const AAFwk::WantParams &resultExtras) override;
+        void OnSendFinished(const AAFwk::Want& want, int resultCode, const std::string& resultData,
+            const AAFwk::WantParams& resultExtras) override;
         static int code;
     };
 };
@@ -71,7 +71,7 @@ public:
 int CompletedDispatcherTest::CompletedCallbackSon::code = 0;
 
 void CompletedDispatcherTest::CompletedCallbackSon::OnSendFinished(
-    const AAFwk::Want &want, int resultCode, const std::string &resultData, const AAFwk::WantParams &resultExtras)
+    const AAFwk::Want& want, int resultCode, const std::string& resultData, const AAFwk::WantParams& resultExtras)
 {
     code = SEND_FINISHED_CODE;
 }

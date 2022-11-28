@@ -27,7 +27,7 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const int32_t USER_ID = 100;
-}  // namespace
+} // namespace
 
 class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
 public:

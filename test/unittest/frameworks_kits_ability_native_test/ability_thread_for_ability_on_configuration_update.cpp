@@ -38,7 +38,7 @@ public:
     {
         abilitythread_ = nullptr;
     }
-    AbilityThread *abilitythread_;
+    AbilityThread* abilitythread_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
@@ -73,9 +73,9 @@ AbilityThread::AbilityThread()
     abilityImpl_->Init(application, nullptr, ability, abilityHandler_, nullptr, contextDeal);
 }
 
-void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
-    std::shared_ptr<ContextDeal> &contextDeal)
+void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std::shared_ptr<AbilityLocalRecord>& record,
+    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token,
+    std::shared_ptr<ContextDeal>& contextDeal)
 {
     ability_ = ability;
 }
@@ -113,7 +113,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100
         return;
     }
 
-    auto call = [](const Configuration &) { GTEST_LOG_(INFO) << "---------- OnConfigurationUpdated Call Success"; };
+    auto call = [](const Configuration&) { GTEST_LOG_(INFO) << "---------- OnConfigurationUpdated Call Success"; };
 
     EXPECT_CALL(*AbilityTest::GetInstance(), OnConfigurationUpdated(testing::_))
         .Times(1)

@@ -48,14 +48,14 @@ void ImageInfoTest::TearDown(void)
 HWTEST_F(ImageInfoTest, image_info_marshalling_001, TestSize.Level1)
 {
     Parcel parcel;
-    ImageInfo *parcelable1 = new ImageInfo();
+    ImageInfo* parcelable1 = new ImageInfo();
     parcelable1->width = 1;
     parcelable1->height = 2;
     parcelable1->format = 3;
     parcelable1->size = 4;
     parcelable1->shmKey = 5;
     EXPECT_EQ(true, parcelable1->Marshalling(parcel));
-    ImageInfo *parcelable2 = parcelable1->Unmarshalling(parcel);
+    ImageInfo* parcelable2 = parcelable1->Unmarshalling(parcel);
     EXPECT_EQ(parcelable2->width, static_cast<uint32_t>(1));
     EXPECT_EQ(parcelable2->height, static_cast<uint32_t>(2));
     EXPECT_EQ(parcelable2->format, static_cast<uint32_t>(3));

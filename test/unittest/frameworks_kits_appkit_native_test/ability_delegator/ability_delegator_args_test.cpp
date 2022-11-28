@@ -43,7 +43,7 @@ const std::string CHANGE_VALUE_TEST_RUNNER_CLASS = "JSUserTestRunner1";
 const std::string KEY_TEST_CASE = "-s class";
 const std::string VALUE_TEST_CASE = "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010";
 const std::string CHANGE_VALUE_TEST_CASE =
-    "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction00101";
+"ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction00101";
 const std::string KEY_TEST_WAIT_TIMEOUT = "-w";
 const std::string VALUE_TEST_WAIT_TIMEOUT = "50";
 const std::string CHANGE_VALUE_TEST_WAIT_TIMEOUT = "80";

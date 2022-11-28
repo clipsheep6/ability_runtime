@@ -28,7 +28,7 @@ public:
     {}
     virtual ~FormCallbackInterfaceTest()
     {}
-    void ProcessFormUpdate(const FormJsInfo &formJsInfo)override
+    void ProcessFormUpdate(const FormJsInfo& formJsInfo)override
     {}
     void ProcessFormUninstall(const int64_t formId) override
     {}

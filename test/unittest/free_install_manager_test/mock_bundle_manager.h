@@ -37,13 +37,13 @@ const int32_t APPLICATIONINFO_UID = 20000000;
 }  // namespace
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
-    explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
+    explicit BundleMgrProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IBundleMgr>(impl)
     {}
     virtual ~BundleMgrProxy()
     {}
 
-    bool QueryAbilityInfo(const Want &want, int32_t flags, int32_t userId, AbilityInfo &abilityInfo,
-        const sptr<IRemoteObject> &callBack) override
+    bool QueryAbilityInfo(const Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& callBack) override
     {
         if (userId == 1) {
             // 创建回调
@@ -52,18 +52,18 @@ public:
         return true;
     }
 
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
 
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
 
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
 
-    int32_t GetDisposedStatus(const std::string &bundleName) override;
+    int32_t GetDisposedStatus(const std::string& bundleName) override;
 
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
+    virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionInfo) override
     {
         return true;
     }
@@ -73,7 +73,7 @@ class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     virtual ~BundleMgrStub() {}
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 };
 
 class BundleMgrService : public BundleMgrStub {
@@ -81,25 +81,25 @@ public:
     BundleMgrService();
     ~BundleMgrService();
 
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
-    bool QueryAbilityInfo(const Want &want, int32_t flags, int32_t userId, AbilityInfo &abilityInfo) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
+    bool QueryAbilityInfo(const Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo) override;
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    int GetUidByBundleName(const std::string &bundleName, const int userId) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    int GetUidByBundleName(const std::string& bundleName, const int userId) override;
 
-    bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
+    bool CheckWantEntity(const AAFwk::Want&, AbilityInfo&);
 
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionAbilityInfo) override
+    virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionAbilityInfo) override
     {
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
     }
 
-    virtual int32_t GetDisposedStatus(const std::string &bundleName)
+    virtual int32_t GetDisposedStatus(const std::string& bundleName)
     {
         return 0;
     }
@@ -115,7 +115,7 @@ public:
     }
 public:
     using QueryAbilityInfoFunType =
-        std::function<bool(std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp)>;
+        std::function<bool(std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp)>;
     std::map<std::string, QueryAbilityInfoFunType> abilityInfoMap_;
     bool isAppControlProxyNull_ = false;
 };

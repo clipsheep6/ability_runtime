@@ -36,7 +36,7 @@ public:
     {
         dataabilityimpl = nullptr;
     }
-    DataAbilityImpl *dataabilityimpl;
+    DataAbilityImpl* dataabilityimpl;
 
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);

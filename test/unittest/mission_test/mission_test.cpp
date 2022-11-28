@@ -36,12 +36,12 @@ public:
     void SetUp();
     void TearDown();
 
-    static AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    static AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName);
 
-    Want want_ {};
-    AbilityInfo abilityInfo_ {};
-    ApplicationInfo appInfo_ {};
+    Want want_{};
+    AbilityInfo abilityInfo_{};
+    ApplicationInfo appInfo_{};
 };
 
 void MissionTest::SetUpTestCase(void)
@@ -53,8 +53,8 @@ void MissionTest::SetUp(void)
 void MissionTest::TearDown(void)
 {}
 
-AbilityRequest MissionTest::GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-    const std::string &appName, const std::string &bundleName)
+AbilityRequest MissionTest::GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+    const std::string& appName, const std::string& bundleName)
 {
     ElementName element(deviceName, abilityName, bundleName);
     Want want;
@@ -323,7 +323,7 @@ HWTEST_F(MissionTest, mission_copy_constructor_001, TestSize.Level1)
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     auto mission1 = std::make_shared<Mission>(0, abilityRecord, "name1");
-    auto mission2= std::make_shared<Mission>(mission1);
+    auto mission2 = std::make_shared<Mission>(mission1);
     EXPECT_NE(mission1, mission2);
     EXPECT_NE(&(mission1->missionId_), &(mission2->missionId_));
     EXPECT_NE(&(mission1->startMethod_), &(mission2->startMethod_));

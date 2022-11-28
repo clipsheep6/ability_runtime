@@ -171,7 +171,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_SetTheme_0100, Functi
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_SetTheme_0100 start";
     int testValue = 1;
     std::map<std::string, std::string> testList = {
-        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"}};
+        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
@@ -216,7 +216,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_StartAbilities_0100, 
     abilityInfo->type = OHOS::AppExecFwk::AbilityType::DATA;
     contextDeal->SetAbilityInfo(abilityInfo);
     abilityContext->AttachBaseContext(contextDeal);
-    std::vector<AAFwk::Want> testlist = {AAFwk::Want(), AAFwk::Want()};
+    std::vector<AAFwk::Want> testlist = { AAFwk::Want(), AAFwk::Want() };
     abilityContext->StartAbilities(testlist);
     EXPECT_TRUE((testlist.size() == abilityContext->GetStartAbilityRunCount()));
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_StartAbilities_0100 end";
@@ -254,7 +254,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetPattern_0100, Func
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_GetPattern_0100 start";
     int testValue = 0;
     std::map<std::string, std::string> testList = {
-        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"}};
+        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
@@ -276,7 +276,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetTheme_0100, Functi
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_GetTheme_0100 start";
     int testValue = 0;
-    std::map<std::string, std::string> testList = {{"Theme1", "ThemeA"}, {"Theme2", "ThemeB"}, {"Theme3", "ThemeC"}};
+    std::map<std::string, std::string> testList = { {"Theme1", "ThemeA"}, {"Theme2", "ThemeB"}, {"Theme3", "ThemeC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
@@ -334,7 +334,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetStringArray_0100, 
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
     int testCount = 0;
-    std::vector<std::string> testValue = {"123", "456", "789"};
+    std::vector<std::string> testValue = { "123", "456", "789" };
     resourceManager->SetStringArrayById(testCount, testValue);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -355,7 +355,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetStringArray_0200, 
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
     int testCount = 0;
-    std::vector<std::string> testValue = {"123", "456", "789"};
+    std::vector<std::string> testValue = { "123", "456", "789" };
     resourceManager->SetStringArrayById(testCount + 1, testValue);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -376,7 +376,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetIntArray_0100, Fun
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
     int testCount = 0;
-    std::vector<int> testValue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    std::vector<int> testValue = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     resourceManager->SetIntArrayById(testCount, testValue);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -397,7 +397,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetIntArray_0200, Fun
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
     int testCount = 0;
-    std::vector<int> testValue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    std::vector<int> testValue = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     resourceManager->SetIntArrayById(testCount + 1, testValue);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -493,7 +493,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_SetPattern_0100, Func
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
     int testCount = 0;
-    std::map<std::string, std::string> testList = {{"123", "abc"}, {"456", "def"}};
+    std::map<std::string, std::string> testList = { {"123", "abc"}, {"456", "def"} };
     resourceManager->SetPatternById(testCount, testList);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);

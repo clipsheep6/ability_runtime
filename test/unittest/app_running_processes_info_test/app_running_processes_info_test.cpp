@@ -78,8 +78,8 @@ protected:
 
     std::shared_ptr<AppRunningRecord> GetTestAppRunningRecord();
     sptr<IAppScheduler> GetMockedAppSchedulerClient() const;
-    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject>& token,
+        const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
         const pid_t newPid) const;
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -144,8 +144,8 @@ std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::GetTestAppRunning
     return testAppRecord_;
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::StartLoadAbility(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::StartLoadAbility(const sptr<IRemoteObject>& token,
+    const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
     const pid_t newPid) const
 {
     std::shared_ptr<MockAppSpawnClient> mockClientPtr = std::make_shared<MockAppSpawnClient>();
@@ -253,9 +253,9 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     EXPECT_EQ(stateFromRec, ApplicationState::APP_STATE_FOREGROUND);
 
     std::vector<RunningProcessInfo> info;
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     auto res = service_->GetAllRunningProcesses(info);
-    EXPECT_TRUE (res == ERR_OK);
+    EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);
 }
 
@@ -330,9 +330,9 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_003, TestSize.Level
     record2->SetUid(uid);
 
     std::vector<RunningProcessInfo> info;
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     auto res = service_->GetAllRunningProcesses(info);
-    EXPECT_TRUE (res == ERR_OK);
+    EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);
 }
 

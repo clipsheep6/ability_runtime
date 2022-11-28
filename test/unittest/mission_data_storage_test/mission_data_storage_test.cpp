@@ -443,7 +443,7 @@ HWTEST_F(MissionDataStorageTest, GetCachedSnapshot_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, GetCachedSnapshot_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
-    missionDataStorage->cachedPixelMap_.insert({0, nullptr});
+    missionDataStorage->cachedPixelMap_.insert({ 0, nullptr });
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     bool res = missionDataStorage->GetCachedSnapshot(missionId, missionSnapshot);
@@ -513,7 +513,7 @@ HWTEST_F(MissionDataStorageTest, DeleteCachedSnapshot_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, DeleteCachedSnapshot_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
-    missionDataStorage->cachedPixelMap_.insert({0, nullptr});
+    missionDataStorage->cachedPixelMap_.insert({ 0, nullptr });
     int32_t missionId = 0;
     bool res = missionDataStorage->DeleteCachedSnapshot(missionId);
     EXPECT_TRUE(res);

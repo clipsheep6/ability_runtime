@@ -25,7 +25,7 @@
 #define TEST_RETVAL_ONREMOTEREQUEST 1000
 
 namespace OHOS {
-int IPCObjectStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int IPCObjectStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return TEST_RETVAL_ONREMOTEREQUEST;
 }
@@ -35,9 +35,9 @@ namespace OHOS {
 namespace AAFwk {
 class MockDataObsMgrStub : public DataObsManagerStub {
 public:
-    MOCK_METHOD2(RegisterObserver, int(const Uri &, const sptr<IDataAbilityObserver> &));
-    MOCK_METHOD2(UnregisterObserver, int(const Uri &, const sptr<IDataAbilityObserver> &));
-    MOCK_METHOD1(NotifyChange, int(const Uri &));
+    MOCK_METHOD2(RegisterObserver, int(const Uri&, const sptr<IDataAbilityObserver>&));
+    MOCK_METHOD2(UnregisterObserver, int(const Uri&, const sptr<IDataAbilityObserver>&));
+    MOCK_METHOD1(NotifyChange, int(const Uri&));
 };
 
 class MockDataAbilityObserverStub : public AAFwk::DataAbilityObserverStub {

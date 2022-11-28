@@ -21,7 +21,7 @@ namespace AppExecFwk {
 using namespace testing::ext;
 
 namespace {
-    int32_t g_count = 0;
+int32_t g_count = 0;
 }
 
 class AbilityTransactionCallbackInfoTest : public testing::Test {
@@ -45,7 +45,7 @@ HWTEST_F(AbilityTransactionCallbackInfoTest, AaFwk_AbilityTransactionCallbackInf
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityTransactionCallbackInfoTest_Call_0100 start";
 
-    AbilityTransactionCallbackInfo *callbackInfo = AbilityTransactionCallbackInfo::Create();
+    AbilityTransactionCallbackInfo* callbackInfo = AbilityTransactionCallbackInfo::Create();
     EXPECT_NE(callbackInfo, nullptr);
     g_count = 0;
     auto asyncCallback = []() {

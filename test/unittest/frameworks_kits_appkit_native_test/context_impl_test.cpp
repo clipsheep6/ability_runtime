@@ -685,7 +685,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_002, Functio
     info.moduleName = "entry";
     info.description = "dataability_description";
     info.iconPath = "$media:icon";
-    info.deviceTypes = {"smartVision"};
+    info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
     bundleInfo.hapModuleInfos.push_back(info);
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "entry");
@@ -731,7 +731,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_003, Functio
     info.moduleName = "entry";
     info.description = "dataability_description";
     info.iconPath = "$media:icon";
-    info.deviceTypes = {"smartVision"};
+    info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
     info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
         "/com.ohos.contactsdataability/assets/entry/resources.index";
@@ -774,7 +774,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_004, Functio
     info.moduleName = "entry";
     info.description = "dataability_description";
     info.iconPath = "$media:icon";
-    info.deviceTypes = {"smartVision"};
+    info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
     info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
         "/com.ohos.contactsdataability/assets/entry/resources.index";

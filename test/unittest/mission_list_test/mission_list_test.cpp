@@ -34,12 +34,12 @@ public:
     void SetUp();
     void TearDown();
 
-    static AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    static AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName);
 
-    Want want_ {};
-    AbilityInfo abilityInfo_ {};
-    ApplicationInfo appInfo_ {};
+    Want want_{};
+    AbilityInfo abilityInfo_{};
+    ApplicationInfo appInfo_{};
 };
 
 void MissionListTest::SetUpTestCase(void)
@@ -51,8 +51,8 @@ void MissionListTest::SetUp(void)
 void MissionListTest::TearDown(void)
 {}
 
-AbilityRequest MissionListTest::GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-    const std::string &appName, const std::string &bundleName)
+AbilityRequest MissionListTest::GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+    const std::string& appName, const std::string& bundleName)
 {
     ElementName element(deviceName, abilityName, bundleName);
     Want want;

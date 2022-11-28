@@ -27,8 +27,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void WriteInterfaceToken(MessageParcel &data);
-    sptr<MockMissionListenerStub> stub_ {nullptr};
+    void WriteInterfaceToken(MessageParcel& data);
+    sptr<MockMissionListenerStub> stub_{ nullptr };
 };
 
 void MissionListenerStubTest::SetUpTestCase(void)
@@ -42,7 +42,7 @@ void MissionListenerStubTest::SetUp()
 void MissionListenerStubTest::TearDown()
 {}
 
-void MissionListenerStubTest::WriteInterfaceToken(MessageParcel &data)
+void MissionListenerStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     data.WriteInterfaceToken(MockMissionListenerStub::GetDescriptor());
 }

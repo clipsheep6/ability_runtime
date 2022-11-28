@@ -40,9 +40,9 @@ public:
 std::shared_ptr<DataObsMgrClient> MockDataObsMgrClient::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::shared_ptr<DataObsMgrClient> client {new (std::nothrow) MockDataObsMgrClient()};
+        std::shared_ptr<DataObsMgrClient> client{ new (std::nothrow) MockDataObsMgrClient() };
         if (client != nullptr) {
-            ((MockDataObsMgrClient *)client.get())->Connect();
+            ((MockDataObsMgrClient*)client.get())->Connect();
         }
         instance_ = client;
     }
@@ -54,7 +54,7 @@ ErrCode MockDataObsMgrClient::Connect()
     if (remoteObject_ == nullptr) {
         sptr<IRemoteObject> mockDataObsMgrService(new (std::nothrow) MockDataObsMgrService());
         if (mockDataObsMgrService != nullptr) {
-            ((MockDataObsMgrService *)mockDataObsMgrService.GetRefPtr())->OnStart();
+            ((MockDataObsMgrService*)mockDataObsMgrService.GetRefPtr())->OnStart();
         }
 
         remoteObject_ = mockDataObsMgrService;

@@ -51,7 +51,7 @@ void FilePathUtilsTest::TearDown()
 HWTEST_F(FilePathUtilsTest, StringStartWith_0100, TestSize.Level0)
 {
     std::string longStr = "abcde";
-    const char *shortStr = "abc";
+    const char* shortStr = "abc";
     size_t startStrLenInvalid1 = 20;
     EXPECT_FALSE(StringStartWith(longStr, shortStr, startStrLenInvalid1));
     size_t startStrLenInvalid2 = 0;
@@ -69,7 +69,7 @@ HWTEST_F(FilePathUtilsTest, StringStartWith_0100, TestSize.Level0)
 HWTEST_F(FilePathUtilsTest, StringEndWith_0100, TestSize.Level0)
 {
     std::string longStr = "abcde";
-    const char *shortStr = "de";
+    const char* shortStr = "de";
     size_t endStrLenInvalid1 = 20;
     EXPECT_FALSE(StringEndWith(longStr, shortStr, endStrLenInvalid1));
     size_t endStrLenInvalid2 = 0;
@@ -150,7 +150,7 @@ HWTEST_F(FilePathUtilsTest, SplitString_0400, TestSize.Level0)
  */
 HWTEST_F(FilePathUtilsTest, JoinString_0100, TestSize.Level0)
 {
-    std::vector<std::string> strVector{"a", "b", "c", "d", "e"};
+    std::vector<std::string> strVector{ "a", "b", "c", "d", "e" };
     char sep = ':';
     size_t startIndex = 0;
     std::string result = JoinString(strVector, sep, startIndex);
@@ -165,7 +165,7 @@ HWTEST_F(FilePathUtilsTest, JoinString_0100, TestSize.Level0)
  */
 HWTEST_F(FilePathUtilsTest, JoinString_0200, TestSize.Level0)
 {
-    std::vector<std::string> strVector{"a", "b", "c", "d", ""};
+    std::vector<std::string> strVector{ "a", "b", "c", "d", "" };
     char sep = ':';
     size_t startIndex = 0;
     std::string result = JoinString(strVector, sep, startIndex);
@@ -180,7 +180,7 @@ HWTEST_F(FilePathUtilsTest, JoinString_0200, TestSize.Level0)
  */
 HWTEST_F(FilePathUtilsTest, JoinString_0300, TestSize.Level0)
 {
-    std::vector<std::string> strVector{""};
+    std::vector<std::string> strVector{ "" };
     char sep = ':';
     size_t startIndex = 0;
     std::string result = JoinString(strVector, sep, startIndex);
@@ -196,7 +196,7 @@ HWTEST_F(FilePathUtilsTest, JoinString_0300, TestSize.Level0)
 HWTEST_F(FilePathUtilsTest, StripString_0100, TestSize.Level0)
 {
     std::string str = "abc";
-    const char *charSet = "123";
+    const char* charSet = "123";
     std::string result = StripString(str, charSet);
     EXPECT_TRUE(result == str);
 

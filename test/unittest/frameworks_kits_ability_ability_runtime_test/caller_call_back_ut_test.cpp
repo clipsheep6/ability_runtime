@@ -55,7 +55,7 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_SetCallBack_0100, Function | Mediu
     CallerCallBack callerCallBack;
     EXPECT_TRUE(callerCallBack.callback_ == nullptr);
 
-    callerCallBack.SetCallBack([](const sptr<IRemoteObject> &) {});
+    callerCallBack.SetCallBack([](const sptr<IRemoteObject>&) {});
 
     EXPECT_TRUE(callerCallBack.callback_ != nullptr);
 }
@@ -70,8 +70,8 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_SetOnRelease_0100, Function | Medi
     CallerCallBack callerCallBack;
     EXPECT_TRUE(callerCallBack.onRelease_ == nullptr);
 
-    callerCallBack.SetOnRelease([](const std::string &result) {
-    });
+    callerCallBack.SetOnRelease([](const std::string& result) {
+        });
 
     EXPECT_TRUE(callerCallBack.onRelease_ != nullptr);
 }
@@ -86,7 +86,7 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_InvokeCallBack_0100, Function | Me
     CallerCallBack callerCallBack;
     EXPECT_EQ(callerCallBack.isCallBack_, false);
 
-    callerCallBack.SetCallBack([](const sptr<IRemoteObject> &) {});
+    callerCallBack.SetCallBack([](const sptr<IRemoteObject>&) {});
 
     callerCallBack.InvokeCallBack(nullptr);
 
@@ -117,9 +117,9 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_InvokeOnRelease_0100, Function | M
 {
     CallerCallBack callerCallBack;
 
-    callerCallBack.SetOnRelease([](const std::string &result) {
+    callerCallBack.SetOnRelease([](const std::string& result) {
         EXPECT_TRUE("result" == result);
-    });
+        });
 
     std::string key = "result";
     callerCallBack.InvokeOnRelease(key);

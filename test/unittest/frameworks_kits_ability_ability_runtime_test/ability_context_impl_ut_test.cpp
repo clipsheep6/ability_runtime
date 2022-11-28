@@ -40,12 +40,12 @@ public:
         return 0;
     }
 
-    virtual ErrCode SetMissionLabel(const std::string &label)
+    virtual ErrCode SetMissionLabel(const std::string& label)
     {
         return 0;
     }
 
-    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
     {
         GTEST_LOG_(INFO) << "========AbilityCallback SetMissionIcon------------------------.";
         return 0;
@@ -95,7 +95,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0100, Functio
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == ERR_OK);
@@ -112,7 +112,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     context_->localCallContainer_ = new (std::nothrow)LocalCallContainer();
     EXPECT_NE(context_->localCallContainer_, nullptr);
@@ -131,7 +131,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function
     GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100beagin==============.";
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);

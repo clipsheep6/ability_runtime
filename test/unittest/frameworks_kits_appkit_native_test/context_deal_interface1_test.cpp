@@ -125,7 +125,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_SetTheme_0100, Functio
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_SetTheme_0100 start";
     int testValue = 1;
     std::map<std::string, std::string> testList = {
-        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"}};
+        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     resourceManager->SetThemeById(testValue, testList);
@@ -220,7 +220,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetPattern_0100, Funct
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetPattern_0100 start";
     int testValue = 0;
     std::map<std::string, std::string> testList = {
-        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"}};
+        {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     resourceManager->SetPatternById(testValue, testList);
@@ -240,7 +240,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetTheme_0100, Functio
 {
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetTheme_0100 start";
     int testValue = 0;
-    std::map<std::string, std::string> testList = {{"Theme1", "ThemeA"}, {"Theme2", "ThemeB"}, {"Theme3", "ThemeC"}};
+    std::map<std::string, std::string> testList = { {"Theme1", "ThemeA"}, {"Theme2", "ThemeB"}, {"Theme3", "ThemeC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     resourceManager->SetThemeById(testValue, testList);
@@ -290,7 +290,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetStringArray_0100, F
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     int testCount = 0;
-    std::vector<std::string> testValue = {"123", "456", "789"};
+    std::vector<std::string> testValue = { "123", "456", "789" };
     resourceManager->SetStringArrayById(testCount, testValue);
     contextDeal->initResourceManager(resourceManager);
     std::vector<std::string> retVal = contextDeal->GetStringArray(testCount);
@@ -309,7 +309,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetStringArray_0200, F
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     int testCount = 0;
-    std::vector<std::string> testValue = {"123", "456", "789"};
+    std::vector<std::string> testValue = { "123", "456", "789" };
     resourceManager->SetStringArrayById(testCount + 1, testValue);
     contextDeal->initResourceManager(resourceManager);
     std::vector<std::string> retVal = contextDeal->GetStringArray(testCount);
@@ -328,7 +328,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetIntArray_0100, Func
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     int testCount = 0;
-    std::vector<int> testValue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    std::vector<int> testValue = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     resourceManager->SetIntArrayById(testCount, testValue);
     contextDeal->initResourceManager(resourceManager);
     std::vector<int> retVal = contextDeal->GetIntArray(testCount);
@@ -347,7 +347,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetIntArray_0200, Func
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     int testCount = 0;
-    std::vector<int> testValue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    std::vector<int> testValue = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
     resourceManager->SetIntArrayById(testCount + 1, testValue);
     contextDeal->initResourceManager(resourceManager);
     std::vector<int> retVal = contextDeal->GetIntArray(testCount);
@@ -432,7 +432,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_SetPattern_0100, Funct
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     int testCount = 0;
-    std::map<std::string, std::string> testList = {{"123", "abc"}, {"456", "def"}};
+    std::map<std::string, std::string> testList = { {"123", "abc"}, {"456", "def"} };
     resourceManager->SetPatternById(testCount, testList);
     contextDeal->initResourceManager(resourceManager);
     contextDeal->SetPattern(testCount);

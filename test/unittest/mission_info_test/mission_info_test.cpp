@@ -51,7 +51,7 @@ void MissionInfoTest::TearDown(void)
 HWTEST_F(MissionInfoTest, mission_info_marshalling_001, TestSize.Level1)
 {
     Parcel parcel;
-    MissionInfo *parcelable1 = new MissionInfo();
+    MissionInfo* parcelable1 = new MissionInfo();
     parcelable1->id = 1;
     parcelable1->runningState = 100;
     parcelable1->lockedState = true;
@@ -60,7 +60,7 @@ HWTEST_F(MissionInfoTest, mission_info_marshalling_001, TestSize.Level1)
     parcelable1->label = "label";
     parcelable1->iconPath = "iconpath";
     EXPECT_EQ(true, parcelable1->Marshalling(parcel));
-    MissionInfo *parcelable2 = parcelable1->Unmarshalling(parcel);
+    MissionInfo* parcelable2 = parcelable1->Unmarshalling(parcel);
     EXPECT_EQ(parcelable2->id, 1);
     EXPECT_EQ(parcelable2->runningState, 100);
     EXPECT_EQ(parcelable2->lockedState, true);

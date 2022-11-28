@@ -58,10 +58,10 @@ public:
     void TearDown();
     void OnStartAms();
     std::shared_ptr<CallContainer> get() const;
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
+    std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
 private:
-    std::shared_ptr<CallContainer> callContainer_ {nullptr};
-    std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
+    std::shared_ptr<CallContainer> callContainer_{ nullptr };
+    std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
     int MOCK_MAIN_USER_ID = 100;
 };
 

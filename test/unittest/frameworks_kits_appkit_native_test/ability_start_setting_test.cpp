@@ -90,7 +90,7 @@ HWTEST_F(AbilityStartSettingTest, AppExecFwk_IsEmpty_0100, Function | MediumTest
     Parcel parcel;
     EXPECT_EQ(true, abilityStartSetting_->Marshalling(parcel));
 
-    AbilityStartSetting *setting = AbilityStartSetting::Unmarshalling(parcel);
+    AbilityStartSetting* setting = AbilityStartSetting::Unmarshalling(parcel);
     std::shared_ptr<AbilityStartSetting> startSetting(setting);
 
     if (startSetting == nullptr) {

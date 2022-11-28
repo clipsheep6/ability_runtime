@@ -76,7 +76,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_GetFileTypes_
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     std::string mimeTypeFilter("mimeTypeFiltertest");
     // Test to AbilityThread interface
-    auto returnGetFileTypes = [&](const Uri &uri, const std::string &mimeTypeFilter) {
+    auto returnGetFileTypes = [&](const Uri& uri, const std::string& mimeTypeFilter) {
         std::vector<std::string> matchedMIMEs;
         matchedMIMEs.push_back("test1");
         matchedMIMEs.push_back("test2");
@@ -109,7 +109,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_GetFileTypes_
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     std::string mimeTypeFilter("mimeTypeFiltertest");
     // Test to AbilityThread interface
-    auto returnGetFileTypes = [&](const Uri &uri, const std::string &mimeTypeFilter) {
+    auto returnGetFileTypes = [&](const Uri& uri, const std::string& mimeTypeFilter) {
         std::vector<std::string> matchedMIMEs;
         matchedMIMEs.push_back("test1");
         matchedMIMEs.push_back("test2");
@@ -142,7 +142,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_OpenFile_0100
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     std::string mode("modetest");
     // Test to AbilityThread interface
-    auto returnOpenFile = [&](const Uri &uri, const std::string &mode) {
+    auto returnOpenFile = [&](const Uri& uri, const std::string& mode) {
         int fd = 1234;
         return fd;
     };
@@ -172,7 +172,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_OpenFile_0200
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     std::string mode("modetest");
     // Test to AbilityThread interface
-    auto returnOpenFile = [&](const Uri &uri, const std::string &mode) {
+    auto returnOpenFile = [&](const Uri& uri, const std::string& mode) {
         int fd = 1234;
         return fd;
     };
@@ -203,7 +203,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Insert_0100, 
     NativeRdb::ValuesBucket val;
     val.PutInt("valtest", 20);
     // Test to AbilityThread interface
-    auto returnInsert = [&](const Uri &uri, const NativeRdb::ValuesBucket &val) {
+    auto returnInsert = [&](const Uri& uri, const NativeRdb::ValuesBucket& val) {
         int index = 1234;
         return index;
     };
@@ -234,7 +234,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Insert_0200, 
     NativeRdb::ValuesBucket val;
     val.PutInt("valtest", 20);
     // Test to AbilityThread interface
-    auto returnInsert = [&](const Uri &uri, const NativeRdb::ValuesBucket &val) {
+    auto returnInsert = [&](const Uri& uri, const NativeRdb::ValuesBucket& val) {
         int index = 1234;
         return index;
     };
@@ -267,9 +267,9 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Update_0100, 
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
     auto returnUpdate = [&](
-        const Uri &uri, const NativeRdb::ValuesBucket &val, const NativeRdb::DataAbilityPredicates &predicates) {
-        int index = 1234;
-        return index;
+        const Uri& uri, const NativeRdb::ValuesBucket& val, const NativeRdb::DataAbilityPredicates& predicates) {
+            int index = 1234;
+            return index;
     };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Update(testing::_, testing::_, testing::_))
         .Times(1)
@@ -300,9 +300,9 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Update_0200, 
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
     auto returnUpdate = [&](
-        const Uri &uri, const NativeRdb::ValuesBucket &val, const NativeRdb::DataAbilityPredicates &predicates) {
-        int index = 1234;
-        return index;
+        const Uri& uri, const NativeRdb::ValuesBucket& val, const NativeRdb::DataAbilityPredicates& predicates) {
+            int index = 1234;
+            return index;
     };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Update(testing::_, testing::_, testing::_))
         .Times(1)
@@ -330,7 +330,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Delete_0100, 
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
-    auto returnDelete = [&](const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) {
+    auto returnDelete = [&](const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates) {
         int index = 1234;
         return index;
     };
@@ -360,7 +360,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Delete_0200, 
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
-    auto returnDelete = [&](const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) {
+    auto returnDelete = [&](const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates) {
         int index = 1234;
         return index;
     };
@@ -392,12 +392,12 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0100, F
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
     auto returnQuery =
-        [&](const Uri &uri, const std::vector<std::string> &columns,
-        const NativeRdb::DataAbilityPredicates &predicates) {
-            std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
-                "resultset");
-            return set;
-        };
+        [&](const Uri& uri, const std::vector<std::string>& columns,
+            const NativeRdb::DataAbilityPredicates& predicates) {
+                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
+                    "resultset");
+                return set;
+    };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Query(testing::_, testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnQuery));
@@ -426,12 +426,12 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0200, F
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     // Test to AbilityThread interface
     auto returnQuery =
-        [&](const Uri &uri, const std::vector<std::string> &columns,
-        const NativeRdb::DataAbilityPredicates &predicates) {
-            std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
-                "resultset");
-            return set;
-        };
+        [&](const Uri& uri, const std::vector<std::string>& columns,
+            const NativeRdb::DataAbilityPredicates& predicates) {
+                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
+                    "resultset");
+                return set;
+    };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Query(testing::_, testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnQuery));
@@ -457,7 +457,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_GetType_0100,
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
-    auto returnGetType = [&](const Uri &uri) {
+    auto returnGetType = [&](const Uri& uri) {
         std::string type("Type1");
         return type;
     };
@@ -486,7 +486,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_GetType_0200,
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
-    auto returnGetType = [&](const Uri &uri) {
+    auto returnGetType = [&](const Uri& uri) {
         std::string type("Type1");
         return type;
     };
@@ -516,7 +516,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_OpenRawFile_0
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
     std::string mode("modetest");
-    auto returnOpenRawFile = [&](const Uri &uri, const std::string &mode) {
+    auto returnOpenRawFile = [&](const Uri& uri, const std::string& mode) {
         int fd = 1234;
         return fd;
     };
@@ -546,7 +546,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_OpenRawFile_0
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
     std::string mode("modetest");
-    auto returnOpenRawFile = [&](const Uri &uri, const std::string &mode) {
+    auto returnOpenRawFile = [&](const Uri& uri, const std::string& mode) {
         int fd = 1234;
         return fd;
     };
@@ -576,7 +576,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Reload_0100, 
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
     PacMap extras;
-    auto returnReload = [&](const Uri &uri, const PacMap &extras) { return true; };
+    auto returnReload = [&](const Uri& uri, const PacMap& extras) { return true; };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Reload(testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnReload));
@@ -603,7 +603,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Reload_0200, 
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
     PacMap extras;
-    auto returnReload = [&](const Uri &uri, const PacMap &extras) { return true; };
+    auto returnReload = [&](const Uri& uri, const PacMap& extras) { return true; };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Reload(testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnReload));
@@ -630,7 +630,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_BatchInsert_0
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
     std::vector<NativeRdb::ValuesBucket> values;
-    auto returnBatchInsert = [&](const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) { return true; };
+    auto returnBatchInsert = [&](const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values) { return true; };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), BatchInsert(testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnBatchInsert));
@@ -657,7 +657,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_BatchInsert_0
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
     std::vector<NativeRdb::ValuesBucket> values;
-    auto returnBatchInsert = [&](const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) { return true; };
+    auto returnBatchInsert = [&](const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values) { return true; };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), BatchInsert(testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(returnBatchInsert));
@@ -683,7 +683,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_NormalizeUri_
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
-    auto returnNormalizeUri = [&](const Uri &uri) {
+    auto returnNormalizeUri = [&](const Uri& uri) {
         Uri uriValue("dataability://device_id/com.domainname.dataability.");
         return uriValue;
     };
@@ -712,7 +712,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_NormalizeUri_
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
-    auto returnNormalizeUri = [&](const Uri &uri) {
+    auto returnNormalizeUri = [&](const Uri& uri) {
         Uri uriValue("dataability://device_id/com.domainname.dataability.");
         return uriValue;
     };
@@ -741,7 +741,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_DenormalizeUr
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
     // Test to AbilityThread interface
-    auto returnDenormalizeUri = [&](const Uri &uri) {
+    auto returnDenormalizeUri = [&](const Uri& uri) {
         Uri uriValue("dataability://device_id/com.domainname.dataability.");
         return uriValue;
     };
@@ -770,7 +770,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_DenormalizeUr
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
     // Test to AbilityThread interface
-    auto returnDenormalizeUri = [&](const Uri &uri) {
+    auto returnDenormalizeUri = [&](const Uri& uri) {
         Uri uriValue("dataability://device_id/com.domainname.dataability.");
         return uriValue;
     };

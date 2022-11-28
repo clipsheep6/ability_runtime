@@ -41,8 +41,8 @@ public:
     virtual ~AbilityConnectCallbackMock()
     {}
 
-    MOCK_METHOD3(OnAbilityConnectDone, void(const ElementName &, const OHOS::sptr<IRemoteObject> &, int));
-    MOCK_METHOD2(OnAbilityDisconnectDone, void(const ElementName &, int));
+    MOCK_METHOD3(OnAbilityConnectDone, void(const ElementName&, const OHOS::sptr<IRemoteObject>&, int));
+    MOCK_METHOD2(OnAbilityDisconnectDone, void(const ElementName&, int));
 };
 
 class ConnectionRecordTest : public testing::TestWithParam<OHOS::AAFwk::ConnectionState> {
@@ -52,16 +52,16 @@ public:
     void SetUp();
     void TearDown();
 
-    AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName);
 
-    std::shared_ptr<ConnectionRecord> connectionRecord_ {nullptr};
-    OHOS::sptr<AbilityConnectCallbackMock> callback_ {nullptr};
-    std::shared_ptr<AbilityRecord> service_ {nullptr};
+    std::shared_ptr<ConnectionRecord> connectionRecord_{ nullptr };
+    OHOS::sptr<AbilityConnectCallbackMock> callback_{ nullptr };
+    std::shared_ptr<AbilityRecord> service_{ nullptr };
 };
 
-AbilityRequest ConnectionRecordTest::GenerateAbilityRequest(const std::string &deviceName,
-    const std::string &abilityName, const std::string &appName, const std::string &bundleName)
+AbilityRequest ConnectionRecordTest::GenerateAbilityRequest(const std::string& deviceName,
+    const std::string& abilityName, const std::string& appName, const std::string& bundleName)
 {
     ElementName element(deviceName, bundleName, abilityName);
     Want want;
@@ -105,7 +105,7 @@ void ConnectionRecordTest::TearDown(void)
     connectionRecord_.reset();
 }
 
-bool IsExist(const std::string &state)
+bool IsExist(const std::string& state)
 {
     return std::string::npos != state.find("com.ix.hiservcie");
 }
@@ -319,7 +319,7 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_013, TestSize.Level1)
     std::vector<std::string> info;
     connectionRecord_->Dump(info);
 
-    for (auto &it : info) {
+    for (auto& it : info) {
         GTEST_LOG_(INFO) << it;
     }
 

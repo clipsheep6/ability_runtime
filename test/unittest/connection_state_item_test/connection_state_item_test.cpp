@@ -33,9 +33,9 @@ public:
     MyAbilityConnection() = default;
     virtual ~MyAbilityConnection() = default;
     void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
     {}
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override
     {}
     sptr<IRemoteObject> AsObject() override
     {

@@ -142,7 +142,7 @@ HWTEST_F(DataAbilityResultTest, AppExecFwk_DataAbilityResult_CreateFromParcel010
 {
     Parcel in;
     base_->Marshalling(in);
-    DataAbilityResult *ptr = base_->CreateFromParcel(in);
+    DataAbilityResult* ptr = base_->CreateFromParcel(in);
 
     if (ptr != nullptr) {
         EXPECT_EQ(true, ptr->GetUri().ToString().empty());

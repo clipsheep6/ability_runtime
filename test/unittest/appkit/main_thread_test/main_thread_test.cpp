@@ -192,7 +192,7 @@ HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
     info.moduleName = "entry";
     info.description = "dataability_description";
     info.iconPath = "$media:icon";
-    info.deviceTypes = {"smartVision"};
+    info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
     bundleInfo.hapModuleInfos.push_back(info);
     bundleInfo.applicationInfo.multiProjects = true;

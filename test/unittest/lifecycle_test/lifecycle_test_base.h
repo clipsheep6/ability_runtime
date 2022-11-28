@@ -32,9 +32,9 @@ class LifeTestCommand {
 public:
     LifeTestCommand()
         : state_(OHOS::AAFwk::AbilityState::INITIAL),
-          expectState_(OHOS::AAFwk::AbilityState::INITIAL),
-          abnormalState_(OHOS::AAFwk::AbilityState::INITIAL),
-          callback_(true)
+        expectState_(OHOS::AAFwk::AbilityState::INITIAL),
+        abnormalState_(OHOS::AAFwk::AbilityState::INITIAL),
+        callback_(true)
     {
         sem_init(&sem_, 0, 0);
     }
@@ -55,15 +55,15 @@ class LifecycleTestBase {
 public:
     virtual bool StartNextAbility() = 0;
     virtual int AttachAbility(
-        const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler, const OHOS::sptr<OHOS::IRemoteObject> &token) = 0;
+        const OHOS::sptr<OHOS::AAFwk::AbilityScheduler>& scheduler, const OHOS::sptr<OHOS::IRemoteObject>& token) = 0;
 
     static constexpr uint32_t DELAY_TEST_TIME = 1000;  // ms
     static constexpr long MILLISECONDS = 1000;
     static constexpr long NANOSECONDS = 1000000000;
 
-    static void *AbilityStartThread(void *command)
+    static void* AbilityStartThread(void* command)
     {
-        auto c = static_cast<LifeTestCommand *>(command);
+        auto c = static_cast<LifeTestCommand*>(command);
         if (c == nullptr) {
             return nullptr;
         }
@@ -78,14 +78,14 @@ public:
         return c;
     }
 
-    static int SemTimedWaitMillis(long msecs, sem_t &sem)
+    static int SemTimedWaitMillis(long msecs, sem_t& sem)
     {
         if (msecs <= 0) {
             return 0;
         }
         msecs = msecs % MILLISECONDS;
         long secs = msecs / MILLISECONDS;
-        struct timespec ts = {0, 0};
+        struct timespec ts = { 0, 0 };
         clock_gettime(CLOCK_REALTIME, &ts);
         msecs = msecs * MILLISECONDS * MILLISECONDS + ts.tv_nsec;
         long add = msecs / NANOSECONDS;

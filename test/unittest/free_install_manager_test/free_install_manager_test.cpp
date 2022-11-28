@@ -32,7 +32,7 @@ using namespace OHOS::AAFwk;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 }
 class FreeInstallTest : public testing::Test {
 public:
@@ -122,7 +122,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_001, TestSize.Level1)
     // mock callerToken
     const sptr<IRemoteObject> callerToken = MockToken();
     int res = 0;
-    auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res](){
+    auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res]() {
         res = manager->StartFreeInstall(want, userId, requestCode, callerToken);
     };
     abilityMs_->handler_->PostTask(task);
@@ -134,9 +134,9 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_001, TestSize.Level1)
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
             want.GetElement().GetAbilityName().compare(abilityName) != 0) {
-                startInstallTime = (*it).startInstallTime;
-                break;
-            }
+            startInstallTime = (*it).startInstallTime;
+            break;
+        }
     }
     freeInstallManager_->OnInstallFinished(0, want, userId, startInstallTime);
     WaitUntilTaskFinished();
@@ -179,7 +179,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_003, TestSize.Level1)
     // mock callerToken
     const sptr<IRemoteObject> callerToken = MockToken();
     int res = 0;
-    auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res](){
+    auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res]() {
         res = manager->StartFreeInstall(want, userId, requestCode, callerToken);
     };
     abilityMs_->handler_->PostTask(task);
@@ -191,9 +191,9 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_003, TestSize.Level1)
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
             want.GetElement().GetAbilityName().compare(abilityName) != 0) {
-                startInstallTime = (*it).startInstallTime;
-                break;
-            }
+            startInstallTime = (*it).startInstallTime;
+            break;
+        }
     }
     freeInstallManager_->OnInstallFinished(1, want, userId, startInstallTime);
     WaitUntilTaskFinished();

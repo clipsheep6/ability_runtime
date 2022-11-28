@@ -45,7 +45,7 @@ public:
         return tostring;
     }
 
-    void Parse(const std::string &str) override
+    void Parse(const std::string& str) override
     {
         std::vector<std::string> elems;
 
@@ -65,38 +65,38 @@ public:
         }
     }
 
-    bool Equals(std::shared_ptr<UserObjectBase> &other) override
+    bool Equals(std::shared_ptr<UserObjectBase>& other) override
     {
         if (other->GetClassName() != GetClassName()) {
             return false;
         }
 
-        TUserObjectTest *pobject = static_cast<TUserObjectTest *>(other.get());
+        TUserObjectTest* pobject = static_cast<TUserObjectTest*>(other.get());
         if (pobject == nullptr) {
             return false;
         }
         return ((str_data_ == pobject->str_data_) && (int_data_ == pobject->int_data_));
     }
 
-    void DeepCopy(std::shared_ptr<UserObjectBase> &other) override
+    void DeepCopy(std::shared_ptr<UserObjectBase>& other) override
     {
         if (other->GetClassName() != GetClassName()) {
             return;
         }
 
-        TUserObjectTest *pobject = static_cast<TUserObjectTest *>(other.get());
+        TUserObjectTest* pobject = static_cast<TUserObjectTest*>(other.get());
         if (pobject != nullptr) {
             str_data_ = pobject->str_data_;
             int_data_ = pobject->int_data_;
         }
     }
 
-    bool Marshalling(Parcel &parcel) const override
+    bool Marshalling(Parcel& parcel) const override
     {
         return true;
     }
 
-    bool Unmarshalling(Parcel &parcel) override
+    bool Unmarshalling(Parcel& parcel) override
     {
         return true;
     }
@@ -119,8 +119,8 @@ public:
 
     std::shared_ptr<PacMap> pacmap_ = nullptr;
     std::shared_ptr<PacMap> pacmap2_ = nullptr;
-    static void FillData(PacMap &pacmap);
-    static void FillData2(PacMap &pacmap, const PacMap &param_map);
+    static void FillData(PacMap& pacmap);
+    static void FillData2(PacMap& pacmap, const PacMap& param_map);
 
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
@@ -143,7 +143,7 @@ void PacMapTest::SetUp()
 void PacMapTest::TearDown()
 {}
 
-void PacMapTest::FillData(PacMap &pacmap)
+void PacMapTest::FillData(PacMap& pacmap)
 {
     std::vector<short> arrayShort;
     std::vector<int> arrayInt;
@@ -185,7 +185,7 @@ void PacMapTest::FillData(PacMap &pacmap)
     pacmap.PutStringValueArray("key_string_array", arrayString);
 }
 
-void PacMapTest::FillData2(PacMap &pacmap, const PacMap &param_map)
+void PacMapTest::FillData2(PacMap& pacmap, const PacMap& param_map)
 {
     std::vector<short> arrayShort;
     std::vector<int> arrayInt;
@@ -694,7 +694,7 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0100, Function | MediumTest |
     FillData(*pacmap_.get());
     EXPECT_EQ(true, pacmap_->Marshalling(parcel));
 
-    PacMap *unmarshingMap = PacMap::Unmarshalling(parcel);
+    PacMap* unmarshingMap = PacMap::Unmarshalling(parcel);
     EXPECT_EQ(true, unmarshingMap != nullptr);
     if (unmarshingMap != nullptr) {
         EXPECT_EQ(true, pacmap_->Equals(unmarshingMap));
@@ -717,7 +717,7 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0200, Function | MediumTest |
     FillData2(*pacmap2_.get(), *pacmap_.get());
 
     EXPECT_EQ(true, pacmap2_->Marshalling(parcel));
-    PacMap *unmarshingMap = PacMap::Unmarshalling(parcel);
+    PacMap* unmarshingMap = PacMap::Unmarshalling(parcel);
 
     EXPECT_EQ(true, unmarshingMap != nullptr);
     if (unmarshingMap != nullptr) {
@@ -738,7 +738,7 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_Marshalling_0300, Function | MediumTest |
 
     Parcel parcel;
     EXPECT_EQ(true, pacmap2_->Marshalling(parcel));
-    PacMap *unmarshingMap = PacMap::Unmarshalling(parcel);
+    PacMap* unmarshingMap = PacMap::Unmarshalling(parcel);
 
     EXPECT_EQ(true, unmarshingMap != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Marshalling_0300 end";

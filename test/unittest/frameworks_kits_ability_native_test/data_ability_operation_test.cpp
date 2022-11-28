@@ -33,7 +33,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void CreateBuilder(int type, std::shared_ptr<Uri> &uri);
+    void CreateBuilder(int type, std::shared_ptr<Uri>& uri);
     std::shared_ptr<DataAbilityOperationBuilder> builder = nullptr;
 };
 
@@ -51,7 +51,7 @@ void DataAbilityOperationTest::TearDown(void)
     builder = nullptr;
 }
 
-void DataAbilityOperationTest::CreateBuilder(int type, std::shared_ptr<Uri> &uri)
+void DataAbilityOperationTest::CreateBuilder(int type, std::shared_ptr<Uri>& uri)
 {
     builder = std::make_shared<DataAbilityOperationBuilder>(type, uri);
 }
@@ -594,9 +594,9 @@ HWTEST_F(DataAbilityOperationTest, AaFwk_DataAbilityOperation_Marshalling_0100, 
 
     std::shared_ptr<Uri> uri = std::make_shared<Uri>(URI);
     std::shared_ptr<DataAbilityOperation> dataAbilityOperation = DataAbilityOperation::NewAssertBuilder(uri)
-                                                                     ->WithInterruptionAllowed(true)
-                                                                     ->WithPredicatesBackReference(0, 0)
-                                                                     ->Build();
+        ->WithInterruptionAllowed(true)
+        ->WithPredicatesBackReference(0, 0)
+        ->Build();
     std::map<int, int> references = dataAbilityOperation->GetDataAbilityPredicatesBackReferences();
     for (int i = 0; i < 3 * 1024 * 1024 + 1; i++) {
         references.insert(std::make_pair(i, i));
@@ -620,12 +620,12 @@ HWTEST_F(DataAbilityOperationTest, AaFwk_DataAbilityOperation_Unmarshalling_0100
 
     std::shared_ptr<Uri> uri = std::make_shared<Uri>(URI);
     std::shared_ptr<DataAbilityOperation> dataAbilityOperation = DataAbilityOperation::NewAssertBuilder(uri)
-                                                                     ->WithInterruptionAllowed(true)
-                                                                     ->WithPredicatesBackReference(0, 0)
-                                                                     ->Build();
+        ->WithInterruptionAllowed(true)
+        ->WithPredicatesBackReference(0, 0)
+        ->Build();
     Parcel in;
     dataAbilityOperation->Marshalling(in);
-    DataAbilityOperation *pDataAbilityOperation = DataAbilityOperation::Unmarshalling(in);
+    DataAbilityOperation* pDataAbilityOperation = DataAbilityOperation::Unmarshalling(in);
     std::map<int, int> references = dataAbilityOperation->GetDataAbilityPredicatesBackReferences();
     EXPECT_TRUE(references.size() == 1);
     delete pDataAbilityOperation;

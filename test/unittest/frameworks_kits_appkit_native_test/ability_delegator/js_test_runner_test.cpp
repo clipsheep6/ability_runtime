@@ -46,7 +46,7 @@ const std::string KEY_TEST_RUNNER_CLASS = "-s unittest";
 const std::string VALUE_TEST_RUNNER_CLASS = "JSUserTestRunnerjs";
 const std::string KEY_TEST_CASE = "-s class";
 const std::string VALUE_TEST_CASE =
-    "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010_js";
+"ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010_js";
 const std::string KEY_TEST_WAIT_TIMEOUT = "-w";
 const std::string VALUE_TEST_WAIT_TIMEOUT = "35";
 const std::string REPORT_FINISH_MSG = "report finish message";

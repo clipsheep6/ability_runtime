@@ -2500,8 +2500,8 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateConfiguration_001, TestSize.Level0)
     appMgrServiceInner->UpdateConfiguration(config);
 
     auto appRunningRecordMap = appMgrServiceInner->appRunningManager_->appRunningRecordMap_;
-    for (const auto &item : appRunningRecordMap) {
-        const auto &appRecord = item.second;
+    for (const auto& item : appRunningRecordMap) {
+        const auto& appRecord = item.second;
         if (appRecord) {
             appRecord->appLifeCycleDeal_ = nullptr;
         }

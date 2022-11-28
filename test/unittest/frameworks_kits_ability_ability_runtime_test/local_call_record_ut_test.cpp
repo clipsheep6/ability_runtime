@@ -138,11 +138,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_RemoveCaller_0200, Function | Me
     EXPECT_EQ(ret, false);
 }
 
- /**
- * @tc.number: Local_Call_Record_RemoveCaller_0300
- * @tc.name: RemoveCaller
- * @tc.desc: LocalCallRecord to process RemoveCaller fail because not find call back.
- */
+/**
+* @tc.number: Local_Call_Record_RemoveCaller_0300
+* @tc.name: RemoveCaller
+* @tc.desc: LocalCallRecord to process RemoveCaller fail because not find call back.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_RemoveCaller_0300, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -154,82 +154,82 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_RemoveCaller_0300, Function | Me
     EXPECT_EQ(ret, false);
 }
 
- /**
- * @tc.number: Local_Call_Record_OnCallStubDied_0100
- * @tc.name: OnCallStubDied
- * @tc.desc: LocalCallRecord to process OnCallStubDied success.
- */
+/**
+* @tc.number: Local_Call_Record_OnCallStubDied_0100
+* @tc.name: OnCallStubDied
+* @tc.desc: LocalCallRecord to process OnCallStubDied success.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_OnCallStubDied_0100, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     LocalCallRecord localCallRecord(elementName);
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetOnRelease([](const std::string &result) {
+    callback->SetOnRelease([](const std::string& result) {
         GTEST_LOG_(ERROR) << "OnRelease-----------" << result;
         EXPECT_TRUE(result == "died");
-    });
+        });
     localCallRecord.callers_.emplace_back(callback);
     localCallRecord.OnCallStubDied(nullptr);
 }
 
- /**
- * @tc.number: Local_Call_Record_OnCallStubDied_0200
- * @tc.name: OnCallStubDied
- * @tc.desc: LocalCallRecord to process OnCallStubDied fail because callers_ is empty.
- */
+/**
+* @tc.number: Local_Call_Record_OnCallStubDied_0200
+* @tc.name: OnCallStubDied
+* @tc.desc: LocalCallRecord to process OnCallStubDied fail because callers_ is empty.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_OnCallStubDied_0200, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     LocalCallRecord localCallRecord(elementName);
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetOnRelease([](const std::string &result) {
+    callback->SetOnRelease([](const std::string& result) {
         GTEST_LOG_(ERROR) << "OnRelease-----------" << result;
         EXPECT_TRUE(result != "died");
-    });
+        });
     localCallRecord.OnCallStubDied(nullptr);
 }
 
- /**
- * @tc.number: Local_Call_Record_OnCallStubDied_0300
- * @tc.name: OnCallStubDied
- * @tc.desc: LocalCallRecord to process OnCallStubDied fail because callback is null.
- */
+/**
+* @tc.number: Local_Call_Record_OnCallStubDied_0300
+* @tc.name: OnCallStubDied
+* @tc.desc: LocalCallRecord to process OnCallStubDied fail because callback is null.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_OnCallStubDied_0300, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     LocalCallRecord localCallRecord(elementName);
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetOnRelease([](const std::string &result) {
+    callback->SetOnRelease([](const std::string& result) {
         GTEST_LOG_(ERROR) << "OnRelease-----------" << result;
         EXPECT_TRUE(result != "died");
-    });
+        });
     localCallRecord.callers_.emplace_back(nullptr);
     localCallRecord.OnCallStubDied(nullptr);
 }
 
- /**
- * @tc.number: Local_Call_Record_InvokeCallBack_0100
- * @tc.name: InvokeCallBack
- * @tc.desc: LocalCallRecord to process InvokeCallBack success.
- */
+/**
+* @tc.number: Local_Call_Record_InvokeCallBack_0100
+* @tc.name: InvokeCallBack
+* @tc.desc: LocalCallRecord to process InvokeCallBack success.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0100, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     LocalCallRecord localCallRecord(elementName);
     localCallRecord.remoteObject_ = new (std::nothrow) MockServiceAbilityManagerService();
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
     EXPECT_TRUE(callback->IsCallBack() == false);
     localCallRecord.callers_.emplace_back(callback);
     localCallRecord.InvokeCallBack();
     EXPECT_TRUE(callback->IsCallBack() == true);
 }
 
- /**
- * @tc.number: Local_Call_Record_InvokeCallBack_0200
- * @tc.name: InvokeCallBack
- * @tc.desc: LocalCallRecord to process InvokeCallBack fail because remote is null.
- */
+/**
+* @tc.number: Local_Call_Record_InvokeCallBack_0200
+* @tc.name: InvokeCallBack
+* @tc.desc: LocalCallRecord to process InvokeCallBack fail because remote is null.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0200, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -240,11 +240,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0200, Function | 
     EXPECT_TRUE(callback->IsCallBack() == false);
 }
 
- /**
- * @tc.number: Local_Call_Record_InvokeCallBack_0300
- * @tc.name: InvokeCallBack
- * @tc.desc: LocalCallRecord to process InvokeCallBack fail because callers_ is empty.
- */
+/**
+* @tc.number: Local_Call_Record_InvokeCallBack_0300
+* @tc.name: InvokeCallBack
+* @tc.desc: LocalCallRecord to process InvokeCallBack fail because callers_ is empty.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0300, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -256,11 +256,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0300, Function | 
     EXPECT_TRUE(callback->IsCallBack() == false);
 }
 
- /**
- * @tc.number: Local_Call_Record_InvokeCallBack_0400
- * @tc.name: InvokeCallBack
- * @tc.desc: LocalCallRecord to process InvokeCallBack fail because call back is null.
- */
+/**
+* @tc.number: Local_Call_Record_InvokeCallBack_0400
+* @tc.name: InvokeCallBack
+* @tc.desc: LocalCallRecord to process InvokeCallBack fail because call back is null.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0400, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -273,11 +273,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0400, Function | 
     EXPECT_TRUE(callback->IsCallBack() == false);
 }
 
- /**
- * @tc.number: Local_Call_Record_GetRemoteObject_0100
- * @tc.name: GetRemoteObject
- * @tc.desc: LocalCallRecord to process GetRemoteObject success.
- */
+/**
+* @tc.number: Local_Call_Record_GetRemoteObject_0100
+* @tc.name: GetRemoteObject
+* @tc.desc: LocalCallRecord to process GetRemoteObject success.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetRemoteObject_0100, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -286,11 +286,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetRemoteObject_0100, Function |
     EXPECT_TRUE(localCallRecord.GetRemoteObject() != nullptr);
 }
 
- /**
- * @tc.number: Local_Call_Record_GetElementName_0100
- * @tc.name: GetElementName
- * @tc.desc: LocalCallRecord to process GetElementName success.
- */
+/**
+* @tc.number: Local_Call_Record_GetElementName_0100
+* @tc.name: GetElementName
+* @tc.desc: LocalCallRecord to process GetElementName success.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetElementName_0100, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
@@ -298,11 +298,11 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetElementName_0100, Function | 
     EXPECT_TRUE(localCallRecord.GetElementName().GetBundleName() == "DemoBundleName");
 }
 
- /**
- * @tc.number: Local_Call_Record_IsExistCallBack_0100
- * @tc.name: IsExistCallBack
- * @tc.desc: LocalCallRecord to process  success.
- */
+/**
+* @tc.number: Local_Call_Record_IsExistCallBack_0100
+* @tc.name: IsExistCallBack
+* @tc.desc: LocalCallRecord to process  success.
+*/
 HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsExistCallBack_0100, Function | MediumTest | Level1)
 {
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
