@@ -18,15 +18,20 @@
 #define private public
 #include "app_mgr_service_inner.h"
 #include "app_running_record.h"
+#include "remote_client_manager.h"
 #undef private
+#include "app_scheduler.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_bundle_manager.h"
+#include "mock_configuration_observer.h"
 #include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
+#include "mock_render_scheduler.h"
 #include "parameters.h"
+#include "window_manager.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -1597,7 +1602,8 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
     HILOG_INFO("RemoveAppFromRecentList_001 start 22");
 
     pid_t pid = 123;
-    std::shared_ptr<RenderRecord> renderRecord = RenderRecord::CreateRenderRecord(pid, "", 0, 0, appRecord);
+    std::string renderParam = "test_renderParam";
+    std::shared_ptr<RenderRecord> renderRecord = RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, appRecord);
     appRecord->SetRenderRecord(renderRecord);
     appMgrServiceInner->AddAppToRecentList(appName1, processName1, pid, 0);
     appRecord->SetKeepAliveAppState(true, true);
@@ -1667,12 +1673,13 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
     appMgrServiceInner->ClearAppRunningData(appRecord, true);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
 
-    std::shared_ptr<RenderRecord> renderRecord = RenderRecord::CreateRenderRecord(0, "", 0, 0, appRecord);
+    std::shared_ptr<RenderRecord> renderRecord;
     appRecord->SetRenderRecord(renderRecord);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
 
     pid_t pid = 123;
-    std::shared_ptr<RenderRecord> renderRecord1 = RenderRecord::CreateRenderRecord(pid, "", 0, 0, appRecord);
+    std::string renderParam = "test_renderParam";
+    std::shared_ptr<RenderRecord> renderRecord1 = RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, appRecord);
     appRecord->SetRenderRecord(renderRecord1);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
 
@@ -2381,6 +2388,849 @@ HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
 
     HILOG_INFO("StartSpecifiedAbility_001 end");
+}
+
+/**
+ * @tc.name: RegisterStartSpecifiedAbilityResponse_001
+ * @tc.desc: register start specified ability response.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
+{
+    HILOG_INFO("RegisterStartSpecifiedAbilityResponse_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->RegisterStartSpecifiedAbilityResponse(nullptr);
+
+    sptr<IStartSpecifiedAbilityResponse> response;
+    appMgrServiceInner->RegisterStartSpecifiedAbilityResponse(response);
+
+    HILOG_INFO("RegisterStartSpecifiedAbilityResponse_001 end");
+}
+
+/**
+ * @tc.name: ScheduleAcceptWantDone_001
+ * @tc.desc: schedule accept want done.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, ScheduleAcceptWantDone_001, TestSize.Level0)
+{
+    HILOG_INFO("ScheduleAcceptWantDone_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    AAFwk::Want want;
+    std::string flag = "test_flag";
+    appMgrServiceInner->ScheduleAcceptWantDone(0, want, flag);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    appMgrServiceInner->ScheduleAcceptWantDone(appRecord->GetRecordId(), want, flag);
+
+    sptr<IStartSpecifiedAbilityResponse> response;
+    appMgrServiceInner->RegisterStartSpecifiedAbilityResponse(response);
+    appMgrServiceInner->ScheduleAcceptWantDone(appRecord->GetRecordId(), want, flag);
+
+    HILOG_INFO("ScheduleAcceptWantDone_001 end");
+}
+
+/**
+ * @tc.name: HandleStartSpecifiedAbilityTimeOut_001
+ * @tc.desc: handle start specified ability time out.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSize.Level0)
+{
+    HILOG_INFO("HandleStartSpecifiedAbilityTimeOut_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    BundleInfo bundleInfo;
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    std::string bundleName = "test_bundleName";
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->eventId_ = 0;
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    appRecord->isSpecifiedAbility_ = true;
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    sptr<IStartSpecifiedAbilityResponse> response;
+    appMgrServiceInner->startSpecifiedAbilityResponse_ = response;
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    appRecord->isSpecifiedAbility_ = false;
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
+
+    HILOG_INFO("HandleStartSpecifiedAbilityTimeOut_001 end");
+}
+
+/**
+ * @tc.name: UpdateConfiguration_001
+ * @tc.desc: update configuration.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, UpdateConfiguration_001, TestSize.Level0)
+{
+    HILOG_INFO("UpdateConfiguration_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    Configuration config;
+    appMgrServiceInner->UpdateConfiguration(config);
+
+    auto testLanguge = "ch-zh";
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, testLanguge);
+    appMgrServiceInner->UpdateConfiguration(config);
+
+    auto appRunningRecordMap = appMgrServiceInner->appRunningManager_->appRunningRecordMap_;
+    for (const auto &item : appRunningRecordMap) {
+        const auto &appRecord = item.second;
+        if (appRecord) {
+            appRecord->appLifeCycleDeal_ = nullptr;
+        }
+    }
+    appMgrServiceInner->UpdateConfiguration(config);
+
+    sptr<MockConfigurationObserver> observer(new (std::nothrow) MockConfigurationObserver());
+    appMgrServiceInner->configurationObservers_.push_back(observer);
+    sptr<IConfigurationObserver> observer1;
+    appMgrServiceInner->configurationObservers_.push_back(observer1);
+    appMgrServiceInner->configurationObservers_.push_back(nullptr);
+    appMgrServiceInner->UpdateConfiguration(config);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->UpdateConfiguration(config);
+
+    HILOG_INFO("UpdateConfiguration_001 end");
+}
+
+/**
+ * @tc.name: RegisterConfigurationObserver_001
+ * @tc.desc: register configuration observer.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterConfigurationObserver_001, TestSize.Level0)
+{
+    HILOG_INFO("RegisterConfigurationObserver_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->configurationObservers_.clear();
+
+    appMgrServiceInner->RegisterConfigurationObserver(nullptr);
+
+    sptr<MockConfigurationObserver> observer(new (std::nothrow) MockConfigurationObserver());
+    appMgrServiceInner->RegisterConfigurationObserver(observer);
+    appMgrServiceInner->RegisterConfigurationObserver(observer);
+
+    HILOG_INFO("RegisterConfigurationObserver_001 end");
+}
+
+/**
+ * @tc.name: UnregisterConfigurationObserver_001
+ * @tc.desc: unregister configuration observer.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterConfigurationObserver_001, TestSize.Level0)
+{
+    HILOG_INFO("UnregisterConfigurationObserver_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->configurationObservers_.clear();
+
+    appMgrServiceInner->UnregisterConfigurationObserver(nullptr);
+
+    sptr<MockConfigurationObserver> observer(new (std::nothrow) MockConfigurationObserver());
+    appMgrServiceInner->UnregisterConfigurationObserver(observer);
+
+    appMgrServiceInner->RegisterConfigurationObserver(observer);
+    appMgrServiceInner->UnregisterConfigurationObserver(observer);
+
+    HILOG_INFO("UnregisterConfigurationObserver_001 end");
+}
+
+/**
+ * @tc.name: InitGlobalConfiguration_001
+ * @tc.desc: init global configuration.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, InitGlobalConfiguration_001, TestSize.Level0)
+{
+    HILOG_INFO("InitGlobalConfiguration_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->InitGlobalConfiguration();
+
+    appMgrServiceInner->configuration_ = nullptr;
+    appMgrServiceInner->InitGlobalConfiguration();
+
+    HILOG_INFO("InitGlobalConfiguration_001 end");
+}
+
+/**
+ * @tc.name: KillApplicationByRecord_001
+ * @tc.desc: kill application by record.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, KillApplicationByRecord_001, TestSize.Level0)
+{
+    HILOG_INFO("KillApplicationByRecord_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord1 =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord1, nullptr);
+    appMgrServiceInner->KillApplicationByRecord(appRecord);
+    appMgrServiceInner->KillApplicationByRecord(appRecord1);
+
+    appMgrServiceInner->eventHandler_ = nullptr;
+    appMgrServiceInner->KillApplicationByRecord(appRecord);
+    appMgrServiceInner->KillApplicationByRecord(appRecord1);
+
+    HILOG_INFO("KillApplicationByRecord_001 end");
+}
+
+/**
+ * @tc.name: SendHiSysEvent_001
+ * @tc.desc: send hi sys event.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendHiSysEvent_001, TestSize.Level0)
+{
+    HILOG_INFO("SendHiSysEvent_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->SendHiSysEvent(0, 0);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->eventId_ = 0;
+    appMgrServiceInner->SendHiSysEvent(0, 0);
+    appMgrServiceInner->SendHiSysEvent(1, 0);
+    appMgrServiceInner->SendHiSysEvent(2, 0);
+    appMgrServiceInner->SendHiSysEvent(3, 0);
+    appMgrServiceInner->SendHiSysEvent(4, 0);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->SendHiSysEvent(0, 0);
+
+    HILOG_INFO("SendHiSysEvent_001 end");
+}
+
+/**
+ * @tc.name: GetAbilityRecordsByProcessID_001
+ * @tc.desc: get ability records by process id.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetAbilityRecordsByProcessID_001, TestSize.Level0)
+{
+    HILOG_INFO("GetAbilityRecordsByProcessID_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::vector<sptr<IRemoteObject>> tokens;
+    appMgrServiceInner->GetAbilityRecordsByProcessID(0, tokens);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    int pid = appRecord->GetPriorityObject()->GetPid();
+    appMgrServiceInner->GetAbilityRecordsByProcessID(pid, tokens);
+
+    HILOG_INFO("GetAbilityRecordsByProcessID_001 end");
+}
+
+/**
+ * @tc.name: GetApplicationInfoByProcessID_001
+ * @tc.desc: get applicationInfo by process id.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Level0)
+{
+    HILOG_INFO("GetApplicationInfoByProcessID_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    ApplicationInfo application;
+    bool debug = false;
+    appMgrServiceInner->GetApplicationInfoByProcessID(0, application, debug);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    int pid = appRecord->GetPriorityObject()->GetPid();
+    appMgrServiceInner->GetApplicationInfoByProcessID(pid, application, debug);
+
+    appRecord->appInfo_ = nullptr;
+    appMgrServiceInner->GetApplicationInfoByProcessID(pid, application, debug);
+
+    HILOG_INFO("GetApplicationInfoByProcessID_001 end");
+}
+
+/**
+ * @tc.name: VerifyProcessPermission_001
+ * @tc.desc: verify process permission.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
+{
+    HILOG_INFO("VerifyProcessPermission_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->VerifyProcessPermission();
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->VerifyProcessPermission();
+
+    HILOG_INFO("VerifyProcessPermission_001 end");
+}
+
+/**
+ * @tc.name: VerifyAPL_001
+ * @tc.desc: verify APL.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, VerifyAPL_001, TestSize.Level0)
+{
+    HILOG_INFO("VerifyAPL_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->VerifyAPL();
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->VerifyAPL();
+
+    HILOG_INFO("VerifyAPL_001 end");
+}
+
+/**
+ * @tc.name: VerifyAccountPermission_001
+ * @tc.desc: verify account permission.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, VerifyAccountPermission_001, TestSize.Level0)
+{
+    HILOG_INFO("VerifyAccountPermission_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string permissionName = "test_permissionName";
+    appMgrServiceInner->VerifyAccountPermission(permissionName, 0);
+
+    HILOG_INFO("VerifyAccountPermission_001 end");
+}
+
+/**
+ * @tc.name: PreStartNWebSpawnProcess_003
+ * @tc.desc: prestart nwebspawn process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_003, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int callingPid = 1;
+    appMgrServiceInner->remoteClientManager_->nwebSpawnClient_ = nullptr;
+    int ret = appMgrServiceInner->PreStartNWebSpawnProcess(callingPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: StartRenderProcess_001
+ * @tc.desc: start render process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("StartRenderProcess_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    pid_t hostPid = 0;
+    pid_t hostPid1 = 1;
+    std::string renderParam = "test_renderParam";
+    pid_t renderPid = 0;
+    int ret = appMgrServiceInner->StartRenderProcess(hostPid, "", 0, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, "", 0, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, "", 1, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, "", 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, renderParam, 0, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, renderParam, 0, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, renderParam, 1, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid, renderParam, 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 0, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 0, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 1, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 0, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 0, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 0, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    HILOG_INFO("StartRenderProcess_001 end");
+}
+
+/**
+ * @tc.name: StartRenderProcess_002
+ * @tc.desc: start render process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
+{
+    HILOG_INFO("StartRenderProcess_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    pid_t hostPid1 = 1;
+    std::string renderParam = "test_renderParam";
+    pid_t renderPid = 0;
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(hostPid1);
+    int ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(hostPid1, renderParam, 1, 1, appRecord);
+    appRecord->SetRenderRecord(renderRecord);
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, renderPid);
+    EXPECT_EQ(ret, 8454244);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    HILOG_INFO("StartRenderProcess_002 end");
+}
+
+/**
+ * @tc.name: AttachRenderProcess_001
+ * @tc.desc: attach render process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("AttachRenderProcess_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    pid_t pid = 0;
+    sptr<IRenderScheduler> scheduler;
+    appMgrServiceInner->AttachRenderProcess(pid, scheduler);
+
+    pid = 1;
+    appMgrServiceInner->AttachRenderProcess(pid, scheduler);
+
+    sptr<MockRenderScheduler> mockRenderScheduler = new (std::nothrow) MockRenderScheduler();
+    EXPECT_CALL(*mockRenderScheduler, AsObject()).Times(1);
+    EXPECT_CALL(*mockRenderScheduler, NotifyBrowserFd(1, 1)).Times(1);
+    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(pid);
+    std::string renderParam = "test_renderParam";
+    std::shared_ptr<RenderRecord> renderRecord = RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, appRecord);
+    EXPECT_NE(renderRecord, nullptr);
+    renderRecord->SetPid(pid);
+    appRecord->SetRenderRecord(renderRecord);
+    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
+
+    HILOG_INFO("AttachRenderProcess_001 end");
+}
+
+/**
+ * @tc.name: StartRenderProcessImpl_001
+ * @tc.desc: start render process impl.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, StartRenderProcessImpl_001, TestSize.Level0)
+{
+    HILOG_INFO("StartRenderProcessImpl_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    pid_t renderPid = 1;
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    std::string renderParam = "test_renderParam";
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(renderPid, renderParam, 1, 1, appRecord);
+    EXPECT_NE(renderRecord, nullptr);
+    renderRecord->SetPid(renderPid);
+    appRecord->SetRenderRecord(renderRecord);
+    int ret = appMgrServiceInner->StartRenderProcessImpl(nullptr, nullptr, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcessImpl(nullptr, appRecord, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcessImpl(renderRecord, nullptr, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    ret = appMgrServiceInner->StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    appMgrServiceInner->remoteClientManager_->nwebSpawnClient_ = nullptr;
+    ret = appMgrServiceInner->StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    HILOG_INFO("StartRenderProcessImpl_001 end");
+}
+
+/**
+ * @tc.name: GetRenderProcessTerminationStatus_001
+ * @tc.desc: get render process termination status.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetRenderProcessTerminationStatus_001, TestSize.Level0)
+{
+    HILOG_INFO("GetRenderProcessTerminationStatus_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    pid_t renderPid = 0;
+    int status = 0;
+    int ret = appMgrServiceInner->GetRenderProcessTerminationStatus(renderPid, status);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    appMgrServiceInner->remoteClientManager_->nwebSpawnClient_ = nullptr;
+    ret = appMgrServiceInner->GetRenderProcessTerminationStatus(renderPid, status);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    appMgrServiceInner->remoteClientManager_ = nullptr;
+    ret = appMgrServiceInner->GetRenderProcessTerminationStatus(renderPid, status);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    HILOG_INFO("GetRenderProcessTerminationStatus_001 end");
+}
+
+/**
+ * @tc.name: OnRenderRemoteDied_001
+ * @tc.desc: on render remote ded.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, OnRenderRemoteDied_001, TestSize.Level0)
+{
+    HILOG_INFO("OnRenderRemoteDied_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    wptr<IRemoteObject> remote;
+    appMgrServiceInner->OnRenderRemoteDied(remote);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->OnRenderRemoteDied(remote);
+
+    HILOG_INFO("OnRenderRemoteDied_001 end");
+}
+
+/**
+ * @tc.name: BuildStartFlags_001
+ * @tc.desc: build start flags.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
+{
+    HILOG_INFO("BuildStartFlags_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    AAFwk::Want want;
+    AbilityInfo abilityInfo;
+    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+
+    want.SetParam("coldStart", true);
+    want.SetParam("ohos.dlp.params.index", 1);
+    abilityInfo.extensionAbilityType = ExtensionAbilityType::BACKUP;
+    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+
+    HILOG_INFO("BuildStartFlags_001 end");
+}
+
+/**
+ * @tc.name: RegisterFocusListener_001
+ * @tc.desc: register focus listener.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterFocusListener_001, TestSize.Level0)
+{
+    HILOG_INFO("RegisterFocusListener_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->RegisterFocusListener();
+
+    appMgrServiceInner->focusListener_ = nullptr;
+    appMgrServiceInner->RegisterFocusListener();
+
+    HILOG_INFO("RegisterFocusListener_001 end");
+}
+
+/**
+ * @tc.name: HandleFocused_001
+ * @tc.desc: handle focused.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, HandleFocused_001, TestSize.Level0)
+{
+    HILOG_INFO("HandleFocused_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    sptr<Rosen::FocusChangeInfo> focusChangeInfo;
+    appMgrServiceInner->HandleFocused(focusChangeInfo);
+
+    pid_t pid = 1;
+    focusChangeInfo = new Rosen::FocusChangeInfo();
+    appMgrServiceInner->HandleFocused(focusChangeInfo);
+
+    focusChangeInfo->pid_ = pid;
+    appMgrServiceInner->HandleFocused(focusChangeInfo);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(pid);
+    appMgrServiceInner->HandleFocused(focusChangeInfo);
+
+    HILOG_INFO("HandleFocused_001 end");
+}
+
+/**
+ * @tc.name: HandleUnfocused_001
+ * @tc.desc: handle unfocused.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, HandleUnfocused_001, TestSize.Level0)
+{
+    HILOG_INFO("HandleUnfocused_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    sptr<Rosen::FocusChangeInfo> focusChangeInfo;
+    appMgrServiceInner->HandleUnfocused(focusChangeInfo);
+
+    pid_t pid = 1;
+    focusChangeInfo = new Rosen::FocusChangeInfo();
+    appMgrServiceInner->HandleUnfocused(focusChangeInfo);
+
+    focusChangeInfo->pid_ = pid;
+    appMgrServiceInner->HandleUnfocused(focusChangeInfo);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(pid);
+    appMgrServiceInner->HandleUnfocused(focusChangeInfo);
+
+    HILOG_INFO("HandleUnfocused_001 end");
+}
+
+/**
+ * @tc.name: GetAppRunningStateByBundleName_001
+ * @tc.desc: get app running state by bundle name.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetAppRunningStateByBundleName_001, TestSize.Level0)
+{
+    HILOG_INFO("GetAppRunningStateByBundleName_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "test_bundleName";
+    appMgrServiceInner->GetAppRunningStateByBundleName(bundleName);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->GetAppRunningStateByBundleName(bundleName);
+
+    HILOG_INFO("GetAppRunningStateByBundleName_001 end");
+}
+
+/**
+ * @tc.name: NotifyLoadRepairPatch_001
+ * @tc.desc: notify load repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyLoadRepairPatch_001, TestSize.Level0)
+{
+    HILOG_INFO("NotifyLoadRepairPatch_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "test_bundleName";
+    sptr<IQuickFixCallback> callback;
+    appMgrServiceInner->NotifyLoadRepairPatch(bundleName, callback);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->NotifyLoadRepairPatch(bundleName, callback);
+
+    HILOG_INFO("NotifyLoadRepairPatch_001 end");
+}
+
+/**
+ * @tc.name: NotifyHotReloadPage_001
+ * @tc.desc: notify hot reload page.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyHotReloadPage_001, TestSize.Level0)
+{
+    HILOG_INFO("NotifyHotReloadPage_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "test_bundleName";
+    sptr<IQuickFixCallback> callback;
+    appMgrServiceInner->NotifyHotReloadPage(bundleName, callback);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->NotifyHotReloadPage(bundleName, callback);
+
+    HILOG_INFO("NotifyHotReloadPage_001 end");
+}
+
+/**
+ * @tc.name: SetContinuousTaskProcess_001
+ * @tc.desc: set continuous task process.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("SetContinuousTaskProcess_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int32_t ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
+    EXPECT_EQ(ret, 0);
+
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(0);
+    ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
+    EXPECT_EQ(ret, 0);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
+    EXPECT_EQ(ret, ERR_INVALID_OPERATION);
+
+    HILOG_INFO("SetContinuousTaskProcess_001 end");
+}
+#endif
+
+/**
+ * @tc.name: NotifyUnLoadRepairPatch_001
+ * @tc.desc: notify unload repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
+{
+    HILOG_INFO("NotifyUnLoadRepairPatch_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "test_bundleName";
+    sptr<IQuickFixCallback> callback;
+    appMgrServiceInner->NotifyUnLoadRepairPatch(bundleName, callback);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->NotifyUnLoadRepairPatch(bundleName, callback);
+
+    HILOG_INFO("NotifyUnLoadRepairPatch_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS
