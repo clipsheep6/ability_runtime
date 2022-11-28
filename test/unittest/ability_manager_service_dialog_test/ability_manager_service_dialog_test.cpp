@@ -150,5 +150,67 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Lev
     EXPECT_EQ(jsonObj["hapList"].size(), 1);
     HILOG_INFO("AbilityMgrServiceDialog_0500 end");
 }
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0600
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test IsImplicitStartAction
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0600, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0600 start");
+    Want want;
+    want.SetElementName("com.example.test", "");
+    auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
+    EXPECT_EQ(ret, true);
+    HILOG_INFO("AbilityMgrServiceDialog_0600 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0700
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test IsImplicitStartAction
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0700, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0700 start");
+    Want want;
+    want.SetElementName("com.example.test", "MainAbility");
+    auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
+    EXPECT_EQ(ret, false);
+    HILOG_INFO("AbilityMgrServiceDialog_0700 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0800
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test IsImplicitStartAction
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0800, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0800 start");
+    Want want;
+    want.SetElementName("com.example.test", "");
+    want.SetAction("ohos.want.action.select");
+    auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
+    EXPECT_EQ(ret, false);
+    HILOG_INFO("AbilityMgrServiceDialog_0800 end");
+}
+
+/*
+ * @tc.number    : AbilityMgrServiceDialog_0900
+ * @tc.name      : AbilityMgrServiceDialog
+ * @tc.desc      : 1.Test IsImplicitStartAction
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0900, TestSize.Level1)
+{
+    HILOG_INFO("AbilityMgrServiceDialog_0900 start");
+    Want want;
+    want.SetElementName("com.example.test", "");
+    want.SetAction("ohos.want.action.viewData");
+    auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
+    EXPECT_EQ(ret, true);
+    HILOG_INFO("AbilityMgrServiceDialog_0900 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
