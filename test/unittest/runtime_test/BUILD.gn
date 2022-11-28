@@ -56,12 +56,16 @@ ohos_unittest("js_runtime_test") {
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
-  deps = []
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
     "ability_runtime:runtime",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
   ]
 }
