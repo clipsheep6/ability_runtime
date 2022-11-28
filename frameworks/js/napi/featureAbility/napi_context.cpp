@@ -787,7 +787,6 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
 
     uv_loop_t *loop = nullptr;
     loop = callbackInfo.engine->GetUVLoop();
-
     if (loop == nullptr) {
         HILOG_ERROR("CallOnRequestPermissionsFromUserResult loop is nullptr.");
         return;
