@@ -47,9 +47,9 @@ public:
     MyAbilityConnection() = default;
     virtual ~MyAbilityConnection() = default;
     void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
     {}
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override
     {}
     sptr<IRemoteObject> AsObject() override
     {
@@ -95,7 +95,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
     std::string stringParam(data, size);
     Parcel wantParcel;
-    Want *want = nullptr;
+    Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
         if (!want) {
@@ -113,7 +113,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for FreeInstallManager
     auto abilityms = std::make_shared<AbilityManagerService>();
-    std::weak_ptr<AbilityManagerService> amsWeakPtr{abilityms};
+    std::weak_ptr<AbilityManagerService> amsWeakPtr{ abilityms };
     auto freeInstallManager = std::make_shared<FreeInstallManager>(amsWeakPtr);
     freeInstallManager->IsTopAbility(token);
     freeInstallManager->StartFreeInstall(*want, int32Param, intParam, token);
@@ -129,7 +129,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     freeInstallManager->OnRemoteInstallFinished(intParam, *want, int32Param, int64Param);
 
     // fuzz for AtomicServiceStatusCallback
-    std::weak_ptr<FreeInstallManager> fimWeakPtr{freeInstallManager};
+    std::weak_ptr<FreeInstallManager> fimWeakPtr{ freeInstallManager };
     auto atomicServiceStatusCallback = std::make_shared<AtomicServiceStatusCallback>(fimWeakPtr, int64Param);
     atomicServiceStatusCallback->OnInstallFinished(intParam, *want, int32Param);
     atomicServiceStatusCallback->OnRemoteInstallFinished(intParam, *want, int32Param);
@@ -145,7 +145,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     auto continuousTaskCallbackInfo = std::make_shared<BackgroundTaskMgr::ContinuousTaskCallbackInfo>();
     backgroundTaskObserver->OnContinuousTaskStart(continuousTaskCallbackInfo);
     backgroundTaskObserver->OnContinuousTaskStop(continuousTaskCallbackInfo);
-    wptr<IRemoteObject> object{token};
+    wptr<IRemoteObject> object{ token };
 
     // fuzz for CallRecord
     auto callRecord = std::make_shared<CallRecord>(int32Param, targetService, connect, token);
@@ -202,7 +202,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

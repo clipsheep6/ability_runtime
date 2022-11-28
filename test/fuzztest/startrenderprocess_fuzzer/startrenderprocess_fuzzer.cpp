@@ -33,24 +33,24 @@ constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        std::string renderParam(data, size);
-        int32_t ipcFd = 100;
-        int32_t sharedFd = 100;
-        pid_t renderPid = 100;
-
-        if (appMgrClient->StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid) != 0) {
-            return false;
-        }
-
-        return true;
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
     }
+
+    std::string renderParam(data, size);
+    int32_t ipcFd = 100;
+    int32_t sharedFd = 100;
+    pid_t renderPid = 100;
+
+    if (appMgrClient->StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid) != 0) {
+        return false;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -67,7 +67,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

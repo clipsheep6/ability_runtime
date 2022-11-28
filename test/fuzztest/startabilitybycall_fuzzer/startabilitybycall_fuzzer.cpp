@@ -36,8 +36,8 @@ public:
     explicit AbilityConnectionFuzz() {};
     virtual ~AbilityConnectionFuzz() {};
     void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override {};
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override {};
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override {};
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override {};
 };
 sptr<Token> GetFuzzAbilityToken()
 {
@@ -69,7 +69,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for want
     Parcel wantParcel;
     sptr<AbilityConnectionFuzz> connect;
-    Want *want = nullptr;
+    Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
         if (want && connect) {
@@ -101,7 +101,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

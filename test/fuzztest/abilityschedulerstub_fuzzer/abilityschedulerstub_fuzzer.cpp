@@ -35,90 +35,90 @@ public:
     AbilitySchedulerStubFuzzTest() = default;
     virtual ~AbilitySchedulerStubFuzzTest()
     {};
-    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) override
+    void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState) override
     {}
-    void SendResult(int requestCode, int resultCode, const Want &resultWant) override
+    void SendResult(int requestCode, int resultCode, const Want& resultWant) override
     {}
-    void ScheduleConnectAbility(const Want &want) override
+    void ScheduleConnectAbility(const Want& want) override
     {}
-    void ScheduleDisconnectAbility(const Want &want) override
+    void ScheduleDisconnectAbility(const Want& want) override
     {}
-    void ScheduleCommandAbility(const Want &want, bool restart, int startId) override
+    void ScheduleCommandAbility(const Want& want, bool restart, int startId) override
     {}
     void ScheduleSaveAbilityState() override
     {}
-    void ScheduleRestoreAbilityState(const PacMap &inState) override
+    void ScheduleRestoreAbilityState(const PacMap& inState) override
     {}
-    std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override
+    std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter) override
     {
         return {};
     }
-    int OpenFile(const Uri &uri, const std::string &mode) override
+    int OpenFile(const Uri& uri, const std::string& mode) override
     {
         return 0;
     }
-    int OpenRawFile(const Uri &uri, const std::string &mode) override
+    int OpenRawFile(const Uri& uri, const std::string& mode) override
     {
         return 0;
     }
-    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override
+    int Insert(const Uri& uri, const NativeRdb::ValuesBucket& value) override
     {
         return 0;
     }
-    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates) override
+    int Update(const Uri& uri, const NativeRdb::ValuesBucket& value,
+        const NativeRdb::DataAbilityPredicates& predicates) override
     {
         return 0;
     }
-    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override
+    int Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates) override
     {
         return 0;
     }
     std::shared_ptr<AppExecFwk::PacMap> Call(
-        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap) override
+        const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap) override
     {
         return {};
     }
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri,
-        std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri& uri,
+        std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates) override
     {
         return {};
     }
-    std::string GetType(const Uri &uri) override
+    std::string GetType(const Uri& uri) override
     {
         return {};
     }
-    bool Reload(const Uri &uri, const PacMap &extras) override
+    bool Reload(const Uri& uri, const PacMap& extras) override
     {
         return true;
     }
-    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override
+    int BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values) override
     {
         return 0;
     }
-    bool ScheduleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
+    bool ScheduleRegisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver) override
     {
         return true;
     }
-    bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override
+    bool ScheduleUnregisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver) override
     {
         return true;
     }
-    bool ScheduleNotifyChange(const Uri &uri) override
+    bool ScheduleNotifyChange(const Uri& uri) override
     {
         return true;
     }
-    Uri NormalizeUri(const Uri &uri) override
+    Uri NormalizeUri(const Uri& uri) override
     {
-        return Uri{"abilityschedulerstub"};
+        return Uri{ "abilityschedulerstub" };
     }
 
-    Uri DenormalizeUri(const Uri &uri) override
+    Uri DenormalizeUri(const Uri& uri) override
     {
-        return Uri{"abilityschedulerstub"};
+        return Uri{ "abilityschedulerstub" };
     }
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
-        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) override
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>>& operations) override
     {
         return {};
     }
@@ -126,7 +126,7 @@ public:
     {}
     void NotifyContinuationResult(int32_t result) override
     {}
-    void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
+    void DumpAbilityInfo(const std::vector<std::string>& params, std::vector<std::string>& info) override
     {}
     int BlockAbility() override
     {
@@ -179,7 +179,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

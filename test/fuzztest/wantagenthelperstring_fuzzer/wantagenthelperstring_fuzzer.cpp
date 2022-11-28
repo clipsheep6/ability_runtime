@@ -26,28 +26,28 @@
 using namespace OHOS::AbilityRuntime::WantAgent;
 
 namespace OHOS {
-    bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
-    {
-        Parcel wantAgentParcel;
-        WantAgent *wantAgent = nullptr;
-        if (wantAgentParcel.WriteBuffer(data, size)) {
-            wantAgent = WantAgent::Unmarshalling(wantAgentParcel);
-            if (wantAgent) {
-                std::shared_ptr<PendingWant> pendingWant = wantAgent->GetPendingWant();
-                std::shared_ptr<WantAgent> sptrAgent = std::make_shared<WantAgent>(pendingWant);
-                std::string str = WantAgentHelper::ToString(sptrAgent);
-                auto newWantAgent = WantAgentHelper::FromString(str);
-                (void)newWantAgent;
-            }
-        }
-
+bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
+{
+    Parcel wantAgentParcel;
+    WantAgent* wantAgent = nullptr;
+    if (wantAgentParcel.WriteBuffer(data, size)) {
+        wantAgent = WantAgent::Unmarshalling(wantAgentParcel);
         if (wantAgent) {
-            delete wantAgent;
-            wantAgent = nullptr;
+            std::shared_ptr<PendingWant> pendingWant = wantAgent->GetPendingWant();
+            std::shared_ptr<WantAgent> sptrAgent = std::make_shared<WantAgent>(pendingWant);
+            std::string str = WantAgentHelper::ToString(sptrAgent);
+            auto newWantAgent = WantAgentHelper::FromString(str);
+            (void)newWantAgent;
         }
-
-        return true;
     }
+
+    if (wantAgent) {
+        delete wantAgent;
+        wantAgent = nullptr;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */

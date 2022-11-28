@@ -32,9 +32,9 @@ constexpr size_t U32_AT_SIZE = 4;
 }
 class StopUserCallbackFuzz : public IStopUserCallback {
 public:
-    explicit StopUserCallbackFuzz() {};
-    virtual ~StopUserCallbackFuzz() {};
-    void OnStopUserDone(int userId, int errcode) override {};
+    explicit StopUserCallbackFuzz() {}
+    virtual ~StopUserCallbackFuzz() {}
+    void OnStopUserDone(int userId, int errcode) override {}
 };
 uint32_t GetU32Data(const char* ptr)
 {
@@ -72,7 +72,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

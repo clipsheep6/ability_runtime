@@ -43,7 +43,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     int32_t missionId = static_cast<int32_t>(GetU32Data(data));
     Parcel optionParcel;
-    StartOptions *startOptions = nullptr;
+    StartOptions* startOptions = nullptr;
     if (optionParcel.WriteBuffer(data, size)) {
         startOptions = StartOptions::Unmarshalling(optionParcel);
         if (startOptions) {
@@ -71,7 +71,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

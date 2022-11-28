@@ -37,9 +37,9 @@ public:
     MyAbilityConnection() = default;
     virtual ~MyAbilityConnection() = default;
     void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
     {}
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override
     {}
     sptr<IRemoteObject> AsObject() override
     {
@@ -83,7 +83,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     bool boolParam = *data % ENABLE;
     int intParam = static_cast<int>(GetU32Data(data));
     Parcel wantParcel;
-    Want *want = nullptr;
+    Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
         if (!want) {
@@ -122,7 +122,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

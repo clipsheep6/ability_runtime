@@ -32,81 +32,81 @@ namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
-    sptr<Token> GetFuzzAbilityToken()
-    {
-        sptr<Token> token = nullptr;
+sptr<Token> GetFuzzAbilityToken()
+{
+    sptr<Token> token = nullptr;
 
-        AbilityRequest abilityRequest;
-        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-        abilityRequest.abilityInfo.name = "MainAbility";
-        abilityRequest.abilityInfo.type = AbilityType::DATA;
-        std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        if (abilityRecord) {
-            token = abilityRecord->GetToken();
-        }
-
-        return token;
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    if (abilityRecord) {
+        token = abilityRecord->GetToken();
     }
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        auto abilityMgr = AbilityManagerClient::GetInstance();
-        if (!abilityMgr) {
-            return false;
-        }
+    return token;
+}
 
-        // get token and connectCallback
-        sptr<IRemoteObject> token = GetFuzzAbilityToken();
-        if (!token) {
-            std::cout << "Get ability token failed." << std::endl;
-            return false;
-        }
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    auto abilityMgr = AbilityManagerClient::GetInstance();
+    if (!abilityMgr) {
+        return false;
+    }
 
-        // fuzz for want
-        Parcel wantParcel;
-        Want *want = nullptr;
-        if (wantParcel.WriteBuffer(data, size)) {
-            want = Want::Unmarshalling(wantParcel);
-            if (want) {
-                abilityMgr->StartAbility(*want);
-            }
-        }
+    // get token and connectCallback
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    if (!token) {
+        std::cout << "Get ability token failed." << std::endl;
+        return false;
+    }
 
-        // fuzz for abilitysetting
-        Parcel settingParcel;
-        AbilityStartSetting *setting = nullptr;
-        if (settingParcel.WriteBuffer(data, size)) {
-            setting = AbilityStartSetting::Unmarshalling(settingParcel);
-            if (want && setting) {
-                abilityMgr->StartAbility(*want, *setting, token);
-            }
-        }
-
-        // fuzz for startoptions
-        Parcel optionParcel;
-        StartOptions *options = nullptr;
-        if (optionParcel.WriteBuffer(data, size)) {
-            options = StartOptions::Unmarshalling(optionParcel);
-            if (want && options) {
-                abilityMgr->StartAbility(*want, *options, token);
-            }
-        }
-
+    // fuzz for want
+    Parcel wantParcel;
+    Want* want = nullptr;
+    if (wantParcel.WriteBuffer(data, size)) {
+        want = Want::Unmarshalling(wantParcel);
         if (want) {
-            delete want;
-            want = nullptr;
+            abilityMgr->StartAbility(*want);
         }
-        if (setting) {
-            delete setting;
-            setting = nullptr;
-        }
-        if (options) {
-            delete options;
-            options = nullptr;
-        }
-
-        return true;
     }
+
+    // fuzz for abilitysetting
+    Parcel settingParcel;
+    AbilityStartSetting* setting = nullptr;
+    if (settingParcel.WriteBuffer(data, size)) {
+        setting = AbilityStartSetting::Unmarshalling(settingParcel);
+        if (want && setting) {
+            abilityMgr->StartAbility(*want, *setting, token);
+        }
+    }
+
+    // fuzz for startoptions
+    Parcel optionParcel;
+    StartOptions* options = nullptr;
+    if (optionParcel.WriteBuffer(data, size)) {
+        options = StartOptions::Unmarshalling(optionParcel);
+        if (want && options) {
+            abilityMgr->StartAbility(*want, *options, token);
+        }
+    }
+
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
+    if (setting) {
+        delete setting;
+        setting = nullptr;
+    }
+    if (options) {
+        delete options;
+        options = nullptr;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -123,7 +123,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

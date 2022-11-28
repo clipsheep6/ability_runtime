@@ -65,7 +65,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for wantSenderInfo
     Parcel wantSenderInfoParcel;
-    WantSenderInfo *wantSenderInfo = nullptr;
+    WantSenderInfo* wantSenderInfo = nullptr;
     sptr<IWantSender> sender = nullptr;
     if (wantSenderInfoParcel.WriteBuffer(data, size)) {
         wantSenderInfo = WantSenderInfo::Unmarshalling(wantSenderInfoParcel);
@@ -76,7 +76,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for senderInfo
     Parcel senderInfoParcel;
-    SenderInfo *senderInfo = nullptr;
+    SenderInfo* senderInfo = nullptr;
     if (senderInfoParcel.WriteBuffer(data, size)) {
         senderInfo = SenderInfo::Unmarshalling(senderInfoParcel);
         if (sender && senderInfo) {
@@ -111,7 +111,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

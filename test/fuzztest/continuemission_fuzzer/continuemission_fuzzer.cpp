@@ -46,9 +46,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IRemoteObject> callback;
     // get want agentInfo
     Parcel paramsParcel;
-    WantParams *wantParams = nullptr;
+    WantParams* wantParams = nullptr;
     if (paramsParcel.WriteBuffer(data, size)) {
-        WantParams *wantParams = WantParams::Unmarshalling(paramsParcel);
+        WantParams* wantParams = WantParams::Unmarshalling(paramsParcel);
         if (wantParams) {
             abilitymgr->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
         }
@@ -77,7 +77,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

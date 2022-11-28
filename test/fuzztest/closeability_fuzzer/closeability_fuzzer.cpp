@@ -61,7 +61,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for want
     Parcel wantParcel;
-    Want *resultWant = nullptr;
+    Want* resultWant = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         resultWant = Want::Unmarshalling(wantParcel);
         if (resultWant) {
@@ -90,7 +90,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

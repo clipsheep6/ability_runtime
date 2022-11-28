@@ -35,14 +35,14 @@ public:
 
     ~AbilityContextTest() override = default;
 
-    void SetUp(const ::benchmark::State &state) override
+    void SetUp(const ::benchmark::State& state) override
     {
         sleep(1);
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         sleep(1);
     }
 
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
     }
 
@@ -56,7 +56,7 @@ protected:
 
 // StartAbility
 BENCHMARK_F(AbilityContextTest, StartAbilityTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         Want want;

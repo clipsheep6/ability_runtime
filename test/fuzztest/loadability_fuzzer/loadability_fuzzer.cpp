@@ -32,55 +32,55 @@ constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
 
-    sptr<Token> GetFuzzAbilityToken()
-    {
-        sptr<Token> token = nullptr;
-        AbilityRequest abilityRequest;
-        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-        abilityRequest.abilityInfo.name = "MainAbility";
-        abilityRequest.abilityInfo.type = AbilityType::DATA;
-        std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        if (abilityRecord) {
-            token = abilityRecord->GetToken();
-        }
-        return token;
+sptr<Token> GetFuzzAbilityToken()
+{
+    sptr<Token> token = nullptr;
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    if (abilityRecord) {
+        token = abilityRecord->GetToken();
+    }
+    return token;
+}
+
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    AppMgrClient* appMgrClient = new AppMgrClient();
+    if (!appMgrClient) {
+        return false;
     }
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        AppMgrClient* appMgrClient = new AppMgrClient();
-        if (!appMgrClient) {
-            return false;
-        }
-
-        sptr<IRemoteObject> token = GetFuzzAbilityToken();
-        if (!token) {
-            std::cout << "Get ability token failed." << std::endl;
-            return false;
-        }
-        sptr<IRemoteObject> preToken = GetFuzzAbilityToken();
-        if (!preToken) {
-            std::cout << "Get ability preToken failed." << std::endl;
-            return false;
-        }
-        AbilityInfo abilityInfo;
-        ApplicationInfo appInfo;
-
-        // fuzz for want
-        Parcel wantParcel;
-        Want* want = nullptr;
-        if (wantParcel.WriteBuffer(data, size)) {
-            want = Want::Unmarshalling(wantParcel);
-            if (want) {
-                appMgrClient->LoadAbility(token, preToken, abilityInfo, appInfo, *want);
-            }
-        }
-
-        delete appMgrClient;
-        appMgrClient = nullptr;
-
-        return true;
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    if (!token) {
+        std::cout << "Get ability token failed." << std::endl;
+        return false;
     }
+    sptr<IRemoteObject> preToken = GetFuzzAbilityToken();
+    if (!preToken) {
+        std::cout << "Get ability preToken failed." << std::endl;
+        return false;
+    }
+    AbilityInfo abilityInfo;
+    ApplicationInfo appInfo;
+
+    // fuzz for want
+    Parcel wantParcel;
+    Want* want = nullptr;
+    if (wantParcel.WriteBuffer(data, size)) {
+        want = Want::Unmarshalling(wantParcel);
+        if (want) {
+            appMgrClient->LoadAbility(token, preToken, abilityInfo, appInfo, *want);
+        }
+    }
+
+    delete appMgrClient;
+    appMgrClient = nullptr;
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -97,7 +97,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

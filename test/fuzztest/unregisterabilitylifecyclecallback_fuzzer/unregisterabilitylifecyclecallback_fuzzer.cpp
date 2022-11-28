@@ -35,19 +35,19 @@ class AbilityLifecycleCallbackFuzz : public AbilityLifecycleCallback {
 public:
     explicit AbilityLifecycleCallbackFuzz() {};
     virtual ~AbilityLifecycleCallbackFuzz() {};
-    void OnAbilityCreate(const std::shared_ptr<NativeReference> &ability) override {};
-    void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
-        const std::shared_ptr<NativeReference> &windowStage) override {};
-    void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
-        const std::shared_ptr<NativeReference> &windowStage) override {};
-    void OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,
-        const std::shared_ptr<NativeReference> &windowStage) override {};
-    void OnWindowStageInactive(const std::shared_ptr<NativeReference> &ability,
-        const std::shared_ptr<NativeReference> &windowStage) override {};
-    void OnAbilityDestroy(const std::shared_ptr<NativeReference> &ability) override {};
-    void OnAbilityForeground(const std::shared_ptr<NativeReference> &ability) override {};
-    void OnAbilityBackground(const std::shared_ptr<NativeReference> &ability) override {};
-    void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) override {};
+    void OnAbilityCreate(const std::shared_ptr<NativeReference>& ability) override {};
+    void OnWindowStageCreate(const std::shared_ptr<NativeReference>& ability,
+        const std::shared_ptr<NativeReference>& windowStage) override {};
+    void OnWindowStageDestroy(const std::shared_ptr<NativeReference>& ability,
+        const std::shared_ptr<NativeReference>& windowStage) override {};
+    void OnWindowStageActive(const std::shared_ptr<NativeReference>& ability,
+        const std::shared_ptr<NativeReference>& windowStage) override {};
+    void OnWindowStageInactive(const std::shared_ptr<NativeReference>& ability,
+        const std::shared_ptr<NativeReference>& windowStage) override {};
+    void OnAbilityDestroy(const std::shared_ptr<NativeReference>& ability) override {};
+    void OnAbilityForeground(const std::shared_ptr<NativeReference>& ability) override {};
+    void OnAbilityBackground(const std::shared_ptr<NativeReference>& ability) override {};
+    void OnAbilityContinue(const std::shared_ptr<NativeReference>& ability) override {};
 };
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
@@ -77,7 +77,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

@@ -31,47 +31,47 @@ namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 #endif
-    const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
+const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
 }
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-    {
-        int requestCode = 0;
-        WantAgentConstant::OperationType operationType = WantAgentConstant::OperationType::START_ABILITY;
-        WantAgentConstant::Flags flag = WantAgentConstant::Flags::ONE_TIME_FLAG;
-        std::shared_ptr<WantParams> extraInfo;
-        std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
-        std::vector<std::shared_ptr<AAFwk::Want>> wants;
-        wants.push_back(want);
-        int resultCode = 0;
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    int requestCode = 0;
+    WantAgentConstant::OperationType operationType = WantAgentConstant::OperationType::START_ABILITY;
+    WantAgentConstant::Flags flag = WantAgentConstant::Flags::ONE_TIME_FLAG;
+    std::shared_ptr<WantParams> extraInfo;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    wants.push_back(want);
+    int resultCode = 0;
 
-        // get want agentInfo
-        Parcel paramsParcel;
-        WantParams *params = nullptr;
-        if (paramsParcel.WriteBuffer(data, size)) {
-            WantParams *params = WantParams::Unmarshalling(paramsParcel);
-            if (params) {
-                extraInfo = std::make_shared<WantParams>(*params);
-            }
-        }
-
-        // get want agent
-        std::shared_ptr<WantAgentInfo> paramInfo;
-        WantAgentInfo wantAgentInfo(paramInfo);
-        WantAgentInfo agentInfo(requestCode, operationType, flag, wants, extraInfo);
-        std::shared_ptr<WantAgent> wantAgent = WantAgentHelper::GetWantAgent(agentInfo);
-        if (wantAgent) {
-            // trigger want agent
-            TriggerInfo triggerInfo(GET_BUNDLE_INFO_PERMISSION, extraInfo, want, resultCode);
-            WantAgentHelper::TriggerWantAgent(wantAgent, nullptr, triggerInfo);
-        }
-
+    // get want agentInfo
+    Parcel paramsParcel;
+    WantParams* params = nullptr;
+    if (paramsParcel.WriteBuffer(data, size)) {
+        WantParams* params = WantParams::Unmarshalling(paramsParcel);
         if (params) {
-            delete params;
-            params = nullptr;
+            extraInfo = std::make_shared<WantParams>(*params);
         }
-
-        return true;
     }
+
+    // get want agent
+    std::shared_ptr<WantAgentInfo> paramInfo;
+    WantAgentInfo wantAgentInfo(paramInfo);
+    WantAgentInfo agentInfo(requestCode, operationType, flag, wants, extraInfo);
+    std::shared_ptr<WantAgent> wantAgent = WantAgentHelper::GetWantAgent(agentInfo);
+    if (wantAgent) {
+        // trigger want agent
+        TriggerInfo triggerInfo(GET_BUNDLE_INFO_PERMISSION, extraInfo, want, resultCode);
+        WantAgentHelper::TriggerWantAgent(wantAgent, nullptr, triggerInfo);
+    }
+
+    if (params) {
+        delete params;
+        params = nullptr;
+    }
+
+    return true;
+}
 }
 
 /* Fuzzer entry point */
@@ -89,7 +89,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

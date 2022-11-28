@@ -113,7 +113,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appSpawnSocket.OpenAppSpawnConnection();
     int32_t len = appSpawnMsgWrapper.GetMsgLength();
     appSpawnSocket.WriteMessage(appSpawnMsgWrapper.GetMsgBuf(), len);
-    appSpawnSocket.ReadMessage(reinterpret_cast<void *>(*data), len);
+    appSpawnSocket.ReadMessage(reinterpret_cast<void*>(*data), len);
     appSpawnSocket.CloseAppSpawnConnection();
     RemoteClientManager remoteClientManager;
     sptr<IBundleMgr> bundleManager = nullptr;
@@ -146,7 +146,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

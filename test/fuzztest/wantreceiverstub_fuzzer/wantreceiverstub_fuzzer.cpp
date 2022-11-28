@@ -38,7 +38,7 @@ public:
     {}
     void Send(const int32_t resultCode) override
     {}
-    void PerformReceive(const Want &want, int resultCode, const std::string &data, const WantParams &extras,
+    void PerformReceive(const Want& want, int resultCode, const std::string& data, const WantParams& extras,
         bool serialized, bool sticky, int sendingUser) override
     {}
 };
@@ -82,7 +82,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

@@ -34,7 +34,7 @@ constexpr size_t U32_AT_SIZE = 4;
 class EnvironmentCallbackFuzz : public EnvironmentCallback {
 public:
     explicit EnvironmentCallbackFuzz() {};
-    void OnConfigurationUpdated(const AppExecFwk::Configuration &config) override {};
+    void OnConfigurationUpdated(const AppExecFwk::Configuration& config) override {};
     void OnMemoryLevel(const int level) override {};
 };
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
@@ -65,7 +65,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

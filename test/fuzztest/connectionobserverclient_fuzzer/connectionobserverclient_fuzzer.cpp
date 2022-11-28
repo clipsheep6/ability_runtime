@@ -41,13 +41,13 @@ class MyConnectionObserver : public ConnectionObserver {
 public:
     MyConnectionObserver() = default;
     virtual ~MyConnectionObserver() = default;
-    void OnExtensionConnected(const ConnectionData &data) override
+    void OnExtensionConnected(const ConnectionData& data) override
     {}
-    void OnExtensionDisconnected(const ConnectionData &data) override
+    void OnExtensionDisconnected(const ConnectionData& data) override
     {}
-    void OnDlpAbilityOpened(const DlpStateData &data) override
+    void OnDlpAbilityOpened(const DlpStateData& data) override
     {}
-    void OnDlpAbilityClosed(const DlpStateData &data) override
+    void OnDlpAbilityClosed(const DlpStateData& data) override
     {}
     void OnServiceDied() override
     {}
@@ -57,13 +57,13 @@ class MyAbilityConnectionObserver : public IConnectionObserver {
 public:
     MyAbilityConnectionObserver() = default;
     virtual ~MyAbilityConnectionObserver() = default;
-    void OnExtensionConnected(const ConnectionData &data) override
+    void OnExtensionConnected(const ConnectionData& data) override
     {}
-    void OnExtensionDisconnected(const ConnectionData &data) override
+    void OnExtensionDisconnected(const ConnectionData& data) override
     {}
-    void OnDlpAbilityOpened(const DlpStateData &data) override
+    void OnDlpAbilityOpened(const DlpStateData& data) override
     {}
-    void OnDlpAbilityClosed(const DlpStateData &data) override
+    void OnDlpAbilityClosed(const DlpStateData& data) override
     {}
     sptr<IRemoteObject> AsObject() override
     {
@@ -106,7 +106,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

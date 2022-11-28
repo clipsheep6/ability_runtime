@@ -36,13 +36,13 @@ public:
 
     ~AbilityManagerTest() override = default;
 
-    void SetUp(const ::benchmark::State &state) override
+    void SetUp(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
     }
 
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
@@ -57,10 +57,10 @@ protected:
 };
 
 BENCHMARK_F(AbilityManagerTest, GetProcessRunningInfosTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        std::vector<AppExecFwk::RunningProcessInfo> info {};
+        std::vector<AppExecFwk::RunningProcessInfo> info{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->GetProcessRunningInfos(info);
         if (errCode != ERR_OK) {
             state.SkipWithError("GetProcessRunningInfosTestCase failed.");
@@ -69,10 +69,10 @@ BENCHMARK_F(AbilityManagerTest, GetProcessRunningInfosTestCase)(
 }
 
 BENCHMARK_F(AbilityManagerTest, GetAbilityRunningInfosTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        std::vector<AbilityRunningInfo> info {};
+        std::vector<AbilityRunningInfo> info{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(info);
         if (errCode != ERR_OK) {
             state.SkipWithError("GetAbilityRunningInfosTestCase failed.");
@@ -81,10 +81,10 @@ BENCHMARK_F(AbilityManagerTest, GetAbilityRunningInfosTestCase)(
 }
 
 BENCHMARK_F(AbilityManagerTest, GetExtensionRunningInfosTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        std::vector<ExtensionRunningInfo> info {};
+        std::vector<ExtensionRunningInfo> info{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->GetExtensionRunningInfos(upperLimit, info);
         if (errCode != ERR_OK) {
             state.SkipWithError("GetExtensionRunningInfosTestCase failed.");

@@ -42,7 +42,7 @@ public:
     void OnMissionClosed(int32_t missionId) override {};
     void OnMissionLabelUpdated(int32_t missionId) override {};
 #ifdef SUPPORT_GRAPHICS
-    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon) override;
+    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap>& icon) override;
 #endif
 };
 class RemoteMissionListenerFuzz : public IRemoteMissionListener {
@@ -89,7 +89,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = (char*)malloc(size + 1);
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;
