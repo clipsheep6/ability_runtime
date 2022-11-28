@@ -222,4 +222,33 @@ HWTEST_F(TriggerInfoTest, TriggerInfo_0800, Function | MediumTest | Level1)
     EXPECT_EQ(info->want_->GetElement().GetAbilityName(), "abilityName");
     EXPECT_EQ(info->resultCode_, resultCode);
 }
+
+/*
+ * @tc.number    : TriggerInfo_0100
+ * @tc.name      : TriggerInfo Constructors
+ * @tc.desc      : 1.def Constructors
+ */
+HWTEST_F(TriggerInfoTest, TriggerInfo_operator_0100, Function | MediumTest | Level1)
+{
+    std::string permission = "nihao";
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    int resultCode = 10;
+    TriggerInfo triggerInfo1(permission, wParams, want, resultCode);
+    TriggerInfo triggerInfo2;
+    triggerInfo2 = triggerInfo1;
+    EXPECT_EQ(triggerInfo2.permission_, permission);
+    EXPECT_NE(triggerInfo2.extraInfo_, wParams);
+    EXPECT_EQ(Boolean::Unbox(IBoolean::Query(triggerInfo2.extraInfo_->GetParam(key))), value);
+    EXPECT_NE(triggerInfo2.want_, want);
+    EXPECT_EQ(triggerInfo2.want_->GetElement().GetBundleName(), "bundleName");
+    EXPECT_EQ(triggerInfo2.want_->GetElement().GetAbilityName(), "abilityName");
+    EXPECT_EQ(triggerInfo2.resultCode_, resultCode);
+}
+
 }  // namespace OHOS::AbilityRuntime::WantAgent
