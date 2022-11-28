@@ -5051,7 +5051,10 @@ NativeValue* JsNapiCommon::JsGetExternalCacheDir(NativeEngine &engine,
     auto complete = [obj = this, abilityType](NativeEngine &engine, AsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
             HILOG_ERROR("JsGetExternalCacheDir ability is nullptr");
-            task.RejectWithNull(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "JsGetExternalCacheDir Failed"));
+            task.RejectWithCustomize(
+                engine,
+                CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "JsGetExternalCacheDir Failed"),
+                engine.CreateNull());
             return;
         }
 

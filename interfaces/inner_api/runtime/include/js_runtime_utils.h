@@ -162,10 +162,6 @@ public:
     void Resolve(NativeEngine& engine, NativeValue* value);
     void Reject(NativeEngine& engine, NativeValue* error);
     void ResolveWithNoError(NativeEngine& engine, NativeValue* value);
-    void RejectWithMessage(NativeEngine& engine, NativeValue* error, NativeValue* messsage);
-    void ResolveWithErr(NativeEngine& engine, NativeValue* value);
-    void RejectWithNull(NativeEngine& engine, NativeValue* error);
-    void ResolveWithErrObject(NativeEngine& engine, NativeValue* errObject, NativeValue* value);
     void ResolveWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value);
     void RejectWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value);
 
