@@ -827,6 +827,13 @@ ErrCode AbilityManagerClient::StartAbilityByCall(
     return abms->StartAbilityByCall(want, connect, callToken);
 }
 
+void AbilityManagerClient::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    CHECK_REMOTE_OBJECT(remoteObject_);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    abms->CallRequestDone(token, callStub);
+}
+
 ErrCode AbilityManagerClient::ReleaseAbility(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {

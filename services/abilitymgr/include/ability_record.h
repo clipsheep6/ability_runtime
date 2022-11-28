@@ -779,7 +779,7 @@ public:
     bool IsNewVersion();
     void SetLaunchReason(const LaunchReason &reason);
     void SetLastExitReason(const LastExitReason &reason);
-    void ContinueAbility(const std::string& deviceId);
+    void ContinueAbility(const std::string &deviceId);
     void NotifyContinuationResult(int32_t result);
     std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
@@ -798,11 +798,12 @@ public:
 
     // new version
     ResolveResultType Resolve(const AbilityRequest &abilityRequest);
-    bool Release(const sptr<IAbilityConnection> & connect);
+    bool Release(const sptr<IAbilityConnection> &connect);
     bool IsNeedToCallRequest() const;
     bool IsStartedByCall() const;
     void SetStartedByCall(const bool isFlag);
-    bool CallRequest();
+    void CallRequest() const;
+    bool CallRequestDone(const sptr<IRemoteObject> &callStub) const;
     bool IsStartToBackground() const;
     void SetStartToBackground(const bool flag);
     void SetMinimizeReason(bool fromUser);

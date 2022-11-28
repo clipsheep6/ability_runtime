@@ -144,9 +144,9 @@ public:
     {}
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
     {}
-    virtual sptr<IRemoteObject> CallRequest() override
+    virtual void CallRequest() override
     {
-        return sptr<IRemoteObject>(this);
+        return;
     }
 };
 }  // namespace AAFwk

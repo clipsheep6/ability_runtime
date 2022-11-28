@@ -146,6 +146,7 @@ private:
 
 	// for new version ability (call ability)
     int StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply);
+    int CallRequestDoneInner(MessageParcel &data, MessageParcel &reply);
     int ReleaseInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);

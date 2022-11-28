@@ -596,6 +596,14 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
 
     /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    virtual void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) {};
+
+    /**
      * Called when client complete dump.
      *
      * @param infos The dump info.
@@ -984,6 +992,8 @@ public:
         START_CALL_ABILITY,
 
         RELEASE_CALL_ABILITY,
+
+        CALL_REQUEST_DONE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
