@@ -112,8 +112,9 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_002, TestSize.Level1)
     missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
     missionInfo.missionInfo.time = 'b';
     missionInfo.missionInfo.id = 1;
+    missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
     bool res = missionInfoMgr->AddMissionInfo(missionInfo);
-    EXPECT_FALSE(res);
+    EXPECT_TRUE(res);
 }
 
 /*
@@ -136,8 +137,9 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_003, TestSize.Level1)
     auto listIter = missionInfoMgr->missionInfoList_.begin();
     missionInfoMgr->missionInfoList_.insert(listIter, missionInfo2);
     missionInfo.missionInfo.id = 1;
+    missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
     bool res = missionInfoMgr->AddMissionInfo(missionInfo);
-    EXPECT_FALSE(res);
+    EXPECT_TRUE(res);
 }
 
 /*
