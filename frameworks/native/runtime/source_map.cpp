@@ -425,7 +425,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
     std::string filePath = BundleCodeDir + ABILITYPATH_FLAG + "sourceMaps.map";
     if (!ReadSourceMapData(filePath, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
-        return "";
+        return stackStr;
     }
     std::size_t s = 0;
     std::size_t j = 0;
@@ -573,6 +573,9 @@ std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> target
 ErrorPos ModSourceMap::GetErrorPos(const std::string& rawStack)
 {
     uint32_t lineEnd = rawStack.find("\n") - 1;
+    if (lineEnd < 1) {
+        return std::make_pair(0, 0);
+    }
     if (rawStack[lineEnd - 1] == '?') {
         return std::make_pair(0, 0);
     }

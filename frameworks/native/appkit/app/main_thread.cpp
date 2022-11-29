@@ -997,7 +997,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             HILOG_INFO("Js uncaught exception callback come.");
             auto appThread = weak.promote();
             if (appThread == nullptr) {
-                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
+                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failed.");
                 return;
             }
             NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
@@ -1012,6 +1012,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*
                 (appThread->application_->GetRuntime()))).GetSourceMap();
             // bindRuntime.bindSourceMaps lazy loading
+            if (errorStack.empty()) {
+                HILOG_ERROR("errorStack is empty");
+                return;
+            }
+            HILOG_INFO("JS Stack:\n%{public}s", errorStack.c_str());
             auto errorPos = ModSourceMap::GetErrorPos(errorStack);
             std::string error;
             if (obj != nullptr) {
@@ -1021,7 +1026,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             }
             summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
                 bindSourceMaps, BundleCodeDir);
-            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
