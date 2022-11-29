@@ -3240,11 +3240,17 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
     if (errorCode != NAPI_ERR_NO_ERROR) {
         asyncTask->Reject(engine, CreateJsError(engine, errorCode, ConvertErrorCode(errorCode)));
     }
-    CallbackInfo callbackInfo;
-    callbackInfo.engine = &engine;
-    callbackInfo.asyncTask = asyncTask;
-    AbilityProcess::GetInstance()->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
-
+    {
+        std::weak_ptr<AbilityProcess> abilityProcess_;
+        auto abilityProcess = abilityProcess_.lock();
+        if (errorCode != NAPI_ERR_NO_ERROR || abilityProcess == nullptr) {
+            asyncTask->Reject(engine, CreateJsError(engine, errorCode, ConvertErrorCode(errorCode)));
+        }
+        CallbackInfo callbackInfo;
+        callbackInfo.engine = &engine;
+        callbackInfo.asyncTask = asyncTask;
+        abilityProcess->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
+    }
     return result;
 }
 
