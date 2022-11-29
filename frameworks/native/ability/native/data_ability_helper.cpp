@@ -23,12 +23,12 @@
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::RdbDataAbilityAdapter;
-DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl)
+DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl>& helperImpl)
 {
     dataAbilityHelperImpl_ = helperImpl;
 }
 
-DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper)
+DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper)
 {
     dataShareHelper_ = dataShareHelper;
 }
@@ -40,10 +40,10 @@ DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareH
  *
  * @return Returns the created DataAbilityHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> &context)
+std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context>& context)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context.");
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
@@ -60,7 +60,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
  * @return Returns the created DataAbilityHelper instance with a specified Uri.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<Context>& context, const std::shared_ptr<Uri>& uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri.");
     if (!context || !uri) {
@@ -77,7 +77,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
         return nullptr;
     }
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
     if (dataShareHelper) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
@@ -94,7 +94,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance with a specified Uri.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context>& context, const std::shared_ptr<Uri>& uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri.");
     if (!context || !uri) {
@@ -112,7 +112,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
         return nullptr;
     }
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataShareHelper = DataShare::DataShareHelper::Creator(context->GetToken(), dataShareUri.ToString());
     if (dataShareHelper) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
@@ -133,10 +133,10 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<Context>& context, const std::shared_ptr<Uri>& uri, const bool tryBind)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri & tryBind.");
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
@@ -157,10 +157,10 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context>& context, const std::shared_ptr<Uri>& uri, const bool tryBind)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri & tryBind.");
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
@@ -175,10 +175,10 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  *
  * @return Returns the created DataAbilityHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> &token)
+std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with token.");
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
@@ -197,14 +197,14 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
+    const sptr<IRemoteObject>& token, const std::shared_ptr<Uri>& uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with token & uri.");
     if (!token || !uri) {
         HILOG_ERROR("Input param invalid, token or uri is nullptr.");
         return nullptr;
     }
-    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    DataAbilityHelper* ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token, uri);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
@@ -253,7 +253,7 @@ bool DataAbilityHelper::Release()
  *
  * @return Returns the matched MIME types. If there is no match, null is returned.
  */
-std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri& uri, const std::string& mimeTypeFilter)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("GetFileTypes called.");
@@ -285,7 +285,7 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
  *
  * @return Returns the file descriptor.
  */
-int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
+int DataAbilityHelper::OpenFile(Uri& uri, const std::string& mode)
 {
     HILOG_INFO("OpenFile Called.");
     int fd = -1;
@@ -321,7 +321,7 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
  *
  * @return Returns the RawFileDescriptor object containing file descriptor.
  */
-int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
+int DataAbilityHelper::OpenRawFile(Uri& uri, const std::string& mode)
 {
     HILOG_INFO("OpenRawFile called.");
     int fd = -1;
@@ -349,7 +349,7 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
  *
  * @return Returns the index of the inserted data record.
  */
-int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
+int DataAbilityHelper::Insert(Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Insert called.");
@@ -372,7 +372,7 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 }
 
 std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
 {
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
     HILOG_INFO("Call called.");
@@ -397,7 +397,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
  * @return Returns the number of data records updated.
  */
 int DataAbilityHelper::Update(
-    Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Update called.");
@@ -428,7 +428,7 @@ int DataAbilityHelper::Update(
  *
  * @return Returns the number of data records deleted.
  */
-int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int DataAbilityHelper::Delete(Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Delete called.");
@@ -460,7 +460,7 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
  * @return Returns the query result.
  */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
-    Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Query called.");
@@ -495,7 +495,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
  *
  * @return Returns the MIME type that matches the data specified by uri.
  */
-std::string DataAbilityHelper::GetType(Uri &uri)
+std::string DataAbilityHelper::GetType(Uri& uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("GetType called.");
@@ -526,7 +526,7 @@ std::string DataAbilityHelper::GetType(Uri &uri)
  *
  * @return Returns true if the data is successfully reloaded; returns false otherwise.
  */
-bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
+bool DataAbilityHelper::Reload(Uri& uri, const PacMap& extras)
 {
     HILOG_INFO("Reload called.");
     bool ret = false;
@@ -549,7 +549,7 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
  *
  * @return Returns the number of data records inserted.
  */
-int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int DataAbilityHelper::BatchInsert(Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("BatchInsert called.");
@@ -581,7 +581,7 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+void DataAbilityHelper::RegisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
     HILOG_INFO("RegisterObserver called.");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
@@ -605,7 +605,7 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+void DataAbilityHelper::UnregisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
     HILOG_INFO("UnregisterObserver called.");
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
@@ -628,7 +628,7 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
  *
  * @param uri, Indicates the path of the data to operate.
  */
-void DataAbilityHelper::NotifyChange(const Uri &uri)
+void DataAbilityHelper::NotifyChange(const Uri& uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("NotifyChange called.");
@@ -659,7 +659,7 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
  *
  * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
  */
-Uri DataAbilityHelper::NormalizeUri(Uri &uri)
+Uri DataAbilityHelper::NormalizeUri(Uri& uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("NormalizeUri called.");
@@ -690,7 +690,7 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
  * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
  * current environment.
  */
-Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
+Uri DataAbilityHelper::DenormalizeUri(Uri& uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("DenormalizeUri called.");
@@ -712,7 +712,7 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
 }
 
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
-    const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
+    const Uri& uri, const std::vector<std::shared_ptr<DataAbilityOperation>>& operations)
 {
     HILOG_INFO("ExecuteBatch called.");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
@@ -727,7 +727,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
     return results;
 }
 
-bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
+bool DataAbilityHelper::TransferScheme(const Uri& uri, Uri& dataShareUri)
 {
     const std::string dataAbilityScheme = "dataability";
     const std::string dataShareScheme = "datashare";

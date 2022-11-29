@@ -20,8 +20,8 @@
 namespace OHOS {
 namespace AppExecFwk {
 ReverseContinuationSchedulerPrimary::ReverseContinuationSchedulerPrimary(
-    const std::weak_ptr<IReverseContinuationSchedulerPrimaryHandler> &continuationHandler,
-    const std::shared_ptr<AbilityHandler> &mainHandler)
+    const std::weak_ptr<IReverseContinuationSchedulerPrimaryHandler>& continuationHandler,
+    const std::shared_ptr<AbilityHandler>& mainHandler)
     : continuationHandler_(continuationHandler), mainHandler_(mainHandler)
 {}
 
@@ -54,7 +54,7 @@ void ReverseContinuationSchedulerPrimary::NotifyReplicaTerminated()
  * @param want Contains data to be restore.
  * @return True if success, otherwise false.
  */
-bool ReverseContinuationSchedulerPrimary::ContinuationBack(const AAFwk::Want &want)
+bool ReverseContinuationSchedulerPrimary::ContinuationBack(const AAFwk::Want& want)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerPrimary = this, want]() {
@@ -89,7 +89,7 @@ void ReverseContinuationSchedulerPrimary::HandlerNotifyReplicaTerminated()
     HILOG_INFO("%{public}s called end", __func__);
 }
 
-void ReverseContinuationSchedulerPrimary::HandlerContinuationBack(const AAFwk::Want &want)
+void ReverseContinuationSchedulerPrimary::HandlerContinuationBack(const AAFwk::Want& want)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;

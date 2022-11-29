@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 ReverseContinuationSchedulerPrimaryProxy::ReverseContinuationSchedulerPrimaryProxy(
-    const sptr<IRemoteObject> &remoteObject)
+    const sptr<IRemoteObject>& remoteObject)
     : IRemoteProxy<IReverseContinuationSchedulerPrimary>(remoteObject)
 {}
 
@@ -56,7 +56,7 @@ void ReverseContinuationSchedulerPrimaryProxy::NotifyReplicaTerminated()
  * @param want Contains data to be restore.
  * @return True if success, otherwise false.
  */
-bool ReverseContinuationSchedulerPrimaryProxy::ContinuationBack(const AAFwk::Want &want)
+bool ReverseContinuationSchedulerPrimaryProxy::ContinuationBack(const AAFwk::Want& want)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel data;

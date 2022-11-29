@@ -34,8 +34,8 @@ namespace AppExecFwk {
 std::string SchemeOhos = "dataability";
 using IAbilityScheduler = OHOS::AAFwk::IAbilityScheduler;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
-DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
-    const sptr<IAbilityScheduler> &dataAbilityProxy, bool tryBind)
+DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<Context>& context, const std::shared_ptr<Uri>& uri,
+    const sptr<IAbilityScheduler>& dataAbilityProxy, bool tryBind)
 {
     token_ = context->GetToken();
     context_ = std::weak_ptr<Context>(context);
@@ -44,8 +44,8 @@ DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<Context> &con
     dataAbilityProxy_ = dataAbilityProxy;
 }
 
-DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-    const std::shared_ptr<Uri> &uri, const sptr<IAbilityScheduler> &dataAbilityProxy, bool tryBind)
+DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<OHOS::AbilityRuntime::Context>& context,
+    const std::shared_ptr<Uri>& uri, const sptr<IAbilityScheduler>& dataAbilityProxy, bool tryBind)
 {
     token_ = context->GetToken();
     uri_ = uri;
@@ -53,14 +53,14 @@ DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<OHOS::Ability
     dataAbilityProxy_ = dataAbilityProxy;
 }
 
-DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<Context> &context)
+DataAbilityHelperImpl::DataAbilityHelperImpl(const std::shared_ptr<Context>& context)
 {
     token_ = context->GetToken();
     context_ = std::weak_ptr<Context>(context);
 }
 
-DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri,
-    const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy)
+DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<Uri>& uri,
+    const sptr<AAFwk::IAbilityScheduler>& dataAbilityProxy)
 {
     token_ = token;
     uri_ = uri;
@@ -69,13 +69,13 @@ DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject> &token, c
     isSystemCaller_ = true;
 }
 
-DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject> &token)
+DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject>& token)
 {
     token_ = token;
     isSystemCaller_ = true;
 }
 
-void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &token)
+void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObject>& token)
 {
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
         HILOG_INFO("Remove death recipient.");
@@ -84,12 +84,12 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
     if (callerDeathRecipient_ == nullptr) {
         std::weak_ptr<DataAbilityHelperImpl> thisWeakPtr(shared_from_this());
         callerDeathRecipient_ =
-            new DataAbilityDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
-                auto DataAbilityHelperImpl = thisWeakPtr.lock();
-                if (DataAbilityHelperImpl) {
-                    DataAbilityHelperImpl->OnSchedulerDied(remote);
-                }
-            });
+            new DataAbilityDeathRecipient([thisWeakPtr](const wptr<IRemoteObject>& remote) {
+            auto DataAbilityHelperImpl = thisWeakPtr.lock();
+            if (DataAbilityHelperImpl) {
+                DataAbilityHelperImpl->OnSchedulerDied(remote);
+            }
+                });
     }
     if (token != nullptr) {
         HILOG_INFO("Add death recipient.");
@@ -97,7 +97,7 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
     }
 }
 
-void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject> &remote)
+void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject>& remote)
 {
     HILOG_INFO("On scheduler died.");
     std::lock_guard<std::mutex> guard(lock_);
@@ -114,7 +114,7 @@ void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject> &remote)
  *
  * @return Returns the created DataAbilityHelperImpl instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const std::shared_ptr<Context> &context)
+std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const std::shared_ptr<Context>& context)
 {
     if (context == nullptr) {
         HILOG_ERROR("Input param invalid, context is nullptr.");
@@ -143,7 +143,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const std:
  * @return Returns the created DataAbilityHelperImpl instance.
  */
 std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<Context>& context, const std::shared_ptr<Uri>& uri, const bool tryBind)
 {
     if (context == nullptr) {
         HILOG_ERROR("Input param invalid, context is nullptr.");
@@ -184,7 +184,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
  * @return Returns the created DataAbilityHelperImpl instance.
  */
 std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context>& context, const std::shared_ptr<Uri>& uri, const bool tryBind)
 {
     if (context == nullptr) {
         HILOG_ERROR("Input param invalid, context is nullptr.");
@@ -219,7 +219,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
  *
  * @return Returns the created DataAbilityHelperImpl instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const sptr<IRemoteObject> &token)
+std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         HILOG_ERROR("Input param invalid, token is nullptr.");
@@ -246,7 +246,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const sptr
  * @return Returns the created DataAbilityHelperImpl instance.
  */
 std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
+    const sptr<IRemoteObject>& token, const std::shared_ptr<Uri>& uri)
 {
     if (token == nullptr) {
         HILOG_ERROR("Input param invalid, token is nullptr.");
@@ -304,7 +304,7 @@ bool DataAbilityHelperImpl::Release()
  *
  * @return Returns the matched MIME types. If there is no match, null is returned.
  */
-std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri& uri, const std::string& mimeTypeFilter)
 {
     std::vector<std::string> matchedMIMEs;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -331,7 +331,7 @@ std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri &uri, const std
  *
  * @return Returns the file descriptor.
  */
-int DataAbilityHelperImpl::OpenFile(Uri &uri, const std::string &mode)
+int DataAbilityHelperImpl::OpenFile(Uri& uri, const std::string& mode)
 {
     int fd = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -359,7 +359,7 @@ int DataAbilityHelperImpl::OpenFile(Uri &uri, const std::string &mode)
  *
  * @return Returns the RawFileDescriptor object containing file descriptor.
  */
-int DataAbilityHelperImpl::OpenRawFile(Uri &uri, const std::string &mode)
+int DataAbilityHelperImpl::OpenRawFile(Uri& uri, const std::string& mode)
 {
     int fd = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -383,7 +383,7 @@ int DataAbilityHelperImpl::OpenRawFile(Uri &uri, const std::string &mode)
  *
  * @return Returns the index of the inserted data record.
  */
-int DataAbilityHelperImpl::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
+int DataAbilityHelperImpl::Insert(Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -400,7 +400,7 @@ int DataAbilityHelperImpl::Insert(Uri &uri, const NativeRdb::ValuesBucket &value
 }
 
 std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelperImpl::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
 {
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -426,7 +426,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelperImpl::Call(
  * @return Returns the number of data records updated.
  */
 int DataAbilityHelperImpl::Update(
-    Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -450,7 +450,7 @@ int DataAbilityHelperImpl::Update(
  *
  * @return Returns the number of data records deleted.
  */
-int DataAbilityHelperImpl::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int DataAbilityHelperImpl::Delete(Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -476,7 +476,7 @@ int DataAbilityHelperImpl::Delete(Uri &uri, const NativeRdb::DataAbilityPredicat
  * @return Returns the query result.
  */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
-    Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -500,7 +500,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
  *
  * @return Returns the MIME type that matches the data specified by uri.
  */
-std::string DataAbilityHelperImpl::GetType(Uri &uri)
+std::string DataAbilityHelperImpl::GetType(Uri& uri)
 {
     std::string type;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -526,7 +526,7 @@ std::string DataAbilityHelperImpl::GetType(Uri &uri)
  *
  * @return Returns true if the data is successfully reloaded; returns false otherwise.
  */
-bool DataAbilityHelperImpl::Reload(Uri &uri, const PacMap &extras)
+bool DataAbilityHelperImpl::Reload(Uri& uri, const PacMap& extras)
 {
     bool ret = false;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -550,7 +550,7 @@ bool DataAbilityHelperImpl::Reload(Uri &uri, const PacMap &extras)
  *
  * @return Returns the number of data records inserted.
  */
-int DataAbilityHelperImpl::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int DataAbilityHelperImpl::BatchInsert(Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     int ret = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -566,7 +566,7 @@ int DataAbilityHelperImpl::BatchInsert(Uri &uri, const std::vector<NativeRdb::Va
     return ret;
 }
 
-bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
+bool DataAbilityHelperImpl::CheckUriParam(const Uri& uri)
 {
     Uri checkUri(uri.ToString());
     if (!CheckOhosUri(checkUri)) {
@@ -601,7 +601,7 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
     return true;
 }
 
-bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
+bool DataAbilityHelperImpl::CheckOhosUri(const Uri& uri)
 {
     Uri checkUri(uri.ToString());
     if (checkUri.GetScheme() != SchemeOhos) {
@@ -630,7 +630,7 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+void DataAbilityHelperImpl::RegisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
         HILOG_ERROR("RegisterObserver param is invalid.");
@@ -677,7 +677,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+void DataAbilityHelperImpl::UnregisterObserver(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
         HILOG_ERROR("UnregisterObserver param is invalid.");
@@ -724,7 +724,7 @@ void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
  *
  * @param uri, Indicates the path of the data to operate.
  */
-void DataAbilityHelperImpl::NotifyChange(const Uri &uri)
+void DataAbilityHelperImpl::NotifyChange(const Uri& uri)
 {
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
@@ -748,7 +748,7 @@ void DataAbilityHelperImpl::NotifyChange(const Uri &uri)
  *
  * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
  */
-Uri DataAbilityHelperImpl::NormalizeUri(Uri &uri)
+Uri DataAbilityHelperImpl::NormalizeUri(Uri& uri)
 {
     Uri urivalue("");
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -774,7 +774,7 @@ Uri DataAbilityHelperImpl::NormalizeUri(Uri &uri)
  * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
  * current environment.
  */
-Uri DataAbilityHelperImpl::DenormalizeUri(Uri &uri)
+Uri DataAbilityHelperImpl::DenormalizeUri(Uri& uri)
 {
     Uri urivalue("");
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
@@ -791,7 +791,7 @@ Uri DataAbilityHelperImpl::DenormalizeUri(Uri &uri)
 }
 
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelperImpl::ExecuteBatch(
-    const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
+    const Uri& uri, const std::vector<std::shared_ptr<DataAbilityOperation>>& operations)
 {
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri, false);
@@ -808,7 +808,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelperImpl::ExecuteBa
 }
 
 
-void DataAbilityHelperImpl::ReportEventToSuspendManager(const std::string &uriString) const
+void DataAbilityHelperImpl::ReportEventToSuspendManager(const std::string& uriString) const
 {
 #ifdef EFFICIENCY_MANAGER_ENABLE
     OHOS::SuspendManager::AppInfo appInfo(-1, -1, uriString, "", "THAW_BY_START_NOT_PAGE_ABILITY");
@@ -816,7 +816,7 @@ void DataAbilityHelperImpl::ReportEventToSuspendManager(const std::string &uriSt
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
-sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const Uri &uri, bool addDeathRecipient)
+sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const Uri& uri, bool addDeathRecipient)
 {
     if (!CheckUriParam(uri)) {
         HILOG_ERROR("Check uri param failed.");
@@ -852,7 +852,7 @@ void DataAbilityHelperImpl::ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> da
     HILOG_INFO("ReleaseDataAbility end.");
 }
 
-bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
+bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri>& uri)
 {
     if (uri == nullptr) {
         HILOG_ERROR("Input param invalid, uri is nullptr.");
@@ -867,8 +867,8 @@ bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
     return true;
 }
 
-bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
-    const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri& uri,
+    const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
     if (!CheckUriParam(uri)) {
         HILOG_ERROR("Check uri param failed.");
@@ -883,7 +883,7 @@ bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
     return true;
 }
 
-void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     HILOG_INFO("recv DataAbilityDeathRecipient death notice.");
     if (handler_) {

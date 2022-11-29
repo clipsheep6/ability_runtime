@@ -46,8 +46,8 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     SetProperty(engine, object, hapModuleInfo.reqCapabilities, "reqCapabilities");
     SetProperty(engine, object, hapModuleInfo.deviceTypes, "deviceTypes");
 
-    NativeValue *abilityArrayValue = engine.CreateArray(hapModuleInfo.abilityInfos.size());
-    NativeArray *abilityArray = ConvertNativeValueTo<NativeArray>(abilityArrayValue);
+    NativeValue* abilityArrayValue = engine.CreateArray(hapModuleInfo.abilityInfos.size());
+    NativeArray* abilityArray = ConvertNativeValueTo<NativeArray>(abilityArrayValue);
     if (abilityArray != nullptr) {
         int index = 0;
         for (auto abilityInfo : hapModuleInfo.abilityInfos) {
@@ -56,8 +56,8 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     }
     object->SetProperty("abilityInfo", abilityArrayValue);
 
-    NativeValue *extensionArrayValue = engine.CreateArray(hapModuleInfo.extensionInfos.size());
-    NativeArray *extensionArray = ConvertNativeValueTo<NativeArray>(extensionArrayValue);
+    NativeValue* extensionArrayValue = engine.CreateArray(hapModuleInfo.extensionInfos.size());
+    NativeArray* extensionArray = ConvertNativeValueTo<NativeArray>(extensionArrayValue);
     if (extensionArray != nullptr) {
         int index = 0;
         for (auto extensionInfo : hapModuleInfo.extensionInfos) {
@@ -66,8 +66,8 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     }
     object->SetProperty("extensionAbilityInfo", extensionArrayValue);
 
-    NativeValue *metadataArrayValue = engine.CreateArray(hapModuleInfo.metadata.size());
-    NativeArray *metadataArray = ConvertNativeValueTo<NativeArray>(metadataArrayValue);
+    NativeValue* metadataArrayValue = engine.CreateArray(hapModuleInfo.metadata.size());
+    NativeArray* metadataArray = ConvertNativeValueTo<NativeArray>(metadataArrayValue);
     if (metadataArray != nullptr) {
         int index = 0;
         for (auto metadata : hapModuleInfo.metadata) {
@@ -79,11 +79,11 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     return objValue;
 }
 
-void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> &properties,
-    const std::string &proName)
+void SetProperty(NativeEngine& engine, NativeObject*& object, const std::vector<std::string>& properties,
+    const std::string& proName)
 {
-    NativeValue *arrayValue = engine.CreateArray(properties.size());
-    NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    NativeValue* arrayValue = engine.CreateArray(properties.size());
+    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
     if (array != nullptr) {
         int index = 0;
         for (auto property : properties) {

@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void ReverseContinuationSchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+void ReverseContinuationSchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     if (handler_) {
         handler_(remote);

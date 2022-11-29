@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 FormJsEventHandler::FormJsEventHandler(
-    const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<Ability> &ability, const FormJsInfo &formJsInfo)
+    const std::shared_ptr<EventRunner>& runner, const std::shared_ptr<Ability>& ability, const FormJsInfo& formJsInfo)
     : EventHandler(runner), formJsInfo_(formJsInfo), ability_(ability)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -34,7 +34,7 @@ FormJsEventHandler::FormJsEventHandler(
  *
  * @param event The event should be processed.
  */
-void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
+void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer& event)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (!event) {
@@ -67,7 +67,7 @@ void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
  * @brief Process js router event.
  * @param want Indicates the event to be processed.
  */
-void FormJsEventHandler::ProcessRouterEvent(Want &want)
+void FormJsEventHandler::ProcessRouterEvent(Want& want)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
@@ -89,7 +89,7 @@ void FormJsEventHandler::ProcessRouterEvent(Want &want)
  * @brief Process js message event.
  * @param want Indicates the event to be processed.
  */
-void FormJsEventHandler::ProcessMessageEvent(const Want &want)
+void FormJsEventHandler::ProcessMessageEvent(const Want& want)
 {
     HILOG_INFO("%{public}s called.", __func__);
 

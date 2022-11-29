@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 DataAbilityOperation::DataAbilityOperation(
-    const std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, const std::shared_ptr<Uri> &withUri)
+    const std::shared_ptr<DataAbilityOperation>& dataAbilityOperation, const std::shared_ptr<Uri>& withUri)
 {
     uri_ = withUri;
     if (dataAbilityOperation != nullptr) {
@@ -43,11 +43,11 @@ DataAbilityOperation::DataAbilityOperation(
         interrupted_ = false;
     }
 }
-DataAbilityOperation::DataAbilityOperation(Parcel &in)
+DataAbilityOperation::DataAbilityOperation(Parcel& in)
 {
     ReadFromParcel(in);
 }
-DataAbilityOperation::DataAbilityOperation(const std::shared_ptr<DataAbilityOperationBuilder> &builder)
+DataAbilityOperation::DataAbilityOperation(const std::shared_ptr<DataAbilityOperationBuilder>& builder)
 {
     if (builder != nullptr) {
         type_ = builder->type_;
@@ -78,7 +78,7 @@ DataAbilityOperation::~DataAbilityOperation()
     dataAbilityPredicatesBackReferences_.clear();
 }
 
-bool DataAbilityOperation::operator==(const DataAbilityOperation &other) const
+bool DataAbilityOperation::operator==(const DataAbilityOperation& other) const
 {
     if (type_ != other.type_) {
         return false;
@@ -123,7 +123,7 @@ bool DataAbilityOperation::operator==(const DataAbilityOperation &other) const
     return true;
 }
 
-DataAbilityOperation &DataAbilityOperation::operator=(const DataAbilityOperation &other)
+DataAbilityOperation& DataAbilityOperation::operator=(const DataAbilityOperation& other)
 {
     if (this != &other) {
         type_ = other.type_;
@@ -138,7 +138,7 @@ DataAbilityOperation &DataAbilityOperation::operator=(const DataAbilityOperation
     return *this;
 }
 
-std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewInsertBuilder(const std::shared_ptr<Uri> &uri)
+std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewInsertBuilder(const std::shared_ptr<Uri>& uri)
 {
     HILOG_DEBUG("DataAbilityOperation::NewInsertBuilder start");
     if (uri == nullptr) {
@@ -151,7 +151,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewInsertBuil
     return builder;
 }
 
-std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewUpdateBuilder(const std::shared_ptr<Uri> &uri)
+std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewUpdateBuilder(const std::shared_ptr<Uri>& uri)
 {
     HILOG_DEBUG("DataAbilityOperation::NewUpdateBuilder start");
     if (uri == nullptr) {
@@ -164,7 +164,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewUpdateBuil
     return builder;
 }
 
-std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewDeleteBuilder(const std::shared_ptr<Uri> &uri)
+std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewDeleteBuilder(const std::shared_ptr<Uri>& uri)
 {
     HILOG_DEBUG("DataAbilityOperation::NewDeleteBuilder start");
     if (uri == nullptr) {
@@ -177,7 +177,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewDeleteBuil
     return builder;
 }
 
-std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewAssertBuilder(const std::shared_ptr<Uri> &uri)
+std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewAssertBuilder(const std::shared_ptr<Uri>& uri)
 {
     HILOG_DEBUG("DataAbilityOperation::NewAssertBuilder start");
     if (uri == nullptr) {
@@ -255,7 +255,7 @@ bool DataAbilityOperation::IsInterruptionAllowed() const
     HILOG_DEBUG("DataAbilityOperation::IsInterruptionAllowed: %{public}d", interrupted_);
     return interrupted_;
 }
-bool DataAbilityOperation::Marshalling(Parcel &out) const
+bool DataAbilityOperation::Marshalling(Parcel& out) const
 {
     HILOG_DEBUG("DataAbilityOperation::Marshalling start");
     if (!out.WriteInt32(type_)) {
@@ -347,7 +347,7 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             return true;
         }
         for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
-             it++) {
+            it++) {
             if (!out.WriteInt32(it->first)) {
                 HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
                 return false;
@@ -368,10 +368,10 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
     HILOG_DEBUG("DataAbilityOperation::Marshalling end");
     return true;
 }
-DataAbilityOperation *DataAbilityOperation::Unmarshalling(Parcel &in)
+DataAbilityOperation* DataAbilityOperation::Unmarshalling(Parcel& in)
 {
     HILOG_DEBUG("DataAbilityOperation::Unmarshalling start");
-    DataAbilityOperation *dataAbilityOperation = new (std::nothrow) DataAbilityOperation();
+    DataAbilityOperation* dataAbilityOperation = new (std::nothrow) DataAbilityOperation();
     if (dataAbilityOperation != nullptr && !dataAbilityOperation->ReadFromParcel(in)) {
         HILOG_ERROR("DataAbilityOperation::Unmarshalling dataAbilityOperation error");
         delete dataAbilityOperation;
@@ -380,7 +380,7 @@ DataAbilityOperation *DataAbilityOperation::Unmarshalling(Parcel &in)
     HILOG_DEBUG("DataAbilityOperation::Unmarshalling end");
     return dataAbilityOperation;
 }
-bool DataAbilityOperation::ReadFromParcel(Parcel &in)
+bool DataAbilityOperation::ReadFromParcel(Parcel& in)
 {
     HILOG_DEBUG("DataAbilityOperation::ReadFromParcel start");
     if (!in.ReadInt32(type_)) {
@@ -471,14 +471,14 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
     HILOG_DEBUG("DataAbilityOperation::ReadFromParcel end");
     return true;
 }
-std::shared_ptr<DataAbilityOperation> DataAbilityOperation::CreateFromParcel(Parcel &in)
+std::shared_ptr<DataAbilityOperation> DataAbilityOperation::CreateFromParcel(Parcel& in)
 {
     HILOG_DEBUG("DataAbilityOperation::CreateFromParcel start");
     std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>(in);
     HILOG_DEBUG("DataAbilityOperation::CreateFromParcel end");
     return operation;
 }
-void DataAbilityOperation::PutMap(Parcel &in)
+void DataAbilityOperation::PutMap(Parcel& in)
 {
     HILOG_DEBUG("DataAbilityOperation::PutMap start");
     int count = in.ReadInt32();

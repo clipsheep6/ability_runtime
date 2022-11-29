@@ -31,8 +31,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 
-int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo& formJsInfo, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
@@ -64,8 +64,8 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo& formJsInfo,
+    const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     Want connectWant(want);
@@ -113,8 +113,8 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
  * @param callerToken Caller form extension token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -132,8 +132,8 @@ int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Wa
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -164,8 +164,8 @@ void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId
  * @param callerToken Caller form extension token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &formIds, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t>& formIds, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -183,8 +183,8 @@ int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &f
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<int64_t> &formIds,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<int64_t>& formIds,
+    const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -210,8 +210,8 @@ void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<i
  * @param callerToken Caller form extension token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -229,8 +229,8 @@ int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Wa
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -257,8 +257,8 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
  * @param callerToken Caller form extension token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds, const int32_t formVisibleType,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::EventNotify(const std::vector<int64_t>& formIds, const int32_t formVisibleType,
+    const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -276,8 +276,8 @@ int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t> &formIds,
-    const int32_t formVisibleType, const Want &want, const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t>& formIds,
+    const int32_t formVisibleType, const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -287,7 +287,7 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         std::map<int64_t, int32_t> formEventsMap;
-        for (const auto &formId : formIds) {
+        for (const auto& formId : formIds) {
             formEventsMap.insert(std::make_pair(formId, formVisibleType));
         }
         ownerFormExtension->OnVisibilityChange(formEventsMap);
@@ -304,8 +304,8 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
  * @param callerToken Caller form extension token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -323,8 +323,8 @@ int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, co
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t formId, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -348,8 +348,8 @@ void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t 
  * @param callerToken Form provider proxy object.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::string &message,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::string& message,
+    const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -367,8 +367,8 @@ int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, const std::string &message,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, const std::string& message,
+    const Want& want, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     int errorCode = ERR_OK;
@@ -394,8 +394,8 @@ void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, c
  * @param callerToken Form provider proxy object.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
-                                              const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::AcquireState(const Want& wantArg, const std::string& provider, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
@@ -413,9 +413,9 @@ int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::st
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider,
-                                                                  const Want &want,
-                                                                  const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want& wantArg, const std::string& provider,
+    const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     FormState state = FormState::UNKNOWN;
@@ -478,8 +478,8 @@ std::shared_ptr<FormExtension> FormExtensionProviderClient::GetOwner()
     return owner;
 }
 
-int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     // The error code for disconnect.
     int disconnectErrorCode = FormProviderClient::HandleDisconnect(want, callerToken);
@@ -495,8 +495,8 @@ int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &wan
     }
 }
 
-std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want& want,
+    const sptr<IRemoteObject>& callerToken)
 {
     if (IsCallBySelfBundle()) {
         return std::pair<ErrCode, ErrCode>(ERR_OK, ERR_OK);
@@ -515,8 +515,8 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
     return std::pair<ErrCode, ErrCode>(ERR_OK, ERR_OK);
 }
 
-int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const std::string &remoteDeviceId,
-    const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
+int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const std::string& remoteDeviceId,
+    const sptr<IRemoteObject>& formSupplyCallback, int64_t requestCode)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 
@@ -544,7 +544,7 @@ int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const 
 }
 
 bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
-    int64_t formId, AAFwk::WantParams &wantParams)
+    int64_t formId, AAFwk::WantParams& wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();

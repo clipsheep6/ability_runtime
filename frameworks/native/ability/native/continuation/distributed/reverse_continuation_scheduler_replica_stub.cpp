@@ -31,7 +31,7 @@ ReverseContinuationSchedulerReplicaStub::~ReverseContinuationSchedulerReplicaStu
 {
     continuationFuncMap_.clear();
 }
-int32_t ReverseContinuationSchedulerReplicaStub::PassPrimaryInner(MessageParcel &data, MessageParcel &reply)
+int32_t ReverseContinuationSchedulerReplicaStub::PassPrimaryInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     sptr<IRemoteObject> primary = nullptr;
@@ -42,14 +42,14 @@ int32_t ReverseContinuationSchedulerReplicaStub::PassPrimaryInner(MessageParcel 
     HILOG_INFO("%{public}s called end", __func__);
     return NO_ERROR;
 }
-int32_t ReverseContinuationSchedulerReplicaStub::ReverseContinuationInner(MessageParcel &data, MessageParcel &reply)
+int32_t ReverseContinuationSchedulerReplicaStub::ReverseContinuationInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     ReverseContinuation();
     HILOG_INFO("%{public}s called end", __func__);
     return NO_ERROR;
 }
-int32_t ReverseContinuationSchedulerReplicaStub::NotifyReverseResultInner(MessageParcel &data, MessageParcel &reply)
+int32_t ReverseContinuationSchedulerReplicaStub::NotifyReverseResultInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     int reverseResult = data.ReadInt32();
@@ -59,7 +59,7 @@ int32_t ReverseContinuationSchedulerReplicaStub::NotifyReverseResultInner(Messag
 }
 
 int ReverseContinuationSchedulerReplicaStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     HILOG_INFO("%{public}s called begin, code = %{public}u, flags= %{public}d.", __func__, code, option.GetFlags());
     std::u16string remoteDescriptor = data.ReadInterfaceToken();

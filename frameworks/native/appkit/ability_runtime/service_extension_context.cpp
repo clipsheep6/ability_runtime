@@ -25,7 +25,7 @@ namespace AbilityRuntime {
 const size_t ServiceExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ServiceExtensionContext"));
 int ServiceExtensionContext::ILLEGAL_REQUEST_CODE(-1);
 
-ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want) const
+ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want& want) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -36,7 +36,7 @@ ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want) const
     return err;
 }
 
-ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const
+ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -49,7 +49,7 @@ ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want, const AAF
 }
 
 ErrCode ServiceExtensionContext::StartAbilityByCall(
-    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
+    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack>& callback)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (localCallContainer_ == nullptr) {
@@ -62,7 +62,7 @@ ErrCode ServiceExtensionContext::StartAbilityByCall(
     return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
 }
 
-ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) const
+ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (localCallContainer_ == nullptr) {
@@ -73,7 +73,7 @@ ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBac
 }
 
 ErrCode ServiceExtensionContext::ConnectAbility(
-    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+    const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback) const
 {
     HILOG_INFO("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
@@ -82,7 +82,7 @@ ErrCode ServiceExtensionContext::ConnectAbility(
     return ret;
 }
 
-ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want, int accountId) const
+ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want& want, int accountId) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     HILOG_INFO("%{public}d accountId:", accountId);
@@ -96,7 +96,7 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want
 }
 
 ErrCode ServiceExtensionContext::StartAbilityWithAccount(
-    const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions) const
+    const AAFwk::Want& want, int accountId, const AAFwk::StartOptions& startOptions) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_,
@@ -108,7 +108,7 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(
     return err;
 }
 
-ErrCode ServiceExtensionContext::StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId) const
+ErrCode ServiceExtensionContext::StartServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
@@ -131,7 +131,7 @@ ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& 
 }
 
 ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
-    const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback) const
+    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback) const
 {
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode ret =
@@ -141,7 +141,7 @@ ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
 }
 
 ErrCode ServiceExtensionContext::DisconnectAbility(
-    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+    const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback) const
 {
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode ret =

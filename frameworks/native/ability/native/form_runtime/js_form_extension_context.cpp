@@ -90,19 +90,19 @@ private:
         formProviderData = AppExecFwk::FormProviderData(formDataStr);
         AsyncTask::CompleteCallback complete =
             [weak = context_, formId, formProviderData](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                    return;
-                }
-                auto errcode = context->UpdateForm(formId, formProviderData);
-                if (errcode == ERR_OK) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "update form failed."));
-                }
-            };
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                return;
+            }
+            auto errcode = context->UpdateForm(formId, formProviderData);
+            if (errcode == ERR_OK) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsError(engine, errcode, "update form failed."));
+            }
+        };
 
         NativeValue* lastParam =
             (info.argc == UPDATE_FORM_PARAMS_SIZE) ? nullptr : info.argv[info.argc - 1];
@@ -139,25 +139,25 @@ private:
 
         AsyncTask::CompleteCallback complete =
             [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("startAbility begin");
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(engine,
-                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
-                    return;
-                }
+            HILOG_INFO("startAbility begin");
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(engine,
+                    NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
+                return;
+            }
 
-                // entry to the core functionality.
-                ErrCode innerErrorCode = context->StartAbility(want);
-                if (innerErrorCode == ERR_OK) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                } else {
-                    HILOG_ERROR("Failed to StartAbility, errorCode: %{public}d.", innerErrorCode);
-                    task.Reject(engine,
-                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
-                }
-            };
+            // entry to the core functionality.
+            ErrCode innerErrorCode = context->StartAbility(want);
+            if (innerErrorCode == ERR_OK) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                HILOG_ERROR("Failed to StartAbility, errorCode: %{public}d.", innerErrorCode);
+                task.Reject(engine,
+                    NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
+            }
+        };
 
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
@@ -181,7 +181,7 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);
     object->SetNativePointer(jsContext.release(), JsFormExtensionContext::Finalizer, nullptr);
 
-    const char *moduleName = "JsFormExtensionContext";
+    const char* moduleName = "JsFormExtensionContext";
     BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
 

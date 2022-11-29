@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 void ContinuationRegisterManager::Init(
-    const std::shared_ptr<ContinuationRegisterManagerProxy> &continuationRegisterManagerProxy)
+    const std::shared_ptr<ContinuationRegisterManagerProxy>& continuationRegisterManagerProxy)
 {
     continuationRegisterManagerProxy_ = continuationRegisterManagerProxy;
 }
@@ -36,9 +36,9 @@ void ContinuationRegisterManager::Init(
  * @param callback callback for device connect and disconnect.
  * @param requestCallback callback for this request, -1 means failed, otherwise is register token.
  */
-void ContinuationRegisterManager::Register(const std::string &bundleName, const ExtraParams &parameter,
-    const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback,
-    const std::shared_ptr<RequestCallback> &requestCallback)
+void ContinuationRegisterManager::Register(const std::string& bundleName, const ExtraParams& parameter,
+    const std::shared_ptr<IContinuationDeviceCallback>& deviceCallback,
+    const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
@@ -55,7 +55,7 @@ void ContinuationRegisterManager::Register(const std::string &bundleName, const 
  * @param token token from register return value.
  * @param requestCallback callback for this request, -1 means failed, otherwise succeeded.
  */
-void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<RequestCallback> &requestCallback)
+void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
@@ -75,7 +75,7 @@ void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<Re
  * @param requestCallback callback for this request, -1 means failed, otherwise successed.
  */
 void ContinuationRegisterManager::UpdateConnectStatus(
-    int token, const std::string &deviceId, int status, const std::shared_ptr<RequestCallback> &requestCallback)
+    int token, const std::string& deviceId, int status, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
@@ -94,7 +94,7 @@ void ContinuationRegisterManager::UpdateConnectStatus(
  * @param requestCallback callback for this request, -1 means failed, otherwise successed.
  */
 void ContinuationRegisterManager::ShowDeviceList(
-    int token, const ExtraParams &parameter, const std::shared_ptr<RequestCallback> &requestCallback)
+    int token, const ExtraParams& parameter, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {

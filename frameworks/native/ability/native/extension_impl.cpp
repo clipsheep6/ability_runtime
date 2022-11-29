@@ -24,11 +24,11 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
-    std::shared_ptr<Extension> &extension,
-    std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication>& application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord>& record,
+    std::shared_ptr<Extension>& extension,
+    std::shared_ptr<AppExecFwk::AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ExtensionImpl Init begin.");
@@ -52,11 +52,11 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
  * @param targetState The life cycle state to switch to.
  *
  */
-void ExtensionImpl::HandleExtensionTransaction(const Want &want,
-    const AAFwk::LifeCycleStateInfo &targetState)
+void ExtensionImpl::HandleExtensionTransaction(const Want& want,
+    const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("ExtensionImpl::HandleExtensionTransaction begin sourceState:%{public}d; targetState: %{public}d; "
-             "isNewWant: %{public}d",
+        "isNewWant: %{public}d",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant);
@@ -96,7 +96,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want,
     HILOG_INFO("ExtensionImpl::HandleAbilityTransaction end");
 }
 
-void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
+void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration& config)
 {
     HILOG_INFO("%{public}s begin.", __func__);
 
@@ -134,7 +134,7 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  *
  * @param want  The Want object to switch the life cycle.
  */
-void ExtensionImpl::Start(const Want &want)
+void ExtensionImpl::Start(const Want& want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
@@ -173,7 +173,7 @@ void ExtensionImpl::Stop()
  * @param want The Want object to connect to.
  *
  */
-sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
+sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want& want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
@@ -194,7 +194,7 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
  *
  * @param want The Want object to disconnect to.
  */
-void ExtensionImpl::DisconnectExtension(const Want &want)
+void ExtensionImpl::DisconnectExtension(const Want& want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
@@ -206,7 +206,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
+void ExtensionImpl::DisconnectExtension(const Want& want, bool& isAsyncCallback)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
@@ -215,7 +215,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
         return;
     }
 
-    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo::Create();
+    auto* callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo::Create();
     if (callbackInfo == nullptr) {
         extension_->OnDisconnect(want);
         isAsyncCallback = false;
@@ -260,7 +260,7 @@ void ExtensionImpl::DisconnectExtensionCallback()
  * every time the Extension is started. For example, if the Extension has been started for six times,
  * the value of startId is 6.
  */
-void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId)
+void ExtensionImpl::CommandExtension(const Want& want, bool restart, int startId)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (extension_ == nullptr) {

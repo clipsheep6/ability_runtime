@@ -27,8 +27,8 @@ namespace {
 constexpr int32_t UNSPECIFIED_USER = -2;
 }
 
-std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime,
-    const std::shared_ptr<AbilityDelegatorArgs> &args, bool isFaJsModel)
+std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime,
+    const std::shared_ptr<AbilityDelegatorArgs>& args, bool isFaJsModel)
 {
     if (!runtime) {
         return std::make_unique<TestRunner>();

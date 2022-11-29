@@ -38,7 +38,7 @@ using OHOS::Security::AccessToken::AccessTokenKit;
  * @param targetState The life cycle state to switch to.
  *
  */
-void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void DataAbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("DataAbilityImpl::sourceState:%{public}d; targetState: %{public}d; isNewWant: %{public}d",
         lifecycleState_,
@@ -53,7 +53,7 @@ void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         case AAFwk::ABILITY_STATE_ACTIVE: {
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
                 SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
-                             targetState.caller.abilityName);
+                    targetState.caller.abilityName);
                 Start(want);
             } else {
                 return;
@@ -77,7 +77,7 @@ void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  *
  * @return Returns the matched MIME types. If there is no match, null is returned.
  */
-std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     std::vector<std::string> types;
     if (ability_ == nullptr) {
@@ -100,7 +100,7 @@ std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri &uri, const std
  *
  * @return Returns the file descriptor.
  */
-int DataAbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
+int DataAbilityImpl::OpenFile(const Uri& uri, const std::string& mode)
 {
     int fd = -1;
     if (ability_ == nullptr) {
@@ -128,7 +128,7 @@ int DataAbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
  *
  * @return Returns the RawFileDescriptor object containing file descriptor.
  */
-int DataAbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
+int DataAbilityImpl::OpenRawFile(const Uri& uri, const std::string& mode)
 {
     int fd = -1;
     if (ability_ == nullptr) {
@@ -152,7 +152,7 @@ int DataAbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
  *
  * @return Returns the index of the inserted data record.
  */
-int DataAbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int DataAbilityImpl::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     int index = -1;
     if (ability_ == nullptr) {
@@ -179,7 +179,7 @@ int DataAbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value
  * @return Returns the number of data records updated.
  */
 int DataAbilityImpl::Update(
-    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     int index = -1;
     if (ability_ == nullptr) {
@@ -204,7 +204,7 @@ int DataAbilityImpl::Update(
  *
  * @return Returns the number of data records deleted.
  */
-int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int DataAbilityImpl::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     int index = -1;
     if (ability_ == nullptr) {
@@ -231,7 +231,7 @@ int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicat
  * @return Returns the query result.
  */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::Query ability_ is nullptr");
@@ -247,7 +247,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
 }
 
 std::shared_ptr<AppExecFwk::PacMap> DataAbilityImpl::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
 {
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::Call ability_ is nullptr");
@@ -265,7 +265,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityImpl::Call(
  *
  * @return Returns the MIME type that matches the data specified by uri.
  */
-std::string DataAbilityImpl::GetType(const Uri &uri)
+std::string DataAbilityImpl::GetType(const Uri& uri)
 {
     std::string type;
     if (ability_ == nullptr) {
@@ -286,7 +286,7 @@ std::string DataAbilityImpl::GetType(const Uri &uri)
  *
  * @return Returns true if the data is successfully reloaded; returns false otherwise.
  */
-bool DataAbilityImpl::Reload(const Uri &uri, const PacMap &extras)
+bool DataAbilityImpl::Reload(const Uri& uri, const PacMap& extras)
 {
     bool ret = false;
     if (ability_ == nullptr) {
@@ -305,7 +305,7 @@ bool DataAbilityImpl::Reload(const Uri &uri, const PacMap &extras)
  *
  * @return Returns the number of data records inserted.
  */
-int DataAbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int DataAbilityImpl::BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     int ret = -1;
     if (ability_ == nullptr) {
@@ -333,7 +333,7 @@ int DataAbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Va
  *
  * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
  */
-Uri DataAbilityImpl::NormalizeUri(const Uri &uri)
+Uri DataAbilityImpl::NormalizeUri(const Uri& uri)
 {
     Uri urivalue("");
     if (ability_ == nullptr) {
@@ -362,7 +362,7 @@ Uri DataAbilityImpl::NormalizeUri(const Uri &uri)
  *
  * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
  */
-Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
+Uri DataAbilityImpl::DenormalizeUri(const Uri& uri)
 {
     Uri urivalue("");
     if (ability_ == nullptr) {
@@ -380,7 +380,7 @@ Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
 }
 
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
-    const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
+    const std::vector<std::shared_ptr<DataAbilityOperation>>& operations)
 {
     HILOG_INFO("DataAbilityImpl::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
@@ -401,7 +401,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
 }
 
 bool DataAbilityImpl::CheckExecuteBatchPermission(
-    const std::vector<std::shared_ptr<DataAbilityOperation>> &operations) const
+    const std::vector<std::shared_ptr<DataAbilityOperation>>& operations) const
 {
     bool needCheckReadPermission = false;
     bool needCheckWritePermission = false;
@@ -440,7 +440,7 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
     return true;
 }
 
-bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
+bool DataAbilityImpl::CheckOpenFilePermission(const std::string& mode) const
 {
     if (mode.find(READ) != string::npos) {
         if (!CheckReadAndWritePermission(READ)) {
@@ -457,7 +457,7 @@ bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
     return true;
 }
 
-bool DataAbilityImpl::CheckReadAndWritePermission(const std::string &permissionType) const
+bool DataAbilityImpl::CheckReadAndWritePermission(const std::string& permissionType) const
 {
     std::string permission = GetPermissionInfo(permissionType);
     if (permission.empty()) {
@@ -477,7 +477,7 @@ bool DataAbilityImpl::CheckReadAndWritePermission(const std::string &permissionT
     return true;
 }
 
-std::string DataAbilityImpl::GetPermissionInfo(const std::string &permissionType) const
+std::string DataAbilityImpl::GetPermissionInfo(const std::string& permissionType) const
 {
     HILOG_DEBUG("%{public}s begin, permissionType:%{public}s", __func__, permissionType.c_str());
     std::shared_ptr<AbilityInfo> abilityInfo = ability_->GetAbilityInfo();

@@ -24,7 +24,7 @@ const int64_t AbilityPostEventTimeout::defalutDelayTime = 5000;
 
 std::atomic<uint32_t> AbilityPostEventTimeout::allocationId_ = 0;
 
-AbilityPostEventTimeout::AbilityPostEventTimeout(std::string str, std::shared_ptr<AbilityHandler> &eventHandler)
+AbilityPostEventTimeout::AbilityPostEventTimeout(std::string str, std::shared_ptr<AbilityHandler>& eventHandler)
 {
     uint32_t taskId = allocationId_++;
     std::string strId = std::to_string(taskId);

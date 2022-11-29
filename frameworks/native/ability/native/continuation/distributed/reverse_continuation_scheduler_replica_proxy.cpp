@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 ReverseContinuationSchedulerReplicaProxy::ReverseContinuationSchedulerReplicaProxy(
-    const sptr<IRemoteObject> &remoteObject)
+    const sptr<IRemoteObject>& remoteObject)
     : IRemoteProxy<IReverseContinuationSchedulerReplica>(remoteObject)
 {}
 
@@ -29,7 +29,7 @@ sptr<IRemoteObject> ReverseContinuationSchedulerReplicaProxy::AsObject()
 
     return remoteObject;
 }
-void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObject> &primary)
+void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObject>& primary)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel data;

@@ -78,7 +78,7 @@ public:
                 HILOG_ERROR("ReleaseObject error end, Get eventHandler failed");
                 return false;
             }
-            auto releaseObjTask = [pdata = data] () {
+            auto releaseObjTask = [pdata = data]() {
                 if (!FindJsCallerComplex(pdata)) {
                     HILOG_ERROR("ReleaseObject error end, but input parameters does not found");
                     return;
@@ -157,7 +157,7 @@ public:
             return false;
         }
 
-        std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
+        std::lock_guard<std::mutex> lck(jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter != jsCallerComplexManagerList.end()) {
             HILOG_ERROR("JsAbilityContext::%{public}s, address exists", __func__);
@@ -177,7 +177,7 @@ public:
             return false;
         }
 
-        std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
+        std::lock_guard<std::mutex> lck(jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
             HILOG_ERROR("JsAbilityContext::%{public}s, input parameters not found", __func__);
@@ -196,7 +196,7 @@ public:
             return false;
         }
         auto ret = true;
-        std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
+        std::lock_guard<std::mutex> lck(jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
             ret = false;
@@ -213,7 +213,7 @@ public:
             return false;
         }
 
-        std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
+        std::lock_guard<std::mutex> lck(jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
             HILOG_ERROR("JsAbilityContext::%{public}s, execution end, but not found", __func__);
@@ -273,7 +273,7 @@ public:
 
 private:
 
-    void OnReleaseNotify(const std::string &str)
+    void OnReleaseNotify(const std::string& str)
     {
         HILOG_DEBUG("OnReleaseNotify begin");
         if (handler_ == nullptr) {
@@ -281,7 +281,7 @@ private:
             return;
         }
 
-        auto task = [notify = this, &str] () {
+        auto task = [notify = this, &str]() {
             if (!FindJsCallerComplex(notify)) {
                 HILOG_ERROR("ptr not found, address error");
                 return;
@@ -292,7 +292,7 @@ private:
         HILOG_DEBUG("OnReleaseNotify end");
     }
 
-    void OnReleaseNotifyTask(const std::string &str)
+    void OnReleaseNotifyTask(const std::string& str)
     {
         HILOG_DEBUG("OnReleaseNotifyTask begin");
         if (jsReleaseCallBackObj_ == nullptr) {
@@ -358,7 +358,7 @@ private:
         }
 
         jsReleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));
-        auto task = [notify = this] (const std::string &str) {
+        auto task = [notify = this](const std::string& str) {
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
                 HILOG_ERROR("ptr not found, address error");
                 return;
@@ -412,7 +412,7 @@ NativeValue* CreateJsCallerComplex(
 
     object->SetNativePointer(jsCaller.release(), JsCallerComplex::Finalizer, nullptr);
     object->SetProperty("callee", CreateJsCalleeRemoteObject(engine, remoteObj));
-    const char *moduleName = "JsCallerComplex";
+    const char* moduleName = "JsCallerComplex";
     BindNativeFunction(engine, *object, "release", moduleName, JsCallerComplex::JsReleaseCall);
     BindNativeFunction(engine, *object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
 

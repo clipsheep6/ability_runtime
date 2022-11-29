@@ -23,15 +23,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityDelegator::AbilityDelegator(const std::shared_ptr<AbilityRuntime::Context> &context,
-    std::unique_ptr<TestRunner> runner, const sptr<IRemoteObject> &observer)
+AbilityDelegator::AbilityDelegator(const std::shared_ptr<AbilityRuntime::Context>& context,
+    std::unique_ptr<TestRunner> runner, const sptr<IRemoteObject>& observer)
     : appContext_(context), testRunner_(std::move(runner)), observer_(observer)
 {}
 
 AbilityDelegator::~AbilityDelegator()
 {}
 
-void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor)
+void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -48,7 +48,7 @@ void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> 
     abilityMonitors_.emplace_back(monitor);
 }
 
-void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
+void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -63,7 +63,7 @@ void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStag
     abilityStageMonitors_.emplace_back(monitor);
 }
 
-void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor)
+void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -77,7 +77,7 @@ void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonito
     }
 }
 
-void AbilityDelegator::RemoveAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
+void AbilityDelegator::RemoveAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -110,7 +110,7 @@ size_t AbilityDelegator::GetStageMonitorsNum()
 
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
-    const std::shared_ptr<IAbilityMonitor> &monitor)
+    const std::shared_ptr<IAbilityMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -129,7 +129,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
 }
 
 std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStageMonitor(
-    const std::shared_ptr<IAbilityStageMonitor> &monitor)
+    const std::shared_ptr<IAbilityStageMonitor>& monitor)
 {
     if (!monitor) {
         HILOG_WARN("Invalid monitor for waiting abilityStage");
@@ -146,7 +146,7 @@ std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStag
 }
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
-    const std::shared_ptr<IAbilityMonitor> &monitor, const int64_t timeoutMs)
+    const std::shared_ptr<IAbilityMonitor>& monitor, const int64_t timeoutMs)
 {
     if (!monitor) {
         HILOG_WARN("Invalid input parameter");
@@ -165,7 +165,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
 }
 
 std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStageMonitor(
-    const std::shared_ptr<IAbilityStageMonitor> &monitor, const int64_t timeoutMs)
+    const std::shared_ptr<IAbilityStageMonitor>& monitor, const int64_t timeoutMs)
 {
     if (!monitor) {
         HILOG_WARN("Invalid monitor for waiting abilityStage with timeout");
@@ -185,7 +185,7 @@ std::shared_ptr<AbilityRuntime::Context> AbilityDelegator::GetAppContext() const
     return appContext_;
 }
 
-AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRemoteObject> &token)
+AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRemoteObject>& token)
 {
     if (!token) {
         HILOG_WARN("Invalid input parameter");
@@ -263,7 +263,7 @@ void AbilityDelegator::OnRun()
     HILOG_INFO("Run finished");
 }
 
-ErrCode AbilityDelegator::StartAbility(const AAFwk::Want &want)
+ErrCode AbilityDelegator::StartAbility(const AAFwk::Want& want)
 {
     HILOG_INFO("Enter");
 
@@ -278,7 +278,7 @@ ErrCode AbilityDelegator::StartAbility(const AAFwk::Want &want)
     return AbilityManagerClient::GetInstance()->StartAbility(realWant);
 }
 
-bool AbilityDelegator::DoAbilityForeground(const sptr<IRemoteObject> &token)
+bool AbilityDelegator::DoAbilityForeground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Enter");
 
@@ -296,7 +296,7 @@ bool AbilityDelegator::DoAbilityForeground(const sptr<IRemoteObject> &token)
     return true;
 }
 
-bool AbilityDelegator::DoAbilityBackground(const sptr<IRemoteObject> &token)
+bool AbilityDelegator::DoAbilityBackground(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Enter");
 
@@ -314,7 +314,7 @@ bool AbilityDelegator::DoAbilityBackground(const sptr<IRemoteObject> &token)
     return true;
 }
 
-std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std::string &cmd, const int64_t timeoutSec)
+std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std::string& cmd, const int64_t timeoutSec)
 {
     HILOG_INFO("command : %{public}s, timeout : %{public}" PRId64, cmd.data(), timeoutSec);
 
@@ -333,7 +333,7 @@ std::unique_ptr<ShellCmdResult> AbilityDelegator::ExecuteShellCommand(const std:
     return std::make_unique<ShellCmdResult>(result);
 }
 
-void AbilityDelegator::Print(const std::string &msg)
+void AbilityDelegator::Print(const std::string& msg)
 {
     HILOG_INFO("Enter");
 
@@ -353,7 +353,7 @@ void AbilityDelegator::Print(const std::string &msg)
     testObserver->TestStatus(realMsg, 0);
 }
 
-void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -370,7 +370,7 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityP
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -381,7 +381,7 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityP
     }
 }
 
-void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage)
+void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty>& abilityStage)
 {
     HILOG_INFO("Enter");
     if (!abilityStage) {
@@ -395,7 +395,7 @@ void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbil
         return;
     }
 
-    for (auto &monitor : abilityStageMonitors_) {
+    for (auto& monitor : abilityStageMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -403,7 +403,7 @@ void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbil
     }
 }
 
-void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -420,7 +420,7 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -431,7 +431,7 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
     }
 }
 
-void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -448,7 +448,7 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -459,7 +459,7 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
     }
 }
 
-void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -476,7 +476,7 @@ void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegat
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -487,7 +487,7 @@ void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegat
     }
 }
 
-void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -504,7 +504,7 @@ void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbi
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -515,7 +515,7 @@ void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbi
     }
 }
 
-void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -532,7 +532,7 @@ void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbi
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -543,7 +543,7 @@ void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbi
     }
 }
 
-void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -560,7 +560,7 @@ void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityPr
         return;
     }
 
-    for (auto &monitor : abilityMonitors_) {
+    for (auto& monitor : abilityMonitors_) {
         if (!monitor) {
             continue;
         }
@@ -577,7 +577,7 @@ void AbilityDelegator::PostPerformStop(const std::shared_ptr<ADelegatorAbilityPr
 AbilityDelegator::AbilityState AbilityDelegator::ConvertAbilityState(
     const AbilityLifecycleExecutor::LifecycleState lifecycleState)
 {
-    AbilityDelegator::AbilityState abilityState {AbilityDelegator::AbilityState::UNINITIALIZED};
+    AbilityDelegator::AbilityState abilityState{ AbilityDelegator::AbilityState::UNINITIALIZED };
     switch (lifecycleState) {
         case AbilityLifecycleExecutor::LifecycleState::STARTED_NEW:
             abilityState = AbilityDelegator::AbilityState::STARTED;
@@ -599,7 +599,7 @@ AbilityDelegator::AbilityState AbilityDelegator::ConvertAbilityState(
     return abilityState;
 }
 
-void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -622,7 +622,7 @@ void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegator
     abilityProperties_.emplace_back(ability);
 }
 
-void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
 
@@ -638,7 +638,7 @@ void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbi
     abilityProperties_.remove(ability);
 }
 
-std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken(const sptr<IRemoteObject> &token)
+std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken(const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Enter");
 
@@ -647,7 +647,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
         return {};
     }
 
-    for (const auto &it : abilityProperties_) {
+    for (const auto& it : abilityProperties_) {
         if (!it) {
             HILOG_WARN("Invalid ability property");
             continue;
@@ -662,7 +662,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
     return {};
 }
 
-void AbilityDelegator::FinishUserTest(const std::string &msg, const int64_t resultCode)
+void AbilityDelegator::FinishUserTest(const std::string& msg, const int64_t resultCode)
 {
     HILOG_INFO("Enter, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
 
@@ -683,7 +683,7 @@ void AbilityDelegator::FinishUserTest(const std::string &msg, const int64_t resu
         realMsg.resize(INFORMATION_MAX_LENGTH);
     }
 
-    const auto &bundleName = delegatorArgs->GetTestBundleName();
+    const auto& bundleName = delegatorArgs->GetTestBundleName();
     auto err = AAFwk::AbilityManagerClient::GetInstance()->FinishUserTest(realMsg, resultCode, bundleName);
     if (err) {
         HILOG_ERROR("Failed to call FinishUserTest : %{public}d", err);
@@ -701,7 +701,7 @@ void AbilityDelegator::RegisterClearFunc(ClearFunc func)
     clearFunc_ = func;
 }
 
-inline void AbilityDelegator::CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty> &ability)
+inline void AbilityDelegator::CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty>& ability)
 {
     HILOG_INFO("Enter");
     if (clearFunc_) {

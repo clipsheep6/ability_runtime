@@ -80,7 +80,7 @@ ExtensionModuleLoader& ExtensionModuleLoader::GetLoader(const char* sharedLibrar
     return GetExtensionModuleLoader(sharedLibrary);
 }
 
-Extension *ExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
+Extension* ExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
 {
     return nullptr;
 }

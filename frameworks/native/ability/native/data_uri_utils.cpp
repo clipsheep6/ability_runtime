@@ -26,7 +26,7 @@ namespace {
 const string EMPTY = "";
 const std::regex INTEGER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
 const int BUFFER_LEN = 64;
-const char *SEPARATOR = "/";
+const char* SEPARATOR = "/";
 };  // namespace
 
 /**
@@ -49,10 +49,10 @@ DataUriUtils::~DataUriUtils()
  * @param id
  * @return Uri( scheme://authority/path1/path2/path3/updateIDNumber....)
  */
-Uri DataUriUtils::AttachId(const Uri &dataUri, long long id)
+Uri DataUriUtils::AttachId(const Uri& dataUri, long long id)
 {
     // 1. get Path
-    string path = const_cast<Uri &>(dataUri).GetPath();
+    string path = const_cast<Uri&>(dataUri).GetPath();
     if (path.empty()) {
         return dataUri;
     }
@@ -60,13 +60,13 @@ Uri DataUriUtils::AttachId(const Uri &dataUri, long long id)
     string uriString = dataUri.ToString();
 
     std::vector<string> pathVector;
-    const_cast<Uri &>(dataUri).GetPathSegments(pathVector);
+    const_cast<Uri&>(dataUri).GetPathSegments(pathVector);
     if (pathVector.empty()) {
         return dataUri;
     }
     string lastPath = pathVector[pathVector.size() - 1];
 
-    char longBuffer[BUFFER_LEN] = {0};
+    char longBuffer[BUFFER_LEN] = { 0 };
 
     int ret = sprintf_s(longBuffer, sizeof(longBuffer), "%lld", id);
     if (ret == -1) {
@@ -90,15 +90,15 @@ Uri DataUriUtils::AttachId(const Uri &dataUri, long long id)
  * @param dataUri based on RFC 2396( Uniform Resource Identifier ).
  * @return long ID
  */
-long long DataUriUtils::GetId(const Uri &dataUri)
+long long DataUriUtils::GetId(const Uri& dataUri)
 {
     // 1. get Path
-    string path = const_cast<Uri &>(dataUri).GetPath();
+    string path = const_cast<Uri&>(dataUri).GetPath();
     if (path.empty()) {
         return -1;
     }
     std::vector<string> pathVector;
-    const_cast<Uri &>(dataUri).GetPathSegments(pathVector);
+    const_cast<Uri&>(dataUri).GetPathSegments(pathVector);
     if (pathVector.empty()) {
         return -1;
     }
@@ -114,7 +114,7 @@ long long DataUriUtils::GetId(const Uri &dataUri)
  * @param dataUri based on RFC 2396( Uniform Resource Identifier ).
  * @return long ID
  */
-Uri DataUriUtils::DeleteId(const Uri &dataUri)
+Uri DataUriUtils::DeleteId(const Uri& dataUri)
 {
     return UriUpateLastPath(dataUri, EMPTY);
 }
@@ -125,9 +125,9 @@ Uri DataUriUtils::DeleteId(const Uri &dataUri)
  * @param id indiates Update attached to the end of the path component of the given URI
  * @return Uri return is the URI after path is updated
  */
-Uri DataUriUtils::UpdateId(const Uri &dataUri, long long id)
+Uri DataUriUtils::UpdateId(const Uri& dataUri, long long id)
 {
-    char longBuffer[BUFFER_LEN] = {0};
+    char longBuffer[BUFFER_LEN] = { 0 };
     int ret = sprintf_s(longBuffer, sizeof(longBuffer), "%lld", id);
     if (ret == -1) {
         return dataUri;
@@ -144,16 +144,16 @@ Uri DataUriUtils::UpdateId(const Uri &dataUri, long long id)
  * @param dataUri based on RFC 2396( Uniform Resource Identifier ).
  * @return bool
  */
-bool DataUriUtils::IsAttachedId(const Uri &dataUri)
+bool DataUriUtils::IsAttachedId(const Uri& dataUri)
 {
     // 1. get Path
-    string path = const_cast<Uri &>(dataUri).GetPath();
+    string path = const_cast<Uri&>(dataUri).GetPath();
     if (path.empty()) {
         return false;
     }
 
     std::vector<string> pathVector;
-    const_cast<Uri &>(dataUri).GetPathSegments(pathVector);
+    const_cast<Uri&>(dataUri).GetPathSegments(pathVector);
     if (pathVector.empty()) {
         return false;
     }
@@ -167,7 +167,7 @@ bool DataUriUtils::IsAttachedId(const Uri &dataUri)
  * @param str indicates stirng.
  * @return bool
  */
-bool DataUriUtils::IsNumber(const string &str)
+bool DataUriUtils::IsNumber(const string& str)
 {
     return std::regex_match(str, INTEGER_REGEX);
 }
@@ -178,7 +178,7 @@ bool DataUriUtils::IsNumber(const string &str)
    scheme://authority/path/aaa?query/#fragment
  * @return Uri return is the URI after path is updated
  */
-Uri DataUriUtils::UriUpateLastPath(const Uri &dataUri, const string &updateLastPath)
+Uri DataUriUtils::UriUpateLastPath(const Uri& dataUri, const string& updateLastPath)
 {
     std::string strUpdateLastPath;
 
@@ -187,13 +187,13 @@ Uri DataUriUtils::UriUpateLastPath(const Uri &dataUri, const string &updateLastP
     }
 
     // 1. get Path
-    string path = const_cast<Uri &>(dataUri).GetPath();
+    string path = const_cast<Uri&>(dataUri).GetPath();
     if (path.empty()) {
         return dataUri;
     }
 
     std::vector<string> pathVector;
-    const_cast<Uri &>(dataUri).GetPathSegments(pathVector);
+    const_cast<Uri&>(dataUri).GetPathSegments(pathVector);
     if (pathVector.empty()) {
         return dataUri;
     }

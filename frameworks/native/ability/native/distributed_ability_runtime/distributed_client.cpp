@@ -151,7 +151,7 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
 }
 
 ErrCode DistributedClient::NotifyCompleteContinuation(
-    const std::u16string &devId, int32_t sessionId, bool isSuccess)
+    const std::u16string& devId, int32_t sessionId, bool isSuccess)
 {
     HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
@@ -334,7 +334,7 @@ bool DistributedClient::ReadMissionInfosFromParcel(Parcel& parcel,
         }
         missionInfos.clear();
         for (size_t i = 0; i < size; i++) {
-            AAFwk::MissionInfo *ptr = parcel.ReadParcelable<AAFwk::MissionInfo>();
+            AAFwk::MissionInfo* ptr = parcel.ReadParcelable<AAFwk::MissionInfo>();
             if (ptr == nullptr) {
                 HILOG_WARN("read MissionInfo failed");
                 return false;
@@ -369,7 +369,7 @@ int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& wan
 }
 
 int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
-    const AppExecFwk::ElementName &element)
+    const AppExecFwk::ElementName& element)
 {
     HILOG_INFO("called");
     if (connect == nullptr) {

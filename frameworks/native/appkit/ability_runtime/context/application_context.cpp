@@ -30,13 +30,13 @@ void ApplicationContext::InitApplicationContext()
     applicationContext_ = shared_from_this();
 }
 
-void ApplicationContext::AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl)
+void ApplicationContext::AttachContextImpl(const std::shared_ptr<ContextImpl>& contextImpl)
 {
     contextImpl_ = contextImpl;
 }
 
 void ApplicationContext::RegisterAbilityLifecycleCallback(
-    const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
+    const std::shared_ptr<AbilityLifecycleCallback>& abilityLifecycleCallback)
 {
     HILOG_DEBUG("ApplicationContext RegisterAbilityLifecycleCallback");
     if (abilityLifecycleCallback == nullptr) {
@@ -47,7 +47,7 @@ void ApplicationContext::RegisterAbilityLifecycleCallback(
 }
 
 void ApplicationContext::UnregisterAbilityLifecycleCallback(
-    const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
+    const std::shared_ptr<AbilityLifecycleCallback>& abilityLifecycleCallback)
 {
     HILOG_DEBUG("ApplicationContext UnregisterAbilityLifecycleCallback");
     std::lock_guard<std::mutex> lock(callbackLock_);
@@ -64,7 +64,7 @@ bool ApplicationContext::IsAbilityLifecycleCallbackEmpty()
 }
 
 void ApplicationContext::RegisterEnvironmentCallback(
-    const std::shared_ptr<EnvironmentCallback> &environmentCallback)
+    const std::shared_ptr<EnvironmentCallback>& environmentCallback)
 {
     HILOG_DEBUG("ApplicationContext RegisterEnvironmentCallback");
     if (environmentCallback == nullptr) {
@@ -74,7 +74,7 @@ void ApplicationContext::RegisterEnvironmentCallback(
 }
 
 void ApplicationContext::UnregisterEnvironmentCallback(
-    const std::shared_ptr<EnvironmentCallback> &environmentCallback)
+    const std::shared_ptr<EnvironmentCallback>& environmentCallback)
 {
     HILOG_DEBUG("ApplicationContext UnregisterEnvironmentCallback");
     auto it = std::find(envCallbacks_.begin(), envCallbacks_.end(), environmentCallback);
@@ -83,7 +83,7 @@ void ApplicationContext::UnregisterEnvironmentCallback(
     }
 }
 
-void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
+void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeReference>& ability)
 {
     if (!ability) {
         HILOG_ERROR("ability is nullptr");
@@ -97,8 +97,8 @@ void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeRef
     }
 }
 
-void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
-    const std::shared_ptr<NativeReference> &windowStage)
+void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<NativeReference>& ability,
+    const std::shared_ptr<NativeReference>& windowStage)
 {
     if (!ability || !windowStage) {
         HILOG_ERROR("ability or windowStage is nullptr");
@@ -112,8 +112,8 @@ void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<Nativ
     }
 }
 
-void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
-    const std::shared_ptr<NativeReference> &windowStage)
+void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<NativeReference>& ability,
+    const std::shared_ptr<NativeReference>& windowStage)
 {
     if (!ability || !windowStage) {
         HILOG_ERROR("ability or windowStage is nullptr");
@@ -127,8 +127,8 @@ void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<Nati
     }
 }
 
-void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeReference> &ability,
-    const std::shared_ptr<NativeReference> &windowStage)
+void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeReference>& ability,
+    const std::shared_ptr<NativeReference>& windowStage)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (!ability || !windowStage) {
@@ -143,8 +143,8 @@ void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeRe
     }
 }
 
-void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<NativeReference> &ability,
-    const std::shared_ptr<NativeReference> &windowStage)
+void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<NativeReference>& ability,
+    const std::shared_ptr<NativeReference>& windowStage)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (!ability || !windowStage) {
@@ -159,7 +159,7 @@ void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<Native
     }
 }
 
-void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeReference> &ability)
+void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeReference>& ability)
 {
     if (!ability) {
         HILOG_ERROR("ability is nullptr");
@@ -173,7 +173,7 @@ void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeRe
     }
 }
 
-void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<NativeReference> &ability)
+void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<NativeReference>& ability)
 {
     if (!ability) {
         HILOG_ERROR("ability is nullptr");
@@ -187,7 +187,7 @@ void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<Nativ
     }
 }
 
-void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<NativeReference> &ability)
+void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<NativeReference>& ability)
 {
     if (!ability) {
         HILOG_ERROR("ability is nullptr");
@@ -201,7 +201,7 @@ void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<Nativ
     }
 }
 
-void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeReference> &ability)
+void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeReference>& ability)
 {
     if (!ability) {
         HILOG_ERROR("ability is nullptr");
@@ -215,7 +215,7 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
     }
 }
 
-void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration &config)
+void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration& config)
 {
     for (auto envCallback : envCallbacks_) {
         if (envCallback != nullptr) {
@@ -238,18 +238,18 @@ std::string ApplicationContext::GetBundleName() const
     return (contextImpl_ != nullptr) ? contextImpl_->GetBundleName() : "";
 }
 
-std::shared_ptr<Context> ApplicationContext::CreateBundleContext(const std::string &bundleName)
+std::shared_ptr<Context> ApplicationContext::CreateBundleContext(const std::string& bundleName)
 {
     return (contextImpl_ != nullptr) ? contextImpl_->CreateBundleContext(bundleName) : nullptr;
 }
 
-std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string &moduleName)
+std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string& moduleName)
 {
     return contextImpl_ ? contextImpl_->CreateModuleContext(moduleName) : nullptr;
 }
 
-std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string &bundleName,
-                                                                 const std::string &moduleName)
+std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string& bundleName,
+    const std::string& moduleName)
 {
     return contextImpl_ ? contextImpl_->CreateModuleContext(bundleName, moduleName) : nullptr;
 }
@@ -324,7 +324,7 @@ sptr<IRemoteObject> ApplicationContext::GetToken()
     return (contextImpl_ != nullptr) ? contextImpl_->GetToken() : nullptr;
 }
 
-void ApplicationContext::SetToken(const sptr<IRemoteObject> &token)
+void ApplicationContext::SetToken(const sptr<IRemoteObject>& token)
 {
     if (contextImpl_ != nullptr) {
         contextImpl_->SetToken(token);

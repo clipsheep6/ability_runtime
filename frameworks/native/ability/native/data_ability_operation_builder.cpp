@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-DataAbilityOperationBuilder::DataAbilityOperationBuilder(const int type, const std::shared_ptr<Uri> &uri)
+DataAbilityOperationBuilder::DataAbilityOperationBuilder(const int type, const std::shared_ptr<Uri>& uri)
 {
     type_ = type;
     uri_ = uri;
@@ -48,7 +48,7 @@ std::shared_ptr<DataAbilityOperation> DataAbilityOperationBuilder::Build()
     return nullptr;
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValuesBucket(
-    std::shared_ptr<NativeRdb::ValuesBucket> &values)
+    std::shared_ptr<NativeRdb::ValuesBucket>& values)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
@@ -67,7 +67,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicates(
-    std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates)
+    std::shared_ptr<NativeRdb::DataAbilityPredicates>& predicates)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicates start");
     if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE &&
@@ -113,7 +113,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPr
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValueBackReferences(
-    std::shared_ptr<NativeRdb::ValuesBucket> &backReferences)
+    std::shared_ptr<NativeRdb::ValuesBucket>& backReferences)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithValueBackReferences start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&

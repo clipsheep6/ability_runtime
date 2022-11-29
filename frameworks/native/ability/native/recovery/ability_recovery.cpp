@@ -59,7 +59,7 @@ static std::string GetSaveAppCachePath(int32_t savedStateId)
 }
 
 AbilityRecovery::AbilityRecovery() : isEnable_(false), restartFlag_(RestartFlag::ALWAYS_RESTART),
-    saveOccasion_(SaveOccasionFlag::SAVE_WHEN_ERROR), saveMode_(SaveModeFlag::SAVE_WITH_FILE)
+saveOccasion_(SaveOccasionFlag::SAVE_WHEN_ERROR), saveMode_(SaveModeFlag::SAVE_WITH_FILE)
 {
 }
 
@@ -164,7 +164,7 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
         return false;
     }
 
-    char path[PATH_MAX] = {0};
+    char path[PATH_MAX] = { 0 };
     if (realpath(file.c_str(), path) == nullptr) {
         HILOG_ERROR("AppRecovery realpath error, errno is %{public}d.", errno);
         return false;
@@ -293,7 +293,7 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
     return hasLoaded_;
 }
 
-bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason, const Want &want)
+bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason, const Want& want)
 {
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery not enable");
@@ -310,8 +310,8 @@ bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason, const Want
         return false;
     }
 
-    const WantParams &wantParams = want.GetParams();
-    WantParams &wantCurrent = const_cast<WantParams&>(wantParams);
+    const WantParams& wantParams = want.GetParams();
+    WantParams& wantCurrent = const_cast<WantParams&>(wantParams);
     for (auto& i : params_.GetParams()) {
         wantCurrent.SetParam(i.first, i.second.GetRefPtr());
     }

@@ -17,11 +17,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-IAbilityStageMonitor::IAbilityStageMonitor(const std::string &moduleName, const std::string &srcEntrance)
+IAbilityStageMonitor::IAbilityStageMonitor(const std::string& moduleName, const std::string& srcEntrance)
     : moduleName_(moduleName), srcEntrance_(srcEntrance)
 {}
 
-bool IAbilityStageMonitor::Match(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage, bool isNotify)
+bool IAbilityStageMonitor::Match(const std::shared_ptr<DelegatorAbilityStageProperty>& abilityStage, bool isNotify)
 {
     if (!abilityStage) {
         HILOG_ERROR("abilityStage to match is null");

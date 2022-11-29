@@ -26,7 +26,7 @@ ConnectCallbackStub::ConnectCallbackStub()
     memberFuncMap_[COMMAND_DISCONNECT] = &ConnectCallbackStub::DisconnectInner;
 }
 
-int ConnectCallbackStub::ConnectInner(MessageParcel &data, MessageParcel &reply)
+int ConnectCallbackStub::ConnectInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
@@ -36,7 +36,7 @@ int ConnectCallbackStub::ConnectInner(MessageParcel &data, MessageParcel &reply)
     return OHOS::ERR_NONE;
 }
 
-int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &reply)
+int ConnectCallbackStub::DisconnectInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
@@ -52,7 +52,7 @@ int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &rep
  * @return none
  */
 int ConnectCallbackStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     HILOG_INFO("%{public}s called", __func__);
     std::u16string token = data.ReadInterfaceToken();

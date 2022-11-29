@@ -29,7 +29,7 @@ DelegatorThread::DelegatorThread(bool isMain)
     handler_ = std::make_shared<EventHandler>(runner_);
 }
 
-bool DelegatorThread::Run(const DTask &task)
+bool DelegatorThread::Run(const DTask& task)
 {
     if (!task) {
         HILOG_WARN("Invalid input parameter");

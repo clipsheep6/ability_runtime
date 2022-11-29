@@ -35,7 +35,7 @@ constexpr size_t ARGC_ONE = 1;
 
 using namespace OHOS::AppExecFwk;
 
-NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *value, void *)
+NativeValue* AttachStaticSubscriberExtensionContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachStaticSubscriberExtensionContext");
     if (value == nullptr) {
@@ -47,17 +47,17 @@ NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsStaticSubscriberExtensionContext(*engine, ptr);
+    NativeValue* object = CreateJsStaticSubscriberExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.StaticSubscriberExtensionContext", &object, 1)->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine,
         DetachCallbackFunc, AttachStaticSubscriberExtensionContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<StaticSubscriberExtensionContext>(ptr);
     nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void *data, void *) {
+        [](NativeEngine*, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr static subscriber extension context is called");
-            delete static_cast<std::weak_ptr<StaticSubscriberExtensionContext> *>(data);
+            delete static_cast<std::weak_ptr<StaticSubscriberExtensionContext>*>(data);
         }, nullptr);
     return contextObj;
 }
@@ -115,7 +115,7 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
     auto shellContextRef = JsRuntime::LoadSystemModuleByEngine(&engine, "application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return;
@@ -203,7 +203,7 @@ void JsStaticSubscriberExtension::OnReceiveEvent(std::shared_ptr<EventFwk::Commo
         NativeValue* nativeParams = reinterpret_cast<NativeValue*>(napiParams);
         commonEventData->SetProperty("parameters", nativeParams);
 
-        NativeValue* argv[] = {jCommonEventData};
+        NativeValue* argv[] = { jCommonEventData };
 
         NativeValue* value = jsObj_->Get();
         NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);

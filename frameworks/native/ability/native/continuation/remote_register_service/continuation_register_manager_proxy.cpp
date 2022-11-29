@@ -23,8 +23,8 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-ContinuationRequestRegister::ContinuationRequestRegister(const std::string &bundleName, const ExtraParams &parameter,
-    const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback)
+ContinuationRequestRegister::ContinuationRequestRegister(const std::string& bundleName, const ExtraParams& parameter,
+    const std::shared_ptr<IContinuationDeviceCallback>& deviceCallback)
 {
     parameter_ = parameter;
     deviceCallback_ = deviceCallback;
@@ -69,7 +69,7 @@ void ContinuationRequestUnRegister::Execute(void)
 }
 
 ContinuationRequestUpdateConnectStatus::ContinuationRequestUpdateConnectStatus(
-    int token, const std::string &deviceId, int status)
+    int token, const std::string& deviceId, int status)
 {
     token_ = token;
     deviceId_ = deviceId;
@@ -92,7 +92,7 @@ void ContinuationRequestUpdateConnectStatus::Execute(void)
     }
 }
 
-ContinuationRequestShowDeviceList::ContinuationRequestShowDeviceList(int token, const ExtraParams &parameter)
+ContinuationRequestShowDeviceList::ContinuationRequestShowDeviceList(int token, const ExtraParams& parameter)
 {
     token_ = token;
     parameter_ = parameter;
@@ -114,7 +114,7 @@ void ContinuationRequestShowDeviceList::Execute(void)
     }
 }
 
-ContinuationRegisterManagerProxy::ContinuationRegisterManagerProxy(const std::weak_ptr<Context> &context)
+ContinuationRegisterManagerProxy::ContinuationRegisterManagerProxy(const std::weak_ptr<Context>& context)
 {
     context_ = context;
     std::shared_ptr<Context> ctx = context_.lock();
@@ -137,9 +137,9 @@ ContinuationRegisterManagerProxy::~ContinuationRegisterManagerProxy()
  * changes.
  * @param requestCallback Indicates the callback to be invoked when the Device+ service is connected.
  */
-void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, const ExtraParams &parameter,
-    const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback,
-    const std::shared_ptr<RequestCallback> &requestCallback)
+void ContinuationRegisterManagerProxy::Register(const std::string& bundleName, const ExtraParams& parameter,
+    const std::shared_ptr<IContinuationDeviceCallback>& deviceCallback,
+    const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called", __func__);
 
@@ -148,7 +148,7 @@ void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, c
         return;
     }
 
-    ContinuationRequestRegister *pContinuationRequestRegister =
+    ContinuationRequestRegister* pContinuationRequestRegister =
         new (std::nothrow) ContinuationRequestRegister(bundleName, parameter, deviceCallback);
     if (pContinuationRequestRegister != nullptr) {
         pContinuationRequestRegister->SetContext(context_);
@@ -171,7 +171,7 @@ void ContinuationRegisterManagerProxy::Register(const std::string &bundleName, c
  * @param requestCallback Indicates the callback to be invoked when the Device+ service is connected.
  * This parameter can be null.
  */
-void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_ptr<RequestCallback> &requestCallback)
+void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called", __func__);
 
@@ -180,7 +180,7 @@ void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_p
         return;
     }
 
-    ContinuationRequestUnRegister *pContinuationRequestUnRegister =
+    ContinuationRequestUnRegister* pContinuationRequestUnRegister =
         new (std::nothrow) ContinuationRequestUnRegister(token);
     if (pContinuationRequestUnRegister != nullptr) {
         pContinuationRequestUnRegister->SetContinuationConnector(continuatinConnector_);
@@ -206,7 +206,7 @@ void ContinuationRegisterManagerProxy::Unregister(int token, const std::shared_p
  * This parameter can be null.
  */
 void ContinuationRegisterManagerProxy::UpdateConnectStatus(
-    int token, const std::string &deviceId, int status, const std::shared_ptr<RequestCallback> &requestCallback)
+    int token, const std::string& deviceId, int status, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called", __func__);
 
@@ -215,7 +215,7 @@ void ContinuationRegisterManagerProxy::UpdateConnectStatus(
         return;
     }
 
-    ContinuationRequestUpdateConnectStatus *pContinuationRequestUpdateConnectStatus =
+    ContinuationRequestUpdateConnectStatus* pContinuationRequestUpdateConnectStatus =
         new (std::nothrow) ContinuationRequestUpdateConnectStatus(token, deviceId, status);
 
     if (pContinuationRequestUpdateConnectStatus != nullptr) {
@@ -240,7 +240,7 @@ void ContinuationRegisterManagerProxy::UpdateConnectStatus(
  * This parameter can be null.
  */
 void ContinuationRegisterManagerProxy::ShowDeviceList(
-    int token, const ExtraParams &parameter, const std::shared_ptr<RequestCallback> &requestCallback)
+    int token, const ExtraParams& parameter, const std::shared_ptr<RequestCallback>& requestCallback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
 
@@ -249,7 +249,7 @@ void ContinuationRegisterManagerProxy::ShowDeviceList(
         return;
     }
 
-    ContinuationRequestShowDeviceList *pContinuationRequestShowDeviceList =
+    ContinuationRequestShowDeviceList* pContinuationRequestShowDeviceList =
         new (std::nothrow) ContinuationRequestShowDeviceList(token, parameter);
     if (pContinuationRequestShowDeviceList != nullptr) {
         pContinuationRequestShowDeviceList->SetContinuationConnector(continuatinConnector_);
@@ -278,7 +278,7 @@ void ContinuationRegisterManagerProxy::Disconnect(void)
 }
 
 void ContinuationRegisterManagerProxy::SendRequest(
-    const std::weak_ptr<Context> &context, const std::shared_ptr<ContinuationRequest> &request)
+    const std::weak_ptr<Context>& context, const std::shared_ptr<ContinuationRequest>& request)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (request == nullptr) {

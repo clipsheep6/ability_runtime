@@ -74,8 +74,8 @@ AbilityThread::~AbilityThread()
     DelayedSingleton<AbilityImplFactory>::DestroyInstance();
 }
 
-std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
-    std::shared_ptr<OHOSApplication> &application)
+std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalRecord>& abilityRecord,
+    std::shared_ptr<OHOSApplication>& application)
 {
     std::string abilityName;
     if (abilityRecord == nullptr || application == nullptr) {
@@ -158,7 +158,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
 
     HILOG_DEBUG("Create ability name success, name is %{public}s.", abilityName.c_str());
     return abilityName;
-}
+    }
 
 /**
  * @description: Create and init contextDeal.
@@ -442,7 +442,7 @@ void AbilityThread::Attach(
  * @param want  Indicates the structure containing lifecycle information about the ability.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleAbilityTransaction(const Want & want, const LifeCycleStateInfo & lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Handle ability transaction begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -465,7 +465,7 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
  * @param want  Indicates the structure containing lifecycle information about the extension.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleExtensionTransaction(const Want & want, const LifeCycleStateInfo & lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleExtensionTransaction begin");
@@ -481,7 +481,7 @@ void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycle
  * @description:  Handle the current connection of Ability.
  * @param want  Indicates the structure containing connection information about the ability.
  */
-void AbilityThread::HandleConnectAbility(const Want &want)
+void AbilityThread::HandleConnectAbility(const Want & want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleConnectAbility begin");
@@ -501,7 +501,7 @@ void AbilityThread::HandleConnectAbility(const Want &want)
 /**
  * @description:  Handle the current disconnection of Ability.
  */
-void AbilityThread::HandleDisconnectAbility(const Want &want)
+void AbilityThread::HandleDisconnectAbility(const Want & want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Handle disconnect ability begin.");
@@ -530,7 +530,7 @@ void AbilityThread::HandleDisconnectAbility(const Want &want)
  * every time the ability is started. For example, if the ability has been started for six times, the value of startId
  * is 6.
  */
-void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int startId)
+void AbilityThread::HandleCommandAbility(const Want & want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleCommandAbility begin");
@@ -551,7 +551,7 @@ void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int sta
  *
  * @param want  Indicates the structure containing connection information about the extension.
  */
-void AbilityThread::HandleConnectExtension(const Want &want)
+void AbilityThread::HandleConnectExtension(const Want & want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleConnectExtension begin");
@@ -570,7 +570,7 @@ void AbilityThread::HandleConnectExtension(const Want &want)
 /**
  * @brief Handle the current disconnection of Extension.
  */
-void AbilityThread::HandleDisconnectExtension(const Want &want)
+void AbilityThread::HandleDisconnectExtension(const Want & want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleDisconnectExtension begin");
@@ -597,7 +597,7 @@ void AbilityThread::HandleDisconnectExtension(const Want &want)
  * every time the Extension is started. For example, if the Extension has been started for six times,
  * the value of startId is 6.
  */
-void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int startId)
+void AbilityThread::HandleCommandExtension(const Want & want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleCommandExtension begin");
@@ -617,7 +617,7 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
  * @description: Handle the restoreAbility state.
  * @param state  Indicates save ability state used to dispatchRestoreAbilityState.
  */
-void AbilityThread::HandleRestoreAbilityState(const PacMap &state)
+void AbilityThread::HandleRestoreAbilityState(const PacMap & state)
 {
     HILOG_DEBUG("AbilityThread::HandleRestoreAbilityState begin");
     if (abilityImpl_ == nullptr) {
@@ -648,7 +648,7 @@ void AbilityThread::ScheduleSaveAbilityState()
  * @description:  Provide operating system RestoreAbilityState information to the observer
  * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
  */
-void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
+void AbilityThread::ScheduleRestoreAbilityState(const PacMap & state)
 {
     HILOG_DEBUG("AbilityThread::ScheduleRestoreAbilityState begin");
     if (abilityImpl_ == nullptr) {
@@ -662,7 +662,7 @@ void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
 /*
  * @brief ScheduleUpdateConfiguration, scheduling update configuration.
  */
-void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
+void AbilityThread::ScheduleUpdateConfiguration(const Configuration & config)
 {
     HILOG_DEBUG("AbilityThread::ScheduleUpdateConfiguration begin");
     wptr<AbilityThread> weak = this;
@@ -695,7 +695,7 @@ void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
 /*
  * @brief Handle the scheduling update configuration.
  */
-void AbilityThread::HandleUpdateConfiguration(const Configuration &config)
+void AbilityThread::HandleUpdateConfiguration(const Configuration & config)
 {
     HILOG_DEBUG("AbilityThread::HandleUpdateConfiguration begin");
     if (abilityImpl_ == nullptr) {
@@ -707,7 +707,7 @@ void AbilityThread::HandleUpdateConfiguration(const Configuration &config)
     HILOG_DEBUG("AbilityThread::HandleUpdateConfiguration end");
 }
 
-void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration &config)
+void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration & config)
 {
     HILOG_DEBUG("AbilityThread::HandleExtensionUpdateConfiguration begin");
     if (!extensionImpl_) {
@@ -724,7 +724,7 @@ void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration &conf
  * @param want Indicates the structure containing Transaction information about the ability.
  * @param lifeCycleStateInfo Indicates the lifecycle state.
  */
-void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::ScheduleAbilityTransaction(const Want & want, const LifeCycleStateInfo & lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is %{public}d, isNewWant is %{public}d.",
@@ -765,7 +765,7 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
  * @description:  Provide operating system ConnectAbility information to the observer
  * @param  want Indicates the structure containing connect information about the ability.
  */
-void AbilityThread::ScheduleConnectAbility(const Want &want)
+void AbilityThread::ScheduleConnectAbility(const Want & want)
 {
     HILOG_DEBUG("AbilityThread::ScheduleConnectAbility begin, isExtension_:%{public}d", isExtension_);
     wptr<AbilityThread> weak = this;
@@ -798,7 +798,7 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
  * @description: Provide operating system ConnectAbility information to the observer
  * @return  None
  */
-void AbilityThread::ScheduleDisconnectAbility(const Want &want)
+void AbilityThread::ScheduleDisconnectAbility(const Want & want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Schedule disconnect ability begin, isExtension:%{public}d.", isExtension_);
@@ -839,7 +839,7 @@ void AbilityThread::ScheduleDisconnectAbility(const Want &want)
  * every time the ability is started. For example, if the ability has been started for six times, the value of startId
  * is 6.
  */
-void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
+void AbilityThread::ScheduleCommandAbility(const Want & want, bool restart, int startId)
 {
     HILOG_DEBUG("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
     wptr<AbilityThread> weak = this;
@@ -879,7 +879,7 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
  * @param want Indicates the data returned after the ability is destroyed. You can define the data returned. This
  * parameter can be null.
  */
-void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
+void AbilityThread::SendResult(int requestCode, int resultCode, const Want & want)
 {
     HILOG_DEBUG("AbilityThread::SendResult begin");
     if (abilityImpl_ == nullptr) {
@@ -918,7 +918,7 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
  *
  * @return Returns the matched MIME types. If there is no match, null is returned.
  */
-std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> AbilityThread::GetFileTypes(const Uri & uri, const std::string & mimeTypeFilter)
 {
     HILOG_DEBUG("AbilityThread::GetFileTypes begin");
     std::vector<std::string> types;
@@ -943,7 +943,7 @@ std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::
  *
  * @return Returns the file descriptor.
  */
-int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
+int AbilityThread::OpenFile(const Uri & uri, const std::string & mode)
 {
     HILOG_DEBUG("AbilityThread::OpenFile begin");
     int fd = -1;
@@ -969,7 +969,7 @@ int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
  *
  * @return Returns the RawFileDescriptor object containing file descriptor.
  */
-int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
+int AbilityThread::OpenRawFile(const Uri & uri, const std::string & mode)
 {
     HILOG_DEBUG("AbilityThread::OpenRawFile begin");
     int fd = -1;
@@ -991,7 +991,7 @@ int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
  *
  * @return Returns the index of the inserted data record.
  */
-int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int AbilityThread::Insert(const Uri & uri, const NativeRdb::ValuesBucket & value)
 {
     HILOG_DEBUG("AbilityThread::Insert begin");
     int index = -1;
@@ -1006,7 +1006,7 @@ int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri & uri, const std::string & method, const std::string & arg, const AppExecFwk::PacMap & pacMap)
 {
     HILOG_DEBUG("AbilityThread::Call begin");
     if (abilityImpl_ == nullptr) {
@@ -1029,7 +1029,7 @@ std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
  * @return Returns the number of data records updated.
  */
 int AbilityThread::Update(
-    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri & uri, const NativeRdb::ValuesBucket & value, const NativeRdb::DataAbilityPredicates & predicates)
 {
     HILOG_DEBUG("AbilityThread::Update begin");
     int index = -1;
@@ -1051,7 +1051,7 @@ int AbilityThread::Update(
  *
  * @return Returns the number of data records deleted.
  */
-int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityThread::Delete(const Uri & uri, const NativeRdb::DataAbilityPredicates & predicates)
 {
     HILOG_DEBUG("AbilityThread::Delete begin");
     int index = -1;
@@ -1074,7 +1074,7 @@ int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates
  * @return Returns the query result.
  */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri & uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates & predicates)
 {
     HILOG_DEBUG("AbilityThread::Query begin");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
@@ -1096,7 +1096,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
  *
  * @return Returns the MIME type that matches the data specified by uri.
  */
-std::string AbilityThread::GetType(const Uri &uri)
+std::string AbilityThread::GetType(const Uri & uri)
 {
     HILOG_DEBUG("AbilityThread::GetType begin");
     std::string type;
@@ -1120,7 +1120,7 @@ std::string AbilityThread::GetType(const Uri &uri)
  *
  * @return Returns true if the data is successfully reloaded; returns false otherwise.
  */
-bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
+bool AbilityThread::Reload(const Uri & uri, const PacMap & extras)
 {
     HILOG_DEBUG("AbilityThread::Reload begin");
     bool ret = false;
@@ -1141,7 +1141,7 @@ bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
  *
  * @return Returns the number of data records inserted.
  */
-int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int AbilityThread::BatchInsert(const Uri & uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("AbilityThread::BatchInsert begin");
     int ret = -1;
@@ -1155,7 +1155,7 @@ int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Valu
     return ret;
 }
 
-void AbilityThread::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
+void AbilityThread::ContinueAbility(const std::string & deviceId, uint32_t versionCode)
 {
     HILOG_DEBUG("ContinueAbility");
     if (abilityImpl_ == nullptr) {
@@ -1281,7 +1281,7 @@ void AbilityThread::InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> 
  *
  * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
  */
-Uri AbilityThread::NormalizeUri(const Uri &uri)
+Uri AbilityThread::NormalizeUri(const Uri & uri)
 {
     HILOG_DEBUG("AbilityThread::NormalizeUri begin");
     Uri urivalue("");
@@ -1305,7 +1305,7 @@ Uri AbilityThread::NormalizeUri(const Uri &uri)
  * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
  * current environment.
  */
-Uri AbilityThread::DenormalizeUri(const Uri &uri)
+Uri AbilityThread::DenormalizeUri(const Uri & uri)
 {
     HILOG_DEBUG("AbilityThread::DenormalizeUri begin");
     Uri urivalue("");
@@ -1325,7 +1325,7 @@ Uri AbilityThread::DenormalizeUri(const Uri &uri)
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-bool AbilityThread::HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+bool AbilityThread::HandleRegisterObserver(const Uri & uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
@@ -1347,7 +1347,7 @@ bool AbilityThread::HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDa
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-bool AbilityThread::HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+bool AbilityThread::HandleUnregisterObserver(const Uri & uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
@@ -1368,7 +1368,7 @@ bool AbilityThread::HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::I
  *
  * @param uri, Indicates the path of the data to operate.
  */
-bool AbilityThread::HandleNotifyChange(const Uri &uri)
+bool AbilityThread::HandleNotifyChange(const Uri & uri)
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
@@ -1401,7 +1401,7 @@ bool AbilityThread::CheckObsPermission()
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+bool AbilityThread::ScheduleRegisterObserver(const Uri & uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
@@ -1437,7 +1437,7 @@ bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::I
  * @param uri, Indicates the path of the data to operate.
  * @param dataObserver, Indicates the IDataAbilityObserver object.
  */
-bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+bool AbilityThread::ScheduleUnregisterObserver(const Uri & uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
@@ -1472,7 +1472,7 @@ bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk:
  *
  * @param uri, Indicates the path of the data to operate.
  */
-bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
+bool AbilityThread::ScheduleNotifyChange(const Uri & uri)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
@@ -1649,7 +1649,7 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
 
     sptr<IRemoteObject> retval = nullptr;
     std::weak_ptr<OHOS::AppExecFwk::Ability> weakAbility = currentAbility_;
-    auto syncTask = [ability = weakAbility, &retval] () {
+    auto syncTask = [ability = weakAbility, &retval]() {
         auto currentAbility = ability.lock();
         if (currentAbility == nullptr) {
             HILOG_ERROR("ability is nullptr.");
@@ -1677,7 +1677,7 @@ int AbilityThread::BlockAbility()
     if (abilityHandler_) {
         auto task = []() {
             while (1) {
-                std::this_thread::sleep_for(BLOCK_ABILITY_TIME*1s);
+                std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
             }
         };
         abilityHandler_->PostTask(task);

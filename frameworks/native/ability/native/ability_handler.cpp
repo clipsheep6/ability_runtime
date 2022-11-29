@@ -17,11 +17,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityHandler::AbilityHandler(const std::shared_ptr<EventRunner> &runner)
+AbilityHandler::AbilityHandler(const std::shared_ptr<EventRunner>& runner)
     : EventHandler(runner)
 {}
 
-void AbilityHandler::ProcessEvent([[maybe_unused]] const InnerEvent::Pointer &event)
+void AbilityHandler::ProcessEvent([[maybe_unused]] const InnerEvent::Pointer& event)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

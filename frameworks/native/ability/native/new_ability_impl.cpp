@@ -27,10 +27,10 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  *
  */
 
-void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void NewAbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
-             "isNewWant: %{public}d, sceneFlag: %{public}d",
+        "isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant,
@@ -65,7 +65,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     }
 }
 
-void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
+void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState& state)
 {
     HILOG_INFO("Handle ability transaction done, notify ability manager service.");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
@@ -80,7 +80,7 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
  * @return return true if need notify ams, otherwise return false.
  *
  */
-bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+bool NewAbilityImpl::AbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;

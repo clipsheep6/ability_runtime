@@ -18,25 +18,25 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityLoader &AbilityLoader::GetInstance()
+AbilityLoader& AbilityLoader::GetInstance()
 {
     static AbilityLoader abilityLoader;
     return abilityLoader;
 }
 
-void AbilityLoader::RegisterAbility(const std::string &abilityName, const CreateAblity &createFunc)
+void AbilityLoader::RegisterAbility(const std::string& abilityName, const CreateAblity& createFunc)
 {
     abilities_.emplace(abilityName, createFunc);
     HILOG_DEBUG("AbilityLoader::RegisterAbility:%{public}s", abilityName.c_str());
 }
 
-void AbilityLoader::RegisterExtension(const std::string &abilityName, const CreateExtension &createFunc)
+void AbilityLoader::RegisterExtension(const std::string& abilityName, const CreateExtension& createFunc)
 {
     extensions_.emplace(abilityName, createFunc);
     HILOG_DEBUG("AbilityLoader::RegisterExtension:%{public}s", abilityName.c_str());
 }
 
-Ability *AbilityLoader::GetAbilityByName(const std::string &abilityName)
+Ability* AbilityLoader::GetAbilityByName(const std::string& abilityName)
 {
     auto it = abilities_.find(abilityName);
     if (it != abilities_.end()) {
@@ -46,7 +46,7 @@ Ability *AbilityLoader::GetAbilityByName(const std::string &abilityName)
     return nullptr;
 }
 
-AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &abilityName)
+AbilityRuntime::Extension* AbilityLoader::GetExtensionByName(const std::string& abilityName)
 {
     auto it = extensions_.find(abilityName);
     if (it != extensions_.end()) {
@@ -57,13 +57,13 @@ AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &
 }
 
 #ifdef ABILITY_WINDOW_SUPPORT
-void AbilityLoader::RegisterAbilitySlice(const std::string &sliceName, const CreateSlice &createFunc)
+void AbilityLoader::RegisterAbilitySlice(const std::string& sliceName, const CreateSlice& createFunc)
 {
     slices_.emplace(sliceName, createFunc);
     HILOG_DEBUG(HILOG_MODULE_APP, "RegisterAbilitySlice %s", sliceName.c_str());
 }
 
-AbilitySlice *AbilityLoader::GetAbilitySliceByName(const std::string &sliceName)
+AbilitySlice* AbilityLoader::GetAbilitySliceByName(const std::string& sliceName)
 {
     auto it = slices_.find(sliceName);
     if (it != slices_.end()) {

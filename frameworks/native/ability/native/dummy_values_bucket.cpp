@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-ValuesBucket::ValuesBucket(const std::string &testInf) : testInf_(testInf)
+ValuesBucket::ValuesBucket(const std::string& testInf) : testInf_(testInf)
 {}
 
 /**
@@ -27,7 +27,7 @@ ValuesBucket::ValuesBucket(const std::string &testInf) : testInf_(testInf)
  * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
  * @return Returns true if read succeeded; returns false otherwise.
  */
-bool ValuesBucket::ReadFromParcel(Parcel &parcel)
+bool ValuesBucket::ReadFromParcel(Parcel& parcel)
 {
     testInf_ = Str16ToStr8(parcel.ReadString16());
     return true;
@@ -38,9 +38,9 @@ bool ValuesBucket::ReadFromParcel(Parcel &parcel)
  *
  * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
  */
-ValuesBucket *ValuesBucket::Unmarshalling(Parcel &parcel)
+ValuesBucket* ValuesBucket::Unmarshalling(Parcel& parcel)
 {
-    ValuesBucket *valuesBucket = new (std::nothrow) ValuesBucket();
+    ValuesBucket* valuesBucket = new (std::nothrow) ValuesBucket();
     if (valuesBucket && !valuesBucket->ReadFromParcel(parcel)) {
         HILOG_ERROR("ValuesBucket::Unmarshalling ReadFromParcel failed");
         delete valuesBucket;
@@ -54,7 +54,7 @@ ValuesBucket *ValuesBucket::Unmarshalling(Parcel &parcel)
  *
  * @param outParcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
  */
-bool ValuesBucket::Marshalling(Parcel &parcel) const
+bool ValuesBucket::Marshalling(Parcel& parcel) const
 {
     if (!parcel.WriteString16(Str8ToStr16(testInf_))) {
         HILOG_ERROR("valuesBucket::Marshalling WriteString16 failed");

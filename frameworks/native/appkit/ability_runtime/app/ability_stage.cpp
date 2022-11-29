@@ -38,7 +38,7 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
     }
 }
 
-void AbilityStage::OnCreate(const AAFwk::Want &want) const
+void AbilityStage::OnCreate(const AAFwk::Want& want) const
 {
     HILOG_DEBUG("AbilityStage OnCreate come.");
 }
@@ -58,8 +58,8 @@ void AbilityStage::Init(const std::shared_ptr<Context>& context)
     context_ = context;
 }
 
-void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
+void AbilityStage::AddAbility(const sptr<IRemoteObject>& token,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord>& abilityRecord)
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityStage::AddAbility failed, token is nullptr");
@@ -74,7 +74,7 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
     abilityRecords_[token] = abilityRecord;
 }
 
-void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
+void AbilityStage::RemoveAbility(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityStage::RemoveAbility failed, token is nullptr");
@@ -88,7 +88,7 @@ bool AbilityStage::ContainsAbility() const
     return !abilityRecords_.empty();
 }
 
-std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)
+std::string AbilityStage::OnAcceptWant(const AAFwk::Want& want)
 {
     HILOG_DEBUG("AbilityStage::OnAcceptWant come");
     return "";

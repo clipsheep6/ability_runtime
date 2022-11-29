@@ -23,17 +23,17 @@ AbilityTransactionCallbackInfo::AbilityTransactionCallbackInfo()
 
 AbilityTransactionCallbackInfo::~AbilityTransactionCallbackInfo() = default;
 
-AbilityTransactionCallbackInfo *AbilityTransactionCallbackInfo::Create()
+AbilityTransactionCallbackInfo* AbilityTransactionCallbackInfo::Create()
 {
     return new (std::nothrow) AbilityTransactionCallbackInfo();
 }
 
-void AbilityTransactionCallbackInfo::Destroy(AbilityTransactionCallbackInfo *callbackInfo)
+void AbilityTransactionCallbackInfo::Destroy(AbilityTransactionCallbackInfo* callbackInfo)
 {
     delete callbackInfo;
 }
 
-void AbilityTransactionCallbackInfo::Push(const AbilityTransactionCallbackFunc &callback)
+void AbilityTransactionCallbackInfo::Push(const AbilityTransactionCallbackFunc& callback)
 {
     callbackStack_.push(callback);
 }

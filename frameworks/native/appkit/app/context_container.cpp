@@ -34,7 +34,7 @@ constexpr int CURRENT_ACCOUNT_ID = 100;
  *
  * @param base Indicates a Context object.
  */
-void ContextContainer::AttachBaseContext(const std::shared_ptr<Context> &base)
+void ContextContainer::AttachBaseContext(const std::shared_ptr<Context>& base)
 {
     if (base == nullptr) {
         HILOG_ERROR("ContextDeal::AttachBaseContext failed, base is nullptr");
@@ -172,7 +172,7 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextContainer::GetResource
  *
  * @return Returns true if the file is deleted successfully; returns false otherwise.
  */
-bool ContextContainer::DeleteFile(const std::string &fileName)
+bool ContextContainer::DeleteFile(const std::string& fileName)
 {
     if (baseContext_ != nullptr) {
         return baseContext_->DeleteFile(fileName);
@@ -258,7 +258,7 @@ std::string ContextContainer::GetDataDir()
  *
  * @return Returns a File object for the requested directory.
  */
-std::string ContextContainer::GetDir(const std::string &name, int mode)
+std::string ContextContainer::GetDir(const std::string& name, int mode)
 {
     if (baseContext_ != nullptr) {
         return baseContext_->GetDir(name, mode);
@@ -294,7 +294,7 @@ std::string ContextContainer::GetExternalCacheDir()
  * @return Returns the absolute path to the application file directory on the external or shared storage
  * device; returns null if the external or shared storage device is temporarily unavailable.
  */
-std::string ContextContainer::GetExternalFilesDir(std::string &type)
+std::string ContextContainer::GetExternalFilesDir(std::string& type)
 {
     if (baseContext_ != nullptr) {
         return baseContext_->GetExternalFilesDir(type);
@@ -346,7 +346,7 @@ std::string ContextContainer::GetNoBackupFilesDir()
  * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
  * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
  */
-int ContextContainer::VerifySelfPermission(const std::string &permission)
+int ContextContainer::VerifySelfPermission(const std::string& permission)
 {
     if (baseContext_ != nullptr) {
         return baseContext_->VerifySelfPermission(permission);
@@ -394,7 +394,7 @@ std::string ContextContainer::GetBundleResourcePath()
  * @param uid Indicates the UID of the unauth to check.
  *
  */
-void ContextContainer::UnauthUriPermission(const std::string &permission, const Uri &uri, int uid)
+void ContextContainer::UnauthUriPermission(const std::string& permission, const Uri& uri, int uid)
 {
     if (baseContext_ != nullptr) {
         baseContext_->UnauthUriPermission(permission, uri, uid);
@@ -446,7 +446,7 @@ std::string ContextContainer::GetAppType()
  * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
  * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
  */
-int ContextContainer::VerifyPermission(const std::string &permission, int pid, int uid)
+int ContextContainer::VerifyPermission(const std::string& permission, int pid, int uid)
 {
     if (baseContext_ != nullptr) {
         return baseContext_->VerifyPermission(permission, pid, uid);
@@ -540,8 +540,8 @@ std::string ContextContainer::GetProcessName()
  * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
  * @param task The callback or promise fo js interface.
  */
-void ContextContainer::RequestPermissionsFromUser(std::vector<std::string> &permissions,
-    std::vector<int> &permissionsState, PermissionRequestTask &&task)
+void ContextContainer::RequestPermissionsFromUser(std::vector<std::string>& permissions,
+    std::vector<int>& permissionsState, PermissionRequestTask&& task)
 {
     if (baseContext_ != nullptr) {
         baseContext_->RequestPermissionsFromUser(permissions, permissionsState, std::move(task));
@@ -594,7 +594,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     return appContext;
 }
 
-void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal)
+void ContextContainer::InitResourceManager(BundleInfo& bundleInfo, std::shared_ptr<ContextDeal>& deal)
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (deal == nullptr || resourceManager == nullptr) {

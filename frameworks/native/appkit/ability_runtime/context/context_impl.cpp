@@ -56,7 +56,7 @@ const std::string ContextImpl::CONTEXT_DATABASE("database");
 const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
-const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
+const std::string ContextImpl::CONTEXT_ELS[] = { "el1", "el2" };
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 
 std::string ContextImpl::GetBundleName() const
@@ -170,12 +170,12 @@ void ContextImpl::SwitchArea(int mode)
     HILOG_DEBUG("ContextImpl::SwitchArea end, currArea:%{public}s.", currArea_.c_str());
 }
 
-std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &moduleName)
+std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string& moduleName)
 {
     return CreateModuleContext(GetBundleName(), moduleName);
 }
 
-std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
+std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string& bundleName, const std::string& moduleName)
 {
     if (bundleName.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
@@ -210,7 +210,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     bool hasModule = false;
     auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
-        [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
+        [&moduleName](const AppExecFwk::HapModuleInfo& hapModuleInfo) {
             return hapModuleInfo.moduleName == moduleName;
         });
     if (info != bundleInfo.hapModuleInfos.end()) {
@@ -304,7 +304,7 @@ int ContextImpl::GetCurrentActiveAccountId() const
     return accountIds[0];
 }
 
-std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
+std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string& bundleName)
 {
     if (parentContext_ != nullptr) {
         return parentContext_->CreateBundleContext(bundleName);
@@ -345,8 +345,8 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     return appContext;
 }
 
-void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName) const
+void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo& bundleInfo,
+    const std::shared_ptr<ContextImpl>& appContext, bool currentBundle, const std::string& moduleName) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
@@ -361,7 +361,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
-            std::string loadPath =  (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
+            std::string loadPath = (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
                 !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
             if (loadPath.empty()) {
                 continue;
@@ -418,7 +418,7 @@ sptr<AppExecFwk::IBundleMgr> ContextImpl::GetBundleManager() const
     return bms;
 }
 
-void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
+void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo>& info)
 {
     if (info == nullptr) {
         HILOG_ERROR("ContextImpl::SetApplicationInfo failed, info is empty");
@@ -427,7 +427,7 @@ void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::Applicati
     applicationInfo_ = info;
 }
 
-void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager>& resourceManager)
 {
     HILOG_DEBUG("ContextImpl::initResourceManager. Start.");
     resourceManager_ = resourceManager;
@@ -452,7 +452,7 @@ std::shared_ptr<AppExecFwk::ApplicationInfo> ContextImpl::GetApplicationInfo() c
     return applicationInfo_;
 }
 
-void ContextImpl::SetParentContext(const std::shared_ptr<Context> &context)
+void ContextImpl::SetParentContext(const std::shared_ptr<Context>& context)
 {
     parentContext_ = context;
 }
@@ -465,7 +465,7 @@ std::string ContextImpl::GetBundleCodePath() const
     return (applicationInfo_ != nullptr) ? applicationInfo_->codePath : "";
 }
 
-void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo)
+void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
 {
     if (hapModuleInfo_ != nullptr || abilityInfo == nullptr) {
         return;
@@ -482,7 +482,7 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
     }
 }
 
-void ContextImpl::InitHapModuleInfo(const AppExecFwk::HapModuleInfo &hapModuleInfo)
+void ContextImpl::InitHapModuleInfo(const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>(hapModuleInfo);
 }
@@ -514,7 +514,7 @@ std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
     return applicationContext_;
 }
 
-void ContextImpl::SetToken(const sptr<IRemoteObject> &token)
+void ContextImpl::SetToken(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         HILOG_DEBUG("ContextImpl::SetToken failed, application is nullptr");
@@ -543,7 +543,7 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& 
     }
 }
 
-void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config)
+void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
     config_ = config;
 }

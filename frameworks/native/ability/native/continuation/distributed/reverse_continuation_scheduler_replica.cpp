@@ -19,14 +19,14 @@
 namespace OHOS {
 namespace AppExecFwk {
 ReverseContinuationSchedulerReplica::ReverseContinuationSchedulerReplica(
-    const std::shared_ptr<AbilityHandler> &mainHandler,
-    const std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> &replicaHandler)
+    const std::shared_ptr<AbilityHandler>& mainHandler,
+    const std::weak_ptr<IReverseContinuationSchedulerReplicaHandler>& replicaHandler)
 {
     mainHandler_ = mainHandler;
     replicaHandler_ = replicaHandler;
 }
 
-void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject> &primary)
+void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject>& primary)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this, primary]() {
@@ -84,7 +84,7 @@ void ReverseContinuationSchedulerReplica::NotifyReverseResult(int reverseResult)
     HILOG_INFO("%{public}s called end", __func__);
 }
 
-void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteObject> &primary)
+void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteObject>& primary)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;

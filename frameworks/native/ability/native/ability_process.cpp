@@ -27,7 +27,7 @@ using OHOS::Security::AccessToken::TypePermissionOper;
 
 namespace OHOS {
 namespace AppExecFwk {
-static void *g_handle = nullptr;
+static void* g_handle = nullptr;
 #ifdef SUPPORT_GRAPHICS
 #ifdef _ARM64_
 constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib64/module/ability/libfeatureability.z.so";
@@ -36,13 +36,13 @@ constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib/module/ability/li
 #endif
 #endif
 constexpr char FUNC_CALL_ON_ABILITY_RESULT[] = "CallOnAbilityResult";
-using NAPICallOnAbilityResult = void (*)(int requestCode, int resultCode, const Want &resultData, CallbackInfo cb);
+using NAPICallOnAbilityResult = void (*)(int requestCode, int resultCode, const Want& resultData, CallbackInfo cb);
 constexpr char FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT[] = "CallOnRequestPermissionsFromUserResult";
 using NAPICallOnRequestPermissionsFromUserResult = void (*)(int requestCode,
-    const std::vector<std::string> &permissions, const std::vector<int> &grantResults, CallbackInfo callbackInfo);
+    const std::vector<std::string>& permissions, const std::vector<int>& grantResults, CallbackInfo callbackInfo);
 
 std::shared_ptr<AbilityProcess> AbilityProcess::instance_ = nullptr;
-std::map<Ability *, std::map<int, CallbackInfo>> AbilityProcess::abilityResultMap_;
+std::map<Ability*, std::map<int, CallbackInfo>> AbilityProcess::abilityResultMap_;
 std::mutex AbilityProcess::mutex_;
 std::shared_ptr<AbilityProcess> AbilityProcess::GetInstance()
 {
@@ -61,7 +61,7 @@ AbilityProcess::AbilityProcess()
 AbilityProcess::~AbilityProcess()
 {}
 
-ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
+ErrCode AbilityProcess::StartAbility(Ability* ability, CallAbilityParam param, CallbackInfo callback)
 {
     HILOG_INFO("AbilityProcess::StartAbility begin");
     if (ability == nullptr) {
@@ -114,8 +114,8 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     return err;
 }
 
-void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam &param, int32_t errCode,
-                                              CallbackInfo &callback)
+void AbilityProcess::AddAbilityResultCallback(Ability* ability, CallAbilityParam& param, int32_t errCode,
+    CallbackInfo& callback)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -132,7 +132,7 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
     abilityResultMap_[ability] = map;
 }
 
-void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
+void AbilityProcess::OnAbilityResult(Ability* ability, int requestCode, int resultCode, const Want& resultData)
 {
     HILOG_INFO("AbilityProcess::OnAbilityResult begin");
 
@@ -182,7 +182,7 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
 }
 
 void AbilityProcess::RequestPermissionsFromUser(
-    Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo)
+    Ability* ability, CallAbilityPermissionParam& param, CallbackInfo callbackInfo)
 {
     HILOG_INFO("AbilityProcess::RequestPermissionsFromUser begin");
     if (ability == nullptr) {
@@ -224,7 +224,7 @@ void AbilityProcess::RequestPermissionsFromUser(
     }
 
     auto task = [self = GetInstance(), requestCode, callbackInfo]
-        (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
+    (const std::vector<std::string>& permissions, const std::vector<int>& grantResults) mutable {
         if (!self) {
             HILOG_ERROR("%{public}s: self is nullptr.", __func__);
             return;
@@ -238,8 +238,8 @@ void AbilityProcess::RequestPermissionsFromUser(
     ability->RequestPermissionsFromUser(param.permission_list, permissionsState, std::move(task));
 }
 
-bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &permissions,
-    const std::vector<int> &permissionsState, CallbackInfo &callbackInfo)
+bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string>& permissions,
+    const std::vector<int>& permissionsState, CallbackInfo& callbackInfo)
 {
 #ifdef SUPPORT_GRAPHICS
     // start open featureability lib

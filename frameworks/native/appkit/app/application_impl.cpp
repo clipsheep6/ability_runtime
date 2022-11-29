@@ -30,7 +30,7 @@ ApplicationImpl::ApplicationImpl() : curState_(APP_STATE_CREATE), recordId_(0)
  * @param application The application which the mainthread launched.
  *
  */
-void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &application)
+void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication>& application)
 {
     if (application == nullptr) {
         HILOG_ERROR("ApplicationImpl::SetApplication failed, application is nullptr");
@@ -170,7 +170,7 @@ void ApplicationImpl::PerformMemoryLevel(int level)
  * @param config Indicates the updated configuration information.
  *
  */
-void ApplicationImpl::PerformConfigurationUpdated(const Configuration &config)
+void ApplicationImpl::PerformConfigurationUpdated(const Configuration& config)
 {
     HILOG_DEBUG("ApplicationImpl::PerformConfigurationUpdated called");
     if (application_ != nullptr) {

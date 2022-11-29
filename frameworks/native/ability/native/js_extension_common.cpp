@@ -32,19 +32,19 @@ constexpr size_t ARGC_ONE = 1;
 
 using namespace OHOS::AppExecFwk;
 
-std::shared_ptr<JsExtensionCommon> JsExtensionCommon::Create(JsRuntime &jsRuntime, NativeReference &jsObj,
-    const std::shared_ptr<NativeReference> &shellContextRef)
+std::shared_ptr<JsExtensionCommon> JsExtensionCommon::Create(JsRuntime& jsRuntime, NativeReference& jsObj,
+    const std::shared_ptr<NativeReference>& shellContextRef)
 {
     return std::make_shared<JsExtensionCommon>(jsRuntime, jsObj, shellContextRef);
 }
 
-JsExtensionCommon::JsExtensionCommon(JsRuntime &jsRuntime, NativeReference &jsObj,
-    const std::shared_ptr<NativeReference> &shellContextRef)
+JsExtensionCommon::JsExtensionCommon(JsRuntime& jsRuntime, NativeReference& jsObj,
+    const std::shared_ptr<NativeReference>& shellContextRef)
     : jsRuntime_(jsRuntime), jsObj_(jsObj), shellContextRef_(shellContextRef) {}
 
 JsExtensionCommon::~JsExtensionCommon() = default;
 
-void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration> &fullConfig)
+void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration>& fullConfig)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (!fullConfig) {
@@ -67,17 +67,17 @@ void JsExtensionCommon::OnMemoryLevel(int level)
     HILOG_DEBUG("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
-    NativeValue *value = jsObj_.Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    NativeValue* value = jsObj_.Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get js instance object");
         return;
     }
 
-    NativeValue *jslevel = CreateJsValue(nativeEngine, level);
-    NativeValue *argv[] = {
+    NativeValue* jslevel = CreateJsValue(nativeEngine, level);
+    NativeValue* argv[] = {
         jslevel,
     };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));

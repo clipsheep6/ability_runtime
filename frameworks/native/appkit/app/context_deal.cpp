@@ -44,7 +44,7 @@ const std::string ContextDeal::CONTEXT_DISTRIBUTED_BASE_BEFORE("/mnt/hmdfs/");
 const std::string ContextDeal::CONTEXT_DISTRIBUTED_BASE_MIDDLE("/device_view/local/data/");
 const std::string ContextDeal::CONTEXT_DISTRIBUTED("distributedfiles");
 const std::string ContextDeal::CONTEXT_DATA_STORAGE("/data/storage/");
-const std::string ContextDeal::CONTEXT_ELS[] = {"el1", "el2"};
+const std::string ContextDeal::CONTEXT_ELS[] = { "el1", "el2" };
 const std::string ContextDeal::CONTEXT_DEAL_DATA_APP("/data/app/");
 const std::string ContextDeal::CONTEXT_DEAL_BASE("base");
 const std::string ContextDeal::CONTEXT_DEAL_DATABASE("database");
@@ -71,7 +71,7 @@ std::shared_ptr<ProcessInfo> ContextDeal::GetProcessInfo() const
  *
  * @param info ProcessInfo instance
  */
-void ContextDeal::SetProcessInfo(const std::shared_ptr<ProcessInfo> &info)
+void ContextDeal::SetProcessInfo(const std::shared_ptr<ProcessInfo>& info)
 {
     HILOG_DEBUG("ContextDeal::SetProcessInfo");
     if (info == nullptr) {
@@ -97,7 +97,7 @@ std::shared_ptr<ApplicationInfo> ContextDeal::GetApplicationInfo() const
  *
  * @param info ApplicationInfo instance.
  */
-void ContextDeal::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &info)
+void ContextDeal::SetApplicationInfo(const std::shared_ptr<ApplicationInfo>& info)
 {
     HILOG_DEBUG("ContextDeal::SetApplicationInfo");
     if (info == nullptr) {
@@ -122,7 +122,7 @@ std::shared_ptr<Context> ContextDeal::GetApplicationContext() const
  *
  * @param context ApplicationContext instance.
  */
-void ContextDeal::SetApplicationContext(const std::shared_ptr<Context> &context)
+void ContextDeal::SetApplicationContext(const std::shared_ptr<Context>& context)
 {
     HILOG_DEBUG("ContextDeal::SetApplicationContext");
     if (context == nullptr) {
@@ -159,7 +159,7 @@ std::string ContextDeal::GetBundleCodePath()
  *
  * @param Returns string path
  */
-void ContextDeal::SetBundleCodePath(std::string &path)
+void ContextDeal::SetBundleCodePath(std::string& path)
 {
     path_ = path;
 }
@@ -180,7 +180,7 @@ const std::shared_ptr<AbilityInfo> ContextDeal::GetAbilityInfo()
  *
  * @param info AbilityInfo instance.
  */
-void ContextDeal::SetAbilityInfo(const std::shared_ptr<AbilityInfo> &info)
+void ContextDeal::SetAbilityInfo(const std::shared_ptr<AbilityInfo>& info)
 {
     HILOG_DEBUG("ContextDeal::SetAbilityInfo");
     if (info == nullptr) {
@@ -205,7 +205,7 @@ std::shared_ptr<Context> ContextDeal::GetContext()
  *
  * @param context Ability object
  */
-void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
+void ContextDeal::SetContext(const std::shared_ptr<Context>& context)
 {
     HILOG_DEBUG("ContextDeal::SetContext");
     if (context == nullptr) {
@@ -249,7 +249,7 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManag
  *
  * @param Profile instance.
  */
-void ContextDeal::SetProfile(const std::shared_ptr<Profile> &profile)
+void ContextDeal::SetProfile(const std::shared_ptr<Profile>& profile)
 {
     HILOG_DEBUG("ContextDeal::SetProfile");
     if (profile == nullptr) {
@@ -276,7 +276,7 @@ std::shared_ptr<Profile> ContextDeal::GetProfile() const
  *
  * @return Returns true if the file is deleted successfully; returns false otherwise.
  */
-bool ContextDeal::DeleteFile(const std::string &fileName)
+bool ContextDeal::DeleteFile(const std::string& fileName)
 {
     HILOG_DEBUG("ContextDeal::DeleteFile begin");
     std::string path = GetDataDir() + CONTEXT_DEAL_FILE_SEPARATOR + fileName;
@@ -295,7 +295,7 @@ bool ContextDeal::DeleteFile(const std::string &fileName)
  *
  * @return Returns true if the ability is destroyed successfully; returns false otherwise.
  */
-bool ContextDeal::StopAbility(const AAFwk::Want &want)
+bool ContextDeal::StopAbility(const AAFwk::Want& want)
 {
     return false;
 }
@@ -384,7 +384,7 @@ std::string ContextDeal::GetDataDir()
  *
  * @return Returns a File object for the requested directory.
  */
-std::string ContextDeal::GetDir(const std::string &name, int mode)
+std::string ContextDeal::GetDir(const std::string& name, int mode)
 {
     HILOG_DEBUG("ContextDeal::GetDir begin");
     if (applicationInfo_ == nullptr) {
@@ -422,7 +422,7 @@ std::string ContextDeal::GetExternalCacheDir()
  * @return Returns the absolute path to the application file directory on the external or shared storage
  * device; returns null if the external or shared storage device is temporarily unavailable.
  */
-std::string ContextDeal::GetExternalFilesDir(std::string &type)
+std::string ContextDeal::GetExternalFilesDir(std::string& type)
 {
     return "";
 }
@@ -470,7 +470,7 @@ std::string ContextDeal::GetNoBackupFilesDir()
  * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
  * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
  */
-int ContextDeal::VerifySelfPermission(const std::string &permission)
+int ContextDeal::VerifySelfPermission(const std::string& permission)
 {
     return 0;
 }
@@ -521,7 +521,7 @@ std::string ContextDeal::GetBundleResourcePath()
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode ContextDeal::StartAbility(const AAFwk::Want &want, int requestCode)
+ErrCode ContextDeal::StartAbility(const AAFwk::Want& want, int requestCode)
 {
     HILOG_DEBUG("ContextDeal::StartAbility is called");
     return ERR_INVALID_VALUE;
@@ -535,7 +535,7 @@ ErrCode ContextDeal::StartAbility(const AAFwk::Want &want, int requestCode)
  * @param uid Indicates the UID of the unauth to check.
  *
  */
-void ContextDeal::UnauthUriPermission(const std::string &permission, const Uri &uri, int uid)
+void ContextDeal::UnauthUriPermission(const std::string& permission, const Uri& uri, int uid)
 {}
 
 /**
@@ -600,7 +600,7 @@ ErrCode ContextDeal::TerminateAbility(int requestCode)
  * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
  * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
  */
-int ContextDeal::VerifyPermission(const std::string &permission, int pid, int uid)
+int ContextDeal::VerifyPermission(const std::string& permission, int pid, int uid)
 {
     return 0;
 }
@@ -617,7 +617,7 @@ int ContextDeal::GetCurrentAccountId() const
     return userId;
 }
 
-void ContextDeal::CreateDirIfNotExist(const std::string &dirPath) const
+void ContextDeal::CreateDirIfNotExist(const std::string& dirPath) const
 {
     HILOG_DEBUG("CreateDirIfNotExist: create directory if not exists.");
     if (!OHOS::FileExists(dirPath)) {
@@ -643,7 +643,7 @@ std::string ContextDeal::GetDistributedDir()
     std::string dir;
     if (IsCreateBySystemApp()) {
         dir = CONTEXT_DISTRIBUTED_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
-              CONTEXT_DISTRIBUTED_BASE_MIDDLE + GetBundleName();
+            CONTEXT_DISTRIBUTED_BASE_MIDDLE + GetBundleName();
     } else {
         dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_DISTRIBUTEDFILES;
     }
@@ -734,8 +734,8 @@ std::string ContextDeal::GetCallingBundle()
  * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
  * @param task The callback or promise fo js interface.
  */
-void ContextDeal::RequestPermissionsFromUser(std::vector<std::string> &permissions, std::vector<int> &permissionsState,
-    PermissionRequestTask &&task) {}
+void ContextDeal::RequestPermissionsFromUser(std::vector<std::string>& permissions, std::vector<int>& permissionsState,
+    PermissionRequestTask&& task) {}
 
 /**
  * @brief Starts a new ability with special ability start setting.
@@ -747,7 +747,7 @@ void ContextDeal::RequestPermissionsFromUser(std::vector<std::string> &permissio
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode ContextDeal::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
+ErrCode ContextDeal::StartAbility(const Want& want, int requestCode, const AbilityStartSetting& abilityStartSetting)
 {
     return ERR_INVALID_VALUE;
 }
@@ -771,7 +771,7 @@ ErrCode ContextDeal::TerminateAbility()
  *
  * @return True means success and false means failure
  */
-bool ContextDeal::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
+bool ContextDeal::ConnectAbility(const Want& want, const sptr<AAFwk::IAbilityConnection>& conn)
 {
     return false;
 }
@@ -784,7 +784,7 @@ bool ContextDeal::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityCon
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode ContextDeal::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+ErrCode ContextDeal::DisconnectAbility(const sptr<AAFwk::IAbilityConnection>& conn)
 {
     return ERR_INVALID_VALUE;
 }
@@ -800,7 +800,7 @@ sptr<IRemoteObject> ContextDeal::GetToken()
  * @param the ResourceManager has been inited.
  *
  */
-void ContextDeal::initResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+void ContextDeal::initResourceManager(const std::shared_ptr<Global::Resource::ResourceManager>& resourceManager)
 {
     HILOG_DEBUG("ContextDeal::initResourceManager. Start.");
     resourceManager_ = resourceManager;
@@ -821,7 +821,7 @@ Uri ContextDeal::GetCaller()
 /**
  * @brief SerUriString
  */
-void ContextDeal::SerUriString(const std::string &uri)
+void ContextDeal::SerUriString(const std::string& uri)
 {
     uriString_ = uri;
 }
@@ -1108,7 +1108,7 @@ int ContextDeal::GetColorMode()
  *
  * @param info the info to set.
  */
-void ContextDeal::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
+void ContextDeal::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo& info)
 {
     lifeCycleStateInfo_ = info;
 }
@@ -1138,7 +1138,7 @@ AAFwk::LifeCycleStateInfo ContextDeal::GetLifeCycleStateInfo() const
  *
  * @param wants Indicates the Want containing information array about the target ability to start.
  */
-void ContextDeal::StartAbilities(const std::vector<AAFwk::Want> &wants)
+void ContextDeal::StartAbilities(const std::vector<AAFwk::Want>& wants)
 {}
 
 /**
@@ -1146,7 +1146,7 @@ void ContextDeal::StartAbilities(const std::vector<AAFwk::Want> &wants)
  *
  * @param runner The EventRunner.
  */
-void ContextDeal::SetRunner(const std::shared_ptr<EventRunner> &runner)
+void ContextDeal::SetRunner(const std::shared_ptr<EventRunner>& runner)
 {
     mainEventRunner_ = runner;
 }

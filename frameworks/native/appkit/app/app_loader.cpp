@@ -23,7 +23,7 @@ namespace AppExecFwk {
  * @param None
  * @return ApplicationLoader
  */
-ApplicationLoader &ApplicationLoader::GetInstance()
+ApplicationLoader& ApplicationLoader::GetInstance()
 {
     static ApplicationLoader applicationLoader;
     return applicationLoader;
@@ -35,7 +35,7 @@ ApplicationLoader &ApplicationLoader::GetInstance()
  * @param createFunc constructor function of application class.
  * @return None
  */
-void ApplicationLoader::RegisterApplication(const std::string &bundleName, const CreateApplication &createFunc)
+void ApplicationLoader::RegisterApplication(const std::string& bundleName, const CreateApplication& createFunc)
 {
     applications_.emplace(bundleName, createFunc);
     HILOG_DEBUG("ApplicationLoader::RegisterApplication:%{public}s", bundleName.c_str());
@@ -45,7 +45,7 @@ void ApplicationLoader::RegisterApplication(const std::string &bundleName, const
  * @description: Gets the {@link OHOSApplication} object
  * @return Return {@link OHOSApplication} object which is registered by developer.
  */
-OHOSApplication *ApplicationLoader::GetApplicationByName()
+OHOSApplication* ApplicationLoader::GetApplicationByName()
 {
     auto it = applications_.find("OHOSApplication");
     if (it == applications_.end()) {

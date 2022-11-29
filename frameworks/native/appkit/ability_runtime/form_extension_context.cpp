@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 const size_t FormExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("FormExtensionContext"));
 
-int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::FormProviderData &formProviderData)
+int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::FormProviderData& formProviderData)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     // check fms recover status
@@ -50,7 +50,7 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
     return AppExecFwk::FormMgr::GetInstance().UpdateForm(formId, formProviderData);
 }
 
-ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want) const
+ErrCode FormExtensionContext::StartAbility(const AAFwk::Want& want) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     // route to FMS
@@ -78,7 +78,7 @@ std::shared_ptr<AppExecFwk::AbilityInfo> FormExtensionContext::GetAbilityInfo() 
     return abilityInfo_;
 }
 
-void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
+void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo>& abilityInfo)
 {
     if (abilityInfo == nullptr) {
         HILOG_ERROR("FormExtensionContext::SetAbilityInfo Info == nullptr");

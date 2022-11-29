@@ -43,7 +43,7 @@ constexpr const char* ERROR_MSG_NETWORK_ABNORMAL = "Network error. The network i
 constexpr const char* ERROR_MSG_NOT_SUPPORT_FREE_INSTALL = "The Application does not support free install.";
 constexpr const char* ERROR_MSG_NOT_TOP_ABILITY = "Not top ability, Can not free install ability.";
 constexpr const char* ERROR_MSG_FREE_INSTALL_TOO_BUSY =
-    "Free install busyness. There are concurrent tasks waiting for retry.";
+"Free install busyness. There are concurrent tasks waiting for retry.";
 constexpr const char* ERROR_MSG_FREE_INSTALL_TIMEOUT = "Free install timeout.";
 constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Can not free install other ability.";
 constexpr const char* ERROR_MSG_INVALID_CALLER = "Caller released, The caller has been released.";
@@ -77,7 +77,7 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER }
 };
 
-static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
+static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP{
     {0, AbilityErrorCode::ERROR_OK},
     {CHECK_PERMISSION_FAILED, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED},
     {RESOLVE_ABILITY_ERR, AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY},

@@ -28,7 +28,7 @@ const std::string ContinuationConnector::CONNECTOR_BUNDLE_NAME("com.ohos.control
 const std::string ContinuationConnector::CONNECTOR_ABILITY_NAME(
     "com.ohos.controlcenter.fatransfer.service.FeatureAbilityRegisterService");
 
-ContinuationConnector::ContinuationConnector(const std::weak_ptr<Context> &context) : context_(context)
+ContinuationConnector::ContinuationConnector(const std::weak_ptr<Context>& context) : context_(context)
 {}
 
 /**
@@ -38,7 +38,7 @@ ContinuationConnector::ContinuationConnector(const std::weak_ptr<Context> &conte
  *
  * @return The singleton of ContinuationConnector
  */
-sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_ptr<Context> &context)
+sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_ptr<Context>& context)
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -59,7 +59,7 @@ sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_p
  * value indicates a connection failure.
  */
 void ContinuationConnector::OnAbilityConnectDone(
-    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
+    const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (remoteObject == nullptr) {
@@ -74,7 +74,7 @@ void ContinuationConnector::OnAbilityConnectDone(
     isConnected_.store(true);
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        for (auto &iter : continuationRequestList_) {
+        for (auto& iter : continuationRequestList_) {
             iter->Execute();
         }
         continuationRequestList_.clear();
@@ -91,7 +91,7 @@ void ContinuationConnector::OnAbilityConnectDone(
  * @param resultCode: Indicates the disconnection result code. The value 0 indicates a successful disconnection, and any
  * other value indicates a disconnection failure.
  */
-void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     remoteRegisterService_ = nullptr;
@@ -104,7 +104,7 @@ void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
  *
  * @param request: request for continuation.
  */
-void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppExecFwk::ContinuationRequest> &request)
+void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppExecFwk::ContinuationRequest>& request)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr tmpcontext = context_.lock();
@@ -186,7 +186,7 @@ bool ContinuationConnector::Unregister(int token)
  *
  * @return bool result of updateConnectStatus.
  */
-bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &deviceId, int status)
+bool ContinuationConnector::UpdateConnectStatus(int token, const std::string& deviceId, int status)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (remoteRegisterService_ == nullptr) {
@@ -205,7 +205,7 @@ bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &de
  * @param parameter filter with supported device list.
  * @return bool result of showDeviceList.
  */
-bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraParams &parameter)
+bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraParams& parameter)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (remoteRegisterService_ == nullptr) {
@@ -226,8 +226,8 @@ bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraPar
  *
  * @return int token.
  */
-int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string bundleName,
-    const AppExecFwk::ExtraParams &parameter, std::shared_ptr<IContinuationDeviceCallback> &callback)
+int ContinuationConnector::Register(std::weak_ptr<Context>& context, std::string bundleName,
+    const AppExecFwk::ExtraParams& parameter, std::shared_ptr<IContinuationDeviceCallback>& callback)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr pcontext = context.lock();
