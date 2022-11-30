@@ -246,6 +246,7 @@ bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason)
     if (token == nullptr) {
         return false;
     }
+    HILOG_INFO("AbilityRecovery call ams to ScheduleRecoverAbility");
     ams->ScheduleRecoverAbility(token, reason);
     return true;
 }
@@ -261,6 +262,7 @@ bool AbilityRecovery::PersistState()
     if (!params_.IsEmpty()) {
         SerializeDataToFile(abilityInfo->descriptionId, params_);
     }
+    HILOG_INFO("AbilityRecovery PersistState done");
     return true;
 }
 
@@ -315,6 +317,7 @@ bool AbilityRecovery::ScheduleRestoreAbilityState(StateReason reason, const Want
     for (auto& i : params_.GetParams()) {
         wantCurrent.SetParam(i.first, i.second.GetRefPtr());
     }
+    HILOG_INFO("AbilityRecovery ScheduleRestoreAbilityState done");
     return true;
 }
 

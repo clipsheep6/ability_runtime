@@ -890,6 +890,7 @@ void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& toke
 
 void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     return abms->EnableRecoverAbility(token);
@@ -897,6 +898,7 @@ void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token
 
 void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
 {
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     return abms->ScheduleRecoverAbility(token, reason);
