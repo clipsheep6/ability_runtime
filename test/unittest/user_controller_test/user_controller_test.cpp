@@ -15,8 +15,10 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#include "ability_manager_service.h"
 #include "user_controller.h"
-
+#undef private
 using namespace testing;
 using namespace testing::ext;
 
@@ -31,7 +33,11 @@ public:
 };
 
 void UserControllerTest::SetUpTestCase()
-{}
+{
+    auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+    abilityMs->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
+    abilityMs->amsConfigResolver_->Parse();
+}
 
 void UserControllerTest::TearDownTestCase()
 {}
