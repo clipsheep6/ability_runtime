@@ -1261,6 +1261,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRe
 void AppMgrServiceInner::OnAppStateChanged(
     const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
         HILOG_ERROR("OnAppStateChanged come, app record is null");
         return;
@@ -1334,11 +1335,14 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     bool bundleMgrResult;
+
     if (bundleIndex == 0) {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleInfos");
         bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfos(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
             bundleInfos, userId));
     } else {
         BundleInfo bundleInfo;
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetSandboxBundleInfo");
         bundleMgrResult = (IN_PROCESS_CALL(bundleMgr_->GetSandboxBundleInfo(bundleName,
             bundleIndex, userId, bundleInfo)) == 0);
         bundleInfos.emplace_back(bundleInfo);
@@ -1360,11 +1364,17 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     auto token = (*bundleInfoIter).applicationInfo.accessTokenId;
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
-    if (result != Security::AccessToken::PERMISSION_GRANTED) {
-        setAllowInternet = 1;
-        allowInternet = 0;
+
+    {
+        // Add TRACE
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+        if (result != Security::AccessToken::PERMISSION_GRANTED) {
+            setAllowInternet = 1;
+            allowInternet = 0;
+        }
     }
+
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
@@ -1378,11 +1388,16 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
-    bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
-    if (!bundleMgrResult) {
-        HILOG_ERROR("GetBundleGids is fail");
-        return;
+    {
+        // Add TRACE
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleGidsByUid");
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
+        if (!bundleMgrResult) {
+            HILOG_ERROR("GetBundleGids is fail");
+            return;
+        }
     }
+
     startMsg.procName = processName;
     startMsg.soPath = SO_PATH;
     startMsg.accessTokenIdEx = (*bundleInfoIter).applicationInfo.accessTokenIdEx;
@@ -1546,6 +1561,7 @@ void AppMgrServiceInner::RemoveAppFromRecentListById(const int32_t recordId)
 void AppMgrServiceInner::AddAppToRecentList(
     const std::string &appName, const std::string &processName, const pid_t pid, const int32_t recordId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     appProcessManager_->AddAppToRecentList(appName, processName, pid, recordId);
 }
 
