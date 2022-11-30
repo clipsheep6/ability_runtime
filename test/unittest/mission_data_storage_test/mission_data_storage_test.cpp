@@ -43,7 +43,7 @@ void MissionDataStorageTest::TearDown(void)
 {}
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SetEventHandler
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SetEventHandler
@@ -58,7 +58,7 @@ HWTEST_F(MissionDataStorageTest, SetEventHandler_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveMissionInfo
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveMissionInfo
@@ -74,7 +74,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionInfo_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveMissionInfo
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveMissionInfo
@@ -91,7 +91,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionInfo_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: DeleteMissionInfo
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage DeleteMissionInfo
@@ -108,7 +108,7 @@ HWTEST_F(MissionDataStorageTest, DeleteMissionInfo_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveMissionSnapshot
@@ -124,7 +124,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: DeleteMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage DeleteMissionSnapshot
@@ -139,7 +139,7 @@ HWTEST_F(MissionDataStorageTest, DeleteMissionSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: DeleteMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage DeleteMissionSnapshot
@@ -156,7 +156,7 @@ HWTEST_F(MissionDataStorageTest, DeleteMissionSnapshot_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionSnapshot
@@ -175,7 +175,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionSnapshot
@@ -194,7 +194,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshot_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionSnapshot
@@ -212,7 +212,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshot_003, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionDataFilePath
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionDataFilePath
@@ -228,7 +228,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionDataFilePath_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionSnapshotPath
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionSnapshotPath
@@ -245,7 +245,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshotPath_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetMissionSnapshotPath
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetMissionSnapshotPath
@@ -262,7 +262,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshotPath_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -278,7 +278,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -295,7 +295,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -313,7 +313,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_003, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -331,7 +331,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_004, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -349,7 +349,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_005, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -367,7 +367,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_006, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveSnapshotFile
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveSnapshotFile
@@ -384,7 +384,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_007, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetReducedPixelMap
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetReducedPixelMap
@@ -400,7 +400,7 @@ HWTEST_F(MissionDataStorageTest, GetReducedPixelMap_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetReducedPixelMap
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetReducedPixelMap
@@ -416,7 +416,7 @@ HWTEST_F(MissionDataStorageTest, GetReducedPixelMap_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetCachedSnapshot
@@ -433,7 +433,7 @@ HWTEST_F(MissionDataStorageTest, GetCachedSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetCachedSnapshot
@@ -451,7 +451,7 @@ HWTEST_F(MissionDataStorageTest, GetCachedSnapshot_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveCachedSnapshot
@@ -469,7 +469,7 @@ HWTEST_F(MissionDataStorageTest, SaveCachedSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: SaveCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveCachedSnapshot
@@ -487,7 +487,7 @@ HWTEST_F(MissionDataStorageTest, SaveCachedSnapshot_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: DeleteCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage DeleteCachedSnapshot
@@ -503,7 +503,7 @@ HWTEST_F(MissionDataStorageTest, DeleteCachedSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: DeleteCachedSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage DeleteCachedSnapshot
@@ -520,7 +520,7 @@ HWTEST_F(MissionDataStorageTest, DeleteCachedSnapshot_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetSnapshot
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetSnapshot
@@ -537,7 +537,7 @@ HWTEST_F(MissionDataStorageTest, GetSnapshot_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetPixelMap
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetPixelMap
@@ -554,7 +554,7 @@ HWTEST_F(MissionDataStorageTest, GetPixelMap_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: GetPixelMap
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage GetPixelMap
@@ -571,7 +571,7 @@ HWTEST_F(MissionDataStorageTest, GetPixelMap_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: WriteRgb888ToJpeg
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage WriteRgb888ToJpeg
@@ -589,7 +589,7 @@ HWTEST_F(MissionDataStorageTest, WriteRgb888ToJpeg_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: WriteRgb888ToJpeg
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage WriteRgb888ToJpeg
@@ -607,7 +607,7 @@ HWTEST_F(MissionDataStorageTest, WriteRgb888ToJpeg_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGB565ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGB565ToRGB888
@@ -626,7 +626,7 @@ HWTEST_F(MissionDataStorageTest, RGB565ToRGB888_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGB565ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGB565ToRGB888
@@ -645,7 +645,7 @@ HWTEST_F(MissionDataStorageTest, RGB565ToRGB888_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGB565ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGB565ToRGB888
@@ -664,7 +664,7 @@ HWTEST_F(MissionDataStorageTest, RGB565ToRGB888_003, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGBA8888ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGBA8888ToRGB888
@@ -683,7 +683,7 @@ HWTEST_F(MissionDataStorageTest, RGBA8888ToRGB888_001, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGBA8888ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGBA8888ToRGB888
@@ -702,7 +702,7 @@ HWTEST_F(MissionDataStorageTest, RGBA8888ToRGB888_002, TestSize.Level1)
 }
 
 /*
- * Feature: MissionListManager
+ * Feature: MissionDataStorage
  * Function: RGBA8888ToRGB888
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage RGBA8888ToRGB888

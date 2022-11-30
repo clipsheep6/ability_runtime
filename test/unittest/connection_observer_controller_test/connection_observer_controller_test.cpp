@@ -46,7 +46,7 @@ void ConnectionObserverControllerTest::TearDown(void)
  * Feature: ConnectionObserverController
  * Function: AddObserver
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage AddObserver
+ * FunctionPoints: ConnectionObserverController AddObserver
  * EnvConditions: NA
  * CaseDescription: Verify AddObserver
  */
@@ -62,7 +62,7 @@ HWTEST_F(ConnectionObserverControllerTest, AddObserver_001, TestSize.Level1)
  * Feature: ConnectionObserverController
  * Function: RemoveObserver
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage RemoveObserver
+ * FunctionPoints: ConnectionObserverController RemoveObserver
  * EnvConditions: NA
  * CaseDescription: Verify RemoveObserver
  */
@@ -77,7 +77,7 @@ HWTEST_F(ConnectionObserverControllerTest, RemoveObserver_001, TestSize.Level1)
  * Feature: ConnectionObserverController
  * Function: NotifyExtensionConnected
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage NotifyExtensionConnected
+ * FunctionPoints: ConnectionObserverController NotifyExtensionConnected
  * EnvConditions: NA
  * CaseDescription: Verify NotifyExtensionConnected
  */
@@ -92,7 +92,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionConnected_001, TestSiz
  * Feature: ConnectionObserverController
  * Function: NotifyExtensionDisconnected
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage NotifyExtensionDisconnected
+ * FunctionPoints: ConnectionObserverController NotifyExtensionDisconnected
  * EnvConditions: NA
  * CaseDescription: Verify NotifyExtensionDisconnected
  */
@@ -107,7 +107,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionDisconnected_001, Test
  * Feature: ConnectionObserverController
  * Function: NotifyDlpAbilityOpened
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage NotifyDlpAbilityOpened
+ * FunctionPoints: ConnectionObserverController NotifyDlpAbilityOpened
  * EnvConditions: NA
  * CaseDescription: Verify NotifyDlpAbilityOpened
  */
@@ -122,7 +122,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityOpened_001, TestSize.
  * Feature: ConnectionObserverController
  * Function: NotifyDlpAbilityClosed
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage NotifyDlpAbilityClosed
+ * FunctionPoints: ConnectionObserverController NotifyDlpAbilityClosed
  * EnvConditions: NA
  * CaseDescription: Verify NotifyDlpAbilityClosed
  */
@@ -137,7 +137,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityClosed_001, TestSize.
  * Feature: ConnectionObserverController
  * Function: GetObservers
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GetObservers
+ * FunctionPoints: ConnectionObserverController GetObservers
  * EnvConditions: NA
  * CaseDescription: Verify GetObservers
  */
@@ -153,7 +153,7 @@ HWTEST_F(ConnectionObserverControllerTest, GetObservers_001, TestSize.Level1)
  * Feature: ConnectionObserverController
  * Function: HandleRemoteDied
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage HandleRemoteDied
+ * FunctionPoints: ConnectionObserverController HandleRemoteDied
  * EnvConditions: NA
  * CaseDescription: Verify HandleRemoteDied
  */
@@ -168,7 +168,7 @@ HWTEST_F(ConnectionObserverControllerTest, HandleRemoteDied_001, TestSize.Level1
  * Feature: ObserverDeathRecipient
  * Function: OnRemoteDied
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage OnRemoteDied
+ * FunctionPoints: ConnectionObserverController OnRemoteDied
  * EnvConditions: NA
  * CaseDescription: Verify OnRemoteDied
  */
