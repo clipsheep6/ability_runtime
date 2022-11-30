@@ -3628,7 +3628,8 @@ void AbilityManagerService::StartResidentApps()
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
 #ifdef SUPPORT_GRAPHICS
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+            amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
     }
