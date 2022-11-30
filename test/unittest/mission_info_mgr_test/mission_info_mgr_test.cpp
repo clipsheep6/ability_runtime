@@ -45,7 +45,7 @@ void MissionInfoMgrTest::TearDown(void)
  * Feature: MissionInfoMgr
  * Function: GenerateMissionId
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GenerateMissionId
+ * FunctionPoints: MissionInfoMgr GenerateMissionId
  * EnvConditions: NA
  * CaseDescription: Verify GenerateMissionId
  */
@@ -62,7 +62,7 @@ HWTEST_F(MissionInfoMgrTest, GenerateMissionId_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: GenerateMissionId
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GenerateMissionId
+ * FunctionPoints: MissionInfoMgr GenerateMissionId
  * EnvConditions: NA
  * CaseDescription: Verify GenerateMissionId
  */
@@ -79,7 +79,7 @@ HWTEST_F(MissionInfoMgrTest, GenerateMissionId_002, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: AddMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage AddMissionInfo
+ * FunctionPoints: MissionInfoMgr AddMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify AddMissionInfo
  */
@@ -97,7 +97,7 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_001, TestSize.Level1)
  * Feature: MissionListManager
  * Function: AddMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage AddMissionInfo
+ * FunctionPoints: MissionInfoMgr AddMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify AddMissionInfo
  */
@@ -121,7 +121,7 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_002, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: AddMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage AddMissionInfo
+ * FunctionPoints: MissionInfoMgr AddMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify AddMissionInfo
  */
@@ -146,7 +146,7 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_003, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: UpdateMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage UpdateMissionInfo
+ * FunctionPoints: MissionInfoMgr UpdateMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify UpdateMissionInfo
  */
@@ -163,7 +163,7 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: UpdateMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage UpdateMissionInfo
+ * FunctionPoints: MissionInfoMgr UpdateMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify UpdateMissionInfo
  */
@@ -181,7 +181,7 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_002, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: UpdateMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage UpdateMissionInfo
+ * FunctionPoints: MissionInfoMgr UpdateMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify UpdateMissionInfo
  */
@@ -203,7 +203,7 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_003, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: DeleteMissionInfo
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage DeleteMissionInfo
+ * FunctionPoints: MissionInfoMgr DeleteMissionInfo
  * EnvConditions: NA
  * CaseDescription: Verify DeleteMissionInfo
  */
@@ -225,7 +225,7 @@ HWTEST_F(MissionInfoMgrTest, DeleteMissionInfo_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: DeleteAllMissionInfos
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage DeleteAllMissionInfos
+ * FunctionPoints: MissionInfoMgr DeleteAllMissionInfos
  * EnvConditions: NA
  * CaseDescription: Verify DeleteAllMissionInfos
  */
@@ -240,7 +240,7 @@ HWTEST_F(MissionInfoMgrTest, DeleteAllMissionInfos_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: GetMissionInfos
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GetMissionInfos
+ * FunctionPoints: MissionInfoMgr GetMissionInfos
  * EnvConditions: NA
  * CaseDescription: Verify GetMissionInfos
  */
@@ -267,7 +267,7 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfos_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: GetMissionInfoById
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GetMissionInfoById
+ * FunctionPoints: MissionInfoMgr GetMissionInfoById
  * EnvConditions: NA
  * CaseDescription: Verify GetMissionInfoById
  */
@@ -294,7 +294,7 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfoById_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: GetInnerMissionInfoById
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GetInnerMissionInfoById
+ * FunctionPoints: MissionInfoMgr GetInnerMissionInfoById
  * EnvConditions: NA
  * CaseDescription: Verify GetInnerMissionInfoById
  */
@@ -318,7 +318,7 @@ HWTEST_F(MissionInfoMgrTest, GetInnerMissionInfoById_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: UpdateMissionLabel
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage UpdateMissionLabel
+ * FunctionPoints: MissionInfoMgr UpdateMissionLabel
  * EnvConditions: NA
  * CaseDescription: Verify UpdateMissionLabel
  */
@@ -345,7 +345,7 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionLabel_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: HandleUnInstallApp
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage HandleUnInstallApp
+ * FunctionPoints: MissionInfoMgr HandleUnInstallApp
  * EnvConditions: NA
  * CaseDescription: Verify HandleUnInstallApp
  */
@@ -367,7 +367,7 @@ HWTEST_F(MissionInfoMgrTest, HandleUnInstallApp_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: Dump
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage Dump
+ * FunctionPoints: MissionInfoMgr Dump
  * EnvConditions: NA
  * CaseDescription: Verify Dump
  */
@@ -389,7 +389,7 @@ HWTEST_F(MissionInfoMgrTest, Dump_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: RegisterSnapshotHandler
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage RegisterSnapshotHandler
+ * FunctionPoints: MissionInfoMgr RegisterSnapshotHandler
  * EnvConditions: NA
  * CaseDescription: Verify RegisterSnapshotHandler
  */
@@ -413,7 +413,7 @@ HWTEST_F(MissionInfoMgrTest, RegisterSnapshotHandler_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: GetMissionSnapshot
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage GetMissionSnapshot
+ * FunctionPoints: MissionInfoMgr GetMissionSnapshot
  * EnvConditions: NA
  * CaseDescription: Verify GetMissionSnapshot
  */
@@ -431,7 +431,7 @@ HWTEST_F(MissionInfoMgrTest, GetMissionSnapshot_001, TestSize.Level1)
  * Feature: MissionInfoMgr
  * Function: CreateWhitePixelMap
  * SubFunction: NA
- * FunctionPoints: MissionDataStorage CreateWhitePixelMap
+ * FunctionPoints: MissionInfoMgr CreateWhitePixelMap
  * EnvConditions: NA
  * CaseDescription: Verify CreateWhitePixelMap
  */

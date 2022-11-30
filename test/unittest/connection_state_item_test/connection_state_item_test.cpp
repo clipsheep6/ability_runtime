@@ -86,7 +86,7 @@ std::shared_ptr<DataAbilityRecord> ConnectionStateItemTest::InitDataAbilityRecor
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: CreateConnectionStateItem
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem CreateConnectionStateItem
@@ -102,7 +102,7 @@ HWTEST_F(ConnectionStateItemTest, CreateConnectionStateItem_001, TestSize.Level1
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: CreateConnectionStateItem
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem CreateConnectionStateItem
@@ -121,7 +121,7 @@ HWTEST_F(ConnectionStateItemTest, CreateConnectionStateItem_002, TestSize.Level1
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: CreateConnectionStateItem
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem CreateConnectionStateItem
@@ -137,7 +137,7 @@ HWTEST_F(ConnectionStateItemTest, CreateConnectionStateItem_003, TestSize.Level1
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddConnection
@@ -154,7 +154,7 @@ HWTEST_F(ConnectionStateItemTest, AddConnection_001, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddConnection
@@ -175,7 +175,7 @@ HWTEST_F(ConnectionStateItemTest, AddConnection_002, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddConnection
@@ -195,7 +195,7 @@ HWTEST_F(ConnectionStateItemTest, AddConnection_003, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveConnection
@@ -212,7 +212,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveConnection_001, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveConnection
@@ -233,7 +233,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveConnection_002, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveConnection
@@ -253,7 +253,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveConnection_003, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
@@ -271,7 +271,7 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_001, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
@@ -289,7 +289,7 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_002, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
@@ -309,7 +309,7 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_003, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: AddDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
@@ -331,7 +331,7 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_004, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
@@ -349,7 +349,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_001, TestSize.Leve
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
@@ -367,7 +367,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_002, TestSize.Leve
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
@@ -387,7 +387,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_003, TestSize.Leve
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: RemoveDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
@@ -409,7 +409,7 @@ HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_004, TestSize.Leve
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: HandleDataAbilityDied
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem HandleDataAbilityDied
@@ -426,7 +426,7 @@ HWTEST_F(ConnectionStateItemTest, HandleDataAbilityDied_001, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: HandleDataAbilityDied
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem HandleDataAbilityDied
@@ -444,7 +444,7 @@ HWTEST_F(ConnectionStateItemTest, HandleDataAbilityDied_002, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: HandleDataAbilityDied
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem HandleDataAbilityDied
@@ -463,7 +463,7 @@ HWTEST_F(ConnectionStateItemTest, HandleDataAbilityDied_003, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: HandleDataAbilityDied
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem HandleDataAbilityDied
@@ -485,7 +485,7 @@ HWTEST_F(ConnectionStateItemTest, HandleDataAbilityDied_004, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: IsEmpty
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem IsEmpty
@@ -500,7 +500,7 @@ HWTEST_F(ConnectionStateItemTest, IsEmpty_001, TestSize.Level1)
 }
 
 /*
- * Feature: ConnectionStateItemTest
+ * Feature: ConnectionStateItem
  * Function: GenerateAllConnectionData
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem GenerateAllConnectionData
