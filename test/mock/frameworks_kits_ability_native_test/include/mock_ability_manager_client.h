@@ -137,9 +137,9 @@ public:
     virtual void NotifyContinuationResult(int32_t result) {};
     virtual void ContinueAbility(const std::string& deviceId, uint32_t versionCode) {};
     virtual void DumpAbilityInfo(const std::vector<std::string>& params, std::vector<std::string>& info) {};
-    virtual sptr<IRemoteObject> CallRequest()
+    virtual void CallRequest()
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     };
 };
 }  // namespace AppExecFwk

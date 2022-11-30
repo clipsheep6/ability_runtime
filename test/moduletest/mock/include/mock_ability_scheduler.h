@@ -112,9 +112,9 @@ public:
         Uri urivalue("");
         return urivalue;
     }
-    virtual sptr<IRemoteObject> CallRequest() override
+    virtual void CallRequest() override
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     }
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() override

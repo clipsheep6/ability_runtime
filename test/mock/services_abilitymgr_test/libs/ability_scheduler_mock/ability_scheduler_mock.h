@@ -145,9 +145,9 @@ public:
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     }
 
-    virtual sptr<IRemoteObject> CallRequest()
+    virtual void CallRequest()
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

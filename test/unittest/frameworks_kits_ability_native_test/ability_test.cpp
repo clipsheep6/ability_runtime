@@ -2149,8 +2149,7 @@ HWTEST_F(AbilityBaseTest, AbilityFuncList_0100, TestSize.Level1)
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
-    auto object = ability->CallRequest();
-    EXPECT_EQ(object, nullptr);
+    ability->CallRequest();
 
     AAFwk::Want want;
     want.SetParam("component.startup.newRules", true);

@@ -309,7 +309,12 @@ public:
         return 0;
     }
 
-    int StartUserTest(const Want& want, const sptr<IRemoteObject>& observer) override
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override
+    {
+        return;
+    }
+
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
     {
         return 0;
     }

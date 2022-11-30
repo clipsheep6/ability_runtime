@@ -2177,6 +2177,43 @@ int AbilityManagerProxy::StartAbilityByCall(
     return reply.ReadInt32();
 }
 
+void AbilityManagerProxy::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (token == nullptr) {
+        HILOG_ERROR("Call request done fail, ability token is nullptr.");
+        return;
+    }
+    if (callStub == nullptr) {
+        HILOG_ERROR("Call request done fail, callStub is nullptr.");
+        return;
+    }
+
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("WriteRemoteObject fail, write token fail.");
+        return;
+    }
+    if (!data.WriteRemoteObject(callStub)) {
+        HILOG_ERROR("WriteRemoteObject fail, write callStub fail.");
+        return;
+    }
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Call request done fail, Remote() is nullptr.");
+        return;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::CALL_REQUEST_DONE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return;
+    }
+}
+
 int AbilityManagerProxy::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {

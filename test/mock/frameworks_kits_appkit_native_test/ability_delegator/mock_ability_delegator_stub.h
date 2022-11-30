@@ -122,6 +122,7 @@ public:
         const sptr<IRemoteMissionListener>& listener) override;
     int StartAbilityByCall(
         const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken) override;
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override;
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
@@ -258,6 +259,7 @@ public:
         const sptr<IRemoteMissionListener>& listener) override;
     int StartAbilityByCall(
         const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken) override;
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override;
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,

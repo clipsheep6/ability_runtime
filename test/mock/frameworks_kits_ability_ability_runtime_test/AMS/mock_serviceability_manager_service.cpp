@@ -123,6 +123,12 @@ int MockServiceAbilityManagerService::TerminateAbilityByCaller(const sptr<IRemot
     return 0;
 }
 
+void MockServiceAbilityManagerService::CallRequestDone(
+    const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    return;
+}
+
 int MockServiceAbilityManagerService::ReleaseCall(const sptr<IAbilityConnection>& connect,
     const AppExecFwk::ElementName& element)
 {

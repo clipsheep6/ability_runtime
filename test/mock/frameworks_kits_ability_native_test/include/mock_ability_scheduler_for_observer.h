@@ -66,9 +66,9 @@ public:
         return 0;
     }
 #endif
-    virtual sptr<IRemoteObject> CallRequest()
+    virtual void CallRequest()
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     };
 };
 }  // namespace AppExecFwk

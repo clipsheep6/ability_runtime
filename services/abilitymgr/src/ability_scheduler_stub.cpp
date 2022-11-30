@@ -609,26 +609,7 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
 }
 int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("AbilitySchedulerStub::CallRequestInner start");
-
-    sptr<IRemoteObject> call = CallRequest();
-    if (!call) {
-        HILOG_ERROR("call request return nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    if (!reply.WriteInt32(NO_ERROR)) {
-        HILOG_ERROR("CallRequestInner result error");
-        return ERR_INVALID_VALUE;
-    }
-
-    if (!reply.WriteRemoteObject(call)) {
-        HILOG_ERROR("Connect done remote object error.");
-        return ERR_INVALID_VALUE;
-    }
-
-    HILOG_INFO("AbilitySchedulerStub::CallRequestInner end");
-
+    CallRequest();
     return NO_ERROR;
 }
 

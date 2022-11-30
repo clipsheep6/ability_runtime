@@ -138,9 +138,9 @@ public:
         return 0;
     }
 #endif
-    sptr<IRemoteObject> CallRequest() override
+    void CallRequest() override
     {
-        return {};
+        return;
     }
 };
 sptr<Token> GetFuzzAbilityToken(AbilityType type)

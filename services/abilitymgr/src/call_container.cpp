@@ -100,7 +100,7 @@ bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
     return false;
 }
 
-void CallContainer::OnConnectionDied(const wptr<IRemoteObject> & remote)
+void CallContainer::OnConnectionDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_WARN("Call back is died.");
     auto object = remote.promote();
@@ -122,7 +122,7 @@ void CallContainer::OnConnectionDied(const wptr<IRemoteObject> & remote)
     handler->PostTask(task);
 }
 
-bool CallContainer::CallRequestDone(const sptr<IRemoteObject> & callStub)
+bool CallContainer::CallRequestDone(const sptr<IRemoteObject> &callStub)
 {
     HILOG_INFO("Call Request Done start.");
 
