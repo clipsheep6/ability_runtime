@@ -44,6 +44,8 @@ using NAPICallOnRequestPermissionsFromUserResult = void (*)(int requestCode,
 std::shared_ptr<AbilityProcess> AbilityProcess::instance_ = nullptr;
 std::map<Ability *, std::map<int, CallbackInfo>> AbilityProcess::abilityResultMap_;
 std::mutex AbilityProcess::mutex_;
+std::mutex AbilityProcess::permissionRequestMutex_;
+std::map<int, PermissionRequestTask> AbilityProcess::permissionRequestCallbackMap_;
 std::shared_ptr<AbilityProcess> AbilityProcess::GetInstance()
 {
     if (instance_ == nullptr) {
@@ -264,6 +266,133 @@ bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &
     }
     func(requestCode, permissions, permissionsState, callbackInfo);
     return true;
+}
+
+void AbilityProcess::RequestPermissionsFromUser(NativeEngine &engine, Ability *ability,
+    const RequestPermissionsParamInfo &param, PermissionRequestTask &&task)
+{
+    HILOG_DEBUG("AbilityProcess::RequestPermissionsFromUser begin");
+    if (ability == nullptr) {
+        HILOG_ERROR("AbilityProcess::RequestPermissionsFromUser ability is nullptr");
+        return;
+    }
+
+    std::vector<PermissionListState> permList;
+    for (auto permission : param.permissionList) {
+        HILOG_DEBUG("permission: %{public}s.", permission.c_str());
+        PermissionListState permState;
+        permState.permissionName = permission;
+        permState.state = -1;
+        permList.emplace_back(permState);
+    }
+    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.", permList.size(),
+        param.permissionList.size());
+
+    auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
+    if (permList.size() != param.permissionList.size()) {
+        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
+        return;
+    }
+
+    std::vector<int> permissionsState;
+    for (auto permState : permList) {
+        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
+            permState.permissionName.c_str(), permState.state);
+        permissionsState.emplace_back(permState.state);
+    }
+    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
+        param.permissionList.size(), permissionsState.size());
+
+    if (ret != TypePermissionOper::DYNAMIC_OPER) {
+        HILOG_DEBUG("No dynamic popup required.");
+        if (task) {
+            task(param.permissionList, permissionsState);
+        }
+        return;
+    }
+    RequestPermissionsParamInfo paramInfo;
+    paramInfo.permissionList = param.permissionList;
+    paramInfo.permissionsState = permissionsState;
+    paramInfo.callbackKey = param.callbackKey;
+    StartGrantExtension(engine, ability, paramInfo, std::move(task));
+    HILOG_DEBUG("AbilityProcess::RequestPermissionsFromUser end");
+}
+
+void AbilityProcess::StartGrantExtension(NativeEngine &engine, Ability *ability,
+    const RequestPermissionsParamInfo &param, PermissionRequestTask &&task)
+{
+    HILOG_DEBUG("AbilityProcess::StartGrantExtension begin");
+    {
+        std::lock_guard<std::mutex> lock(permissionRequestMutex_);
+        permissionRequestCallbackMap_.insert(make_pair(param.callbackKey, std::move(task)));
+    }
+    auto resultTask = [&engine, callbackKey = param.callbackKey]
+        (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
+        auto retCB = new RequestPermissionsResultCallback();
+        retCB->permissions = permissions;
+        retCB->grantResults = grantResults;
+        retCB->callbackKey = callbackKey;
+
+        auto loop = engine.GetUVLoop();
+        if (loop == nullptr) {
+            HILOG_ERROR("StartGrantExtension, fail to get uv loop.");
+            return;
+        }
+        auto work = new uv_work_t;
+        work->data = static_cast<void *>(retCB);
+        int rev = uv_queue_work(
+            loop,
+            work,
+            [](uv_work_t *work) {},
+            ResultCallbackJSThreadWorker);
+        if (rev != 0) {
+            if (retCB != nullptr) {
+                delete retCB;
+                retCB = nullptr;
+            }
+            if (work != nullptr) {
+                delete work;
+                work = nullptr;
+            }
+        }
+    };
+    std::vector<std::string> permissionList = param.permissionList;
+    std::vector<int> permissionsState = param.permissionsState;
+    ability->RequestPermissionsFromUser(permissionList, permissionsState, std::move(resultTask));
+    HILOG_DEBUG("AbilityProcess::StartGrantExtension end");
+}
+
+void AbilityProcess::ResultCallbackJSThreadWorker(uv_work_t* work, int status)
+{
+    HILOG_DEBUG("ResultCallbackJSThreadWorker is called.");
+    if (work == nullptr) {
+        HILOG_ERROR("ResultCallbackJSThreadWorker, uv_queue_work input work is nullptr");
+        return;
+    }
+    RequestPermissionsResultCallback* retCB = static_cast<RequestPermissionsResultCallback *>(work->data);
+    if (retCB == nullptr) {
+        HILOG_ERROR("ResultCallbackJSThreadWorker, retCB is nullptr");
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(permissionRequestMutex_);
+    auto callbackKey = retCB->callbackKey;
+    auto iter = permissionRequestCallbackMap_.find(callbackKey);
+    if (iter != permissionRequestCallbackMap_.end() && iter->second) {
+        auto task = iter->second;
+        if (task) {
+            HILOG_DEBUG("calling js task.");
+            task(retCB->permissions, retCB->grantResults);
+        }
+        permissionRequestCallbackMap_.erase(iter);
+    }
+
+    delete retCB;
+    retCB = nullptr;
+    delete work;
+    work = nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
