@@ -1141,6 +1141,21 @@ HWTEST_F(AbilityManagerClientTest, OnRemoteDied_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "OnRemoteDied_0100 end";
 }
 
+/**
+ * @tc.name: AbilityManagerClient_CallRequestDone_0100
+ * @tc.desc: CallRequestDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, CallRequestDone_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CallRequestDone_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> callStub = nullptr;
+    client_->CallRequestDone(token, callStub);
+
+    EXPECT_TRUE(true);
+    GTEST_LOG_(INFO) << "CallRequestDone_0100 end";
+}
 
 }  // namespace AAFwk
 }  // namespace OHOS
