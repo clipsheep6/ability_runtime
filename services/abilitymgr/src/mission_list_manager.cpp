@@ -1481,6 +1481,7 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
 
 int MissionListManager::ClearAllMissions()
 {
+    HILOG_INFO("ClearAllMissions come.");
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
@@ -1506,7 +1507,9 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
         listIter++;
+        HILOG_INFO("ClearAllMissionsLocked come name %{public}s locked %{public}d.", mission->GetMissionName().c_str(), mission->IsLockedState());
         if (!mission || mission->IsLockedState()) {
+            HILOG_INFO("ClearAllMissionsLocked continue come name %{public}s locked %{public}d.", mission->GetMissionName().c_str(), mission->IsLockedState());
             continue;
         }
 
