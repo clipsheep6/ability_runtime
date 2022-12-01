@@ -240,7 +240,6 @@ bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<
 bool BundleMgrService::GetBundleInfos(
     const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId)
 {
-    GTEST_LOG_(INFO) << "BundleMgrService::GetBundleInfos";
     bundleInfos = bundleInfos_;
     return true;
 }
@@ -328,7 +327,6 @@ void BundleMgrService::MakingResidentProcData()
 {
     int appUid = 2100;
     int appUid1 = 2101;
-    GTEST_LOG_(INFO) << "MakingResidentProcData()";
     BundleInfo bundleInfo;
     bundleInfo.uid = appUid;
     bundleInfo.name = "KeepAliveApplication";
