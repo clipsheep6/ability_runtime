@@ -29,6 +29,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
+constexpr uint32_t DELAY_NOTIFY_LABEL_TIME = 30; // 30ms
 constexpr uint32_t SCENE_FLAG_KEYGUARD = 1;
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
@@ -1613,9 +1614,35 @@ void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityReco
     auto mission = abilityRecord->GetMission();
     if (mission && mission->NeedNotify() && listenerController_ &&
         !(abilityRecord->GetAbilityInfo().excludeFromMissions)) {
-        listenerController_->NotifyMissionCreated(abilityRecord->GetMissionId());
+        auto missionId = abilityRecord->GetMissionId();
+        listenerController_->NotifyMissionCreated(missionId);
         mission->SetNotifyLabel(false);
+
+        if (mission->NeedNotifyUpdateLabel()) {
+            PostMissionLabelUpdateTask(missionId);
+            mission->SetNeedNotifyUpdateLabel(false);
+        }
     }
+}
+
+void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
+{
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get EventHandler, do not post mission label update message.");
+        return;
+    }
+
+    std::weak_ptr<MissionListenerController> wpController = listenerController_;
+    auto task = [wpController, missionId] {
+        auto controller = wpController.lock();
+        if (controller == nullptr) {
+            HILOG_ERROR("controller is nullptr.");
+            return;
+        }
+        controller->NotifyMissionLabelUpdated(missionId);
+    };
+    handler->PostTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
 
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
@@ -2230,6 +2257,15 @@ int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const 
     if (missionId <= 0) {
         HILOG_INFO("SetMissionLabel find mission failed.");
         return -1;
+    }
+
+    // store label if not notify mission created.
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    if (abilityRecord) {
+        auto mission = abilityRecord->GetMission();
+        if (mission && mission->NeedNotify()) {
+            mission->SetNeedNotifyUpdateLabel(true);
+        }
     }
 
     auto ret = DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionLabel(missionId, label);
