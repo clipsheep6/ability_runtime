@@ -375,6 +375,7 @@ group("unittest") {
     "task_data_persistence_mgr_test:unittest",
     "trigger_Info_test:unittest",
     "user_controller_test:unittest",
+    "user_event_handler_test:unittest",
     "want_agent_helper_test:unittest",
     "want_agent_info_test:unittest",
     "want_agent_log_wrapper_test:unittest",
