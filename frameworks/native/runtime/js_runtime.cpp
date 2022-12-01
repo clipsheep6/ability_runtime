@@ -24,7 +24,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "event_handler.h"
@@ -40,12 +40,15 @@
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "parameters.h"
-#include "runtime_extractor.h"
+#include "extractor.h"
 #include "systemcapability.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
 #endif
+
+using namespace OHOS::AbilityBase;
+using Extractor = OHOS::AbilityBase::Extractor;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -125,9 +128,9 @@ public:
         bool result = false;
         if (!hapPath.empty()) {
             std::ostringstream outStream;
-            std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+            std::shared_ptr<Extractor> runtimeExtractor;
             if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
-                runtimeExtractor = RuntimeExtractor::Create(hapPath);
+                runtimeExtractor = Extractor::Create(hapPath);
                 if (runtimeExtractor == nullptr) {
                     return result;
                 }
@@ -193,7 +196,7 @@ public:
             return false;
         }
 
-        AbilityRuntime::RuntimeExtractor extractor(hqfFile);
+        Extractor extractor(hqfFile);
         if (!extractor.Init()) {
             HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return false;
@@ -239,7 +242,7 @@ public:
             return false;
         }
 
-        AbilityRuntime::RuntimeExtractor extractor(hqfFile);
+        Extractor extractor(hqfFile);
         if (!extractor.Init()) {
             HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return false;
@@ -332,7 +335,7 @@ private:
         if (!options.preload) {
             bundleName_ = options.bundleName;
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
-            std::shared_ptr<RuntimeExtractor> runtimeExtractor = RuntimeExtractor::Create(options.hapPath);
+            std::shared_ptr<Extractor> runtimeExtractor = Extractor::Create(options.hapPath);
             if (runtimeExtractor == nullptr) {
                 return false;
             }
@@ -692,9 +695,9 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     bool result = false;
     if (!hapPath.empty()) {
         std::ostringstream outStream;
-        std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+        std::shared_ptr<Extractor> runtimeExtractor;
         if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
-            runtimeExtractor = RuntimeExtractor::Create(hapPath);
+            runtimeExtractor = Extractor::Create(hapPath);
             if (runtimeExtractor == nullptr) {
                 return result;
             }

@@ -23,9 +23,10 @@ ohos_unittest("file_path_utils_test") {
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
-  deps = [ "${ability_runtime_native_path}/runtime:string_utils" ]
-
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:string_utils",
+    "c_utils:utils",
+  ]
 }
 
 group("unittest") {

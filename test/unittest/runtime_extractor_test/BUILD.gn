@@ -27,13 +27,11 @@ ohos_unittest("runtime_extractor_test") {
 
   sources = [ "runtime_extractor_test.cpp" ]
 
-  deps = [
-    "${ability_runtime_native_path}/runtime:runtime_extractor",
-    "${ability_runtime_native_path}/runtime:string_utils",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = [ "//third_party/zlib:shared_libz" ]
 
   external_deps = [
+    "ability_base:extractortool",
+    "ability_base:string_utils",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]

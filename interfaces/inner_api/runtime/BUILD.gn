@@ -69,14 +69,14 @@ ohos_shared_library("runtime") {
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_native_path}/runtime:runtime_extractor",
-    "${ability_runtime_native_path}/runtime:string_utils",
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractortool",
+    "ability_base:string_utils",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",

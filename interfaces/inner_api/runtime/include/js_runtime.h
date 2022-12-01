@@ -31,10 +31,14 @@ namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
 } // namespace AppExecFwk
+
+namespace AbilityBase {
+class Extractor;
+} //namespace AbilityBase
+
 namespace AbilityRuntime {
 class TimerTask;
 class ModSourceMap;
-class RuntimeExtractor;
 
 inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
 {
@@ -100,7 +104,7 @@ protected:
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
-    std::map<std::string, std::shared_ptr<RuntimeExtractor>> runtimeExtractorMap_;
+    std::map<std::string, std::shared_ptr<AbilityBase::Extractor>> runtimeExtractorMap_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -155,6 +155,7 @@ ohos_source_set("abilityms_test_source") {
   ]
 
   include_dirs = [
+    "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",

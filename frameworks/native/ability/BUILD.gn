@@ -17,6 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("ability_context_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/context",

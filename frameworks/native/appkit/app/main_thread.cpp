@@ -19,7 +19,7 @@
 #include <regex>
 #include <unistd.h>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
 #include "ability_loader.h"
@@ -70,7 +70,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
@@ -2081,12 +2081,12 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
         if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
             (!hapInfo.hqfInfo.hqfFilePath.empty())) {
             std::string resolvedHapPath;
-            std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
+            std::string hapPath = AbilityBase::GetLoadPath(hapInfo.hapPath);
             auto position = hapPath.rfind('/');
             if (position != std::string::npos) {
                 resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
             }
-            std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
+            std::string resolvedHqfFile(AbilityBase::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
             HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
                 "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
                 hapInfo.process.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
