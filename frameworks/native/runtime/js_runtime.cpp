@@ -326,7 +326,7 @@ private:
                 return false;
             }
 
-            nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
+            nativeEngine_ = std::make_shared<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
         }
 
         if (!options.preload) {
@@ -390,7 +390,7 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
 
 class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
 public:
-    explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
+    explicit UvLoopHandler(uv_loop_t* uvLoop, std::shared_ptr<NativeEngine>& nativeEngine) : uvLoop_(uvLoop), nativeEngine_(nativeEngine) {}
 
     void OnReadable(int32_t) override
     {
@@ -412,7 +412,14 @@ private:
         auto fd = uv_backend_fd(uvLoop_);
         struct epoll_event ev;
         do {
-            uv_run(uvLoop_, UV_RUN_NOWAIT);
+            auto sptr = nativeEngine_.lock();
+            if (sptr) {
+                HandleScope handleScope(*sptr);
+                uv_run(uvLoop_, UV_RUN_NOWAIT);
+            } else {
+                uv_run(uvLoop_, UV_RUN_NOWAIT);
+            }
+
         } while (epoll_wait(fd, &ev, 1, 0) > 0);
 
         auto eventHandler = GetOwner();
@@ -451,6 +458,7 @@ private:
     }
 
     uv_loop_t* uvLoop_ = nullptr;
+    std::weak_ptr<NativeEngine> nativeEngine_;
     int64_t lastTimeStamp_ = 0;
     bool haveTimerTask_ = false;
 };
@@ -558,7 +566,7 @@ bool JsRuntime::Initialize(const Options& options)
         uv_run(uvLoop, UV_RUN_NOWAIT);
 
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-        eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
+        eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop, nativeEngine_));
 
         codePath_ = options.codePath;
     }

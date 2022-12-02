@@ -83,7 +83,7 @@ protected:
     bool debugMode_ = false;
     bool preloaded_ = false;
     bool isBundle_ = true;
-    std::unique_ptr<NativeEngine> nativeEngine_;
+    std::shared_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
     std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
