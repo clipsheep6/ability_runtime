@@ -43,6 +43,7 @@
 #include "want_receiver_stub.h"
 #include "want_sender_stub.h"
 #include "bool_wrapper.h"
+#include "hilog_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -53,6 +54,9 @@ using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
 
 namespace OHOS::AbilityRuntime::WantAgent {
+namespace {
+    constexpr int32_t NOTEEQ = -1;
+}
 class WantAgentHelperTest : public testing::Test {
 public:
     WantAgentHelperTest()
@@ -1060,6 +1064,529 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_5100, Function | MediumTest | Leve
     WantAgentHelper::TriggerWantAgent(wantAgent, callback, paramsInfo);
 
     GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5200
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5200 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    WantAgentInfo wantAgentInfo;
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_5200 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5300
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *          `      2.wantAgentInfo.wants_ empty
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5300 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        OHOS::AbilityRuntime::Context::GetApplicationContext();
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.clear();
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_5300 start.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5400
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.flags_.size() = 0.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5400, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5400 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        OHOS::AbilityRuntime::Context::GetApplicationContext();
+    WantAgentInfo wantAgentInfo;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.clear();
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_5400 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5500
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return 0
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5500, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5500 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        OHOS::AbilityRuntime::Context::GetApplicationContext();
+    WantAgentInfo wantAgentInfo;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::REPLACE_BUNDLE);
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_5500 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5600
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_ABILITY
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5600 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_ABILITY;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_5600 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5700
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_ABILITIES
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5700 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_ABILITIES;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_5700 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5800
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_SERVICE
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5800 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_SERVICE;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_5800 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5900
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_FOREGROUND_SERVICE
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_5900 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_5900 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6000
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_FOREGROUND_SERVICE
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6000 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6000 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6100
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::START_FOREGROUND_SERVICE
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6100 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::SEND_COMMON_EVENT;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6100 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6200
+ * @tc.name      : WantAgentHelper GetWantAgent
+ * @tc.desc      : 1.GetWantAgent context is not nullptr
+ *                 2.wantAgentInfo.wants_.size() == wantAgentInfo.flags_.size()
+ *                 3.FlagsTransformer return ok
+ *                 4.Type is WantAgentConstant::OperationType::UNKNOWN_TYPE
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6200 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::UNKNOWN_TYPE;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_6200 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6300
+ * @tc.name      : WantAgentHelper JudgeEquality
+ * @tc.desc      : 1.JudgeEquality
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6300 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent1(nullptr);
+    std::shared_ptr<WantAgent> wantAgent2(nullptr);
+
+    ErrCode err = wantAgentHelper->IsEquals(wantAgent1, wantAgent2);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6300 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6400
+ * @tc.name      : WantAgentHelper JudgeEquality
+ * @tc.desc      : 1.IsEquals both wantAgent is null
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6400, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6400 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent1(nullptr);
+    std::shared_ptr<WantAgent> wantAgent2(nullptr);
+
+    ErrCode err = wantAgentHelper->IsEquals(wantAgent1, wantAgent2);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6400 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6500
+ * @tc.name      : WantAgentHelper JudgeEquality
+ * @tc.desc      : 1.IsEquals one of wantagent is null
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6500, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6500 start.");
+
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<PendingWant> pendingWant(nullptr);
+    std::shared_ptr<WantAgent> wantAgent1 = std::make_shared<WantAgent>(pendingWant);
+    std::shared_ptr<WantAgent> wantAgent2(nullptr);
+
+    ErrCode err = wantAgentHelper->IsEquals(wantAgent1, wantAgent2);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_6500 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6600
+ * @tc.name      : WantAgentHelper JudgeEquality
+ * @tc.desc      : 1.IsEquals both of wantagent is not null
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6600 start.");
+
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<PendingWant> pendingWant(nullptr);
+    std::shared_ptr<WantAgent> wantAgent1 = std::make_shared<WantAgent>(pendingWant);
+    std::shared_ptr<WantAgent> wantAgent2 = std::make_shared<WantAgent>(pendingWant);
+
+    ErrCode err = wantAgentHelper->IsEquals(wantAgent1, wantAgent2);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6600 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6700
+ * @tc.name      : WantAgentHelper JudgeEquality
+ * @tc.desc      : 1.IsEquals both of wantagent is not null
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6700 start.");
+
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    
+    // pendingwant
+    int requestCode = 10;
+    std::shared_ptr<Want> want1 = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want1->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant1 =
+        PendingWant::BuildServicePendingWant(context, requestCode, want1, flags, type);
+
+    // pendingwant2
+    int requestCode2 = 11;
+    std::shared_ptr<Want> want2 = std::make_shared<Want>();
+    ElementName element2("device", "bundle", "ability");
+    want2->SetElement(element2);
+    std::shared_ptr<PendingWant> pendingWant2 =
+        PendingWant::BuildServicePendingWant(context, requestCode2, want2, flags, type);
+    
+    std::shared_ptr<WantAgent> wantAgent1 = std::make_shared<WantAgent>(pendingWant1);
+    std::shared_ptr<WantAgent> wantAgent2 = std::make_shared<WantAgent>(pendingWant2);
+
+    ErrCode err = wantAgentHelper->IsEquals(wantAgent1, wantAgent2);
+    EXPECT_EQ(err, NOTEEQ);
+    HILOG_INFO("WantAgentHelper_6700 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6800
+ * @tc.name      : WantAgentHelper GetBundleName
+ * @tc.desc      : 1.GetBundleName WantAgent is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6800 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+    std::string bunleName;
+    ErrCode err = wantAgentHelper->GetBundleName(wantAgent, bunleName);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_6800 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_6900
+ * @tc.name      : WantAgentHelper GetBundleName
+ * @tc.desc      : 1.GetBundleName WantAgent is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_6900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_6900 start.");
+    
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    WantAgentInfo wantAgentInfo;
+    wantAgentInfo.wants_.emplace_back(want);
+    wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_ABILITY;
+    wantAgentInfo.requestCode_ = 10;
+
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    ErrCode err = wantAgentHelper->GetWantAgent(context, wantAgentInfo, wantAgent);
+    EXPECT_NE(wantAgent, nullptr);
+    EXPECT_EQ(err, ERR_OK);
+
+
+    std::string bunleName;
+    err = wantAgentHelper->GetBundleName(wantAgent, bunleName);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("WantAgentHelper_6900 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_7000
+ * @tc.name      : WantAgentHelper GetUid
+ * @tc.desc      : 1.GetUid WantAgent is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_7000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_7000 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+
+    int32_t uid;
+    ErrCode err = wantAgentHelper->GetUid(wantAgent, uid);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_7000 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_7100
+ * @tc.name      : WantAgentHelper GetUid
+ * @tc.desc      : 1.GetUid pendingWant is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_7100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_7100 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+
+    int32_t uid;
+    ErrCode err = wantAgentHelper->GetUid(wantAgent, uid);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("WantAgentHelper_7100 end.");
+}
+
+/*
+ * @tc.number    : WantAgentHelper_7200
+ * @tc.name      : WantAgentHelper GetUid
+ * @tc.desc      : 1.GetUid pendingWant is nullptr
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_7200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("WantAgentHelper_7200 start.");
+    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant =
+        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+
+    int32_t uid;
+    ErrCode err = wantAgentHelper->GetUid(wantAgent, uid);
+    EXPECT_EQ(err, ERR_OK);
+    EXPECT_NE(uid, 0);
+    HILOG_INFO("WantAgentHelper_7200 end.");
 }
 
 }  // namespace OHOS::AbilityRuntime::WantAgent
