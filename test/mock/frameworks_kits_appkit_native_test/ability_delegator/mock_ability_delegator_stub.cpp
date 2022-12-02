@@ -90,8 +90,14 @@ int MockAbilityDelegatorStub::StartAbilityByCall(
     return 0;
 }
 
-int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element)
+void MockAbilityDelegatorStub::CallRequestDone(
+    const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    return;
+}
+
+int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection>& connect,
+    const AppExecFwk::ElementName& element)
 {
     return 0;
 }
@@ -277,8 +283,15 @@ int MockAbilityDelegatorStub2::StartAbilityByCall(
 {
     return 0;
 }
-int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element)
+
+void MockAbilityDelegatorStub2::CallRequestDone(
+    const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    return;
+}
+
+int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection>& connect,
+    const AppExecFwk::ElementName& element)
 {
     return 0;
 }

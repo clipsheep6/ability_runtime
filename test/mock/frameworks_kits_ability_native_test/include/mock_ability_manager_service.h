@@ -260,8 +260,10 @@ public:
 
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
-    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override {}
+
+#ifdef ABILITY_COMMAND_FOR_TEST
+    int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override
     {
         return 0;
     }

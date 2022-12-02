@@ -153,6 +153,8 @@ public:
     {
         return true;
     }
+
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

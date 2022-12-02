@@ -87,9 +87,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0100, Fun
         auto runner = EventRunner::Create(true);
         abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(runner);
         EXPECT_NE(abilitythread->abilityHandler_, nullptr);
-        sptr<IRemoteObject> retval = nullptr;
-        retval = abilitythread->CallRequest();
-        EXPECT_TRUE(retval != nullptr);
+        abilitythread->CallRequest();
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 end";
 }
@@ -103,8 +101,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0200, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 start";
     AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
-    sptr<IRemoteObject> retval = abilitythread->CallRequest();
-    EXPECT_TRUE(retval == nullptr);
+    abilitythread->CallRequest();
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 end";
 }
 
@@ -122,8 +119,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Fun
     if (abilitythread != nullptr) {
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();
         EXPECT_NE(abilitythread->currentAbility_, nullptr);
-        sptr<IRemoteObject> retval = abilitythread->CallRequest();
-        EXPECT_TRUE(retval == nullptr);
+        abilitythread->CallRequest();
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 end";
 }

@@ -88,10 +88,9 @@ public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};
 
-    sptr<IRemoteObject> CallRequest()
+    void CallRequest()
     {
-        sptr<MissionListManagerTestStub> remote = new (std::nothrow) MissionListManagerTestStub();
-        return remote->AsObject();
+        return;
     }
 };
 

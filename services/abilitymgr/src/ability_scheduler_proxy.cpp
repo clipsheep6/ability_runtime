@@ -990,37 +990,25 @@ void AbilitySchedulerProxy::DumpAbilityInfo(const std::vector<std::string> &para
     }
 }
 
-sptr<IRemoteObject> AbilitySchedulerProxy::CallRequest()
+void AbilitySchedulerProxy::CallRequest()
 {
     HILOG_INFO("AbilitySchedulerProxy::CallRequest start");
 
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        return nullptr;
+        return;
     }
 
     int32_t err = Remote()->SendRequest(IAbilityScheduler::REQUEST_CALL_REMOTE, data, reply, option);
     if (err != NO_ERROR) {
         HILOG_ERROR("CallRequest fail to SendRequest. err: %{public}d", err);
-        return nullptr;
-    }
-
-    int32_t result = reply.ReadInt32();
-    if (result != ERR_OK) {
-        HILOG_ERROR("CallRequest failed, err %{public}d", result);
-        return nullptr;
-    }
-    auto call = reply.ReadRemoteObject();
-    if (call == nullptr) {
-        HILOG_ERROR("CallRequest failed, err remoteObject is nullptr");
-        return nullptr;
+        return;
     }
 
     HILOG_INFO("AbilitySchedulerProxy::CallRequest end");
-    return call;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

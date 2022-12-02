@@ -132,9 +132,9 @@ public:
     {
         return 0;
     }
-    sptr<IRemoteObject> CallRequest() override
+    void CallRequest() override
     {
-        return {};
+        return;
     }
 };
 

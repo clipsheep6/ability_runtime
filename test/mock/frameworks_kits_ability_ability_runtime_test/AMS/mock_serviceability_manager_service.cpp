@@ -123,8 +123,14 @@ int MockServiceAbilityManagerService::TerminateAbilityByCaller(const sptr<IRemot
     return 0;
 }
 
-int MockServiceAbilityManagerService::ReleaseCall(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element)
+void MockServiceAbilityManagerService::CallRequestDone(
+    const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    return;
+}
+
+int MockServiceAbilityManagerService::ReleaseCall(const sptr<IAbilityConnection>& connect,
+    const AppExecFwk::ElementName& element)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::ReleaseCall";
     return 0;

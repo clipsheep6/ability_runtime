@@ -191,14 +191,14 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
         public:
-            virtual sptr<IRemoteObject> CallRequest() override
+            sptr<IRemoteObject> CallRequestModify()
             {
                 return sptr<IRemoteObject>(this);
             }
     };
 
     OHOS::sptr<AbilitySchedulerMockFunction> scheduler = new AbilitySchedulerMockFunction();
-    sptr<IRemoteObject> object = scheduler->CallRequest();
+    sptr<IRemoteObject> object = scheduler->CallRequestModify();
     abilityRecord_->callContainer_->CallRequestDone(object);
     callRecord->SetCallState(CallState::REQUESTED);
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_HAS_REMOTE_OBJ);
@@ -297,9 +297,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_001, TestSize.Level1)
 {
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
-        virtual sptr<IRemoteObject> CallRequest() override
+        void CallRequest() override
         {
-            return sptr<IRemoteObject>(this);
+            return;
         }
     };
 
@@ -312,7 +312,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_001, TestSize.Level1)
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
-    EXPECT_EQ(abilityRecord_->CallRequest(), true);
+    abilityRecord_->CallRequest();
 }
 
 /*
@@ -334,7 +334,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_002, TestSize.Level1)
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
-    EXPECT_EQ(abilityRecord_->CallRequest(), false);
+    abilityRecord_->CallRequest();
 }
 
 /*

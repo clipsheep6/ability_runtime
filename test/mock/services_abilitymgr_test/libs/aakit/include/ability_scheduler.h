@@ -96,9 +96,9 @@ public:
     {};
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
     {};
-    virtual sptr<IRemoteObject> CallRequest() override
+    virtual void CallRequest() override
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     };
     #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() override

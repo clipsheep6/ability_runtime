@@ -232,8 +232,8 @@ HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_001, TestSize.Level
     std::shared_ptr<CallContainer> callContainer = get();
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilitySchedulerMock();
     abilityRecord_->SetScheduler(scheduler);
-    sptr<IRemoteObject> object = scheduler->CallRequest();
-    bool result = callContainer->CallRequestDone(object);
+    scheduler->CallRequest();
+    bool result = callContainer->CallRequestDone(nullptr);
     EXPECT_EQ(result, false);
 }
 
@@ -248,12 +248,13 @@ HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_001, TestSize.Level
 HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_002, TestSize.Level1)
 {
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock {
-        virtual sptr<IRemoteObject> CallRequest() { return this; }
+    public:
+        sptr<IRemoteObject> CallRequestModify() { return this; }
     };
 
     std::shared_ptr<CallContainer> callContainer = get();
-    OHOS::sptr<IAbilityScheduler> scheduler = new AbilitySchedulerMockFunction();
-    sptr<IRemoteObject> object = scheduler->CallRequest();
+    auto scheduler = new AbilitySchedulerMockFunction();
+    sptr<IRemoteObject> object = scheduler->CallRequestModify();
     bool result = callContainer->CallRequestDone(object);
     EXPECT_EQ(result, true);
 }

@@ -5541,6 +5541,13 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
     return startUpNewRule_;
 }
 
+void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER(abilityRecord);
+    abilityRecord->CallRequestDone(callStub);
+}
+
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
 {
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||

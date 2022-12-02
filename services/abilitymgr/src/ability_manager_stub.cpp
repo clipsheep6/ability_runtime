@@ -109,6 +109,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT_BY_OPTIONS] = &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
     requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
+    requestFuncMap_[CALL_REQUEST_DONE] = &AbilityManagerStub::CallRequestDoneInner;
     requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseCallInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
@@ -1040,6 +1041,14 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
     HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner end.");
 
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::CallRequestDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<IRemoteObject> callStub = data.ReadRemoteObject();
+    CallRequestDone(token, callStub);
     return NO_ERROR;
 }
 

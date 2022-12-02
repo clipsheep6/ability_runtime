@@ -206,6 +206,10 @@ public:
     {
         return 0;
     }
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override
+    {
+        return;
+    }
     int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {

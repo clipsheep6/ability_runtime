@@ -474,6 +474,14 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
 
     /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    virtual void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) {};
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -926,6 +934,8 @@ public:
         RELEASE_CALL_ABILITY,
 
         CONNECT_ABILITY_WITH_TYPE,
+
+        CALL_REQUEST_DONE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

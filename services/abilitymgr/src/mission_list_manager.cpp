@@ -2558,9 +2558,8 @@ int MissionListManager::ResolveAbility(
 
     if (targetAbility->IsReady()) {
         HILOG_DEBUG("targetAbility is ready, directly scheduler call request.");
-        if (targetAbility->CallRequest()) {
-            return ResolveResultType::OK_HAS_REMOTE_OBJ;
-        }
+        targetAbility->CallRequest();
+        return ResolveResultType::OK_HAS_REMOTE_OBJ;
     }
 
     HILOG_DEBUG("targetAbility need to call request after lifecycle.");

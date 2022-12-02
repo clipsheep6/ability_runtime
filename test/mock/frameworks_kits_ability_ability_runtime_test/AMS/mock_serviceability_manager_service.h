@@ -88,7 +88,9 @@ public:
 
     int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
-    int ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override;
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
+
+    int ReleaseCall(const sptr<IAbilityConnection>& connect, const AppExecFwk::ElementName& element) override;
 
     MOCK_METHOD1(KillProcess, int(const std::string &bundleName));
     MOCK_METHOD2(UninstallApp, int(const std::string &bundleName, int32_t uid));

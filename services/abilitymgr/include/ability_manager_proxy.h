@@ -422,6 +422,14 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
 
     /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override;
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.

@@ -85,6 +85,11 @@ public:
         return true;
     }
 
+    void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override
+    {
+        return;
+    }
+
     void Wait()
     {
         sem_.Wait();

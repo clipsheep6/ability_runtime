@@ -53,9 +53,9 @@ public:
     MOCK_METHOD2(ContinueAbility, void(const std::string& deviceId, uint32_t versionCode));
     MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string> &params, std::vector<std::string> &info));
 
-    virtual sptr<IRemoteObject> CallRequest()
+    virtual void CallRequest()
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     }
 
     #ifdef ABILITY_COMMAND_FOR_TEST

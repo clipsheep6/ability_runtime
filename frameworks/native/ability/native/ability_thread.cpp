@@ -1638,13 +1638,13 @@ void AbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     }
 }
 
-sptr<IRemoteObject> AbilityThread::CallRequest()
+void AbilityThread::CallRequest()
 {
     HILOG_DEBUG("AbilityThread::CallRequest begin");
 
     if (!currentAbility_) {
         HILOG_ERROR("ability is nullptr.");
-        return nullptr;
+        return;
     }
 
     sptr<IRemoteObject> retval = nullptr;
@@ -1661,13 +1661,12 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
 
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("ability Handler is nullptr.");
-        return nullptr;
+        return;
     }
 
     abilityHandler_->PostSyncTask(syncTask);
-
+    AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
     HILOG_DEBUG("AbilityThread::CallRequest end");
-    return retval;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
