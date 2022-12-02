@@ -46,6 +46,14 @@ void AtomicServiceStatusCallbackStubTest::SetUp()
 void AtomicServiceStatusCallbackStubTest::TearDown()
 {}
 
+/*
+ * Feature: AtomicServiceStatusCallbackStub
+ * Function: OnRemoteRequest
+ * SubFunction: NA
+ * FunctionPoints: AtomicServiceStatusCallbackStub OnRemoteRequest
+ * EnvConditions: want is nullptr
+ * CaseDescription: Verify that on remote request is normal and abnormal
+ */
 HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_001, TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
@@ -68,6 +76,14 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
     EXPECT_NE(res, NO_ERROR);
 }
 
+/*
+ * Feature: AtomicServiceStatusCallbackStub
+ * Function: OnRemoteRequest
+ * SubFunction: NA
+ * FunctionPoints: AtomicServiceStatusCallbackStub OnRemoteRequest
+ * EnvConditions: want is not nullptr
+ * CaseDescription: Verify that on remote request is normal and abnormal
+ */
 HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_002, TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
@@ -91,6 +107,14 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
     EXPECT_EQ(res, NO_ERROR);
 }
 
+/*
+ * Feature: AtomicServiceStatusCallbackStub
+ * Function: OnRemoteRequest
+ * SubFunction: NA
+ * FunctionPoints: AtomicServiceStatusCallbackStub OnRemoteRequest
+ * EnvConditions: want is nullptr
+ * CaseDescription: Verify that on remote request is normal and abnormal
+ */
 HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_001, TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
@@ -114,6 +138,14 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
     EXPECT_NE(res, NO_ERROR);
 }
 
+/*
+ * Feature: AtomicServiceStatusCallbackStub
+ * Function: OnRemoteRequest
+ * SubFunction: NA
+ * FunctionPoints: AtomicServiceStatusCallbackStub OnRemoteRequest
+ * EnvConditions: want is not nullptr
+ * CaseDescription: Verify that on remote request is normal and abnormal
+ */
 HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_002, TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
