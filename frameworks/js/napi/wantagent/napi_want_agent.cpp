@@ -116,7 +116,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
         return;
     }
 
-    NativeValue* args[ARGC_TWO] = {0};
+    NativeValue* args[ARGC_TWO] = {nullptr};
     NativeValue* objValueFirst = dataWorkerData->engine->CreateObject();
     NativeObject* objectFirst = ConvertNativeValueTo<NativeObject>(objValueFirst);
 

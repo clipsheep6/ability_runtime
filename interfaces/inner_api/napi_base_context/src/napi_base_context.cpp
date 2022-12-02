@@ -27,7 +27,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 napi_value* GetFAModeContextClassObject()
 {
-    static thread_local napi_value contextClassObject = {0};
+    static thread_local napi_value contextClassObject = {nullptr};
     return &contextClassObject;
 }
 
