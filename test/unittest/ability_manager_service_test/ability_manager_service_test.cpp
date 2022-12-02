@@ -2224,5 +2224,20 @@ HWTEST_F(AbilityManagerServiceTest, RegisterSnapshotHandler_001, TestSize.Level1
     EXPECT_EQ(abilityMs_->RegisterSnapshotHandler(nullptr), 0);
     HILOG_INFO("AbilityManagerServiceTest RegisterSnapshotHandler_001 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CallRequestDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CallRequestDone
+ */
+HWTEST_F(AbilityManagerServiceTest, CallRequestDone_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CallRequestDone_001 start");
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> callStub = nullptr;
+    abilityMs_->CallRequestDone(token, callStub);
+    HILOG_INFO("AbilityManagerServiceTest CallRequestDone_001 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
