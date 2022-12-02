@@ -25,7 +25,7 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
-#define DISABLE_FUZZ
+#define ENABLE_FUZZ
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
@@ -83,8 +83,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-
+#ifndef ENABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+#endif
     free(ch);
     ch = nullptr;
     return 0;
