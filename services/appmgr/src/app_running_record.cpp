@@ -390,6 +390,11 @@ void AppRunningRecord::AddAbilityStage()
 
 void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bundleName)
 {
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
     HapModuleInfo hapModuleInfo;
     if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
         if (!eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
@@ -602,7 +607,7 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleNa
 void AppRunningRecord::StateChangedNotifyObserver(
     const std::shared_ptr<AbilityRunningRecord> &ability, const int32_t state, bool isAbility)
 {
-    if (!ability) {
+    if (!ability || ability->GetAbilityInfo() == nullptr) {
         HILOG_ERROR("ability is null");
         return;
     }
@@ -617,8 +622,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
 
-    if (isAbility && ability->GetAbilityInfo() != nullptr &&
-        ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
+    if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");
         return;
     }
