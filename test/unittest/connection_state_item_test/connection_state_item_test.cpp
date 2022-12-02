@@ -21,6 +21,8 @@
 #include "connection_record.h"
 #undef private
 #include "connection_observer_errors.h"
+#include "ability_connect_callback_interface.h"
+#include "ability_connect_callback_stub.h"
 
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
@@ -28,7 +30,7 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
-class MyAbilityConnection : public IAbilityConnection {
+class MyAbilityConnection : public AbilityConnectionStub {
 public:
     MyAbilityConnection() = default;
     virtual ~MyAbilityConnection() = default;
@@ -37,10 +39,6 @@ public:
     {}
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override
     {}
-    sptr<IRemoteObject> AsObject() override
-    {
-        return {};
-    }
 };
 class ConnectionStateItemTest : public testing::Test {
 public:
@@ -196,6 +194,47 @@ HWTEST_F(ConnectionStateItemTest, AddConnection_003, TestSize.Level1)
 
 /*
  * Feature: ConnectionStateItem
+ * Function: AddConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem AddConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify AddConnection
+ */
+HWTEST_F(ConnectionStateItemTest, AddConnection_004, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    auto res = connectionStateItem->AddConnection(record, data);
+    EXPECT_TRUE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: AddConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem AddConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify AddConnection
+ */
+HWTEST_F(ConnectionStateItemTest, AddConnection_005, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    connectionStateItem->connectionMap_[abilityRecord->GetToken()] = nullptr;
+    auto res = connectionStateItem->AddConnection(record, data);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
  * Function: RemoveConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem RemoveConnection
@@ -254,6 +293,68 @@ HWTEST_F(ConnectionStateItemTest, RemoveConnection_003, TestSize.Level1)
 
 /*
  * Feature: ConnectionStateItem
+ * Function: RemoveConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem RemoveConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveConnection
+ */
+HWTEST_F(ConnectionStateItemTest, RemoveConnection_004, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    auto res = connectionStateItem->RemoveConnection(record, data);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: RemoveConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem RemoveConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveConnection
+ */
+HWTEST_F(ConnectionStateItemTest, RemoveConnection_005, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    connectionStateItem->connectionMap_[abilityRecord->GetToken()] = nullptr;
+    auto res = connectionStateItem->RemoveConnection(record, data);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: RemoveConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem RemoveConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveConnection
+ */
+HWTEST_F(ConnectionStateItemTest, RemoveConnection_006, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    connectionStateItem->AddConnection(record, data);
+    auto res = connectionStateItem->RemoveConnection(record, data);
+    EXPECT_TRUE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
  * Function: AddDataAbilityConnection
  * SubFunction: NA
  * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
@@ -302,10 +403,12 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_003, TestSize.Level1)
     DataAbilityCaller caller;
     std::shared_ptr<DataAbilityRecord> dataAbility = InitDataAbilityRecord();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    caller.isNotHap = true;
+    caller.callerToken = abilityRecord->GetToken();
     dataAbility->ability_ = abilityRecord;
     ConnectionData data;
     auto res = connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
-    EXPECT_FALSE(res);
+    EXPECT_TRUE(res);
 }
 
 /*
@@ -324,10 +427,36 @@ HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_004, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     dataAbility->ability_ = abilityRecord;
     connectionStateItem->dataAbilityMap_.emplace(abilityRecord->GetToken(), nullptr);
-    EXPECT_EQ(connectionStateItem->dataAbilityMap_.size(), 1);
     ConnectionData data;
     auto res = connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
     EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: AddDataAbilityConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem AddDataAbilityConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify AddDataAbilityConnection
+ */
+HWTEST_F(ConnectionStateItemTest, AddDataAbilityConnection_005, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    DataAbilityCaller caller;
+    std::shared_ptr<DataAbilityRecord> dataAbility = InitDataAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    caller.isNotHap = true;
+    caller.callerToken = abilityRecord->GetToken();
+    dataAbility->ability_ = abilityRecord;
+    ConnectionData data;
+    connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
+    caller.isNotHap = false;
+    auto res1 = connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
+    EXPECT_FALSE(res1);
+    caller.callerToken = nullptr;
+    auto res2 = connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
+    EXPECT_FALSE(res2);
 }
 
 /*
@@ -402,10 +531,55 @@ HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_004, TestSize.Leve
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     dataAbility->ability_ = abilityRecord;
     connectionStateItem->dataAbilityMap_.emplace(abilityRecord->GetToken(), nullptr);
-    EXPECT_EQ(connectionStateItem->dataAbilityMap_.size(), 1);
     ConnectionData data;
     auto res = connectionStateItem->RemoveDataAbilityConnection(caller, dataAbility, data);
     EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: RemoveDataAbilityConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveDataAbilityConnection
+ */
+HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_005, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    DataAbilityCaller caller;
+    std::shared_ptr<DataAbilityRecord> dataAbility = InitDataAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    caller.isNotHap = false;
+    caller.callerToken = nullptr;
+    dataAbility->ability_ = abilityRecord;
+    ConnectionData data;
+    connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
+    auto res = connectionStateItem->RemoveDataAbilityConnection(caller, dataAbility, data);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: ConnectionStateItem
+ * Function: RemoveDataAbilityConnection
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateItem RemoveDataAbilityConnection
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveDataAbilityConnection
+ */
+HWTEST_F(ConnectionStateItemTest, RemoveDataAbilityConnection_006, TestSize.Level1)
+{
+    auto connectionStateItem = Init();
+    DataAbilityCaller caller;
+    std::shared_ptr<DataAbilityRecord> dataAbility = InitDataAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    caller.isNotHap = true;
+    caller.callerToken = abilityRecord->GetToken();
+    dataAbility->ability_ = abilityRecord;
+    ConnectionData data;
+    connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
+    auto res = connectionStateItem->RemoveDataAbilityConnection(caller, dataAbility, data);
+    EXPECT_TRUE(res);
 }
 
 /*
@@ -511,6 +685,18 @@ HWTEST_F(ConnectionStateItemTest, GenerateAllConnectionData_001, TestSize.Level1
 {
     auto connectionStateItem = Init();
     std::vector<AbilityRuntime::ConnectionData> datas;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    sptr<IAbilityConnection> connCallback = new MyAbilityConnection();
+    std::shared_ptr<ConnectionRecord> record = std::make_shared<ConnectionRecord>(
+        abilityRecord->GetToken(), abilityRecord, connCallback);
+    ConnectionData data;
+    DataAbilityCaller caller;
+    std::shared_ptr<DataAbilityRecord> dataAbility = InitDataAbilityRecord();
+    caller.isNotHap = true;
+    caller.callerToken = abilityRecord->GetToken();
+    dataAbility->ability_ = abilityRecord;
+    connectionStateItem->AddConnection(record, data);
+    connectionStateItem->AddDataAbilityConnection(caller, dataAbility, data);
     connectionStateItem->GenerateAllConnectionData(datas);
 }
 }  // namespace AAFwk
