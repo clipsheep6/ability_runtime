@@ -24,13 +24,12 @@
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AbilityRuntime::WantAgent;
+
 #define DISABLE_FUZZ
 namespace OHOS {
 namespace {
-#ifndef DISABLE_FUZZ
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-#endif
 const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
@@ -77,7 +76,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-#ifndef DISABLE_FUZZ
     /* Run your code on data */
     if (data == nullptr) {
         std::cout << "invalid data" << std::endl;
@@ -102,7 +100,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-
+#ifndef ENABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
     free(ch);
     ch = nullptr;
