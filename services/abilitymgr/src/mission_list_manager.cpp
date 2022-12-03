@@ -232,9 +232,7 @@ void MissionListManager::StartWaitingAbility()
     HILOG_INFO("%{public}s was called.", __func__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto topAbility = GetCurrentTopAbilityLocked();
-    CHECK_POINTER(topAbility);
-
-    if (topAbility->IsAbilityState(FOREGROUNDING)) {
+    if (topAbility != nullptr && topAbility->IsAbilityState(FOREGROUNDING)) {
         HILOG_INFO("Top ability is foregrounding, must return for start waiting again.");
         return;
     }
