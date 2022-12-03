@@ -28,6 +28,9 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string DLP_INDEX = "ohos.dlp.params.index";
+}
 class MissionListManagerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -36,6 +39,7 @@ public:
     void TearDown();
     void InitMockMission(std::shared_ptr<MissionListManager>& missionListManager,
         AbilityRequest& abilityRequest, Want& want, std::shared_ptr<AbilityRecord>& ability);
+    std::shared_ptr<AbilityRecord> InitAbilityRecord();
 };
 
 void MissionListManagerTest::SetUpTestCase(void)
@@ -64,6 +68,16 @@ void MissionListManagerTest::InitMockMission(std::shared_ptr<MissionListManager>
     abilityRequest.callerToken = ability->GetToken();
     missionListManager->EnqueueWaitingAbility(abilityRequest);
     missionListManager->defaultStandardList_->AddMissionToTop(mission);
+}
+
+std::shared_ptr<AbilityRecord> MissionListManagerTest::InitAbilityRecord()
+{
+    AbilityRequest abilityRequest;
+    abilityRequest.appInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    abilityRequest.abilityInfo.type = AbilityType::PAGE;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    return abilityRecord;
 }
 
 bool g_notifyWindowTransitionCalled = false;
@@ -530,6 +544,499 @@ HWTEST_F(MissionListManagerTest, CancelStartingWindow_002, TestSize.Level1)
     };
     task();
     EXPECT_EQ(g_cancelStartingWindowCalled, true);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RegisterMissionListener
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RegisterMissionListener
+ * EnvConditions: NA
+ * CaseDescription: Verify RegisterMissionListener
+ */
+HWTEST_F(MissionListManagerTest, RegisterMissionListener_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    sptr<IMissionListener> listener;
+    missionListManager->listenerController_ = nullptr;
+    int res = missionListManager->RegisterMissionListener(listener);
+    EXPECT_EQ(res, -1);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RegisterMissionListener
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RegisterMissionListener
+ * EnvConditions: NA
+ * CaseDescription: Verify RegisterMissionListener
+ */
+HWTEST_F(MissionListManagerTest, RegisterMissionListener_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    sptr<IMissionListener> listener;
+    missionListManager->Init();
+    int res = missionListManager->RegisterMissionListener(listener);
+    EXPECT_EQ(res, -1);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UnRegisterMissionListener
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UnRegisterMissionListener
+ * EnvConditions: NA
+ * CaseDescription: Verify UnRegisterMissionListener
+ */
+HWTEST_F(MissionListManagerTest, UnRegisterMissionListener_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    sptr<IMissionListener> listener;
+    missionListManager->listenerController_ = nullptr;
+    int res = missionListManager->UnRegisterMissionListener(listener);
+    EXPECT_EQ(res, -1);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UnRegisterMissionListener
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UnRegisterMissionListener
+ * EnvConditions: NA
+ * CaseDescription: Verify UnRegisterMissionListener
+ */
+HWTEST_F(MissionListManagerTest, UnRegisterMissionListener_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    sptr<IMissionListener> listener;
+    missionListManager->Init();
+    int res = missionListManager->UnRegisterMissionListener(listener);
+    EXPECT_NE(res, -1);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetMissionInfos
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetMissionInfos
+ * EnvConditions: NA
+ * CaseDescription: Verify GetMissionInfos
+ */
+HWTEST_F(MissionListManagerTest, GetMissionInfos_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    int32_t numMax = -1;
+    std::vector<MissionInfo> missionInfos;
+    int res = missionListManager->GetMissionInfos(numMax, missionInfos);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetMissionInfos
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetMissionInfos
+ * EnvConditions: NA
+ * CaseDescription: Verify GetMissionInfos
+ */
+HWTEST_F(MissionListManagerTest, GetMissionInfos_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    int32_t numMax = 0;
+    std::vector<MissionInfo> missionInfos;
+    int res = missionListManager->GetMissionInfos(numMax, missionInfos);
+    EXPECT_NE(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: StartWaitingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager StartWaitingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify StartWaitingAbility
+ */
+HWTEST_F(MissionListManagerTest, StartWaitingAbility_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->currentState_ = FOREGROUND;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    missionListManager->currentMissionLists_.push_front(missionList);
+    missionListManager->StartWaitingAbility();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: StartWaitingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager StartWaitingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify StartWaitingAbility
+ */
+HWTEST_F(MissionListManagerTest, StartWaitingAbility_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->currentState_ = BACKGROUND;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    missionListManager->currentMissionLists_.push_front(missionList);
+    missionListManager->StartWaitingAbility();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_003, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    info.missionInfo.id = 0;
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_004, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    info.missionInfo.id = 1;
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: BuildInnerMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager BuildInnerMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify BuildInnerMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, BuildInnerMissionInfo_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    InnerMissionInfo info;
+    std::string missionName = "missionName";
+    AbilityRequest abilityRequest;
+    abilityRequest.callType = AbilityCallType::INVALID_TYPE;
+    abilityRequest.want.SetParam(DLP_INDEX, 0);
+    missionListManager->BuildInnerMissionInfo(info, missionName, abilityRequest);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: BuildInnerMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager BuildInnerMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify BuildInnerMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, BuildInnerMissionInfo_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    InnerMissionInfo info;
+    std::string missionName = "missionName";
+    AbilityRequest abilityRequest;
+    std::string deviceId = "deviceId";
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    std::string moduleName = "moduleName";
+    abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
+    abilityRequest.want.SetParam(DLP_INDEX, 1);
+    abilityRequest.want.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    missionListManager->BuildInnerMissionInfo(info, missionName, abilityRequest);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetTargetMissionList
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetTargetMissionList
+ * EnvConditions: NA
+ * CaseDescription: Verify GetTargetMissionList
+ */
+HWTEST_F(MissionListManagerTest, GetTargetMissionList_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> callerAbility;
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
+    auto res = missionListManager->GetTargetMissionList(callerAbility, abilityRequest);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetTargetMissionList
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetTargetMissionList
+ * EnvConditions: NA
+ * CaseDescription: Verify GetTargetMissionList
+ */
+HWTEST_F(MissionListManagerTest, GetTargetMissionList_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> callerAbility;
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    auto res = missionListManager->GetTargetMissionList(callerAbility, abilityRequest);
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetTargetMissionList
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetTargetMissionList
+ * EnvConditions: NA
+ * CaseDescription: Verify GetTargetMissionList
+ */
+HWTEST_F(MissionListManagerTest, GetTargetMissionList_003, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    std::shared_ptr<AbilityRecord> callerAbility = InitAbilityRecord();
+    AbilityRequest abilityRequest;
+    callerAbility->isLauncherAbility_ = true;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    auto res = missionListManager->GetTargetMissionList(callerAbility, abilityRequest);
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetTargetMissionList
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetTargetMissionList
+ * EnvConditions: NA
+ * CaseDescription: Verify GetTargetMissionList
+ */
+HWTEST_F(MissionListManagerTest, GetTargetMissionList_004, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    std::shared_ptr<AbilityRecord> callerAbility = InitAbilityRecord();
+    AbilityRequest abilityRequest;
+    callerAbility->isLauncherAbility_ = false;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    auto res = missionListManager->GetTargetMissionList(callerAbility, abilityRequest);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_002, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_003, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_004, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    std::string missionName = "#::";
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
+    missionListManager->launcherList_ = missionList;
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_005, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    std::string missionName = "#::";
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(2, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    missionListManager->currentMissionLists_.push_front(missionList);
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: GetReusedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager GetReusedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetReusedMission
+ */
+HWTEST_F(MissionListManagerTest, GetReusedMission_006, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    std::string missionName = "#::";
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(3, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
+    missionListManager->defaultSingleList_ = missionList;
+    auto res = missionListManager->GetReusedMission(abilityRequest);
+    EXPECT_NE(res, nullptr);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
