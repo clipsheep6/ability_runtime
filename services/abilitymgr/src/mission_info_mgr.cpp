@@ -81,6 +81,7 @@ bool MissionInfoMgr::Init(int userId)
 
 bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 {
+    HILOG_INFO("AddMissionInfo, lockedState is %{public}d", missionInfo.missionInfo.lockedState);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) != missionIdMap_.end() && missionIdMap_[id]) {
@@ -107,6 +108,7 @@ bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 {
+    HILOG_INFO("UpdateMissionInfo, lockedState is %{public}d", missionInfo.missionInfo.lockedState);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) == missionIdMap_.end() || !missionIdMap_[id]) {
