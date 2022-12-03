@@ -33,6 +33,7 @@ Mission::Mission(const std::shared_ptr<Mission> &mission)
     startMethod_ = mission->startMethod_;
     abilityRecord_ = mission->abilityRecord_;
     missionName_ = mission->missionName_;
+    lockedState_ = mission->lockedState_;
     ownerMissionList_ = mission->ownerMissionList_;
 }
 
