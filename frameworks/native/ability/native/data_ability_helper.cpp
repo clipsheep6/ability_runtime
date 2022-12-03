@@ -478,6 +478,10 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
         if (TransferScheme(uri, dataShareUri)) {
             std::shared_ptr<DataShare::DataShareResultSet> dataShareResultSet
                 = dataShareHelper->Query(dataShareUri, dataSharePredicates, columns);
+            if (!dataShareResultSet) {
+                HILOG_ERROR("Return dataShareResultSet is nullptr.");
+                return nullptr;
+            }
             resultSet = RdbDataAbilityUtils::ToAbsSharedResultSet(dataShareResultSet);
             if (!resultSet) {
                 HILOG_ERROR("Transfer to AbsSharedResultSet failed.");
