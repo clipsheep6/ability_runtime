@@ -78,8 +78,6 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const int32_t SYSTEM_UID = 1000;
-
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -3026,7 +3024,8 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    if (IPCSkeleton::GetCallingUid() == SYSTEM_UID) {
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission();
+    if (isPerm) {
         sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject("abilityInfoCallback");
         if (abilityInfoCallback != nullptr) {
             request.abilityInfoCallback = abilityInfoCallback;
