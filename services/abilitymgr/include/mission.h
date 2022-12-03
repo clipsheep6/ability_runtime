@@ -178,6 +178,16 @@ public:
      */
     std::string GetSpecifiedFlag() const;
 
+    inline void SetNeedNotifyUpdateLabel(bool flag)
+    {
+        needNotifyUpdateLabel_ = flag;
+    }
+
+    inline bool NeedNotifyUpdateLabel() const
+    {
+        return needNotifyUpdateLabel_;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -189,6 +199,7 @@ private:
     bool isMovingToFront_ = false;
     bool isANRState_ = false;
     bool needNotify_ = true;
+    bool needNotifyUpdateLabel_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
