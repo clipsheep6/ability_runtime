@@ -29,8 +29,8 @@ namespace AAFwk {
  */
 class Mission : public std::enable_shared_from_this<Mission> {
 public:
-    Mission(int32_t id, const std::shared_ptr<AbilityRecord> abilityRecord, const std::string &missionName = "",
-        int32_t startMethod = 0);
+    Mission(int32_t id, bool lockedState, const std::shared_ptr<AbilityRecord> abilityRecord,
+        const std::string &missionName = "", int32_t startMethod = 0);
     explicit Mission(const std::shared_ptr<Mission> &mission);
     virtual ~Mission();
 
@@ -190,12 +190,12 @@ public:
 
 private:
     int32_t missionId_;
+    bool lockedState_ = false;
     int32_t startMethod_;
     std::shared_ptr<AbilityRecord> abilityRecord_;
     std::string missionName_;
     std::string specifiedFlag_;
     std::weak_ptr<MissionList> ownerMissionList_;
-    bool lockedState_ = false;
     bool isMovingToFront_ = false;
     bool isANRState_ = false;
     bool needNotify_ = true;
