@@ -963,6 +963,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
+    PostStartWaitingAbility();
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
         HILOG_ERROR("DispatchForeground Ability transition life state error. expect %{public}d, actual %{public}d",
             AbilityState::FOREGROUNDING,
@@ -1044,15 +1045,6 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
             listenerController_->NotifyMissionMovedToFront(mission->GetMissionId());
         }
     }
-
-    auto self(shared_from_this());
-    auto startWaitingAbilityTask = [self]() { self->StartWaitingAbility(); };
-
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-
-    /* PostTask to trigger start Ability from waiting queue */
-    handler->PostTask(startWaitingAbilityTask, "startWaitingAbility");
     TerminatePreviousAbility(abilityRecord);
 
     // new version. started by caller, scheduler call request
