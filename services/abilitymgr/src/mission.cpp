@@ -17,9 +17,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-Mission::Mission(int32_t id, const std::shared_ptr<AbilityRecord> abilityRecord, const std::string &missionName,
-    int32_t startMethod)
-    : missionId_(id), startMethod_(startMethod), abilityRecord_(abilityRecord), missionName_(missionName)
+Mission::Mission(int32_t id, bool lockedState, const std::shared_ptr<AbilityRecord> abilityRecord,
+    const std::string &missionName, int32_t startMethod)
+    : missionId_(id), lockedState_(lockedState), startMethod_(startMethod), abilityRecord_(abilityRecord),
+    missionName_(missionName)
 {
 }
 
@@ -33,6 +34,7 @@ Mission::Mission(const std::shared_ptr<Mission> &mission)
     startMethod_ = mission->startMethod_;
     abilityRecord_ = mission->abilityRecord_;
     missionName_ = mission->missionName_;
+    lockedState_ = mission->lockedState_;
     ownerMissionList_ = mission->ownerMissionList_;
 }
 
