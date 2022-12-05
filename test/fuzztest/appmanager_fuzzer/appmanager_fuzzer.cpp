@@ -84,8 +84,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-
+#ifndef DISABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+#endif
     free(ch);
     ch = nullptr;
     return 0;

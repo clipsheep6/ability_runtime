@@ -21,17 +21,17 @@
 #include "parcel.h"
 #include "want_agent_info.h"
 #include "want_agent_helper.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AbilityRuntime::WantAgent;
-#define ENABLE_FUZZ
+
+#define DISABLE_FUZZ
 namespace OHOS {
 namespace {
-#ifndef ENABLE_FUZZ
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-#endif
-    const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
+const std::string GET_BUNDLE_INFO_PERMISSION = "ohos.permission.GET_BUNDLE_INFO";
 }
     bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     {
@@ -77,7 +77,6 @@ constexpr size_t U32_AT_SIZE = 4;
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-#ifndef ENABLE_FUZZ
     /* Run your code on data */
     if (data == nullptr) {
         std::cout << "invalid data" << std::endl;
@@ -102,11 +101,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-
+#ifndef DISABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+#endif
     free(ch);
     ch = nullptr;
-#endif
     return 0;
 }
 
