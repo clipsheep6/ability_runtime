@@ -2574,7 +2574,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
     int orientation = static_cast<int>(DisplayOrientation::FOLLOWRECENT);
     ability->SetDisplayOrientation(orientation);
     int ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, -1);
 
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
@@ -2585,7 +2585,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
     // window is nullptr
     ability->SetDisplayOrientation(orientation);
     ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, -1);
 
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
