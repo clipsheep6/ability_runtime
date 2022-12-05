@@ -4589,6 +4589,11 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("Permission verification failed");
+        return CHECK_PERMISSION_FAILED;
+    }
 #ifdef SUPPORT_GRAPHICS
     if (!wmsHandler_) {
         HILOG_ERROR("wmsHandler_ is nullptr.");
