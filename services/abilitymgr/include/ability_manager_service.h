@@ -1024,6 +1024,7 @@ private:
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
+    bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int32_t GetValidUserId(const int32_t userId);
 
