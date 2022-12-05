@@ -32,36 +32,47 @@ void ConstructHqfInfo(BundleInfo& bundleInfo)
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionName = "1.0.0";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.cpuAbi = "armeabi-v7a";
-    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "/data/testQuickFix/native-path";
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "patch_1000/libs/arm";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.type = QuickFixType::PATCH;
     HqfInfo hqfInfo1;
     hqfInfo1.moduleName = "entry1";
     hqfInfo1.hapSha256 = "12345678";
     hqfInfo1.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry1.hqf";
+    hqfInfo1.nativeLibraryPath = "patch_1000/libs/arm";
     HqfInfo hqfInfo2;
     hqfInfo2.moduleName = "entry2";
     hqfInfo2.hapSha256 = "12345678";
     hqfInfo2.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry2.hqf";
+    hqfInfo2.nativeLibraryPath = "patch_1000/libs/arm";
     hqfInfos.push_back(hqfInfo1);
     hqfInfos.push_back(hqfInfo2);
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos = hqfInfos;
 
     std::vector<HapModuleInfo> hapModuleInfos;
     HapModuleInfo moduleInfo1;
+    moduleInfo1.name = "entry1";
     moduleInfo1.moduleName = "entry1";
     moduleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry1";
     moduleInfo1.hqfInfo = hqfInfo1;
     moduleInfo1.process = "test_quickfix";
+    moduleInfo1.isModuleJson = true;
+    moduleInfo1.isStageBasedModel = true;
+    moduleInfo1.isLibIsolated = true;
     HapModuleInfo moduleInfo2;
+    moduleInfo2.name = "entry2";
     moduleInfo2.moduleName = "entry2";
     moduleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry2";
     moduleInfo2.hqfInfo = hqfInfo2;
     moduleInfo2.process = "test_quickfix";
+    moduleInfo2.isModuleJson = true;
+    moduleInfo2.isStageBasedModel = true;
+    moduleInfo2.isLibIsolated = true;
     hapModuleInfos.push_back(moduleInfo1);
     hapModuleInfos.push_back(moduleInfo2);
     bundleInfo.hapModuleInfos = hapModuleInfos;
     bundleInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.versionName = "1.0.0";
+    bundleInfo.applicationInfo.nativeLibraryPath = "libs/arm";
 }
 } // namespace
 
