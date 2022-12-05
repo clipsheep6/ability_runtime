@@ -438,6 +438,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
+        targetMission->SetLockedState(info.missionInfo.lockedState);
         targetRecord->SetMission(targetMission);
         targetRecord->SetOwnerMissionUserId(userId_);
     } else {
@@ -2043,6 +2044,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
+    mission->SetLockedState(innerMissionInfo.missionInfo.lockedState);
     abilityRecord->SetMission(mission);
     abilityRecord->SetOwnerMissionUserId(userId_);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
