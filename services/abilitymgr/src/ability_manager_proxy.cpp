@@ -2366,7 +2366,7 @@ int AbilityManagerProxy::FinishUserTest(
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
+int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token, bool needCheckPermission)
 {
     MessageParcel data;
     MessageParcel reply;
