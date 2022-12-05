@@ -573,9 +573,10 @@ public:
      * GetTopAbility, get the token of top ability.
      *
      * @param token, the token of top ability.
+     * @param needCheckPermission, indicates whether to verify the permission.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) = 0;
+    virtual int GetTopAbility(sptr<IRemoteObject> &token, bool needCheckPermission = true) = 0;
 
     /**
      * The delegator calls this interface to move the ability to the foreground.

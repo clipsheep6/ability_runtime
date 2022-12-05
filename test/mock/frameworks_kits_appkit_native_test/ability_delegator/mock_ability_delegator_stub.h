@@ -138,7 +138,7 @@ public:
     int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
-    int GetTopAbility(sptr<IRemoteObject> &token) override;
+    int GetTopAbility(sptr<IRemoteObject> &token, bool needCheckPermission = true) override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
     int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
@@ -275,7 +275,7 @@ public:
     int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
-    int GetTopAbility(sptr<IRemoteObject> &token) override;
+    int GetTopAbility(sptr<IRemoteObject> &token, bool needCheckPermission = true) override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
     int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);

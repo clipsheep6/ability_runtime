@@ -203,7 +203,7 @@ public:
         return 0;
     }
 
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override
+    virtual int GetTopAbility(sptr<IRemoteObject> &token, bool needCheckPermission = true) override
     {
         return 0;
     }
