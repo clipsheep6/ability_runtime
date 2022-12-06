@@ -1204,7 +1204,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -1377,7 +1377,7 @@ int AbilityManagerService::TerminateAbilityByCaller(const sptr<IRemoteObject> &c
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -1447,7 +1447,7 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -2350,6 +2350,9 @@ int AbilityManagerService::AttachAbilityThread(
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto abilityInfo = abilityRecord->GetAbilityInfo();
@@ -2765,6 +2768,9 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     HILOG_DEBUG("Ability transition done come, state:%{public}d, name:%{public}s", state, abilityInfo.name.c_str());
     auto type = abilityInfo.type;
@@ -2816,6 +2822,9 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
@@ -2841,6 +2850,9 @@ int AbilityManagerService::ScheduleDisconnectAbilityDone(const sptr<IRemoteObjec
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
@@ -2866,6 +2878,10 @@ int AbilityManagerService::ScheduleCommandAbilityDone(const sptr<IRemoteObject> 
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     // force timeout ability for test
     if (IsNeedTimeoutForTest(abilityRecord->GetAbilityInfo().name, std::string("COMMAND"))) {
         HILOG_WARN("force timeout ability for test, state:COMMAND, ability: %{public}s",
@@ -2891,6 +2907,10 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER(abilityRecord);
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
+        return;
+    }
+
     HILOG_INFO("On ability request done, name is %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
 
@@ -3178,7 +3198,7 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
+    if (!AbilityUtil::JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
@@ -5593,23 +5613,6 @@ int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteOb
     }
     want.SetParam(DMS_IS_CALLER_BACKGROUND, isCallerBackground);
     return ERR_OK;
-}
-
-bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return true;
-    }
-
-    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID) {
-        HILOG_ERROR("Is not self, not enabled");
-        return false;
-    }
-
-    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
