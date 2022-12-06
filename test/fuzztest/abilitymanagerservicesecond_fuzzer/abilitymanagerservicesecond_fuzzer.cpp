@@ -125,7 +125,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->DumpMissionInfosInner(stringParam, info);
     abilityms->DumpMissionInner(stringParam, info);
     abilityms->DumpStateInner(stringParam, info);
-    abilityms->DumpState(stringParam, info);
     abilityms->DumpSysState(stringParam, info, boolParam, boolParam, intParam);
     PacMap saveData;
     abilityms->AbilityTransitionDone(token, intParam, saveData);
