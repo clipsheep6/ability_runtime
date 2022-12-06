@@ -61,9 +61,21 @@ public:
     {}
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
+    static int callBackCancelListenerConnt;
     void SetUp();
     void TearDown();
+    class CancelListenerSon : public CancelListener {
+    public:
+        void OnCancelled(int resultCode) override;
+    };
 };
+
+int WantAgentHelperTest::callBackCancelListenerConnt = 0;
+
+void WantAgentHelperTest::CancelListenerSon::OnCancelled(int resultCode)
+{
+    callBackCancelListenerConnt++;
+}
 
 void WantAgentHelperTest::SetUpTestCase(void)
 {
@@ -889,4 +901,153 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Leve
     EXPECT_EQ(wantAgentHelper->GetWant(wantAgent, want), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     EXPECT_EQ(want, nullptr);
 }
+
+/*
+ * @tc.number    : WantAgentHelper_4500
+ * @tc.name      : WantAgentHelper RegisterCancelListener
+ * @tc.desc      : 1.RegisterCancelListener when agent is null.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::RegisterCancelListener start";
+
+    std::shared_ptr<CancelListener> cancelListener1 = std::make_shared<CancelListenerSon>();
+    std::shared_ptr<CancelListener> cancelListener2 = std::make_shared<CancelListenerSon>();
+
+    WantAgentHelper::RegisterCancelListener(cancelListener1, nullptr);
+    WantAgentHelper::RegisterCancelListener(cancelListener2, nullptr);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::RegisterCancelListener end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4600
+ * @tc.name      : WantAgentHelper RegisterCancelListener
+ * @tc.desc      : 2.RegisterCancelListener normal test
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::RegisterCancelListener start";
+
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant =
+        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+
+    std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();
+
+    WantAgentHelper::RegisterCancelListener(cancelListener, wantAgent);
+
+    EXPECT_EQ(static_cast<int>(wantAgent->GetPendingWant()->cancelListeners_.size()), 1);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::RegisterCancelListener end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4700
+ * @tc.name      : WantAgentHelper UnregisterCancelListener
+ * @tc.desc      : 1.UnregisterCancelListener when agent is nullptr.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::UnregisterCancelListener start";
+
+    std::shared_ptr<CancelListener> cancelListener1 = std::make_shared<CancelListenerSon>();
+    std::shared_ptr<CancelListener> cancelListener2 = std::make_shared<CancelListenerSon>();
+    WantAgentHelper::UnregisterCancelListener(cancelListener1, nullptr);
+    WantAgentHelper::UnregisterCancelListener(cancelListener2, nullptr);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::UnregisterCancelListener end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4800
+ * @tc.name      : WantAgentHelper UnregisterCancelListener
+ * @tc.desc      : 2.UnregisterCancelListener normal test.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::UnregisterCancelListener start";
+
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant =
+        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+
+    std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();
+
+    WantAgentHelper::RegisterCancelListener(cancelListener, wantAgent);
+    EXPECT_EQ(static_cast<int>(wantAgent->GetPendingWant()->cancelListeners_.size()), 1);
+
+    WantAgentHelper::UnregisterCancelListener(cancelListener, wantAgent);
+    EXPECT_EQ(static_cast<int>(wantAgent->GetPendingWant()->cancelListeners_.size()), 0);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::UnregisterCancelListener end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_4900
+ * @tc.name      : WantAgentHelper TriggerWantAgent
+ * @tc.desc      : Test TriggerWantAgent when agent is nullptr.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent start";
+
+    std::shared_ptr<CompletedCallback> callback;
+    TriggerInfo paramsInfo;
+    WantAgentHelper::TriggerWantAgent(nullptr, callback, paramsInfo);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5000
+ * @tc.name      : WantAgentHelper TriggerWantAgent
+ * @tc.desc      : Test TriggerWantAgent when callback is nullptr.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent start";
+
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+    TriggerInfo paramsInfo;
+    WantAgentHelper::TriggerWantAgent(wantAgent, nullptr, paramsInfo);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5100
+ * @tc.name      : WantAgentHelper TriggerWantAgent
+ * @tc.desc      : Test TriggerWantAgent.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent start";
+
+    std::shared_ptr<WantAgent> wantAgent(nullptr);
+    std::shared_ptr<CompletedCallback> callback;
+    TriggerInfo paramsInfo;
+    WantAgentHelper::TriggerWantAgent(wantAgent, callback, paramsInfo);
+
+    GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent end";
+}
+
 }  // namespace OHOS::AbilityRuntime::WantAgent

@@ -2151,5 +2151,21 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_CompleteFirstFrameDrawingInn
     auto res = stub_->CompleteFirstFrameDrawingInner(data, reply);
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CallRequestDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CallRequestDone
+ * EnvConditions: NA
+ * CaseDescription: Verify the function CallRequestDone is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_CallRequestDone_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> callStub = nullptr;
+    stub_->CallRequestDone(token, callStub);
+    EXPECT_TRUE(true);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

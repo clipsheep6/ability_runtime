@@ -22,6 +22,7 @@ ohos_unittest("runtime_test") {
   include_dirs = [
     "${ability_runtime_native_path}/runtime",
     "${ability_runtime_native_path}/runtime/utils/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
     "//third_party/zlib/contrib/minizip",
     "//third_party/zlib",
   ]
@@ -35,6 +36,7 @@ ohos_unittest("runtime_test") {
   deps = []
 
   external_deps = [
+    "ability_base:extractortool",
     "ability_runtime:runtime",
     "c_utils:utils",
   ]

@@ -16,7 +16,11 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <regex>
+#define private public
+#define protected public
 #include "pac_map.h"
+#undef private
+#undef protected
 #include "user_object_base.h"
 namespace OHOS {
 namespace AppExecFwk {
@@ -878,6 +882,692 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetCharValue_0100, Function | MediumTest 
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValue_0100 end";
 }
 
+/**
+ * @tc.number: AppExecFwk_PacMap_DeepCopy_0200
+ * @tc.name: DeepCopy
+ * @tc.desc: Verify DeepCopy.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_DeepCopy_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_DeepCopy_0200 start";
+    PacMap otherMap;
+    FillData(otherMap);
+    pacmap_->DeepCopy(otherMap);
+    EXPECT_EQ(true, pacmap_->Equals(otherMap));
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_DeepCopy_0200 end";
+}
 
+/**
+ * @tc.number: AppExecFwk_PacMap_InnerPutObject_0100
+ * @tc.name: InnerPutObject
+ * @tc.desc: Verify InnerPutObject.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutObject_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutObject_0100 start";
+
+    std::shared_ptr<UserObjectBase> value = nullptr;
+    PacMapList mapList;
+    std::string key = "this is key";
+    pacmap_->InnerPutObject(mapList, key, value);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutObject_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_PutAll_0200
+ * @tc.name: PutAll
+ * @tc.desc: Verify PutAll().
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_PutAll_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutAll_0200 start";
+    FillData(*pacmap_.get());
+    std::map<std::string, PacMapObject::INTERFACE> data = pacmap_->GetAll();
+    pacmap_->PutAll(data);
+    std::string key = "this is key";
+    int defaultValue = 10;
+    int result = pacmap_->GetIntValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_PutAll_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetShortValue_0200
+ * @tc.name: GetShortValue
+ * @tc.desc: Verify GetShortValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetShortValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetShortValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    short defaultValue = 10;
+    short result = pacmap_->GetShortValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetShortValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetBooleanValue_0200
+ * @tc.name: GetBooleanValue
+ * @tc.desc: Verify GetBooleanValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetBooleanValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetBooleanValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    bool defaultValue = true;
+    bool result = pacmap_->GetBooleanValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetBooleanValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetLongValue_0200
+ * @tc.name: GetLongValue
+ * @tc.desc: Verify GetLongValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetLongValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetLongValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    long defaultValue = 100;
+    long result = pacmap_->GetLongValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetLongValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetCharValue_0200
+ * @tc.name: GetCharValue
+ * @tc.desc: Verify GetCharValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetCharValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    char defaultValue = 'a';
+    char result = pacmap_->GetCharValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetCharValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetByteValue_0200
+ * @tc.name: GetByteValue
+ * @tc.desc: Verify GetByteValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetByteValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetByteValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    AAFwk::byte defaultValue = 'A';
+    AAFwk::byte result = pacmap_->GetByteValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetByteValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetFloatValue_0200
+ * @tc.name: GetFloatValue
+ * @tc.desc: Verify GetFloatValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetFloatValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetFloatValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    float defaultValue = 3.1;
+    float result = pacmap_->GetFloatValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetFloatValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetDoubleValue_0200
+ * @tc.name: GetDoubleValue
+ * @tc.desc: Verify GetDoubleValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetDoubleValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetDoubleValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    double defaultValue = 3.11111;
+    double result = pacmap_->GetDoubleValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetDoubleValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetStringValue_0200
+ * @tc.name: GetStringValue
+ * @tc.desc: Verify GetDoubleValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetStringValue_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetStringValue_0200 start";
+    FillData(*pacmap_.get());
+    std::string key = "this is key";
+    std::string defaultValue = "this is defaultValue";
+    std::string result = pacmap_->GetStringValue(key, defaultValue);
+    EXPECT_EQ(result, defaultValue);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetStringValue_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetObject_0100
+ * @tc.name: GetObject
+ * @tc.desc: Verify GetObject().
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetObject_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetObject_0100 start";
+
+    std::string key = "";
+    std::shared_ptr<UserObjectBase> getObject = pacmap_->GetObject(key);
+    EXPECT_EQ(getObject, nullptr);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetObject_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_GetPacMap_0100
+ * @tc.name: GetPacMap
+ * @tc.desc: Verify GetPacMap.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetPacMap_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetPacMap_0100 start";
+
+    std::string key = "this is key";
+    pacmap_->GetPacMap(key);
+    std::string key1 = "";
+    pacmap_->GetPacMap(key1);
+    PacMapList desPacMap;
+    PacMapList srcPacMap;
+    pacmap_->ShallowCopyData(desPacMap, srcPacMap);
+    PacMapList pacMapList;
+    pacmap_->RemoveData(pacMapList, key1);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetPacMap_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_EqualPacMapData_0100
+ * @tc.name: EqualPacMapData
+ * @tc.desc: Verify EqualPacMapData.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_EqualPacMapData_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EqualPacMapData_0100 start";
+
+    FillData(*pacmap_.get());
+    std::map<std::string, PacMapObject::INTERFACE> data = pacmap_->GetAll();
+    PacMapList rightPacMapList;
+    bool result = pacmap_->EqualPacMapData(data, rightPacMapList);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_EqualPacMapData_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_CompareArrayData_0100
+ * @tc.name: CompareArrayData
+ * @tc.desc: Verify CompareArrayData.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_CompareArrayData_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_CompareArrayData_0100 start";
+
+    FillData(*pacmap_.get());
+    AAFwk::IInterface *one_interface = nullptr;
+    AAFwk::IInterface *two_interface = nullptr;
+    bool result = pacmap_->CompareArrayData(one_interface, two_interface);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_CompareArrayData_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_Equals_0200
+ * @tc.name: Equals
+ * @tc.desc: Verify Equals.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_Equals_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Equals_0200 start";
+
+    bool result = pacmap_->Equals(nullptr);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_Equals_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToString_0100
+ * @tc.name: ToString
+ * @tc.desc: Verify ToString.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToString_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToString_0100 start";
+
+    std::string result = pacmap_->ToString();
+    std::string ret = "{\"pacmap\":null}";
+    EXPECT_EQ(result, ret);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToString_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayShort_0100
+ * @tc.name: ToJsonArrayShort
+ * @tc.desc: Verify ToJsonArrayShort.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayShort_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayShort_0100 start";
+
+    std::vector<short> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayShort(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayShort_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayInt_0100
+ * @tc.name: ToJsonArrayInt
+ * @tc.desc: Verify ToJsonArrayInt.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayInt_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayInt_0100 start";
+
+    std::vector<int> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayInt(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayInt_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayLong_0100
+ * @tc.name: ToJsonArrayLong
+ * @tc.desc: Verify ToJsonArrayLong.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayLong_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayLong_0100 start";
+
+    std::vector<long> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayLong(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayLong_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayByte_0100
+ * @tc.name: ToJsonArrayByte
+ * @tc.desc: Verify ToJsonArrayByte.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayByte_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayByte_0100 start";
+
+    std::vector<byte> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayByte(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayByte_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayBoolean_0100
+ * @tc.name: ToJsonArrayBoolean
+ * @tc.desc: Verify ToJsonArrayBoolean.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayBoolean_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayBoolean_0100 start";
+
+    std::vector<bool> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayBoolean(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayBoolean_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayFloat_0100
+ * @tc.name: ToJsonArrayFloat
+ * @tc.desc: Verify ToJsonArrayBoolean.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayFloat_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayFloat_0100 start";
+
+    std::vector<float> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayFloat(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayFloat_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayDouble_0100
+ * @tc.name: ToJsonArrayDouble
+ * @tc.desc: Verify ToJsonArrayDouble.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayDouble_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayDouble_0100 start";
+
+    std::vector<double> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayDouble(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayDouble_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ToJsonArrayString_0100
+ * @tc.name: ToJsonArrayString
+ * @tc.desc: Verify ToJsonArrayString.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ToJsonArrayString_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayString_0100 start";
+
+    std::vector<std::string> array;
+    Json::Value item;
+    int type = 1;
+    bool result = pacmap_->ToJsonArrayString(array, item, type);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ToJsonArrayString_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_ParseJson_0100
+ * @tc.name: ParseJson
+ * @tc.desc: Verify ParseJson.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_ParseJson_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0100 start";
+
+    Json::Value data;
+    PacMapList mapList;
+    bool result = pacmap_->ParseJson(data, mapList);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_ParseJson_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayShort_0100
+ * @tc.name: ParseJsonItemArrayShort
+ * @tc.desc: Verify ParseJsonItemArrayShort.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayShort_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayShort_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayShort(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayShort_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayInteger_0100
+ * @tc.name: ParseJsonItemArrayInteger
+ * @tc.desc: Verify ParseJsonItemArrayInteger.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayInteger_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayInteger_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayInteger(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayInteger_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayLong_0100
+ * @tc.name: ParseJsonItemArrayLong
+ * @tc.desc: Verify ParseJsonItemArrayLong.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayLong_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayLong_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayLong(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayLong_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayChar_0100
+ * @tc.name: ParseJsonItemArrayChar
+ * @tc.desc: Verify ParseJsonItemArrayChar.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayChar_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayChar_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayChar(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayChar_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayByte_0100
+ * @tc.name: ParseJsonItemArrayByte
+ * @tc.desc: Verify ParseJsonItemArrayByte.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayByte_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayByte_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayByte(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayByte_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayBoolean_0100
+ * @tc.name: ParseJsonItemArrayBoolean
+ * @tc.desc: Verify ParseJsonItemArrayBoolean.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayBoolean_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayBoolean_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayBoolean(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayBoolean_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayFloat_0100
+ * @tc.name: ParseJsonItemArrayFloat
+ * @tc.desc: Verify ParseJsonItemArrayFloat.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayFloat_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayFloat_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayFloat(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayFloat_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayDouble_0100
+ * @tc.name: ParseJsonItemArrayDouble
+ * @tc.desc: Verify ParseJsonItemArrayDouble.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayDouble_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayDouble_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayDouble(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayDouble_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ParseJsonItemArrayString_0100
+ * @tc.name: ParseJsonItemArrayString
+ * @tc.desc: Verify ParseJsonItemArrayString.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_ParseJsonItemArrayString_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayString_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->ParseJsonItemArrayString(mapList, key, item);
+    EXPECT_EQ(result, true);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_ParseJsonItemArrayString_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_InnerPutObjectValue_0100
+ * @tc.name: InnerPutObjectValue
+ * @tc.desc: Verify InnerPutObjectValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_InnerPutObjectValue_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_InnerPutObjectValue_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->InnerPutObjectValue(mapList, key, item);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_InnerPutObjectValue_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_InnerPutPacMapValue_0100
+ * @tc.name: InnerPutPacMapValue
+ * @tc.desc: Verify InnerPutPacMapValue.
+ * @tc.require: issueI64N5S
+ */
+HWTEST_F(PacMapTest, AppExecFwk_InnerPutPacMapValue_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_InnerPutPacMapValue_0100 start";
+
+    PacMapList mapList;
+    std::string key = "this is key";
+    Json::Value item;
+    bool result = pacmap_->InnerPutPacMapValue(mapList, key, item);
+    EXPECT_EQ(result, false);
+    
+    GTEST_LOG_(INFO) << "AppExecFwk_InnerPutPacMapValue_0100 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

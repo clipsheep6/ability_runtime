@@ -16,7 +16,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
-#include "runtime_extractor.h"
+#include "extractor.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -77,10 +77,10 @@ void RuntimeExtractorTest::TearDown()
 HWTEST_F(RuntimeExtractorTest, RuntimeExtractorInit_001, TestSize.Level1)
 {
     std::string loadPath;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor1 = std::make_shared<RuntimeExtractor>(loadPath);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor1 = std::make_shared<AbilityBase::Extractor>(loadPath);
     EXPECT_FALSE(runtimeExtractor1->Init());
 
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor2 = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor2 = std::make_shared<AbilityBase::Extractor>(testPath_);
     EXPECT_TRUE(runtimeExtractor2->Init());
 }
 
@@ -95,18 +95,18 @@ HWTEST_F(RuntimeExtractorTest, RuntimeExtractorInit_001, TestSize.Level1)
 HWTEST_F(RuntimeExtractorTest, RuntimeExtractorCreate_001, TestSize.Level1)
 {
     std::string loadPath;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor1 = RuntimeExtractor::Create(loadPath);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor1 = AbilityBase::Extractor::Create(loadPath);
     EXPECT_TRUE(runtimeExtractor1 == nullptr);
 
     loadPath = ERROR_HAP_PATH;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor2 = RuntimeExtractor::Create(loadPath);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor2 = AbilityBase::Extractor::Create(loadPath);
     EXPECT_TRUE(runtimeExtractor2 == nullptr);
 
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor3 = RuntimeExtractor::Create(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor3 = AbilityBase::Extractor::Create(testPath_);
     EXPECT_TRUE(runtimeExtractor3 != nullptr);
 
     loadPath = TEST_THIRD_HAP_PATH;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor4 = RuntimeExtractor::Create(loadPath);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor4 = AbilityBase::Extractor::Create(loadPath);
     EXPECT_TRUE(runtimeExtractor4 == nullptr);
 }
 
@@ -120,7 +120,7 @@ HWTEST_F(RuntimeExtractorTest, RuntimeExtractorCreate_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, GetFileBuffer_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::ostringstream outStream;
     std::string srcPath = MODULE_JSON_PATH;
     EXPECT_FALSE(runtimeExtractor->GetFileBuffer(srcPath, outStream));
@@ -142,7 +142,7 @@ HWTEST_F(RuntimeExtractorTest, GetFileBuffer_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, GetFileList_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::vector<std::string> fileList;
     std::string srcPath = MAIN_ABILITY_PATH;
     EXPECT_FALSE(runtimeExtractor->GetFileList(srcPath, fileList));
@@ -165,7 +165,7 @@ HWTEST_F(RuntimeExtractorTest, GetFileList_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, HasEntry_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::string fileName = MAIN_ABILITY_FILENAME;
     EXPECT_FALSE(runtimeExtractor->HasEntry(fileName));
 
@@ -185,7 +185,7 @@ HWTEST_F(RuntimeExtractorTest, HasEntry_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, IsDirExist_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::string srcPath = MAIN_ABILITY_PATH;
     EXPECT_FALSE(runtimeExtractor->IsDirExist(srcPath));
 
@@ -205,7 +205,7 @@ HWTEST_F(RuntimeExtractorTest, IsDirExist_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, ExtractByName_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::ostringstream outStream;
     std::string srcPath = MODULE_JSON_PATH;
     EXPECT_FALSE(runtimeExtractor->ExtractByName(srcPath, outStream));
@@ -226,7 +226,7 @@ HWTEST_F(RuntimeExtractorTest, ExtractByName_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, ExtractFile_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::string outPath = OUT_PATH;
     std::string srcPath = MODULE_JSON_PATH;
     EXPECT_FALSE(runtimeExtractor->ExtractFile(srcPath, outPath));
@@ -249,7 +249,7 @@ HWTEST_F(RuntimeExtractorTest, ExtractFile_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, GetZipFileNames_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::vector<std::string> fileList;
     EXPECT_FALSE(runtimeExtractor->GetZipFileNames(fileList));
     EXPECT_TRUE(fileList.size() == 0);
@@ -269,7 +269,7 @@ HWTEST_F(RuntimeExtractorTest, GetZipFileNames_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, GetSpecifiedTypeFiles_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::vector<std::string> fileList;
     runtimeExtractor->GetSpecifiedTypeFiles(fileList, ".abc");
     EXPECT_TRUE(fileList.size() == 0);
@@ -288,7 +288,7 @@ HWTEST_F(RuntimeExtractorTest, GetSpecifiedTypeFiles_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, IsStageBasedModel_001, TestSize.Level1)
 {
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(testPath_);
     std::vector<std::string> fileList;
     EXPECT_FALSE(runtimeExtractor->IsStageBasedModel("MainAbility"));
 
@@ -307,10 +307,10 @@ HWTEST_F(RuntimeExtractorTest, IsStageBasedModel_001, TestSize.Level1)
 HWTEST_F(RuntimeExtractorTest, IsSameHap_001, TestSize.Level1)
 {
     std::string loadPath;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(loadPath);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor = std::make_shared<AbilityBase::Extractor>(loadPath);
     EXPECT_FALSE(runtimeExtractor->IsSameHap(""));
 
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor1 = std::make_shared<RuntimeExtractor>(testPath_);
+    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor1 = std::make_shared<AbilityBase::Extractor>(testPath_);
     runtimeExtractor1->Init();
     EXPECT_FALSE(runtimeExtractor1->IsSameHap(""));
     EXPECT_FALSE(runtimeExtractor1->IsSameHap(ERROR_HAP_PATH));

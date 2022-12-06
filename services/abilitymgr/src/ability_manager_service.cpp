@@ -78,8 +78,6 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const int32_t SYSTEM_UID = 1000;
-
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -823,7 +821,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
 #ifdef SUPPORT_GRAPHICS
-    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+    if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
@@ -1197,6 +1195,10 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -1366,6 +1368,9 @@ int AbilityManagerService::TerminateAbilityByCaller(const sptr<IRemoteObject> &c
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 #ifdef SUPPORT_GRAPHICS
     if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
         HILOG_ERROR("System ui not allow terminate.");
@@ -1433,6 +1438,10 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -3026,7 +3035,8 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    if (IPCSkeleton::GetCallingUid() == SYSTEM_UID) {
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission();
+    if (isPerm) {
         sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject("abilityInfoCallback");
         if (abilityInfoCallback != nullptr) {
             request.abilityInfoCallback = abilityInfoCallback;
@@ -3167,6 +3177,9 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -3628,7 +3641,8 @@ void AbilityManagerService::StartResidentApps()
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
 #ifdef SUPPORT_GRAPHICS
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+            amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
     }
@@ -4589,6 +4603,16 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
+    return GetTopAbility(token, true);
+}
+
+int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool needVerify)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (needVerify && !isSaCall) {
+        HILOG_ERROR("Permission verification failed");
+        return CHECK_PERMISSION_FAILED;
+    }
 #ifdef SUPPORT_GRAPHICS
     if (!wmsHandler_) {
         HILOG_ERROR("wmsHandler_ is nullptr.");
@@ -4943,7 +4967,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
+    int ret = GetTopAbility(token, false);
     if (ret) {
         return elementName;
     }
@@ -5569,6 +5593,23 @@ int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteOb
     }
     want.SetParam(DMS_IS_CALLER_BACKGROUND, isCallerBackground);
     return ERR_OK;
+}
+
+bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return true;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("Is not self, not enabled");
+        return false;
+    }
+
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

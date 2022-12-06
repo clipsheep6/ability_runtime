@@ -125,6 +125,7 @@ ohos_shared_library("ability_utils") {
 
 ohos_shared_library("abilitykit_native") {
   include_dirs = [
+    "${ability_base_kits_path}/extractortool/include",
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
     "${relational_store_napi_path}/dataability/include",

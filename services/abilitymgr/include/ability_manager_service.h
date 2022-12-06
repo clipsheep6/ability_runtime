@@ -1024,6 +1024,7 @@ private:
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
+    bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int32_t GetValidUserId(const int32_t userId);
 
@@ -1162,6 +1163,8 @@ private:
     AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
     void InitStartupFlag();
+
+    int GetTopAbility(sptr<IRemoteObject> &token, bool needVerify);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

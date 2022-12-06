@@ -15,6 +15,8 @@
 
 #define private public
 #include "app_mgr_service_inner.h"
+#include "app_running_record.h"
+#include "module_running_record.h"
 #undef private
 
 #include <limits>
@@ -26,6 +28,7 @@
 #include "app_scheduler_host.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
+#include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "mock_app_scheduler.h"
 #include "mock_ability_token.h"
@@ -33,6 +36,7 @@
 #include "mock_app_mgr_service_inner.h"
 #include "mock_iapp_state_callback.h"
 #include "mock_bundle_manager.h"
+#include "mock_render_scheduler.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -329,7 +333,17 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchApplication_001, TestSize.Level1)
 {
     Configuration config;
     auto record = GetTestAppRunningRecord();
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(2);
+    record->LaunchApplication(config);
+
+    std::string bundleName = "test_mainBundleName";
+    record->mainBundleName_ = bundleName;
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    record->appInfos_.emplace(bundleName, appInfo);
+    record->LaunchApplication(config);
+
+    record->appLifeCycleDeal_->SetApplicationClient(nullptr);
     record->LaunchApplication(config);
 }
 
@@ -343,6 +357,7 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchApplication_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppRunningRecordTest, LaunchAbility_001, TestSize.Level1)
 {
+    HILOG_INFO("AmsAppRunningRecordTest LaunchAbility_001 start");
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
     HapModuleInfo hapModuleInfo;
@@ -354,8 +369,46 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbility_001, TestSize.Level1)
     EXPECT_TRUE(moduleRecord);
     auto abilityRecord = moduleRecord->GetAbilityRunningRecordByToken(GetMockToken());
     EXPECT_EQ(nullptr, abilityRecord);
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchAbility(_, _, _)).Times(0);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchAbility(_, _, _)).Times(1);
     record->LaunchAbility(abilityRecord);
+
+    std::string deviceName = "device";
+    std::string abilityName = "ServiceAbility";
+    std::string appName = "hiservcie";
+    std::string bundleName = "com.ix.hiservcie";
+    std::string moduleName = "entry";
+    AbilityInfo abilityInfo;
+    abilityInfo.visible = true;
+    abilityInfo.applicationName = appName;
+    abilityInfo.type = AbilityType::EXTENSION;
+    abilityInfo.name = abilityName;
+    abilityInfo.bundleName = bundleName;
+    abilityInfo.moduleName = moduleName;
+    abilityInfo.deviceId = deviceName;
+    std::shared_ptr<AbilityInfo> abilityInfo_sptr = std::make_shared<AbilityInfo>(abilityInfo);
+
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
+        std::make_shared<AbilityRunningRecord>(abilityInfo_sptr, nullptr);
+    EXPECT_NE(nullptr, abilityRunningRecord);
+    EXPECT_EQ(nullptr, abilityRunningRecord->GetToken());
+    record->LaunchAbility(abilityRunningRecord);
+
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 =
+        std::make_shared<AbilityRunningRecord>(abilityInfo_sptr, token);
+    EXPECT_NE(nullptr, abilityRunningRecord1);
+    EXPECT_NE(nullptr, abilityRunningRecord1->GetToken());
+    record->LaunchAbility(abilityRunningRecord1);
+
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 =
+        std::make_shared<AbilityRunningRecord>(abilityInfo_sptr, GetMockToken());
+    EXPECT_NE(nullptr, abilityRunningRecord2);
+    record->AddModule(appInfo, abilityInfo_sptr, GetMockToken(), hapModuleInfo, nullptr);
+    record->LaunchAbility(abilityRunningRecord2);
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->LaunchAbility(abilityRecord);
+    HILOG_INFO("AmsAppRunningRecordTest LaunchAbility_001 end");
 }
 
 /*
@@ -401,6 +454,9 @@ HWTEST_F(AmsAppRunningRecordTest, ScheduleTerminate_001, TestSize.Level1)
     auto record = GetTestAppRunningRecord();
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleTerminateApplication()).Times(1);
     record->ScheduleTerminate();
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->ScheduleTerminate();
 }
 
 /*
@@ -415,6 +471,9 @@ HWTEST_F(AmsAppRunningRecordTest, ScheduleForegroundRunning_001, TestSize.Level1
 {
     auto record = GetTestAppRunningRecord();
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleForegroundApplication()).Times(1);
+    record->ScheduleForegroundRunning();
+
+    record->appLifeCycleDeal_ = nullptr;
     record->ScheduleForegroundRunning();
 }
 
@@ -431,6 +490,45 @@ HWTEST_F(AmsAppRunningRecordTest, ScheduleBackgroundRunning_001, TestSize.Level1
     auto record = GetTestAppRunningRecord();
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleBackgroundApplication()).Times(1);
     record->ScheduleBackgroundRunning();
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->ScheduleBackgroundRunning();
+}
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord
+ * SubFunction: NA
+ * FunctionPoints: Schedule process security exit by AppRunningRecord.
+ * EnvConditions: NA
+ * CaseDescription: Create an AppRunningRecord and call ScheduleProcessSecurityExit.
+ */
+HWTEST_F(AmsAppRunningRecordTest, ScheduleProcessSecurityExit_001, TestSize.Level1)
+{
+    auto record = GetTestAppRunningRecord();
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleProcessSecurityExit()).Times(1);
+    record->ScheduleProcessSecurityExit();
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->ScheduleProcessSecurityExit();
+}
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord
+ * SubFunction: NA
+ * FunctionPoints: Schedule memory level by AppRunningRecord.
+ * EnvConditions: NA
+ * CaseDescription: Create an AppRunningRecord and call ScheduleMemoryLevel.
+ */
+HWTEST_F(AmsAppRunningRecordTest, ScheduleMemoryLevel_001, TestSize.Level1)
+{
+    auto record = GetTestAppRunningRecord();
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleMemoryLevel(_)).Times(1);
+    record->ScheduleMemoryLevel(1);
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->ScheduleMemoryLevel(1);
 }
 
 /*
@@ -447,6 +545,9 @@ HWTEST_F(AmsAppRunningRecordTest, ScheduleTrimMemory_001, TestSize.Level1)
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleShrinkMemory(_)).Times(1);
     EXPECT_NE(nullptr, record->GetPriorityObject());
     record->ScheduleTrimMemory();
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->ScheduleTrimMemory();
 }
 
 /*
@@ -462,6 +563,33 @@ HWTEST_F(AmsAppRunningRecordTest, LowMemoryWarning_001, TestSize.Level1)
     auto record = GetTestAppRunningRecord();
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLowMemory()).Times(1);
     record->LowMemoryWarning();
+
+    record->appLifeCycleDeal_ = nullptr;
+    record->LowMemoryWarning();
+}
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord
+ * SubFunction: NA
+ * FunctionPoints: Add modules by AppRunningRecord.
+ * EnvConditions: NA
+ * CaseDescription: Create an AppRunningRecord and call AddModules.
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddModules_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AddModules_001 start");
+    auto record = GetTestAppRunningRecord();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    std::vector<HapModuleInfo> moduleInfos;
+    record->AddModules(appInfo, moduleInfos);
+
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    moduleInfos.push_back(hapModuleInfo);
+    record->AddModules(appInfo, moduleInfos);
+    HILOG_INFO("AmsAppRunningRecordTest AddModules_001 end");
 }
 
 /*
@@ -1201,34 +1329,48 @@ HWTEST_F(AmsAppRunningRecordTest, OnAbilityStateChanged_001, TestSize.Level1)
 
 HWTEST_F(AmsAppRunningRecordTest, AddModule_001, TestSize.Level1)
 {
+    HILOG_INFO("AmsAppRunningRecordTest AddModule_001 start");
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
+    auto appInfo0 = std::make_shared<ApplicationInfo>();
+    appInfo0->name = GetTestAppName();
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
-
     BundleInfo bundleInfo;
     bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    HapModuleInfo hapModuleInfo0;
+    hapModuleInfo0.moduleName = "module123";
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "module789";
     EXPECT_TRUE(service_ != nullptr);
     auto record = service_->CreateAppRunningRecord(
-        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-
+        GetMockToken(), nullptr, appInfo0, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo0, nullptr);
     EXPECT_TRUE(record != nullptr);
-
     auto moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 1);
+    sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<ModuleRunningRecord> moduleRecord =
+        record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_TRUE(!moduleRecord);
+
+    record->AddModule(nullptr, nullptr, nullptr, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, nullptr, nullptr, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo, nullptr, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, nullptr, token2, hapModuleInfo, nullptr);
+    moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_FALSE(!moduleRecord);
+    record->AddModule(appInfo, abilityInfo, token2, hapModuleInfo, nullptr);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
     abilityInfo2->name = GetTestAbilityName() + "_1";
     abilityInfo2->applicationName = GetTestAppName();
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
-    sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
     record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
 
     moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);
+    HILOG_INFO("AmsAppRunningRecordTest AddModule_001 end");
 }
 
 /*
@@ -1281,21 +1423,26 @@ HWTEST_F(AmsAppRunningRecordTest, AddModule_002, TestSize.Level1)
 
 HWTEST_F(AmsAppRunningRecordTest, GetModuleRecordByModuleName_001, TestSize.Level1)
 {
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRecordByModuleName_001 start");
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
     appInfo->bundleName = GetTestAppName();
+    auto appInfo1 = std::make_shared<ApplicationInfo>();
+    appInfo1->name = GetTestAppName() + "_1";
+    appInfo1->bundleName = GetTestAppName() + "_1";
 
     BundleInfo bundleInfo;
     bundleInfo.appId = "com.ohos.test.helloworld_code123";
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "module789";
     EXPECT_TRUE(service_ != nullptr);
-    auto record = service_->CreateAppRunningRecord(
-        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-
+    auto record = service_->appRunningManager_->CreateAppRunningRecord(appInfo, GetTestProcessName(), bundleInfo);
     EXPECT_TRUE(record != nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 0);
+    auto moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_TRUE(moduleRecord == nullptr);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
     abilityInfo2->name = GetTestAbilityName() + "_1";
@@ -1303,10 +1450,21 @@ HWTEST_F(AmsAppRunningRecordTest, GetModuleRecordByModuleName_001, TestSize.Leve
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo1, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 1);
+    moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_TRUE(moduleRecord == nullptr);
 
-    auto moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
-    EXPECT_TRUE(moduleRecord);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 2);
+
+    std::string moduleName1 = "module123";
+    moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, moduleName1);
+    EXPECT_TRUE(moduleRecord != nullptr);
+
+    moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_TRUE(moduleRecord == nullptr);
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRecordByModuleName_001 end");
 }
 
 /*
@@ -1393,6 +1551,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilities_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
 {
+    HILOG_INFO("AmsAppRunningRecordTest RemoveModuleRecord_001 start");
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -1417,12 +1576,37 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
     record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
 
+    std::shared_ptr<ModuleRunningRecord> moduleRecord0;
+    record->RemoveModuleRecord(moduleRecord0);
+    auto moduleRecordList = record->GetAllModuleRecord();
+    EXPECT_TRUE(moduleRecordList.size() == 2);
+
+    moduleRecord0 = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);
+    HapModuleInfo hapModuleInfo0;
+    hapModuleInfo0.moduleName = "module0";
+    moduleRecord0->Init(hapModuleInfo0);
+    record->RemoveModuleRecord(moduleRecord0);
+    moduleRecordList = record->GetAllModuleRecord();
+    EXPECT_TRUE(moduleRecordList.size() == 2);
+
     auto moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
 
     record->RemoveModuleRecord(moduleRecord);
-    auto moduleRecordList = record->GetAllModuleRecord();
+    moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 1);
+
+    auto moduleRecord1 = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo1.moduleName);
+    EXPECT_TRUE(moduleRecord1);
+
+    record->RemoveModuleRecord(moduleRecord1);
+    moduleRecordList = record->GetAllModuleRecord();
+    EXPECT_TRUE(moduleRecordList.size() == 0);
+
+    record->RemoveModuleRecord(moduleRecord1);
+    moduleRecordList = record->GetAllModuleRecord();
+    EXPECT_TRUE(moduleRecordList.size() == 0);
+    HILOG_INFO("AmsAppRunningRecordTest RemoveModuleRecord_001 end");
 }
 
 /*
@@ -1664,9 +1848,813 @@ HWTEST_F(AmsAppRunningRecordTest, Specified_LaunchApplication_001, TestSize.Leve
 
     record->SetApplicationClient(GetMockedAppSchedulerClient());
     record->isSpecifiedAbility_ = true;
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     service_->LaunchApplication(record);
     auto ability = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
     EXPECT_TRUE(ability->GetState() != AbilityState::ABILITY_STATE_READY);
+}
+
+/*
+ * Feature: AMS
+ * Function: RenderRecord
+ * SubFunction: RenderRecord
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: New RenderRecord
+ */
+HWTEST_F(AmsAppRunningRecordTest, NewRenderRecord_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    int32_t ipcFd = 0;
+    int32_t sharedFd = 0;
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+    EXPECT_NE(renderRecord, nullptr);
+    delete renderRecord;
+}
+
+/*
+ * Feature: AMS
+ * Function: CreateRenderRecord
+ * SubFunction: CreateRenderRecord
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Create Render Record
+ */
+HWTEST_F(AmsAppRunningRecordTest, CreateRenderRecord_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    pid_t hostPid1 = 1;
+    std::string renderParam = "";
+    std::string renderParam1 = "test_render_param";
+    int32_t ipcFd = 0;
+    int32_t ipcFd1 = 1;
+    int32_t sharedFd = 0;
+    int32_t sharedFd1 = 1;
+    std::shared_ptr<AppRunningRecord> host;
+
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    int32_t recordId = 11;
+    std::string processName = "processName";
+    std::shared_ptr<AppRunningRecord> host1 = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+    EXPECT_EQ(renderRecord, nullptr);
+
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam, ipcFd, sharedFd, host);
+    EXPECT_EQ(renderRecord, nullptr);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd, sharedFd, host);
+    EXPECT_EQ(renderRecord, nullptr);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd, host);
+    EXPECT_EQ(renderRecord, nullptr);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, host);
+    EXPECT_EQ(renderRecord, nullptr);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, host1);
+    EXPECT_NE(renderRecord, nullptr);
+}
+
+/*
+ * Feature: AMS
+ * Function: Set/GetPid
+ * SubFunction: Set/GetPid
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get Pid
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetPid_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    pid_t pid = 0;
+    renderRecord->SetPid(pid);
+    EXPECT_EQ(renderRecord->GetPid(), pid);
+}
+
+/*
+ * Feature: AMS
+ * Function: Set/GetHostUid
+ * SubFunction: Set/GetHostUid
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get HostUid
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetHostUid_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    int32_t uid = 1;
+    renderRecord->SetHostUid(uid);
+    EXPECT_EQ(renderRecord->GetHostUid(), uid);
+}
+
+/*
+ * Feature: AMS
+ * Function: Set/GetHostBundleName
+ * SubFunction: Set/GetHostBundleName
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get HostBundleName
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetHostBundleName_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    std::string hostBundleName = "testhostBundleName";
+    renderRecord->SetHostBundleName(hostBundleName);
+    EXPECT_EQ(renderRecord->GetHostBundleName(), hostBundleName);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetRenderParam
+ * SubFunction: GetRenderParam
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Render Param
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetRenderParam_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    EXPECT_EQ(renderRecord->GetRenderParam(), renderParam);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetIpcFd
+ * SubFunction: GetIpcFd
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Ipc Fd
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetIpcFd_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 1, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    EXPECT_EQ(renderRecord->GetIpcFd(), 1);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetSharedFd
+ * SubFunction: GetSharedFd
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Share Fd
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetSharedFd_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 1, host);
+    EXPECT_NE(renderRecord, nullptr);
+    EXPECT_EQ(renderRecord->GetSharedFd(), 1);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetHostRecord
+ * SubFunction: GetHostRecord
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Host Record
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetHostRecord_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 1, host);
+    EXPECT_NE(renderRecord, nullptr);
+    EXPECT_EQ(renderRecord->GetHostRecord(), host);
+}
+
+/*
+ * Feature: AMS
+ * Function: Set/GetScheduler
+ * SubFunction: Set/GetScheduler
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get Scheduler
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetScheduler_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    sptr<IRenderScheduler> scheduler;
+    renderRecord->SetScheduler(scheduler);
+    EXPECT_EQ(renderRecord->GetScheduler(), scheduler);
+}
+
+/*
+ * Feature: AMS
+ * Function: SetDeathRecipient
+ * SubFunction: SetDeathRecipient
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set Death Recipient
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetDeathRecipient_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    sptr<AppDeathRecipient> recipient;
+    renderRecord->SetDeathRecipient(recipient);
+    EXPECT_EQ(renderRecord->deathRecipient_, recipient);
+}
+
+/*
+ * Feature: AMS
+ * Function: RegisterDeathRecipient
+ * SubFunction: RegisterDeathRecipient
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Register Death Recipient
+ */
+HWTEST_F(AmsAppRunningRecordTest, RegisterDeathRecipient_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    renderRecord->RegisterDeathRecipient();
+
+    sptr<MockRenderScheduler> mockRenderScheduler = new (std::nothrow) MockRenderScheduler();
+    renderRecord->SetScheduler(mockRenderScheduler);
+    renderRecord->RegisterDeathRecipient();
+
+    sptr<AppDeathRecipient> recipient;
+    renderRecord->SetDeathRecipient(recipient);
+    renderRecord->RegisterDeathRecipient();
+
+    renderRecord->SetScheduler(nullptr);
+    renderRecord->RegisterDeathRecipient();
+}
+
+/*
+ * Feature: AMS
+ * Function: NewAppRunningRecord
+ * SubFunction: NewAppRunningRecord
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: New AppRunningRecord
+ */
+HWTEST_F(AmsAppRunningRecordTest, NewAppRunningRecord_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    EXPECT_NE(appRunningRecord, nullptr);
+
+    appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    std::shared_ptr<AppRunningRecord> appRunningRecord1 =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    EXPECT_NE(appRunningRecord1, nullptr);
+
+    bool isLauncherApp = appRunningRecord1->IsLauncherApp();
+    EXPECT_FALSE(isLauncherApp);
+
+    appRunningRecord1->SetState(ApplicationState::APP_STATE_END);
+    EXPECT_EQ(appRunningRecord1->GetState(), ApplicationState::APP_STATE_CREATE);
+
+    appRunningRecord1->SetState(ApplicationState::APP_STATE_READY);
+    EXPECT_EQ(appRunningRecord1->GetState(), ApplicationState::APP_STATE_READY);
+
+    std::string reason = "test_reason";
+    appRunningRecord1->ForceKillApp(reason);
+    std::string description = "test_description";
+    appRunningRecord1->ScheduleAppCrash(description);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetAbilityRunningRecord
+ * SubFunction: GetAbilityRunningRecord
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get AbilityRunningRecord
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_002, TestSize.Level1)
+{
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    abilityInfo->applicationName = GetTestAppName();
+
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+
+    std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
+        record->GetAbilityRunningRecord(GetTestAbilityName(), "module123", 0);
+    EXPECT_EQ(abilityRunningRecord, nullptr);
+
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    auto abilityInfo1 = std::make_shared<AbilityInfo>();
+    abilityInfo1->name = GetTestAbilityName() + "_1";
+    abilityInfo1->applicationName = GetTestAppName();
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.moduleName = "";
+    sptr<IRemoteObject> token1 = new (std::nothrow) MockAbilityToken();
+    record->AddModule(appInfo, abilityInfo1, token1, hapModuleInfo1, nullptr);
+    auto moduleRecordList = record->GetAllModuleRecord();
+    EXPECT_TRUE(moduleRecordList.size() == 2);
+
+    abilityRunningRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), "", 0);
+    EXPECT_NE(abilityRunningRecord, nullptr);
+    abilityRunningRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), "module789", 0);
+    EXPECT_NE(abilityRunningRecord, nullptr);
+
+    abilityRunningRecord->SetEventId(999);
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 = record->GetAbilityRunningRecord(999);
+    EXPECT_NE(abilityRunningRecord1, nullptr);
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 = record->GetAbilityRunningRecord(123);
+    EXPECT_EQ(abilityRunningRecord2, nullptr);
+}
+
+/*
+ * Feature: AMS
+ * Function: AddAbilityStage
+ * SubFunction: AddAbilityStage
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Add AbilityStage
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddAbilityStage_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStage_001 start");
+    std::string bundleName = "test_mainBundleName";
+    std::string bundleName1 = "test_mainBundleName1";
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = bundleName1;
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+
+    record->AddAbilityStage();
+
+    record->isStageBasedModel_ = true;
+    record->AddAbilityStage();
+
+    record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    record->AddAbilityStage();
+
+    appInfo->bundleName = bundleName;
+    auto abilityInfo2 = std::make_shared<AbilityInfo>();
+    abilityInfo2->name = GetTestAbilityName() + "_1";
+    abilityInfo2->applicationName = GetTestAppName();
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.moduleName = "module123";
+    sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->mainBundleName_ = bundleName;
+    record->AddAbilityStage();
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStage_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AddAbilityStageBySpecifiedAbility
+ * SubFunction: AddAbilityStageBySpecifiedAbility
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Add Ability Stage By Specified Ability
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageBySpecifiedAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStageBySpecifiedAbility_001 start");
+    std::string bundleName = "test_mainBundleName";
+    std::string bundleName1 = "test_mainBundleName1";
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = bundleName;
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+
+    record->AddAbilityStageBySpecifiedAbility(bundleName1);
+
+    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
+    std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->eventHandler_ = handler;
+    record->AddAbilityStageBySpecifiedAbility(bundleName1);
+    record->AddAbilityStageBySpecifiedAbility(bundleName);
+
+    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
+    record->AddAbilityStageBySpecifiedAbility(bundleName);
+
+    auto abilityInfo2 = std::make_shared<AbilityInfo>();
+    abilityInfo2->name = GetTestAbilityName() + "_1";
+    abilityInfo2->applicationName = GetTestAppName();
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.moduleName = "module123";
+    sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+
+    record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    record->AddAbilityStageBySpecifiedAbility(bundleName);
+
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStageBySpecifiedAbility_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AddAbilityStageDone
+ * SubFunction: AddAbilityStageDone
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Add Ability Stage Done
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStageDone_001 start");
+    std::string bundleName = "test_mainBundleName";
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = bundleName;
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+    record->AddAbilityStageDone();
+
+    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
+    std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->eventHandler_ = handler;
+    record->AddAbilityStageDone();
+
+    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
+    record->eventHandler_->SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1, 0);
+    record->AddAbilityStageDone();
+
+    record->isSpecifiedAbility_ = true;
+    record->AddAbilityStageDone();
+
+    HILOG_INFO("AmsAppRunningRecordTest AddAbilityStageDone_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: StateChangedNotifyObserver
+ * SubFunction: StateChangedNotifyObserver
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: State Changed Notify Observer
+ */
+HWTEST_F(AmsAppRunningRecordTest, StateChangedNotifyObserver_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest StateChangedNotifyObserver_001 start");
+    auto record = GetTestAppRunningRecord();
+    record->StateChangedNotifyObserver(nullptr, 0, false);
+
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
+        std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 =
+        std::make_shared<AbilityRunningRecord>(nullptr, token);
+    auto abilityInfo1 = std::make_shared<AbilityInfo>();
+    abilityInfo1->name = GetTestAbilityName();
+    abilityInfo1->type = AbilityType::EXTENSION;
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 =
+        std::make_shared<AbilityRunningRecord>(abilityInfo1, token);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, false);
+    record->StateChangedNotifyObserver(abilityRunningRecord1, 0, true);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, true);
+    record->StateChangedNotifyObserver(abilityRunningRecord2, 0, true);
+
+    HILOG_INFO("AmsAppRunningRecordTest StateChangedNotifyObserver_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: GetModuleRunningRecordByToken
+ * SubFunction: GetModuleRunningRecordByToken
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Module Running Record By Token
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetModuleRunningRecordByToken_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRunningRecordByToken_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    auto appInfo1 = std::make_shared<ApplicationInfo>();
+    appInfo1->name = GetTestAppName() + "_1";
+    appInfo1->bundleName = GetTestAppName() + "_1";
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->appRunningManager_->CreateAppRunningRecord(appInfo, GetTestProcessName(), bundleInfo);
+    EXPECT_TRUE(record != nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 0);
+
+    std::shared_ptr<ModuleRunningRecord> moduleRecord = record->GetModuleRunningRecordByToken(nullptr);
+    EXPECT_TRUE(moduleRecord == nullptr);
+    moduleRecord = record->GetModuleRunningRecordByToken(token);
+    EXPECT_TRUE(moduleRecord == nullptr);
+
+    auto abilityInfo1 = std::make_shared<AbilityInfo>();
+    abilityInfo1->name = GetTestAbilityName() + "_1";
+    abilityInfo1->applicationName = GetTestAppName() + "_1";
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.moduleName = "module123";
+    sptr<IRemoteObject> token1 = new (std::nothrow) MockAbilityToken();
+    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo1, nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 1);
+    moduleRecord = record->GetModuleRunningRecordByToken(token);
+    EXPECT_TRUE(moduleRecord == nullptr);
+
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 2);
+    moduleRecord = record->GetModuleRunningRecordByToken(token);
+    EXPECT_TRUE(moduleRecord != nullptr);
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRunningRecordByToken_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: GetModuleRunningRecordByTerminateLists
+ * SubFunction: GetModuleRunningRecordByTerminateLists
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get Module Running Record By Terminate Lists
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetModuleRunningRecordByTerminateLists_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRunningRecordByTerminateLists_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto abilityInfo1 = std::make_shared<AbilityInfo>();
+    abilityInfo1->name = GetTestAbilityName() + "_1";
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    auto appInfo1 = std::make_shared<ApplicationInfo>();
+    appInfo1->name = GetTestAppName() + "_1";
+    appInfo1->bundleName = GetTestAppName() + "_1";
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    sptr<IRemoteObject> token1 = new (std::nothrow) MockAbilityToken();
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->appRunningManager_->CreateAppRunningRecord(appInfo, GetTestProcessName(), bundleInfo);
+    EXPECT_TRUE(record != nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 0);
+
+    std::shared_ptr<ModuleRunningRecord> moduleRecord = record->GetModuleRunningRecordByTerminateLists(nullptr);
+    EXPECT_TRUE(moduleRecord == nullptr);
+    moduleRecord = record->GetModuleRunningRecordByTerminateLists(token);
+    EXPECT_TRUE(moduleRecord == nullptr);
+
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record->hapModules_.size() == 2);
+    moduleRecord = record->GetModuleRunningRecordByTerminateLists(token);
+    EXPECT_TRUE(moduleRecord == nullptr);
+
+    std::vector<std::shared_ptr<ModuleRunningRecord>> moduleRecords = record->hapModules_[appInfo->bundleName];
+    EXPECT_TRUE(moduleRecords.size() == 1);
+    std::shared_ptr<ModuleRunningRecord> moduleRecord1 = moduleRecords.front();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    moduleRecord1->terminateAbilities_.emplace(token, abilityRecord);
+
+    moduleRecord = record->GetModuleRunningRecordByTerminateLists(token);
+    EXPECT_EQ(moduleRecord, moduleRecord1);
+
+    HILOG_INFO("AmsAppRunningRecordTest GetModuleRunningRecordByTerminateLists_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: UpdateAbilityFocusState
+ * SubFunction: UpdateAbilityFocusState
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Update Ability Focus State
+ */
+HWTEST_F(AmsAppRunningRecordTest, UpdateAbilityFocusState_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest UpdateAbilityFocusState_001 start");
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+
+    auto abilityRecord = record->GetAbilityRunningRecordByToken(GetMockToken());
+    EXPECT_TRUE(abilityRecord != nullptr);
+
+    EXPECT_FALSE(abilityRecord->GetFocusFlag());
+    record->UpdateAbilityFocusState(GetMockToken(), true);
+    record->UpdateAbilityFocusState(GetMockToken(), false);
+
+    abilityRecord->UpdateFocusState(true);
+    record->UpdateAbilityFocusState(GetMockToken(), true);
+    record->UpdateAbilityFocusState(GetMockToken(), false);
+
+    HILOG_INFO("AmsAppRunningRecordTest UpdateAbilityFocusState_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AbilityForeground
+ * SubFunction: AbilityForeground
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Foreground
+ */
+HWTEST_F(AmsAppRunningRecordTest, AbilityForeground_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AbilityForeground_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord;
+    auto record = GetTestAppRunningRecord();
+    record->AbilityForeground(abilityRecord);
+
+    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    record->AbilityForeground(abilityRecord);
+
+    abilityRecord->SetState(AbilityState::ABILITY_STATE_READY);
+    record->AbilityForeground(abilityRecord);
+
+    abilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+    record->AbilityForeground(abilityRecord);
+
+    abilityRecord->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
+    record->AbilityForeground(abilityRecord);
+
+    record->SetState(ApplicationState::APP_STATE_TERMINATED);
+    record->AbilityForeground(abilityRecord);
+
+    HILOG_INFO("AmsAppRunningRecordTest AbilityForeground_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AbilityBackground
+ * SubFunction: AbilityBackground
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Background
+ */
+HWTEST_F(AmsAppRunningRecordTest, AbilityBackground_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AbilityBackground_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord;
+    auto record = GetTestAppRunningRecord();
+    record->AbilityBackground(abilityRecord);
+
+    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    record->AbilityBackground(abilityRecord);
+
+    abilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+    record->AbilityBackground(abilityRecord);
+
+    HILOG_INFO("AmsAppRunningRecordTest AbilityBackground_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AbilityFocused
+ * SubFunction: AbilityFocused
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Focused
+ */
+HWTEST_F(AmsAppRunningRecordTest, AbilityFocused_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AbilityFocused_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord;
+    auto record = GetTestAppRunningRecord();
+    record->AbilityFocused(abilityRecord);
+
+    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    record->AbilityFocused(abilityRecord);
+
+    HILOG_INFO("AmsAppRunningRecordTest AbilityFocused_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: AbilityUnfocused
+ * SubFunction: AbilityUnfocused
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ */
+HWTEST_F(AmsAppRunningRecordTest, AbilityUnfocused_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest AbilityUnfocused_001 start");
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord;
+    auto record = GetTestAppRunningRecord();
+    record->AbilityUnfocused(abilityRecord);
+
+    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    record->AbilityUnfocused(abilityRecord);
+
+    HILOG_INFO("AmsAppRunningRecordTest AbilityUnfocused_001 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

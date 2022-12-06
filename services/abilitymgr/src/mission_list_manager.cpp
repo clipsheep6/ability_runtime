@@ -29,6 +29,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
+constexpr uint32_t DELAY_NOTIFY_LABEL_TIME = 30; // 30ms
 constexpr uint32_t SCENE_FLAG_KEYGUARD = 1;
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
@@ -231,9 +232,7 @@ void MissionListManager::StartWaitingAbility()
     HILOG_INFO("%{public}s was called.", __func__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto topAbility = GetCurrentTopAbilityLocked();
-    CHECK_POINTER(topAbility);
-
-    if (topAbility->IsAbilityState(FOREGROUNDING)) {
+    if (topAbility != nullptr && topAbility->IsAbilityState(FOREGROUNDING)) {
         HILOG_INFO("Top ability is foregrounding, must return for start waiting again.");
         return;
     }
@@ -439,6 +438,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
+        targetMission->SetLockedState(info.missionInfo.lockedState);
         targetRecord->SetMission(targetMission);
         targetRecord->SetOwnerMissionUserId(userId_);
     } else {
@@ -964,6 +964,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
+    PostStartWaitingAbility();
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
         HILOG_ERROR("DispatchForeground Ability transition life state error. expect %{public}d, actual %{public}d",
             AbilityState::FOREGROUNDING,
@@ -1045,15 +1046,6 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
             listenerController_->NotifyMissionMovedToFront(mission->GetMissionId());
         }
     }
-
-    auto self(shared_from_this());
-    auto startWaitingAbilityTask = [self]() { self->StartWaitingAbility(); };
-
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-
-    /* PostTask to trigger start Ability from waiting queue */
-    handler->PostTask(startWaitingAbilityTask, "startWaitingAbility");
     TerminatePreviousAbility(abilityRecord);
 
     // new version. started by caller, scheduler call request
@@ -1223,6 +1215,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     // 1. if the ability was foreground, first should find wether there is other ability foreground
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
+        abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         auto nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
         if (nextAbilityRecord) {
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
@@ -1613,9 +1606,35 @@ void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityReco
     auto mission = abilityRecord->GetMission();
     if (mission && mission->NeedNotify() && listenerController_ &&
         !(abilityRecord->GetAbilityInfo().excludeFromMissions)) {
-        listenerController_->NotifyMissionCreated(abilityRecord->GetMissionId());
+        auto missionId = abilityRecord->GetMissionId();
+        listenerController_->NotifyMissionCreated(missionId);
         mission->SetNotifyLabel(false);
+
+        if (mission->NeedNotifyUpdateLabel()) {
+            PostMissionLabelUpdateTask(missionId);
+            mission->SetNeedNotifyUpdateLabel(false);
+        }
     }
+}
+
+void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
+{
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get EventHandler, do not post mission label update message.");
+        return;
+    }
+
+    std::weak_ptr<MissionListenerController> wpController = listenerController_;
+    auto task = [wpController, missionId] {
+        auto controller = wpController.lock();
+        if (controller == nullptr) {
+            HILOG_ERROR("controller is nullptr.");
+            return;
+        }
+        controller->NotifyMissionLabelUpdated(missionId);
+    };
+    handler->PostTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
 
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
@@ -2025,6 +2044,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
+    mission->SetLockedState(innerMissionInfo.missionInfo.lockedState);
     abilityRecord->SetMission(mission);
     abilityRecord->SetOwnerMissionUserId(userId_);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
@@ -2230,6 +2250,15 @@ int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const 
     if (missionId <= 0) {
         HILOG_INFO("SetMissionLabel find mission failed.");
         return -1;
+    }
+
+    // store label if not notify mission created.
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    if (abilityRecord) {
+        auto mission = abilityRecord->GetMission();
+        if (mission && mission->NeedNotify()) {
+            mission->SetNeedNotifyUpdateLabel(true);
+        }
     }
 
     auto ret = DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionLabel(missionId, label);

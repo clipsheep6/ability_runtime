@@ -17,7 +17,7 @@
 
 #include <regex>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "app_context.h"
@@ -32,7 +32,7 @@
 #define MODE 0771
 namespace OHOS {
 namespace AppExecFwk {
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
 const std::string ContextDeal::CONTEXT_DEAL_CODE_CACHE("code_cache");

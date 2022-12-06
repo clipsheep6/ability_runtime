@@ -1332,20 +1332,16 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     auto userId = GetUserIdByUid(uid);
-    AppSpawnStartMsg startMsg;
-    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    BundleInfo bundleInfo;
     bool bundleMgrResult;
-
     if (bundleIndex == 0) {
-        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleInfos");
-        bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfos(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-            bundleInfos, userId));
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleInfo");
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfo(bundleName,
+            BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
     } else {
-        BundleInfo bundleInfo;
         HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetSandboxBundleInfo");
         bundleMgrResult = (IN_PROCESS_CALL(bundleMgr_->GetSandboxBundleInfo(bundleName,
             bundleIndex, userId, bundleInfo)) == 0);
-        bundleInfos.emplace_back(bundleInfo);
     }
 
     if (!bundleMgrResult) {
@@ -1353,18 +1349,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
-    auto isExist = [&bundleName, &uid](const AppExecFwk::BundleInfo &bundleInfo) {
-        return bundleInfo.name == bundleName && bundleInfo.uid == uid;
-    };
-    auto bundleInfoIter = std::find_if(bundleInfos.begin(), bundleInfos.end(), isExist);
-    if (bundleInfoIter == bundleInfos.end()) {
-        HILOG_ERROR("Get target fail.");
-        return;
-    }
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
-    auto token = (*bundleInfoIter).applicationInfo.accessTokenId;
-
+    auto token = bundleInfo.applicationInfo.accessTokenId;
     {
         // Add TRACE
         HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
@@ -1375,10 +1362,11 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         }
     }
 
-    startMsg.uid = (*bundleInfoIter).uid;
-    startMsg.gid = (*bundleInfoIter).gid;
-    startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
-    startMsg.apl = (*bundleInfoIter).applicationInfo.appPrivilegeLevel;
+    AppSpawnStartMsg startMsg;
+    startMsg.uid = bundleInfo.uid;
+    startMsg.gid = bundleInfo.gid;
+    startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
+    startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
@@ -1388,19 +1376,15 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
-    {
-        // Add TRACE
-        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleGidsByUid");
-        bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
-        if (!bundleMgrResult) {
-            HILOG_ERROR("GetBundleGids is fail");
-            return;
-        }
+    bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
+    if (!bundleMgrResult) {
+        HILOG_ERROR("GetBundleGids is fail");
+        return;
     }
 
     startMsg.procName = processName;
     startMsg.soPath = SO_PATH;
-    startMsg.accessTokenIdEx = (*bundleInfoIter).applicationInfo.accessTokenIdEx;
+    startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
 
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
