@@ -66,7 +66,8 @@ group("fuzztest") {
 
     # "appmgrserviceinnersecond_fuzzer:fuzztest",
     "apprunningmanager_fuzzer:fuzztest",
-    "apprunningrecordfirst_fuzzer:fuzztest",
+
+    # "apprunningrecordfirst_fuzzer:fuzztest",
     "apprunningrecordsecond_fuzzer:fuzztest",
 
     # "atomicservicestatuscallbackstub_fuzzer:fuzztest",

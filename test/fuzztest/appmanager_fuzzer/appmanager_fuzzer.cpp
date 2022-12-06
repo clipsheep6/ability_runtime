@@ -25,7 +25,7 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
-#define ENABLE_FUZZ
+#define DISABLE_FUZZ
 
 namespace OHOS {
 namespace {
