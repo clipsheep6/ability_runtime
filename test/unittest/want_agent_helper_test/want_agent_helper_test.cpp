@@ -938,8 +938,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4600, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
 
     std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();
@@ -986,8 +986,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4800, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
 
     std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();
