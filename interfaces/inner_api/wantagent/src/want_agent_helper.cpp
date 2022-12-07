@@ -64,19 +64,20 @@ unsigned int WantAgentHelper::FlagsTransformer(const std::vector<WantAgentConsta
     return wantFlags;
 }
 
-std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(
-    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, const WantAgentInfo &paramsInfo)
+ErrCode WantAgentHelper::GetWantAgent(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent)
 {
     WANT_AGENT_LOGI("WantAgentHelper::GetWantAgent begin.");
     if (context == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
     if (wants.empty()) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     HILOG_INFO("%{public}s:bundle name = %{public}s; ability name = %{public}s",
@@ -87,42 +88,43 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(
     unsigned int flags = FlagsTransformer(paramsInfo.GetFlags());
     if (flags == 0) {
         WANT_AGENT_LOGE("WantAgentHelper::flags invalid.");
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<WantParams> extraInfo = paramsInfo.GetExtraInfo();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     int requestCode = paramsInfo.GetRequestCode();
     WantAgentConstant::OperationType operationType = paramsInfo.GetOperationType();
+    ErrCode result;
     switch (operationType) {
         case WantAgentConstant::OperationType::START_ABILITY:
-            pendingWant = PendingWant::GetAbility(context, requestCode, wants[0], flags, extraInfo);
+            result = PendingWant::GetAbility(context, requestCode, wants[0], flags, extraInfo, pendingWant);
             break;
         case WantAgentConstant::OperationType::START_ABILITIES:
-            pendingWant = PendingWant::GetAbilities(context, requestCode, wants, flags, extraInfo);
+            result = PendingWant::GetAbilities(context, requestCode, wants, flags, extraInfo, pendingWant);
             break;
         case WantAgentConstant::OperationType::START_SERVICE:
-            pendingWant = PendingWant::GetService(context, requestCode, wants[0], flags);
+            result = PendingWant::GetService(context, requestCode, wants[0], flags, pendingWant);
             break;
         case WantAgentConstant::OperationType::START_FOREGROUND_SERVICE:
-            pendingWant = PendingWant::GetForegroundService(context, requestCode, wants[0], flags);
+            result = PendingWant::GetForegroundService(context, requestCode, wants[0], flags, pendingWant);
             break;
         case WantAgentConstant::OperationType::SEND_COMMON_EVENT:
-            pendingWant = PendingWant::GetCommonEvent(context, requestCode, wants[0], flags);
+            result = PendingWant::GetCommonEvent(context, requestCode, wants[0], flags, pendingWant);
             break;
         default:
             WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent operation type is error.");
+            result = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
             break;
     }
 
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent the wants does not meet the requirements.");
-        return nullptr;
+        return result;
     }
-
-    std::shared_ptr<WantAgent> agent = std::make_shared<WantAgent>(pendingWant);
+    wantAgent = std::make_shared<WantAgent>(pendingWant);
     WANT_AGENT_LOGI("WantAgentHelper::GetWantAgent end.");
-    return agent;
+    return ERR_OK;
 }
 
 std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &paramsInfo, int32_t userId)
@@ -157,8 +159,8 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
     wantSenderInfo.flags = FlagsTransformer(paramsInfo.GetFlags());
     wantSenderInfo.type = static_cast<int32_t>(paramsInfo.GetOperationType());
     wantSenderInfo.userId = userId;
-
-    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = nullptr;
+    WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
     if (target == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent target is nullptr.");
         return nullptr;
@@ -177,35 +179,33 @@ WantAgentConstant::OperationType WantAgentHelper::GetType(const std::shared_ptr<
     return agent->GetPendingWant()->GetType(agent->GetPendingWant()->GetTarget());
 }
 
-void WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
+ErrCode WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
     const std::shared_ptr<CompletedCallback> &callback, const TriggerInfo &paramsInfo)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::TriggerWantAgent invalid input param.");
-        return;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     WantAgentConstant::OperationType type = GetType(agent);
     sptr<CompletedDispatcher> dispatcher = nullptr;
     if (callback != nullptr) {
         dispatcher = new (std::nothrow) CompletedDispatcher(pendingWant, callback, nullptr);
     }
-
-    Send(pendingWant, type, dispatcher, paramsInfo);
+    return Send(pendingWant, type, dispatcher, paramsInfo);
 }
 
-void WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
+ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
     WantAgentConstant::OperationType type, const sptr<CompletedDispatcher> &callBack, const TriggerInfo &paramsInfo)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::Send invalid input param.");
-        return;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    pendingWant->Send(paramsInfo.GetResultCode(),
+    return pendingWant->Send(paramsInfo.GetResultCode(),
         paramsInfo.GetWant(),
         callBack,
         paramsInfo.GetPermission(),
@@ -213,82 +213,67 @@ void WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
         pendingWant->GetTarget());
 }
 
-void WantAgentHelper::Cancel(const std::shared_ptr<WantAgent> &agent)
+ErrCode WantAgentHelper::Cancel(const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::Cancel WantAgent invalid input param.");
-        return;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::Cancel PendingWant invalid input param.");
-        return;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    pendingWant->Cancel(pendingWant->GetTarget());
+    return pendingWant->Cancel(pendingWant->GetTarget());
 }
 
-bool WantAgentHelper::JudgeEquality(
+ErrCode WantAgentHelper::IsEquals(
     const std::shared_ptr<WantAgent> &agent, const std::shared_ptr<WantAgent> &otherAgent)
 {
+    WANT_AGENT_LOGI("WantAgentHelper::IsEquals");
     if ((agent == nullptr) && (otherAgent == nullptr)) {
-        return true;
+        return ERR_OK;
     }
 
     if ((agent == nullptr) || (otherAgent == nullptr)) {
-        return false;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-
-    return PendingWant::Equals(agent->GetPendingWant(), otherAgent->GetPendingWant());
+    return PendingWant::IsEquals(agent->GetPendingWant(), otherAgent->GetPendingWant());
 }
 
-int WantAgentHelper::GetHashCode(const std::shared_ptr<WantAgent> &agent)
+ErrCode WantAgentHelper::GetBundleName(const std::shared_ptr<WantAgent> &agent, std::string &bundleName)
 {
-    if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetHashCode WantAgent invalid input param.");
-        return 0;
-    }
-
-    std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
-    if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetHashCode PendingWant invalid input param.");
-        return 0;
-    }
-
-    return pendingWant->GetHashCode(pendingWant->GetTarget());
-}
-
-std::string WantAgentHelper::GetBundleName(const std::shared_ptr<WantAgent> &agent)
-{
+    WANT_AGENT_LOGI("WantAgentHelper::GetBundleName");
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetBundleName WantAgent invalid input param.");
-        return "";
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetBundleName PendingWant invalid input param.");
-        return "";
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    return pendingWant->GetBundleName(pendingWant->GetTarget());
+    return pendingWant->GetBundleName(pendingWant->GetTarget(), bundleName);
 }
 
-int WantAgentHelper::GetUid(const std::shared_ptr<WantAgent> &agent)
+ErrCode WantAgentHelper::GetUid(const std::shared_ptr<WantAgent> &agent, int32_t &uid)
 {
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetUid WantAgent invalid input param.");
-        return -1;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetUid PendingWant invalid input param.");
-        return -1;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    return pendingWant->GetUid(pendingWant->GetTarget());
+    return pendingWant->GetUid(pendingWant->GetTarget(), uid);
 }
 
 std::shared_ptr<Want> WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent)

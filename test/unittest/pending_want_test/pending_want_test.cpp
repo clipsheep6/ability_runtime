@@ -190,9 +190,9 @@ HWTEST_F(PendingWantTest, PendingWant_0600, Function | MediumTest | Level1)
     std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
     wParams->SetParam(key, Boolean::Box(value));
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetAbility(
-        GetAppContext(), requestCode, want, flags, wParams);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetAbility(GetAppContext(), requestCode, want, flags, wParams, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -238,7 +238,7 @@ HWTEST_F(PendingWantTest, PendingWant_0800, Function | MediumTest | Level1)
     wants.emplace_back(want);
     wants.emplace_back(want2);
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
+    flags |= FLAG_ONE_SHOT;
     std::shared_ptr<PendingWant> pendingWant = PendingWant::GetAbilities(
         GetAppContext(), requestCode, wants, flags);
     EXPECT_NE(pendingWant, nullptr);
@@ -266,9 +266,9 @@ HWTEST_F(PendingWantTest, PendingWant_0900, Function | MediumTest | Level1)
     std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
     wParams->SetParam(key, Boolean::Box(value));
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetAbilities(
-        GetAppContext(), requestCode, wants, flags, wParams);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetAbilities(GetAppContext(), requestCode, wants, flags, wParams, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -285,8 +285,8 @@ HWTEST_F(PendingWantTest, PendingWant_1000, Function | MediumTest | Level1)
     want->SetElement(element);
     unsigned int flags = 1;
     flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetCommonEventAsUser(
-        nullptr, requestCode, want, flags, 0);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetCommonEventAsUser(nullptr, requestCode, want, flags, 0, pendingWant);
     EXPECT_EQ(pendingWant, nullptr);
 }
 
@@ -302,9 +302,9 @@ HWTEST_F(PendingWantTest, PendingWant_1100, Function | MediumTest | Level1)
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetCommonEventAsUser(
-        GetAppContext(), requestCode, want, flags, 0);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, 0, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -318,9 +318,9 @@ HWTEST_F(PendingWantTest, PendingWant_1200, Function | MediumTest | Level1)
     int requestCode = 10;
     std::shared_ptr<Want> want;
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetCommonEventAsUser(
-        GetAppContext(), requestCode, want, flags, 0);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, 0, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -334,9 +334,9 @@ HWTEST_F(PendingWantTest, PendingWant_1300, Function | MediumTest | Level1)
     int requestCode = 10;
     std::shared_ptr<Want> want;
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetService(
-        GetAppContext(), requestCode, want, flags);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetService(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -352,8 +352,9 @@ HWTEST_F(PendingWantTest, PendingWant_1400, Function | MediumTest | Level1)
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetService(nullptr, requestCode, want, flags);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetService(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(pendingWant, nullptr);
 }
 
@@ -367,9 +368,9 @@ HWTEST_F(PendingWantTest, PendingWant_1500, Function | MediumTest | Level1)
     int requestCode = 10;
     std::shared_ptr<Want> want;
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetForegroundService(
-        GetAppContext(), requestCode, want, flags);
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetForegroundService(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -386,7 +387,8 @@ HWTEST_F(PendingWantTest, PendingWant_1600, Function | MediumTest | Level1)
     want->SetElement(element);
     unsigned int flags = 1;
     flags |= FLAG_NO_CREATE;
-    std::shared_ptr<PendingWant> pendingWant = PendingWant::GetForegroundService(nullptr, requestCode, want, flags);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::GetForegroundService(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(pendingWant, nullptr);
 }
 
@@ -400,10 +402,10 @@ HWTEST_F(PendingWantTest, PendingWant_1700, Function | MediumTest | Level1)
     int requestCode = 10;
     std::shared_ptr<Want> want;
     unsigned int flags = 1;
-    flags |= FLAG_NO_CREATE;
+    flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(GetAppContext(), requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(GetAppContext(), requestCode, want, flags, type, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -421,8 +423,8 @@ HWTEST_F(PendingWantTest, PendingWant_1800, Function | MediumTest | Level1)
     unsigned int flags = 1;
     flags |= FLAG_NO_CREATE;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(nullptr, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(nullptr, requestCode, want, flags, type, pendingWant);
     EXPECT_EQ(pendingWant, nullptr);
 }
 
@@ -442,12 +444,12 @@ HWTEST_F(PendingWantTest, PendingWant_1900, Function | MediumTest | Level1)
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
     sptr<AAFwk::IWantSender> target2(nullptr);
     std::shared_ptr<PendingWant> pendingWant2 = std::make_shared<PendingWant>(target2);
-    EXPECT_EQ(pendingWant->Equals(pendingWant, pendingWant2), false);
+    EXPECT_NE(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_OK);
 }
 
 /*
@@ -460,7 +462,7 @@ HWTEST_F(PendingWantTest, PendingWant_2000, Function | MediumTest | Level1)
     sptr<AAFwk::IWantSender> target(new (std::nothrow) PendingWantRecord());
     std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>(target);
     std::shared_ptr<PendingWant> pendingWant2(nullptr);
-    EXPECT_EQ(pendingWant->Equals(pendingWant, pendingWant2), false);
+    EXPECT_NE(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_OK);
 }
 
 /*
@@ -482,7 +484,7 @@ HWTEST_F(PendingWantTest, PendingWant_2100, Function | MediumTest | Level1)
     unsigned int flags = 1;
     flags |= FLAG_NO_CREATE;
     AbilityManagerClient::GetInstance()->Connect();
-    EXPECT_EQ(INNER_ERR,
+    EXPECT_EQ(ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT,
         pendingWant.SendAndReturnResult(requestCode, want, nullptr, "Permission", nullptr, nullptr));
 }
 
@@ -667,7 +669,7 @@ HWTEST_F(PendingWantTest, PendingWant_3700, Function | MediumTest | Level1)
 {
     std::shared_ptr<PendingWant> pendingWant(nullptr);
     std::shared_ptr<PendingWant> pendingWant2(nullptr);
-    EXPECT_EQ(pendingWant->Equals(pendingWant, pendingWant2), true);
+    EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_OK);
 }
 
 /*
@@ -737,8 +739,9 @@ HWTEST_F(PendingWantTest, PendingWant_4100, Function | MediumTest | Level1)
 HWTEST_F(PendingWantTest, PendingWant_4200, Function | MediumTest | Level1)
 {
     PendingWant pendingWant(nullptr);
-    auto BundleName = pendingWant.GetBundleName(nullptr);
-    EXPECT_EQ(BundleName, "");
+    std::string bundleName = "";
+    pendingWant.GetBundleName(nullptr, bundleName);
+    EXPECT_EQ(bundleName, "");
 }
 
 /*
@@ -749,7 +752,8 @@ HWTEST_F(PendingWantTest, PendingWant_4200, Function | MediumTest | Level1)
 HWTEST_F(PendingWantTest, PendingWant_4300, Function | MediumTest | Level1)
 {
     PendingWant pendingWant(nullptr);
-    auto uid = pendingWant.GetUid(nullptr);
+    int32_t uid = -1;
+    pendingWant.GetUid(nullptr, uid);
     EXPECT_EQ(uid, -1);
 }
 

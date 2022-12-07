@@ -194,7 +194,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_0800, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     WantAgentInfo wantAgentInfo;
-    auto wantAgent = wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     EXPECT_EQ(wantAgent, nullptr);
 }
 
@@ -209,7 +210,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_0900, Function | MediumTest | Leve
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     WantAgentInfo wantAgentInfo;
     wantAgentInfo.wants_.clear();
-    auto wantAgent = wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     EXPECT_EQ(wantAgent, nullptr);
 }
 
@@ -230,7 +232,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1000, Function | MediumTest | Leve
     want->SetElement(element);
     wantAgentInfo.wants_.emplace_back(want);
     wantAgentInfo.flags_.clear();
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     EXPECT_EQ(wantAgent, nullptr);
 }
 
@@ -252,7 +255,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1100, Function | MediumTest | Leve
     want->SetElement(element);
     wantAgentInfo.wants_.emplace_back(want);
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::REPLACE_BUNDLE);
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     EXPECT_EQ(wantAgent, nullptr);
 }
 
@@ -277,8 +281,9 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1200, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_ABILITY;
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
-    EXPECT_NE(wantAgent, nullptr);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
 }
 
 /*
@@ -302,8 +307,9 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1300, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_ABILITIES;
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
-    EXPECT_NE(wantAgent, nullptr);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
 }
 
 /*
@@ -327,8 +333,9 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1400, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_SERVICE;
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
-    EXPECT_NE(wantAgent, nullptr);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
 }
 
 /*
@@ -352,8 +359,9 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1500, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
-    EXPECT_NE(wantAgent, nullptr);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
 }
 
 /*
@@ -377,8 +385,9 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1600, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = WantAgentConstant::OperationType::SEND_COMMON_EVENT;
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
-    EXPECT_NE(wantAgent, nullptr);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
+    EXPECT_EQ(wantAgent, nullptr);
 }
 
 /*
@@ -402,7 +411,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1700, Function | MediumTest | Leve
     wantAgentInfo.flags_.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     wantAgentInfo.operationType_ = static_cast<WantAgentConstant::OperationType>(100);
     wantAgentInfo.requestCode_ = 10;
-    auto wantAgent = wantAgentHelper->GetWantAgent(context, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     EXPECT_EQ(wantAgent, nullptr);
 }
 
@@ -529,7 +539,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2300, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     WantAgentInfo wantAgentInfo;
-    auto wantAgent = wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo);
+    std::shared_ptr<WantAgent> wantAgent = nullptr;
+    wantAgentHelper->GetWantAgent(nullptr, wantAgentInfo, wantAgent);
     auto type = wantAgentHelper->GetType(wantAgent);
     EXPECT_EQ(type, WantAgentConstant::OperationType::UNKNOWN_TYPE);
 }
@@ -571,8 +582,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2600, Function | MediumTest | Leve
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
     std::shared_ptr<WantAgent> wantAgent2(nullptr);
-    auto isEqual = wantAgentHelper->JudgeEquality(wantAgent, wantAgent2);
-    EXPECT_EQ(isEqual, true);
+    ErrCode isEqual = wantAgentHelper->IsEquals(wantAgent, wantAgent2);
+    EXPECT_EQ(isEqual, ERR_OK);
 }
 
 /*
@@ -594,21 +605,21 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2700, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
     // pendingwant2
     int requestCode2 = 11;
     std::shared_ptr<Want> want2 = std::make_shared<Want>();
     ElementName element2("device", "bundle", "ability");
     want2->SetElement(element2);
-    std::shared_ptr<PendingWant> pendingWant2 =
-        PendingWant::BuildServicePendingWant(context, requestCode2, want2, flags, type);
+    std::shared_ptr<PendingWant> pendingWant2 = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode2, want2, flags, type, pendingWant2);
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     std::shared_ptr<WantAgent> wantAgent2 = std::make_shared<WantAgent>(pendingWant2);
-    auto isEqual = wantAgentHelper->JudgeEquality(wantAgent, wantAgent2);
-    EXPECT_EQ(isEqual, false);
+    ErrCode isEqual = wantAgentHelper->IsEquals(wantAgent, wantAgent2);
+    EXPECT_NE(isEqual, ERR_OK);
 }
 
 /*
@@ -629,13 +640,13 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2800, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     std::shared_ptr<WantAgent> wantAgent2 = std::make_shared<WantAgent>(pendingWant);
-    auto isEqual = wantAgentHelper->JudgeEquality(wantAgent, wantAgent2);
-    EXPECT_EQ(isEqual, true);
+    ErrCode isEqual = wantAgentHelper->IsEquals(wantAgent, wantAgent2);
+    EXPECT_EQ(isEqual, ERR_OK);
 }
 
 /*
@@ -656,130 +667,107 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2900, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
     std::shared_ptr<PendingWant> pendingWant2(nullptr);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     std::shared_ptr<WantAgent> wantAgent2 = std::make_shared<WantAgent>(pendingWant2);
-    auto isEqual = wantAgentHelper->JudgeEquality(wantAgent, wantAgent2);
-    EXPECT_EQ(isEqual, false);
+    ErrCode isEqual = wantAgentHelper->IsEquals(wantAgent, wantAgent2);
+    EXPECT_NE(isEqual, ERR_OK);
 }
 
 /*
  * @tc.number    : WantAgentHelper_3000
- * @tc.name      : WantAgentHelper GetHashCode
- * @tc.desc      : 1.GetHashCode WantAgent is nullptr
+ * @tc.name      : WantAgentHelper GetBundleName
+ * @tc.desc      : 1.GetBundleName WantAgent is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3000, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
-    auto hashCode = wantAgentHelper->GetHashCode(wantAgent);
-    EXPECT_EQ(hashCode, 0);
+    std::string bundleName = "";
+    wantAgentHelper->GetBundleName(wantAgent, bundleName);
+    EXPECT_EQ(bundleName, "");
 }
 
 /*
  * @tc.number    : WantAgentHelper_3100
- * @tc.name      : WantAgentHelper GetHashCode
- * @tc.desc      : 1.GetHashCode WantAgent.PendingWant.target is nullptr
+ * @tc.name      : WantAgentHelper GetBundleName
+ * @tc.desc      : 1.GetBundleName WantAgent.PendingWant.target is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3100, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
-    auto hashCode = wantAgentHelper->GetHashCode(wantAgent);
-    EXPECT_EQ(hashCode, 0);
+    std::string bundleName = "";
+    wantAgentHelper->GetBundleName(wantAgent, bundleName);
+    EXPECT_EQ(bundleName, "");
 }
 
 /*
  * @tc.number    : WantAgentHelper_3200
- * @tc.name      : WantAgentHelper GetBundleName
- * @tc.desc      : 1.GetBundleName WantAgent is nullptr
+ * @tc.name      : WantAgentHelper GetUid
+ * @tc.desc      : 1.GetUid WantAgent is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3200, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
-    auto bundleName = wantAgentHelper->GetBundleName(wantAgent);
-    EXPECT_EQ(bundleName, "");
+    int32_t uid = -1;
+    wantAgentHelper->GetUid(wantAgent, uid);
+    EXPECT_EQ(uid, -1);
 }
 
 /*
  * @tc.number    : WantAgentHelper_3300
- * @tc.name      : WantAgentHelper GetBundleName
- * @tc.desc      : 1.GetBundleName WantAgent.PendingWant.target is nullptr
+ * @tc.name      : WantAgentHelper GetUid
+ * @tc.desc      : 1.GetUid WantAgent.PendingWant.target is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3300, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
-    auto bundleName = wantAgentHelper->GetBundleName(wantAgent);
-    EXPECT_EQ(bundleName, "");
+    int32_t uid = -1;
+    wantAgentHelper->GetUid(wantAgent, uid);
+    EXPECT_EQ(uid, -1);
 }
 
 /*
  * @tc.number    : WantAgentHelper_3400
- * @tc.name      : WantAgentHelper GetUid
- * @tc.desc      : 1.GetUid WantAgent is nullptr
+ * @tc.name      : WantAgentHelper GetWant
+ * @tc.desc      : 1.GetWant WantAgent is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3400, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
-    auto uid = wantAgentHelper->GetUid(wantAgent);
-    EXPECT_EQ(uid, -1);
+    auto want = wantAgentHelper->GetWant(wantAgent);
+    EXPECT_EQ(want, nullptr);
 }
 
 /*
  * @tc.number    : WantAgentHelper_3500
- * @tc.name      : WantAgentHelper GetUid
- * @tc.desc      : 1.GetUid WantAgent.PendingWant.target is nullptr
+ * @tc.name      : WantAgentHelper GetWant
+ * @tc.desc      : 1.GetWant WantAgent.PendingWant.target is nullptr
  */
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3500, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
-    auto uid = wantAgentHelper->GetUid(wantAgent);
-    EXPECT_EQ(uid, -1);
+    auto want = wantAgentHelper->GetWant(wantAgent);
+    EXPECT_EQ(want, nullptr);
 }
 
 /*
  * @tc.number    : WantAgentHelper_3600
- * @tc.name      : WantAgentHelper GetWant
- * @tc.desc      : 1.GetWant WantAgent is nullptr
- */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_3600, Function | MediumTest | Level1)
-{
-    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
-    std::shared_ptr<WantAgent> wantAgent(nullptr);
-    auto want = wantAgentHelper->GetWant(wantAgent);
-    EXPECT_EQ(want, nullptr);
-}
-
-/*
- * @tc.number    : WantAgentHelper_3700
- * @tc.name      : WantAgentHelper GetWant
- * @tc.desc      : 1.GetWant WantAgent.PendingWant.target is nullptr
- */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_3700, Function | MediumTest | Level1)
-{
-    std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
-    std::shared_ptr<PendingWant> pendingWant(nullptr);
-    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
-    auto want = wantAgentHelper->GetWant(wantAgent);
-    EXPECT_EQ(want, nullptr);
-}
-
-/*
- * @tc.number    : WantAgentHelper_3800
  * @tc.name      : WantAgentHelper ParseFlags
  * @tc.desc      : 1.ParseFlags Check ParseFlags
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_3800, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3600, Function | MediumTest | Level1)
 {
     std::vector<WantAgentConstant::Flags> flagsVec;
     nlohmann::json jsonObject;
@@ -825,11 +813,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3800, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_3900
+ * @tc.number    : WantAgentHelper_3700
  * @tc.name      : WantAgentHelper GetType
  * @tc.desc      : 1.agent is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_3900, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3700, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
@@ -839,11 +827,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3900, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4000
+ * @tc.number    : WantAgentHelper_3800
  * @tc.name      : WantAgentHelper GetType
  * @tc.desc      : 1.agent is not nullptr,PendingWant is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4000, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3800, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
@@ -854,11 +842,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4000, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4100
+ * @tc.number    : WantAgentHelper_3900
  * @tc.name      : WantAgentHelper GetType
  * @tc.desc      : 1.agent is not nullptr, PendingWant is not nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3900, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     sptr<AAFwk::IWantSender> target(nullptr);
@@ -870,11 +858,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4200
+ * @tc.number    : WantAgentHelper_4000
  * @tc.name      : WantAgentHelper GetWant
  * @tc.desc      : 1.GetWant WantAgent is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4000, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<WantAgent> wantAgent(nullptr);
@@ -884,11 +872,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4300
+ * @tc.number    : WantAgentHelper_4100
  * @tc.name      : WantAgentHelper GetWant
  * @tc.desc      : 1.GetWant WantAgent.PendingWant is nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4300, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4100, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<PendingWant> pendingWant(nullptr);
@@ -899,11 +887,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4300, Function | MediumTest | Leve
 }
 
 /*
- * @tc.number    : WantAgentHelper_4400
+ * @tc.number    : WantAgentHelper_4200
  * @tc.name      : WantAgentHelper GetWant
  * @tc.desc      : 1.GetWant WantAgent and WantAgent.PendingWant is not nullptr
  */
-HWTEST_F(WantAgentHelperTest, WantAgentHelper_4400, Function | MediumTest | Level1)
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_4200, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     sptr<AAFwk::IWantSender> target(nullptr);
@@ -950,8 +938,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4600, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
 
     std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();
@@ -998,8 +986,8 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4800, Function | MediumTest | Leve
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
         std::make_shared<AbilityRuntime::ApplicationContext>();
-    std::shared_ptr<PendingWant> pendingWant =
-        PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type);
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
 
     std::shared_ptr<CancelListener> cancelListener = std::make_shared<CancelListenerSon>();

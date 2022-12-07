@@ -37,89 +37,88 @@ WantAgentClient::WantAgentClient() {}
 
 WantAgentClient::~WantAgentClient() {}
 
-sptr<IWantSender> WantAgentClient::GetWantSender(
-    const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
+ErrCode WantAgentClient::GetWantSender(
+    const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken, sptr<IWantSender> &wantSender)
 {
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, nullptr);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     if (!data.WriteParcelable(&wantSenderInfo)) {
         HILOG_ERROR("wantSenderInfo write failed.");
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
             HILOG_ERROR("flag and callerToken write failed.");
-            return nullptr;
+            return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
     } else {
         if (!data.WriteBool(false)) {
             HILOG_ERROR("flag write failed.");
-            return nullptr;
+            return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
     }
 
     auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
-        return nullptr;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
-    sptr<IWantSender> wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
-    if (!wantSender) {
-        return nullptr;
-    }
-    return wantSender;
+    wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
+    return ERR_OK;
 }
 
 ErrCode WantAgentClient::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
 {
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
         HILOG_ERROR("SendWantSender, target write failed.");
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
     }
     if (!data.WriteParcelable(&senderInfo)) {
         HILOG_ERROR("SendWantSender, senderInfo write failed.");
-        return INNER_ERR;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     auto error = abms->SendRequest(IAbilityManager::SEND_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SendWantSender, Send request error: %{public}d", error);
-        return error;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     return reply.ReadInt32();
 }
 
-void WantAgentClient::CancelWantSender(const sptr<IWantSender> &sender)
+ErrCode WantAgentClient::CancelWantSender(const sptr<IWantSender> &sender)
 {
-    CHECK_POINTER_LOG(sender, "sender is nullptr");
+    CHECK_POINTER_AND_RETURN(sender, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_LOG(abms, "ability proxy is nullptr.");
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, abms, sender->AsObject(), reply, error)) {
-        return;
+        return error;
     }
+    return ERR_OK;
 }
 
 ErrCode WantAgentClient::GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid)
 {
-    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(IAbilityManager::GET_PENDING_WANT_UID, abms, target->AsObject(), reply, error)) {
@@ -145,9 +144,9 @@ ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, i
 
 ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &target, std::string &bundleName)
 {
-    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, abms, target->AsObject(), reply, error)) {
@@ -159,13 +158,13 @@ ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &targe
 
 ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int32_t &code)
 {
-    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
-    CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
+    CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
     if (!SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, abms, target->AsObject(), reply, error)) {
-        return error;
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     code = reply.ReadInt32();
     return ERR_OK;
@@ -395,18 +394,18 @@ bool WantAgentClient::SendRequest(int32_t operation, const sptr<IRemoteObject> &
     MessageParcel data;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        error = INNER_ERR;
+        error = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         return false;
     }
     if (!data.WriteRemoteObject(remoteObject)) {
         HILOG_ERROR("write failed.");
-        error = ERR_INVALID_VALUE;
+        error = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         return false;
     }
     error = abms->SendRequest(operation, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
-        error = INNER_ERR;
+        error = ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY;
         return false;
     }
 

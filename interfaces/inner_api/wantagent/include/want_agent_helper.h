@@ -53,10 +53,11 @@ public:
      * @param context Indicates the context of the caller. This parameter cannot be null.
      * @param paramsInfo Indicates the WantAgentInfo object that contains parameters of the
      * WantAgent object to create.
-     * @return Returns the created WantAgent object.
+     * @return Returns ERR_OK If get wantaget correctly.
      */
-    static std::shared_ptr<WantAgent> GetWantAgent(
-        const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, const WantAgentInfo &paramsInfo);
+    static ErrCode GetWantAgent(
+        const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+        const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent);
 
     /**
      * Obtains an WantAgent object.
@@ -95,7 +96,7 @@ public:
      * the current process.
      * @param paramsInfo Indicates the TriggerInfo object that contains triggering parameters.
      */
-    static void TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
+    static ErrCode TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
         const std::shared_ptr<CompletedCallback> &callback,
         const TriggerInfo &paramsInfo);
 
@@ -106,40 +107,20 @@ public:
      *
      * @param agent Indicates the WantAgent to cancel.
      */
-    static void Cancel(const std::shared_ptr<WantAgent> &agent);
+    static ErrCode Cancel(const std::shared_ptr<WantAgent> &agent);
 
     /**
      * Checks whether two WantAgent objects are the same.
      *
      * @param agent Indicates one of the WantAgent object to compare.
      * @param otherAgent Indicates the other WantAgent object to compare.
-     * @return Returns true If the two objects are the same; returns false otherwise.
+     * @return Returns ERR_OK If the two objects are the same.
      */
-    static bool JudgeEquality(const std::shared_ptr<WantAgent> &agent, const std::shared_ptr<WantAgent> &otherAgent);
+    static ErrCode IsEquals(const std::shared_ptr<WantAgent> &agent, const std::shared_ptr<WantAgent> &otherAgent);
 
-    /**
-     * Obtains the hash code value of an WantAgent.
-     *
-     * @param agent Indicates the antAgent whose hash code value is to be obtained.
-     * @return Returns the hash code value of the WantAgent.
-     */
-    static int GetHashCode(const std::shared_ptr<WantAgent> &agent);
+    static ErrCode GetBundleName(const std::shared_ptr<WantAgent> &agent, std::string &bundleName);
 
-    /**
-     * Obtains the bundle name of an WantAgent.
-     *
-     * @param agent Indicates the WantAgent whose bundle name is to be obtained.
-     * @return Returns the bundle name of the WantAgent if any; returns {@code null} otherwise.
-     */
-    static std::string GetBundleName(const std::shared_ptr<WantAgent> &agent);
-
-    /**
-     * Obtains the user ID (UID) of an WantAgent.
-     *
-     * @param agent Indicates the WantAgent whose UID is to be obtained.
-     * @return Returns the UID of the WantAgent if any; returns -1} otherwise.
-     */
-    static int GetUid(const std::shared_ptr<WantAgent> &agent);
+    static ErrCode GetUid(const std::shared_ptr<WantAgent> &agent, int32_t &uid);
 
     /**
      * Obtains the Want WantAgent.
@@ -192,7 +173,7 @@ private:
     virtual ~WantAgentHelper() = default;
 
 private:
-    static void Send(const std::shared_ptr<PendingWant> &pendingWant,
+    static ErrCode Send(const std::shared_ptr<PendingWant> &pendingWant,
         WantAgentConstant::OperationType type,
         const sptr<CompletedDispatcher> &callBack,
         const TriggerInfo &paramsInfo);
