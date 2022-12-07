@@ -19,6 +19,9 @@
 #include "mission_info_mgr.h"
 #undef private
 
+#include "ability_info.h"
+#include "ability_manager_errors.h"
+
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
@@ -73,6 +76,9 @@ HWTEST_F(MissionInfoMgrTest, GenerateMissionId_002, TestSize.Level1)
     int32_t missionId = 1;
     bool res = missionInfoMgr->GenerateMissionId(missionId);
     EXPECT_TRUE(res);
+
+    missionInfoMgr->currentMissionId_ = 1;
+    EXPECT_TRUE(missionInfoMgr->GenerateMissionId(missionId));
 }
 
 /*
@@ -86,11 +92,16 @@ HWTEST_F(MissionInfoMgrTest, GenerateMissionId_002, TestSize.Level1)
 HWTEST_F(MissionInfoMgrTest, AddMissionInfo_001, TestSize.Level1)
 {
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    bool res = missionInfoMgr->AddMissionInfo(missionInfo);
-    EXPECT_FALSE(res);
+    EXPECT_FALSE(missionInfoMgr->AddMissionInfo(missionInfo));
+
+    missionInfoMgr->missionIdMap_[1] = false;
+    missionInfoMgr->DeleteMissionInfo(1);
+    EXPECT_TRUE(missionInfoMgr->AddMissionInfo(missionInfo));
 }
 
 /*
@@ -108,8 +119,7 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_002, TestSize.Level1)
     missionInfoMgr->Init(userId);
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.time = 'a';
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     missionInfo.missionInfo.time = 'b';
     missionInfo.missionInfo.id = 1;
     missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
@@ -134,12 +144,33 @@ HWTEST_F(MissionInfoMgrTest, AddMissionInfo_003, TestSize.Level1)
     InnerMissionInfo missionInfo2;
     missionInfo.missionInfo.time = 'a';
     missionInfo2.missionInfo.time = 'b';
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo2);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo2);
     missionInfo.missionInfo.id = 1;
     missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
     bool res = missionInfoMgr->AddMissionInfo(missionInfo);
     EXPECT_TRUE(res);
+}
+
+/*
+ * Feature: MissionInfoMgr
+ * Function: AddMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr AddMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify AddMissionInfo
+ */
+HWTEST_F(MissionInfoMgrTest, AddMissionInfo_004, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    missionInfo.missionInfo.id = 1;
+    missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
+
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_->handler_;
+    missionInfoMgr->taskDataPersistenceMgr_->handler_.reset();
+    EXPECT_FALSE(missionInfoMgr->AddMissionInfo(missionInfo));
 }
 
 /*
@@ -155,8 +186,13 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_001, TestSize.Level1)
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    bool res = missionInfoMgr->UpdateMissionInfo(missionInfo);
-    EXPECT_FALSE(res);
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionInfo(missionInfo));
+
+    missionInfoMgr->missionIdMap_[1] = false;
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionInfo(missionInfo));
+
+    missionInfoMgr->missionIdMap_[1] = true;
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionInfo(missionInfo));
 }
 
 /*
@@ -170,11 +206,22 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_001, TestSize.Level1)
 HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_002, TestSize.Level1)
 {
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
-    missionInfoMgr->missionIdMap_[1] = false;
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    missionInfoMgr->missionIdMap_[1] = true;
+    missionInfoMgr->missionIdMap_[2] = true;
     InnerMissionInfo missionInfo;
-    missionInfo.missionInfo.id = 1;
-    bool res = missionInfoMgr->UpdateMissionInfo(missionInfo);
-    EXPECT_FALSE(res);
+    missionInfo.missionInfo.id = 2;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_->handler_;
+    missionInfoMgr->taskDataPersistenceMgr_->handler_.reset();
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionInfo(missionInfo));
+    missionInfoMgr->taskDataPersistenceMgr_->handler_ = temp;
+
+    missionInfo.missionInfo.time = 'b';
+    EXPECT_TRUE(missionInfoMgr->UpdateMissionInfo(missionInfo));
+    missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
 }
 
 /*
@@ -193,10 +240,8 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_003, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-    bool res = missionInfoMgr->UpdateMissionInfo(missionInfo);
-    EXPECT_TRUE(res);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_TRUE(missionInfoMgr->UpdateMissionInfo(missionInfo));
 }
 
 /*
@@ -210,14 +255,26 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionInfo_003, TestSize.Level1)
 HWTEST_F(MissionInfoMgrTest, DeleteMissionInfo_001, TestSize.Level1)
 {
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
-    int userId = 0;
-    missionInfoMgr->Init(userId);
+    missionInfoMgr->missionIdMap_[1] = false;
+    EXPECT_TRUE(missionInfoMgr->DeleteMissionInfo(-1));
+    EXPECT_TRUE(missionInfoMgr->DeleteMissionInfo(1));
+
     missionInfoMgr->missionIdMap_[1] = true;
+    EXPECT_FALSE(missionInfoMgr->DeleteMissionInfo(1));
+
+    missionInfoMgr->Init(0);
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_->handler_;
+    missionInfoMgr->taskDataPersistenceMgr_->handler_ = nullptr;
+    EXPECT_FALSE(missionInfoMgr->DeleteMissionInfo(1));
+    missionInfoMgr->taskDataPersistenceMgr_->handler_ = temp;
+
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-    EXPECT_TRUE(missionInfoMgr->DeleteMissionInfo(-1));
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    InnerMissionInfo missionInfo2;
+    missionInfo2.missionInfo.id = 2;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo2);
+    missionInfoMgr->missionIdMap_[2] = true;
     EXPECT_TRUE(missionInfoMgr->DeleteMissionInfo(1));
 }
 
@@ -232,8 +289,7 @@ HWTEST_F(MissionInfoMgrTest, DeleteMissionInfo_001, TestSize.Level1)
 HWTEST_F(MissionInfoMgrTest, DeleteAllMissionInfos_001, TestSize.Level1)
 {
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
-    std::shared_ptr<MissionListenerController> listenerController;
-    EXPECT_FALSE(missionInfoMgr->DeleteAllMissionInfos(listenerController));
+    EXPECT_FALSE(missionInfoMgr->DeleteAllMissionInfos(nullptr));
 }
 
 /*
@@ -252,15 +308,13 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfos_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     std::vector<MissionInfo> missionInfos;
-    auto ret1 = missionInfoMgr->GetMissionInfos(-1, missionInfos);
-    EXPECT_EQ(ret1, -1);
+    EXPECT_EQ(missionInfoMgr->GetMissionInfos(-1, missionInfos), -1);
 
-    auto ret2 = missionInfoMgr->GetMissionInfos(1, missionInfos);
-    EXPECT_EQ(ret2, 0);
+    EXPECT_EQ(missionInfoMgr->GetMissionInfos(1, missionInfos), 0);
+
+    EXPECT_EQ(missionInfoMgr->GetMissionInfos(0, missionInfos), 0);
 }
 
 /*
@@ -279,15 +333,22 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfoById_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     MissionInfo myMissionInfo;
     auto ret1 = missionInfoMgr->GetMissionInfoById(-1, myMissionInfo);
     EXPECT_EQ(ret1, -1);
 
     auto ret2 = missionInfoMgr->GetMissionInfoById(1, myMissionInfo);
     EXPECT_EQ(ret2, 0);
+
+    missionInfo.missionInfo.id = 100;
+    EXPECT_EQ(missionInfoMgr->GetMissionInfoById(1, myMissionInfo), 0);
+
+    missionInfo.startMethod = 100;
+    EXPECT_EQ(missionInfoMgr->GetMissionInfoById(1, myMissionInfo), 0);
+
+    missionInfoMgr->missionIdMap_[2] = true;
+    EXPECT_EQ(missionInfoMgr->GetMissionInfoById(2, myMissionInfo), -1);
 }
 
 /*
@@ -306,12 +367,65 @@ HWTEST_F(MissionInfoMgrTest, GetInnerMissionInfoById_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(1, missionInfo), 0);
 
-    InnerMissionInfo innerMissionInfo;
-    auto ret2 = missionInfoMgr->GetInnerMissionInfoById(1, innerMissionInfo);
-    EXPECT_EQ(ret2, 0);
+    missionInfoMgr->missionIdMap_[2] = true;
+    EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(2, missionInfo), MISSION_NOT_FOUND);
+}
+
+/*
+ * Feature: MissionInfoMgr
+ * Function: FindReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr FindReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify FindReusedMissionInfo
+ */
+HWTEST_F(MissionInfoMgrTest, FindReusedMissionInfo_001, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("", "", missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfo.missionInfo.id = 1;
+    missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.missionName = "test";
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::SPECIFIED);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.missionName = "test1";
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.missionName = "test";
+    missionInfo.specifiedFlag = "flag";
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
+
+    missionInfoMgr->missionInfoList_.clear();
+    missionInfo.specifiedFlag = "";
+    missionInfo.launchMode = 1000;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", missionInfo));
 }
 
 /*
@@ -330,8 +444,7 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionLabel_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
 
     std::string label = "test";
     auto ret1 = missionInfoMgr->UpdateMissionLabel(-1, label);
@@ -339,6 +452,37 @@ HWTEST_F(MissionInfoMgrTest, UpdateMissionLabel_001, TestSize.Level1)
 
     auto ret2 = missionInfoMgr->UpdateMissionLabel(1, label);
     EXPECT_EQ(ret2, 0);
+
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_;
+    missionInfoMgr->taskDataPersistenceMgr_.reset();
+    EXPECT_EQ(missionInfoMgr->UpdateMissionLabel(1, label), -1);
+    missionInfoMgr->taskDataPersistenceMgr_ = temp;
+
+    auto temp1 = missionInfoMgr->taskDataPersistenceMgr_->handler_;
+    missionInfoMgr->taskDataPersistenceMgr_->handler_.reset();
+    EXPECT_EQ(missionInfoMgr->UpdateMissionLabel(1, label), -1);
+    missionInfoMgr->taskDataPersistenceMgr_->handler_ = temp1;
+}
+
+/*
+ * Feature: MissionInfoMgr
+ * Function: LoadAllMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr LoadAllMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadAllMissionInfo
+ */
+HWTEST_F(MissionInfoMgrTest, LoadAllMissionInfo_001, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    EXPECT_FALSE(missionInfoMgr->LoadAllMissionInfo());
+
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_;
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_.reset();
+    EXPECT_FALSE(missionInfoMgr->LoadAllMissionInfo());
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_ = temp;
 }
 
 /*
@@ -354,13 +498,32 @@ HWTEST_F(MissionInfoMgrTest, HandleUnInstallApp_001, TestSize.Level1)
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
     int userId = 0;
     missionInfoMgr->Init(userId);
-    missionInfoMgr->missionIdMap_[1] = true;
-    InnerMissionInfo missionInfo;
-    missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
     std::list<int32_t> missions;
     missionInfoMgr->HandleUnInstallApp("", 1, missions);
+
+    missions.push_back(1);
+    missionInfoMgr->HandleUnInstallApp("", 1, missions);
+}
+
+/*
+ * Feature: MissionInfoMgr
+ * Function: GetMatchedMission
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr GetMatchedMission
+ * EnvConditions: NA
+ * CaseDescription: Verify GetMatchedMission
+ */
+HWTEST_F(MissionInfoMgrTest, GetMatchedMission_001, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    missionInfo.uid = 1;
+    missionInfo.bundleName = "test";
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    std::list<int32_t> missions;
+    missionInfoMgr->GetMatchedMission("test", 1, missions);
 }
 
 /*
@@ -379,8 +542,7 @@ HWTEST_F(MissionInfoMgrTest, Dump_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     std::vector<std::string> info;
     missionInfoMgr->Dump(info);
 }
@@ -401,13 +563,67 @@ HWTEST_F(MissionInfoMgrTest, RegisterSnapshotHandler_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     sptr<ISnapshotHandler> handler = nullptr;
     missionInfoMgr->RegisterSnapshotHandler(handler);
     EXPECT_EQ(missionInfoMgr->snapshotHandler_, nullptr);
 }
+
+/*
+ * Feature: MissionInfoMgr
+ * Function: UpdateMissionSnapshot
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr UpdateMissionSnapshot
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateMissionSnapshot
+ */
+HWTEST_F(MissionInfoMgrTest, UpdateMissionSnapshot_001, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    missionInfo.missionInfo.id = 1;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    MissionSnapshot missionSnapshot;
+    auto temp = missionInfoMgr->snapshotHandler_;
+    missionInfoMgr->snapshotHandler_ = nullptr;
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionSnapshot(1, nullptr, missionSnapshot, true));
+    missionInfoMgr->snapshotHandler_ = temp;
+    EXPECT_FALSE(missionInfoMgr->UpdateMissionSnapshot(1, nullptr, missionSnapshot, true));
+}
+
+#ifdef SUPPORT_GRAPHICS
+/*
+ * Feature: MissionInfoMgr
+ * Function: GetSnapshot
+ * SubFunction: NA
+ * FunctionPoints: MissionInfoMgr GetSnapshot
+ * EnvConditions: NA
+ * CaseDescription: Verify GetSnapshot
+ */
+HWTEST_F(MissionInfoMgrTest, GetSnapshot_001, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    missionInfo.missionInfo.id = 1;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    MissionSnapshot missionSnapshot;
+    EXPECT_EQ(missionInfoMgr->GetSnapshot(2), nullptr);
+
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_;
+    missionInfoMgr->taskDataPersistenceMgr_.reset();
+    EXPECT_EQ(missionInfoMgr->GetSnapshot(2), nullptr);
+    missionInfoMgr->taskDataPersistenceMgr_ = temp;
+
+    auto temp1 = missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_;
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_.reset();
+    EXPECT_EQ(missionInfoMgr->GetSnapshot(2), nullptr);
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_ = temp1;
+}
+#endif
 
 /*
  * Feature: MissionInfoMgr
@@ -422,8 +638,32 @@ HWTEST_F(MissionInfoMgrTest, GetMissionSnapshot_001, TestSize.Level1)
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
     sptr<IRemoteObject> abilityToken = nullptr;
     MissionSnapshot missionSnapshot;
-    auto ret = missionInfoMgr->GetMissionSnapshot(1, abilityToken, missionSnapshot, true, true);
-    EXPECT_FALSE(ret);
+    EXPECT_FALSE(missionInfoMgr->GetMissionSnapshot(1, abilityToken, missionSnapshot, true, true));
+
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo info;
+    info.missionInfo.id = 1;
+    missionInfoMgr->missionInfoList_.push_back(info);
+    auto temp = missionInfoMgr->taskDataPersistenceMgr_;
+    missionInfoMgr->taskDataPersistenceMgr_.reset();
+    EXPECT_FALSE(missionInfoMgr->GetMissionSnapshot(1, abilityToken, missionSnapshot, true, true));
+    missionInfoMgr->taskDataPersistenceMgr_ = temp;
+
+    // force
+    auto temp2 = missionInfoMgr->snapshotHandler_;
+    missionInfoMgr->snapshotHandler_ = nullptr;
+    EXPECT_FALSE(missionInfoMgr->GetMissionSnapshot(1, abilityToken, missionSnapshot, true, true));
+    missionInfoMgr->snapshotHandler_ = temp2;
+
+    // taskDataPersistenceMgr_ GetMissionSnapshot return false
+    auto temp3 = missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_;
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_ = nullptr;
+    auto temp4 = missionInfoMgr->snapshotHandler_;
+    missionInfoMgr->snapshotHandler_ = nullptr;
+    EXPECT_FALSE(missionInfoMgr->GetMissionSnapshot(1, abilityToken, missionSnapshot, true, false));
+    missionInfoMgr->snapshotHandler_ = temp4;
+    missionInfoMgr->taskDataPersistenceMgr_->currentMissionDataStorage_ = temp3;
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -443,9 +683,7 @@ HWTEST_F(MissionInfoMgrTest, CreateWhitePixelMap_001, TestSize.Level1)
     missionInfoMgr->missionIdMap_[1] = true;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
-    auto listIter = missionInfoMgr->missionInfoList_.begin();
-    missionInfoMgr->missionInfoList_.insert(listIter, missionInfo);
-
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
     Snapshot snapshot;
     missionInfoMgr->CreateWhitePixelMap(snapshot);
 }
