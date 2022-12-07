@@ -1137,6 +1137,7 @@ HWTEST_F(MissionListManagerTest, GetReusedSpecifiedMission_003, TestSize.Level1)
     missionList->missions_.push_front(mission);
     missionListManager->defaultStandardList_ = missionList;
     missionListManager->launcherList_ = std::make_shared<MissionList>();
+    missionListManager->currentMissionLists_.clear();
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
@@ -1172,7 +1173,7 @@ HWTEST_F(MissionListManagerTest, GetReusedSpecifiedMission_004, TestSize.Level1)
     missionListManager->currentMissionLists_.push_front(missionList);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
+    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
     abilityRequest.specifiedFlag = flag;
     auto res = missionListManager->GetReusedSpecifiedMission(abilityRequest);
     EXPECT_NE(res, nullptr);
