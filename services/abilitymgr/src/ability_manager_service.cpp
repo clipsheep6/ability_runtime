@@ -4708,16 +4708,6 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
-    return GetTopAbility(token, true);
-}
-
-int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool needVerify)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (needVerify && !isSaCall) {
-        HILOG_ERROR("Permission verification failed");
-        return CHECK_PERMISSION_FAILED;
-    }
 #ifdef SUPPORT_GRAPHICS
     if (!wmsHandler_) {
         HILOG_ERROR("wmsHandler_ is nullptr.");
@@ -5072,7 +5062,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token, false);
+    int ret = GetTopAbility(token);
     if (ret) {
         return elementName;
     }
