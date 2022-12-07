@@ -255,7 +255,7 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
         innerErrorCode = (unwrapArgc == INDEX_TWO) ?
             context->StartAbilityWithAccount(want, accountId, -1) : context->StartAbilityWithAccount(
                 want, accountId, startOptions, -1);
-    }
+    };
     AsyncTask::CompleteCallback complete =
         [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             if (innerErrorCode == 0) {
