@@ -15,6 +15,7 @@
 
 #include "pending_want.h"
 
+#include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
 #include "pending_want_record.h"
 #include "want_agent_client.h"
@@ -23,8 +24,12 @@
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
-
+using namespace OHOS::AbilityRuntime;
 namespace OHOS::AbilityRuntime::WantAgent {
+
+namespace {
+    constexpr int32_t NOTEEQ = -1;
+}
 PendingWant::PendingWant(const sptr<AAFwk::IWantSender> &target)
     : target_(target), cancelReceiver_(nullptr), whitelistToken_(nullptr)
 {}
@@ -45,6 +50,43 @@ std::shared_ptr<PendingWant> PendingWant::GetAbility(
     int requestCode, const std::shared_ptr<Want> &want, unsigned int flags)
 {
     return GetAbility(context, requestCode, want, flags, nullptr);
+}
+
+ErrCode PendingWant::GetAbility(
+        const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
+        const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        const std::shared_ptr<AAFwk::WantParams> &options,
+        std::shared_ptr<PendingWant> &pendingWant)
+{
+    WANT_AGENT_LOGI("PendingWant::GetAbility begin.");
+    if (context == nullptr) {
+        WANT_AGENT_LOGE("PendingWant::GetAbility invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    WantsInfo wantsInfo;
+    wantsInfo.want = *want;
+    wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
+    if (options != nullptr && !options->IsEmpty()) {
+        wantsInfo.want.SetParams(*options);
+    }
+
+    WantSenderInfo wantSenderInfo;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITY);
+    wantSenderInfo.allWants.push_back(wantsInfo);
+    wantSenderInfo.bundleName = context->GetBundleName();
+    wantSenderInfo.flags = flags;
+    wantSenderInfo.userId = -1; // -1 : invalid user id
+    wantSenderInfo.requestCode = requestCode;
+    sptr<IWantSender> target = nullptr;
+    ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
+    if (result != ERR_OK) {
+        WANT_AGENT_LOGI("PendingWant::GetWantSender failed.");
+        return result;
+    }
+    WANT_AGENT_LOGI("PendingWant::GetAbility end.");
+    pendingWant = std::make_shared<PendingWant>(target);
+    return ERR_OK;
 }
 
 std::shared_ptr<PendingWant> PendingWant::GetAbility(
@@ -82,6 +124,44 @@ std::shared_ptr<PendingWant> PendingWant::GetAbilities(
     std::vector<std::shared_ptr<Want>> &wants, unsigned int flags)
 {
     return GetAbilities(context, requestCode, wants, flags, nullptr);
+}
+
+ErrCode PendingWant::GetAbilities(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
+    std::vector<std::shared_ptr<Want>> &wants, unsigned int flags, const std::shared_ptr<WantParams> &options,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    WANT_AGENT_LOGI("PendingWant::GetAbilitys begin.");
+    if (context == nullptr) {
+        WANT_AGENT_LOGE("PendingWant::GetAbilities invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    WantSenderInfo wantSenderInfo;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::START_ABILITIES);
+    wantSenderInfo.bundleName = context->GetBundleName();
+    wantSenderInfo.flags = flags;
+    wantSenderInfo.userId = -1; // -1 : invalid user id
+    wantSenderInfo.requestCode = requestCode;
+    for (auto want : wants) {
+        WantsInfo wantsInfo;
+        if (want != nullptr) {
+            wantsInfo.want = *want;
+        }
+        wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
+        if (options != nullptr && !options->IsEmpty()) {
+            wantsInfo.want.SetParams(*options);
+        }
+        wantSenderInfo.allWants.push_back(wantsInfo);
+    }
+    sptr<IWantSender> target = nullptr;
+    ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
+    if (result != ERR_OK) {
+        WANT_AGENT_LOGI("PendingWant::GetWantSender failed.");
+        return result;
+    }
+    pendingWant = std::make_shared<PendingWant>(target);
+    return ERR_OK;
 }
 
 std::shared_ptr<PendingWant> PendingWant::GetAbilities(
@@ -122,6 +202,47 @@ std::shared_ptr<PendingWant> PendingWant::GetCommonEvent(
     return GetCommonEventAsUser(context, requestCode, want, flags, 0);
 }
 
+ErrCode PendingWant::GetCommonEvent(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    int requestCode, const std::shared_ptr<Want> &want, unsigned int flags,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    return GetCommonEventAsUser(context, requestCode, want, flags, 0, pendingWant);
+}
+
+ErrCode PendingWant::GetCommonEventAsUser(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    int requestCode, const std::shared_ptr<Want> &want, unsigned int flags, int uid,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    if (context == nullptr) {
+        WANT_AGENT_LOGE("PendingWant::GetCommonEventAsUser invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    WantsInfo wantsInfo;
+    if (want != nullptr) {
+        wantsInfo.want = *want;
+    }
+    wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
+
+    WantSenderInfo wantSenderInfo;
+    wantSenderInfo.type = static_cast<int32_t>(WantAgentConstant::OperationType::SEND_COMMON_EVENT);
+    wantSenderInfo.allWants.push_back(wantsInfo);
+    wantSenderInfo.bundleName = context->GetBundleName();
+    wantSenderInfo.flags = flags;
+    wantSenderInfo.userId = -1; // -1 : invalid user id
+    wantSenderInfo.requestCode = requestCode;
+    sptr<IWantSender> target = nullptr;
+    ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
+    if (result != ERR_OK) {
+        WANT_AGENT_LOGI("PendingWant::GetWantSender failed.");
+        return result;
+    }
+    pendingWant = std::make_shared<PendingWant>(target);
+    return ERR_OK;
+}
+
 std::shared_ptr<PendingWant> PendingWant::GetCommonEventAsUser(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
     int requestCode, const std::shared_ptr<Want> &want, unsigned int flags, int uid)
@@ -157,12 +278,64 @@ std::shared_ptr<PendingWant> PendingWant::GetService(
         WantAgentConstant::OperationType::START_SERVICE);
 }
 
+ErrCode PendingWant::GetService(
+        const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        std::shared_ptr<PendingWant> &pendingWant)
+{
+    return BuildServicePendingWant(context, requestCode, want, flags,
+        WantAgentConstant::OperationType::START_SERVICE, pendingWant);
+}
+
+ErrCode PendingWant::GetForegroundService(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
+    const std::shared_ptr<Want> &want, unsigned int flags,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    return BuildServicePendingWant(
+        context, requestCode, want, flags, WantAgentConstant::OperationType::START_FOREGROUND_SERVICE,
+        pendingWant);
+}
+
 std::shared_ptr<PendingWant> PendingWant::GetForegroundService(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
     const std::shared_ptr<Want> &want, unsigned int flags)
 {
     return BuildServicePendingWant(
         context, requestCode, want, flags, WantAgentConstant::OperationType::START_FOREGROUND_SERVICE);
+}
+
+ErrCode PendingWant::BuildServicePendingWant(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    int requestCode, const std::shared_ptr<Want> &want,
+    unsigned int flags, WantAgentConstant::OperationType serviceKind,
+    std::shared_ptr<PendingWant> &pendingWant)
+{
+    if (context == nullptr) {
+        WANT_AGENT_LOGE("PendingWant::BuildServicePendingWant invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    WantsInfo wantsInfo;
+    if (want != nullptr) {
+        wantsInfo.want = *want;
+    }
+    wantsInfo.resolvedTypes = want != nullptr ? want->GetType() : "";
+
+    WantSenderInfo wantSenderInfo;
+    wantSenderInfo.type = static_cast<int32_t>(serviceKind);
+    wantSenderInfo.allWants.push_back(wantsInfo);
+    wantSenderInfo.bundleName = context->GetBundleName();
+    wantSenderInfo.flags = flags;
+    wantSenderInfo.userId = -1; // -1 : invalid user id
+    wantSenderInfo.requestCode = requestCode;
+    sptr<IWantSender> target = nullptr;
+    ErrCode result = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
+    if (result != ERR_OK) {
+        return result;
+    }
+    pendingWant = std::make_shared<PendingWant>(target);
+    return ERR_OK;
 }
 
 std::shared_ptr<PendingWant> PendingWant::BuildServicePendingWant(
@@ -193,9 +366,9 @@ std::shared_ptr<PendingWant> PendingWant::BuildServicePendingWant(
     return std::make_shared<PendingWant>(target);
 }
 
-void PendingWant::Cancel(const sptr<AAFwk::IWantSender> &target)
+ErrCode PendingWant::Cancel(const sptr<AAFwk::IWantSender> &target)
 {
-    WantAgentClient::GetInstance().CancelWantSender(target);
+    return WantAgentClient::GetInstance().CancelWantSender(target);
 }
 
 void PendingWant::Send(const sptr<AAFwk::IWantSender> &target)
@@ -233,14 +406,18 @@ void PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     Send(resultCode, want, onCompleted, requiredPermission, nullptr, target);
 }
 
-void PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
+ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
-    if (SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, target) != 0) {
+    HILOG_DEBUG("6zhuhan===");
+    int result = SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, target);
+    if (result != 0) {
         WANT_AGENT_LOGE("PendingWant::SendAndReturnResult failed.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY;
     }
+    return result;
 }
 
 int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want> &want,
@@ -248,7 +425,7 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
-
+    HILOG_DEBUG("6zhuhan===");
     SenderInfo senderInfo;
     senderInfo.resolvedType = want != nullptr ? want->GetType() : "";
     if (want != nullptr) {
@@ -260,7 +437,7 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     senderInfo.requiredPermission = requiredPermission;
     senderInfo.code = resultCode;
     senderInfo.finishedReceiver = onCompleted;
-
+    HILOG_DEBUG("7zhuhan===");
     return WantAgentClient::GetInstance().SendWantSender(target, senderInfo);
 }
 
@@ -275,6 +452,28 @@ bool PendingWant::Equals(
     }
     return targetPendingWant->GetHashCode(targetPendingWant->GetTarget()) ==
            otherPendingWant->GetHashCode(otherPendingWant->GetTarget());
+}
+
+int32_t PendingWant::IsEquals(
+    const std::shared_ptr<PendingWant> &targetPendingWant, const std::shared_ptr<PendingWant> &otherPendingWant)
+{
+    if ((targetPendingWant == nullptr) && (otherPendingWant == nullptr)) {
+        return ERR_OK;
+    }
+    if ((targetPendingWant == nullptr) || (otherPendingWant == nullptr)) {
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+    int targetCode = -1;
+    int otherCode = -1;
+    int32_t targetErrCode = targetPendingWant->GetHashCode(targetPendingWant->GetTarget(), targetCode);
+    int32_t otherErrCode = otherPendingWant->GetHashCode(otherPendingWant->GetTarget(), otherCode);
+    if (targetErrCode != ERR_OK) {
+        return targetErrCode;
+    }
+    if (otherErrCode != ERR_OK) {
+        return otherErrCode;
+    }
+    return targetCode == otherCode ? ERR_OK : NOTEEQ;
 }
 
 sptr<IWantSender> PendingWant::GetTarget()
@@ -368,6 +567,11 @@ int PendingWant::GetHashCode(const sptr<AAFwk::IWantSender> &target)
     return code;
 }
 
+int32_t PendingWant::GetHashCode(const sptr<AAFwk::IWantSender> &target, int &code)
+{
+    return WantAgentClient::GetInstance().GetPendingWantCode(target, code);
+}
+
 int PendingWant::GetUid(const sptr<AAFwk::IWantSender> &target)
 {
     int32_t uid = -1;
@@ -375,11 +579,21 @@ int PendingWant::GetUid(const sptr<AAFwk::IWantSender> &target)
     return uid;
 }
 
+ErrCode PendingWant::GetUid(const sptr<AAFwk::IWantSender> &target, int32_t &uid)
+{
+    return WantAgentClient::GetInstance().GetPendingWantUid(target, uid);
+}
+
 std::string PendingWant::GetBundleName(const sptr<AAFwk::IWantSender> &target)
 {
     std::string bundleName = "";
     WantAgentClient::GetInstance().GetPendingWantBundleName(target, bundleName);
     return bundleName;
+}
+
+ErrCode PendingWant::GetBundleName(const sptr<AAFwk::IWantSender> &target, std::string &bundleName)
+{
+   return WantAgentClient::GetInstance().GetPendingWantBundleName(target, bundleName);
 }
 
 std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target)
