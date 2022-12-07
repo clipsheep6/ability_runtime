@@ -1050,4 +1050,31 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_5100, Function | MediumTest | Leve
     GTEST_LOG_(INFO) << "WantAgentHelper::TriggerWantAgent end";
 }
 
+/*
+ * @tc.number    : WantAgentHelper_5200
+ * @tc.name      : WantAgentHelper ToString
+ * @tc.desc      : Test ToString.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::ToString start";
+    std::shared_ptr<WantAgent> agent(nullptr);
+    auto result = WantAgentHelper::ToString(agent);
+    EXPECT_TRUE(result == "");
+    GTEST_LOG_(INFO) << "WantAgentHelper::ToString end";
+}
+
+/*
+ * @tc.number    : WantAgentHelper_5300
+ * @tc.name      : WantAgentHelper FromString
+ * @tc.desc      : Test FromString.
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_5300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "WantAgentHelper::FromString start";
+    std::string jsonString;
+    auto result = WantAgentHelper::FromString(jsonString);
+    EXPECT_TRUE(result == nullptr);
+    GTEST_LOG_(INFO) << "WantAgentHelper::FromString end";
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent

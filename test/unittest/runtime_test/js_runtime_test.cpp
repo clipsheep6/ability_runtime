@@ -439,5 +439,23 @@ HWTEST_F(JsRuntimeTest, RuntimeSavePreloadedTest_0100, TestSize.Level0)
     HILOG_INFO("SavePreloaded end");
 }
 
+/**
+ * @tc.name: JsRuntimeDetachCallbackFuncTest_0100
+ * @tc.desc: JsRuntime test for PostTask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeDetachCallbackFuncTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("DetachCallbackFunc start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    auto& jsEngine = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNativeEngine();
+    int32_t value = 1;
+    int32_t number = 1;
+    auto result = AbilityRuntime::DetachCallbackFunc(&jsEngine, &value, &number);
+    EXPECT_EQ(result, &value);
+
+    HILOG_INFO("DetachCallbackFunc end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
