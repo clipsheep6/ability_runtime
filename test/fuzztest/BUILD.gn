@@ -35,7 +35,8 @@ group("fuzztest") {
     "abilitymanagerserviceg_fuzzer:fuzztest",
     "abilitymanagerserviceh_fuzzer:fuzztest",
     "abilitymanagerserviceninth_fuzzer:fuzztest",
-    "abilitymanagerservicesecond_fuzzer:fuzztest",
+
+    # "abilitymanagerservicesecond_fuzzer:fuzztest",
     "abilitymanagerserviceseventh_fuzzer:fuzztest",
     "abilitymanagerservicesixth_fuzzer:fuzztest",
     "abilitymanagerservicetenth_fuzzer:fuzztest",
@@ -58,7 +59,8 @@ group("fuzztest") {
     "amsmgrscheduler_fuzzer:fuzztest",
     "applicationanrlistener_fuzzer:fuzztest",
     "applifecycledeal_fuzzer:fuzztest",
-    "appmanager_fuzzer:fuzztest",
+
+    # "appmanager_fuzzer:fuzztest",
     "appmgrrest_fuzzer:fuzztest",
 
     # "appmgrservicefirst_fuzzer:fuzztest",
