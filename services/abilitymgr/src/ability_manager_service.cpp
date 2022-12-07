@@ -935,7 +935,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
 #ifdef SUPPORT_GRAPHICS
-    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+    if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
