@@ -527,8 +527,8 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
             innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             return;
         }
-        auto innerErrorCode = context->StartServiceExtensionAbility(want);
-    }
+        innerErrorCode = context->StartServiceExtensionAbility(want);
+    };
 
     AsyncTask::CompleteCallback complete =
         [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
@@ -572,7 +572,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
             return;
         }
         innerErrorCode = context->StartServiceExtensionAbility(want, accountId);
-    }
+    };
     AsyncTask::CompleteCallback complete =
         [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             if (innerErrorCode == 0) {
@@ -612,7 +612,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, cons
             return;
         }
         innerErrorCode = context->StopServiceExtensionAbility(want);
-    }
+    };
 
     AsyncTask::CompleteCallback complete =
         [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
@@ -656,7 +656,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
             return;
         }
         innerErrorCode = context->StopServiceExtensionAbility(want, accountId);
-    }
+    };
 
     AsyncTask::CompleteCallback complete =
         [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
