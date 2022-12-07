@@ -73,9 +73,9 @@ HWTEST_F(UserControllerTest, UserItemSetState_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.StartUser(0, true) == -1);
-    EXPECT_TRUE(userController.StartUser(-1, true) == -1);
-    EXPECT_TRUE(userController.StartUser(100, true) == 0);
+    userController.StartUser(0, true);
+    userController.StartUser(-1, true);
+    userController.StartUser(100, true);
     EXPECT_TRUE(userController.StartUser(100, true) == 0);
 }
 
@@ -115,6 +115,127 @@ HWTEST_F(UserControllerTest, StopUserTest_0200, TestSize.Level0)
 {
     UserController userController;
     EXPECT_TRUE(userController.StopUser(666) == -1);
+}
+
+/**
+ * @tc.name: StopUserTest_0300
+ * @tc.desc: StopUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, StopUserTest_0300, TestSize.Level0)
+{
+    UserController userController;
+    userController.GetOrCreateUserItem(1000);
+    userController.StopUser(1000);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: HandleContinueUserSwitchTest_0100
+ * @tc.desc: HandleContinueUserSwitch Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, HandleContinueUserSwitchTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    auto userItem = std::make_shared<UserItem>(1000);
+    userController.HandleContinueUserSwitch(1000, 1000, userItem);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendUserSwitchDoneTest_0100
+ * @tc.desc: SendUserSwitchDone Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendUserSwitchDoneTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    userController.SendUserSwitchDone(1000);
+    userController.Init();
+    userController.SendUserSwitchDone(1001);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendContinueUserSwitchTest_0200
+ * @tc.desc: SendContinueUserSwitch Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendContinueUserSwitchTest_0200, TestSize.Level0)
+{
+    UserController userController;
+    auto userItem = std::make_shared<UserItem>(1000);
+    userController.SendContinueUserSwitch(1000, 1000, userItem);
+    userController.Init();
+    userController.SendContinueUserSwitch(1000, 1000, userItem);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendUserSwitchTimeoutTest_0100
+ * @tc.desc: SendUserSwitchTimeout Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendUserSwitchTimeoutTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    auto userItem = std::make_shared<UserItem>(1000);
+    userController.SendUserSwitchTimeout(1000, 1000, userItem);
+    userController.Init();
+    userController.SendUserSwitchTimeout(1000, 1000, userItem);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendReportUserSwitchTest_0100
+ * @tc.desc: SendReportUserSwitch Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendReportUserSwitchTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    auto userItem = std::make_shared<UserItem>(1000);
+    userController.SendReportUserSwitch(1000, 1000, userItem);
+    userController.Init();
+    userController.SendReportUserSwitch(1000, 1000, userItem);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendSystemUserCurrentTest_0100
+ * @tc.desc: SendSystemUserCurrent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendSystemUserCurrentTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    userController.SendSystemUserCurrent(1000, 1000);
+    userController.Init();
+    userController.SendSystemUserCurrent(1000, 1000);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: SendSystemUserStartTest_0100
+ * @tc.desc: SendSystemUserStart Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, SendSystemUserStartTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    userController.SendSystemUserStart(1000);
+    userController.Init();
+    userController.SendSystemUserStart(1000);
+    EXPECT_TRUE(true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -22,6 +22,7 @@
 #include "ability_config.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_client.h"
+#include "ability_record.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -197,6 +198,23 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
 
     return false;
+}
+
+[[maybe_unused]] static bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return true;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("Is not self, not enabled");
+        return false;
+    }
+
+    return true;
 }
 
 inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)
