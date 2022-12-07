@@ -964,8 +964,8 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    PostStartWaitingAbility();
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+        PostStartWaitingAbility();
         HILOG_ERROR("DispatchForeground Ability transition life state error. expect %{public}d, actual %{public}d",
             AbilityState::FOREGROUNDING,
             abilityRecord->GetAbilityState());
@@ -1046,6 +1046,7 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
             listenerController_->NotifyMissionMovedToFront(mission->GetMissionId());
         }
     }
+    PostStartWaitingAbility();
     TerminatePreviousAbility(abilityRecord);
 
     // new version. started by caller, scheduler call request
@@ -1806,6 +1807,7 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
 
     HandleForegroundTimeout(abilityRecord, isInvalidMode);
     TerminatePreviousAbility(abilityRecord);
+    PostStartWaitingAbility();
 }
 
 void MissionListManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &timeOutAbilityRecord,
