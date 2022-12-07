@@ -213,7 +213,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
