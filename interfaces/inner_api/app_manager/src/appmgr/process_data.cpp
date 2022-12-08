@@ -24,7 +24,7 @@ bool ProcessData::Marshalling(Parcel &parcel) const
 {
     return (parcel.WriteString(bundleName) && parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
         parcel.WriteInt32(static_cast<int32_t>(state)) && parcel.WriteBool(isContinuousTask) &&
-        parcel.WriteBool(isKeepAlive) && parcel.WriteBool(isFocused));
+        parcel.WriteBool(isKeepAlive) && parcel.WriteBool(isFocused) && parcel.WriteInt32(requestProcCode));
 }
 
 bool ProcessData::ReadFromParcel(Parcel &parcel)
@@ -36,6 +36,7 @@ bool ProcessData::ReadFromParcel(Parcel &parcel)
     isContinuousTask = parcel.ReadBool();
     isKeepAlive = parcel.ReadBool();
     isFocused = parcel.ReadBool();
+    requestProcCode = parcel.ReadInt32();
 
     return true;
 }
