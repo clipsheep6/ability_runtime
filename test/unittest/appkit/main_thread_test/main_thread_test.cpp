@@ -17,7 +17,9 @@
 #include <gtest/gtest.h>
 
 #define private public
+#include "app_launch_data.h"
 #include "main_thread.h"
+#include "ohos_application.h"
 #undef private
 
 #include "hilog_wrapper.h"
@@ -94,6 +96,168 @@ void MainThreadTest::SetUp()
 void MainThreadTest::TearDown()
 {}
 
+/*
+ * Feature: MainThread
+ * Function: GetMainThreadState
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetMainThreadState
+ * EnvConditions: NA
+ * CaseDescription: Verify GetMainThreadState
+ */
+HWTEST_F(MainThreadTest, GetMainThreadState_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_EQ(mainThread_->GetMainThreadState(), MainThreadState::INIT);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: SetRunnerStarted
+ * SubFunction: NA
+ * FunctionPoints: MainThread SetRunnerStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify SetRunnerStarted
+ */
+HWTEST_F(MainThreadTest, SetRunnerStarted_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->SetRunnerStarted(true);
+    EXPECT_TRUE(mainThread_->isRunnerStarted_);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetRunnerStarted
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetRunnerStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunnerStarted
+ */
+HWTEST_F(MainThreadTest, GetRunnerStarted_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_FALSE(mainThread_->GetRunnerStarted());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetNewThreadId
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetNewThreadId
+ * EnvConditions: NA
+ * CaseDescription: Verify GetNewThreadId
+ */
+HWTEST_F(MainThreadTest, GetNewThreadId_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_EQ(mainThread_->GetNewThreadId(), -1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetApplication
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetApplication
+ * EnvConditions: NA
+ * CaseDescription: Verify GetApplication
+ */
+HWTEST_F(MainThreadTest, GetApplication_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_EQ(mainThread_->GetApplication(), nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetApplicationInfo
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetApplicationInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify GetApplicationInfo
+ */
+HWTEST_F(MainThreadTest, GetApplicationInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_EQ(mainThread_->GetApplicationInfo(), nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetApplicationImpl
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetApplicationImpl
+ * EnvConditions: NA
+ * CaseDescription: Verify GetApplicationImpl
+ */
+HWTEST_F(MainThreadTest, GetApplicationImpl_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_EQ(mainThread_->GetApplicationImpl(), nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: GetMainHandler
+ * SubFunction: NA
+ * FunctionPoints: MainThread GetMainHandler
+ * EnvConditions: NA
+ * CaseDescription: Verify GetMainHandler
+ */
+HWTEST_F(MainThreadTest, GetMainHandler_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_NE(mainThread_->GetMainHandler(), nullptr);
+    mainThread_->ScheduleForegroundApplication();
+    mainThread_->ScheduleBackgroundApplication();
+    mainThread_->ScheduleTerminateApplication();
+    mainThread_->ScheduleShrinkMemory(1);
+    mainThread_->ScheduleMemoryLevel(1);
+    mainThread_->ScheduleProcessSecurityExit();
+    mainThread_->ScheduleLowMemory();
+    AppLaunchData data;
+    Configuration config;
+    mainThread_->ScheduleLaunchApplication(data, config);
+    HapModuleInfo abilityStage;
+    mainThread_->ScheduleAbilityStage(abilityStage);
+    AbilityInfo info;
+    sptr<IRemoteObject> Token = nullptr;
+    std::shared_ptr<AAFwk::Want> want;
+    mainThread_->ScheduleLaunchAbility(info, Token, want);
+    mainThread_->ScheduleCleanAbility(Token);
+    Profile profile;
+    mainThread_->ScheduleProfileChanged(profile);
+    mainThread_->ScheduleConfigurationUpdated(config);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: InitCreate
+ * SubFunction: NA
+ * FunctionPoints: MainThread InitCreate
+ * EnvConditions: NA
+ * CaseDescription: Verify InitCreate
+ */
+HWTEST_F(MainThreadTest, InitCreate_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<ContextDeal> contextDeal;
+    ApplicationInfo appInfo;
+    ProcessInfo processInfo;
+    Profile appProfile;
+    EXPECT_TRUE(mainThread_->InitCreate(contextDeal, appInfo, processInfo, appProfile));
+
+    mainThread_->watchdog_ = nullptr;
+    EXPECT_TRUE(mainThread_->InitCreate(contextDeal, appInfo, processInfo, appProfile));
+    HILOG_INFO("%{public}s end.", __func__);
+}
 
 /**
  * @tc.name: ScheduleNotifyLoadRepairPatch_0100
@@ -165,6 +329,9 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
+
+    mainThread_->mainHandler_ = nullptr;
+    EXPECT_EQ(mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId), ERR_INVALID_VALUE);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -232,15 +399,43 @@ HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleLaunchApplication_0100, TestSize.Level1)
 {
     Configuration config;
-    AppLaunchData lanchdate;
+    AppLaunchData lanchdata;
     ProcessInfo processing("TestProcess", 9999);
     ApplicationInfo appinf;
     appinf.name = "MockTestApplication";
     appinf.moduleSourceDirs.push_back("/hos/lib/libabilitydemo_native.z.so");
-    lanchdate.SetApplicationInfo(appinf);
-    lanchdate.SetProcessInfo(processing);
-    mainThread_->HandleLaunchApplication(lanchdate, config);
+    lanchdata.SetApplicationInfo(appinf);
+    lanchdata.SetProcessInfo(processing);
+    mainThread_->HandleLaunchApplication(lanchdata, config);
     EXPECT_TRUE(mainThread_->application_ != nullptr);
+
+    lanchdata.SetAppIndex(1);
+    mainThread_->HandleLaunchApplication(lanchdata, config);
+}
+
+/**
+ * @tc.name: SetNativeLibPath_0100
+ * @tc.desc: set native lib path.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, SetNativeLibPath_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    Configuration config;
+    AppLaunchData launchData;
+    ProcessInfo processInfo("test_quickfix", 9999);
+    ApplicationInfo appInfo;
+    appInfo.name = "MainAbility";
+    appInfo.bundleName = "com.ohos.quickfix";
+    launchData.SetApplicationInfo(appInfo);
+    launchData.SetProcessInfo(processInfo);
+
+    // SetNativeLibPath is implemented in anonymous space, called by HandleLaunchApplication
+    mainThread_->HandleLaunchApplication(launchData, config);
+    ASSERT_NE(mainThread_->application_, nullptr);
+    EXPECT_NE(mainThread_->application_->abilityRuntimeContext_, nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
@@ -320,6 +515,10 @@ HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0200, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_FALSE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
+
+    ProcessInfo processInfo2("test", 1);
+    appLaunchData.SetProcessInfo(processInfo2);
+    EXPECT_TRUE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -432,6 +631,13 @@ HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     mainThread_->abilityRecordMgr_ = nullptr;
     mainThread_->HandleProcessSecurityExit();
+
+    std::shared_ptr<ContextDeal> contextDeal;
+    ApplicationInfo appInfo;
+    ProcessInfo processInfo;
+    Profile appProfile;
+    mainThread_->InitCreate(contextDeal, appInfo, processInfo, appProfile);
+    mainThread_->HandleProcessSecurityExit();
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -465,6 +671,26 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0100, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_TRUE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckForHandleLaunchApplication_0200
+ * @tc.desc: CheckForHandleLaunchApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    AppLaunchData appLaunchData;
+    ApplicationInfo appInfo;
+    appInfo.name = "test";
+    ProcessInfo processInfo("test", 1);
+    appLaunchData.SetApplicationInfo(appInfo);
+    appLaunchData.SetProcessInfo(processInfo);
+    EXPECT_FALSE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -547,6 +773,23 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0400, TestSize.Level1)
 }
 
 /**
+ * @tc.name: PrepareAbilityDelegator_0100
+ * @tc.desc: PrepareAbilityDelegator.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
+    bool isStageBased = true;
+    BundleInfo bundleInfo;
+    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: PrepareAbilityDelegator_0200
  * @tc.desc: PrepareAbilityDelegator.
  * @tc.type: FUNC
@@ -558,6 +801,46 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0200, TestSize.Level1)
     bool isStageBased = true;
     BundleInfo bundleInfo;
     EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(nullptr, isStageBased, bundleInfo));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PrepareAbilityDelegator_0300
+ * @tc.desc: PrepareAbilityDelegator.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
+    bool isStageBased = false;
+    AbilityInfo abilityInfo;
+    HapModuleInfo hapModuleInfo;
+    BundleInfo bundleInfo;
+    hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PrepareAbilityDelegator_0400
+ * @tc.desc: PrepareAbilityDelegator.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
+    bool isStageBased = false;
+    HapModuleInfo hapModuleInfo;
+    BundleInfo bundleInfo;
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -892,6 +1175,21 @@ HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsApplicationReady_0100
+ * @tc.desc: IsApplicationReady.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, IsApplicationReady_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_TRUE(mainThread_->IsApplicationReady());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: IsApplicationReady_0200
  * @tc.desc: IsApplicationReady.
  * @tc.type: FUNC
@@ -902,6 +1200,21 @@ HWTEST_F(MainThreadTest, IsApplicationReady_0200, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     mainThread_->application_ = nullptr;
     mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_FALSE(mainThread_->IsApplicationReady());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: IsApplicationReady_0300
+ * @tc.desc: IsApplicationReady.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, IsApplicationReady_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    mainThread_->applicationImpl_ = nullptr;
     EXPECT_FALSE(mainThread_->IsApplicationReady());
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -948,6 +1261,130 @@ HWTEST_F(MainThreadTest, CheckFileType_0300, TestSize.Level1)
     std::string fileName = "testExtension";
     std::string extensionName = "testExtension";
     EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0100
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    Want want;
+    std::string moduleName;
+    mainThread_->HandleScheduleAcceptWant(want, moduleName);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0200
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    Want want;
+    std::string moduleName;
+    mainThread_->HandleScheduleAcceptWant(want, moduleName);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0300
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->appMgr_ = nullptr;
+    Want want;
+    std::string moduleName;
+    mainThread_->HandleScheduleAcceptWant(want, moduleName);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0400
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->applicationImpl_ = nullptr;
+    Want want;
+    std::string moduleName;
+    mainThread_->HandleScheduleAcceptWant(want, moduleName);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+#ifdef ABILITY_LIBRARY_LOADER
+/*
+ * Feature: MainThread
+ * Function: LoadNativeLiabrary
+ * SubFunction: NA
+ * FunctionPoints: MainThread LoadNativeLiabrary
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadNativeLiabrary
+ */
+HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string nativeLibraryPath = "";
+    mainThread_->LoadNativeLiabrary(nativeLibraryPath);
+
+    nativeLibraryPath = "test/";
+    mainThread_->LoadNativeLiabrary(nativeLibraryPath);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+#endif
+
+/*
+ * Feature: MainThread
+ * Function: TaskTimeoutDetected
+ * SubFunction: NA
+ * FunctionPoints: MainThread TaskTimeoutDetected
+ * EnvConditions: NA
+ * CaseDescription: Verify TaskTimeoutDetected
+ */
+HWTEST_F(MainThreadTest, TaskTimeoutDetected_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->TaskTimeoutDetected(nullptr);
+
+    std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
+    mainThread_->TaskTimeoutDetected(runner);
+
+    mainThread_->mainHandler_.reset();
+    mainThread_->TaskTimeoutDetected(runner);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/*
+ * Feature: MainThread
+ * Function: HandleDumpHeap
+ * SubFunction: NA
+ * FunctionPoints: MainThread HandleDumpHeap
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleDumpHeap
+ */
+HWTEST_F(MainThreadTest, HandleDumpHeap_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    bool isPrivate = false;
+    mainThread_->HandleDumpHeap(isPrivate);
+
+    mainThread_->mainHandler_ = nullptr;
+    mainThread_->HandleDumpHeap(isPrivate);
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
