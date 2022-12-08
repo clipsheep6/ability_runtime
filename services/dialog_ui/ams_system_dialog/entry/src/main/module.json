@@ -32,15 +32,6 @@
         "label":"$string:TipsServiceExtAbility_label",
         "visible": true,
         "type": "service"
-      },
-      {
-        "name": "EnableNotificationDialog",
-        "srcEntrance": "./ets/ServiceExtAbility/NotificationServiceExtAbility.ts",
-        "description": "$string:NotificationServiceExtAbility_desc",
-        "icon": "$media:icon",
-        "label": "$string:NotificationServiceExtAbility_label",
-        "visible": true,
-        "type": "service"
       }
     ],
     "requestPermissions": [
@@ -49,9 +40,6 @@
       },
       {
         "name": "ohos.permission.START_ABILITIES_FROM_BACKGROUND"
-      },
-      {
-        "name": "ohos.permission.NOTIFICATION_CONTROLLER"
       }
     ]
   }

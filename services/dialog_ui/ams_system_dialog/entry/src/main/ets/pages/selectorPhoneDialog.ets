@@ -106,9 +106,9 @@ struct SelectorPhoneDialog {
           .textAlign(TextAlign.Start)
           .margin({ top: 25, left: 20 })
       }
-      .height(120)
+      .height(100)
 
-      Column(){
+      Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
         Swiper() {
           LazyForEach(this.phoneShowData, (item: any) => {
             Grid() {
@@ -117,45 +117,46 @@ struct SelectorPhoneDialog {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split("-")[3] != "") {
                       Image(item.split("-")[3])
-                        .height(70)
-                        .width(70)
+                        .height(60)
+                        .width(60)
                         .alignSelf(ItemAlign.Center);
                     } else {
                       Image($r("app.media.app_icon"))
-                        .height(70)
-                        .width(70)
+                        .height(60)
+                        .width(60)
                         .alignSelf(ItemAlign.Center);
                     }
                     if (item.split("-")[2] != "") {
                       Text(item.split("-")[2])
                         .fontSize(16)
-                        .width(68)
-                        .height(33)
+                        .width(58)
+                        .height(23)
                         .textAlign(TextAlign.Center)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     } else {
                       Text(item.split("-")[0])
                         .fontSize(16)
-                        .width(68)
-                        .height(32)
+                        .width(58)
+                        .height(23)
                         .textAlign(TextAlign.Center)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     }
                   }
-                  .height(200)
+                  .height(180)
                   .onClick(() => {
                     this.onSelectApp(item)
                   })
                 }
+                .margin({ top: 80 })
               }, item => item)
             }
             .columnsTemplate(this.selector.swiper.gridColumns)
             .rowsTemplate(this.selector.swiper.gridRows)
             .columnsGap(12)
             .rowsGap(12)
-            .margin({ bottom: 10 })
+            .margin({ top: 10 })
             .height(200)
           }, item => item)
         }
@@ -163,9 +164,7 @@ struct SelectorPhoneDialog {
         .align(Alignment.Center)
         .width("90%")
         .indicator(this.phoneShowData.totalCount() > 1)
-        .margin({ bottom: 35, top: 20, left: 20 })
       }
-
 
       Flex({ alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
         Text(($r("app.string.message_cancel_selector")))
@@ -174,7 +173,7 @@ struct SelectorPhoneDialog {
           .fontWeight(FontWeight.Regular)
       }
       .width("90%")
-      .height(150)
+      .height(100)
       .backgroundColor("#ffffff")
       .borderRadius(20)
       .margin({ bottom: 20, top: 10 })
