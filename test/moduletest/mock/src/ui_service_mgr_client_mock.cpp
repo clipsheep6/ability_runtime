@@ -32,11 +32,11 @@ namespace Ace {
 std::shared_ptr<UIServiceMgrClient> UIServiceMgrClient::instance_ = nullptr;
 std::mutex UIServiceMgrClient::mutex_;
 namespace {
-    const std::string EVENT_CHOOSE_CODE = "EVENT_CHOOSE_APP";
-    const std::string EVENT_CLOSE_CODE = "EVENT_CLOSE";
-    const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
-    const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
-    const std::string EVENT_TIPS_APP = "EVENT_TIPS_APP";
+const std::string EVENT_CHOOSE_CODE = "EVENT_CHOOSE_APP";
+const std::string EVENT_CLOSE_CODE = "EVENT_CLOSE";
+const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
+const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
+const std::string EVENT_TIPS_APP = "EVENT_TIPS_APP";
 }
 
 std::shared_ptr<UIServiceMgrClient> UIServiceMgrClient::GetInstance()
@@ -97,7 +97,7 @@ ErrCode UIServiceMgrClient::ShowDialog(const std::string& name, const std::strin
         callback(0, EVENT_CHOOSE_CODE, callbackParams);
         return ERR_OK;
     }
-    
+
     if (code_ == EVENT_MULT_APP_CLOSE) {
         params_ = params;
         callback(0, EVENT_CLOSE_CODE, "");

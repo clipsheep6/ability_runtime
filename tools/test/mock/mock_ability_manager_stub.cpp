@@ -23,7 +23,7 @@ const std::string STRING_ABILITY_NAME_INVALID = "invalid_ability";
 const std::string STRING_BUNDLE_NAME_INVALID = "invalid_bundle";
 }  // namespace
 
-int MockAbilityManagerStub::StartAbility(const Want &want, int32_t userId, int requestCode)
+int MockAbilityManagerStub::StartAbility(const Want& want, int32_t userId, int requestCode)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
 
@@ -47,7 +47,7 @@ int MockAbilityManagerStub::StartAbility(const Want &want, int32_t userId, int r
     return ERR_OK;
 }
 
-void MockAbilityManagerStub::DumpState(const std::string &args, std::vector<std::string> &state)
+void MockAbilityManagerStub::DumpState(const std::string& args, std::vector<std::string>& state)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
 
@@ -68,7 +68,7 @@ void MockAbilityManagerStub::DumpState(const std::string &args, std::vector<std:
     }
 }
 
-int MockAbilityManagerStub::StopServiceAbility(const Want &want, int32_t userId)
+int MockAbilityManagerStub::StopServiceAbility(const Want& want, int32_t userId)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
 

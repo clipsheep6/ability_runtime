@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,175 +20,114 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "js_runtime_utils.h"
 #include "system_ability_definition.h"
 
-using namespace OHOS;
-using namespace OHOS::AAFwk;
-using namespace OHOS::AppExecFwk;
+namespace OHOS {
+namespace AbilityRuntime {
+namespace {
+constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t ERROR_CODE_ONE = -2;
+constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
 
-static constexpr uint8_t NUMBER_OF_PARAMETERS_TWO = 2;
+class JsAppManager final {
+public:
+    explicit JsAppManager(sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : abilityManager_(abilityManager) {}
+    ~JsAppManager() = default;
 
-static napi_value ParseBundleName(napi_env env, std::string &bundleName, napi_value args)
-{
-    napi_status status;
-    napi_valuetype valuetype;
-    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    NAPI_ASSERT(env, valuetype == napi_string, "Wrong argument type. String expected.");
-    char buf[BUFFER_LENGTH_MAX] = {0};
-    size_t len = 0;
-    napi_get_value_string_utf8(env, args, buf, BUFFER_LENGTH_MAX, &len);
-    HILOG_INFO("bundleName= [%{public}s].", buf);
-    bundleName = std::string {buf};
-    // create result code
-    napi_value result;
-    status = napi_create_int32(env, 1, &result);
-    NAPI_ASSERT(env, status == napi_ok, "napi_create_int32 error!");
-    return result;
-}
+    static void Finalizer(NativeEngine *engine, void *data, void *hint)
+    {
+        HILOG_DEBUG("JsAppManager::Finalizer is called");
+        std::unique_ptr<JsAppManager>(static_cast<JsAppManager*>(data));
+    }
 
-static int32_t AbilityMgrKillProcess(const std::string &bundleName)
+    static NativeValue* KillProcessesByBundleName(NativeEngine *engine, NativeCallbackInfo *info)
+    {
+        JsAppManager *me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnKillProcessByBundleName(*engine, *info) : nullptr;
+    }
+
+private:
+    sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
+
+    NativeValue* OnKillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+        std::string bundleName;
+
+        if (info.argc < ARGC_ONE || info.argc > ARGC_TWO) {
+            HILOG_ERROR("Not enough params");
+            return engine.CreateUndefined();
+        }
+
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("get bundleName failed!");
+            return engine.CreateUndefined();
+        }
+
+        HILOG_DEBUG("kill process [%{public}s]", bundleName.c_str());
+        AsyncTask::CompleteCallback complete =
+            [bundleName, abilityManager = abilityManager_](NativeEngine &engine, AsyncTask &task,
+                int32_t status) {
+            if (abilityManager == nullptr) {
+                HILOG_ERROR("abilityManager nullptr");
+                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                return;
+            }
+            auto ret = abilityManager->KillProcess(bundleName);
+            if (ret == 0) {
+                task.Resolve(engine, CreateJsValue(engine, ret));
+            } else {
+                task.Reject(engine, CreateJsError(engine, ret, "kill process failed."));
+            }
+        };
+
+        NativeValue *lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+        NativeValue *result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnKillProcessByBundleName",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+};
+} // namespace
+
+OHOS::sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerInstance()
 {
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     OHOS::sptr<OHOS::IRemoteObject> abilityObject =
         systemAbilityManager->GetSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID);
-    OHOS::sptr<OHOS::AAFwk::IAbilityManager> abilityManager =
-        OHOS::iface_cast<OHOS::AAFwk::IAbilityManager>(abilityObject);
-
-    return abilityManager->KillProcess(bundleName);
+    return OHOS::iface_cast<OHOS::AAFwk::IAbilityManager>(abilityObject);
 }
 
-AsyncCallbackInfo::AsyncCallbackInfo(napi_env env)
+NativeValue* JsAppMgrInit(NativeEngine *engine, NativeValue *exportObj)
 {
-    this->env = env;
+    HILOG_DEBUG("JsAppMgrInit is called");
+
+    if (engine == nullptr || exportObj == nullptr) {
+        HILOG_ERROR("engine or exportObj null");
+        return nullptr;
+    }
+
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(exportObj);
+    if (object == nullptr) {
+        HILOG_ERROR("object null");
+        return nullptr;
+    }
+
+    std::unique_ptr<JsAppManager> jsAppManager = std::make_unique<JsAppManager>(GetAbilityManagerInstance());
+    object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
+
+    const char *moduleName = "JsAppManager";
+    BindNativeFunction(*engine, *object, "killProcessesByBundleName", moduleName,
+        JsAppManager::KillProcessesByBundleName);
+    HILOG_DEBUG("JsAppMgrInit end");
+    return exportObj;
 }
-
-AsyncCallbackInfo::~AsyncCallbackInfo()
-{
-    if (asyncWork != nullptr) {
-        HILOG_INFO("AsyncCallbackInfo::~AsyncCallbackInfo delete asyncWork.");
-        napi_delete_async_work(env, asyncWork);
-        asyncWork = nullptr;
-    }
-
-    if (callback != nullptr) {
-        HILOG_INFO("AsyncCallbackInfo::~AsyncCallbackInfo delete callback.");
-        napi_delete_reference(env, callback);
-        callback = nullptr;
-    }
-}
-
-static napi_value NapiGetNull(napi_env env)
-{
-    napi_value result = nullptr;
-    napi_get_null(env, &result);
-    return result;
-}
-
-napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("NAPI_KillProcessesByBundleName called...");
-    size_t argc = 2;
-    napi_value argv[NUMBER_OF_PARAMETERS_TWO];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
-
-    size_t argcNum = 2;
-    if (argc >= argcNum) {
-        napi_valuetype valuetype;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        if (valuetype != napi_function) {
-            HILOG_ERROR("%{public}s, Wrong argument type. Function expected.", __func__);
-            return NapiGetNull(env);
-        }
-    }
-
-    AsyncCallbackInfo *asyncCallbackInfoPtr = new (std::nothrow) AsyncCallbackInfo(env);
-    if (asyncCallbackInfoPtr == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfoPtr == nullptr", __func__);
-        return NapiGetNull(env);
-    }
-
-    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr(asyncCallbackInfoPtr);
-    std::string bundleName;
-    ParseBundleName(env, bundleName, argv[0]);
-
-    if (argc >= argcNum) {
-        asyncCallbackInfoUPtr->bundleName = bundleName;
-        NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &asyncCallbackInfoUPtr->callback));
-
-        napi_value resourceName;
-        NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack",
-            NAPI_AUTO_LENGTH, &resourceName));
-
-        NAPI_CALL(env, napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("killProcessesByBundleName called(CallBack Mode)...");
-                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
-                asyncCallbackInfoPtr->result = AbilityMgrKillProcess(asyncCallbackInfoPtr->bundleName);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                HILOG_INFO("killProcessesByBundleName compeleted(CallBack Mode)...");
-                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
-                std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr {asyncCallbackInfoPtr};
-
-                napi_value result;
-                napi_value callback;
-                napi_value undefined;
-
-                napi_create_int32(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->result, &result);
-                napi_get_undefined(env, &undefined);
-
-                napi_get_reference_value(env, asyncCallbackInfoUPtr->callback, &callback);
-                napi_call_function(env, undefined, callback, 1, &result, nullptr);
-            },
-            (void *)asyncCallbackInfoUPtr.get(),
-            &asyncCallbackInfoUPtr->asyncWork));
-
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfoUPtr->asyncWork));
-        asyncCallbackInfoUPtr.release();
-        return NapiGetNull(env);
-    } else {
-        napi_value resourceName;
-        NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNamePromise",
-            NAPI_AUTO_LENGTH, &resourceName));
-
-        napi_deferred deferred;
-        napi_value promise;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfoUPtr->deferred = deferred;
-        asyncCallbackInfoUPtr->bundleName = bundleName;
-
-        NAPI_CALL(env, napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("killProcessesByBundleName called(Promise Mode)...");
-                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
-                asyncCallbackInfoPtr->result = AbilityMgrKillProcess(asyncCallbackInfoPtr->bundleName);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                HILOG_INFO("killProcessesByBundleName compeleted(Promise Mode)...");
-                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
-                std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr {asyncCallbackInfoPtr};
-
-                napi_value result;
-                napi_create_int32(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->result, &result);
-                if (asyncCallbackInfoUPtr->result == ERR_OK) {
-                    napi_resolve_deferred(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->deferred, result);
-                } else {
-                    napi_reject_deferred(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->deferred, result);
-                }
-            },
-            (void *)asyncCallbackInfoUPtr.get(),
-            &asyncCallbackInfoUPtr->asyncWork));
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfoUPtr->asyncWork));
-        asyncCallbackInfoUPtr.release();
-        return promise;
-    }
-}
+}  // namespace AbilityRuntime
+}  // namespace OHOS

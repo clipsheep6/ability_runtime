@@ -22,7 +22,7 @@
 #include "ability_runtime/context/context_impl.h"
 #undef private
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
 #include "event_runner.h"
@@ -36,7 +36,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 using namespace OHOS::RunnerRuntime;
 
 namespace {
@@ -46,7 +46,7 @@ const std::string KEY_TEST_RUNNER_CLASS = "-s unittest";
 const std::string VALUE_TEST_RUNNER_CLASS = "JSUserTestRunnerjs";
 const std::string KEY_TEST_CASE = "-s class";
 const std::string VALUE_TEST_CASE =
-    "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010_js";
+"ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010_js";
 const std::string KEY_TEST_WAIT_TIMEOUT = "-w";
 const std::string VALUE_TEST_WAIT_TIMEOUT = "35";
 const std::string REPORT_FINISH_MSG = "report finish message";
@@ -273,7 +273,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Lev
         std::make_shared<AbilityDelegator>(context, std::move(testRunner), iRemoteObj);
     AbilityDelegatorRegistry::RegisterInstance(abilityDelegator, abilityArgs);
 
-    JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
+    JsTestRunner* pTestRunner = static_cast<JsTestRunner*>(static_cast<void*>((testRunner.get())));
     pTestRunner->ReportFinished(REPORT_FINISH_MSG);
 
     EXPECT_TRUE(MockAbilityDelegatorStub::finishFlag_);
@@ -315,7 +315,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0600, Function | MediumTest | Lev
     sptr<IRemoteObject> shobserver = sptr<IRemoteObject>(new MockTestObserverStub);
     abilityDelegator->observer_ = shobserver;
 
-    JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
+    JsTestRunner* pTestRunner = static_cast<JsTestRunner*>(static_cast<void*>((testRunner.get())));
     pTestRunner->ReportStatus(REPORT_FINISH_MSG);
 
     EXPECT_TRUE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);

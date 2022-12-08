@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-bool ShellCommandResult::Marshalling(Parcel &parcel) const
+bool ShellCommandResult::Marshalling(Parcel& parcel) const
 {
     if (!parcel.WriteInt32(exitCode)) {
         HILOG_ERROR("Failed to write exitCode");
@@ -34,16 +34,16 @@ bool ShellCommandResult::Marshalling(Parcel &parcel) const
     return true;
 }
 
-bool ShellCommandResult::ReadFromParcel(Parcel &parcel)
+bool ShellCommandResult::ReadFromParcel(Parcel& parcel)
 {
     exitCode = parcel.ReadInt32();
     stdResult = parcel.ReadString();
     return true;
 }
 
-ShellCommandResult *ShellCommandResult::Unmarshalling(Parcel &parcel)
+ShellCommandResult* ShellCommandResult::Unmarshalling(Parcel& parcel)
 {
-    ShellCommandResult *result = new (std::nothrow) ShellCommandResult();
+    ShellCommandResult* result = new (std::nothrow) ShellCommandResult();
     if (result && !result->ReadFromParcel(parcel)) {
         delete result;
         result = nullptr;

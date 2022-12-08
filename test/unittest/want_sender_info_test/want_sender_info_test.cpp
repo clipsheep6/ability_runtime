@@ -44,8 +44,8 @@ public:
     public:
         int performReceiveCount = 0;
         void Send(const int32_t resultCode) override;
-        void PerformReceive(const AAFwk::Want &want, int resultCode, const std::string &data,
-            const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser) override;
+        void PerformReceive(const AAFwk::Want& want, int resultCode, const std::string& data,
+            const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser) override;
     };
 
 public:
@@ -53,8 +53,8 @@ public:
 
 void WantSenderInfoTest::CancelReceiver::Send(const int32_t resultCode)
 {}
-void WantSenderInfoTest::CancelReceiver::PerformReceive(const AAFwk::Want &want, int resultCode,
-    const std::string &data, const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser)
+void WantSenderInfoTest::CancelReceiver::PerformReceive(const AAFwk::Want& want, int resultCode,
+    const std::string& data, const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser)
 {}
 
 void WantSenderInfoTest::SetUpTestCase()
@@ -108,6 +108,75 @@ HWTEST_F(WantSenderInfoTest, WantSenderInfoTest_0100, TestSize.Level1)
     EXPECT_EQ(static_cast<int>(unInfo->flags), 3);
     EXPECT_EQ(unInfo->userId, 99);
     delete unInfo;
+}
+
+/*
+ * @tc.number    : WantSenderInfoTest_0200
+ * @tc.name      : Marshalling/UnMarshalling
+ * @tc.desc      : 1.Marshalling/UnMarshalling
+ */
+HWTEST_F(WantSenderInfoTest, WantSenderInfoTest_0200, TestSize.Level1)
+{
+    WantSenderInfo info;
+
+    for (int i = 0; i < 999; i++) {
+        Want want;
+        WantsInfo wantInfo;
+        wantInfo.want = want;
+        info.allWants.emplace_back(wantInfo);
+    }
+    EXPECT_EQ(info.allWants.size(), 999);
+    Parcel parcel;
+    info.Marshalling(parcel);
+    // succeed as the iteration time is under the limit
+    auto unInfo = WantSenderInfo::Unmarshalling(parcel);
+    EXPECT_NE(unInfo, nullptr);
+}
+
+/*
+ * @tc.number    : WantSenderInfoTest_0300
+ * @tc.name      : Marshalling/UnMarshalling
+ * @tc.desc      : 1.Marshalling/UnMarshalling
+ */
+HWTEST_F(WantSenderInfoTest, WantSenderInfoTest_0300, TestSize.Level1)
+{
+    WantSenderInfo info;
+
+    for (int i = 0; i < 1000; i++) {
+        Want want;
+        WantsInfo wantInfo;
+        wantInfo.want = want;
+        info.allWants.emplace_back(wantInfo);
+    }
+    EXPECT_EQ(info.allWants.size(), 1000);
+    Parcel parcel;
+    info.Marshalling(parcel);
+    // succeed as the iteration time equals the limit.
+    auto unInfo = WantSenderInfo::Unmarshalling(parcel);
+    EXPECT_NE(unInfo, nullptr);
+}
+
+/*
+ * @tc.number    : WantSenderInfoTest_0400
+ * @tc.name      : Marshalling/UnMarshalling
+ * @tc.desc      : 1.Marshalling/UnMarshalling
+ */
+HWTEST_F(WantSenderInfoTest, WantSenderInfoTest_0400, TestSize.Level1)
+{
+    WantSenderInfo info;
+
+    for (int i = 0; i < 1001; i++) {
+        Want want;
+        WantsInfo wantInfo;
+        wantInfo.want = want;
+        info.allWants.emplace_back(wantInfo);
+    }
+    EXPECT_EQ(info.allWants.size(), 1001);
+    Parcel parcel;
+    info.Marshalling(parcel);
+    // fail as the iteration time exceeds the limit.
+    auto unInfo = WantSenderInfo::Unmarshalling(parcel);
+    EXPECT_EQ(unInfo, nullptr);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

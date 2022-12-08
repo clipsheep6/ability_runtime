@@ -49,9 +49,9 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    std::shared_ptr<ApplicationInfo> GetApplicationInfo(const std::string &appName) const;
+    std::shared_ptr<ApplicationInfo> GetApplicationInfo(const std::string& appName) const;
     std::shared_ptr<AbilityInfo> GetAbilityInfo(
-        const std::string &abilityIndex, const std::string &name, const std::string &applicationName) const;
+        const std::string& abilityIndex, const std::string& name, const std::string& applicationName) const;
 
     sptr<MockAbilityToken> GetAbilityToken()
     {
@@ -64,19 +64,19 @@ public:
 
 protected:
     sptr<MockAbilityToken> mockToken_ = nullptr;
-    sptr<MockAbilityToken> token_ {nullptr};
-    std::unique_ptr<AppMgrClient> client_ {nullptr};
+    sptr<MockAbilityToken> token_{ nullptr };
+    std::unique_ptr<AppMgrClient> client_{ nullptr };
 
-    std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_ {nullptr};
-    std::shared_ptr<AMSEventHandler> amsEventHandler_ {nullptr};
+    std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_{ nullptr };
+    std::shared_ptr<AMSEventHandler> amsEventHandler_{ nullptr };
 };
 
 class MockMockAppMgrService : public MockAppMgrService {
 public:
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
-    MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string &));
-    MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string &appName));
-    MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo> &));
+    MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string&));
+    MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& appName));
+    MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>&));
 };
 
 void AmsIpcAmsmgrModuleTest::SetUpTestCase()
@@ -96,7 +96,7 @@ void AmsIpcAmsmgrModuleTest::TearDown()
     mockAppMgrServiceInner_.reset();
 }
 
-std::shared_ptr<ApplicationInfo> AmsIpcAmsmgrModuleTest::GetApplicationInfo(const std::string &appName) const
+std::shared_ptr<ApplicationInfo> AmsIpcAmsmgrModuleTest::GetApplicationInfo(const std::string& appName) const
 {
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = appName;
@@ -104,7 +104,7 @@ std::shared_ptr<ApplicationInfo> AmsIpcAmsmgrModuleTest::GetApplicationInfo(cons
 }
 
 std::shared_ptr<AbilityInfo> AmsIpcAmsmgrModuleTest::GetAbilityInfo(
-    const std::string &abilityIndex, const std::string &name, const std::string &applicationName) const
+    const std::string& abilityIndex, const std::string& name, const std::string& applicationName) const
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = name + abilityIndex;

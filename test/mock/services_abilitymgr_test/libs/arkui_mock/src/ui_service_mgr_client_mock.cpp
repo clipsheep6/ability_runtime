@@ -17,7 +17,6 @@
 
 #include <csignal>
 
-#include "dialog_callback_stub.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -31,6 +30,7 @@
 
 namespace OHOS {
 namespace Ace {
+using DialogCallback = std::function<void(int32_t id, const std::string& event, const std::string& param)>;
 std::shared_ptr<UIServiceMgrClient> UIServiceMgrClient::instance_ = nullptr;
 int UIServiceMgrClient::pid_ = 0;
 std::string UIServiceMgrClient::code_ = "0";

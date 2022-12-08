@@ -23,8 +23,8 @@ class MockWantReceiver : public IWantReceiver {
 public:
     MOCK_METHOD1(Send, void(const int32_t resultCode));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD7(PerformReceive, void(const Want &want, int resultCode, const std::string &data,
-                                    const WantParams &extras, bool serialized, bool sticky, int sendingUser));
+    MOCK_METHOD7(PerformReceive, void(const Want& want, int resultCode, const std::string& data,
+        const WantParams& extras, bool serialized, bool sticky, int sendingUser));
 };
 
 class MockCancelListener : public AbilityRuntime::WantAgent::CancelListener {

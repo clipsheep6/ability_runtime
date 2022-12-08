@@ -66,13 +66,13 @@ public:
     virtual ~MissionListManagerTestStub() {};
 
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         return 0;
     };
 
     virtual void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) {};
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) {};
 
     /**
      * OnAbilityDisconnectDone, AbilityMs notify caller ability the result of disconnect.
@@ -80,7 +80,7 @@ public:
      * @param element, service ability's ElementName.
      * @param resultCode, ERR_OK on success, others on failure.
      */
-    virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) {};
+    virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) {};
 };
 
 class MissionListManagerTestAbilityThreadStub : public AppExecFwk::AbilityThread {
@@ -88,10 +88,9 @@ public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};
 
-    sptr<IRemoteObject> CallRequest()
+    void CallRequest()
     {
-        sptr<MissionListManagerTestStub> remote = new (std::nothrow) MissionListManagerTestStub();
-        return remote->AsObject();
+        return;
     }
 };
 
@@ -259,6 +258,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_005, Function | MediumTest |
         abilityRequest.abilityInfo.moduleName + ":" + abilityRequest.abilityInfo.name;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    missionListMgr->Init();
     std::shared_ptr<AbilityRecord> abilityRecord =
         std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();

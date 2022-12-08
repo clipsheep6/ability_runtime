@@ -46,17 +46,17 @@ public:
     MyConnectionObserver() {}
     ~MyConnectionObserver() {}
 
-    void OnExtensionConnected(const ConnectionData &data)
+    void OnExtensionConnected(const ConnectionData& data)
     {
         isExtensionConnected_ = true;
     }
 
-    void OnExtensionDisconnected(const ConnectionData &data)
+    void OnExtensionDisconnected(const ConnectionData& data)
     {
         isExtensionDisconnected_ = true;
     }
 
-    void OnDlpAbilityOpened(const DlpStateData &data)
+    void OnDlpAbilityOpened(const DlpStateData& data)
     {
         isDlpAbilityOpened_ = true;
     }

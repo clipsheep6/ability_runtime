@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_QUICK_FIX_MANAGER_CLIENT_H
 #define OHOS_ABILITY_RUNTIME_QUICK_FIX_MANAGER_CLIENT_H
 
+#include <condition_variable>
 #include <functional>
 #include <vector>
 
@@ -50,9 +51,15 @@ public:
      */
     int32_t GetApplyedQuickFixInfo(const std::string &bundleName, ApplicationQuickFixInfo &quickFixInfo);
 
+    void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
+    void OnLoadSystemAbilityFail();
+
 private:
-    sptr<IQuickFixManager> ConnectQuickFixManagerService();
+    sptr<IQuickFixManager> GetQuickFixMgrProxy();
     void ClearProxy();
+    bool LoadQuickFixMgrService();
+    void SetQuickFixMgr(const sptr<IRemoteObject> &remoteObject);
+    sptr<IQuickFixManager> GetQuickFixMgr();
 
     class QfmsDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -65,6 +72,9 @@ private:
     };
 
 private:
+    std::condition_variable loadSaCondation_;
+    std::mutex loadSaMutex_;
+    bool loadSaFinished_;
     std::mutex mutex_;
     sptr<IQuickFixManager> quickFixMgr_ = nullptr;
 

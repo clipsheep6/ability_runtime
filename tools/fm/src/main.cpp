@@ -15,7 +15,7 @@
 
 #include "fms_command.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     OHOS::AppExecFwk::FormMgrShellCommand cmd(argc, argv);
     std::cout << cmd.ExecCommand();

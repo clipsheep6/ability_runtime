@@ -29,21 +29,21 @@ struct AppProcessData : public Parcelable {
      * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      * @return Returns true if read successed; returns false otherwise.
      */
-    bool ReadFromParcel(Parcel &parcel);
+    bool ReadFromParcel(Parcel& parcel);
 
     /**
      * @brief Marshals this Sequenceable object into a Parcel.
      *
      * @param outParcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
      */
-    virtual bool Marshalling(Parcel &parcel) const override;
+    virtual bool Marshalling(Parcel& parcel) const override;
 
     /**
      * @brief Unmarshals this Sequenceable object from a Parcel.
      *
      * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      */
-    static AppProcessData *Unmarshalling(Parcel &parcel);
+    static AppProcessData* Unmarshalling(Parcel& parcel);
 
     std::string appName;
     std::string processName;

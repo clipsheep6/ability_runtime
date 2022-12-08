@@ -47,42 +47,42 @@ constexpr int COUNT = 1000;
 }  // namespace
 
 namespace OHOS::AppExecFwk {
-bool operator==(const AbilityInfo &a, const AbilityInfo &b)
+bool operator==(const AbilityInfo& a, const AbilityInfo& b)
 {
     if (&a != &b) {
         return a.package == b.package && a.name == b.name && a.label == b.label && a.description == b.description &&
-               a.iconPath == b.iconPath && a.visible == b.visible && a.kind == b.kind &&
-               a.permissions == b.permissions && a.bundleName == b.bundleName &&
-               a.applicationName == b.applicationName && a.deviceId == b.deviceId && a.codePath == b.codePath &&
-               a.resourcePath == b.resourcePath && a.libPath == b.libPath;
+            a.iconPath == b.iconPath && a.visible == b.visible && a.kind == b.kind &&
+            a.permissions == b.permissions && a.bundleName == b.bundleName &&
+            a.applicationName == b.applicationName && a.deviceId == b.deviceId && a.codePath == b.codePath &&
+            a.resourcePath == b.resourcePath && a.libPath == b.libPath;
     }
 
     return true;
 }
 
-bool operator!=(const AbilityInfo &a, const AbilityInfo &b)
+bool operator!=(const AbilityInfo& a, const AbilityInfo& b)
 {
     return !(a == b);
 }
 
-bool operator==(const ApplicationInfo &a, const ApplicationInfo &b)
+bool operator==(const ApplicationInfo& a, const ApplicationInfo& b)
 {
     if (&a != &b) {
         return a.name == b.name && a.bundleName == b.bundleName && a.deviceId == b.deviceId &&
-               a.signatureKey == b.signatureKey;
+            a.signatureKey == b.signatureKey;
     }
 
     return true;
 }
 
-bool operator!=(const ApplicationInfo &a, const ApplicationInfo &b)
+bool operator!=(const ApplicationInfo& a, const ApplicationInfo& b)
 {
     return !(a == b);
 }
 }  // namespace OHOS::AppExecFwk
 
 namespace OHOS::AAFwk {
-bool operator==(const Want &a, const Want &b)
+bool operator==(const Want& a, const Want& b)
 {
     if (&a != &b) {
         return a.GetAction() == b.GetAction() && a.GetEntities() == b.GetEntities();
@@ -91,7 +91,7 @@ bool operator==(const Want &a, const Want &b)
     return true;
 }
 
-bool operator!=(const Want &a, const Want &b)
+bool operator!=(const Want& a, const Want& b)
 {
     return !(a == b);
 }
@@ -107,8 +107,8 @@ public:
     void TearDown();
 
 protected:
-    static const AbilityRequest &MakeDefaultAbilityRequest();
-    static const AbilityRequest &MakeHomeAbilityRequest();
+    static const AbilityRequest& MakeDefaultAbilityRequest();
+    static const AbilityRequest& MakeHomeAbilityRequest();
 
 private:
     inline static AbilityRequest testAbilityRequest_;
@@ -149,7 +149,7 @@ void AbilityRecordModuleTest::SetUp()
 void AbilityRecordModuleTest::TearDown()
 {}
 
-const AbilityRequest &AbilityRecordModuleTest::MakeDefaultAbilityRequest()
+const AbilityRequest& AbilityRecordModuleTest::MakeDefaultAbilityRequest()
 {
     Want::ClearWant(&testAbilityRequest_.want);
     testAbilityRequest_.want.SetAction("test");
@@ -158,7 +158,7 @@ const AbilityRequest &AbilityRecordModuleTest::MakeDefaultAbilityRequest()
     return testAbilityRequest_;
 }
 
-const AbilityRequest &AbilityRecordModuleTest::MakeHomeAbilityRequest()
+const AbilityRequest& AbilityRecordModuleTest::MakeHomeAbilityRequest()
 {
     Want::ClearWant(&testAbilityRequest_.want);
     testAbilityRequest_.want.SetAction(Want::ACTION_HOME);
@@ -177,7 +177,7 @@ const AbilityRequest &AbilityRecordModuleTest::MakeHomeAbilityRequest()
  */
 HWTEST_F(AbilityRecordModuleTest, Init_001, TestSize.Level2)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     for (int i = 0; i < COUNT; ++i) {
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
@@ -201,7 +201,7 @@ HWTEST_F(AbilityRecordModuleTest, Init_001, TestSize.Level2)
  */
 HWTEST_F(AbilityRecordModuleTest, Init_002, TestSize.Level2)
 {
-    auto &abilityRequest = MakeHomeAbilityRequest();
+    auto& abilityRequest = MakeHomeAbilityRequest();
 
     for (int i = 0; i < COUNT; ++i) {
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
@@ -224,7 +224,7 @@ HWTEST_F(AbilityRecordModuleTest, Init_002, TestSize.Level2)
  */
 HWTEST_F(AbilityRecordModuleTest, TerminateAbility_001, TestSize.Level3)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     for (int i = 0; i < COUNT; ++i) {
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
@@ -255,7 +255,7 @@ HWTEST_F(AbilityRecordModuleTest, TerminateAbility_001, TestSize.Level3)
  */
 HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
 
@@ -268,7 +268,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
     for (int i = 0; i < COUNT; ++i) {
         // Activate
-        auto mockActivateHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
+        auto mockActivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         };
         testResult = false;
@@ -282,7 +282,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
         // Inactivate
         testResult = false;
-        auto mockInactivateHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
+        auto mockInactivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _))
@@ -302,14 +302,14 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
         // Connect
         testResult = false;
-        auto mockConnectHandler = [&](const Want &want) { testResult = want == abilityRequest.want; };
+        auto mockConnectHandler = [&](const Want& want) { testResult = want == abilityRequest.want; };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleConnectAbility(_)).Times(1).WillOnce(Invoke(mockConnectHandler));
         abilityRecord->ConnectAbility();
         EXPECT_TRUE(testResult);
 
         // Disconnect
         testResult = false;
-        auto mockDisconnectHandler = [&](const Want &want) { testResult = want == abilityRequest.want; };
+        auto mockDisconnectHandler = [&](const Want& want) { testResult = want == abilityRequest.want; };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleDisconnectAbility(_))
             .Times(1)
             .WillOnce(Invoke(mockDisconnectHandler));
@@ -319,9 +319,9 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
         // SendResult
         testResult = false;
         int testResultCode = 123;
-        auto mockSendResultHandler = [&](int requestCode, int resultCode, const Want &want) {
+        auto mockSendResultHandler = [&](int requestCode, int resultCode, const Want& want) {
             testResult = requestCode == abilityRequest.requestCode && resultCode == testResultCode &&
-                         want == abilityRequest.want;
+                want == abilityRequest.want;
         };
         EXPECT_CALL(*mockAbilityScheduerStub, SendResult(_, _, _)).Times(1).WillOnce(Invoke(mockSendResultHandler));
         auto abilityResult =
@@ -344,7 +344,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
  */
 HWTEST_F(AbilityRecordModuleTest, PreNextAbilities_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -372,7 +372,7 @@ HWTEST_F(AbilityRecordModuleTest, PreNextAbilities_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, EventId_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -392,7 +392,7 @@ HWTEST_F(AbilityRecordModuleTest, EventId_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, AbilityState_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -412,7 +412,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityState_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, Want_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -440,7 +440,7 @@ HWTEST_F(AbilityRecordModuleTest, Want_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, ConnectionRecord_001, TestSize.Level2)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -481,7 +481,7 @@ HWTEST_F(AbilityRecordModuleTest, ConnectionRecord_001, TestSize.Level2)
  */
 HWTEST_F(AbilityRecordModuleTest, Terminating_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -500,7 +500,7 @@ HWTEST_F(AbilityRecordModuleTest, Terminating_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, NewWant_001, TestSize.Level1)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);
@@ -577,7 +577,7 @@ HWTEST_F(AbilityRecordModuleTest, ConvertLifeCycle_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordModuleTest, Dump_001, TestSize.Level2)
 {
-    auto &abilityRequest = MakeDefaultAbilityRequest();
+    auto& abilityRequest = MakeDefaultAbilityRequest();
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     EXPECT_TRUE(abilityRecord);

@@ -468,8 +468,6 @@ public:
 
     std::list<std::shared_ptr<ModuleRunningRecord>> GetAllModuleRecord() const;
 
-    std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> &GetModules();
-
     const std::list<std::shared_ptr<ApplicationInfo>> GetAppInfoList();
 
     inline const std::shared_ptr<ApplicationInfo> GetApplicationInfo()
@@ -505,6 +503,7 @@ public:
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
     void SetDebugApp(bool isDebugApp);
+    bool IsDebugApp();
     void SetRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecord();
     void SetStartMsg(const AppSpawnStartMsg &msg);
@@ -523,11 +522,13 @@ public:
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId);
 
-    int32_t NotifyHotReloadPage();
+    int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId);
 
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId);
 
     bool IsContinuousTask();
 
@@ -544,6 +545,8 @@ public:
     bool UpdateAbilityFocusState(const sptr<IRemoteObject> &token, bool isFocus);
 
     bool GetFocusFlag() const;
+
+    int64_t GetAppStartTime() const;
 
 private:
     /**
@@ -617,7 +620,9 @@ private:
     std::string signCode_;  // the sign of this hap
     std::string jointUserId_;
     std::map<std::string, std::shared_ptr<ApplicationInfo>> appInfos_;
+    std::mutex appInfosLock_;
     std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> hapModules_;
+    mutable std::mutex hapModulesLock_;
     int32_t mainUid_;
     std::string mainBundleName_;
     bool isLauncherApp_;
@@ -627,6 +632,7 @@ private:
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
     bool isDebugApp_ = false;
+    int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

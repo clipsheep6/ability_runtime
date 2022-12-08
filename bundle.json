@@ -103,6 +103,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/error_utils/include",
+              "header_files": [
+                "ability_runtime_error_util.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/error_utils:ability_runtime_error_util"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent/include/",
               "header_files": [
                 "cancel_listener.h",

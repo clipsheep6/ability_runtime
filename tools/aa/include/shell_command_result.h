@@ -22,12 +22,12 @@
 namespace OHOS {
 namespace AAFwk {
 struct ShellCommandResult : public Parcelable {
-    int32_t exitCode {-1};
-    std::string stdResult {};
+    int32_t exitCode{ -1 };
+    std::string stdResult{};
 
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static ShellCommandResult *Unmarshalling(Parcel &parcel);
+    bool ReadFromParcel(Parcel& parcel);
+    virtual bool Marshalling(Parcel& parcel) const override;
+    static ShellCommandResult* Unmarshalling(Parcel& parcel);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

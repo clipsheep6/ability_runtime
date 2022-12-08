@@ -31,15 +31,21 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
     message.append(std::to_string(instanceId));
     message.append(",\"name\":\"");
     message.append(instanceName);
-    message.append("\"}");
+    message.append("\",\"tid\":");
+    message.append(std::to_string(gettid()));
+    message.append("}");
     return message;
 }
 }
 
 using StartServer = void (*)(const std::string&);
 using SendMessage = void (*)(const std::string&);
+using SendLayoutMessage = void (*)(const std::string&);
 using StopServer = void (*)(const std::string&);
 using StoreMessage = void (*)(int32_t, const std::string&);
+using StoreInspectorInfo = void (*)(const std::string&, const std::string&);
+using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus, 
+    const std::function<void(int32_t)> &createLayoutInfo, int32_t instanceId);
 using RemoveMessage = void (*)(int32_t);
 using WaitForDebugger = bool (*)();
 
@@ -110,6 +116,15 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
             return false;
         }
     }
+
+    auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
+        dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
+    if (setSwitchCallBack == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
+        return false;
+    }
+    setSwitchCallBack([this](bool status) { setStatus_(status); },
+        [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
 
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName);
@@ -184,4 +199,37 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
     sendMessage(message);
 }
+
+void ConnectServerManager::SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr)
+{
+    HILOG_INFO("ConnectServerManager SendInspector Start");
+    auto sendLayoutMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendLayoutMessage"));
+    if (sendLayoutMessage == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'sendLayoutMessage'");
+        return;
+    }
+
+    sendLayoutMessage(jsonTreeStr);
+    sendLayoutMessage(jsonSnapshotStr);
+    auto storeInspectorInfo = reinterpret_cast<StoreInspectorInfo>(
+        dlsym(handlerConnectServerSo_, "StoreInspectorInfo"));
+    if (storeInspectorInfo == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreInspectorInfo'");
+        return;
+    }
+    storeInspectorInfo(jsonTreeStr, jsonSnapshotStr);
+}
+
+void ConnectServerManager::SetLayoutInspectorCallback(
+    const std::function<void(int32_t)>& createLayoutInfo, const std::function<void(bool)>& setStatus)
+{
+    createLayoutInfo_ = createLayoutInfo;
+    setStatus_ = setStatus;
+}
+
+std::function<void(int32_t)> ConnectServerManager::GetLayoutInspectorCallback()
+{
+    return createLayoutInfo_;
+}
+
 } // namespace OHOS::AbilityRuntime

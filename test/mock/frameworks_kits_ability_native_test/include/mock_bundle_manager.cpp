@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AppExecFwk {
 const long int UNEXPIRED_TIME = 1860000000;
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -32,13 +32,13 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrProxy::GetAppType(const std::string &bundleName)
+std::string BundleMgrProxy::GetAppType(const std::string& bundleName)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetAppTyp";
     return "system";
 }
 
-bool BundleMgrProxy::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfo(const Want& want, AbilityInfo& abilityInfo)
 {
     ElementName eleName = want.GetElement();
     if (eleName.GetBundleName().empty()) {
@@ -51,28 +51,28 @@ bool BundleMgrProxy::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
 }
 
-int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     GTEST_LOG_(INFO) << " BundleMgrStub::OnRemoteRequest";
     return 0;
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -90,13 +90,13 @@ bool BundleMgrService::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrService::GetAppType(const std::string &bundleName)
+std::string BundleMgrService::GetAppType(const std::string& bundleName)
 {
     GTEST_LOG_(INFO) << " BundleMgrService::GetAppType";
     return "system";
 }
 
-bool BundleMgrService::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfo(const Want& want, AbilityInfo& abilityInfo)
 {
     ElementName elementName = want.GetElement();
     if (elementName.GetBundleName().empty()) {
@@ -117,13 +117,13 @@ bool BundleMgrService::QueryAbilityInfo(const Want &want, AbilityInfo &abilityIn
     return true;
 }
 
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
 }
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;

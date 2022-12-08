@@ -30,7 +30,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockAbilitySchedulerTools {
 public:
-    MockAbilitySchedulerTools():mockStatus(false) {};
+    MockAbilitySchedulerTools() : mockStatus(false) {}
     ~MockAbilitySchedulerTools() = default;
 
     // return Copy AbilityThread class Smart pointer
@@ -100,13 +100,13 @@ std::shared_ptr<MockAbilitySchedulerTools> MockAbilitySchedulerTools::instance_ 
 namespace OHOS {
 namespace AAFwk {
 sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
-    const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
+    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
 {
     return AppExecFwk::MockAbilitySchedulerTools::GetInstance()->GetAbilitySchedulerProxy();
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
 {
     return ERR_OK;
 }

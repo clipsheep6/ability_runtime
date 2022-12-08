@@ -18,6 +18,7 @@
 #include <singleton.h>
 #include <vector>
 
+#include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
@@ -30,6 +31,7 @@
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
+#include "parameters.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #ifdef SUPPORT_GRAPHICS
@@ -105,6 +107,14 @@ Token::~Token()
 std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
 {
     CHECK_POINTER_AND_RETURN(token, nullptr);
+
+    std::string descriptor = Str16ToStr8(token->GetObjectDescriptor());
+    if (descriptor != "ohos.aafwk.AbilityToken") {
+        HILOG_ERROR("Input token is not an AbilityToken, token->GetObjectDescriptor(): %{public}s",
+            descriptor.c_str());
+        return nullptr;
+    }
+
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
@@ -326,6 +336,112 @@ std::string AbilityRecord::GetLabel()
 }
 
 #ifdef SUPPORT_GRAPHICS
+void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::string element = GetWant().GetElement().GetURI();
+    HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
+
+    StartingWindowHot();
+    auto flag = !IsForeground();
+    NotifyAnimationFromTerminatingAbility(callerAbility, flag);
+    PostCancelStartingWindowHotTask();
+
+    if (IsAbilityState(AbilityState::FOREGROUND)) {
+        HILOG_DEBUG("Activate %{public}s", element.c_str());
+        ForegroundAbility(sceneFlag);
+    } else {
+        // background to active state
+        HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
+        lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
+        DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
+    }
+}
+
+void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord>& callerAbility,
+    bool flag)
+{
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("Get WMS handler failed.");
+        return;
+    }
+
+    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    if (callerAbility) {
+        auto callerAbilityInfo = callerAbility->GetAbilityInfo();
+        SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
+        fromInfo->abilityToken_ = callerAbility->GetToken();
+    }
+
+    if (flag) {
+        fromInfo->reason_ = TransitionReason::BACK_TRANSITION;
+    } else {
+        fromInfo->reason_ = TransitionReason::CLOSE;
+    }
+
+    auto toInfo = CreateAbilityTransitionInfo();
+    SetAbilityTransitionInfo(abilityInfo_, toInfo);
+
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+}
+
+void AbilityRecord::NotifyAnimationFromTerminatingAbility() const
+{
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("Get WMS handler failed.");
+        return;
+    }
+
+    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    SetAbilityTransitionInfo(fromInfo);
+    fromInfo->reason_ = TransitionReason::CLOSE;
+    windowHandler->NotifyWindowTransition(fromInfo, nullptr);
+}
+
+void AbilityRecord::SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) const
+{
+    info->abilityToken_ = token_;
+    info->missionId_ = missionId_;
+    info->abilityName_ = abilityInfo_.name;
+    info->bundleName_ = abilityInfo_.bundleName;
+    info->windowModes_ = abilityInfo_.windowModes;
+    info->maxWindowRatio_ = abilityInfo_.maxWindowRatio;
+    info->minWindowRatio_ = abilityInfo_.minWindowRatio;
+    info->maxWindowWidth_ = abilityInfo_.maxWindowWidth;
+    info->minWindowWidth_ = abilityInfo_.minWindowWidth;
+    info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
+    info->minWindowHeight_ = abilityInfo_.minWindowHeight;
+}
+
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo()
+{
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    SetAbilityTransitionInfo(info);
+    SetStartingWindow(true);
+    return info;
+}
+
+void AbilityRecord::StartingWindowHot()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("Get WMS handler failed.");
+        return;
+    }
+
+    auto pixelMap = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetSnapshot(missionId_);
+    if (!pixelMap) {
+        HILOG_WARN("Get snapshot failed.");
+    }
+
+    auto info = CreateAbilityTransitionInfo();
+    HILOG_INFO("Notify wms to start StartingWindow.");
+    windowHandler->StartingWindow(info, pixelMap);
+}
+
 void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest &abilityRequest,
     std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
     uint32_t sceneFlag)
@@ -382,12 +498,6 @@ void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRe
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
     HILOG_INFO("%{public}s was called.", __func__);
-    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
-        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
-        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
-        return;
-    }
-
     if (isRecent) {
         auto want = GetWantFromMission();
         NotifyAnimationFromRecentTask(startOptions, want);
@@ -428,7 +538,9 @@ void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOpt
         return;
     }
 
-    auto toInfo = CreateAbilityTransitionInfo(token_, startOptions, want);
+    auto toInfo = CreateAbilityTransitionInfo(startOptions, want);
+    toInfo->abilityToken_ = token_;
+    toInfo->missionId_ = missionId_;
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
     sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
     fromInfo->isRecent_ = true;
@@ -453,7 +565,9 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
         fromInfo->abilityToken_ = abilityRequest.callerToken;
     }
 
-    auto toInfo = CreateAbilityTransitionInfo(abilityRequest, token_);
+    auto toInfo = CreateAbilityTransitionInfo(abilityRequest);
+    toInfo->abilityToken_ = token_;
+    toInfo->missionId_ = missionId_;
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
 
     windowHandler->NotifyWindowTransition(fromInfo, toInfo);
@@ -483,6 +597,10 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
+    if (want_.GetBoolParam(DEBUG_APP, false)) {
+        HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
+        return;
+    }
     HILOG_INFO("PostCancelStartingWindowHotTask was called.");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
@@ -505,6 +623,10 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
+    if (want_.GetBoolParam(DEBUG_APP, false)) {
+        HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
+        return;
+    }
     HILOG_INFO("PostCancelStartingWindowColdTask was called.");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
@@ -554,7 +676,7 @@ void AbilityRecord::SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info,
     }
 }
 
-sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const
 {
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
@@ -565,15 +687,10 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const spt
     } else {
         SetWindowModeAndDisplayId(info, want);
     }
-    info->abilityToken_ = abilityToken;
-    info->missionId_ = missionId_;
-    info->abilityName_ = abilityInfo_.name;
-    info->bundleName_ = abilityInfo_.bundleName;
     return info;
 }
 
-sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-    const sptr<IRemoteObject> abilityToken) const
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest) const
 {
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     auto abilityStartSetting = abilityRequest.startSetting;
@@ -590,10 +707,6 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const Abi
     } else {
         SetWindowModeAndDisplayId(info, std::make_shared<Want>(abilityRequest.want));
     }
-    info->abilityToken_ = abilityToken;
-    info->missionId_ = missionId_;
-    info->abilityName_ = abilityInfo_.name;
-    info->bundleName_ = abilityInfo_.bundleName;
     return info;
 }
 
@@ -607,18 +720,21 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     resourceMgr->UpdateResConfig(*resConfig);
 
-    if (!abilityInfo_.resourcePath.empty()) {
-        if (!resourceMgr->AddResource(abilityInfo_.resourcePath.c_str())) {
-            HILOG_WARN("%{public}s AddResource failed.", __func__);
-            return nullptr;
-        }
-    } else if (!abilityInfo_.hapPath.empty()) {
-        if (!resourceMgr->AddResource(abilityInfo_.hapPath.c_str())) {
-            HILOG_WARN("%{public}s AddResource failed.", __func__);
-            return nullptr;
-        }
+    std::string loadPath;
+    if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
+        !abilityInfo_.hapPath.empty()) {
+        loadPath = abilityInfo_.hapPath;
     } else {
+        loadPath = abilityInfo_.resourcePath;
+    }
+
+    if (loadPath.empty()) {
         HILOG_WARN("Invalid app resource.");
+        return nullptr;
+    }
+
+    if (!resourceMgr->AddResource(loadPath.c_str())) {
+        HILOG_WARN("%{public}s AddResource failed.", __func__);
         return nullptr;
     }
     return resourceMgr;
@@ -635,19 +751,20 @@ std::shared_ptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windo
     Media::SourceOptions opts;
     uint32_t errorCode = 0;
     std::unique_ptr<Media::ImageSource> imageSource;
-    if (!abilityInfo_.resourcePath.empty()) { // already unzip hap
-        std::string iconPath;
-        if (resourceMgr->GetMediaById(windowIconId, iconPath) != Global::Resource::RState::SUCCESS) {
-            return nullptr;
-        }
-        imageSource = Media::ImageSource::CreateImageSource(iconPath, opts, errorCode);
-    } else { // hap is not unzip
+    if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
+        !abilityInfo_.hapPath.empty()) { // hap is not unzip
         std::unique_ptr<uint8_t[]> iconOut;
         size_t len;
         if (resourceMgr->GetMediaDataById(windowIconId, len, iconOut) != Global::Resource::RState::SUCCESS) {
             return nullptr;
         }
         imageSource = Media::ImageSource::CreateImageSource(iconOut.get(), len, opts, errorCode);
+    } else { // already unzip hap
+        std::string iconPath;
+        if (resourceMgr->GetMediaById(windowIconId, iconPath) != Global::Resource::RState::SUCCESS) {
+            return nullptr;
+        }
+        imageSource = Media::ImageSource::CreateImageSource(iconPath, opts, errorCode);
     }
 
     if (errorCode != 0 || imageSource == nullptr) {
@@ -671,18 +788,12 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
 {
     sptr<AbilityTransitionInfo> info;
     if (startOptions) {
-        info = CreateAbilityTransitionInfo(token_, startOptions, want);
+        info = CreateAbilityTransitionInfo(startOptions, want);
     } else {
-        info = CreateAbilityTransitionInfo(abilityRequest, token_);
+        info = CreateAbilityTransitionInfo(abilityRequest);
     }
-    info->windowModes_ = abilityInfo_.windowModes;
-    info->maxWindowRatio_ = abilityInfo_.maxWindowRatio;
-    info->minWindowRatio_ = abilityInfo_.minWindowRatio;
-    info->maxWindowWidth_ = abilityInfo_.maxWindowWidth;
-    info->minWindowWidth_ = abilityInfo_.minWindowWidth;
-    info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
-    info->minWindowHeight_ = abilityInfo_.minWindowHeight;
 
+    SetAbilityTransitionInfo(info);
     SetStartingWindow(true);
     return info;
 }
@@ -692,12 +803,6 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s was called.", __func__);
-    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
-        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
-        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
-        return;
-    }
-
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
@@ -718,12 +823,6 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s was called.", __func__);
-    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
-        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
-        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
-        return;
-    }
-
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
@@ -1726,6 +1825,11 @@ int32_t AbilityRecord::GetRestartCount() const
     return restartCount_;
 }
 
+void AbilityRecord::SetRestartCount(int32_t restartCount)
+{
+    restartCount_ = restartCount;
+}
+
 bool AbilityRecord::IsRestarting() const
 {
     return isRestarting_;
@@ -1859,21 +1963,23 @@ void AbilityRecord::SetStartToForeground(const bool flag)
     isStartToForeground_ = flag;
 }
 
-bool AbilityRecord::CallRequest()
+void AbilityRecord::CallRequest() const
 {
     HILOG_INFO("Call Request.");
-    CHECK_POINTER_RETURN_BOOL(scheduler_);
-    CHECK_POINTER_RETURN_BOOL(callContainer_);
+    CHECK_POINTER(scheduler_);
 
-    // sync call request
-    sptr<IRemoteObject> callStub = scheduler_->CallRequest();
-    if (!callStub) {
-        HILOG_ERROR("call request failed, callstub is nullptr.");
+    // Async call request
+    scheduler_->CallRequest();
+}
+
+bool AbilityRecord::CallRequestDone(const sptr<IRemoteObject> &callStub) const
+{
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+    if (!callContainer_->CallRequestDone(callStub)) {
+        HILOG_ERROR("Call request failed.");
         return false;
     }
-
-    // complete call request
-    return callContainer_->CallRequestDone(callStub);
+    return true;
 }
 
 ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)

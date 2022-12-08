@@ -152,7 +152,7 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     using ContextContainer::StartAbility;
-    ErrCode StartAbility(const AAFwk::Want &Want, int requestCode) override;
+    ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
 
     /**
      * @brief Starts a new ability with special ability start setting.

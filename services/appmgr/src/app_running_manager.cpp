@@ -25,6 +25,7 @@
 #include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
+#include "quick_fix_callback_with_record.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -48,9 +49,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 
     auto recordId = AppRecordId::Create();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
-    if (!appRecord) {
-        return nullptr;
-    }
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
@@ -229,6 +227,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
+    HILOG_INFO("On remot died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -427,6 +426,21 @@ void AppRunningManager::GetRunningProcessInfoByToken(
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    auto appRecord = GetAppRunningRecordByPid(pid);
+
+    AssignRunningProcessInfoByAppRecord(appRecord, info);
+}
+
+void AppRunningManager::AssignRunningProcessInfoByAppRecord(
+    std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
+{
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr");
         return;
@@ -440,6 +454,7 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.isContinuousTask = appRecord->IsContinuousTask();
     info.isKeepAlive = appRecord->IsKeepAliveApp();
     info.isFocused = appRecord->GetFocusFlag();
+    info.startTimeMillis_ = appRecord->GetAppStartTime();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
@@ -601,56 +616,79 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
     return false;
 }
 
-int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool loadSucceed = false;
+    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyLoadRepairPatch(bundleName);
+            auto recordId = appRecord->GetRecordId();
+            HILOG_DEBUG("Notify application [%{public}s] load patch, record id %{public}d.",
+                appRecord->GetProcessName().c_str(), recordId);
+            callbackByRecord->AddRecordId(recordId);
+            result = appRecord->NotifyLoadRepairPatch(bundleName, callbackByRecord, recordId);
             if (result == ERR_OK) {
                 loadSucceed = true;
+            } else {
+                callbackByRecord->RemoveRecordId(recordId);
             }
         }
     }
     return loadSucceed == true ? ERR_OK : result;
 }
 
-int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
+int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t result = ERR_OK;
+    bool reloadPageSucceed = false;
+    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("Notify application [%{public}s] reload page.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyHotReloadPage();
+            auto recordId = appRecord->GetRecordId();
+            HILOG_DEBUG("Notify application [%{public}s] reload page, record id %{public}d.",
+                appRecord->GetProcessName().c_str(), recordId);
+            callbackByRecord->AddRecordId(recordId);
+            result = appRecord->NotifyHotReloadPage(callback, recordId);
+            if (result == ERR_OK) {
+                reloadPageSucceed = true;
+            } else {
+                callbackByRecord->RemoveRecordId(recordId);
+            }
         }
     }
-    return result;
+    return reloadPageSucceed == true ? ERR_OK : result;
 }
 
-int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName)
+int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool unLoadSucceed = false;
+    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("Notify application [%{public}s] unload patch.", appRecord->GetProcessName().c_str());
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName);
+            auto recordId = appRecord->GetRecordId();
+            HILOG_DEBUG("Notify application [%{public}s] unload patch, record id %{public}d.",
+                appRecord->GetProcessName().c_str(), recordId);
+            callbackByRecord->AddRecordId(recordId);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
+            } else {
+                callbackByRecord->RemoveRecordId(recordId);
             }
         }
     }

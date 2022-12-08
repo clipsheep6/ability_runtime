@@ -72,14 +72,14 @@ ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBac
     return localCallContainer_->ReleaseCall(callback);
 }
 
-bool ServiceExtensionContext::ConnectAbility(
+ErrCode ServiceExtensionContext::ConnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
     HILOG_INFO("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
     HILOG_INFO("ServiceExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
-    return ret == ERR_OK;
+    return ret;
 }
 
 ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want, int accountId) const
@@ -130,14 +130,14 @@ ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& 
     return err;
 }
 
-bool ServiceExtensionContext::ConnectAbilityWithAccount(
+ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
     const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback) const
 {
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbilityWithAccount(token_, want, accountId, connectCallback);
     HILOG_INFO("ServiceExtensionContext::ConnectAbilityWithAccount ErrorCode = %{public}d", ret);
-    return ret == ERR_OK;
+    return ret;
 }
 
 ErrCode ServiceExtensionContext::DisconnectAbility(

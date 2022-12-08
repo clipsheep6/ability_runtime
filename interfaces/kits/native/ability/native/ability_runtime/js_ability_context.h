@@ -33,7 +33,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsAbilityContext final {
 public:
-    JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
+    explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
     ~JsAbilityContext() = default;
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
@@ -81,9 +81,9 @@ private:
     NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
+    NativeValue* OnStopExtensionAbility(NativeEngine& engine, const NativeCallbackInfo& info);
+    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
     NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
@@ -105,8 +105,7 @@ private:
     int curRequestCode_ = 0;
 };
 
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context,
-                                    DetachCallback detach, AttachCallback attach);
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

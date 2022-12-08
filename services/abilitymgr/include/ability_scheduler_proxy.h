@@ -45,9 +45,9 @@ public:
      * ScheduleAbilityTransaction,  schedule ability to transform life state.
      *
      * @param Want, Special Want for service type's ability.
-     * @param targetState, The lifecycle state to be transformed
+     * @param stateInfo, The lifecycle state to be transformed
      */
-    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) override;
+    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo) override;
 
     /*
      * SendResult, Send result to app when ability is terminated with result want.
@@ -295,14 +295,14 @@ public:
      */
     void NotifyContinuationResult(int32_t result) override;
 
-	/**
+    /**
      * Dump Ability Runner info.
      *
      * @param
      * @return Ability Runner info.
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override;
-    sptr<IRemoteObject> CallRequest() override;
+    void CallRequest() override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbility() override;

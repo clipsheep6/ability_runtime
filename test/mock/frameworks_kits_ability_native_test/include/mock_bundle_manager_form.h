@@ -32,17 +32,17 @@ const int32_t ERROR_USER_ID_U256 = 256;
 const int32_t USER_ID_U600 = 600;
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
-    explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
+    explicit BundleMgrProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IBundleMgr>(impl)
     {}
     virtual ~BundleMgrProxy()
     {}
 
-    std::string GetAppType(const std::string &bundleName) override
+    std::string GetAppType(const std::string& bundleName) override
     {
         return "system";
     }
 
-    int GetUidByBundleName(const std::string &bundleName, const int userId) override
+    int GetUidByBundleName(const std::string& bundleName, const int userId) override
     {
         if (bundleName.compare("com.form.host.app600") == 0) {
             return USER_ID_U600;
@@ -50,7 +50,7 @@ public:
         return 0;
     }
 
-    bool GetBundleNameForUid(const int uid, std::string &bundleName) override
+    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
     {
         bundleName = "com.form.provider.service";
         return true;
@@ -65,31 +65,31 @@ public:
     }
 
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
-    bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    bool GetAllFormsInfo(std::vector<FormInfo>& formInfo) override;
+    bool GetFormsInfoByApp(const std::string& bundleName, std::vector<FormInfo>& formInfo) override;
     bool GetFormsInfoByModule(
-        const std::string &bundleName,
-        const std::string &moduleName,
-        std::vector<FormInfo> &formInfo) override;
+        const std::string& bundleName,
+        const std::string& moduleName,
+        std::vector<FormInfo>& formInfo) override;
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     ~BundleMgrStub() = default;
     int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 };
 
 class BundleMgrService : public BundleMgrStub {
 public:
     ~BundleMgrService() = default;
 
-    std::string GetAppType(const std::string &bundleName) override;
-    int GetUidByBundleName(const std::string &bundleName, const int userId) override;
+    std::string GetAppType(const std::string& bundleName) override;
+    int GetUidByBundleName(const std::string& bundleName, const int userId) override;
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    bool GetBundleNameForUid(const int uid, std::string &bundleName) override
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
     {
         bundleName = "com.form.provider.service";
         return true;
@@ -102,12 +102,12 @@ public:
 
         return true;
     }
-    bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
-    bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
+    bool GetAllFormsInfo(std::vector<FormInfo>& formInfo) override;
+    bool GetFormsInfoByApp(const std::string& bundleName, std::vector<FormInfo>& formInfo) override;
     bool GetFormsInfoByModule(
-        const std::string &bundleName,
-        const std::string &moduleName,
-        std::vector<FormInfo> &formInfo) override;
+        const std::string& bundleName,
+        const std::string& moduleName,
+        std::vector<FormInfo>& formInfo) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

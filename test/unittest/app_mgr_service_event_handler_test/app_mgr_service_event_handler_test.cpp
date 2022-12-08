@@ -31,10 +31,10 @@ namespace AppExecFwk {
 static bool eventHandlerFlag_ = false;
 class MockAMSEventHandler : public AMSEventHandler {
 public:
-    MockAMSEventHandler(const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<AppMgrServiceInner> &ams);
+    MockAMSEventHandler(const std::shared_ptr<EventRunner>& runner, const std::shared_ptr<AppMgrServiceInner>& ams);
     virtual ~MockAMSEventHandler();
 
-    void ProcessEvent(const InnerEvent::Pointer &event) override
+    void ProcessEvent(const InnerEvent::Pointer& event) override
     {
         if (event->GetInnerEventId() == 10) {
             eventHandlerFlag_ = true;
@@ -94,8 +94,8 @@ void AMSEventHandlerTest::SetUp()
 void AMSEventHandlerTest::TearDown()
 {}
 
-MockAMSEventHandler ::MockAMSEventHandler(
-    const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<AppMgrServiceInner> &ams)
+MockAMSEventHandler::MockAMSEventHandler(
+    const std::shared_ptr<EventRunner>& runner, const std::shared_ptr<AppMgrServiceInner>& ams)
     : AMSEventHandler(runner, ams)
 {}
 

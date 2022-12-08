@@ -89,16 +89,16 @@ void AaCommandStopServiceModuleTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandStopServiceModuleTest, Aa_Command_StopService_ModuleTest_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -113,16 +113,16 @@ HWTEST_F(AaCommandStopServiceModuleTest, Aa_Command_StopService_ModuleTest_0100,
  */
 HWTEST_F(AaCommandStopServiceModuleTest, Aa_Command_StopService_ModuleTest_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME_INVALID.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME_INVALID.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -138,16 +138,16 @@ HWTEST_F(AaCommandStopServiceModuleTest, Aa_Command_StopService_ModuleTest_0200,
  */
 HWTEST_F(AaCommandStopServiceModuleTest, Aa_Command_StopService_ModuleTest_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME_INVALID.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME_INVALID.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

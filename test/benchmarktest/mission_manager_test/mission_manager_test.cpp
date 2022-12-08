@@ -20,6 +20,7 @@
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "mission_listener_stub.h"
+#include "mock_native_token.h"
 
 using namespace std;
 using namespace OHOS;
@@ -48,7 +49,7 @@ public:
     {
     }
 
-    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
+    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override
     {
     }
 
@@ -72,13 +73,14 @@ public:
 
     ~MissionManagerTest() override = default;
 
-    void SetUp(const ::benchmark::State &state) override
+    void SetUp(const ::benchmark::State& state) override
     {
+        OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
     }
 
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
@@ -94,7 +96,7 @@ protected:
 
 class MissionManagerTestReg : public MissionManagerTest {
 public:
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         while (!missionListeners.empty()) {
@@ -106,12 +108,12 @@ public:
     }
 
 protected:
-    std::queue<sptr<BenchmarkMissionListener>> missionListeners {};
+    std::queue<sptr<BenchmarkMissionListener>> missionListeners{};
 };
 
 class MissionManagerTestUnReg : public MissionManagerTest {
 public:
-    void SetUp(const ::benchmark::State &state) override
+    void SetUp(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         for (int32_t i = 0; i < iterations; i++) {
@@ -122,7 +124,7 @@ public:
         usleep(usleepTime);
     }
 
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         while (!missionListeners.empty()) {
@@ -134,26 +136,26 @@ public:
     }
 
 protected:
-    std::queue<sptr<BenchmarkMissionListener>> missionListeners {};
+    std::queue<sptr<BenchmarkMissionListener>> missionListeners{};
 };
 
 class MissionManagerTestWithAbility : public MissionManagerTest {
 public:
-    void SetUp(const ::benchmark::State &state) override
+    void SetUp(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
         Want want;
         want.SetElementName(deviceId, bundleName, abilityName);
         AbilityManagerClient::GetInstance()->StartAbility(want);
-        std::vector<MissionInfo> info {};
+        std::vector<MissionInfo> info{};
         AbilityManagerClient::GetInstance()->GetMissionInfos("", upperLimit, info);
         if (!info.empty()) {
             missionId = info.front().id;
         }
     }
 
-    void TearDown(const ::benchmark::State &state) override
+    void TearDown(const ::benchmark::State& state) override
     {
         AbilityManagerClient::GetInstance()->CleanAllMissions();
         usleep(usleepTime);
@@ -167,7 +169,7 @@ protected:
 };
 
 BENCHMARK_F(MissionManagerTestReg, RegisterMissionListenerTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         sptr<BenchmarkMissionListener> missionListener = new BenchmarkMissionListener();
@@ -180,7 +182,7 @@ BENCHMARK_F(MissionManagerTestReg, RegisterMissionListenerTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTestUnReg, UnregisterMissionListenerTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         if (missionListeners.empty()) {
@@ -196,10 +198,10 @@ BENCHMARK_F(MissionManagerTestUnReg, UnregisterMissionListenerTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTest, GetMissionInfosTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        std::vector<MissionInfo> info {};
+        std::vector<MissionInfo> info{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->GetMissionInfos("", upperLimit, info);
         if (errCode != ERR_OK) {
             state.SkipWithError("GetMissionInfosTestCase failed.");
@@ -208,10 +210,10 @@ BENCHMARK_F(MissionManagerTest, GetMissionInfosTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTestWithAbility, GetMissionInfoTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        MissionInfo missionInfo {};
+        MissionInfo missionInfo{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->GetMissionInfo("", missionId, missionInfo);
         if (errCode != ERR_OK) {
             state.SkipWithError("GetMissionInfoTestCase failed.");
@@ -220,7 +222,7 @@ BENCHMARK_F(MissionManagerTestWithAbility, GetMissionInfoTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTestWithAbility, LockMissionForCleanupTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         ErrCode errCode = AbilityManagerClient::GetInstance()->LockMissionForCleanup(missionId);
@@ -237,7 +239,7 @@ BENCHMARK_F(MissionManagerTestWithAbility, LockMissionForCleanupTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTestWithAbility, UnlockMissionForCleanupTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         state.PauseTiming();
@@ -254,10 +256,10 @@ BENCHMARK_F(MissionManagerTestWithAbility, UnlockMissionForCleanupTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTestWithAbility, CleanMissionTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
-        MissionSnapshot snapshot {};
+        MissionSnapshot snapshot{};
         ErrCode errCode = AbilityManagerClient::GetInstance()->CleanMission(missionId);
         if (errCode != ERR_OK) {
             state.SkipWithError("CleanMissionTestCase failed.");
@@ -266,7 +268,7 @@ BENCHMARK_F(MissionManagerTestWithAbility, CleanMissionTestCase)(
 }
 
 BENCHMARK_F(MissionManagerTest, CleanAllMissionsTestCase)(
-    benchmark::State &state)
+    benchmark::State& state)
 {
     while (state.KeepRunning()) {
         ErrCode errCode = AbilityManagerClient::GetInstance()->CleanAllMissions();

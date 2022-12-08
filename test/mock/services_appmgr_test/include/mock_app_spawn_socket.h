@@ -31,9 +31,9 @@ public:
 
     MOCK_METHOD0(OpenAppSpawnConnection, ErrCode());
     MOCK_METHOD0(CloseAppSpawnConnection, void());
-    MOCK_METHOD2(WriteMessage, ErrCode(const void *buf, const int32_t len));
-    MOCK_METHOD2(ReadMessage, ErrCode(void *buf, int32_t len));
-    ErrCode ReadImpl(void *buf, [[maybe_unused]] int32_t len)
+    MOCK_METHOD2(WriteMessage, ErrCode(const void* buf, const int32_t len));
+    MOCK_METHOD2(ReadMessage, ErrCode(void* buf, int32_t len));
+    ErrCode ReadImpl(void* buf, [[maybe_unused]] int32_t len)
     {
         if (buf == nullptr) {
             return ERR_NO_MEMORY;

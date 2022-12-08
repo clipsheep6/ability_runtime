@@ -33,7 +33,7 @@ public:
 
     sptr<MockAmsMgrScheduler> mockAmsMgrScheduler_;
 
-    void WriteInterfaceToken(MessageParcel &data);
+    void WriteInterfaceToken(MessageParcel& data);
 };
 
 void AmsMgrStubTest::SetUpTestCase(void)
@@ -52,7 +52,7 @@ void AmsMgrStubTest::SetUp()
 void AmsMgrStubTest::TearDown()
 {}
 
-void AmsMgrStubTest::WriteInterfaceToken(MessageParcel &data)
+void AmsMgrStubTest::WriteInterfaceToken(MessageParcel& data)
 {
     GTEST_LOG_(INFO) << "AmsMgrStubTest::WriteInterfaceToken()";
 

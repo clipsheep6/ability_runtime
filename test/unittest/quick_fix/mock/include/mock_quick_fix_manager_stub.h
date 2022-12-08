@@ -23,11 +23,11 @@ namespace OHOS {
 namespace AAFwk {
 class MockQuickFixManagerStub : public QuickFixManagerStub {
 public:
-    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
-    MOCK_METHOD1(ApplyQuickFix, int32_t(const std::vector<std::string> &quickFixFiles));
-    MOCK_METHOD2(GetApplyedQuickFixInfo, int32_t(const std::string &bundleName, ApplicationQuickFixInfo &quickFixInfo));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
+    MOCK_METHOD1(ApplyQuickFix, int32_t(const std::vector<std::string>& quickFixFiles));
+    MOCK_METHOD2(GetApplyedQuickFixInfo, int32_t(const std::string& bundleName, ApplicationQuickFixInfo& quickFixInfo));
 
-    int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
         return 0;

@@ -269,7 +269,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_EventNotify_0200, Func
     int32_t formVisibleType = Constants::FORM_INVISIBLE;
 
     EXPECT_EQ(ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY,
-    instance_->EventNotify(formEvents, formVisibleType, want, callerToken));
+        instance_->EventNotify(formEvents, formVisibleType, want, callerToken));
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_EventNotify_0200 end";
 }
@@ -446,7 +446,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormsDelete_0100
     want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
         .SetParam(Constants::FORM_CONNECT_ID, 107L);
 
-    std::vector<int64_t> formIds = {727L, 728L, 729L};
+    std::vector<int64_t> formIds = { 727L, 728L, 729L };
     const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
 
     EXPECT_EQ(ERR_OK, instance_->NotifyFormsDelete(formIds, want, callerToken));
@@ -468,7 +468,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormsDelete_0200
     Want want;
     want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
         .SetParam(Constants::FORM_CONNECT_ID, 108L);
-    std::vector<int64_t> formIds = {730L, 731L, 732L};
+    std::vector<int64_t> formIds = { 730L, 731L, 732L };
     const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
 
     EXPECT_EQ(ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY, instance_->NotifyFormsDelete(formIds, want, callerToken));
@@ -491,7 +491,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormsDelete_0300
     want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
         .SetParam(Constants::FORM_CONNECT_ID, 109L);
 
-    std::vector<int64_t> formIds = {730L, 731L, 732L};
+    std::vector<int64_t> formIds = { 730L, 731L, 732L };
     const sptr<IRemoteObject> callerToken = nullptr;
 
     EXPECT_EQ(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED, instance_->NotifyFormsDelete(formIds, want, callerToken));

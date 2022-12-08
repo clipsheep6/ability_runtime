@@ -57,9 +57,9 @@ protected:
     const std::shared_ptr<AppRunningRecord> CreateAppRunningRecordByIndex(const int32_t index) const;
     void CreateAppRecentList(const int32_t appNum);
 
-    std::shared_ptr<AppMgrServiceInner> serviceInner_ {nullptr};
-    sptr<MockAbilityToken> mockToken_ {nullptr};
-    sptr<BundleMgrService> mockBundleMgr {nullptr};
+    std::shared_ptr<AppMgrServiceInner> serviceInner_{ nullptr };
+    sptr<MockAbilityToken> mockToken_{ nullptr };
+    sptr<BundleMgrService> mockBundleMgr{ nullptr };
 };
 
 void AmsAppRecentListModuleTest::SetUpTestCase()
@@ -95,7 +95,7 @@ const std::shared_ptr<AppRunningRecord> AmsAppRecentListModuleTest::CreateAppRun
     abilityInfo->name = TEST_ABILITY_NAME + std::to_string(index);
     abilityInfo->applicationName = appInfo->name;
     abilityInfo->applicationInfo.bundleName = appInfo->name;
-    abilityInfo->process =  appInfo->name;
+    abilityInfo->process = appInfo->name;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -116,10 +116,10 @@ void AmsAppRecentListModuleTest::CreateAppRecentList(const int32_t appNum)
         abilityInfo->name = TEST_ABILITY_NAME + std::to_string(i);
         abilityInfo->applicationName = appInfo->name;
         abilityInfo->applicationInfo.bundleName = appInfo->name;
-        abilityInfo->process =  appInfo->name;
+        abilityInfo->process = appInfo->name;
         pid_t pid = i;
         sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-        MockAppSpawnClient *mockedSpawnClient = new MockAppSpawnClient();
+        MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
 
         EXPECT_CALL(*mockedSpawnClient, StartProcess(_, _))
             .Times(1)
@@ -153,10 +153,10 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
     abilityInfo->name = TEST_ABILITY_NAME + std::to_string(INDEX_NUM_2);
     abilityInfo->applicationName = TEST_APP_NAME + std::to_string(INDEX_NUM_2);
     abilityInfo->applicationInfo.bundleName = appInfo->name;
-    abilityInfo->process =  appInfo->name;
+    abilityInfo->process = appInfo->name;
 
     sptr<IRemoteObject> token = new MockAbilityToken();
-    MockAppSpawnClient *mockedSpawnClient = new MockAppSpawnClient();
+    MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
 
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
     serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
@@ -187,10 +187,10 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
     abilityInfo->name = TEST_ABILITY_NAME + std::to_string(INDEX_NUM_10 + INDEX_NUM_1);
     abilityInfo->applicationName = TEST_APP_NAME + std::to_string(INDEX_NUM_10 + INDEX_NUM_1);
     abilityInfo->applicationInfo.bundleName = appInfo->name;
-    abilityInfo->process =  appInfo->name;
+    abilityInfo->process = appInfo->name;
     pid_t pid = static_cast<int32_t>(INDEX_NUM_10 + INDEX_NUM_1);
     sptr<IRemoteObject> token = new MockAbilityToken();
-    MockAppSpawnClient *mockedSpawnClient = new MockAppSpawnClient();
+    MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
     EXPECT_CALL(*mockedSpawnClient, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
 
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));

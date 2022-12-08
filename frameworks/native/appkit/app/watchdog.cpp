@@ -17,6 +17,8 @@
 
 #include <parameter.h>
 #include <unistd.h>
+
+#include "app_recovery.h"
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
 #include "xcollie/watchdog.h"
@@ -39,10 +41,10 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
     Watchdog::appMainHandler_ = mainHandler;
     if (appMainHandler_ != nullptr) {
+        HILOG_DEBUG("Watchdog init send event");
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
-    lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count();
+    lastWatchTime_ = 0;
     auto watchdogTask = std::bind(&Watchdog::Timer, this);
     OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
         CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
@@ -53,7 +55,6 @@ void Watchdog::Stop()
     HILOG_DEBUG("Watchdog is stop !");
     stopWatchdog_.store(true);
     cvWatchdog_.notify_all();
-    OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
 
     if (appMainHandler_) {
         appMainHandler_.reset();
@@ -71,6 +72,10 @@ void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
     appMainThreadIsAlive_.store(appMainThreadState);
 }
 
+void Watchdog::SetBackgroundStatus(const bool isInBackground)
+{
+    isInBackground_.store(isInBackground);
+}
 
 void Watchdog::AllowReportEvent()
 {
@@ -84,6 +89,7 @@ bool Watchdog::IsReportEvent()
         appMainThreadIsAlive_.store(false);
         return false;
     }
+    HILOG_DEBUG("AppMainThread is not alive");
     return true;
 }
 
@@ -110,22 +116,19 @@ void Watchdog::Timer()
         HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
         return;
     }
+
+    if (isInBackground_) {
+        appMainThreadIsAlive_.store(true);
+        return;
+    }
+
     if (IsReportEvent()) {
-        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
-            system_clock::now().time_since_epoch()).count();
-        constexpr int RESET_RATIO = 2;
-        if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
-            HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
-                static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
-            lastWatchTime_ = now;
-            return;
-        }
         const int bufferLen = 128;
         char paramOutBuf[bufferLen] = {0};
         const char *hook_mode = "startup:";
         int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
         if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
-            reportEvent();
+            ReportEvent();
         }
     }
     if (appMainHandler_ != nullptr) {
@@ -135,13 +138,23 @@ void Watchdog::Timer()
         system_clock::now().time_since_epoch()).count();
 }
 
-void Watchdog::reportEvent()
+void Watchdog::ReportEvent()
 {
+    int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    constexpr int RESET_RATIO = 2;
+    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
+        HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
+            static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
+        lastWatchTime_ = now;
+        return;
+    }
+
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
         return;
     }
-    
+
     if (!needReport_) {
         return;
     }
@@ -159,11 +172,17 @@ void Watchdog::reportEvent()
     appMainHandler_->Dump(handlerDumper);
     msgContent += handlerDumper.GetDumpInfo();
 
-    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
         EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
         EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent);
     HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
+
+    // should call error manager-> appRecovery
+    if (isSixSecondEvent_) {
+        AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+        AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
+    }
 }
 
 void MainHandlerDumper::Dump(const std::string &message)

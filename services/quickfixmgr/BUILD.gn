@@ -42,6 +42,8 @@ ohos_shared_library("quickfixms") {
 
   defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
 
+  deps = [ "${ability_runtime_services_path}/common:perm_verification" ]
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:app_manager",

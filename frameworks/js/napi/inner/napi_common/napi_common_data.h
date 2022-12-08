@@ -21,9 +21,11 @@
 #include <vector>
 
 #include "ability.h"
+#include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "native_engine/native_engine.h"
 #include "pac_map.h"
 
 using Ability = OHOS::AppExecFwk::Ability;
@@ -59,9 +61,11 @@ namespace AppExecFwk {
 
 struct CallbackInfo {
     napi_env env;
-    napi_ref callback = 0;
+    napi_ref callback = nullptr;
     napi_deferred deferred;
     int errCode = 0;
+    NativeEngine *engine = nullptr;
+    std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = nullptr;
 };
 
 struct CallAbilityParamData {

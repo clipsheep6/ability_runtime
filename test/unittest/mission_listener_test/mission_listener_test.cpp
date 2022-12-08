@@ -53,7 +53,7 @@ public:
         isMissionMovedToFront_ = true;
     }
 
-    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
+    void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override
     {
         isMissionIconUpdated_ = true;
     }

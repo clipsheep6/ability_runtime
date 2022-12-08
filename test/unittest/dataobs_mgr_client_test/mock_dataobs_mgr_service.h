@@ -29,21 +29,21 @@ public:
     MockDataObsMgrService() = default;
     virtual ~MockDataObsMgrService() = default;
 
-    MOCK_METHOD2(RegisterObserverCall, int(const Uri &, const sptr<IDataAbilityObserver> &));
-    MOCK_METHOD2(UnregisterObserverCall, int(const Uri &, const sptr<IDataAbilityObserver> &));
-    MOCK_METHOD1(NotifyChangeCall, int(const Uri &));
+    MOCK_METHOD2(RegisterObserverCall, int(const Uri&, const sptr<IDataAbilityObserver>&));
+    MOCK_METHOD2(UnregisterObserverCall, int(const Uri&, const sptr<IDataAbilityObserver>&));
+    MOCK_METHOD1(NotifyChangeCall, int(const Uri&));
 
-    int RegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    int RegisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
     {
         RegisterObserverCall(uri, dataObserver);
         return 1;
     }
-    int UnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    int UnregisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
     {
         UnregisterObserverCall(uri, dataObserver);
         return 1;
     }
-    int NotifyChange(const Uri &uri)
+    int NotifyChange(const Uri& uri)
     {
         NotifyChangeCall(uri);
         return 1;

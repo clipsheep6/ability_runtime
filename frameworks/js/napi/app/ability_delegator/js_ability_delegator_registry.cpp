@@ -27,6 +27,8 @@ namespace OHOS {
 namespace AbilityDelegatorJs {
 using namespace OHOS::AbilityRuntime;
 namespace {
+static thread_local std::unique_ptr<NativeReference> reference;
+
 class JsAbilityDelegatorRegistry {
 public:
     JsAbilityDelegatorRegistry() = default;
@@ -35,6 +37,7 @@ public:
     static void Finalizer(NativeEngine *engine, void *data, void *hint)
     {
         HILOG_INFO("enter");
+        reference.reset();
         std::unique_ptr<JsAbilityDelegatorRegistry>(static_cast<JsAbilityDelegatorRegistry *>(data));
     }
 
@@ -51,7 +54,7 @@ public:
     }
 
 private:
-    NativeValue *OnGetAbilityDelegator(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue *OnGetAbilityDelegator(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("enter");
         if (!AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator()) {
@@ -59,7 +62,6 @@ private:
             return engine.CreateNull();
         }
 
-        static thread_local std::unique_ptr<NativeReference> reference;
         if (!reference) {
             auto value = CreateJsAbilityDelegator(engine);
             reference.reset(engine.CreateReference(value, 1));
@@ -68,7 +70,7 @@ private:
         return reference->Get();
     }
 
-    NativeValue *OnGetArguments(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue *OnGetArguments(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("enter");
 
@@ -128,11 +130,12 @@ NativeValue *AbilityLifecycleStateInit(NativeEngine *engine)
         return nullptr;
     }
 
-    object->SetProperty("UNINITIALIZED", CreateJsValue(*engine, (int32_t)AbilityLifecycleState::UNINITIALIZED));
-    object->SetProperty("CREATE", CreateJsValue(*engine, (int32_t)AbilityLifecycleState::CREATE));
-    object->SetProperty("FOREGROUND", CreateJsValue(*engine, (int32_t)AbilityLifecycleState::FOREGROUND));
-    object->SetProperty("BACKGROUND", CreateJsValue(*engine, (int32_t)AbilityLifecycleState::BACKGROUND));
-    object->SetProperty("DESTROY", CreateJsValue(*engine, (int32_t)AbilityLifecycleState::DESTROY));
+    object->SetProperty("UNINITIALIZED", CreateJsValue(*engine,
+        static_cast<int32_t>(AbilityLifecycleState::UNINITIALIZED)));
+    object->SetProperty("CREATE", CreateJsValue(*engine, static_cast<int32_t>(AbilityLifecycleState::CREATE)));
+    object->SetProperty("FOREGROUND", CreateJsValue(*engine, static_cast<int32_t>(AbilityLifecycleState::FOREGROUND)));
+    object->SetProperty("BACKGROUND", CreateJsValue(*engine, static_cast<int32_t>(AbilityLifecycleState::BACKGROUND)));
+    object->SetProperty("DESTROY", CreateJsValue(*engine, static_cast<int32_t>(AbilityLifecycleState::DESTROY)));
 
     return objValue;
 }

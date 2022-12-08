@@ -411,7 +411,7 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
 
-	/**
+    /**
      * Start Ability, connect session with common ability.
      *
      * @param want, Special want for service type's ability.
@@ -420,6 +420,14 @@ public:
      */
     virtual int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
+
+    /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override;
 
     /**
      * Release the call between Ability, disconnect session with common ability.
@@ -591,6 +599,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
 private:
     template <typename T>

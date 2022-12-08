@@ -37,7 +37,7 @@ public:
 private:
     void Init(pid_t pid);
     void Destroy();
-    bool DumpMixFrame(int fd, pid_t tid);
+    bool DumpMixFrame(int fd, pid_t nstid, pid_t tid);
     void GetThreadList(std::vector<pid_t>& threadList);
     bool IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset);
     void BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFrames,

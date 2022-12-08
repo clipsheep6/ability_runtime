@@ -20,6 +20,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "js_runtime_utils.h"
 
 using Ability = OHOS::AppExecFwk::Ability;
 #define MODE 0771
@@ -197,6 +198,15 @@ void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data);
  * @return The return value from NAPI C++ to JS for the module.
  */
 napi_value NAPI_GetDisplayOrientation(napi_env env, napi_callback_info info);
+
+/**
+ * @brief Get the application context
+ *
+ * @param engine Native JS engine.
+ *
+ * @return The return value from C++ to JS for the module.
+ */
+NativeValue* CreateNapiJSContext(NativeEngine &engine);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H */

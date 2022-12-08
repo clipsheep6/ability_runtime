@@ -55,17 +55,20 @@ std::shared_ptr<CallRecord> CallRecord::CreateCallRecord(const int32_t callerUid
     return callRecord;
 }
 
-void CallRecord::SetCallStub(const sptr<IRemoteObject> & call)
+void CallRecord::SetCallStub(const sptr<IRemoteObject> &call)
 {
     CHECK_POINTER(call);
-
+    if (callRemoteObject_) {
+        // Already got callRemoteObject, just return
+        return;
+    }
     callRemoteObject_ = call;
 
     HILOG_DEBUG("SetCallStub complete.");
 
     if (callDeathRecipient_ == nullptr) {
         std::weak_ptr<CallRecord> callRecord = shared_from_this();
-        auto callStubDied = [wptr = callRecord] (const wptr<IRemoteObject> & remote) {
+        auto callStubDied = [wptr = callRecord] (const wptr<IRemoteObject> &remote) {
             auto call = wptr.lock();
             if (call == nullptr) {
                 HILOG_ERROR("callRecord  is nullptr, can't call stub died.");
@@ -150,7 +153,7 @@ bool CallRecord::SchedulerDisconnectDone()
     return true;
 }
 
-void CallRecord::OnCallStubDied(const wptr<IRemoteObject> & remote)
+void CallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("callstub is died. id:%{public}d begin", recordId_);
 
@@ -193,12 +196,12 @@ int32_t CallRecord::GetCallerUid() const
     return callerUid_;
 }
 
-bool CallRecord::IsCallState(const CallState& state) const
+bool CallRecord::IsCallState(const CallState &state) const
 {
     return (state_ == state);
 }
 
-void CallRecord::SetCallState(const CallState& state)
+void CallRecord::SetCallState(const CallState &state)
 {
     state_ = state;
 }

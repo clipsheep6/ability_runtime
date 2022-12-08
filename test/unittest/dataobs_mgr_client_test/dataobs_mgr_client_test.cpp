@@ -61,7 +61,7 @@ HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_RegisterObserver_0100, TestSize.
 
     MockDataObsMgrClient::GetInstance();
 
-    EXPECT_CALL(*((MockDataObsMgrService *)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
+    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
         RegisterObserverCall(testing::_, testing::_))
         .Times(1);
     Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/25");
@@ -88,7 +88,7 @@ HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_UnregisterObserver_0100, TestSiz
 
     MockDataObsMgrClient::GetInstance();
 
-    EXPECT_CALL(*((MockDataObsMgrService *)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
+    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
         UnregisterObserverCall(testing::_, testing::_))
         .Times(1);
 
@@ -113,7 +113,7 @@ HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_NotifyChange_0100, TestSize.Leve
 
     MockDataObsMgrClient::GetInstance()->Connect();
 
-    EXPECT_CALL(*((MockDataObsMgrService *)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
+    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
         NotifyChangeCall(testing::_))
         .Times(1);
 

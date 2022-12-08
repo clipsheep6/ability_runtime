@@ -20,6 +20,7 @@
 
 #include "ability_local_record.h"
 #include "extension.h"
+#include "extension_common.h"
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -72,8 +73,25 @@ public:
      * @return The context object.
      */
     virtual std::shared_ptr<C> GetContext();
+
+    /**
+     * @brief Called when the system configuration is updated.
+     *
+     * @param configuration Indicates the updated configuration information.
+     */
+    virtual void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
+
+    /**
+     * @brief Notify current memory level.
+     *
+     * @param level Current memory level.
+     */
+    virtual void OnMemoryLevel(int level) override;
+
+    void SetExtensionCommon(const std::shared_ptr<ExtensionCommon> &common);
 private:
     std::shared_ptr<C> context_ = nullptr;
+    std::shared_ptr<ExtensionCommon> extensionCommon_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

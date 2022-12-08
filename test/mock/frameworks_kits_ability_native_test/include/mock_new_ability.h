@@ -28,13 +28,13 @@ public:
     MockNewAbility() = default;
     virtual ~MockNewAbility() = default;
 
-    void OnNewWant(const Want &want)
+    void OnNewWant(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockNewAbility::OnNewWant called";
         onNewWantCalled_ = true;
     }
 
-    void ContinuationRestore(const Want &want)
+    void ContinuationRestore(const Want& want)
     {
         GTEST_LOG_(INFO) << "Mock Ability::ContinuationRestore called";
         continueRestoreCalled_ = true;

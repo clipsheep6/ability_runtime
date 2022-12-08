@@ -757,7 +757,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1900, Function | MediumTes
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
 
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -795,7 +795,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2000, Function | MediumTes
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new MockAbilityDelegatorStub());
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -869,7 +869,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2200, Function | MediumTes
     abilityDelegator.abilityMonitors_.clear();
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -942,7 +942,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTes
     abilityDelegator.abilityMonitors_.clear();
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1015,7 +1015,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTes
     abilityDelegator.abilityMonitors_.clear();
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1088,7 +1088,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTes
     abilityDelegator.abilityMonitors_.clear();
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1161,7 +1161,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3000, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1201,7 +1201,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3100, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1240,7 +1240,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3200, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1280,7 +1280,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3300, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1319,7 +1319,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3400, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1365,7 +1365,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3500, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator->abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1410,7 +1410,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3600, Function | MediumTes
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator->abilityMonitors_.emplace_back(mockMonitor);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub2);
-    std::shared_ptr<ADelegatorAbilityProperty> ability  = std::make_shared<ADelegatorAbilityProperty>();
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
@@ -1635,7 +1635,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4300, Function | MediumTes
         true);
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new AAFwk::MockTestObserverStub);
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
-    std::unique_ptr<TestRunner> tptr {new MockTestRunner};
+    std::unique_ptr<TestRunner> tptr{ new MockTestRunner };
     abilityDelegator.testRunner_ = std::move(tptr);
     abilityDelegator.Prepare();
 
@@ -1702,7 +1702,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4500, Function | MediumTes
         true);
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new AAFwk::MockTestObserverStub);
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
-    std::unique_ptr<TestRunner> tptr {new MockTestRunner};
+    std::unique_ptr<TestRunner> tptr{ new MockTestRunner };
     abilityDelegator.testRunner_ = std::move(tptr);
     abilityDelegator.OnRun();
 

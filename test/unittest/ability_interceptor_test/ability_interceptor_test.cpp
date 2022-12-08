@@ -29,7 +29,7 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string BUNDLE_NAME = "testBundle";
+const std::string BUNDLE_NAME = "testBundle";
 }
 
 namespace OHOS {
@@ -107,40 +107,97 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_002, TestSize.Level1)
 }
 
 /**
- * @tc.name: AbilityInterceptorTest_DisposedInterceptor_001
- * @tc.desc: DisposedInterceptor
+ * @tc.name: AbilityInterceptorTest_ControlInterceptor_001
+ * @tc.desc: ControlInterceptor
  * @tc.type: FUNC
  * @tc.require: issueI5QT7P
  */
-HWTEST_F(AbilityInterceptorTest, DisposedInterceptor_001, TestSize.Level1)
+HWTEST_F(AbilityInterceptorTest, ControlInterceptor_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
     Want want;
-    ElementName element("", "com.test.disposed", "Disposed");
+    ElementName element("", "com.test.control", "MainAbility");
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedInterceptor>());
+    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
     int result = executer->DoProcess(want, requestCode, userId, true);
     EXPECT_NE(result, ERR_OK);
 }
 
 /**
- * @tc.name: AbilityInterceptorTest_DisposedInterceptor_002
- * @tc.desc: DisposedInterceptor
+ * @tc.name: AbilityInterceptorTest_ControlInterceptor_002
+ * @tc.desc: ControlInterceptor
  * @tc.type: FUNC
  * @tc.require: issueI5QT7P
  */
-HWTEST_F(AbilityInterceptorTest, DisposedInterceptor_002, TestSize.Level1)
+HWTEST_F(AbilityInterceptorTest, ControlInterceptor_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
     Want want;
-    ElementName element("", "com.test.disposed", "Disposed");
+    ElementName element("", "com.test.control", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedInterceptor>());
+    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
     int result = executer->DoProcess(want, 0, userId, false);
     EXPECT_NE(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_ControlInterceptor_003
+ * @tc.desc: ControlInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI5QT7P
+ */
+HWTEST_F(AbilityInterceptorTest, ControlInterceptor_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.test.control2", "MainAbility");
+    want.SetElement(element);
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    int result = executer->DoProcess(want, 0, userId, false);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_ControlInterceptor_004
+ * @tc.desc: ControlInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI5QT7P
+ */
+HWTEST_F(AbilityInterceptorTest, ControlInterceptor_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.test.control3", "MainAbility");
+    want.SetElement(element);
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    int result = executer->DoProcess(want, 0, userId, false);
+    EXPECT_EQ(result, ERR_DISPOSED_STATUS);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_ControlInterceptor_005
+ * @tc.desc: ControlInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI5QT7P
+ */
+HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.test.control", "MainAbility");
+    want.SetElement(element);
+    int userId = 100;
+    auto bms = AbilityUtil::GetBundleManager();
+    // make appControlRule become nullptr by crowdtest interceptor
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    int result = executer->DoProcess(want, 0, userId, false);
+    EXPECT_EQ(result, ERR_OK);
 }
 } // namespace AAFwk
 } // namespace OHOS

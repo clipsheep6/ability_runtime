@@ -278,7 +278,7 @@ public:
     virtual int BlockAbility() = 0;
     #endif
 
-    virtual sptr<IRemoteObject> CallRequest() = 0;
+    virtual void CallRequest() = 0;
 
     enum {
         // ipc id for scheduling ability to a state of life cycle
@@ -353,7 +353,7 @@ public:
         // ipc id for notify continuation result
         NOTIFY_CONTINUATION_RESULT,
 
-		// ipc id for scheduling call request
+        // ipc id for scheduling call request
         REQUEST_CALL_REMOTE,
 
         // ipc id for continue ability

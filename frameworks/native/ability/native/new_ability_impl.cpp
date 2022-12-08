@@ -110,7 +110,12 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
                 }
             } else {
                 Foreground(want);
-                ret = false;
+                std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+                ret = notifyForegroundByWindow_;
+                if (ret) {
+                    notifyForegroundByWindow_ = false;
+                    notifyForegroundByAbility_ = false;
+                }
             }
 #endif
             break;
@@ -130,7 +135,7 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
             break;
         }
     }
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
+    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 }  // namespace AppExecFwk

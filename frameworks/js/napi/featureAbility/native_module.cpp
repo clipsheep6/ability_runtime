@@ -34,7 +34,6 @@ EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports)
 {
     FeatureAbilityInit(env, exports);
-    ContextPermissionInit(env, exports);
     DataAbilityOperationInit(env, exports);
     DataAbilityHelperInit(env, exports);
     FAConstantInit(env, exports);
@@ -51,7 +50,7 @@ static napi_module _module = {
     .nm_filename = nullptr,
     .nm_register_func = Init,
     .nm_modname = "ability.featureAbility",
-    .nm_priv = ((void *)0),
+    .nm_priv = (static_cast<void *>(0)),
     .reserved = {0}
 };
 

@@ -16,8 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_QUICK_FIX_MANAGER_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_QUICK_FIX_MANAGER_INTERFACE_H
 
-#include <vector>
-
 #include "iremote_broker.h"
 #include "quick_fix_info.h"
 

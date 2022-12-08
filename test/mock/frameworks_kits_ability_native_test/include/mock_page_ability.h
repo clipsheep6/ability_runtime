@@ -45,19 +45,19 @@ public:
         GTEST_LOG_(INFO) << "MockPageAbility::OnTouchEvent called";
     }
 
-    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OnAbilityResult called";
         state_ = ON_ACTIVE;
     }
 
-    void OnNewWant(const Want &want)
+    void OnNewWant(const Want& want)
     {
         onNewWantCalled_ = true;
         GTEST_LOG_(INFO) << "MockPageAbility::OnNewWant called";
     }
 
-    void OnStart(const Want &want)
+    void OnStart(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OnStart called";
         state_ = ON_START;
@@ -81,7 +81,7 @@ public:
         state_ = ON_INACTIVE;
     }
 
-    void OnForeground(const Want &want)
+    void OnForeground(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OnForeground called";
         state_ = ON_FOREGROUND;
@@ -93,41 +93,41 @@ public:
         state_ = ON_BACKGROUND;
     }
 
-    sptr<IRemoteObject> OnConnect(const Want &want)
+    sptr<IRemoteObject> OnConnect(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OnConnect called";
         state_ = ON_ACTIVE;
         return nullptr;
     }
 
-    void OnCommand(const AAFwk::Want &want, bool restart, int startId)
+    void OnCommand(const AAFwk::Want& want, bool restart, int startId)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OnBackground called";
         state_ = ON_ACTIVE;
     }
 
-    int OpenFile(const Uri &uri, const std::string &mode)
+    int OpenFile(const Uri& uri, const std::string& mode)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::OpenFile called";
         state_ = ON_ACTIVE;
         return 1;
     }
 
-    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+    int Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::Insert called";
         state_ = ON_ACTIVE;
         return -1;
     }
 
-    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    int Update(const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::Update called";
         state_ = ON_ACTIVE;
         return -1;
     }
 
-    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+    int Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::Delete called";
         state_ = ON_ACTIVE;
@@ -135,14 +135,14 @@ public:
     }
 
     std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+        const Uri& uri, const std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::Query called";
         state_ = ON_ACTIVE;
         return nullptr;
     }
 
-    std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+    std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
     {
         GTEST_LOG_(INFO) << "MockPageAbility::GetFileTypes called";
 
@@ -150,23 +150,23 @@ public:
         return value;
     }
 
-    void OnRestoreAbilityState(const PacMap &inState)
+    void OnRestoreAbilityState(const PacMap& inState)
     {
         GTEST_LOG_(INFO) << "Mock Ability::OnRestoreAbilityState called";
     }
 
-    void OnSaveAbilityState(PacMap &outState)
+    void OnSaveAbilityState(PacMap& outState)
     {
         GTEST_LOG_(INFO) << "Mock Ability::OnSaveAbilityState called";
     }
 
-    void OnConfigurationUpdated(const Configuration &config)
+    void OnConfigurationUpdated(const Configuration& config)
     {
         GTEST_LOG_(INFO) << "Mock Ability::OnConfigurationUpdated called";
         OnConfigurationUpdated_++;
     }
 
-    void ContinuationRestore(const Want &want)
+    void ContinuationRestore(const Want& want)
     {
         GTEST_LOG_(INFO) << "Mock Ability::ContinuationRestore called";
         continueRestoreCalled_ = true;

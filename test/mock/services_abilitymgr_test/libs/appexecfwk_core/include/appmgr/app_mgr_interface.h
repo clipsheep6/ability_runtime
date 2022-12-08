@@ -39,7 +39,7 @@ public:
      * @param app, information needed to start the Application.
      * @return
      */
-    virtual void AttachApplication(const sptr<IRemoteObject> &app) = 0;
+    virtual void AttachApplication(const sptr<IRemoteObject>& app) = 0;
 
     /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
@@ -75,7 +75,7 @@ public:
      * @param permission, check the permissions.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int CheckPermission(const int32_t recordId, const std::string &permission) = 0;
+    virtual int CheckPermission(const int32_t recordId, const std::string& permission) = 0;
 
     /**
      * AbilityCleaned,call through AbilityCleaned() proxy project, clean Ability record.
@@ -83,7 +83,7 @@ public:
      * @param token, a unique record that identifies AbilityCleaned from others.
      * @return
      */
-    virtual void AbilityCleaned(const sptr<IRemoteObject> &token) = 0;
+    virtual void AbilityCleaned(const sptr<IRemoteObject>& token) = 0;
 
     /**
      * GetAmsMgr, call GetAmsMgr() through proxy object, get AMS interface instance.
@@ -99,7 +99,7 @@ public:
      * @param bundleName, bundle name in Application record.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string& bundleName) = 0;
 
     /**
      * IsBackgroundRunningRestricted, call IsBackgroundRunningRestricted() through proxy project,
@@ -108,7 +108,7 @@ public:
      * @param bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int IsBackgroundRunningRestricted(const std::string &bundleName) = 0;
+    virtual int IsBackgroundRunningRestricted(const std::string& bundleName) = 0;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -117,7 +117,7 @@ public:
      * @param info, app name in Application record.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
+    virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) = 0;
 
     /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
@@ -135,7 +135,7 @@ public:
      *
      * @return Success or Failure .
      */
-    virtual void GetAppFreezingTime(int &time) = 0;
+    virtual void GetAppFreezingTime(int& time) = 0;
 
     enum class Message {
         AMS_APP_ATTACH_APPLICATION = 0,

@@ -46,10 +46,10 @@ public:
     void TearDown();
 
 protected:
-    sptr<AbilitySchedulerMock> abilitySchedulerMock_ {nullptr};
-    AbilityRequest abilityRequest_ {};
-    std::shared_ptr<AbilityRecord> abilityRecordClient_ {nullptr};
-    OHOS::AAFwk::AbilityState abilityState_ {};
+    sptr<AbilitySchedulerMock> abilitySchedulerMock_{ nullptr };
+    AbilityRequest abilityRequest_{};
+    std::shared_ptr<AbilityRecord> abilityRecordClient_{ nullptr };
+    OHOS::AAFwk::AbilityState abilityState_{};
 };
 
 void DataAbilityManagerTest::SetUpTestCase(void)
@@ -111,7 +111,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_0100, Tes
     dataAbilityRecord->ability_ = abilityRecord;
 
     auto dataAbilityManager = std::make_unique<DataAbilityManager>();
-    dataAbilityManager->dataAbilityRecordsLoaded_ = {{STRING_DATA_ABILITY, dataAbilityRecord}};
+    dataAbilityManager->dataAbilityRecordsLoaded_ = { {STRING_DATA_ABILITY, dataAbilityRecord} };
 
     std::vector<std::string> info;
     bool isClient = false;
@@ -147,7 +147,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_0200, Tes
     dataAbilityRecord->ability_ = abilityRecord;
 
     auto dataAbilityManager = std::make_unique<DataAbilityManager>();
-    dataAbilityManager->dataAbilityRecordsLoaded_ = {{STRING_DATA_ABILITY, dataAbilityRecord}};
+    dataAbilityManager->dataAbilityRecordsLoaded_ = { {STRING_DATA_ABILITY, dataAbilityRecord} };
 
     std::vector<std::string> info;
     bool isClient = false;
@@ -184,8 +184,8 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Flow_001, TestSize.Lev
     auto func = [this, &dataAbilityManager]() {
         usleep(200 * 1000);  // 200 ms
         sptr<IRemoteObject> tokenAsyn =
-            (reinterpret_cast<MockAppMgrClient *>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
-                ->GetToken();
+            (reinterpret_cast<MockAppMgrClient*>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
+            ->GetToken();
         dataAbilityManager->AttachAbilityThread(abilitySchedulerMock_, tokenAsyn);
         dataAbilityManager->AbilityTransitionDone(tokenAsyn, ACTIVE);
     };
@@ -195,8 +195,8 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Flow_001, TestSize.Lev
     EXPECT_NE(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
 
     sptr<IRemoteObject> token =
-        (reinterpret_cast<MockAppMgrClient *>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
-            ->GetToken();
+        (reinterpret_cast<MockAppMgrClient*>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
+        ->GetToken();
     std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(token);
     EXPECT_TRUE(abilityRecord);
 

@@ -188,7 +188,7 @@ enum {
      */
     CLEAR_APPLICATION_DATA_FAIL,
 
-	// for call ability
+    // for call ability
     /**
      * Result(2097186) for resolve ability failed, there is no permissions
      */
@@ -283,6 +283,26 @@ enum {
      * Result(2097204) for application abnormal.
      */
     ERR_DISPOSED_STATUS,
+
+    /**
+     * Result(2097205) for invalid caller.
+     */
+    ERR_INVALID_CALLER,
+
+    /**
+     * Result(2097206) for not allowed continuation flag.
+     */
+    ERR_INVALID_CONTINUATION_FLAG,
+
+    /**
+     * Result(2097207) for not allowed to cross user.
+     */
+    ERR_CROSS_USER,
+
+    /**
+     * Result(2097208) for not granted for static permission.
+     */
+    ERR_STATIC_CFG_PERMISSION,
 };
 
 enum {
@@ -439,125 +459,6 @@ enum NativeFreeInstallError {
      * Undefine error code.
      */
     UNDEFINE_ERROR_CODE = 3,
-};
-
-static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
-    {
-        FREE_INSTALL_OK,
-        "Free install ok."
-    },
-    {
-        FA_FREE_INSTALL_QUERY_ERROR,
-        "FA search failed"
-    },
-    {
-        HAG_QUERY_TIMEOUT,
-        "HAG query timeout."
-    },
-    {
-        FA_NETWORK_UNAVAILABLE,
-        "FA Network unavailable."
-    },
-    {
-        FA_FREE_INSTALL_SERVICE_ERROR,
-        "FA internal system error."
-    },
-    {
-        FA_CRASH,
-        "FA distribution center crash."
-    },
-    {
-        FA_TIMEOUT,
-        "FA distribution center processing timeout."
-    },
-    {
-        UNKNOWN_EXCEPTION,
-        "Unknown exception."
-    },
-    {
-        NOT_SUPPORT_PA_ON_SAME_DEVICE,
-        "It is not supported to pull up PA across applications on the same device."
-    },
-    {
-        FA_INTERNET_ERROR,
-        "FA internal system error."
-    },
-    {
-        JUMP_TO_THE_APPLICATION_MARKET_UPGRADE,
-        "The user confirms to jump to the application market upgrade."
-    },
-    {
-        USER_GIVES_UP,
-        "User gives up."
-    },
-    {
-        INSTALLATION_ERROR_IN_FREE_INSTALL,
-        "Installation error in free installation."
-    },
-    {
-        HAP_PACKAGE_DOWNLOAD_TIMED_OUT,
-        "HAP package download timed out."
-    },
-    {
-        CONCURRENT_TASKS_WAITING_FOR_RETRY,
-        "There are concurrent tasks, waiting for retry."
-    },
-    {
-        FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL,
-        "FA package does not support free installation."
-    },
-    {
-        NOT_ALLOWED_TO_PULL_THIS_FA,
-        "The app is not allowed to pull this FA."
-    },
-    {
-        NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA,
-        "Not support cross-device free install PA."
-    },
-    {
-        DMS_PERMISSION_DENIED,
-        "Permission denied."
-    },
-    {
-        DMS_COMPONENT_ACCESS_PERMISSION_DENIED,
-        "Component access permission denied."
-    },
-    {
-        DMS_ACCOUNT_ACCESS_PERMISSION_DENIED,
-        "Component access permission denied."
-    },
-    {
-        INVALID_PARAMETERS_ERR,
-        "Invalid parameters."
-    },
-    {
-        INVALID_REMOTE_PARAMETERS_ERR,
-        "Invalid parameters."
-    },
-    {
-        REMOTE_DEVICE_NOT_COMPATIBLE,
-        "Remote DMS is not compatible."
-    },
-    {
-        DEVICE_OFFLINE_ERR,
-        "Remote service's device is offline."
-    },
-    {
-        FREE_INSTALL_TIMEOUT,
-        "Free install timeout."
-    },
-    {
-        NOT_TOP_ABILITY,
-        "Not top ability"
-    },
-    {
-        TARGET_BUNDLE_NOT_EXIST,
-        "Target bundle name is not exist in targetBundleList."
-    },
-    {
-        CONTINUE_FREE_INSTALL_FAILED,
-        "Error continue freeinstall failed."
-    },
 };
 }  // namespace AAFwk
 }  // namespace OHOS

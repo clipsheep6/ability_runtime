@@ -21,18 +21,18 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AppStateCallbackProxy::AppStateCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAppStateCallback>(impl)
+AppStateCallbackProxy::AppStateCallbackProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IAppStateCallback>(impl)
 {}
 
-bool AppStateCallbackProxy::WriteInterfaceToken(MessageParcel &data)
+bool AppStateCallbackProxy::WriteInterfaceToken(MessageParcel& data)
 {
     return true;
 }
 
-void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AbilityState state)
+void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject>& token, const AbilityState state)
 {}
 
-void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessData)
+void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData& appProcessData)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

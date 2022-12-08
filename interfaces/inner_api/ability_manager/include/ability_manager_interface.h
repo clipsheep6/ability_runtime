@@ -463,7 +463,7 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) = 0;
 
-	/**
+    /**
      * Start Ability, connect session with common ability.
      *
      * @param want, Special want for service type's ability.
@@ -472,6 +472,14 @@ public:
      */
     virtual int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
+
+    /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    virtual void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) {};
 
     /**
      * Release the call between Ability, disconnect session with common ability.
@@ -674,7 +682,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
-
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) {};
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -926,6 +935,8 @@ public:
 
         CONNECT_ABILITY_WITH_TYPE,
 
+        CALL_REQUEST_DONE,
+
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
 
@@ -969,6 +980,10 @@ public:
 
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
+
+        // ipc id for app recovery(3010)
+        ABILITY_RECOVERY = 3010,
+        ABILITY_RECOVERY_ENABLE = 3011,
     };
 };
 }  // namespace AAFwk

@@ -61,7 +61,7 @@ MTDumpUtil::~MTDumpUtil()
     instance_.reset();
 }
 
-bool MTDumpUtil::CompStrVec(const str_vec &strVec_1, const str_vec &strVec_2)
+bool MTDumpUtil::CompStrVec(const str_vec& strVec_1, const str_vec& strVec_2)
 {
     if (strVec_1.size() != strVec_2.size()) {
         return false;
@@ -74,9 +74,9 @@ bool MTDumpUtil::CompStrVec(const str_vec &strVec_1, const str_vec &strVec_2)
     return true;
 }
 
-str_iter MTDumpUtil::GetSpecific(const string &matchStr, const str_vec &dumpInfo, const str_iter &begin)
+str_iter MTDumpUtil::GetSpecific(const string& matchStr, const str_vec& dumpInfo, const str_iter& begin)
 {
-    auto checkCondition = [&matchStr](const str_vec::value_type &value) -> bool {
+    auto checkCondition = [&matchStr](const str_vec::value_type& value) -> bool {
         return string::npos != value.find(matchStr);
     };
     str_iter end;
@@ -84,7 +84,7 @@ str_iter MTDumpUtil::GetSpecific(const string &matchStr, const str_vec &dumpInfo
     return std::find_if(begin, end, checkCondition);
 }
 
-bool MTDumpUtil::MatchRegex(const regex &regex, const string &str, string &result)
+bool MTDumpUtil::MatchRegex(const regex& regex, const string& str, string& result)
 {
     std::smatch baseMatch;
     std::size_t size = 2;
@@ -97,7 +97,7 @@ bool MTDumpUtil::MatchRegex(const regex &regex, const string &str, string &resul
     return false;
 }
 
-size_t MTDumpUtil::GetAll(const string &args, const str_vec &dumpInfo, str_vec &results)
+size_t MTDumpUtil::GetAll(const string& args, const str_vec& dumpInfo, str_vec& results)
 {
     results.clear();
     // args not exist
@@ -105,7 +105,7 @@ size_t MTDumpUtil::GetAll(const string &args, const str_vec &dumpInfo, str_vec &
         return 0;
     }
     string findResult;
-    for (const auto &info : dumpInfo) {
+    for (const auto& info : dumpInfo) {
         if (MatchRegex(findRgx_[args], info, findResult)) {
             results.emplace_back(findResult);
         }
@@ -113,7 +113,7 @@ size_t MTDumpUtil::GetAll(const string &args, const str_vec &dumpInfo, str_vec &
     return results.size();
 }
 
-str_iter MTDumpUtil::GetFirst(const string &args, const str_vec &dumpInfo, const str_iter &begin, string &result)
+str_iter MTDumpUtil::GetFirst(const string& args, const str_vec& dumpInfo, const str_iter& begin, string& result)
 {
     result.clear();
     str_iter end;
@@ -132,7 +132,7 @@ str_iter MTDumpUtil::GetFirst(const string &args, const str_vec &dumpInfo, const
     return end;
 }
 
-string MTDumpUtil::GetBy(const string &key, const string &value, const string &args, const str_vec &dumpInfo)
+string MTDumpUtil::GetBy(const string& key, const string& value, const string& args, const str_vec& dumpInfo)
 {
     str_vec items;
     size_t preSize = GetAll(key, dumpInfo, items);
@@ -143,7 +143,7 @@ string MTDumpUtil::GetBy(const string &key, const string &value, const string &a
     return "";
 }
 
-size_t MTDumpUtil::GetBindingsByUri(const string &uri, const str_vec &dumpInfo, str_vec &result)
+size_t MTDumpUtil::GetBindingsByUri(const string& uri, const str_vec& dumpInfo, str_vec& result)
 {
     result.clear();
     str_vec dump(dumpInfo);
@@ -153,7 +153,7 @@ size_t MTDumpUtil::GetBindingsByUri(const string &uri, const str_vec &dumpInfo, 
     size_t ret = std::stoul("0" + bindings);
     std::for_each(bindingsBegin,
         (((bindingsBegin + ret) > dump.end()) ? (dump.end()) : (bindingsBegin + ret)),
-        [&result](auto &&it) { result.push_back(it); });
+        [&result](auto&& it) { result.push_back(it); });
     return ret;
 }
 }  // namespace MTUtil

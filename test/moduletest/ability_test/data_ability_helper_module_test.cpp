@@ -28,6 +28,7 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 REGISTER_AA(MockAbilityTest)
+
 /*
  * Parameters:
  * Action
@@ -241,7 +242,7 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_OpenFile_Test_0100, Func
 
     if (fd > 0) {
         std::string result = "123456";
-        FILE *file = nullptr;
+        FILE* file = nullptr;
         file = fdopen(fd, "r");
         EXPECT_NE(file, nullptr);
 
@@ -283,7 +284,7 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_OpenFile_Test_0200, Func
 
     if (fd > 0) {
         std::string result = "123456";
-        FILE *file = nullptr;
+        FILE* file = nullptr;
         file = fdopen(fd, "r");
         EXPECT_NE(file, nullptr);
 

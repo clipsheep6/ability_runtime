@@ -16,9 +16,13 @@
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H
 #define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H
 
+#include <string>
+#include <unordered_map>
+
 namespace OHOS {
 namespace AppExecFwk {
 #define NAPI_ERR_NO_ERROR 0
+#define NAPI_ERR_NO_WINDOW (-1)
 #define NAPI_ERR_NO_PERMISSION (-100)
 #define NAPI_ERR_INNER_DATA (-101)            // Internal data error, data allocation fail
 #define NAPI_ERR_ACE_ABILITY (-102)           // Failed to acquire ability object
@@ -26,6 +30,14 @@ namespace AppExecFwk {
 #define NAPI_ERR_PARAM_INVALID (-104)         // Parameter is invalid
 #define NAPI_ERR_ABILITY_TYPE_INVALID (-105)  // Type of ability is invalid
 #define NAPI_ERR_ABILITY_CALL_INVALID (-106)  // Call the ability interface, the return value is wrong
+
+const int32_t JS_ERR_PARAM_INVALID = 401;        // Invalid input parameter
+const int32_t JS_ERR_INTERNAL_ERROR = 16500001;  // System internal error
+
+const std::unordered_map<int32_t, std::string> ERR_CODE_MSG = {
+    {JS_ERR_PARAM_INVALID, "Invalid input parameter"},
+    {JS_ERR_INTERNAL_ERROR, "System internal error"}
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H

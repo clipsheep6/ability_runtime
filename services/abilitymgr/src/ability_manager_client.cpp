@@ -703,6 +703,13 @@ ErrCode AbilityManagerClient::StartAbilityByCall(
     return abms->StartAbilityByCall(want, connect, callToken);
 }
 
+void AbilityManagerClient::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->CallRequestDone(token, callStub);
+}
+
 ErrCode AbilityManagerClient::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
@@ -886,6 +893,20 @@ void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& toke
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     return abms->UpdateMissionSnapShot(token);
+}
+
+void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->EnableRecoverAbility(token);
+}
+
+void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->ScheduleRecoverAbility(token, reason);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

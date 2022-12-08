@@ -19,10 +19,13 @@
 #include <string>
 
 #include "ability_manager_errors.h"
+#include "app_running_control_rule_result.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
-#include "in_process_call_wrapper.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
+#include "ipc_skeleton.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -45,7 +48,7 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
         HILOG_ERROR("Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
         if (isForeground) {
-            int ret = AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST);
+            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Crowdtest implicit start appgallery failed.");
                 return ret;
@@ -91,21 +94,23 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     return false;
 }
 
-DisposedInterceptor::DisposedInterceptor()
+ControlInterceptor::ControlInterceptor()
 {}
 
-DisposedInterceptor::~DisposedInterceptor()
+ControlInterceptor::~ControlInterceptor()
 {}
 
-ErrCode DisposedInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
-    if (CheckDisposed(want)) {
-        HILOG_ERROR("The target application is in disposed status");
+    AppExecFwk::AppRunningControlRuleResult controlRule;
+    if (CheckControl(want, userId, controlRule)) {
+        HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
-        if (isForeground) {
-            int ret = AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_DISPOSED);
+        if (isForeground && controlRule.controlWant != nullptr) {
+            int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
+                userId, requestCode));
             if (ret != ERR_OK) {
-                HILOG_ERROR("Disposed implicit start appgallery failed.");
+                HILOG_ERROR("Control implicit start appgallery failed.");
                 return ret;
             }
         }
@@ -115,7 +120,8 @@ ErrCode DisposedInterceptor::DoProcess(const Want &want, int requestCode, int32_
     return ERR_OK;
 }
 
-bool DisposedInterceptor::CheckDisposed(const Want &want)
+bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
+    AppExecFwk::AppRunningControlRuleResult &controlRule)
 {
     // get bms
     auto bms = AbilityUtil::GetBundleManager();
@@ -126,12 +132,18 @@ bool DisposedInterceptor::CheckDisposed(const Want &want)
 
     // get disposed status
     std::string bundleName = want.GetBundle();
-    int disposedStatus = bms->GetDisposedStatus(bundleName);
-    if (disposedStatus != 0) {
-        HILOG_DEBUG("The target app's status is abnormal, the status is: %{public}d", disposedStatus);
-        return true;
+    auto appControlMgr = bms->GetAppControlProxy();
+    if (appControlMgr == nullptr) {
+        HILOG_ERROR("Get appControlMgr failed");
+        return false;
     }
-    return false;
+
+    auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
+    if (ret != ERR_OK) {
+        HILOG_INFO("Get No AppRunningControlRule");
+        return false;
+    }
+    return true;
 }
 } // namespace AAFwk
 } // namespace OHOS

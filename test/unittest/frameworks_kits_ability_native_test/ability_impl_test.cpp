@@ -90,7 +90,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001, Tes
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
         EXPECT_NE(pMocKPageAbility, nullptr);
-        std::shared_ptr<Ability> ability = pMocKPageAbility ;
+        std::shared_ptr<Ability> ability = pMocKPageAbility;
         if (pMocKPageAbility != nullptr) {
             std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
             std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
@@ -288,7 +288,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -327,7 +327,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -367,7 +367,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Active_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -408,7 +408,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Inactive_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -449,7 +449,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Foreground_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         Want want;
         pMocKPageAbility->OnForeground(want);
         EXPECT_NE(pMocKPageAbility, nullptr);
@@ -486,7 +486,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Background_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -529,7 +529,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -573,7 +573,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_002, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -617,7 +617,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -660,7 +660,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_002, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -705,7 +705,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_001, TestS
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -750,7 +750,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_002, TestS
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -796,7 +796,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_003, TestS
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -841,7 +841,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_004, TestS
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability = nullptr;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1006,7 +1006,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ConnectAbility_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1045,7 +1045,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CommandAbility_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1151,7 +1151,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1193,7 +1193,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NewWant_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1232,7 +1232,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_GetFileTypes_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1273,7 +1273,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_OpenFile_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1312,7 +1312,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Insert_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1352,7 +1352,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Update_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1393,7 +1393,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Delete_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1433,7 +1433,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Query_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1475,7 +1475,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndSave_001, TestSize.Level1)
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);
@@ -1512,7 +1512,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndRestore_001, TestSize.Level1
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
         std::shared_ptr<Ability> ability;
-        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKPageAbility, nullptr);
         if (pMocKPageAbility != nullptr) {
             ability.reset(pMocKPageAbility);

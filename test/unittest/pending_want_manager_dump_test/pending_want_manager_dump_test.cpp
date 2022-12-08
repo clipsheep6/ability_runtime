@@ -70,7 +70,7 @@ HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_DumpByRecordId_0100,
 
     auto pendingWantRecord = std::make_shared<PendingWantRecord>(pendingManager, UID, nullptr, pendingKey);
     EXPECT_NE(pendingWantRecord, nullptr);
-    pendingManager->wantRecords_ = {{pendingKey, pendingWantRecord.get()}};
+    pendingManager->wantRecords_ = { {pendingKey, pendingWantRecord.get()} };
 
     std::vector<std::string> info;
     std::string args = std::to_string(CODE);

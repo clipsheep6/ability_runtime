@@ -116,8 +116,8 @@ void AbilityToolTest::TearDown()
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0100, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -132,9 +132,9 @@ HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0100, TestSize.Level1)
 HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0200, TestSize.Level1)
 {
     // "ability_tool"
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("xxx"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("xxx"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -148,9 +148,9 @@ HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0300, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("help"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("help"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -164,15 +164,15 @@ HWTEST_F(AbilityToolTest, AbilityTool_Cmd_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0100, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+        ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
+        ABILITY_TOOL_HELP_MSG_START);
 }
 
 /**
@@ -182,16 +182,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0200, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--help"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--help"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+        ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
+        ABILITY_TOOL_HELP_MSG_START);
 }
 
 /**
@@ -201,16 +201,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0300, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("TestAbility"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+        ABILITY_TOOL_HELP_MSG_START);
 }
 
 /**
@@ -220,16 +220,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0400, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+        ABILITY_TOOL_HELP_MSG_START);
 }
 
 /**
@@ -240,20 +240,20 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0400, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0500, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("TestAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("windowMode"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("windowMode"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+        ABILITY_TOOL_HELP_MSG_START);
 }
 
 /**
@@ -264,16 +264,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0500, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0600, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("TestAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("windowMode"),
-        const_cast<char *>("20"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("windowMode"),
+        const_cast<char*>("20"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -288,46 +288,19 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0600, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Start_0700, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("TestAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
-        const_cast<char *>("--flags"),
-        const_cast<char *>("abc"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--flags"),
+        const_cast<char*>("abc"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_NG + "\n");
-}
-
-/**
- * @tc.name: AbilityTool_Start_0800
- * @tc.desc: start ability test.
- * "ability_tool start --ability com.ohos.settings.MainAbility --bundle com.ohos.settings"
- *  --options windowMode 102 --flags 8"
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityToolTest, AbilityTool_Start_0800, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("com.ohos.settings.MainAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.ohos.settings"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("windowMode"),
-        const_cast<char *>("102"),
-        const_cast<char *>("--flags"),
-        const_cast<char *>("8"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
 }
 
 /**
@@ -337,15 +310,15 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0800, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_StopService_0100, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("stop-service"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
+        ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
+        ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -355,16 +328,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_StopService_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_StopService_0200, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("stop-service"),
-        const_cast<char *>("--help"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--help"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
+        ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
+        ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -374,16 +347,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_StopService_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_StopService_0300, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("stop-service"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("TestAbility"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
+        ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -393,16 +366,16 @@ HWTEST_F(AbilityToolTest, AbilityTool_StopService_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_StopService_0400, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("stop-service"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
+        ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -412,13 +385,13 @@ HWTEST_F(AbilityToolTest, AbilityTool_StopService_0400, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_StopService_0500, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("stop-service"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("com.ohos.screenshot.ServiceExtAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.ohos.screenshot"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("com.ohos.screenshot.ServiceExtAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.ohos.screenshot"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -432,42 +405,13 @@ HWTEST_F(AbilityToolTest, AbilityTool_StopService_0500, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0100, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("force-stop"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("force-stop"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_FORCE_STOP);
-}
-
-/**
- * @tc.name: AbilityTool_ForceStop_0200
- * @tc.desc: "ability_tool force-stop --help" test.
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0200, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("start"),
-        const_cast<char *>("--ability"),
-        const_cast<char *>("com.ohos.settings.MainAbility"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.ohos.settings"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
-
-    char *argv1[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("force-stop"),
-        const_cast<char *>("com.ohos.settings"),
-    };
-    int argc1 = sizeof(argv1) / sizeof(argv1[0]);
-    AbilityToolCommand cmd1(argc1, argv1);
-    EXPECT_EQ(cmd1.ExecCommand(), STRING_FORCE_STOP_OK + "\n");
 }
 
 /**
@@ -477,9 +421,9 @@ HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Test_0100, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("test"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -493,10 +437,10 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Test_0200, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("test"),
-        const_cast<char *>("--help"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--help"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -510,12 +454,12 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Test_0300, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("test"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("unittest"),
-        const_cast<char *>("testRunner"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("unittest"),
+        const_cast<char*>("testRunner"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -529,11 +473,11 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Test_0400, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("test"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
@@ -547,13 +491,13 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0400, TestSize.Level1)
  */
 HWTEST_F(AbilityToolTest, AbilityTool_Test_0500, TestSize.Level1)
 {
-    char *argv[] = {
-        const_cast<char *>("ability_tool"),
-        const_cast<char *>("test"),
-        const_cast<char *>("--bundle"),
-        const_cast<char *>("com.example.abilitytooltest"),
-        const_cast<char *>("--options"),
-        const_cast<char *>("unittest"),
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("unittest"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);

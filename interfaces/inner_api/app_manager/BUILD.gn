@@ -49,6 +49,8 @@ ohos_shared_library("app_manager") {
   sources = [
     "src/appmgr/ability_controller_proxy.cpp",
     "src/appmgr/ability_controller_stub.cpp",
+    "src/appmgr/ability_info_callback_proxy.cpp",
+    "src/appmgr/ability_info_callback_stub.cpp",
     "src/appmgr/ability_state_data.cpp",
     "src/appmgr/ams_mgr_proxy.cpp",
     "src/appmgr/ams_mgr_stub.cpp",
@@ -73,6 +75,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/process_data.cpp",
     "src/appmgr/process_info.cpp",
     "src/appmgr/profile.cpp",
+    "src/appmgr/quick_fix_callback_proxy.cpp",
+    "src/appmgr/quick_fix_callback_stub.cpp",
     "src/appmgr/render_scheduler_host.cpp",
     "src/appmgr/render_scheduler_proxy.cpp",
     "src/appmgr/running_process_info.cpp",

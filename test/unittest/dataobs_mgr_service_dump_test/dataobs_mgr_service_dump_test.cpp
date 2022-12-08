@@ -25,7 +25,7 @@ using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
-namespace AAFwk  {
+namespace AAFwk {
 class DataobsMgrServiceDumpTest : public testing::Test {
 public:
     static void SetUpTestCase();

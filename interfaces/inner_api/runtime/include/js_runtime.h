@@ -25,16 +25,25 @@
 
 #include "native_engine/native_engine.h"
 #include "runtime.h"
+#include "source_map.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
 } // namespace AppExecFwk
+
+namespace AbilityBase {
+class Extractor;
+} //namespace AbilityBase
+
 namespace AbilityRuntime {
 class TimerTask;
-class RuntimeExtractor;
+class ModSourceMap;
 
-void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
+inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
+{
+    return value;
+}
 
 class JsRuntime : public Runtime {
 public:
@@ -48,6 +57,11 @@ public:
     NativeEngine& GetNativeEngine() const
     {
         return *nativeEngine_;
+    }
+
+    ModSourceMap& GetSourceMap() const
+    {
+        return *bindSourceMaps_;
     }
 
     Language GetLanguage() const override
@@ -84,11 +98,13 @@ protected:
     bool preloaded_ = false;
     bool isBundle_ = true;
     std::unique_ptr<NativeEngine> nativeEngine_;
+    std::unique_ptr<ModSourceMap> bindSourceMaps_;
     std::string codePath_;
+    std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
-    std::map<std::string, std::shared_ptr<RuntimeExtractor>> runtimeExtractorMap_;
+    std::map<std::string, std::shared_ptr<AbilityBase::Extractor>> runtimeExtractorMap_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

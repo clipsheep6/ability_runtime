@@ -457,11 +457,6 @@ DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
         HILOG_INFO("Acquiring data ability is not in loading, trying to load it...");
 
         dataAbilityRecord = std::make_shared<DataAbilityRecord>(req);
-        if (!dataAbilityRecord) {
-            HILOG_ERROR("Failed to allocate data ability record.");
-            return nullptr;
-        }
-
         // Start data ability loading process asynchronously.
         int startResult = dataAbilityRecord->StartLoading();
         if (startResult != ERR_OK) {

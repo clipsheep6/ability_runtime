@@ -41,7 +41,7 @@ public:
     MockAbilityStub() = default;
     ~MockAbilityStub() = default;
     int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override
     {
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     };
@@ -62,7 +62,7 @@ public:
     MockAbilityContextTest();
     ~MockAbilityContextTest();
 
-    void StartAbility(const AAFwk::Want &want, int requestCode);
+    void StartAbility(const AAFwk::Want& want, int requestCode);
 
     void SetToken(const sptr<IRemoteObject> token);
 

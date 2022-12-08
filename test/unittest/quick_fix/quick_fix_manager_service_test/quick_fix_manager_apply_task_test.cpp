@@ -20,7 +20,7 @@
 #include "iservice_registry.h"
 #include "mock_bundle_manager.h"
 #include "mock_quick_fix_util.h"
-#include "quick_fix_errno_def.h"
+#include "quick_fix_error_utils.h"
 #define private public
 #include "quick_fix_manager_service.h"
 #undef private
@@ -33,8 +33,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 template<typename F>
-static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<AppExecFwk::EventHandler> &handler,
-    std::atomic<bool> &taskCalled)
+static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<AppExecFwk::EventHandler>& handler,
+    std::atomic<bool>& taskCalled)
 {
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
@@ -51,7 +51,7 @@ static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<AppExecFwk::Ev
     }
 }
 
-static void WaitUntilTaskDone(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
+static void WaitUntilTaskDone(const std::shared_ptr<AppExecFwk::EventHandler>& handler)
 {
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };

@@ -30,7 +30,7 @@ class AbilityCallRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
 
-    AbilityCallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
+    explicit AbilityCallRecipient(RemoteDiedHandler handler) : handler_(handler) {};
     virtual ~AbilityCallRecipient() = default;
 
     void OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote) override
@@ -63,7 +63,7 @@ public:
         const std::shared_ptr<AbilityRecord> &targetService, const sptr<IAbilityConnection> &connCallback,
         const sptr<IRemoteObject> &callToken);
 
-    void SetCallStub(const sptr<IRemoteObject> & call);
+    void SetCallStub(const sptr<IRemoteObject> &call);
     sptr<IRemoteObject> GetCallStub();
     void SetConCallBack(const sptr<IAbilityConnection> &connCallback);
     sptr<IAbilityConnection> GetConCallBack() const;
@@ -71,11 +71,11 @@ public:
     void Dump(std::vector<std::string> &info) const;
     bool SchedulerConnectDone();
     bool SchedulerDisconnectDone();
-    void OnCallStubDied(const wptr<IRemoteObject> & remote);
+    void OnCallStubDied(const wptr<IRemoteObject> &remote);
 
     int32_t GetCallerUid() const;
-    bool IsCallState(const CallState& state) const;
-    void SetCallState(const CallState& state);
+    bool IsCallState(const CallState &state) const;
+    void SetCallState(const CallState &state);
     int32_t GetCallRecordId() const;
     AppExecFwk::ElementName GetTargetServiceName() const;
     sptr<IRemoteObject> GetCallerToken() const;

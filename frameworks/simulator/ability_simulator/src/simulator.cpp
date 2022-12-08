@@ -166,6 +166,9 @@ bool SimulatorImpl::Initialize(const Options& options)
 
     options_ = options;
     thread_ = std::thread([&] {
+        if (nativeEngine_ == nullptr) {
+            return;
+        }
         bool initResult = OnInit();
         if (!initResult) {
             waiter.NotifyResult(false);

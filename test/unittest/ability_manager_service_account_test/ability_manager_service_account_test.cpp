@@ -68,8 +68,8 @@ public:
     void SetUp();
     void TearDown();
 public:
-    inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
-    AbilityRequest abilityRequest_ {};
+    inline static std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
+    AbilityRequest abilityRequest_{};
 };
 static int32_t newUserId;
 void AbilityManagerServiceAccountTest::SetUpTestCase()
@@ -82,7 +82,7 @@ void AbilityManagerServiceAccountTest::SetUpTestCase()
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     abilityMs_->OnStart();
     WaitUntilTaskFinished();
-    GTEST_LOG_(INFO) << "Create new user. UserId: "<<newUserId;
+    GTEST_LOG_(INFO) << "Create new user. UserId: " << newUserId;
 }
 
 void AbilityManagerServiceAccountTest::TearDownTestCase()
@@ -184,7 +184,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_002, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_003 start";
-    AbilityStartSetting abilityStartSetting ;
+    AbilityStartSetting abilityStartSetting;
     // default user
     auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
@@ -1167,7 +1167,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_001, TestS
     EXPECT_EQ(OHOS::ERR_OK, result);
     auto serviceMap = abilityMs_->GetConnectManagerByUserId(USER_ID_U100)->GetServiceMap();
     EXPECT_EQ(1, static_cast<int>(serviceMap.size()));
-    for (auto &it : serviceMap) {
+    for (auto& it : serviceMap) {
         EXPECT_EQ(it.first, element.GetURI());
     }
     auto service = serviceMap.at(element.GetURI());
@@ -1206,7 +1206,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestS
     EXPECT_EQ(OHOS::ERR_OK, result);
     auto serviceMap = abilityMs_->GetConnectManagerByUserId(newUserId)->GetServiceMap();
     EXPECT_EQ(1, static_cast<int>(serviceMap.size()));
-    for (auto &it : serviceMap) {
+    for (auto& it : serviceMap) {
         EXPECT_EQ(it.first, element.GetURI());
     }
     auto service = serviceMap.at(element.GetURI());

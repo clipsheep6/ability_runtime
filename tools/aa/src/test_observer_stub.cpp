@@ -28,7 +28,7 @@ TestObserverStub::~TestObserverStub()
     HILOG_INFO("test observer stub instance is destroyed");
 }
 
-int TestObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int TestObserverStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         HILOG_ERROR("local descriptor is not equal to remote");

@@ -49,22 +49,22 @@ public:
         return 0;
     }
 
-    int SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override
+    int SendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override
     {
         return 0;
     }
 
-    bool AddDeathRecipient(const sptr<DeathRecipient> &recipient) override
+    bool AddDeathRecipient(const sptr<DeathRecipient>& recipient) override
     {
         return true;
     }
 
-    bool RemoveDeathRecipient(const sptr<DeathRecipient> &recipient) override
+    bool RemoveDeathRecipient(const sptr<DeathRecipient>& recipient) override
     {
         return true;
     }
 
-    int Dump(int fd, const std::vector<std::u16string> &args) override
+    int Dump(int fd, const std::vector<std::u16string>& args) override
     {
         return 0;
     }

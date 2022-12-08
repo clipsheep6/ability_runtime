@@ -78,8 +78,8 @@ protected:
 
     std::shared_ptr<AppRunningRecord> GetTestAppRunningRecord();
     sptr<IAppScheduler> GetMockedAppSchedulerClient() const;
-    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+    std::shared_ptr<AppRunningRecord> StartLoadAbility(const sptr<IRemoteObject>& token,
+        const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
         const pid_t newPid) const;
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -144,8 +144,8 @@ std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::GetTestAppRunning
     return testAppRecord_;
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::StartLoadAbility(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+std::shared_ptr<AppRunningRecord> AppRunningProcessesInfoTest::StartLoadAbility(const sptr<IRemoteObject>& token,
+    const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
     const pid_t newPid) const
 {
     std::shared_ptr<MockAppSpawnClient> mockClientPtr = std::make_shared<MockAppSpawnClient>();
@@ -253,9 +253,9 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     EXPECT_EQ(stateFromRec, ApplicationState::APP_STATE_FOREGROUND);
 
     std::vector<RunningProcessInfo> info;
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     auto res = service_->GetAllRunningProcesses(info);
-    EXPECT_TRUE (res == ERR_OK);
+    EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);
 }
 
@@ -330,9 +330,9 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_003, TestSize.Level
     record2->SetUid(uid);
 
     std::vector<RunningProcessInfo> info;
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     auto res = service_->GetAllRunningProcesses(info);
-    EXPECT_TRUE (res == ERR_OK);
+    EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);
 }
 
@@ -365,5 +365,38 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_004, TestSize.Level
     service_->appRunningManager_->GetRunningProcessInfoByToken(GetMockToken(), info);
     EXPECT_TRUE(info.processName_ == GetTestProcessName());
 }
+
+/*
+ * Feature: AppMgrServiceInner
+ * Function: GetRunningProcessInfoByPid
+ * SubFunction: NA
+ * FunctionPoints: get running process info by pid.
+ * EnvConditions: NA
+ * CaseDescription: creat apprunningrecords, set record state, call query function.
+ */
+HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_005, TestSize.Level1)
+{
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+    EXPECT_TRUE(record != nullptr);
+    record->SetState(ApplicationState::APP_STATE_BACKGROUND);
+    record->SetApplicationClient(GetMockedAppSchedulerClient());
+    pid_t pid = 16738;
+    record->GetPriorityObject()->SetPid(pid);
+    RunningProcessInfo info;
+    service_->appRunningManager_->GetRunningProcessInfoByPid(pid, info);
+    EXPECT_TRUE(info.processName_ == GetTestProcessName());
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

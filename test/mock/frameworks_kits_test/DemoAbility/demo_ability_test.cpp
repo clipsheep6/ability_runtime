@@ -33,7 +33,7 @@ const int resultCodeCompare = 1992;
 
 namespace OHOS {
 namespace AppExecFwk {
-void DemoAbility::OnStart(const Want &want)
+void DemoAbility::OnStart(const Want& want)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnStart called";
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
@@ -66,23 +66,23 @@ void DemoAbility::OnBackground()
     Ability::OnBackground();
 }
 
-void DemoAbility::OnForeground(const Want &want)
+void DemoAbility::OnForeground(const Want& want)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnForeground called";
     Ability::OnForeground(want);
 }
 
-void DemoAbility::OnNewWant(const Want &want)
+void DemoAbility::OnNewWant(const Want& want)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnNewWant called";
 }
 
-void DemoAbility::OnRestoreAbilityState(const PacMap &inState)
+void DemoAbility::OnRestoreAbilityState(const PacMap& inState)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnRestoreAbilityState called";
 }
 
-void DemoAbility::OnSaveAbilityState(PacMap &outState)
+void DemoAbility::OnSaveAbilityState(PacMap& outState)
 {
     std::shared_ptr<ApplicationInfo> appInfo = GetApplicationInfo();
     std::shared_ptr<AbilityInfo> abilityInfo = GetAbilityInfo();
@@ -107,13 +107,13 @@ void DemoAbility::OnSaveAbilityState(PacMap &outState)
     GTEST_LOG_(INFO) << "DemoAbility::OnSaveAbilityState called";
 }
 
-void DemoAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
+void DemoAbility::OnAbilityResult(int requestCode, int resultCode, const Want& resultData)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnAbilityResult called";
     EXPECT_EQ(resultCodeCompare, resultCode);
 }
 
-sptr<IRemoteObject> DemoAbility::OnConnect(const Want &want)
+sptr<IRemoteObject> DemoAbility::OnConnect(const Want& want)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnConnect called";
     Ability::OnConnect(want);
@@ -121,21 +121,21 @@ sptr<IRemoteObject> DemoAbility::OnConnect(const Want &want)
     return nullptr;
 }
 
-void DemoAbility::OnDisconnect(const Want &want)
+void DemoAbility::OnDisconnect(const Want& want)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnDisconnect called";
     Ability::OnDisconnect(want);
     EXPECT_STREQ(std::string("abilityName").c_str(), want.GetElement().GetAbilityName().c_str());
 }
 
-void DemoAbility::OnCommand(const AAFwk::Want &want, bool restart, int startId)
+void DemoAbility::OnCommand(const AAFwk::Want& want, bool restart, int startId)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OnCommand called";
     EXPECT_STREQ(std::string("abilityName").c_str(), want.GetElement().GetAbilityName().c_str());
     Ability::OnCommand(want, restart, startId);
 }
 
-std::vector<std::string> DemoAbility::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> DemoAbility::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     GTEST_LOG_(INFO) << "DemoAbility::GetFileTypes called";
     std::vector<std::string> types;
@@ -145,50 +145,50 @@ std::vector<std::string> DemoAbility::GetFileTypes(const Uri &uri, const std::st
     return types;
 }
 
-int DemoAbility::OpenFile(const Uri &uri, const std::string &mode)
+int DemoAbility::OpenFile(const Uri& uri, const std::string& mode)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OpenFile called";
     return openfileValue;
 }
 
-int DemoAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int DemoAbility::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Delete called";
     return deleteValue;
 }
 
-int DemoAbility::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int DemoAbility::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Insert called";
     return insertValue;
 }
 
 int DemoAbility::Update(
-    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Update called";
     return updateValue;
 }
 
-int DemoAbility::OpenRawFile(const Uri &uri, const std::string &mode)
+int DemoAbility::OpenRawFile(const Uri& uri, const std::string& mode)
 {
     GTEST_LOG_(INFO) << "DemoAbility::OpenRawFile called";
     return openRawFileValue;
 }
 
-bool DemoAbility::Reload(const Uri &uri, const PacMap &extras)
+bool DemoAbility::Reload(const Uri& uri, const PacMap& extras)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Reload called";
     return true;
 }
 
-int DemoAbility::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int DemoAbility::BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     GTEST_LOG_(INFO) << "DemoAbility::BatchInsert called";
     return batchInsertValue;
 }
 
-std::string DemoAbility::GetType(const Uri &uri)
+std::string DemoAbility::GetType(const Uri& uri)
 {
     GTEST_LOG_(INFO) << "DemoAbility::GetType called";
     std::string type("Type1");
@@ -196,7 +196,7 @@ std::string DemoAbility::GetType(const Uri &uri)
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DemoAbility::Query(
-    const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, const std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Query called";
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = std::make_shared<NativeRdb::AbsSharedResultSet>(

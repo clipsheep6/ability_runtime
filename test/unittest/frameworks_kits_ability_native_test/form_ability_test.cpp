@@ -412,7 +412,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_DeleteForm_0100, Function | MediumTest |
     ability_->DeleteForm(formId);
 
 
-    size_t cnt {1};
+    size_t cnt{ 1 };
     EXPECT_EQ(cnt, ability_->appCallbacks_.size());
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_DeleteForm_0100 end";
@@ -498,7 +498,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_DeleteForm_0400, Function | MediumTest |
     int64_t formId = 121L;
     ability_->DeleteForm(formId);
 
-    size_t cnt {1};
+    size_t cnt{ 1 };
     EXPECT_EQ(cnt, ability_->lostedByReconnectTempForms_.size());
 
     ability_->userReqParams_.clear();
@@ -1178,7 +1178,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_GetAllFormsInfo_0100, Function | MediumT
     std::vector<FormInfo> formInfos;
     formInfos.clear();
     EXPECT_EQ(true, ability_->GetAllFormsInfo(formInfos));
-    size_t dataSize {1};
+    size_t dataSize{ 1 };
     EXPECT_EQ(dataSize, formInfos.size());
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_GetAllFormsInfo_0100 end";
@@ -1197,7 +1197,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_GetFormsInfoByApp_0100, Function | Mediu
     std::vector<FormInfo> formInfos;
     formInfos.clear();
     EXPECT_EQ(true, ability_->GetFormsInfoByApp(bundleName, formInfos));
-    size_t dataSize {1};
+    size_t dataSize{ 1 };
     EXPECT_EQ(dataSize, formInfos.size());
     bundleName = "";
     EXPECT_EQ(false, ability_->GetFormsInfoByApp(bundleName, formInfos));
@@ -1219,7 +1219,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_GetFormsInfoByModule_0100, Function | Me
     std::vector<FormInfo> formInfos;
     formInfos.clear();
     EXPECT_EQ(true, ability_->GetFormsInfoByModule(bundleName, moduleName, formInfos));
-    size_t dataSize {1};
+    size_t dataSize{ 1 };
     EXPECT_EQ(dataSize, formInfos.size());
     bundleName = "";
     EXPECT_EQ(false, ability_->GetFormsInfoByModule(bundleName, moduleName, formInfos));

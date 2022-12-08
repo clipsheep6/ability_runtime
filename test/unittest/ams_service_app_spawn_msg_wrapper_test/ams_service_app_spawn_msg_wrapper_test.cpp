@@ -63,7 +63,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_001, TestSize.Level1
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
 
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_001 end");
@@ -83,7 +83,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_002, TestSize.Level1
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
 
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10002}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_002 end");
@@ -103,7 +103,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_003, TestSize.Level1
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     // gids limit, max 64
-    AppSpawnStartMsg params = {10000,
+    AppSpawnStartMsg params = { 10000,
         10000,
         {10001,
             10001,
@@ -187,7 +187,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_003, TestSize.Level1
             10001,
             10001},
         "processName",
-        "soPath"};
+        "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_003 end");
@@ -206,7 +206,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_004, TestSize.Level1
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_004 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_004 end");
@@ -231,7 +231,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_005, TestSize.Level1
         "id"
         "InvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInval"
         "id";
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, invalid, "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, invalid, "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_005 end");
@@ -251,7 +251,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_006, TestSize.Level1
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_006 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "", ""};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_006 end");
@@ -276,7 +276,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_007, TestSize.Level1
         "id"
         "InvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInvalidInval"
         "id";
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "processName", invalid};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", invalid };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_007 end");
@@ -295,7 +295,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_008, TestSize.Level1
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_008 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_008 end");
@@ -314,7 +314,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_009, TestSize.Level1
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_009 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "processName", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
     EXPECT_EQ(true, appSpawnMsgWrapper->IsValid());
     int32_t lhs = sizeof(AppSpawnMsg);
@@ -336,7 +336,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_010, TestSize.Level1
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_010 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
-    AppSpawnStartMsg params = {10000, 10000, {10001, 10001}, "", "soPath"};
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
     EXPECT_EQ(false, appSpawnMsgWrapper->IsValid());
     int32_t lhs = 0;

@@ -70,32 +70,32 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    std::shared_ptr<ApplicationInfo> GetApplicationInfo(const std::string &appName) const;
-    std::shared_ptr<AbilityInfo> GetAbilityInfo(const std::string &abilityIndex, const std::string &name,
-        const std::string &process, const std::string &applicationName) const;
-    void StartAppProcess(const pid_t &pid) const;
-    std::shared_ptr<AppRunningRecord> StartProcessAndLoadAbility(const sptr<MockAppScheduler> &mockAppScheduler,
-        const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo, const TestProcessInfo &testProcessInfo) const;
-    void ChangeAbilityStateAfterAppStart(const sptr<MockAppScheduler> &mockAppScheduler, const pid_t &pid) const;
-    void ChangeAbilityStateToForegroud(const sptr<MockAppScheduler> &mockAppScheduler,
-        const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+    std::shared_ptr<ApplicationInfo> GetApplicationInfo(const std::string& appName) const;
+    std::shared_ptr<AbilityInfo> GetAbilityInfo(const std::string& abilityIndex, const std::string& name,
+        const std::string& process, const std::string& applicationName) const;
+    void StartAppProcess(const pid_t& pid) const;
+    std::shared_ptr<AppRunningRecord> StartProcessAndLoadAbility(const sptr<MockAppScheduler>& mockAppScheduler,
+        const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityInfo>& abilityInfo,
+        const std::shared_ptr<ApplicationInfo>& appInfo, const TestProcessInfo& testProcessInfo) const;
+    void ChangeAbilityStateAfterAppStart(const sptr<MockAppScheduler>& mockAppScheduler, const pid_t& pid) const;
+    void ChangeAbilityStateToForegroud(const sptr<MockAppScheduler>& mockAppScheduler,
+        const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
         const bool isChange = false) const;
-    void ChangeAbilityStateToBackGroud(const sptr<MockAppScheduler> &mockAppScheduler,
-        const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+    void ChangeAbilityStateToBackGroud(const sptr<MockAppScheduler>& mockAppScheduler,
+        const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
         const bool isChange = false) const;
     void ChangeAbilityStateToTerminate(
-        const sptr<MockAppScheduler> &mockAppScheduler, const sptr<IRemoteObject> &token) const;
-    void ChangeAppToTerminate(const sptr<MockAppScheduler> &mockAppScheduler,
-        const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+        const sptr<MockAppScheduler>& mockAppScheduler, const sptr<IRemoteObject>& token) const;
+    void ChangeAppToTerminate(const sptr<MockAppScheduler>& mockAppScheduler,
+        const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
         const bool isStop = false) const;
-    void CheckState(const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+    void CheckState(const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
         const AbilityState abilityState, const ApplicationState appState) const;
-    void CheckStateAfterClearAbility(const std::shared_ptr<AppRunningRecord> &appRunningRecord,
-        const std::vector<sptr<IRemoteObject>> &tokens, const int32_t &recordId,
-        const sptr<MockAppScheduler> &mockAppScheduler) const;
-    void CheckStateAfterChangeAbility(const std::shared_ptr<AppRunningRecord> &appRunningRecord,
-        const std::vector<sptr<IRemoteObject>> &tokens, const sptr<MockAppScheduler> &mockAppScheduler);
+    void CheckStateAfterClearAbility(const std::shared_ptr<AppRunningRecord>& appRunningRecord,
+        const std::vector<sptr<IRemoteObject>>& tokens, const int32_t& recordId,
+        const sptr<MockAppScheduler>& mockAppScheduler) const;
+    void CheckStateAfterChangeAbility(const std::shared_ptr<AppRunningRecord>& appRunningRecord,
+        const std::vector<sptr<IRemoteObject>>& tokens, const sptr<MockAppScheduler>& mockAppScheduler);
     void CreateAppRecentList(const int32_t appNum);
 
     sptr<MockAbilityToken> GetAbilityToken();
@@ -147,7 +147,7 @@ void AmsAppLifeCycleModuleTest::TearDown()
     mockAppStateCallbackStub_.clear();
 }
 
-std::shared_ptr<ApplicationInfo> AmsAppLifeCycleModuleTest::GetApplicationInfo(const std::string &appName) const
+std::shared_ptr<ApplicationInfo> AmsAppLifeCycleModuleTest::GetApplicationInfo(const std::string& appName) const
 {
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = appName;
@@ -155,8 +155,8 @@ std::shared_ptr<ApplicationInfo> AmsAppLifeCycleModuleTest::GetApplicationInfo(c
     return appInfo;
 }
 
-std::shared_ptr<AbilityInfo> AmsAppLifeCycleModuleTest::GetAbilityInfo(const std::string &abilityIndex,
-    const std::string &name, const std::string &process, const std::string &applicationName) const
+std::shared_ptr<AbilityInfo> AmsAppLifeCycleModuleTest::GetAbilityInfo(const std::string& abilityIndex,
+    const std::string& name, const std::string& process, const std::string& applicationName) const
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = name + abilityIndex;
@@ -169,9 +169,9 @@ std::shared_ptr<AbilityInfo> AmsAppLifeCycleModuleTest::GetAbilityInfo(const std
 }
 
 std::shared_ptr<AppRunningRecord> AmsAppLifeCycleModuleTest::StartProcessAndLoadAbility(
-    const sptr<MockAppScheduler> &mockAppScheduler, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const TestProcessInfo &testProcessInfo) const
+    const sptr<MockAppScheduler>& mockAppScheduler, const sptr<IRemoteObject>& token,
+    const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
+    const TestProcessInfo& testProcessInfo) const
 {
     if (!testProcessInfo.isStart) {
         StartAppProcess(testProcessInfo.pid);
@@ -195,9 +195,9 @@ std::shared_ptr<AppRunningRecord> AmsAppLifeCycleModuleTest::StartProcessAndLoad
     return record;
 }
 
-void AmsAppLifeCycleModuleTest::StartAppProcess(const pid_t &pid) const
+void AmsAppLifeCycleModuleTest::StartAppProcess(const pid_t& pid) const
 {
-    MockAppSpawnClient *mockClientPtr = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtr = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtr);
 
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
@@ -207,7 +207,7 @@ void AmsAppLifeCycleModuleTest::StartAppProcess(const pid_t &pid) const
 }
 
 void AmsAppLifeCycleModuleTest::ChangeAbilityStateAfterAppStart(
-    const sptr<MockAppScheduler> &mockAppScheduler, const pid_t &pid) const
+    const sptr<MockAppScheduler>& mockAppScheduler, const pid_t& pid) const
 {
     EXPECT_CALL(*mockAppScheduler, ScheduleLaunchApplication(_, _)).Times(1);
     EXPECT_CALL(*mockAppScheduler, ScheduleLaunchAbility(_, _, _)).Times(1);
@@ -216,8 +216,8 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateAfterAppStart(
     serviceInner_->AttachApplication(pid, client);
 }
 
-void AmsAppLifeCycleModuleTest::ChangeAbilityStateToForegroud(const sptr<MockAppScheduler> &mockAppScheduler,
-    const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+void AmsAppLifeCycleModuleTest::ChangeAbilityStateToForegroud(const sptr<MockAppScheduler>& mockAppScheduler,
+    const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
     const bool isChange) const
 {
     if (!isChange) {
@@ -236,8 +236,8 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToForegroud(const sptr<MockApp
     }
 }
 
-void AmsAppLifeCycleModuleTest::ChangeAbilityStateToBackGroud(const sptr<MockAppScheduler> &mockAppScheduler,
-    const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+void AmsAppLifeCycleModuleTest::ChangeAbilityStateToBackGroud(const sptr<MockAppScheduler>& mockAppScheduler,
+    const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
     const bool isChange) const
 {
     if (!isChange) {
@@ -256,8 +256,8 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToBackGroud(const sptr<MockApp
     }
 }
 
-void AmsAppLifeCycleModuleTest::ChangeAppToTerminate(const sptr<MockAppScheduler> &mockAppScheduler,
-    const std::shared_ptr<AppRunningRecord> &appRunningRecord, const sptr<IRemoteObject> &token,
+void AmsAppLifeCycleModuleTest::ChangeAppToTerminate(const sptr<MockAppScheduler>& mockAppScheduler,
+    const std::shared_ptr<AppRunningRecord>& appRunningRecord, const sptr<IRemoteObject>& token,
     const bool isStop) const
 {
     ChangeAbilityStateToTerminate(mockAppScheduler, token);
@@ -276,14 +276,14 @@ void AmsAppLifeCycleModuleTest::ChangeAppToTerminate(const sptr<MockAppScheduler
 }
 
 void AmsAppLifeCycleModuleTest::ChangeAbilityStateToTerminate(
-    const sptr<MockAppScheduler> &mockAppScheduler, const sptr<IRemoteObject> &token) const
+    const sptr<MockAppScheduler>& mockAppScheduler, const sptr<IRemoteObject>& token) const
 {
     EXPECT_CALL(*mockAppScheduler, ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(token, false);
 }
 
-void AmsAppLifeCycleModuleTest::CheckState(const std::shared_ptr<AppRunningRecord> &appRunningRecord,
-    const sptr<IRemoteObject> &token, const AbilityState abilityState, const ApplicationState appState) const
+void AmsAppLifeCycleModuleTest::CheckState(const std::shared_ptr<AppRunningRecord>& appRunningRecord,
+    const sptr<IRemoteObject>& token, const AbilityState abilityState, const ApplicationState appState) const
 {
     EXPECT_NE(appRunningRecord, nullptr);
     CHECK_POINTER_IS_NULLPTR(appRunningRecord);
@@ -296,9 +296,9 @@ void AmsAppLifeCycleModuleTest::CheckState(const std::shared_ptr<AppRunningRecor
     EXPECT_EQ(abilityState, getAbilityState);
 }
 
-void AmsAppLifeCycleModuleTest::CheckStateAfterClearAbility(const std::shared_ptr<AppRunningRecord> &appRunningRecord,
-    const std::vector<sptr<IRemoteObject>> &tokens, const int32_t &recordId,
-    const sptr<MockAppScheduler> &mockAppScheduler) const
+void AmsAppLifeCycleModuleTest::CheckStateAfterClearAbility(const std::shared_ptr<AppRunningRecord>& appRunningRecord,
+    const std::vector<sptr<IRemoteObject>>& tokens, const int32_t& recordId,
+    const sptr<MockAppScheduler>& mockAppScheduler) const
 {
     unsigned long size = tokens.size();
     for (unsigned long i = 0; i < size; i++) {
@@ -314,8 +314,8 @@ void AmsAppLifeCycleModuleTest::CheckStateAfterClearAbility(const std::shared_pt
     }
 }
 
-void AmsAppLifeCycleModuleTest::CheckStateAfterChangeAbility(const std::shared_ptr<AppRunningRecord> &appRunningRecord,
-    const std::vector<sptr<IRemoteObject>> &tokens, const sptr<MockAppScheduler> &mockAppScheduler)
+void AmsAppLifeCycleModuleTest::CheckStateAfterChangeAbility(const std::shared_ptr<AppRunningRecord>& appRunningRecord,
+    const std::vector<sptr<IRemoteObject>>& tokens, const sptr<MockAppScheduler>& mockAppScheduler)
 {
     unsigned long size = tokens.size();
     for (unsigned long i = 0; i < size; i++) {
@@ -347,7 +347,7 @@ void AmsAppLifeCycleModuleTest::CreateAppRecentList(const int32_t appNum)
         abilityInfo->applicationInfo.bundleName = appInfo->name;
         pid_t pid = i;
         sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-        MockAppSpawnClient *mockedSpawnClient = new (std::nothrow) MockAppSpawnClient();
+        MockAppSpawnClient* mockedSpawnClient = new (std::nothrow) MockAppSpawnClient();
         EXPECT_TRUE(mockedSpawnClient);
         EXPECT_CALL(*mockedSpawnClient, StartProcess(_, _))
             .Times(1)
@@ -1715,7 +1715,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, UpdateConfiguration_001, TestSize.Level1)
     CheckState(appRunningRecord_1, token_1, AbilityState::ABILITY_STATE_READY, ApplicationState::APP_STATE_READY);
 
     auto testLanguge = std::string("ch-zh");
-    auto configUpdate = [testLanguge](const Configuration &config) {
+    auto configUpdate = [testLanguge](const Configuration& config) {
         auto l = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == l);
     };
@@ -1777,12 +1777,12 @@ HWTEST_F(AmsAppLifeCycleModuleTest, UpdateConfiguration_002, TestSize.Level1)
     auto testLanguge = std::string("ch-zh");
     auto again = std::string("Russian");
     auto displayId = 10;
-    auto configUpdate = [testLanguge, displayId](const Configuration &config) {
+    auto configUpdate = [testLanguge, displayId](const Configuration& config) {
         auto l = config.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == l);
     };
 
-    auto configUpdateAgain = [again, displayId](const Configuration &config) {
+    auto configUpdateAgain = [again, displayId](const Configuration& config) {
         auto l = config.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(again == l);
     };
@@ -1850,7 +1850,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, UpdateConfiguration_003, TestSize.Level1)
 
     auto testLanguge = std::string("ch-zh");
     auto displayId = 10;
-    auto configUpdate = [testLanguge, displayId](const Configuration &config) {
+    auto configUpdate = [testLanguge, displayId](const Configuration& config) {
         auto ld = config.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         auto l = config.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == ld);
@@ -1962,7 +1962,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, LoadResidentProcess_002, TestSize.Level1)
     infos.push_back(info);
     infos.push_back(info1);
 
-    MockAppSpawnClient *mockClientPtr = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtr = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtr);
     if (mockClientPtr) {
         serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
@@ -2004,7 +2004,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, RestartResidentProcess_001, TestSize.Level1)
     info.applicationInfo = appInfo;
     infos.push_back(info);
 
-    MockAppSpawnClient *mockClientPtr = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtr = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtr);
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
     sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
@@ -2115,7 +2115,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, RestartResidentProcess_003, TestSize.Level1)
     info.applicationInfo = appInfo;
     infos.push_back(info);
 
-    MockAppSpawnClient *mockClientPtr = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtr = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtr);
 
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));

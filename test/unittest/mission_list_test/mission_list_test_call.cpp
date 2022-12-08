@@ -22,12 +22,12 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string DEVICE_ID = "15010038475446345206a332922cb765";
-    const std::string INVALID_DEVICE_ID = "88880038475446345206a332922c8888";
-    const std::string BUNDLE_NAME = "testBundle";
-    const std::string INVALID_BUNDLE_NAME = "invalidBundle";
-    const std::string NAME = ".testMainAbility";
-    const std::string INVALID_NAME = "invalid.testMainAbility";
+const std::string DEVICE_ID = "15010038475446345206a332922cb765";
+const std::string INVALID_DEVICE_ID = "88880038475446345206a332922c8888";
+const std::string BUNDLE_NAME = "testBundle";
+const std::string INVALID_BUNDLE_NAME = "invalidBundle";
+const std::string NAME = ".testMainAbility";
+const std::string INVALID_NAME = "invalid.testMainAbility";
 }
 
 namespace OHOS {

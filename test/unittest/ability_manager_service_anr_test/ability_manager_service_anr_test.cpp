@@ -38,11 +38,11 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-    const std::string DEVICE_ID = "15010038475446345206a332922cb765";
-    const std::string BUNDLE_NAME = "testBundle";
-    const std::string NAME = ".testMainAbility";
-    const std::string EVENT_WAITING_CODE = "0";
-    const std::string EVENT_CLOSE_CODE = "1";
+const std::string DEVICE_ID = "15010038475446345206a332922cb765";
+const std::string BUNDLE_NAME = "testBundle";
+const std::string NAME = ".testMainAbility";
+const std::string EVENT_WAITING_CODE = "0";
+const std::string EVENT_CLOSE_CODE = "1";
 }
 
 namespace OHOS {
@@ -110,10 +110,6 @@ void AbilityManagerServiceAnrTest::OnStartAms()
         DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
 #endif
 
-        auto timeout = abilityMs_->amsConfigResolver_->GetANRTimeOutTime();
-        abilityMs_->anrDisposer_ = std::make_shared<AppNoResponseDisposer>(timeout);
-        EXPECT_TRUE(abilityMs_->anrDisposer_);
-
         abilityMs_->eventLoop_->Run();
         return;
     }
@@ -161,15 +157,16 @@ void AbilityManagerServiceAnrTest::TearDown()
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
     pid_t pid;
-    if ((pid=fork()) == 0) {
+    if ((pid = fork()) == 0) {
         for (;;) {
         }
-    }
-    else {
+    } else {
         Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
-        abilityMs_->SendANRProcessID(pid);
+        auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);
-        EXPECT_FALSE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
+        if (result == ERR_OK) {
+            EXPECT_FALSE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
+        }
         kill(pid, SIGKILL);
     }
 }
@@ -186,21 +183,36 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {
     pid_t pid;
-    if ((pid=fork()) == 0) {
+    if ((pid = fork()) == 0) {
         for (;;) {
-            GTEST_LOG_(INFO) << "sub process";
             usleep(500);
         }
-    }
-    else {
+    } else {
         Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
-        EXPECT_EQ(result, 0);
         sleep(6);
-        EXPECT_TRUE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
+        if (result == ERR_OK) {
+            EXPECT_TRUE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
+        }
         (void)kill(pid, SIGKILL);
-        GTEST_LOG_(INFO) << "process kill result " << errno;
     }
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SendANRProcessID
+ * SubFunction: NA
+ * FunctionPoints: Waiting anr process
+ * EnvConditions: NA
+ * CaseDescription: create a new exception process, call SendANRProcessID func
+ * click waiting button, do not kill the new process
+ */
+HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_003, TestSize.Level1)
+{
+    pid_t pid = -1;
+    auto result = abilityMs_->SendANRProcessID(pid);
+    sleep(6);
+    EXPECT_TRUE(result == ERR_INVALID_VALUE);
 }
 }
 }

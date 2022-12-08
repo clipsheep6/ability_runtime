@@ -28,7 +28,6 @@
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
-#include "app_no_response_disposer.h"
 #include "app_scheduler.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
@@ -54,6 +53,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -537,6 +537,14 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
 
     /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override;
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -803,6 +811,8 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
 
     bool GetStartUpNewRuleFlag() const;
 
@@ -960,7 +970,6 @@ private:
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
     void DumpFuncInit();
-    bool IsExistFile(const std::string &path);
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
@@ -1015,6 +1024,7 @@ private:
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
+    bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int32_t GetValidUserId(const int32_t userId);
 
@@ -1148,6 +1158,12 @@ private:
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
+    void RecoverAbilityRestart(const Want &want);
+
+    AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
+
+    void InitStartupFlag();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1183,7 +1199,7 @@ private:
     static sptr<AbilityManagerService> instance_;
 
     // Component StartUp rule switch
-    bool startUpNewRule_ = false;
+    bool startUpNewRule_ = true;
     /** It only takes effect when startUpNewRule_ is TRUE
      *  TRUE: When Caller-Application is Launcher or SystemUI, use old rule.
      *  FALSE: Apply new rule to all application
@@ -1194,6 +1210,16 @@ private:
      *  FALSE: Determine the state by AppExecFwk::AppProcessState::APP_STATE_FOCUS.
      */
     bool backgroundJudgeFlag_ = true;
+    /** The applications in white list use old rule
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListNormalFlag_ = true;
+    /** The applications in white list can associatedWakeUp
+     *  TRUE: white list enable.
+     *  FALSE: white list unable.
+     */
+    bool whiteListassociatedWakeUpFlag_ = true;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
@@ -1206,8 +1232,8 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
     std::shared_ptr<ApplicationAnrListener> anrListener_;
 #endif
-    std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
+    std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
 };
 }  // namespace AAFwk
 }  // namespace OHOS

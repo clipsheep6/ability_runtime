@@ -19,7 +19,6 @@
 #include <mutex>
 
 #include "ability_info.h"
-#include "dialog_callback_interface.h"
 #include "iremote_object.h"
 #include "ui_service_interface.h"
 #include "ui_service_mgr_errors.h"
@@ -32,6 +31,7 @@ enum class WindowType : uint32_t;
 
 namespace OHOS {
 namespace Ace {
+using DialogCallback = std::function<void(int32_t id, const std::string& event, const std::string& param)>;
 class UIServiceMgrClient {
 public:
     UIServiceMgrClient();
@@ -48,17 +48,17 @@ public:
     ErrCode Request(const AAFwk::Want& want, const std::string& name, const std::string& data);
 
     ErrCode ReturnRequest(
-        const AAFwk::Want& want, const std::string& source,  const std::string& data,  const std::string& extraData);
+        const AAFwk::Want& want, const std::string& source, const std::string& data, const std::string& extraData);
 
     ErrCode ShowDialog(const std::string& name,
-                       const std::string& params,
-                       OHOS::Rosen::WindowType windowType,
-                       int x,
-                       int y,
-                       int width,
-                       int height,
-                       DialogCallback callback,
-                       int* id = nullptr);
+        const std::string& params,
+        OHOS::Rosen::WindowType windowType,
+        int x,
+        int y,
+        int width,
+        int height,
+        DialogCallback callback,
+        int* id = nullptr);
 
     ErrCode CancelDialog(int32_t id);
 

@@ -41,16 +41,16 @@ public:
     public:
         int performReceiveCount = 0;
         void Send(const int32_t resultCode) override;
-        void PerformReceive(const AAFwk::Want &want, int resultCode, const std::string &data,
-            const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser) override;
+        void PerformReceive(const AAFwk::Want& want, int resultCode, const std::string& data,
+            const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser) override;
     };
 public:
 };
 
 void SenderInfoTest::CancelReceiver::Send(const int32_t resultCode)
 {}
-void SenderInfoTest::CancelReceiver::PerformReceive(const AAFwk::Want &want, int resultCode, const std::string &data,
-    const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser)
+void SenderInfoTest::CancelReceiver::PerformReceive(const AAFwk::Want& want, int resultCode, const std::string& data,
+    const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser)
 {}
 
 void SenderInfoTest::SetUpTestCase()

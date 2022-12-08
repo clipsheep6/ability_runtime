@@ -25,6 +25,7 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "form_info.h"
+#include "mock_app_control_manager.h"
 #include "shortcut_info.h"
 
 namespace OHOS {
@@ -47,7 +48,7 @@ constexpr int32_t MAX_SYS_UID = 2899;
 const int32_t BASE_USER_RANGE = 200000;
 const int32_t APPLICATIONINFO_UID = 20000000;
 
-auto HiWordInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiWordInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -59,7 +60,7 @@ auto HiWordInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementNa
     return true;
 };
 
-auto HiMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiMusicInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -83,7 +84,7 @@ auto HiMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementN
     return true;
 };
 
-auto HiRadioInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiRadioInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -100,7 +101,7 @@ auto HiRadioInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementN
     return true;
 };
 
-auto HiServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiServiceInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -111,7 +112,7 @@ auto HiServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, Elemen
     return true;
 };
 
-auto MusicServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto MusicServiceInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -123,7 +124,7 @@ auto MusicServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, Ele
     return true;
 };
 
-auto HiDataInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiDataInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -134,7 +135,7 @@ auto HiDataInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementNa
     return true;
 };
 
-auto HiExtensionInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiExtensionInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -144,7 +145,7 @@ auto HiExtensionInfo = [](std::string bundleName, AbilityInfo &abilityInfo, Elem
     return true;
 };
 
-auto HiAccountInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiAccountInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -156,7 +157,7 @@ auto HiAccountInfo = [](std::string bundleName, AbilityInfo &abilityInfo, Elemen
     return true;
 };
 
-auto HiBAckgroundMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiBAckgroundMusicInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -168,7 +169,7 @@ auto HiBAckgroundMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo
     return true;
 };
 
-auto HiBAckgroundDataInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiBAckgroundDataInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -180,7 +181,7 @@ auto HiBAckgroundDataInfo = [](std::string bundleName, AbilityInfo &abilityInfo,
     return true;
 };
 
-auto HiSingleMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto HiSingleMusicInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -198,7 +199,7 @@ auto HiSingleMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, El
     return true;
 };
 
-auto AccountServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto AccountServiceInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -210,7 +211,7 @@ auto AccountServiceInfo = [](std::string bundleName, AbilityInfo &abilityInfo, E
     return true;
 };
 
-auto TestInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp) {
+auto TestInfo = [](std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp) {
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
     abilityInfo.applicationInfo.bundleName = elementTemp.GetBundleName();
@@ -244,23 +245,32 @@ auto TestInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementName
 }  // namespace
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
-    explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
+    explicit BundleMgrProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IBundleMgr>(impl)
     {}
     virtual ~BundleMgrProxy()
     {}
 
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
 
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+
+    bool QueryAbilityInfo(const Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo,
+        const sptr<IRemoteObject>& callBack)
+    {
+        if (userId == 1) {
+            return false;
+        }
+        return true;
+    }
 
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    
-    int32_t GetDisposedStatus(const std::string &bundleName) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
 
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
+    int32_t GetDisposedStatus(const std::string& bundleName) override;
+
+    virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionInfo) override
     {
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
@@ -272,7 +282,7 @@ class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     virtual ~BundleMgrStub() {}
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 };
 
 class BundleMgrService : public BundleMgrStub {
@@ -280,34 +290,44 @@ public:
     BundleMgrService();
     ~BundleMgrService();
 
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
-    bool QueryAbilityInfo(const Want &want, int32_t flags, int32_t userId, AbilityInfo &abilityInfo) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
+    bool QueryAbilityInfo(const Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo) override;
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    int GetUidByBundleName(const std::string &bundleName, const int userId) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    int GetUidByBundleName(const std::string& bundleName, const int userId) override;
 
-    bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
+    bool CheckWantEntity(const AAFwk::Want&, AbilityInfo&);
 
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionAbilityInfo) override
+    virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionAbilityInfo) override
     {
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
     }
-    virtual int32_t GetDisposedStatus(const std::string &bundleName)
+    virtual int32_t GetDisposedStatus(const std::string& bundleName)
     {
         if (bundleName.compare("com.test.disposed") == 0) {
             return -1;
         }
         return 0;
     }
+    virtual sptr<IAppControlMgr> GetAppControlProxy()
+    {
+        if (isAppControlProxyNull_) {
+            isAppControlProxyNull_ = false;
+            return nullptr;
+        }
+        sptr<IAppControlMgr> appControlMgr = new (std::nothrow) AppControlProxy(nullptr);
+        return appControlMgr;
+    }
 public:
     using QueryAbilityInfoFunType =
-        std::function<bool(std::string bundleName, AbilityInfo &abilityInfo, ElementName &elementTemp)>;
+        std::function<bool(std::string bundleName, AbilityInfo& abilityInfo, ElementName& elementTemp)>;
     std::map<std::string, QueryAbilityInfoFunType> abilityInfoMap_;
+    bool isAppControlProxyNull_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

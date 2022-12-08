@@ -16,12 +16,12 @@
 #include <gtest/gtest.h>
 
 #include "js_module_reader.h"
-#include "runtime_extractor.h"
+#include "extractor.h"
 
 using namespace testing;
 using namespace testing::ext;
 using JsModuleReader = OHOS::AbilityRuntime::JsModuleReader;
-using RuntimeExtractor = OHOS::AbilityRuntime::RuntimeExtractor;
+using Extractor = OHOS::AbilityBase::Extractor;
 
 namespace OHOS {
 namespace AAFwk {
@@ -66,7 +66,7 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
 {
-    auto extractor = std::make_shared<RuntimeExtractor>("");
+    auto extractor = std::make_shared<Extractor>("");
     if (extractor == nullptr) {
         EXPECT_TRUE(extractor == nullptr);
         return;
@@ -84,7 +84,7 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0300, TestSize.Level0)
 {
-    auto extractor = std::make_shared<RuntimeExtractor>("");
+    auto extractor = std::make_shared<Extractor>("");
     if (extractor == nullptr) {
         EXPECT_TRUE(extractor == nullptr);
         return;

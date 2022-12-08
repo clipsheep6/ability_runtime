@@ -21,15 +21,15 @@ namespace AAFwk {
 int AbilityConnectCallback::onAbilityConnectDoneCount = 0;
 int AbilityConnectCallback::onAbilityDisconnectDoneCount = 0;
 
-void AbilityConnectCallback::OnAbilityConnectDone(const AppExecFwk::ElementName &__attribute__((unused)) element,
-    const sptr<IRemoteObject> &__attribute__((unused)) remoteObject, int __attribute__((unused)) resultCode)
+void AbilityConnectCallback::OnAbilityConnectDone(const AppExecFwk::ElementName& __attribute__((unused)) element,
+    const sptr<IRemoteObject>& __attribute__((unused)) remoteObject, int __attribute__((unused)) resultCode)
 {
     HILOG_DEBUG("mock AbilityConnectCallback::OnAbilityConnectDone");
     onAbilityConnectDoneCount++;
 }
 
 void AbilityConnectCallback::OnAbilityDisconnectDone(
-    const AppExecFwk::ElementName &__attribute__((unused)) element, int __attribute__((unused)) resultCode)
+    const AppExecFwk::ElementName& __attribute__((unused)) element, int __attribute__((unused)) resultCode)
 {
     HILOG_DEBUG("mock AbilityConnectCallback::OnAbilityDisConnectDone");
     onAbilityDisconnectDoneCount++;

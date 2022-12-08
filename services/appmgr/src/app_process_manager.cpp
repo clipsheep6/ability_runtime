@@ -42,13 +42,11 @@ void AppProcessManager::AddAppToRecentList(
     const std::string &appName, const std::string &processName, const pid_t pid, const int32_t recordId)
 {
     auto appTaskInfo = std::make_shared<AppTaskInfo>();
-    if (appTaskInfo) {
-        appTaskInfo->SetName(appName);
-        appTaskInfo->SetProcessName(processName);
-        appTaskInfo->SetPid(pid);
-        appTaskInfo->SetRecordId(recordId);
-        recentAppList_.push_front(appTaskInfo);
-    }
+    appTaskInfo->SetName(appName);
+    appTaskInfo->SetProcessName(processName);
+    appTaskInfo->SetPid(pid);
+    appTaskInfo->SetRecordId(recordId);
+    recentAppList_.push_front(appTaskInfo);
 }
 
 const std::list<const std::shared_ptr<AppTaskInfo>> &AppProcessManager::GetRecentAppList() const

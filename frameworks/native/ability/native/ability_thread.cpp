@@ -181,11 +181,6 @@ std::shared_ptr<ContextDeal> AbilityThread::CreateAndInitContextDeal(std::shared
     }
 
     contextDeal = std::make_shared<ContextDeal>();
-    if (contextDeal == nullptr) {
-        HILOG_ERROR("AbilityThread::ability attach failed,contextDeal  is nullptr");
-        return contextDeal;
-    }
-
     contextDeal->SetAbilityInfo(abilityRecord->GetAbilityInfo());
     contextDeal->SetApplicationInfo(application->GetApplicationInfo());
     contextDeal->SetProcessInfo(application->GetProcessInfo());
@@ -1643,13 +1638,13 @@ void AbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     }
 }
 
-sptr<IRemoteObject> AbilityThread::CallRequest()
+void AbilityThread::CallRequest()
 {
     HILOG_DEBUG("AbilityThread::CallRequest begin");
 
     if (!currentAbility_) {
         HILOG_ERROR("ability is nullptr.");
-        return nullptr;
+        return;
     }
 
     sptr<IRemoteObject> retval = nullptr;
@@ -1666,13 +1661,12 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
 
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("ability Handler is nullptr.");
-        return nullptr;
+        return;
     }
 
     abilityHandler_->PostSyncTask(syncTask);
-
+    AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
     HILOG_DEBUG("AbilityThread::CallRequest end");
-    return retval;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

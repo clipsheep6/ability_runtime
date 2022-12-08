@@ -42,9 +42,9 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
-    std::shared_ptr<AbilityResult> abilityResult_ {nullptr};
-    std::shared_ptr<AbilityRequest> abilityRequest_ {nullptr};
+    std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
+    std::shared_ptr<AbilityResult> abilityResult_{ nullptr };
+    std::shared_ptr<AbilityRequest> abilityRequest_{ nullptr };
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
 };
 
@@ -78,17 +78,17 @@ void AbilityRecordTest::TearDown(void)
     abilityRequest_.reset();
 }
 
-bool IsTestAbilityExist(const std::string &data)
+bool IsTestAbilityExist(const std::string& data)
 {
     return std::string::npos != data.find("previous ability app name [NULL]");
 }
 
-bool IsTestAbilityExist1(const std::string &data)
+bool IsTestAbilityExist1(const std::string& data)
 {
     return std::string::npos != data.find("test_pre_app");
 }
 
-bool IsTestAbilityExist2(const std::string &data)
+bool IsTestAbilityExist2(const std::string& data)
 {
     return std::string::npos != data.find("test_next_app");
 }
@@ -191,14 +191,14 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
         public:
-            virtual sptr<IRemoteObject> CallRequest() override
+            sptr<IRemoteObject> CallRequestModify()
             {
                 return sptr<IRemoteObject>(this);
             }
     };
 
     OHOS::sptr<AbilitySchedulerMockFunction> scheduler = new AbilitySchedulerMockFunction();
-    sptr<IRemoteObject> object = scheduler->CallRequest();
+    sptr<IRemoteObject> object = scheduler->CallRequestModify();
     abilityRecord_->callContainer_->CallRequestDone(object);
     callRecord->SetCallState(CallState::REQUESTED);
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_HAS_REMOTE_OBJ);
@@ -297,9 +297,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_001, TestSize.Level1)
 {
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
-        virtual sptr<IRemoteObject> CallRequest() override
+        void CallRequest() override
         {
-            return sptr<IRemoteObject>(this);
+            return;
         }
     };
 
@@ -312,7 +312,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_001, TestSize.Level1)
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
-    EXPECT_EQ(abilityRecord_->CallRequest(), true);
+    abilityRecord_->CallRequest();
 }
 
 /*
@@ -334,7 +334,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_002, TestSize.Level1)
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
-    EXPECT_EQ(abilityRecord_->CallRequest(), false);
+    abilityRecord_->CallRequest();
 }
 
 /*
@@ -376,7 +376,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetStartToBackground_002, TestSize.L
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetSpecifiedFlag_001, TestSize.Level1)
 {
-    const std::string specifiedFlag= "flag";
+    const std::string specifiedFlag = "flag";
     abilityRecord_->SetSpecifiedFlag(specifiedFlag);
     EXPECT_EQ(specifiedFlag, abilityRecord_->GetSpecifiedFlag());
 }

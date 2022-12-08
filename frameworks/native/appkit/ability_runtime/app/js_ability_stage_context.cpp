@@ -55,7 +55,7 @@ NativeValue* CreateJsAbilityStageContext(NativeEngine& engine,
     std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    NativeValue* objValue = CreateJsBaseContext(engine, context, nullptr, nullptr);
+    NativeValue* objValue = CreateJsBaseContext(engine, context);
     if (context == nullptr) {
         return objValue;
     }

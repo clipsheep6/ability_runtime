@@ -58,7 +58,7 @@ HWTEST_F(DataAbilityOperationModuleTest, AaFwk_DataAbilityOperation_InsertBuilde
     std::shared_ptr<NativeRdb::ValuesBucket> values = std::make_shared<NativeRdb::ValuesBucket>();
     std::shared_ptr<Uri> uri = std::make_shared<Uri>("dataability://com.example.myapplication5.DataAbilityTest");
     std::shared_ptr<DataAbilityOperation> operation =
-            DataAbilityOperation::NewInsertBuilder(uri)->WithValuesBucket(values)->Build();
+        DataAbilityOperation::NewInsertBuilder(uri)->WithValuesBucket(values)->Build();
     EXPECT_NE(operation, nullptr);
 
     bool isInsertOperation = operation->IsInsertOperation();
@@ -85,11 +85,11 @@ HWTEST_F(DataAbilityOperationModuleTest, AaFwk_DataAbilityOperation_UpdateBuilde
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates = std::make_shared<NativeRdb::DataAbilityPredicates>();
     std::shared_ptr<Uri> uri = std::make_shared<Uri>("dataability://com.example.myapplication5.DataAbilityTest");
     std::shared_ptr<DataAbilityOperation> operation = DataAbilityOperation::NewUpdateBuilder(uri)
-                                                              ->WithValuesBucket(values)
-                                                              ->WithPredicatesBackReference(0, 0)
-                                                              ->WithPredicates(predicates)
-                                                              ->WithInterruptionAllowed(true)
-                                                              ->Build();
+        ->WithValuesBucket(values)
+        ->WithPredicatesBackReference(0, 0)
+        ->WithPredicates(predicates)
+        ->WithInterruptionAllowed(true)
+        ->Build();
     EXPECT_TRUE(operation == nullptr); // ValuesBucket is empty.
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityOperation_UpdateBuilder_0100";
 }
@@ -105,7 +105,7 @@ HWTEST_F(DataAbilityOperationModuleTest, AaFwk_DataAbilityOperation_AssertBuilde
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityOperation_AssertBuilder_0100";
     std::shared_ptr<Uri> uri = std::make_shared<Uri>("dataability://com.example.myapplication5.DataAbilityTest");
     std::shared_ptr<DataAbilityOperation> operation =
-            DataAbilityOperation::NewAssertBuilder(uri)->WithExpectedCount(2)->Build();
+        DataAbilityOperation::NewAssertBuilder(uri)->WithExpectedCount(2)->Build();
     EXPECT_NE(operation, nullptr);
 
     bool isAssertOperation = operation->IsAssertOperation();

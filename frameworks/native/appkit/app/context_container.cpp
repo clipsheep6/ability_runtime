@@ -16,12 +16,13 @@
 
 #include <regex>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "app_context.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -583,15 +584,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     }
 
     std::shared_ptr<AppContext> appContext = std::make_shared<AppContext>();
-    if (appContext == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext appContext is nullptr");
-        return nullptr;
-    }
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>(true);
-    if (deal == nullptr) {
-        HILOG_ERROR("ContextContainer::CreateBundleContext bundleName is empty");
-        return nullptr;
-    }
 
     // init resourceManager.
     InitResourceManager(bundleInfo, deal);
@@ -609,25 +602,24 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         return;
     }
 
-    HILOG_INFO(
-        "ContextContainer::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
-    std::vector<std::string> moduleResPaths;
-    std::regex pattern(AbilityRuntime::Constants::ABS_CODE_PATH);
-    for (auto item : bundleInfo.moduleResPaths) {
-        if (item.empty()) {
+    HILOG_DEBUG(
+        "ContextContainer::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
+    std::regex pattern(AbilityBase::Constants::ABS_CODE_PATH);
+    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+        std::string loadPath;
+        if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
+            !hapModuleInfo.hapPath.empty()) {
+            loadPath = hapModuleInfo.hapPath;
+        } else {
+            loadPath = hapModuleInfo.resourcePath;
+        }
+        if (loadPath.empty()) {
             continue;
         }
-        moduleResPaths.emplace_back(std::regex_replace(item, pattern, AbilityRuntime::Constants::LOCAL_BUNDLES));
-    }
-
-    for (auto moduleResPath : moduleResPaths) {
-        if (!moduleResPath.empty()) {
-            HILOG_INFO("ContextContainer::InitResourceManager length: %{public}zu, moduleResPath : %{public}s",
-                moduleResPath.length(),
-                moduleResPath.c_str());
-            if (!resourceManager->AddResource(moduleResPath.c_str())) {
-                HILOG_ERROR("ContextContainer::InitResourceManager AddResource failed");
-            }
+        loadPath = std::regex_replace(loadPath, pattern, AbilityBase::Constants::LOCAL_BUNDLES);
+        HILOG_DEBUG("ContextContainer::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+        if (!resourceManager->AddResource(loadPath.c_str())) {
+            HILOG_ERROR("ContextContainer::InitResourceManager AddResource failed");
         }
     }
 

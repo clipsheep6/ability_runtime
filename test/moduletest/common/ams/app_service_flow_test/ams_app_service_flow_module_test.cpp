@@ -42,16 +42,16 @@ const uint32_t CYCLE_NUMBER = 10;
 }  // namespace
 struct TestApplicationPreRunningRecord {
     TestApplicationPreRunningRecord(
-        const std::shared_ptr<AppRunningRecord> &appRecord, const sptr<MockAppScheduler> &mockAppScheduler)
+        const std::shared_ptr<AppRunningRecord>& appRecord, const sptr<MockAppScheduler>& mockAppScheduler)
         : appRecord_(appRecord), mockAppScheduler_(mockAppScheduler)
     {}
-    sptr<IRemoteObject> GetToken(const std::string &abilityName) const
+    sptr<IRemoteObject> GetToken(const std::string& abilityName) const
     {
         auto abilityRecord = appRecord_->GetAbilityRunningRecord(abilityName, "");
         return abilityRecord ? abilityRecord->GetToken() : nullptr;
     }
 
-    std::shared_ptr<AbilityRunningRecord> GetAbility(const std::string &abilityName) const
+    std::shared_ptr<AbilityRunningRecord> GetAbility(const std::string& abilityName) const
     {
         return appRecord_->GetAbilityRunningRecord(abilityName, "");
     }
@@ -73,14 +73,14 @@ public:
     void TearDown();
 
 protected:
-    sptr<MockAppScheduler> TestCreateApplicationClient(const std::shared_ptr<AppRunningRecord> &appRecord) const;
-    TestApplicationPreRunningRecord TestCreateApplicationRecordAndSetState(const std::string &abilityName,
-        const std::string &appName, const AbilityState abilityState, const ApplicationState appState) const;
+    sptr<MockAppScheduler> TestCreateApplicationClient(const std::shared_ptr<AppRunningRecord>& appRecord) const;
+    TestApplicationPreRunningRecord TestCreateApplicationRecordAndSetState(const std::string& abilityName,
+        const std::string& appName, const AbilityState abilityState, const ApplicationState appState) const;
 
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
     std::shared_ptr<AMSEventHandler> handler_ = nullptr;
-    sptr<BundleMgrService> mockBundleMgr_ {nullptr};
+    sptr<BundleMgrService> mockBundleMgr_{ nullptr };
 };
 
 void AmsAppServiceFlowModuleTest::SetUpTestCase()
@@ -105,7 +105,7 @@ void AmsAppServiceFlowModuleTest::TearDown()
 {}
 
 sptr<MockAppScheduler> AmsAppServiceFlowModuleTest::TestCreateApplicationClient(
-    const std::shared_ptr<AppRunningRecord> &appRecord) const
+    const std::shared_ptr<AppRunningRecord>& appRecord) const
 {
     if (appRecord->GetApplicationClient()) {
         return nullptr;
@@ -119,7 +119,7 @@ sptr<MockAppScheduler> AmsAppServiceFlowModuleTest::TestCreateApplicationClient(
 
 // create one application that include one ability, and set state
 TestApplicationPreRunningRecord AmsAppServiceFlowModuleTest::TestCreateApplicationRecordAndSetState(
-    const std::string &abilityName, const std::string &appName, const AbilityState abilityState,
+    const std::string& abilityName, const std::string& appName, const AbilityState abilityState,
     const ApplicationState appState) const
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();

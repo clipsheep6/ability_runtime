@@ -43,7 +43,7 @@ public:
      * @return {int}                          : size of @results
      * @Introduction: Find all strings specified by @args in @dumpInfo and store them in @results.
      */
-    size_t GetAll(const string &args, const str_vec &dumpInfo, str_vec &results);
+    size_t GetAll(const string& args, const str_vec& dumpInfo, str_vec& results);
 
     /**
      *
@@ -53,7 +53,7 @@ public:
      * @return {str_iter}                         : find or not
      * @Introduction: Find the first string specified by @args in @dumpInfo and store it in @result.
      */
-    str_iter GetFirst(const string &args, const str_vec &dumpInfo, const str_iter &begin, string &result);
+    str_iter GetFirst(const string& args, const str_vec& dumpInfo, const str_iter& begin, string& result);
 
     /**
      *
@@ -63,7 +63,7 @@ public:
      * @return {str_iter}                     : iter pointing to string containing @args
      * @Introduction: Match the first @matchStr in @dumpInfo from @begin and return the iter.
      */
-    str_iter GetSpecific(const string &matchStr, const str_vec &dumpInfo, const str_iter &begin);
+    str_iter GetSpecific(const string& matchStr, const str_vec& dumpInfo, const str_iter& begin);
 
     /**
      *
@@ -72,7 +72,7 @@ public:
      * @return {bool}                      : the comparison result of the the params
      * @Introduction: Return true if each item in @strVec_1 equals the corresponding one in @strVec_2.
      */
-    bool CompStrVec(const str_vec &strVec_1, const str_vec &strVec_2);
+    bool CompStrVec(const str_vec& strVec_1, const str_vec& strVec_2);
 
     /**
      *
@@ -83,9 +83,9 @@ public:
      * @return {string}              : string found in dumpInfo
      * @Introduction: Return the value specified by @args with @key and @value in @dumpInfo.
      */
-    string GetBy(const string &key, const string &value, const string &args, const str_vec &dumpInfo);
+    string GetBy(const string& key, const string& value, const string& args, const str_vec& dumpInfo);
 
-    size_t GetBindingsByUri(const string &uri, const str_vec &dumpInfo, str_vec &result);
+    size_t GetBindingsByUri(const string& uri, const str_vec& dumpInfo, str_vec& result);
 
 private:
     MTDumpUtil();
@@ -93,7 +93,7 @@ private:
     static std::shared_ptr<MTDumpUtil> instance_;
     std::unordered_map<string, regex> findRgx_;
 
-    inline bool MatchRegex(const regex &regex, const string &str, string &result);
+    inline bool MatchRegex(const regex& regex, const string& str, string& result);
 };
 }  // namespace MTUtil
 }  // namespace OHOS

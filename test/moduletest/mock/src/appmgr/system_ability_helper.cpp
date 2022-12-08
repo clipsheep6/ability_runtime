@@ -38,7 +38,7 @@ sptr<IRemoteObject> SystemAbilityHelper::GetSystemAbility(const int32_t systemAb
     return nullptr;
 }
 
-bool SystemAbilityHelper::AddSystemAbility(const int32_t systemAbilityId, const sptr<IRemoteObject> &systemAbility)
+bool SystemAbilityHelper::AddSystemAbility(const int32_t systemAbilityId, const sptr<IRemoteObject>& systemAbility)
 {
     if (g_abilities.erase(systemAbilityId) > 0) {
         HILOG_DEBUG("mock system ability helper add system ability erase exist key");

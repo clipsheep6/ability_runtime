@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 int64_t LocalCallRecord::callRecordId = 0;
-LocalCallRecord::LocalCallRecord(const AppExecFwk::ElementName &elementName)
+LocalCallRecord::LocalCallRecord(const AppExecFwk::ElementName& elementName)
 {
     recordId_ = callRecordId++;
     elementName_ = elementName;
@@ -32,7 +32,7 @@ LocalCallRecord::~LocalCallRecord()
     }
 }
 
-void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call)
+void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call)
 {
     if (call == nullptr) {
         HILOG_ERROR("remote object is nullptr");
@@ -42,7 +42,7 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call)
     remoteObject_ = call;
     if (callRecipient_ == nullptr) {
         auto self(weak_from_this());
-        auto diedTask = [self](const wptr<IRemoteObject> &remote) {
+        auto diedTask = [self](const wptr<IRemoteObject>& remote) {
             auto record = self.lock();
             if (record == nullptr) {
                 HILOG_ERROR("LocalCallRecord is null, OnCallStubDied failed.");
@@ -56,7 +56,7 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call)
     HILOG_DEBUG("SetRemoteObject complete.");
 }
 
-void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call,
+void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call,
     sptr<IRemoteObject::DeathRecipient> callRecipient)
 {
     if (call == nullptr) {
@@ -71,12 +71,12 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call,
     HILOG_DEBUG("SetRemoteObject2 complete.");
 }
 
-void LocalCallRecord::AddCaller(const std::shared_ptr<CallerCallBack> &callback)
+void LocalCallRecord::AddCaller(const std::shared_ptr<CallerCallBack>& callback)
 {
     callers_.emplace_back(callback);
 }
 
-bool LocalCallRecord::RemoveCaller(const std::shared_ptr<CallerCallBack> &callback)
+bool LocalCallRecord::RemoveCaller(const std::shared_ptr<CallerCallBack>& callback)
 {
     if (callers_.empty()) {
         HILOG_ERROR("this caller vector is empty.");
@@ -94,10 +94,10 @@ bool LocalCallRecord::RemoveCaller(const std::shared_ptr<CallerCallBack> &callba
     return false;
 }
 
-void LocalCallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
+void LocalCallRecord::OnCallStubDied(const wptr<IRemoteObject>& remote)
 {
     HILOG_DEBUG("OnCallStubDied.");
-    for (auto &callBack : callers_) {
+    for (auto& callBack : callers_) {
         if (callBack != nullptr) {
             HILOG_ERROR("invoke caller's OnRelease.");
             callBack->InvokeOnRelease(ON_DIED);
@@ -112,7 +112,7 @@ void LocalCallRecord::InvokeCallBack() const
         return;
     }
 
-    for (auto &callBack : callers_) {
+    for (auto& callBack : callers_) {
         if (callBack != nullptr && !callBack->IsCallBack()) {
             callBack->InvokeCallBack(remoteObject_);
         }
@@ -145,7 +145,7 @@ std::vector<std::shared_ptr<CallerCallBack>> LocalCallRecord::GetCallers() const
     return callers_;
 }
 
-bool LocalCallRecord::IsSameObject(const sptr<IRemoteObject> &remote) const
+bool LocalCallRecord::IsSameObject(const sptr<IRemoteObject>& remote) const
 {
     if (remote == nullptr) {
         HILOG_ERROR("input remote object is nullptr");

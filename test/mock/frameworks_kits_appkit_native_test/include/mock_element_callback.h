@@ -33,7 +33,7 @@ public:
      * @param config Indicates the new Configuration object.
      * @param ability Indicates the new Ability object.
      */
-    virtual void OnConfigurationUpdated(const std::shared_ptr<Ability> &ability, const Configuration &config)
+    virtual void OnConfigurationUpdated(const std::shared_ptr<Ability>& ability, const Configuration& config)
     {
         GTEST_LOG_(INFO) << "MockElementsCallback::OnConfigurationUpdated called";
     }

@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct AppqfInfo : public Parcelable {
-    
+
 };
 }
 }

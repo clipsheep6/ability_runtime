@@ -19,7 +19,13 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AppMgrServiceInnerTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_test_path}/moduletest/mock/include",
+  ]
 
   sources = [
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
@@ -30,6 +36,7 @@ ohos_unittest("AppMgrServiceInnerTest") {
 
   deps = [
     "${ability_runtime_services_path}/appmgr:libappms",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -51,6 +58,11 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "samgr:samgr_proxy",
     "window_manager:libwm",
   ]
+
+  defines = []
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
 }
 
 group("unittest") {

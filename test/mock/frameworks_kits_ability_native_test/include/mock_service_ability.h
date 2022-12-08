@@ -43,12 +43,12 @@ public:
         GTEST_LOG_(INFO) << "MockServiceAbility::OnTouchEvent called";
     }
 
-    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
     {
         GTEST_LOG_(INFO) << "MockServiceAbility::OnAbilityResult called";
     }
 
-    void OnNewWant(const Want &want)
+    void OnNewWant(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockServiceAbility::OnNewWant called";
     }
@@ -63,7 +63,7 @@ public:
         GTEST_LOG_(INFO) << "MockServiceAbility::OnStop called";
     }
 
-    void OnStart(const Want &want)
+    void OnStart(const Want& want)
     {
         GTEST_LOG_(INFO) << "MockServiceAbility::OnStart called";
     }

@@ -32,7 +32,7 @@ public:
     virtual ~AppStateCallbackHost();
 
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
     /**
      * AbilityMgr's request is done.
@@ -40,20 +40,20 @@ public:
      * @param token Ability token.
      * @param state Application state.
      */
-    virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &, const AbilityState) override;
+    virtual void OnAbilityRequestDone(const sptr<IRemoteObject>&, const AbilityState) override;
 
     /**
      * Application state changed callback.
      *
      * @param appProcessData Process data
      */
-    virtual void OnAppStateChanged(const AppProcessData &) override;
+    virtual void OnAppStateChanged(const AppProcessData&) override;
 
 private:
-    int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply);
+    int32_t HandleOnAbilityRequestDone(MessageParcel& data, MessageParcel& reply);
 
-    using AppStateCallbackFunc = int32_t (AppStateCallbackHost::*)(MessageParcel &data, MessageParcel &reply);
+    using AppStateCallbackFunc = int32_t(AppStateCallbackHost::*)(MessageParcel& data, MessageParcel& reply);
     std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;
 
     DISALLOW_COPY_AND_MOVE(AppStateCallbackHost);

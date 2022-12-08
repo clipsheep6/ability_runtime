@@ -37,8 +37,8 @@ using ::testing::DoAll;
 namespace OHOS {
 namespace AppExecFwk {
 struct TestApplicationPreRecord {
-    TestApplicationPreRecord(const std::shared_ptr<AbilityRunningRecord> &firstAbilityRecord,
-        const std::shared_ptr<AppRunningRecord> &appRecord, const sptr<MockAppScheduler> &mockAppScheduler)
+    TestApplicationPreRecord(const std::shared_ptr<AbilityRunningRecord>& firstAbilityRecord,
+        const std::shared_ptr<AppRunningRecord>& appRecord, const sptr<MockAppScheduler>& mockAppScheduler)
         : firstAbilityRecord_(firstAbilityRecord), appRecord_(appRecord), mockAppScheduler_(mockAppScheduler)
     {}
     virtual ~TestApplicationPreRecord()
@@ -56,22 +56,22 @@ public:
     void TearDown();
 
 protected:
-    std::shared_ptr<AppRunningRecord> StartProcessAndLoadAbility(const sptr<IRemoteObject> &token,
-        const sptr<IRemoteObject> &preToken, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo, const pid_t newPid) const;
+    std::shared_ptr<AppRunningRecord> StartProcessAndLoadAbility(const sptr<IRemoteObject>& token,
+        const sptr<IRemoteObject>& preToken, const std::shared_ptr<AbilityInfo>& abilityInfo,
+        const std::shared_ptr<ApplicationInfo>& appInfo, const pid_t newPid) const;
 
-    std::shared_ptr<AppRunningRecord> LoadTestAbility(const sptr<IRemoteObject> &token,
-        const sptr<IRemoteObject> &preToken, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo);
+    std::shared_ptr<AppRunningRecord> LoadTestAbility(const sptr<IRemoteObject>& token,
+        const sptr<IRemoteObject>& preToken, const std::shared_ptr<AbilityInfo>& abilityInfo,
+        const std::shared_ptr<ApplicationInfo>& appInfo);
 
     sptr<MockAbilityToken> GetMockToken() const;
-    std::shared_ptr<AbilityInfo> GetAbilityInfoByIndex(const std::string &index) const;
+    std::shared_ptr<AbilityInfo> GetAbilityInfoByIndex(const std::string& index) const;
     std::shared_ptr<ApplicationInfo> GetApplication() const;
     TestApplicationPreRecord PrepareLoadTestAbilityAndApp(const ApplicationState currentAppState) const;
     TestApplicationPreRecord CreateTestApplicationRecord(
         const AbilityState abilityState, const ApplicationState appState) const;
     std::shared_ptr<AppRunningRecord> CreateTestApplicationAndSetState(const ApplicationState appState) const;
-    sptr<MockAppScheduler> AddApplicationClient(const std::shared_ptr<AppRunningRecord> &appRecord) const;
+    sptr<MockAppScheduler> AddApplicationClient(const std::shared_ptr<AppRunningRecord>& appRecord) const;
     void TestUpdateAbilityStateWhenAbilityIsUnLoaded(const AbilityState changingState) const;
     void TestUpdateAbilityStateWhenAbilityIsCreate(
         const AbilityState changingState, const ApplicationState curAppState) const;
@@ -80,9 +80,9 @@ protected:
     void TestTerminateAbilityWhenAbilityIsNotBackground(
         const AbilityState curAbilityState, const ApplicationState curAppState) const;
     std::shared_ptr<AbilityRunningRecord> AddNewAbility(
-        const std::shared_ptr<AppRunningRecord> &appRecord, const std::string &index) const;
+        const std::shared_ptr<AppRunningRecord>& appRecord, const std::string& index) const;
     std::shared_ptr<AbilityRunningRecord> AddNewAbility(
-        const std::shared_ptr<AppRunningRecord> &appRecord, const std::string &index, const int uid) const;
+        const std::shared_ptr<AppRunningRecord>& appRecord, const std::string& index, const int uid) const;
 
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_;
@@ -118,9 +118,9 @@ void AmsAppLifeCycleTest::TearDown()
     runner_.reset();
 }
 
-std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::StartProcessAndLoadAbility(const sptr<IRemoteObject> &token,
-    const sptr<IRemoteObject> &preToken, const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo, const pid_t newPid) const
+std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::StartProcessAndLoadAbility(const sptr<IRemoteObject>& token,
+    const sptr<IRemoteObject>& preToken, const std::shared_ptr<AbilityInfo>& abilityInfo,
+    const std::shared_ptr<ApplicationInfo>& appInfo, const pid_t newPid) const
 {
     std::shared_ptr<MockAppSpawnClient> mockClientPtr = std::make_shared<MockAppSpawnClient>();
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(newPid), Return(ERR_OK)));
@@ -141,7 +141,7 @@ sptr<MockAbilityToken> AmsAppLifeCycleTest::GetMockToken() const
     return mock_token_;
 }
 
-std::shared_ptr<AbilityInfo> AmsAppLifeCycleTest::GetAbilityInfoByIndex(const std::string &index) const
+std::shared_ptr<AbilityInfo> AmsAppLifeCycleTest::GetAbilityInfoByIndex(const std::string& index) const
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "test_ability" + index;
@@ -229,7 +229,7 @@ std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::CreateTestApplicationAndS
 }
 
 sptr<MockAppScheduler> AmsAppLifeCycleTest::AddApplicationClient(
-    const std::shared_ptr<AppRunningRecord> &appRecord) const
+    const std::shared_ptr<AppRunningRecord>& appRecord) const
 {
     sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
@@ -285,7 +285,7 @@ void AmsAppLifeCycleTest::TestTerminateAbilityWhenAbilityIsNotBackground(
 }
 
 std::shared_ptr<AbilityRunningRecord> AmsAppLifeCycleTest::AddNewAbility(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const std::string &index) const
+    const std::shared_ptr<AppRunningRecord>& appRecord, const std::string& index) const
 {
     auto newAbilityInfo = GetAbilityInfoByIndex(index);
     sptr<IRemoteObject> newToken = new (std::nothrow) MockAbilityToken();
@@ -296,7 +296,7 @@ std::shared_ptr<AbilityRunningRecord> AmsAppLifeCycleTest::AddNewAbility(
 }
 
 std::shared_ptr<AbilityRunningRecord> AmsAppLifeCycleTest::AddNewAbility(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const std::string &index, const int uid) const
+    const std::shared_ptr<AppRunningRecord>& appRecord, const std::string& index, const int uid) const
 {
     auto newAbilityInfo = GetAbilityInfoByIndex(index);
     newAbilityInfo->applicationInfo.uid = uid;
@@ -1865,7 +1865,7 @@ HWTEST_F(AmsAppLifeCycleTest, StartResidentProcess_001, TestSize.Level1)
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, bundleInfo);
     EXPECT_FALSE(appRecord);
 
-    MockAppSpawnClient *mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtrT);
     EXPECT_CALL(*mockClientPtrT, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
 
@@ -1914,7 +1914,7 @@ HWTEST_F(AmsAppLifeCycleTest, StartResidentProcess_002, TestSize.Level1)
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, bundleInfo);
     EXPECT_FALSE(appRecord);
 
-    MockAppSpawnClient *mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtrT);
     EXPECT_CALL(*mockClientPtrT, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
 
@@ -2030,7 +2030,7 @@ HWTEST_F(AmsAppLifeCycleTest, RestartResidentProcess_002, TestSize.Level1)
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, bundleInfo);
     EXPECT_FALSE(appRecord);
 
-    MockAppSpawnClient *mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
+    MockAppSpawnClient* mockClientPtrT = new (std::nothrow) MockAppSpawnClient();
     EXPECT_TRUE(mockClientPtrT);
     EXPECT_CALL(*mockClientPtrT, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
 
@@ -2077,7 +2077,7 @@ HWTEST_F(AmsAppLifeCycleTest, UpdateConfiguration_001, TestSize.Level1)
 HWTEST_F(AmsAppLifeCycleTest, UpdateConfiguration_002, TestSize.Level1)
 {
     auto testLanguge = "ch-zh";
-    auto configUpdate = [testLanguge](const Configuration &config) {
+    auto configUpdate = [testLanguge](const Configuration& config) {
         auto l = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == l);
     };
@@ -2104,7 +2104,7 @@ HWTEST_F(AmsAppLifeCycleTest, UpdateConfiguration_002, TestSize.Level1)
 HWTEST_F(AmsAppLifeCycleTest, UpdateConfiguration_003, TestSize.Level1)
 {
     auto testLanguge = "ch-zh";
-    auto configUpdate = [testLanguge](const Configuration &config) {
+    auto configUpdate = [testLanguge](const Configuration& config) {
         auto l = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         EXPECT_TRUE(testLanguge == l);
     };

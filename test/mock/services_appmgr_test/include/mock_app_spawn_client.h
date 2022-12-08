@@ -26,7 +26,7 @@ public:
     {}
     virtual ~MockAppSpawnClient()
     {}
-    MOCK_METHOD2(StartProcess, ErrCode(const AppSpawnStartMsg &startMsg, pid_t &pid));
+    MOCK_METHOD2(StartProcess, ErrCode(const AppSpawnStartMsg& startMsg, pid_t& pid));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

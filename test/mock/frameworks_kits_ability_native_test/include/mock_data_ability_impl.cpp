@@ -27,12 +27,12 @@ const int returnValueDelete = 44;
 
 namespace OHOS {
 namespace AppExecFwk {
-void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void DataAbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::HandleAbilityTransaction called";
 }
 
-std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::GetFileTypes called";
     std::vector<std::string> types;
@@ -42,33 +42,33 @@ std::vector<std::string> DataAbilityImpl::GetFileTypes(const Uri &uri, const std
     return types;
 }
 
-int DataAbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
+int DataAbilityImpl::OpenFile(const Uri& uri, const std::string& mode)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::OpenFile called";
     return returnValueOpenfile;
 }
 
-int DataAbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int DataAbilityImpl::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::Insert called";
     return returnValueInsert;
 }
 
-int DataAbilityImpl::Update(const Uri &uri,
-    const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+int DataAbilityImpl::Update(const Uri& uri,
+    const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::Update called";
     return returnValueUpdate;
 }
 
-int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int DataAbilityImpl::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::Delete called";
     return returnValueDelete;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::Query called";
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = std::make_shared<NativeRdb::AbsSharedResultSet>(
@@ -76,7 +76,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
     return resultSet;
 }
 
-std::string DataAbilityImpl::GetType(const Uri &uri)
+std::string DataAbilityImpl::GetType(const Uri& uri)
 {
     GTEST_LOG_(INFO) << "Mock DataAbilityImpl::GetType called";
     std::string type("type");

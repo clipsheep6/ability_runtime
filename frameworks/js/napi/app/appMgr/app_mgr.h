@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,20 +22,12 @@
 #include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "native_engine/native_engine.h"
 
-struct AsyncCallbackInfo {
-    explicit AsyncCallbackInfo(napi_env env);
-    ~AsyncCallbackInfo();
-    napi_env env = nullptr;
-    napi_async_work asyncWork = nullptr;
-    napi_deferred deferred = nullptr;
-    napi_ref callback = nullptr;
-    std::string bundleName;
-    int32_t result = 0;
-};
-
-#define BUFFER_LENGTH_MAX (128)
-
-napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info);
+namespace OHOS {
+namespace AbilityRuntime {
+NativeValue* JsAppMgrInit(NativeEngine *engine, NativeValue *exportObj);
+}  // namespace AbilityRuntime
+}  // namespace OHOS
 
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_H

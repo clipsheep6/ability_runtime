@@ -25,24 +25,24 @@ class MockAppMgrClient : public AppMgrClient {
 public:
     MockAppMgrClient();
     ~MockAppMgrClient();
-    MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject> &, const sptr<IRemoteObject> &,
-                                  const AbilityInfo &, const ApplicationInfo &, const AAFwk::Want &));
-    MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject> &, bool));
-    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject> &token, const AbilityState state));
-    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string &));
-    MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject> &token));
+    MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject>&, const sptr<IRemoteObject>&,
+        const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&));
+    MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&, bool));
+    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
+    MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, AppMgrResultCode(int32_t userId));
-    MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject> &token));
-    MOCK_METHOD2(GetRunningProcessInfoByToken, void((const sptr<IRemoteObject> &token,
-        AppExecFwk::RunningProcessInfo &info)));
-    MOCK_METHOD1(GetAllRunningProcesses, AppMgrResultCode(std::vector<RunningProcessInfo> &info));
+    MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject>& token));
+    MOCK_METHOD2(GetRunningProcessInfoByToken, void((const sptr<IRemoteObject>& token,
+        AppExecFwk::RunningProcessInfo& info)));
+    MOCK_METHOD1(GetAllRunningProcesses, AppMgrResultCode(std::vector<RunningProcessInfo>& info));
 
-    AppMgrResultCode GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
+    AppMgrResultCode GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo>& info, int32_t userId);
 
-    AppMgrResultCode AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
+    AppMgrResultCode AbilityBehaviorAnalysis(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
         const int32_t visibility, const int32_t perceptibility, const int32_t connectionState) override;
     AppMgrResultCode ConnectAppMgrService() override;
-    AppMgrResultCode RegisterAppStateCallback(const sptr<IAppStateCallback> &callback) override;
+    AppMgrResultCode RegisterAppStateCallback(const sptr<IAppStateCallback>& callback) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

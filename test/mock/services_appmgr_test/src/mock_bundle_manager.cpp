@@ -26,42 +26,57 @@ const int32_t HQF_VERSION_CODE = 1000;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-void ConstructHqfInfo(BundleInfo &bundleInfo)
+void ConstructHqfInfo(BundleInfo& bundleInfo)
 {
     std::vector<HqfInfo> hqfInfos;
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionName = "1.0.0";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.cpuAbi = "armeabi-v7a";
-    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "/data/testQuickFix/native-path";
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "patch_1000/libs/arm";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.type = QuickFixType::PATCH;
     HqfInfo hqfInfo1;
     hqfInfo1.moduleName = "entry1";
     hqfInfo1.hapSha256 = "12345678";
     hqfInfo1.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry1.hqf";
+    hqfInfo1.nativeLibraryPath = "patch_1000/libs/arm";
     HqfInfo hqfInfo2;
     hqfInfo2.moduleName = "entry2";
     hqfInfo2.hapSha256 = "12345678";
     hqfInfo2.hqfFilePath = "/data/app/el1/bundle/public/com.ohos.quickfix/patch_1000/entry2.hqf";
+    hqfInfo2.nativeLibraryPath = "patch_1000/libs/arm";
     hqfInfos.push_back(hqfInfo1);
     hqfInfos.push_back(hqfInfo2);
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos = hqfInfos;
 
     std::vector<HapModuleInfo> hapModuleInfos;
     HapModuleInfo moduleInfo1;
+    moduleInfo1.name = "entry1";
     moduleInfo1.moduleName = "entry1";
     moduleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry1";
+    moduleInfo1.hqfInfo = hqfInfo1;
+    moduleInfo1.process = "test_quickfix";
+    moduleInfo1.isModuleJson = true;
+    moduleInfo1.isStageBasedModel = true;
+    moduleInfo1.isLibIsolated = true;
     HapModuleInfo moduleInfo2;
+    moduleInfo2.name = "entry2";
     moduleInfo2.moduleName = "entry2";
     moduleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry2";
+    moduleInfo2.hqfInfo = hqfInfo2;
+    moduleInfo2.process = "test_quickfix";
+    moduleInfo2.isModuleJson = true;
+    moduleInfo2.isStageBasedModel = true;
+    moduleInfo2.isLibIsolated = true;
     hapModuleInfos.push_back(moduleInfo1);
     hapModuleInfos.push_back(moduleInfo2);
     bundleInfo.hapModuleInfos = hapModuleInfos;
     bundleInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.versionName = "1.0.0";
+    bundleInfo.applicationInfo.nativeLibraryPath = "libs/arm";
 }
 } // namespace
 
-bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     ElementName eleName = want.GetElement();
     if (eleName.GetBundleName().empty()) {
@@ -74,13 +89,13 @@ bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abil
     return true;
 }
 
-bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
+bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo)
 {
     return false;
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -90,12 +105,12 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrProxy::GetAppType(const std::string &bundleName)
+std::string BundleMgrProxy::GetAppType(const std::string& bundleName)
 {
     return "system";
 }
 
-int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
@@ -105,7 +120,7 @@ BundleMgrService::BundleMgrService()
     MakingPackageData();
 }
 
-bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo)
 {
     ElementName elementName = want.GetElement();
     if (elementName.GetBundleName().empty()) {
@@ -126,13 +141,13 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
     return true;
 }
 
-bool BundleMgrService::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
+bool BundleMgrService::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo)
 {
     return false;
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
+    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -142,37 +157,37 @@ bool BundleMgrService::GetApplicationInfo(
     return true;
 }
 
-std::string BundleMgrService::GetAppType(const std::string &bundleName)
+std::string BundleMgrService::GetAppType(const std::string& bundleName)
 {
     return "system";
 }
 
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
-bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
+bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo)
 {
     hapModuleInfo.name = "Captain";
     return true;
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
+    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
 {
     int32_t userUid = 10001;
     int32_t userGid = 10001;
@@ -222,7 +237,7 @@ bool BundleMgrService::GetBundleInfo(
     }
     return true;
 }
-bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
+bool BundleMgrService::GetBundleGids(const std::string& bundleName, std::vector<int>& gids)
 {
     int32_t userGid1 = 10001;
     int32_t userGid2 = 10002;
@@ -234,15 +249,14 @@ bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<
 }
 
 bool BundleMgrService::GetBundleInfos(
-    const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId)
+    const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId)
 {
-    GTEST_LOG_(INFO) << "BundleMgrService::GetBundleInfos";
     bundleInfos = bundleInfos_;
     return true;
 }
 
 bool BundleMgrService::GetBundleGidsByUid(
-    const std::string &bundleName, const int &uid, std::vector<int> &gids)
+    const std::string& bundleName, const int& uid, std::vector<int>& gids)
 {
     return true;
 }
@@ -315,7 +329,7 @@ void BundleMgrService::MakingPackageData()
     PushTestSpecialAbility();
     PushTestHelloAbility();
     MakingResidentProcData();
-    for (int i = 0; i<= APPLICATION_NUMHELLO; i++) {
+    for (int i = 0; i <= APPLICATION_NUMHELLO; i++) {
         PushTestHelloIndexAbility(i);
     }
 }
@@ -324,7 +338,6 @@ void BundleMgrService::MakingResidentProcData()
 {
     int appUid = 2100;
     int appUid1 = 2101;
-    GTEST_LOG_(INFO) << "MakingResidentProcData()";
     BundleInfo bundleInfo;
     bundleInfo.uid = appUid;
     bundleInfo.name = "KeepAliveApplication";

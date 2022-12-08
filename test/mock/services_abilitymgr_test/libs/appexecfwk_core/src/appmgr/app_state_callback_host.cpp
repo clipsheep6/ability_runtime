@@ -29,27 +29,27 @@ AppStateCallbackHost::~AppStateCallbackHost()
 {}
 
 int AppStateCallbackHost::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
 
-void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject> &, const AbilityState)
+void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject>&, const AbilityState)
 {
     HILOG_DEBUG("OnAbilityRequestDone called");
 }
 
-void AppStateCallbackHost::OnAppStateChanged(const AppProcessData &)
+void AppStateCallbackHost::OnAppStateChanged(const AppProcessData&)
 {
     HILOG_DEBUG("OnAppStateChanged called");
 }
 
-int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)
+int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply)
 {
     return NO_ERROR;
 }
 
-int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply)
+int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel& data, MessageParcel& reply)
 {
     return NO_ERROR;
 }

@@ -34,20 +34,20 @@ const std::string COM_OHOS_SPECIAL = "com.ohos.test.special";
 }  // namespace
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
-    explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
+    explicit BundleMgrProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IBundleMgr>(impl)
     {}
     virtual ~BundleMgrProxy()
     {}
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
-    bool QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo) override;
-    std::string GetAppType(const std::string &bundleName) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
+    bool QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo) override;
+    std::string GetAppType(const std::string& bundleName) override;
 
     virtual bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo);
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+    virtual bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo);
     virtual bool GetHapModuleInfo(
-        const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
-    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
+        const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
+    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo>& bundleInfos) override
     {
         int appUid = 2100;
         GTEST_LOG_(INFO) << "QueryKeepAliveBundleInfos()";
@@ -66,7 +66,7 @@ public:
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo1);
 
         bundleInfos.push_back(bundleInfo);
-        GTEST_LOG_(INFO) << "bundleInfos size : "<<bundleInfos.size();
+        GTEST_LOG_(INFO) << "bundleInfos size : " << bundleInfos.size();
         return true;
     };
 };
@@ -74,29 +74,29 @@ public:
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 };
 
 class BundleMgrService : public BundleMgrStub {
 public:
-    bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
-    bool QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo) override;
+    bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
+    bool QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo) override;
 
-    std::string GetAppType(const std::string &bundleName) override;
+    std::string GetAppType(const std::string& bundleName) override;
 
     virtual bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
     virtual bool GetBundleInfo(
-        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
+        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
     virtual bool GetBundleInfos(
-        const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId) override;
+        const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId) override;
     bool GetBundleGidsByUid(
-        const std::string &bundleName, const int &uid, std::vector<int> &gids) override;
-    virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo);
+        const std::string& bundleName, const int& uid, std::vector<int>& gids) override;
+    virtual bool GetBundleGids(const std::string& bundleName, std::vector<int>& gids) override;
+    virtual bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo);
     virtual bool GetHapModuleInfo(
-        const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
-    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
+        const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
+    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo>& bundleInfos) override
     {
         int appUid = 2100;
         GTEST_LOG_(INFO) << "QueryKeepAliveBundleInfos()";
@@ -115,11 +115,11 @@ public:
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo1);
 
         bundleInfos.push_back(bundleInfo);
-        GTEST_LOG_(INFO) << "bundleInfos size : "<<bundleInfos.size();
+        GTEST_LOG_(INFO) << "bundleInfos size : " << bundleInfos.size();
         return true;
     };
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
+    virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionInfo) override
     {
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
@@ -147,15 +147,15 @@ public:
 
 class QuickFixManagerHostImpl : public QuickFixManagerHost {
 public:
-    MOCK_METHOD2(DeployQuickFix, ErrCode(const std::vector<std::string> &bundleFilePaths,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD3(SwitchQuickFix, ErrCode(const std::string &bundleName, bool enable,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD2(DeleteQuickFix, ErrCode(const std::string &bundleName,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD3(CreateFd, ErrCode(const std::string &fileName, int32_t &fd, std::string &path));
+    MOCK_METHOD2(DeployQuickFix, ErrCode(const std::vector<std::string>& bundleFilePaths,
+        const sptr<IQuickFixStatusCallback>& statusCallback));
+    MOCK_METHOD3(SwitchQuickFix, ErrCode(const std::string& bundleName, bool enable,
+        const sptr<IQuickFixStatusCallback>& statusCallback));
+    MOCK_METHOD2(DeleteQuickFix, ErrCode(const std::string& bundleName,
+        const sptr<IQuickFixStatusCallback>& statusCallback));
+    MOCK_METHOD3(CreateFd, ErrCode(const std::string& fileName, int32_t& fd, std::string& path));
 
-    virtual ErrCode CopyFiles(const std::vector<std::string> &sourceFiles, std::vector<std::string> &destFiles) override
+    virtual ErrCode CopyFiles(const std::vector<std::string>& sourceFiles, std::vector<std::string>& destFiles) override
     {
         destFiles = sourceFiles;
         return 0;

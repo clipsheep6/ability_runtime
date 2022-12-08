@@ -16,6 +16,7 @@
 #include "js_uri_perm_mgr.h"
 
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "uri.h"
 #include "uri_permission_manager_client.h"
@@ -43,6 +44,12 @@ private:
     NativeValue* OnVerifyUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_DEBUG("OnVerifyUriPermission is called");
+        constexpr int32_t argCount = 5;
+        if (info.argc > argCount) {
+            HILOG_ERROR("Too many parameters");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
         std::vector<std::shared_ptr<NativeReference>> args;
         for (size_t i = 0; i < info.argc; ++i) {
             args.emplace_back(engine.CreateReference(info.argv[i], 1));

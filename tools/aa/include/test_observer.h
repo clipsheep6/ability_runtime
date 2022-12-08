@@ -38,7 +38,7 @@ public:
      * @param msg, Indicates the status information.
      * @param resultCode, Indicates the result code.
      */
-    virtual void TestStatus(const std::string &msg, const int64_t &resultCode) override;
+    virtual void TestStatus(const std::string& msg, const int64_t& resultCode) override;
 
     /**
      * Outputs information and result code that the test has finished.
@@ -46,7 +46,7 @@ public:
      * @param msg, Indicates the status information.
      * @param resultCode, Indicates the result code.
      */
-    virtual void TestFinished(const std::string &msg, const int64_t &resultCode) override;
+    virtual void TestFinished(const std::string& msg, const int64_t& resultCode) override;
 
     /**
      * Executes the specified shell command.
@@ -55,7 +55,7 @@ public:
      * @param timeoutSec, Indicates the specified time out time, in seconds.
      * @return the result of the specified shell command.
      */
-    virtual ShellCommandResult ExecuteShellCommand(const std::string &cmd, const int64_t timeoutSec) override;
+    virtual ShellCommandResult ExecuteShellCommand(const std::string& cmd, const int64_t timeoutSec) override;
 
     /**
      * Waits for the test to finish.
@@ -63,7 +63,7 @@ public:
      * @param timeoutMs, Indicates the specified time out time, in milliseconds.
      * @return true if the test finish within the specified time; returns false otherwise.
      */
-    bool WaitForFinish(const int64_t &timeoutMs);
+    bool WaitForFinish(const int64_t& timeoutMs);
 
 private:
     bool isFinished_;

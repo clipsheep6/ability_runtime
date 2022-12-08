@@ -647,7 +647,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
         return {};
     }
 
-    for (auto &it : abilityProperties_) {
+    for (const auto &it : abilityProperties_) {
         if (!it) {
             HILOG_WARN("Invalid ability property");
             continue;

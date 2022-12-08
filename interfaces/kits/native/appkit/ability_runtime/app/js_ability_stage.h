@@ -42,7 +42,7 @@ public:
 
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
-    void OnMemoryLevel(int level) override;
+    void OnMemoryLevel(int32_t level) override;
 
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue * const * argv = nullptr, size_t argc = 0);

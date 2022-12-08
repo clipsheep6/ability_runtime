@@ -571,6 +571,14 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callToken);
 
     /**
+     * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
+     *
+     * @param token, ability's token.
+     * @param callStub, ability's callee.
+     */
+    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub);
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -788,6 +796,8 @@ public:
      * @param token The target ability.
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
+    void EnableRecoverAbility(const sptr<IRemoteObject>& token);
+    void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason);
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

@@ -33,14 +33,14 @@ TestObserver::TestObserver() : isFinished_(false)
 TestObserver::~TestObserver()
 {}
 
-void TestObserver::TestStatus(const std::string &msg, const int64_t &resultCode)
+void TestObserver::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
     HILOG_INFO("enter, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
     printf("%s\n", msg.data());
     fflush(stdout);
 }
 
-void TestObserver::TestFinished(const std::string &msg, const int64_t &resultCode)
+void TestObserver::TestFinished(const std::string& msg, const int64_t& resultCode)
 {
     HILOG_INFO("enter, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
     std::cout << "TestFinished-ResultCode: " + std::to_string(resultCode) << std::endl;
@@ -48,7 +48,7 @@ void TestObserver::TestFinished(const std::string &msg, const int64_t &resultCod
     isFinished_ = true;
 }
 
-ShellCommandResult TestObserver::ExecuteShellCommand(const std::string &cmd, const int64_t timeoutSec)
+ShellCommandResult TestObserver::ExecuteShellCommand(const std::string& cmd, const int64_t timeoutSec)
 {
     HILOG_INFO("enter, cmd : \"%{public}s\", timeoutSec : %{public}" PRId64, cmd.data(), timeoutSec);
 
@@ -61,7 +61,7 @@ ShellCommandResult TestObserver::ExecuteShellCommand(const std::string &cmd, con
     return cmdExecutor->WaitWorkDone();
 }
 
-bool TestObserver::WaitForFinish(const int64_t &timeoutMs)
+bool TestObserver::WaitForFinish(const int64_t& timeoutMs)
 {
     HILOG_INFO("enter");
 

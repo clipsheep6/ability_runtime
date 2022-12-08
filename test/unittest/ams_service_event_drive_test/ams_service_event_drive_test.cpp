@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// redefine private and protected since testcase need to invoke and test private function
+ // redefine private and protected since testcase need to invoke and test private function
 #define private public
 #define protected public
 #include "app_mgr_service.h"

@@ -48,3 +48,20 @@ ohos_shared_library("serviceextensionability_napi") {
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
+
+ohos_shared_library("serviceextensionability") {
+  sources = [ "service_extension_ability_module.cpp" ]
+
+  deps = [
+    ":service_extension_ability_abc",
+    ":service_extension_ability_js",
+  ]
+
+  external_deps = [ "napi:ace_napi" ]
+
+  defines = [ "ENABLE_ERRCODE" ]
+
+  relative_install_dir = "module/app/ability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

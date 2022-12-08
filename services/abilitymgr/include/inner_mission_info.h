@@ -43,11 +43,12 @@ enum class StartMethod {
 struct InnerMissionInfo {
     MissionInfo missionInfo;
     std::string missionName;
-    bool isSingletonMode;
+    int32_t launchMode;
     int32_t startMethod;
     std::string bundleName;
     int32_t uid;
     bool isTemporary;
+    std::string specifiedFlag;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);

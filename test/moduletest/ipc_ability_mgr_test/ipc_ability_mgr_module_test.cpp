@@ -41,7 +41,7 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    AbilityRequest CreateAbilityRequest(const std::string &abilityName, const std::string &bundleName);
+    AbilityRequest CreateAbilityRequest(const std::string& abilityName, const std::string& bundleName);
 
     static constexpr int COUNT = 5;
 };
@@ -59,7 +59,7 @@ void IpcAbilityMgrModuleTest::TearDown()
 {}
 
 AbilityRequest IpcAbilityMgrModuleTest::CreateAbilityRequest(
-    const std::string &abilityName, const std::string &bundleName)
+    const std::string& abilityName, const std::string& bundleName)
 {
     AbilityRequest abilityRequest;
 
@@ -409,9 +409,9 @@ HWTEST_F(IpcAbilityMgrModuleTest, AbilityMgrService_IPC_019, TestSize.Level1)
 
         bool testResult = false;
 
-        auto mockHandler = [&](const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) {
+        auto mockHandler = [&](const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken) {
             testResult = (uri.ToString() == testUri.ToString() && tryBind == testTryBind &&
-                          Token::GetAbilityRecordByToken(callerToken) == clientAbilityRecord);
+                Token::GetAbilityRecordByToken(callerToken) == clientAbilityRecord);
             mockAbilityMgr->Post();
             return nullptr;
         };

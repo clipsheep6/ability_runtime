@@ -91,10 +91,10 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0100, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0100");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -111,11 +111,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0200, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0200");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -132,11 +132,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0300, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0300");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -153,11 +153,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0400, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0400");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -174,11 +174,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0500, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0500");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -195,11 +195,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0600, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0600");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -216,11 +216,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0700, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0700");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-h",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-h",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -237,11 +237,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0800, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0800");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--help",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--help",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -258,11 +258,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0900, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_0900");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -279,12 +279,12 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1000, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1000");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -302,13 +302,13 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1100, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1100");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -325,14 +325,14 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1200, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1200");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -349,13 +349,13 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1300, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1300");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-b",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-b",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -372,14 +372,14 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1400, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1400");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -396,15 +396,15 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1500, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1500");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -421,16 +421,16 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1600, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1600");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -447,11 +447,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1700, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1700");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -468,13 +468,13 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1800, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1800");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -491,14 +491,14 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1900, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_1900");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -515,15 +515,15 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2000, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2000");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -540,16 +540,16 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2100, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2100");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME_INVALID.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME_INVALID.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -566,16 +566,16 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2200, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2200");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME_INVALID.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME_INVALID.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -594,11 +594,11 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2300, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2300");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -618,13 +618,13 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2400, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2400");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -644,15 +644,15 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2500, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2500");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -671,15 +671,15 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2600, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2600");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -698,17 +698,17 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2700, Function | MediumTest | Leve
 {
     HILOG_INFO("Aa_Command_Start_2700");
 
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)STRING_DEVICE.c_str(),
-        (char *)"-a",
-        (char *)STRING_ABILITY_NAME.c_str(),
-        (char *)"-b",
-        (char *)STRING_BUNDLE_NAME.c_str(),
-        (char *)"-D",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-D",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

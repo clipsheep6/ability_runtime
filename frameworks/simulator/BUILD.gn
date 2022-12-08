@@ -108,18 +108,20 @@ ohos_copy("copy_ability_simulator") {
   out_path = get_label_info("//arkcompiler/ets_runtime:libark_jsruntime",
                             "root_out_dir")
   sources +=
-      [ out_path + "/ark/ark_js_runtime/libark_jsruntime" + dylib_suffix ]
+      [ out_path + "/arkcompiler/ets_runtime/libark_jsruntime" + dylib_suffix ]
 
   deps += [ "//arkcompiler/toolchain/tooling:libark_ecma_debugger" ]
   out_path =
       get_label_info("//arkcompiler/toolchain/tooling:libark_ecma_debugger",
                      "root_out_dir")
-  sources += [ out_path + "/ark/toolchain/libark_ecma_debugger" + dylib_suffix ]
+  sources += [ out_path + "/arkcompiler/toolchain/libark_ecma_debugger" +
+               dylib_suffix ]
 
   deps += [ "//arkcompiler/toolchain/inspector:ark_debugger" ]
   out_path = get_label_info("//arkcompiler/toolchain/inspector:ark_debugger",
                             "root_out_dir")
-  sources += [ out_path + "/ark/toolchain/libark_debugger" + dylib_suffix ]
+  sources +=
+      [ out_path + "/arkcompiler/toolchain/libark_debugger" + dylib_suffix ]
 
   deps += [ "//third_party/libuv:uv" ]
   out_path = get_label_info("//third_party/libuv:uv", "root_out_dir")

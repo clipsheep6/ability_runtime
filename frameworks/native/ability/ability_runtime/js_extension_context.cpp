@@ -23,8 +23,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration> &config)
+void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference>& jsContext,
+    const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (engine == nullptr || jsContext == nullptr || config == nullptr) {
@@ -46,15 +46,15 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::s
     }
 
     HILOG_INFO("JsExtensionContext call onUpdateConfiguration.");
-    NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
+    NativeValue* argv[] = { CreateJsConfiguration(*engine, *config) };
     engine->CallFunction(value, method, argv, 1);
 }
 
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext> &context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo, DetachCallback detach, AttachCallback attach)
+NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
     HILOG_INFO("CreateJsExtensionContext begin");
-    NativeValue* objValue = CreateJsBaseContext(engine, context, detach, attach);
+    NativeValue* objValue = CreateJsBaseContext(engine, context);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
         return objValue;
@@ -71,7 +71,7 @@ NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_pt
 
     auto hapModuleInfo = context->GetHapModuleInfo();
     if (abilityInfo && hapModuleInfo) {
-        auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo &info) {
+        auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo& info) {
             HILOG_INFO("%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
             return info.bundleName == abilityInfo->bundleName && info.name == abilityInfo->name;
         };

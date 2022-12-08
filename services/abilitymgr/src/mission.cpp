@@ -33,6 +33,7 @@ Mission::Mission(const std::shared_ptr<Mission> &mission)
     startMethod_ = mission->startMethod_;
     abilityRecord_ = mission->abilityRecord_;
     missionName_ = mission->missionName_;
+    lockedState_ = mission->lockedState_;
     ownerMissionList_ = mission->ownerMissionList_;
 }
 
@@ -56,6 +57,25 @@ bool Mission::IsSingletonAbility() const
     }
 
     return false;
+}
+
+bool Mission::IsSpecifiedAbility() const
+{
+    if (abilityRecord_) {
+        return abilityRecord_->GetAbilityInfo().launchMode == AppExecFwk::LaunchMode::SPECIFIED;
+    }
+
+    return false;
+}
+
+void Mission::SetSpecifiedFlag(const std::string &flag)
+{
+    specifiedFlag_ = flag;
+}
+
+std::string Mission::GetSpecifiedFlag() const
+{
+    return specifiedFlag_;
 }
 
 std::shared_ptr<MissionList> Mission::GetMissionList()

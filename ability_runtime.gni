@@ -53,7 +53,7 @@ declare_args() {
   ability_runtime_resource = true
   ability_runtime_appspawn = true
   efficiency_manager = true
-  ability_command_for_test = true
+  ability_command_for_test = false
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {
@@ -102,5 +102,12 @@ declare_args() {
     os_dlp_part_enabled = true
   } else {
     os_dlp_part_enabled = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.barrierfree_accessibility)) {
+    accessibility_enable = true
+  } else {
+    accessibility_enable = false
   }
 }

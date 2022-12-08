@@ -24,13 +24,13 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockConfigurationObserver : public ConfigurationObserverStub {
 public:
-MockConfigurationObserver() = default;
-virtual ~MockConfigurationObserver() = default;
+    MockConfigurationObserver() = default;
+    virtual ~MockConfigurationObserver() = default;
 
-virtual void OnConfigurationUpdated(const Configuration& configuration) override
-{
-    GTEST_LOG_(INFO) << "OnConfigurationUpdated";
-}
+    virtual void OnConfigurationUpdated(const Configuration& configuration) override
+    {
+        GTEST_LOG_(INFO) << "OnConfigurationUpdated";
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

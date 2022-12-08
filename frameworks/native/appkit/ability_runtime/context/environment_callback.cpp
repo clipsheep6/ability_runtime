@@ -34,20 +34,20 @@ void JsEnvironmentCallback::CallConfigurationUpdatedInner(
     HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks_) {
         if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
+            HILOG_ERROR("CallConfigurationUpdatedInner, Invalid jsCallback");
             return;
         }
 
         auto value = callback.second->Get();
         auto obj = ConvertNativeValueTo<NativeObject>(value);
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get object");
             return;
         }
 
         auto method = obj->GetProperty(methodName.data());
         if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
+            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
@@ -78,20 +78,20 @@ void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, 
     HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks_) {
         if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
+            HILOG_ERROR("CallMemoryLevelInner, Invalid jsCallback");
             return;
         }
 
         auto value = callback.second->Get();
         auto obj = ConvertNativeValueTo<NativeObject>(value);
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            HILOG_ERROR("CallMemoryLevelInner, Failed to get object");
             return;
         }
 
         auto method = obj->GetProperty(methodName.data());
         if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
+            HILOG_ERROR("CallMemoryLevelInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 

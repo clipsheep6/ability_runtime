@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsExtensionContext final {
 public:
-    JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
+    explicit JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
     ~JsExtensionContext() = default;
 
     static void ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
@@ -34,8 +34,7 @@ private:
 };
 
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr,
-    DetachCallback detach = nullptr, AttachCallback attach = nullptr);
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H

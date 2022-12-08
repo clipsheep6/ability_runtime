@@ -31,7 +31,7 @@ class Mission : public std::enable_shared_from_this<Mission> {
 public:
     Mission(int32_t id, const std::shared_ptr<AbilityRecord> abilityRecord, const std::string &missionName = "",
         int32_t startMethod = 0);
-    Mission(const std::shared_ptr<Mission> &mission);
+    explicit Mission(const std::shared_ptr<Mission> &mission);
     virtual ~Mission();
 
     /**
@@ -47,6 +47,13 @@ public:
      * @return is ability contains by this mission is singleton.
      */
     bool IsSingletonAbility() const;
+
+    /**
+     * check whether ability contains by this mission is specified.
+     *
+     * @return is ability contains by this mission is specified.
+     */
+    bool IsSpecifiedAbility() const;
 
     /**
      * get owner mission list.
@@ -157,16 +164,42 @@ public:
         return needNotify_;
     }
 
+    /**
+     * Set mission specified flag.
+     *
+     * @param flag specified flag.
+     */
+    void SetSpecifiedFlag(const std::string &flag);
+
+    /**
+     * Get mission specified flag.
+     *
+     * @return specified flag.
+     */
+    std::string GetSpecifiedFlag() const;
+
+    inline void SetNeedNotifyUpdateLabel(bool flag)
+    {
+        needNotifyUpdateLabel_ = flag;
+    }
+
+    inline bool NeedNotifyUpdateLabel() const
+    {
+        return needNotifyUpdateLabel_;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
     std::shared_ptr<AbilityRecord> abilityRecord_;
     std::string missionName_;
+    std::string specifiedFlag_;
     std::weak_ptr<MissionList> ownerMissionList_;
     bool lockedState_ = false;
     bool isMovingToFront_ = false;
     bool isANRState_ = false;
     bool needNotify_ = true;
+    bool needNotifyUpdateLabel_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

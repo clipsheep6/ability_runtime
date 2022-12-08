@@ -32,7 +32,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 template<typename F>
-static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<EventHandler> &handler, std::atomic<bool> &taskCalled)
+static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<EventHandler>& handler, std::atomic<bool>& taskCalled)
 {
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
@@ -49,7 +49,7 @@ static void WaitUntilTaskCalled(const F &f, const std::shared_ptr<EventHandler> 
     }
 }
 
-static void WaitUntilTaskDone(const std::shared_ptr<EventHandler> &handler)
+static void WaitUntilTaskDone(const std::shared_ptr<EventHandler>& handler)
 {
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
@@ -63,30 +63,30 @@ public:
     void SetUp();
     void TearDown();
 
-    AbilityConnectManager *ConnectManager() const;
+    AbilityConnectManager* ConnectManager() const;
 
-    AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName, const std::string &moduleName);
+    AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
+        const std::string& appName, const std::string& bundleName, const std::string& moduleName);
 
     static constexpr int TEST_WAIT_TIME = 1000000;
 
 protected:
-    AbilityRequest abilityRequest_ {};
-    AbilityRequest abilityRequest1_ {};
-    std::shared_ptr<AbilityRecord> serviceRecord_ {nullptr};
-    std::shared_ptr<AbilityRecord> serviceRecord1_ {nullptr};
-    OHOS::sptr<Token> serviceToken_ {nullptr};
-    OHOS::sptr<Token> serviceToken1_ {nullptr};
-    OHOS::sptr<IAbilityConnection> callbackA_ {nullptr};
-    OHOS::sptr<IAbilityConnection> callbackB_ {nullptr};
+    AbilityRequest abilityRequest_{};
+    AbilityRequest abilityRequest1_{};
+    std::shared_ptr<AbilityRecord> serviceRecord_{ nullptr };
+    std::shared_ptr<AbilityRecord> serviceRecord1_{ nullptr };
+    OHOS::sptr<Token> serviceToken_{ nullptr };
+    OHOS::sptr<Token> serviceToken1_{ nullptr };
+    OHOS::sptr<IAbilityConnection> callbackA_{ nullptr };
+    OHOS::sptr<IAbilityConnection> callbackB_{ nullptr };
 
 private:
     std::shared_ptr<AbilityConnectManager> connectManager_;
 };
 
-AbilityRequest AbilityConnectManageTest::GenerateAbilityRequest(const std::string &deviceName,
-    const std::string &abilityName, const std::string &appName, const std::string &bundleName,
-    const std::string &moduleName)
+AbilityRequest AbilityConnectManageTest::GenerateAbilityRequest(const std::string& deviceName,
+    const std::string& abilityName, const std::string& appName, const std::string& bundleName,
+    const std::string& moduleName)
 {
     ElementName element(deviceName, bundleName, abilityName, moduleName);
     Want want;
@@ -148,7 +148,7 @@ void AbilityConnectManageTest::TearDown(void)
     serviceRecord_ = nullptr;
 }
 
-AbilityConnectManager *AbilityConnectManageTest::ConnectManager() const
+AbilityConnectManager* AbilityConnectManageTest::ConnectManager() const
 {
     return connectManager_.get();
 }
@@ -898,7 +898,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Kit_Disconnect_001, TestSize.Level1)
     auto list = ConnectManager()->GetConnectRecordListByCallback(callbackA_);
     EXPECT_EQ(static_cast<int>(list.size()), 1);
 
-    for (auto &it : list) {
+    for (auto& it : list) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
@@ -934,14 +934,14 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
     auto listA = ConnectManager()->GetConnectRecordListByCallback(callbackA_);
     EXPECT_EQ(static_cast<int>(listA.size()), 2);
 
-    for (auto &it : listA) {
+    for (auto& it : listA) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
     auto listB = ConnectManager()->GetConnectRecordListByCallback(callbackB_);
     EXPECT_EQ(static_cast<int>(listB.size()), 2);
 
-    for (auto &it : listB) {
+    for (auto& it : listB) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
@@ -953,7 +953,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
 
     auto connectMap = ConnectManager()->GetConnectMap();
     EXPECT_EQ(static_cast<int>(connectMap.size()), 1);
-    for (auto &it : connectMap) {
+    for (auto& it : connectMap) {
         EXPECT_EQ(static_cast<int>(it.second.size()), 2);
     }
 }
@@ -1061,7 +1061,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_020, TestSize.Level1)
     auto token = abilityRecord->GetToken();
 
     auto listA = ConnectManager()->GetConnectRecordListByCallback(callbackA_);
-    for (auto &it : listA) {
+    for (auto& it : listA) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
@@ -1196,14 +1196,14 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_024, TestSize.Level1)
     auto listA = ConnectManager()->GetConnectRecordListByCallback(callbackA_);
     EXPECT_EQ(static_cast<int>(listA.size()), 2);
 
-    for (auto &it : listA) {
+    for (auto& it : listA) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
     auto listB = ConnectManager()->GetConnectRecordListByCallback(callbackB_);
     EXPECT_EQ(static_cast<int>(listB.size()), 2);
 
-    for (auto &it : listB) {
+    for (auto& it : listB) {
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
@@ -1371,7 +1371,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_029, TestSize.Level1)
     auto connectMap = ConnectManager()->GetConnectMap();
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
-    for (auto &it : connectRecordList) {
+    for (auto& it : connectRecordList) {
         EXPECT_NE(it->GetAbilityConnectCallback(), nullptr);
     }
 
@@ -1380,7 +1380,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_029, TestSize.Level1)
     auto cMap = ConnectManager()->GetConnectMap();
     connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
-    for (auto &it : connectRecordList) {
+    for (auto& it : connectRecordList) {
         EXPECT_EQ(it->GetAbilityConnectCallback(), nullptr);
     }
 }

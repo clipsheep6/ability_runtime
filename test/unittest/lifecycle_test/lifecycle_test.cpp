@@ -71,21 +71,21 @@ public:
 
     bool StartNextAbility() override;
 
-    int AttachAbility(const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler,
-        const OHOS::sptr<OHOS::IRemoteObject> &token) override;
+    int AttachAbility(const OHOS::sptr<OHOS::AAFwk::AbilityScheduler>& scheduler,
+        const OHOS::sptr<OHOS::IRemoteObject>& token) override;
 
     void OnStartabilityAms();
 public:
     int startLancherFlag_ = false;
 
     std::shared_ptr<AbilityManagerService> abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    std::shared_ptr<OHOS::AAFwk::AbilityRecord> launcherAbilityRecord_ {nullptr};  // launcher ability
-    OHOS::sptr<OHOS::IRemoteObject> launcherToken_ {nullptr};                      // token of launcher ability
-    std::shared_ptr<OHOS::AAFwk::AbilityRecord> nextAbilityRecord_ {nullptr};      // ability being launched
-    OHOS::sptr<OHOS::IRemoteObject> nextToken_ {nullptr};                          // token of ability being launched
-    OHOS::sptr<OHOS::AAFwk::AbilityScheduler> launcherScheduler_ {nullptr};        // launcher ability thread interface
-    OHOS::sptr<OHOS::AAFwk::AbilityScheduler> nextScheduler_ {nullptr};            // next ability thread interface
-    std::unique_ptr<LifeTestCommand> command_ {nullptr};                           // test command_ interact with ams_
+    std::shared_ptr<OHOS::AAFwk::AbilityRecord> launcherAbilityRecord_{ nullptr };  // launcher ability
+    OHOS::sptr<OHOS::IRemoteObject> launcherToken_{ nullptr };                      // token of launcher ability
+    std::shared_ptr<OHOS::AAFwk::AbilityRecord> nextAbilityRecord_{ nullptr };      // ability being launched
+    OHOS::sptr<OHOS::IRemoteObject> nextToken_{ nullptr };                          // token of ability being launched
+    OHOS::sptr<OHOS::AAFwk::AbilityScheduler> launcherScheduler_{ nullptr };        // launcher ability thread interface
+    OHOS::sptr<OHOS::AAFwk::AbilityScheduler> nextScheduler_{ nullptr };            // next ability thread interface
+    std::unique_ptr<LifeTestCommand> command_{ nullptr };                           // test command_ interact with ams_
 };
 
 void LifecycleTest::OnStartabilityAms()
@@ -158,7 +158,7 @@ bool LifecycleTest::StartNextAbility()
 }
 
 int LifecycleTest::AttachAbility(
-    const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler, const OHOS::sptr<OHOS::IRemoteObject> &token)
+    const OHOS::sptr<OHOS::AAFwk::AbilityScheduler>& scheduler, const OHOS::sptr<OHOS::IRemoteObject>& token)
 {
     return abilityMs_->AttachAbilityThread(scheduler, token);
 }

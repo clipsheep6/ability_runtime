@@ -24,13 +24,13 @@
 namespace OHOS {
 namespace AAFwk {
 AppMgrEventHandler::AppMgrEventHandler(
-    const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::shared_ptr<AbilityManagerService> &server)
+    const std::shared_ptr<AppExecFwk::EventRunner>& runner, const std::shared_ptr<AbilityManagerService>& server)
     : AppExecFwk::EventHandler(runner), server_(server)
 {
     HILOG_INFO("AbilityEventHandler::AbilityEventHandler::instance created.");
 }
 
-void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     if (event == nullptr) {
         HILOG_ERROR("AMSEventHandler::ProcessEvent::parameter error");
@@ -65,7 +65,7 @@ void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &eve
     }
 }
 
-void AppMgrEventHandler::ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointer &event)
+void AppMgrEventHandler::ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointer& event)
 {
     HILOG_DEBUG("process load ability.");
     auto tokenPtr = event->GetUniqueObject<sptr<IRemoteObject>>().get();
@@ -85,7 +85,7 @@ void AppMgrEventHandler::ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointe
     }
 }
 
-void AppMgrEventHandler::ScheduleAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event)
+void AppMgrEventHandler::ScheduleAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto object = event->GetUniqueObject<std::pair<sptr<AbilityScheduler>, int>>();
     auto abilitySched = object.get()->first;
@@ -120,7 +120,7 @@ void AppMgrEventHandler::ScheduleAbilityTransaction(const AppExecFwk::InnerEvent
     return;
 }
 
-void AppMgrEventHandler::ScheduleConnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event)
+void AppMgrEventHandler::ScheduleConnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto object = event->GetUniqueObject<std::pair<sptr<AbilityScheduler>, Want>>();
     auto abilitySched = object.get()->first;
@@ -128,7 +128,7 @@ void AppMgrEventHandler::ScheduleConnectAbilityTransaction(const AppExecFwk::Inn
     server_->ScheduleConnectAbilityDone(abilityToken, abilityToken);
 }
 
-void AppMgrEventHandler::ScheduleDisconnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer &event)
+void AppMgrEventHandler::ScheduleDisconnectAbilityTransaction(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto object = event->GetUniqueObject<sptr<AbilityScheduler>>();
     auto abilitySchedPtr = object.get();

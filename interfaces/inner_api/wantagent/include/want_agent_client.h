@@ -34,11 +34,12 @@ class WantAgentClient {
 public:
     static WantAgentClient &GetInstance();
 
-    sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
+    ErrCode GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken,
+        sptr<IWantSender> &wantSender);
 
     ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);
 
-    void CancelWantSender(const sptr<IWantSender> &sender);
+    ErrCode CancelWantSender(const sptr<IWantSender> &sender);
 
     ErrCode GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid);
 
@@ -50,9 +51,9 @@ public:
 
     ErrCode GetPendingWantType(const sptr<IWantSender> &target, int32_t &type);
 
-    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
+    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 
-    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
+    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 
     ErrCode GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
 

@@ -29,7 +29,7 @@ public:
     MockAbilityimpl() = default;
     virtual ~MockAbilityimpl() = default;
 
-    void ImplStart(const Want &want)
+    void ImplStart(const Want& want)
     {
         this->Start(want);
     }
@@ -82,7 +82,7 @@ public:
     }
 
 #ifdef SUPPORT_GRAPHICS
-    void ImplForeground(const Want &want)
+    void ImplForeground(const Want& want)
     {
         this->Foreground(want);
     }

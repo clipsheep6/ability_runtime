@@ -55,20 +55,20 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
 
     for (auto &callback : callbacks_) {
         if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
+            HILOG_ERROR("CallJsMethodInnerCommon, Invalid jsCallback");
             return;
         }
 
         auto value = callback.second->Get();
         auto obj = ConvertNativeValueTo<NativeObject>(value);
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            HILOG_ERROR("CallJsMethodInnerCommon, Failed to get object");
             return;
         }
 
         auto method = obj->GetProperty(methodName.data());
         if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
+            HILOG_ERROR("CallJsMethodInnerCommon, Failed to get %{public}s from object", methodName.data());
             return;
         }
 

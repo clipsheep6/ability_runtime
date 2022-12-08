@@ -388,14 +388,14 @@ public:
      */
     bool CheckObsPermission();
 
-	/**
+    /**
      * @brief Dump ability runner info.
      *
      * @param runnerInfo ability runner info.
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info);
 
-    sptr<IRemoteObject> CallRequest();
+    void CallRequest();
 
     std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);

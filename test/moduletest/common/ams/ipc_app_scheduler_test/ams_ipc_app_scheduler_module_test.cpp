@@ -252,9 +252,6 @@ HWTEST_F(AmsIpcAppSchedulerModuleTest, ExcuteApplicationIPCInterface_009, TestSi
     for (int i = 0; i < COUNT; i++) {
         sptr<MockApplication> mockApplication(new MockApplication());
         sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
-
-        std::string abilityName("mockAbilityInfo");
-
         EXPECT_CALL(*mockApplication, ScheduleCleanAbility(_))
             .Times(1)
             .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
@@ -282,7 +279,7 @@ HWTEST_F(AmsIpcAppSchedulerModuleTest, ExcuteApplicationIPCInterface_010, TestSi
         sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler);
         bool testResult = false;
 
-        auto mockHandler = [&](const Configuration &config) {
+        auto mockHandler = [&](const Configuration& config) {
             testResult = (val == config.GetItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
             sem.Post();
         };

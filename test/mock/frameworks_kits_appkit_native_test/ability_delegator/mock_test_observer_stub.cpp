@@ -22,23 +22,23 @@ MockTestObserverStub::~MockTestObserverStub()
 {}
 
 int MockTestObserverStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
 }
 
-void MockTestObserverStub::TestStatus(const std::string &msg, const int64_t &resultCode)
+void MockTestObserverStub::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
     HILOG_INFO("MockTestObserverStub::TestStatus is called");
 
     testStatusFlag = true;
 }
 
-void MockTestObserverStub::TestFinished(const std::string &msg, const int64_t &resultCode)
+void MockTestObserverStub::TestFinished(const std::string& msg, const int64_t& resultCode)
 {}
 
 ShellCommandResult MockTestObserverStub::ExecuteShellCommand(
-    const std::string &cmd, const int64_t timeoutMs)
+    const std::string& cmd, const int64_t timeoutMs)
 {
     return ShellCommandResult();
 }

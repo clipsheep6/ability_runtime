@@ -51,7 +51,7 @@ public:
     {
         abilitythread_ = nullptr;
     }
-    AbilityThread *abilitythread_;
+    AbilityThread* abilitythread_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
@@ -84,7 +84,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0100, Function |
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfo_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -121,7 +121,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleSaveAbilityState_0100, F
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleSaveAbilityState_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -153,7 +153,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleSaveAbilityState_0200, F
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleSaveAbilityState_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->ScheduleSaveAbilityState();
@@ -170,7 +170,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0100
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRestoreAbilityState_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -203,7 +203,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->ScheduleSaveAbilityState();
@@ -219,7 +219,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_3_Param_0100 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -247,7 +247,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0100, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_3_Param_0200 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -276,7 +276,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0200, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_2_Param_0100 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -304,7 +304,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0100, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_2_Param_0200 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -335,7 +335,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0100,
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -368,7 +368,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0100,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0200 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -399,7 +399,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleConnectAbility_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -432,7 +432,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0200, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleConnectAbility_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -460,7 +460,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0100, 
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleDisconnectAbility_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -493,7 +493,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0200, 
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleDisconnectAbility_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -521,7 +521,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbility_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -558,7 +558,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0200, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbility_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -588,7 +588,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0100, Function | Medi
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0100 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -624,7 +624,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0200 start";
 
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -653,7 +653,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0100 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -681,7 +681,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0100, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0200 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -709,7 +709,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0200, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0300 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -737,7 +737,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0300, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0400, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0400 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();

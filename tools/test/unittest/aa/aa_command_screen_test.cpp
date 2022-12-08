@@ -75,10 +75,10 @@ void AaCommandScreenTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -93,11 +93,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0100, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -112,11 +112,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0200, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -131,11 +131,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0300, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -150,11 +150,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0400, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--x",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--x",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -169,11 +169,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0500, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0600, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--xxx",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--xxx",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -188,11 +188,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0600, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0700, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-h",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-h",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -207,11 +207,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0700, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0800, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--help",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--help",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -226,11 +226,11 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0800, Function | MediumTest | Le
  */
 HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0900, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-p",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

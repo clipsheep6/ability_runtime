@@ -28,7 +28,7 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const int32_t USER_ID = 100;
-}  // namespace
+} // namespace
 
 class AppMgrServiceDumpTest : public testing::Test {
 public:

@@ -82,6 +82,7 @@ class AbilityWindow;
 #endif
 class ILifeCycle;
 class ContinuationManager;
+class AbilityRecovery;
 class ContinuationRegisterManager;
 class IContinuationRegisterManager;
 class Ability : public IAbilityEvent,
@@ -361,13 +362,13 @@ public:
      * code to identify the results returned by abilities. The value ranges from 0 to 65535.
      * @param resultCode Indicates the result code returned after the ability is started. You can define the result code
      * to identify an error.
-     * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
+     * @param want Indicates the data returned after the ability is started. You can define the data returned. The
      * value can be null.
      *
      */
-    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &want);
 
-    virtual void OnFeatureAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    virtual void OnFeatureAbilityResult(int requestCode, int resultCode, const Want &want);
 
     /**
      * @brief Called back when the Back key is pressed.
@@ -800,6 +801,22 @@ public:
      */
     virtual void OnRemoteTerminated() override;
 
+    /**
+     * @brief Prepare user data of local Ability.
+     *
+     * @param reason the reason why framework invoke this function
+     * @param wantParams Indicates the user data to be saved.
+     * @return result code defined in abilityConstants
+     */
+    virtual int32_t OnSaveState(int32_t reason, WantParams &wantParams);
+
+    /**
+     * @brief enable ability recovery.
+     *
+     * @param abilityRecovery shared_ptr of abilityRecovery
+     */
+    void EnableAbilityRecovery(const std::shared_ptr<AbilityRecovery>& abilityRecovery);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     friend class PageAbilityImpl;
@@ -958,7 +975,7 @@ public:
      *
      * @param windowOption Indicates the window option defined by the user.
      */
-    virtual void InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option);
+    virtual void InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option);
 
     /**
      * @brief Get the window belong to the ability.
@@ -1147,7 +1164,7 @@ public:
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
-        AbilityDisplayListener(const std::weak_ptr<Ability>& ability)
+        explicit AbilityDisplayListener(const std::weak_ptr<Ability>& ability)
         {
             ability_ = ability;
         }
@@ -1190,10 +1207,7 @@ protected:
 
     class AbilityDisplayMoveListener : public OHOS::Rosen::IDisplayMoveListener {
     public:
-        AbilityDisplayMoveListener(const std::weak_ptr<Ability>& ability)
-        {
-            ability_ = ability;
-        }
+        explicit AbilityDisplayMoveListener(std::weak_ptr<Ability>&& ability) : ability_(ability) {}
 
         void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to) override
         {
@@ -1273,10 +1287,17 @@ protected:
      */
     void NotifyContinuationResult(const Want& want, bool success);
 
+    /**
+     * @brief judge whether we should restore state
+     * @return true if we we should restore state
+     */
+    bool ShouldRecoverState(const Want& want);
+
     bool IsUseNewStartUpRule();
 
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
+    std::shared_ptr<AbilityRecovery> abilityRecovery_ = nullptr;
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
@@ -1301,6 +1322,7 @@ private:
     bool VerifySupportForContinuation();
     void HandleCreateAsContinuation(const Want &want);
     bool IsFlagExists(unsigned int flag, unsigned int flagSet);
+    void HandleCreateAsRecovery(const Want &want);
     /**
      * @brief Set the start ability setting.
      * @param setting the start ability setting.

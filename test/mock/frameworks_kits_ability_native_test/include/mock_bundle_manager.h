@@ -30,26 +30,26 @@ namespace OHOS {
 namespace AppExecFwk {
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
-    explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
+    explicit BundleMgrProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IBundleMgr>(impl)
     {}
     ~BundleMgrProxy() = default;
 
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
 
-    bool GetBundleInfo(const std::string &bundleName,
-        const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override
+    bool GetBundleInfo(const std::string& bundleName,
+        const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override
     {
         return true;
     }
-    std::string GetAppType(const std::string &bundleName) override;
-    bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
-    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override;
+    std::string GetAppType(const std::string& bundleName) override;
+    bool QueryAbilityInfo(const Want& want, AbilityInfo& abilityInfo) override;
+    bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo) override;
     bool GetHapModuleInfo(
-        const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
+        const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
 
-    bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
+    bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
+        AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionInfo) override
     {
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
@@ -60,23 +60,30 @@ public:
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 };
 
 class BundleMgrService : public BundleMgrStub {
 public:
     bool GetApplicationInfo(
-        const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
-    bool GetBundleInfo(const std::string &bundleName,
-        const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override
+        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+    bool GetBundleInfo(const std::string& bundleName,
+        const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override
     {
+        if (bundleName == "test_contextImpl") {
+            bundleInfo.name = "test_contextImpl";
+            bundleInfo.applicationInfo.name = "test_contextImpl";
+            HapModuleInfo moduleInfo1;
+            moduleInfo1.moduleName = "test_moduleName";
+            bundleInfo.hapModuleInfos.push_back(moduleInfo1);
+        }
         return true;
     }
-    std::string GetAppType(const std::string &bundleName) override;
-    bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
-    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override;
+    std::string GetAppType(const std::string& bundleName) override;
+    bool QueryAbilityInfo(const Want& want, AbilityInfo& abilityInfo) override;
+    bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo) override;
     bool GetHapModuleInfo(
-        const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
+        const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

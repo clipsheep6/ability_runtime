@@ -240,49 +240,49 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     return result;
 }
 
-NativeValue *JsFeatureAbility::OnGetDeviceList(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnGetDeviceList(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnCallAbility(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnCallAbility(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnContinueAbility(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnContinueAbility(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnUnsubscribeAbilityEvent(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnUnsubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSendMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSendMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnSubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnSubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsFeatureAbility::OnUnsubscribeMsg(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsFeatureAbility::OnUnsubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     return engine.CreateUndefined();
@@ -291,28 +291,31 @@ NativeValue *JsFeatureAbility::OnUnsubscribeMsg(NativeEngine &engine, NativeCall
 Ability* JsFeatureAbility::GetAbility(napi_env env)
 {
     napi_status ret;
-    napi_value global = 0;
+    napi_value global = nullptr;
     const napi_extended_error_info *errorInfo = nullptr;
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
 
-    napi_value abilityObj = 0;
+    napi_value abilityObj = nullptr;
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_named_property=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
         return nullptr;
     }
 
     Ability* ability = nullptr;
-    ret = napi_get_value_external(env, abilityObj, (void **)&ability);
+    ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
+        HILOG_ERROR("JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+            ret, errorInfo->error_message);
     return nullptr;
     }
 
@@ -374,12 +377,12 @@ Want JsFeatureAbility::GetWant(DistributeReqParam &requestParam)
     return want;
 }
 
-void JsFeatureAbility::GetExtraParams(DistributeReqParam &requestParam, Want &want)
+void JsFeatureAbility::GetExtraParams(const DistributeReqParam &requestParam, const Want &want)
 {
     return;
 }
 
-bool JsFeatureAbility::CheckThenGetDeepLinkUri(DistributeReqParam &requestParam, Uri &uri)
+bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri)
 {
     std::string url = requestParam.GetUrl();
     std::string action = requestParam.GetAction();
@@ -495,7 +498,7 @@ NativeValue* JsFeatureAbility::CreateJsFeatureAbility(NativeEngine &engine)
     return objValue;
 }
 
-NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exportObj)
+NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (engine == nullptr) {

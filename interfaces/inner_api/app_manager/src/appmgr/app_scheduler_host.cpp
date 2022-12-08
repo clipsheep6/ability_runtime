@@ -236,14 +236,18 @@ int32_t AppSchedulerHost::HandleNotifyLoadRepairPatch(MessageParcel &data, Messa
 {
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
-    ScheduleNotifyLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto recordId = data.ReadInt32();
+    ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
     return NO_ERROR;
 }
 
 int32_t AppSchedulerHost::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleNotifyHotReloadPage();
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto recordId = data.ReadInt32();
+    ScheduleNotifyHotReloadPage(callback, recordId);
     return NO_ERROR;
 }
 
@@ -251,7 +255,9 @@ int32_t AppSchedulerHost::HandleNotifyUnLoadRepairPatch(MessageParcel &data, Mes
 {
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
-    ScheduleNotifyUnLoadRepairPatch(bundleName);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto recordId = data.ReadInt32();
+    ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

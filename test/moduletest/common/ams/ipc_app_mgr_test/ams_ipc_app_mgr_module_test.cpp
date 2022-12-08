@@ -58,9 +58,9 @@ void AmsIpcAppmgrModuleTest::TearDown()
 class MockMockAppMgrService : public MockAppMgrService {
 public:
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
-    MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string &));
-    MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string &bundleName));
-    MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo> &));
+    MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string&));
+    MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& bundleName));
+    MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>&));
 };
 
 /*
@@ -216,7 +216,7 @@ HWTEST_F(AmsIpcAppmgrModuleTest, ExcuteAppmgrIPCInterface_007, TestSize.Level3)
         std::string testBundleName("testApp");
         bool testResult = false;
 
-        auto mockHandler = [&](const std::string &name) {
+        auto mockHandler = [&](const std::string& name) {
             testResult = (name == testBundleName);
             mockMockAppMgr->Post();
             return 0;
@@ -251,14 +251,14 @@ HWTEST_F(AmsIpcAppmgrModuleTest, ExcuteAppmgrIPCInterface_09, TestSize.Level3)
         sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);
         std::vector<RunningProcessInfo> allRunningProcessInfo;
 
-        auto mockHandler = [&](std::vector<RunningProcessInfo> &result) {
+        auto mockHandler = [&](std::vector<RunningProcessInfo>& result) {
             result.clear();
 
-            auto &r1 = result.emplace_back();
+            auto& r1 = result.emplace_back();
             r1.processName_ = testBundleName_1;
             r1.pid_ = testApp1Pid;
 
-            auto &r2 = result.emplace_back();
+            auto& r2 = result.emplace_back();
             r2.processName_ = testBundleName_2;
             r2.pid_ = testApp2Pid;
 

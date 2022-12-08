@@ -86,13 +86,13 @@ public:
     void TearDown();
     void OnStartAms();
     void OnStopAms();
-    Want CreateWant(const std::string &abilityName, const std::string &bundleName);
+    Want CreateWant(const std::string& abilityName, const std::string& bundleName);
 
-    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
-    inline static MockAppMgrClient *mockAppMgrClient_ = nullptr;
+    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
+    inline static MockAppMgrClient* mockAppMgrClient_ = nullptr;
 };
 
-Want RunningInfosModuleTest::CreateWant(const std::string &abilityName, const std::string &bundleName)
+Want RunningInfosModuleTest::CreateWant(const std::string& abilityName, const std::string& bundleName)
 {
     ElementName element;
     element.SetDeviceID("device");
@@ -211,7 +211,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_001, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName);
@@ -239,7 +239,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_002, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName);
@@ -267,7 +267,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_003, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName);
@@ -305,7 +305,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_004, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName2);
@@ -341,7 +341,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_005, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName);
@@ -381,7 +381,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_006, TestSize.Level1)
 
     std::vector<AbilityRunningInfo> infos;
     abilityMgrServ_->GetAbilityRunningInfos(infos);
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].ability.GetAbilityName() == abilityName2);
@@ -412,7 +412,7 @@ HWTEST_F(RunningInfosModuleTest, GetExtensionRunningInfos_001, TestSize.Level1)
     std::vector<ExtensionRunningInfo> infos;
     int upperLimit = 10;
     abilityMgrServ_->GetExtensionRunningInfos(upperLimit, infos);
-    size_t infoCount {1};
+    size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].extension.GetAbilityName() == abilityName);
@@ -446,7 +446,7 @@ HWTEST_F(RunningInfosModuleTest, GetExtensionRunningInfos_002, TestSize.Level1)
     std::vector<ExtensionRunningInfo> infos;
     int upperLimit = 10;
     abilityMgrServ_->GetExtensionRunningInfos(upperLimit, infos);
-    size_t infoCount {2};
+    size_t infoCount{ 2 };
     if (infos.size() == infoCount) {
         EXPECT_TRUE(infos[0].extension.GetAbilityName() == abilityName);
         EXPECT_TRUE(infos[1].extension.GetAbilityName() == abilityName2);

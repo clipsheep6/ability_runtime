@@ -154,6 +154,7 @@ public:
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
+    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
@@ -162,15 +163,17 @@ public:
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
     bool ProcessExitByPid(pid_t pid);
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
-    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
-    int32_t NotifyHotReloadPage(const std::string &bundleName);
-    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
     bool IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationBackground(const std::string &bundleName);
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
+    void AssignRunningProcessInfoByAppRecord(
+        std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
 
 private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;

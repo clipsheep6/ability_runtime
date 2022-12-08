@@ -18,6 +18,8 @@
     "name": "serviceAbilityBundleForStart",
     "mainAbility": ".MainAbility",
     "deviceType": [
+      "tablet",
+      "default",
       "tv",
       "car"
     ],

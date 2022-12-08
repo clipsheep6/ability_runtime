@@ -65,7 +65,7 @@ public:
      * @param formInfo Form info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int AddForm(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken, FormJsInfo &formInfo)
+    int AddForm(const int64_t formId, const Want& want, const sptr<IRemoteObject>& callerToken, FormJsInfo& formInfo)
     {
         if (formId == 300L) {
             formInfo.formId = formId;
@@ -79,7 +79,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int DeleteForm(const int64_t formId, const sptr<IRemoteObject> &callerToken)
+    int DeleteForm(const int64_t formId, const sptr<IRemoteObject>& callerToken)
     {
         return 0;
     }
@@ -91,7 +91,7 @@ public:
      * @param delCache Delete Cache or not.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int ReleaseForm(const int64_t formId, const sptr<IRemoteObject> &callerToken, const bool delCache)
+    int ReleaseForm(const int64_t formId, const sptr<IRemoteObject>& callerToken, const bool delCache)
     {
         return 0;
     }
@@ -117,7 +117,7 @@ public:
      * @param want The want of the form to add.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int RequestForm(const int64_t formId, const sptr<IRemoteObject> &callerToken, const Want &want)
+    int RequestForm(const int64_t formId, const sptr<IRemoteObject>& callerToken, const Want& want)
     {
         return 0;
     }
@@ -129,8 +129,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int NotifyWhetherVisibleForms(
-        const std::vector<int64_t> &formIds,
-        const sptr<IRemoteObject> &callerToken,
+        const std::vector<int64_t>& formIds,
+        const sptr<IRemoteObject>& callerToken,
         const int32_t formVisibleType)
     {
         if (formIds.size() == 1) {
@@ -145,7 +145,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int CastTempForm(const int64_t formId, const sptr<IRemoteObject> &callerToken)
+    int CastTempForm(const int64_t formId, const sptr<IRemoteObject>& callerToken)
     {
         if (formId == 175L)return 0;
         return 1;
@@ -167,7 +167,7 @@ public:
      * @param formInfos Form infos.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int DumpFormInfoByBundleName(const std::string &bundleName, std::string &formInfos)
+    int DumpFormInfoByBundleName(const std::string& bundleName, std::string& formInfos)
     {
         return 0;
     }
@@ -178,7 +178,7 @@ public:
      * @param formInfo Form info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int DumpFormInfoByFormId(const std::int64_t formId, std::string &formInfo)
+    int DumpFormInfoByFormId(const std::int64_t formId, std::string& formInfo)
     {
         return 0;
     }
@@ -206,8 +206,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int LifecycleUpdate(
-        const std::vector<int64_t> &formIds,
-        const sptr<IRemoteObject> &callerToken,
+        const std::vector<int64_t>& formIds,
+        const sptr<IRemoteObject>& callerToken,
         const int32_t updateType)
     {
         if (formIds.size() == 0) {
@@ -223,7 +223,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns true if execute success, false otherwise.
      */
-    int MessageEvent(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
+    int MessageEvent(const int64_t formId, const Want& want, const sptr<IRemoteObject>& callerToken)
     {
         return 0;
     }

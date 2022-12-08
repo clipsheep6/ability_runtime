@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
+
 #include <map>
 
 #include "ierror_observer.h"
 #include "native_engine/native_engine.h"
-
-#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
 
 namespace OHOS {
 namespace AbilityRuntime {

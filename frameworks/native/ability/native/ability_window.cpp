@@ -39,10 +39,8 @@ void AbilityWindow::Init(std::shared_ptr<AbilityHandler>& handler, std::shared_p
     windowScene_ = std::make_shared<Rosen::WindowScene>();
 }
 
-bool AbilityWindow::InitWindow(Rosen::WindowType winType,
-    std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-    sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option,
-    bool isPrivacy)
+bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
+    sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option, bool isPrivacy)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (windowScene_ == nullptr) {
@@ -60,12 +58,6 @@ bool AbilityWindow::InitWindow(Rosen::WindowType winType,
         return false;
     }
 
-    ret = window->SetWindowType(winType);
-    if (ret != OHOS::Rosen::WMError::WM_OK) {
-        HILOG_ERROR("Set window type error, errcode = %{public}d", ret);
-        return false;
-    }
-    winType_ = winType;
     if (isPrivacy) {
         window->SetSystemPrivacyMode(true);
     }

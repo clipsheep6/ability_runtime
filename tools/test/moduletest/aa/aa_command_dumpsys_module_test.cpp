@@ -60,11 +60,11 @@ void AaCommandDumpsysModuleTest::TearDown()
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-a",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-a",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -84,11 +84,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0100, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--all",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--all",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -108,11 +108,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0200, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-l",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-l",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -132,11 +132,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0300, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--mission-list",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--mission-list",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -156,12 +156,12 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0400, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-i",
-        (char *)STRING_RECORD_ID.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-i",
+        (char*)STRING_RECORD_ID.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -181,12 +181,12 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0500, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0600, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--ability",
-        (char *)STRING_RECORD_ID.c_str(),
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--ability",
+        (char*)STRING_RECORD_ID.c_str(),
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -206,11 +206,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0600, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0700, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-e",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-e",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -230,11 +230,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0700, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0800, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--extension",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--extension",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -254,11 +254,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0800, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0900, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-p",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -278,11 +278,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_0900, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1000, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--pending",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--pending",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -302,11 +302,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1000, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1100, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-r",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-r",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -327,11 +327,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1100, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1200, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--process",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--process",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -352,11 +352,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1200, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1300, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-d",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -376,11 +376,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1300, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1400, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--data",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--data",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -400,11 +400,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1400, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1500, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"-c",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-c",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -424,11 +424,11 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1500, Functio
  */
 HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1600, Function | MediumTest | Level1)
 {
-    char *argv[] = {
-        (char *)TOOL_NAME.c_str(),
-        (char *)cmd_.c_str(),
-        (char *)"--client",
-        (char *)"",
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"--client",
+        (char*)"",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

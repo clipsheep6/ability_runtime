@@ -61,12 +61,12 @@ void NewAbilityImplTest::TearDown(void)
  * @tc.name: HandleAbilityTransaction
  * @tc.desc: Handle transactions in the Initial state
  */
-/**
- * @tc.name: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100
- * @tc.desc: Handle transactions in the foreground state and isNewWant is true.
- * @tc.type: FUNC
- * @tc.require: I58047
- */
+ /**
+  * @tc.name: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100
+  * @tc.desc: Handle transactions in the foreground state and isNewWant is true.
+  * @tc.type: FUNC
+  * @tc.require: I58047
+  */
 HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100, Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100 start";
@@ -81,7 +81,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability;
-    MockNewAbility *newAbility = new (std::nothrow) MockNewAbility();
+    MockNewAbility* newAbility = new (std::nothrow) MockNewAbility();
     EXPECT_NE(newAbility, nullptr);
     if (newAbility != nullptr) {
         ability.reset(newAbility);
