@@ -371,6 +371,10 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
 {
     auto callback = new (std::nothrow) QuickFixManagerStatusCallback(shared_from_this());
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deleteTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();

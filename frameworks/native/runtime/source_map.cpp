@@ -408,7 +408,6 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
 
     // collect error info first
     bool needGetErrorPos = false;
-    int32_t errorPos = 0;
     uint32_t i = 0;
     std::string codeStart = "SourceCode (";
     std::string sourceCode = "";
@@ -455,7 +454,6 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         std::string column = "";
         GetPosInfo(temp, closeBracePos, line, column);
         if (needGetErrorPos) {
-            errorPos = StringToInt(column);
             needGetErrorPos = false;
         }
         if (line.empty() || column.empty()) {
