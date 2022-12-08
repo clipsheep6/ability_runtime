@@ -242,5 +242,713 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0100, TestSize.Level1)
     mainThread_->HandleLaunchApplication(lanchdate, config);
     EXPECT_TRUE(mainThread_->application_ != nullptr);
 }
+
+/**
+ * @tc.name: ConnectToAppMgr_0100
+ * @tc.desc: ConnectToAppMgr.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, ConnectToAppMgr_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_TRUE(mainThread_->ConnectToAppMgr());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Attach_0100
+ * @tc.desc: Attach.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, Attach_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->Attach();
+    EXPECT_EQ(MainThreadState::ATTACH, mainThread_->mainThreadState_);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RemoveAppMgrDeathRecipient_0100
+ * @tc.desc: RemoveAppMgrDeathRecipient.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, RemoveAppMgrDeathRecipient_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->RemoveAppMgrDeathRecipient();
+    EXPECT_TRUE(mainThread_->ConnectToAppMgr());
+    mainThread_->RemoveAppMgrDeathRecipient();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckLaunchApplicationParam_0100
+ * @tc.desc: CheckLaunchApplicationParam.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    AppLaunchData appLaunchData;
+    ApplicationInfo appInfo;
+    appInfo.name = "";
+    ProcessInfo processInfo("test", 1);
+    appLaunchData.SetApplicationInfo(appInfo);
+    appLaunchData.SetProcessInfo(processInfo);
+    EXPECT_FALSE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckLaunchApplicationParam_0200
+ * @tc.desc: CheckLaunchApplicationParam.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    AppLaunchData appLaunchData;
+    ApplicationInfo appInfo;
+    appInfo.name = "test";
+    ProcessInfo processInfo("", 1);
+    appLaunchData.SetApplicationInfo(appInfo);
+    appLaunchData.SetProcessInfo(processInfo);
+    EXPECT_FALSE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckAbilityItem_0100
+ * @tc.desc: CheckAbilityItem.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckAbilityItem_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(info, nullptr);
+    EXPECT_FALSE(mainThread_->CheckAbilityItem(record));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckAbilityItem_0200
+ * @tc.desc: CheckAbilityItem.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckAbilityItem_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(nullptr, nullptr);
+    EXPECT_FALSE(mainThread_->CheckAbilityItem(record));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckAbilityItem_0300
+ * @tc.desc: CheckAbilityItem.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckAbilityItem_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_FALSE(mainThread_->CheckAbilityItem(nullptr));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplicationLocal_0100
+ * @tc.desc: HandleTerminateApplicationLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleTerminateApplicationLocal();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplicationLocal_0200
+ * @tc.desc: HandleTerminateApplicationLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->signalHandler_->SetEventRunner(nullptr);
+    mainThread_->HandleTerminateApplicationLocal();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplicationLocal_0300
+ * @tc.desc: HandleTerminateApplicationLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->mainHandler_->SetEventRunner(nullptr);
+    mainThread_->HandleTerminateApplicationLocal();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplicationLocal_0400
+ * @tc.desc: HandleTerminateApplicationLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->watchdog_ = nullptr;
+    mainThread_->HandleTerminateApplicationLocal();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleProcessSecurityExit_0100
+ * @tc.desc: HandleProcessSecurityExit.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->abilityRecordMgr_ = nullptr;
+    mainThread_->HandleProcessSecurityExit();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleProcessSecurityExit_0200
+ * @tc.desc: HandleProcessSecurityExit.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleProcessSecurityExit();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckForHandleLaunchApplication_0100
+ * @tc.desc: CheckForHandleLaunchApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    AppLaunchData appLaunchData;
+    ApplicationInfo appInfo;
+    appInfo.name = "test";
+    ProcessInfo processInfo("test", 1);
+    appLaunchData.SetApplicationInfo(appInfo);
+    appLaunchData.SetProcessInfo(processInfo);
+    EXPECT_TRUE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckForHandleLaunchApplication_0300
+ * @tc.desc: CheckForHandleLaunchApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    AppLaunchData appLaunchData;
+    ApplicationInfo appInfo;
+    appInfo.name = "";
+    ProcessInfo processInfo("test", 1);
+    appLaunchData.SetApplicationInfo(appInfo);
+    appLaunchData.SetProcessInfo(processInfo);
+    EXPECT_FALSE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleAbilityStage_0100
+ * @tc.desc: HandleAbilityStage.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleAbilityStage_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    HapModuleInfo info;
+    mainThread_->HandleAbilityStage(info);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleAbilityStage_0200
+ * @tc.desc: HandleAbilityStage.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleAbilityStage_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    HapModuleInfo info;
+    mainThread_->HandleAbilityStage(info);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleAbilityStage_0300
+ * @tc.desc: HandleAbilityStage.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleAbilityStage_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->appMgr_ = nullptr;
+    HapModuleInfo info;
+    mainThread_->HandleAbilityStage(info);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleAbilityStage_0400
+ * @tc.desc: HandleAbilityStage.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleAbilityStage_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->applicationImpl_ = nullptr;
+    HapModuleInfo info;
+    mainThread_->HandleAbilityStage(info);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PrepareAbilityDelegator_0200
+ * @tc.desc: PrepareAbilityDelegator.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    bool isStageBased = true;
+    BundleInfo bundleInfo;
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(nullptr, isStageBased, bundleInfo));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleLaunchAbility_0100
+ * @tc.desc: HandleLaunchAbility.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleLaunchAbility_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(nullptr, nullptr);
+    mainThread_->HandleLaunchAbility(abilityRecord);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleCleanAbilityLocal_0100
+ * @tc.desc: HandleCleanAbilityLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleCleanAbilityLocal(nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleCleanAbilityLocal_0200
+ * @tc.desc: HandleCleanAbilityLocal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleCleanAbilityLocal(nullptr);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleForegroundApplication_0100
+ * @tc.desc: HandleForegroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleForegroundApplication_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleForegroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleForegroundApplication_0200
+ * @tc.desc: HandleForegroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleForegroundApplication_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleForegroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleForegroundApplication_0300
+ * @tc.desc: HandleForegroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleForegroundApplication_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->appMgr_ = nullptr;
+    mainThread_->HandleForegroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleBackgroundApplication_0100
+ * @tc.desc: HandleBackgroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleBackgroundApplication_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleBackgroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleBackgroundApplication_0200
+ * @tc.desc: HandleBackgroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleBackgroundApplication_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleBackgroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleBackgroundApplication_0300
+ * @tc.desc: HandleBackgroundApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleBackgroundApplication_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->appMgr_ = nullptr;
+    mainThread_->HandleBackgroundApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0100
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0200
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0300
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->appMgr_ = nullptr;
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0400
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->signalHandler_->SetEventRunner(nullptr);
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0500
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0500, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->mainHandler_->SetEventRunner(nullptr);
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleTerminateApplication_0600
+ * @tc.desc: HandleTerminateApplication.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleTerminateApplication_0600, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->watchdog_ = nullptr;
+    mainThread_->HandleTerminateApplication();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleShrinkMemory_0100
+ * @tc.desc: HandleShrinkMemory.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleShrinkMemory_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleShrinkMemory(1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleShrinkMemory_0200
+ * @tc.desc: HandleShrinkMemory.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleShrinkMemory_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->applicationImpl_ = nullptr;
+    mainThread_->HandleShrinkMemory(1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleMemoryLevel_0100
+ * @tc.desc: HandleMemoryLevel.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleMemoryLevel_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleMemoryLevel(1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleMemoryLevel_0200
+ * @tc.desc: HandleMemoryLevel.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleMemoryLevel_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleMemoryLevel(1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleConfigurationUpdated_0100
+ * @tc.desc: HandleConfigurationUpdated.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    Configuration config;
+    mainThread_->HandleConfigurationUpdated(config);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleConfigurationUpdated_0200
+ * @tc.desc: HandleConfigurationUpdated.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->applicationImpl_ = nullptr;
+    Configuration config;
+    mainThread_->HandleConfigurationUpdated(config);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleSignal_0100
+ * @tc.desc: HandleSignal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    constexpr int SIGNAL_JS_HEAP = 39;
+    mainThread_->HandleSignal(SIGNAL_JS_HEAP);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleSignal_0200
+ * @tc.desc: HandleSignal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    constexpr int SIGNAL_JS_HEAP_PRIV = 40;
+    mainThread_->HandleSignal(SIGNAL_JS_HEAP_PRIV);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleSignal_0300
+ * @tc.desc: HandleSignal.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleSignal(-1);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: IsApplicationReady_0200
+ * @tc.desc: IsApplicationReady.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, IsApplicationReady_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->application_ = nullptr;
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_FALSE(mainThread_->IsApplicationReady());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckFileType_0100
+ * @tc.desc: CheckFileType.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckFileType_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string fileName = "test.testExtension";
+    std::string extensionName = "testExtension";
+    EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckFileType_0200
+ * @tc.desc: CheckFileType.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckFileType_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string fileName = "";
+    std::string extensionName = "testExtension";
+    EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckFileType_0300
+ * @tc.desc: CheckFileType.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, CheckFileType_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string fileName = "testExtension";
+    std::string extensionName = "testExtension";
+    EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
+    HILOG_INFO("%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

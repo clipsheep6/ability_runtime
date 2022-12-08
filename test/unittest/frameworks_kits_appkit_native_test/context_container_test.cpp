@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include <singleton.h>
+#define private public
 #include "ohos_application.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
@@ -23,6 +24,7 @@
 #include "context_container.h"
 #include "context_deal.h"
 #include "mock_bundle_manager.h"
+#undef private
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -618,6 +620,644 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_InitResourceManager_0
     bundleInfo.hapModuleInfos.push_back(info);
     context_->InitResourceManager(bundleInfo, appContext);
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
+}
+
+/**
+ * @tc.number: AttachBaseContext_0100
+ * @tc.name: AttachBaseContext
+ * @tc.desc: AttachBaseContext
+ */
+HWTEST_F(ContextContainerTest, AttachBaseContext_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->baseContext_, nullptr);
+}
+
+/**
+ * @tc.number: GetResourceManager_0100
+ * @tc.name: GetResourceManager
+ * @tc.desc: GetResourceManager
+ */
+HWTEST_F(ContextContainerTest, GetResourceManager_0100, Function | MediumTest | Level1)
+{
+    context_->baseContext_ = nullptr;
+    EXPECT_EQ(context_->GetResourceManager(), nullptr);
+}
+
+/**
+ * @tc.number: DeleteFile_0100
+ * @tc.name: DeleteFile
+ * @tc.desc: DeleteFile
+ */
+HWTEST_F(ContextContainerTest, DeleteFile_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_TRUE(context_->DeleteFile("test_file"));
+}
+
+/**
+ * @tc.number: DeleteFile_0200
+ * @tc.name: DeleteFile
+ * @tc.desc: DeleteFile
+ */
+HWTEST_F(ContextContainerTest, DeleteFile_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_FALSE(context_->DeleteFile("test_file"));
+}
+
+/**
+ * @tc.number: GetExternalCacheDir_0100
+ * @tc.name: GetExternalCacheDir
+ * @tc.desc: GetExternalCacheDir
+ */
+HWTEST_F(ContextContainerTest, GetExternalCacheDir_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetExternalCacheDir(), "");
+}
+
+/**
+ * @tc.number: GetExternalCacheDir_0200
+ * @tc.name: GetExternalCacheDir
+ * @tc.desc: GetExternalCacheDir
+ */
+HWTEST_F(ContextContainerTest, GetExternalCacheDir_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetExternalCacheDir(), "");
+}
+
+/**
+ * @tc.number: GetExternalFilesDir_0100
+ * @tc.name: GetExternalFilesDir
+ * @tc.desc: GetExternalFilesDir
+ */
+HWTEST_F(ContextContainerTest, GetExternalFilesDir_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    string type = "type_test";
+    EXPECT_EQ(context_->GetExternalFilesDir(type), "");
+}
+
+/**
+ * @tc.number: GetExternalFilesDir_0200
+ * @tc.name: GetExternalFilesDir
+ * @tc.desc: GetExternalFilesDir
+ */
+HWTEST_F(ContextContainerTest, GetExternalFilesDir_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    string type = "type_test";
+    EXPECT_EQ(context_->GetExternalFilesDir(type), "");
+}
+
+/**
+ * @tc.number: GetNoBackupFilesDir_0100
+ * @tc.name: GetNoBackupFilesDir
+ * @tc.desc: GetNoBackupFilesDir
+ */
+HWTEST_F(ContextContainerTest, GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_NE(context_->GetNoBackupFilesDir(), "");
+}
+
+/**
+ * @tc.number: GetNoBackupFilesDir_0200
+ * @tc.name: GetNoBackupFilesDir
+ * @tc.desc: GetNoBackupFilesDir
+ */
+HWTEST_F(ContextContainerTest, GetNoBackupFilesDir_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetNoBackupFilesDir(), "");
+}
+
+/**
+ * @tc.number: VerifySelfPermission_0100
+ * @tc.name: VerifySelfPermission
+ * @tc.desc: VerifySelfPermission
+ */
+HWTEST_F(ContextContainerTest, VerifySelfPermission_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::string permission = "test_permission";
+    EXPECT_NE(context_->VerifySelfPermission(permission), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+}
+
+/**
+ * @tc.number: VerifySelfPermission_0200
+ * @tc.name: VerifySelfPermission
+ * @tc.desc: VerifySelfPermission
+ */
+HWTEST_F(ContextContainerTest, VerifySelfPermission_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    std::string permission = "test_permission";
+    EXPECT_EQ(context_->VerifySelfPermission(permission), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+}
+
+/**
+ * @tc.number: UnauthUriPermission_0100
+ * @tc.name: UnauthUriPermission
+ * @tc.desc: UnauthUriPermission
+ */
+HWTEST_F(ContextContainerTest, UnauthUriPermission_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::string permission = "test_permission";
+    Uri uri("");
+    int uid = 0;
+    context_->UnauthUriPermission(permission, uri, uid);
+}
+
+/**
+ * @tc.number: UnauthUriPermission_0200
+ * @tc.name: UnauthUriPermission
+ * @tc.desc: UnauthUriPermission
+ */
+HWTEST_F(ContextContainerTest, UnauthUriPermission_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    std::string permission = "test_permission";
+    Uri uri("");
+    int uid = 0;
+    context_->UnauthUriPermission(permission, uri, uid);
+}
+
+/**
+ * @tc.number: VerifyPermission_0100
+ * @tc.name: VerifyPermission
+ * @tc.desc: VerifyPermission
+ */
+HWTEST_F(ContextContainerTest, VerifyPermission_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::string permission = "test_permission";
+    int pid = 0;
+    int uid = 0;
+    EXPECT_EQ(context_->VerifyPermission(permission, pid, uid), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+}
+
+/**
+ * @tc.number: VerifyPermission_0200
+ * @tc.name: VerifyPermission
+ * @tc.desc: VerifyPermission
+ */
+HWTEST_F(ContextContainerTest, VerifyPermission_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    std::string permission = "test_permission";
+    int pid = 0;
+    int uid = 0;
+    EXPECT_EQ(context_->VerifyPermission(permission, pid, uid), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+}
+
+/**
+ * @tc.number: GetDistributedDir_0100
+ * @tc.name: GetDistributedDir
+ * @tc.desc: GetDistributedDir
+ */
+HWTEST_F(ContextContainerTest, GetDistributedDir_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_NE(context_->GetDistributedDir(), "");
+}
+
+/**
+ * @tc.number: GetDistributedDir_0200
+ * @tc.name: GetDistributedDir
+ * @tc.desc: GetDistributedDir
+ */
+HWTEST_F(ContextContainerTest, GetDistributedDir_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetDistributedDir(), "");
+}
+
+/**
+ * @tc.number: SetPattern_0100
+ * @tc.name: SetPattern
+ * @tc.desc: SetPattern
+ */
+HWTEST_F(ContextContainerTest, SetPattern_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    int patternId = 0;
+    context_->SetPattern(patternId);
+}
+
+/**
+ * @tc.number: SetPattern_0200
+ * @tc.name: SetPattern
+ * @tc.desc: SetPattern
+ */
+HWTEST_F(ContextContainerTest, SetPattern_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    int patternId = 0;
+    context_->SetPattern(patternId);
+}
+
+/**
+ * @tc.number: GetAbilityPackageContext_0100
+ * @tc.name: GetAbilityPackageContext
+ * @tc.desc: GetAbilityPackageContext
+ */
+HWTEST_F(ContextContainerTest, GetAbilityPackageContext_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
+}
+
+/**
+ * @tc.number: GetAbilityPackageContext_0200
+ * @tc.name: GetAbilityPackageContext
+ * @tc.desc: GetAbilityPackageContext
+ */
+HWTEST_F(ContextContainerTest, GetAbilityPackageContext_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
+}
+
+/**
+ * @tc.number: RequestPermissionsFromUser_0100
+ * @tc.name: RequestPermissionsFromUser
+ * @tc.desc: RequestPermissionsFromUser
+ */
+HWTEST_F(ContextContainerTest, RequestPermissionsFromUser_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::vector<std::string> permissions;
+    std::vector<int> permissionsState;
+    PermissionRequestTask task;
+    context_->RequestPermissionsFromUser(permissions, permissionsState, std::move(task));
+}
+
+/**
+ * @tc.number: RequestPermissionsFromUser_0200
+ * @tc.name: RequestPermissionsFromUser
+ * @tc.desc: RequestPermissionsFromUser
+ */
+HWTEST_F(ContextContainerTest, RequestPermissionsFromUser_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    std::vector<std::string> permissions;
+    std::vector<int> permissionsState;
+    PermissionRequestTask task;
+    context_->RequestPermissionsFromUser(permissions, permissionsState, std::move(task));
+}
+
+/**
+ * @tc.number: CreateBundleContext_0100
+ * @tc.name: CreateBundleContext
+ * @tc.desc: CreateBundleContext
+ */
+HWTEST_F(ContextContainerTest, CreateBundleContext_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::string bundleName = "test_bundle";
+    int flag = 0;
+    int accountId = 0;
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
+}
+
+/**
+ * @tc.number: CreateBundleContext_0200
+ * @tc.name: CreateBundleContext
+ * @tc.desc: CreateBundleContext
+ */
+HWTEST_F(ContextContainerTest, CreateBundleContext_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    std::string bundleName = "";
+    int flag = 0;
+    int accountId = 0;
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
+}
+
+/**
+ * @tc.number: CreateBundleContext_0300
+ * @tc.name: CreateBundleContext
+ * @tc.desc: CreateBundleContext
+ */
+HWTEST_F(ContextContainerTest, CreateBundleContext_0300, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    std::string bundleName = "test_bundle";
+    int flag = 0;
+    int accountId = 0;
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
+}
+
+/**
+ * @tc.number: GetString_0100
+ * @tc.name: GetString
+ * @tc.desc: GetString
+ */
+HWTEST_F(ContextContainerTest, GetString_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetString(1), "");
+}
+
+/**
+ * @tc.number: GetString_0200
+ * @tc.name: GetString
+ * @tc.desc: GetString
+ */
+HWTEST_F(ContextContainerTest, GetString_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetString(1), "");
+}
+
+/**
+ * @tc.number: GetStringArray_0100
+ * @tc.name: GetStringArray
+ * @tc.desc: GetStringArray
+ */
+HWTEST_F(ContextContainerTest, GetStringArray_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetStringArray(1).size(), 0);
+}
+
+/**
+ * @tc.number: GetStringArray_0200
+ * @tc.name: GetStringArray
+ * @tc.desc: GetStringArray
+ */
+HWTEST_F(ContextContainerTest, GetStringArray_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetStringArray(1).size(), 0);
+}
+
+/**
+ * @tc.number: GetIntArray_0100
+ * @tc.name: GetIntArray
+ * @tc.desc: GetIntArray
+ */
+HWTEST_F(ContextContainerTest, GetIntArray_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetIntArray(1).size(), 0);
+}
+
+/**
+ * @tc.number: GetIntArray_0200
+ * @tc.name: GetIntArray
+ * @tc.desc: GetIntArray
+ */
+HWTEST_F(ContextContainerTest, GetIntArray_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetIntArray(1).size(), 0);
+}
+
+/**
+ * @tc.number: GetTheme_0100
+ * @tc.name: GetTheme
+ * @tc.desc: GetTheme
+ */
+HWTEST_F(ContextContainerTest, GetTheme_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetTheme().size(), 0);
+}
+
+/**
+ * @tc.number: GetTheme_0200
+ * @tc.name: GetTheme
+ * @tc.desc: GetTheme
+ */
+HWTEST_F(ContextContainerTest, GetTheme_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetTheme().size(), 0);
+}
+
+/**
+ * @tc.number: SetTheme_0100
+ * @tc.name: SetTheme
+ * @tc.desc: SetTheme
+ */
+HWTEST_F(ContextContainerTest, SetTheme_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    context_->SetTheme(1);
+}
+
+/**
+ * @tc.number: SetTheme_0200
+ * @tc.name: SetTheme
+ * @tc.desc: SetTheme
+ */
+HWTEST_F(ContextContainerTest, SetTheme_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    context_->SetTheme(1);
+}
+
+/**
+ * @tc.number: GetPattern_0100
+ * @tc.name: GetPattern
+ * @tc.desc: GetPattern
+ */
+HWTEST_F(ContextContainerTest, GetPattern_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetPattern().size(), 0);
+}
+
+/**
+ * @tc.number: GetPattern_0200
+ * @tc.name: GetPattern
+ * @tc.desc: GetPattern
+ */
+HWTEST_F(ContextContainerTest, GetPattern_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetPattern().size(), 0);
+}
+
+/**
+ * @tc.number: GetColor_0100
+ * @tc.name: GetColor
+ * @tc.desc: GetColor
+ */
+HWTEST_F(ContextContainerTest, GetColor_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetColor(1), -1);
+}
+
+/**
+ * @tc.number: GetThemeId_0100
+ * @tc.name: GetThemeId
+ * @tc.desc: GetThemeId
+ */
+HWTEST_F(ContextContainerTest, GetThemeId_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetThemeId(), -1);
+}
+
+/**
+ * @tc.number: GetDisplayOrientation_0100
+ * @tc.name: GetDisplayOrientation
+ * @tc.desc: GetDisplayOrientation
+ */
+HWTEST_F(ContextContainerTest, GetDisplayOrientation_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetDisplayOrientation(), 0);
+}
+
+/**
+ * @tc.number: GetDisplayOrientation_0200
+ * @tc.name: GetDisplayOrientation
+ * @tc.desc: GetDisplayOrientation
+ */
+HWTEST_F(ContextContainerTest, GetDisplayOrientation_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetDisplayOrientation(), 0);
+}
+
+/**
+ * @tc.number: GetPreferencesDir_0100
+ * @tc.name: GetPreferencesDir
+ * @tc.desc: GetPreferencesDir
+ */
+HWTEST_F(ContextContainerTest, GetPreferencesDir_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_NE(context_->GetPreferencesDir(), "");
+}
+
+/**
+ * @tc.number: GetPreferencesDir_0200
+ * @tc.name: GetPreferencesDir
+ * @tc.desc: GetPreferencesDir
+ */
+HWTEST_F(ContextContainerTest, GetPreferencesDir_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetPreferencesDir(), "");
+}
+
+/**
+ * @tc.number: SetColorMode_0100
+ * @tc.name: SetColorMode
+ * @tc.desc: SetColorMode
+ */
+HWTEST_F(ContextContainerTest, SetColorMode_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    context_->SetColorMode(1);
+}
+
+/**
+ * @tc.number: SetColorMode_0200
+ * @tc.name: SetColorMode
+ * @tc.desc: SetColorMode
+ */
+HWTEST_F(ContextContainerTest, SetColorMode_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    context_->SetColorMode(1);
+}
+
+/**
+ * @tc.number: GetColorMode_0100
+ * @tc.name: GetColorMode
+ * @tc.desc: GetColorMode
+ */
+HWTEST_F(ContextContainerTest, GetColorMode_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetColorMode(), -1);
+}
+
+/**
+ * @tc.number: GetColorMode_0200
+ * @tc.name: GetColorMode
+ * @tc.desc: GetColorMode
+ */
+HWTEST_F(ContextContainerTest, GetColorMode_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetColorMode(), -1);
+}
+
+/**
+ * @tc.number: GetMissionId_0100
+ * @tc.name: GetMissionId
+ * @tc.desc: GetMissionId
+ */
+HWTEST_F(ContextContainerTest, GetMissionId_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_EQ(context_->GetMissionId(), -1);
+}
+
+/**
+ * @tc.number: GetMissionId_0200
+ * @tc.name: GetMissionId
+ * @tc.desc: GetMissionId
+ */
+HWTEST_F(ContextContainerTest, GetMissionId_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_EQ(context_->GetMissionId(), -1);
+}
+
+/**
+ * @tc.number: IsUpdatingConfigurations_0100
+ * @tc.name: IsUpdatingConfigurations
+ * @tc.desc: IsUpdatingConfigurations
+ */
+HWTEST_F(ContextContainerTest, IsUpdatingConfigurations_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_FALSE(context_->IsUpdatingConfigurations());
+}
+
+/**
+ * @tc.number: IsUpdatingConfigurations_0200
+ * @tc.name: IsUpdatingConfigurations
+ * @tc.desc: IsUpdatingConfigurations
+ */
+HWTEST_F(ContextContainerTest, IsUpdatingConfigurations_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_FALSE(context_->IsUpdatingConfigurations());
+}
+
+/**
+ * @tc.number: PrintDrawnCompleted_0100
+ * @tc.name: PrintDrawnCompleted
+ * @tc.desc: PrintDrawnCompleted
+ */
+HWTEST_F(ContextContainerTest, PrintDrawnCompleted_0100, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(contextDeal_);
+    EXPECT_FALSE(context_->PrintDrawnCompleted());
+}
+
+/**
+ * @tc.number: PrintDrawnCompleted_0200
+ * @tc.name: PrintDrawnCompleted
+ * @tc.desc: PrintDrawnCompleted
+ */
+HWTEST_F(ContextContainerTest, PrintDrawnCompleted_0200, Function | MediumTest | Level1)
+{
+    context_->AttachBaseContext(nullptr);
+    EXPECT_FALSE(context_->PrintDrawnCompleted());
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
