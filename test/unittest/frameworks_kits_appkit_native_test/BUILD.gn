@@ -325,6 +325,46 @@ ohos_unittest("mix_stack_dumper_test") {
   ]
 }
 
+ohos_unittest("ability_stage_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "ability_stage_test.cpp",
+    "application_data_manager_test.cpp",
+    "application_test.cpp",
+    "context_impl_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -332,6 +372,7 @@ group("unittest") {
   deps = []
 
   deps += [
+    ":ability_stage_test",
     ":ability_start_setting_test",
     ":application_impl_test",
     ":application_test",

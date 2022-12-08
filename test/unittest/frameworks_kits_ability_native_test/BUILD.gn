@@ -640,11 +640,13 @@ ohos_unittest("form_extension_provider_client_test") {
       "${ability_runtime_native_path}/appkit:app_context",
       "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+      "//third_party/googletest:gmock_main",
       "//third_party/googletest:gtest_main",
     ]
 
     external_deps = [
       "ability_base:want",
+      "ability_runtime:runtime",
       "access_token:libaccesstoken_sdk",
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
