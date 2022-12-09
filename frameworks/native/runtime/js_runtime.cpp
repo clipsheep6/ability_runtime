@@ -223,9 +223,13 @@ public:
             buffer.assign(outStr.begin(), outStr.end());
             HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
                 patchFile.c_str(), baseFile.c_str());
-            bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
-            if (!ret) {
-                HILOG_ERROR("LoadRepairPatch, LoadPatch failed.");
+            auto ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
+            if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+                if (ret == panda::JSNApi::PatchErrorCode::FILE_NOT_EXECUTED) {
+                    HILOG_WARN("LoadPatch when base file didn't execute.");
+                    continue;
+                }
+                HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
                 return false;
             }
             HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
@@ -258,10 +262,9 @@ public:
         for (const auto &fileName : fileNames) {
             std::string patchFile = hqfFile + "/" + fileName;
             HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
-            bool ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
-            if (!ret) {
-                HILOG_ERROR("UnLoadRepairPatch, UnLoadPatch failed.");
-                return false;
+            auto ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
+            if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+                HILOG_WARN("UnLoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
             }
             HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
         }

@@ -261,7 +261,7 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
         auto service = quickFixMgrService_.promote();
         if (service == nullptr) {
             HILOG_ERROR("Quick fix service is nullptr.");
-            NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+            NotifyApplyStatus(QUICK_FIX_INVALID_PARAM);
             RemoveSelf();
             return;
         }
