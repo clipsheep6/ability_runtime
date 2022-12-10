@@ -5558,7 +5558,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     } else {
         auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
-        if (processInfo.processName_.empty()) {
+        if (processInfo.processName_.empty() && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
             HILOG_ERROR("Can not find caller application by callerPid, callerPid: %{private}d.", callerPid);
             return ERR_INVALID_VALUE;
         }
@@ -5699,7 +5699,7 @@ bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord>
 
     auto callingTokenId = IPCSkeleton::GetCallingTokenID();
     auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID) {
+    if (callingTokenId != tokenID && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
         HILOG_ERROR("Is not self, not enabled");
         return false;
     }
