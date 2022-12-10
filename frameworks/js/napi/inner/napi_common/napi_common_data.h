@@ -58,7 +58,7 @@ namespace AppExecFwk {
 #define PARAM10 10
 
 struct CallbackInfo {
-    napi_env env;
+    napi_env env = nullptr;
     napi_ref callback = nullptr;
     napi_deferred deferred;
     int errCode = 0;

@@ -306,6 +306,10 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
 {
     sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
         shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deployTask = [thisWeakPtr, quickFixFiles, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -339,6 +343,10 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 {
     sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
         shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto switchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -371,6 +379,10 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
 {
     auto callback = new (std::nothrow) QuickFixManagerStatusCallback(shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deleteTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -496,6 +508,10 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
 void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 {
     sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto loadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -527,6 +543,10 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 {
     sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto unloadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -558,6 +578,10 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
 {
     sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto reloadPageTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -600,6 +624,10 @@ void QuickFixManagerApplyTask::RegAppStateObserver()
     bundleNameList.push_back(bundleName_);
     sptr<AppExecFwk::IApplicationStateObserver> callback = new (std::nothrow) QuickFixMgrAppStateObserver(
         shared_from_this());
+    if (callback ==nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return;
+    }
     auto ret = appMgr_->RegisterApplicationStateObserver(callback, bundleNameList);
     if (ret != 0) {
         HILOG_ERROR("Register application state observer failed.");

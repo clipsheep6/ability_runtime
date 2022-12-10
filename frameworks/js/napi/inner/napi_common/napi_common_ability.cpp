@@ -4842,7 +4842,6 @@ NativeValue* JsNapiCommon::JsConnectAbility(
     abilityConnection->SetDisconnectCBRef(callbackArray[PARAM1]);
 
     if (ability_ == nullptr) {
-        errorVal = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
         HILOG_ERROR("JsConnectAbility, the ability is nullptr");
         return engine.CreateUndefined();
     }
