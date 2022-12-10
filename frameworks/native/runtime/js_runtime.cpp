@@ -137,6 +137,7 @@ public:
                 runtimeExtractor->SetRuntimeFlag(true);
                 runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
                 ExtractorUtil::AddExtractor(hapPath, runtimeExtractor);
+                panda::JSNApi::LoadAotFile(vm_, hapPath);
             } else {
                 runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
@@ -348,6 +349,7 @@ private:
             ExtractorUtil::AddExtractor(options.hapPath, runtimeExtractor);
             panda::JSNApi::SetHostResolveBufferTracker(
                 vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor));
+            panda::JSNApi::LoadAotFile(vm_, options.hapPath);
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
