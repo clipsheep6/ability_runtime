@@ -17,13 +17,26 @@
 
 #include <chrono>
 #include <cinttypes>
+#include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
+#include <sstream>
 
 #include "hilog_wrapper.h"
 
 using namespace std::chrono_literals;
+using json = nlohmann::json;
 namespace OHOS {
 namespace AAFwk {
+namespace {
+    constexpr const char* AA_TOOL_COMMAND_LIST = "command_list";
+    constexpr static int  COMMANDS_MAX_SIZE = 100;
+}
+
+int ShellCommandExecutor::configStatus_ = 0;
+std::set<std::string> ShellCommandExecutor::commands_ = {};
+std::mutex ShellCommandExecutor:: mtxRead_;
+
 ShellCommandExecutor::ShellCommandExecutor(const std::string& cmd, const int64_t timeoutSec)
     : cmd_(cmd), timeoutSec_(timeoutSec)
 {
@@ -33,7 +46,6 @@ ShellCommandExecutor::ShellCommandExecutor(const std::string& cmd, const int64_t
 ShellCommandResult ShellCommandExecutor::WaitWorkDone()
 {
     HILOG_INFO("enter");
-
     if (!DoWork()) {
         HILOG_INFO("Failed to execute command : \"%{public}s\"", cmd_.data());
         return cmdResult_;
@@ -77,6 +89,11 @@ bool ShellCommandExecutor::DoWork()
         HILOG_ERROR("Invalid event handler");
         return false;
     }
+    
+    if(!CheckCommand()) {
+        HILOG_ERROR("Invalid command");
+        return false;
+    }
 
     auto self(shared_from_this());
     handler_->PostTask([this, self]() {
@@ -115,6 +132,69 @@ bool ShellCommandExecutor::DoWork()
         HILOG_INFO("DoWork async task end, cmd : \"%{public}s\"", cmd_.data());
     });
 
+    return true;
+}
+
+bool ShellCommandExecutor::CheckCommand()
+{
+    std::istringstream iss(cmd_);
+    std::string firstCommand = "";
+    iss >> firstCommand;
+    if(commands_.find(firstCommand) != commands_.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool ShellCommandExecutor::ReadConfig(const std::string &filePath)
+{
+    HILOG_INFO("%{public}s", __func__);
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in);  // relative path
+    if (!inFile.is_open()) {
+        HILOG_INFO("read aa config error ...");
+        return false;
+    }
+
+    json aaJson;
+    inFile >> aaJson;
+    inFile.close();
+    if (aaJson.is_discarded()) {
+        HILOG_INFO("json discarded error ...");
+        return false;
+    }
+
+    if (aaJson.is_null() || aaJson.empty()) {
+        HILOG_INFO("invalid jsonObj");
+        return false;
+    }
+
+    if(!aaJson.contains(AA_TOOL_COMMAND_LIST)) {
+        HILOG_INFO("json config not contains the key ...");
+        return false;
+    }
+
+    if (aaJson[AA_TOOL_COMMAND_LIST].is_null() || !aaJson[AA_TOOL_COMMAND_LIST].is_array()
+        || aaJson[AA_TOOL_COMMAND_LIST].empty()) {
+        HILOG_INFO("invalid command obj size");
+        return false;
+    }
+
+    if(aaJson[AA_TOOL_COMMAND_LIST].size() > COMMANDS_MAX_SIZE) {
+        HILOG_INFO("command obj size overflow");
+        return false;
+    }
+    std::lock_guard<std::mutex> lock(mtxRead_);
+    for(int i = 0; i < aaJson[AA_TOOL_COMMAND_LIST].size(); i++) {
+        if(aaJson[AA_TOOL_COMMAND_LIST][i].is_null() || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
+            continue;
+        } 
+        commands_.emplace(aaJson[AA_TOOL_COMMAND_LIST][i]);
+    }
+
+    aaJson.clear();
+    HILOG_INFO("read config success");
+    configStatus_ = 1;
     return true;
 }
 }  // namespace AAFwk

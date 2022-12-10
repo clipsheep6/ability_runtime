@@ -119,6 +119,15 @@ ohos_executable("aa") {
   part_name = "ability_tools"
 }
 
+ohos_prebuilt_etc("shell_command_excutor_config.json") {
+  source = "resource/shell_command_excutor_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_tools"
+}
+
 group("tools_aa") {
-  deps = [ ":aa" ]
+  deps = [
+    ":aa",
+    ":shell_command_excutor_config.json",
+  ]
 }
