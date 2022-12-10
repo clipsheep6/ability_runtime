@@ -136,6 +136,7 @@ public:
                 }
                 runtimeExtractor->SetRuntimeFlag(true);
                 runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+                ExtractorUtil::AddExtractor(hapPath, runtimeExtractor);
             } else {
                 runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
@@ -344,6 +345,7 @@ private:
             }
             runtimeExtractor->SetRuntimeFlag(true);
             runtimeExtractorMap_.insert(make_pair(options.hapPath, runtimeExtractor));
+            ExtractorUtil::AddExtractor(options.hapPath, runtimeExtractor);
             panda::JSNApi::SetHostResolveBufferTracker(
                 vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor));
         }
@@ -706,6 +708,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
             }
             runtimeExtractor->SetRuntimeFlag(true);
             runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+            ExtractorUtil::AddExtractor(hapPath, runtimeExtractor);
         } else {
             runtimeExtractor = runtimeExtractorMap_.at(hapPath);
         }
