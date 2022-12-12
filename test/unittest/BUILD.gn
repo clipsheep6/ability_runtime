@@ -352,6 +352,7 @@ group("unittest") {
     "frameworks_kits_appkit_native_test:unittest",
     "free_install_manager_test:unittest",
     "image_info_test:unittest",
+    "implicit_start_processor_test:unittest",
     "lifecycle_deal_test:unittest",
     "lifecycle_test:unittest",
     "mission_data_storage_test:unittest",
