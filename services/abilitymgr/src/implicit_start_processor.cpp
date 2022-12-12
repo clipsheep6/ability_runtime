@@ -134,7 +134,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
     
     for (const auto &info : extensionInfos) {
-        if (!isExtension || !CheckImplicitStartExtensionIsVailable(request, info)) {
+        if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;
@@ -148,7 +148,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     return ERR_OK;
 }
 
-bool ImplicitStartProcessor::CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,
+bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
     const AppExecFwk::ExtensionAbilityInfo &extensionInfo)
 {
     if (!request.want.GetElement().GetBundleName().empty()) {

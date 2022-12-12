@@ -50,7 +50,7 @@ private:
     
     int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
 
-    bool CheckImplicitStartExtensionIsVailable(const AbilityRequest &request,
+    bool CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
         const AppExecFwk::ExtensionAbilityInfo &extensionInfo);
 
 private:
