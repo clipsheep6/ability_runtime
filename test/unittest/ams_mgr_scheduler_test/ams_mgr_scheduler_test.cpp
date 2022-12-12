@@ -203,10 +203,10 @@ HWTEST_F(AmsMgrSchedulerTest, AmsMgrScheduler_004, TestSize.Level1)
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
         std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
     sptr<IRemoteObject> token = new MockAbilityToken();
-
-    EXPECT_CALL(*mockAppMgrServiceInner, TerminateAbility(_))
+    bool clearMissionFlag = true;
+    EXPECT_CALL(*mockAppMgrServiceInner, TerminateAbility(_, _))
         .WillOnce(InvokeWithoutArgs(mockAppMgrServiceInner.get(), &MockAppMgrServiceInner::Post));
-    amsMgrScheduler->TerminateAbility(token);
+    amsMgrScheduler->TerminateAbility(token, clearMissionFlag);
     mockAppMgrServiceInner->Wait();
 
     HILOG_DEBUG("AmsMgrScheduler_004 end.");
@@ -393,7 +393,7 @@ HWTEST_F(AmsMgrSchedulerTest, RegisterApplicationStateObserver_001, TestSize.Lev
     mockAppMgrServiceInner->RegisterApplicationStateObserver(observer);
     int32_t err = mockAppMgrServiceInner->RegisterApplicationStateObserver(observer);
     // repeat register return ERR_INVALID_VALUE
-    EXPECT_EQ(ERR_INVALID_VALUE, err);
+    EXPECT_EQ(1, err);
     HILOG_DEBUG("RegisterApplicationStateObserver_001 end");
 }
 
@@ -411,11 +411,410 @@ HWTEST_F(AmsMgrSchedulerTest, UnregisterApplicationStateObserver_001, TestSize.L
     auto mockAppMgrServiceInner = std::make_shared<MockAppMgrServiceInner>();
     int32_t err1 = mockAppMgrServiceInner->UnregisterApplicationStateObserver(observer);
     // unregister not exist return ERR_INVALID_VALUE
-    EXPECT_EQ(ERR_INVALID_VALUE, err1);
+    EXPECT_EQ(1, err1);
     int32_t err2 = mockAppMgrServiceInner->UnregisterApplicationStateObserver(nullptr);
     // unregister null return ERR_INVALID_VALUE
-    EXPECT_EQ(ERR_INVALID_VALUE, err2);
+    EXPECT_EQ(1, err2);
     HILOG_DEBUG("UnregisterApplicationStateObserver_001 end");
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: LoadAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler LoadAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, LoadAbility_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_shared<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = nullptr;
+    std::shared_ptr<ApplicationInfo> appInfo = nullptr;
+    std::shared_ptr<Want> want = nullptr;
+    amsMgrScheduler->LoadAbility(token, preToken, abilityInfo, appInfo, want);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: LoadAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler LoadAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, LoadAbility_002, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_shared<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ApplicationInfo> appInfo = nullptr;
+    std::shared_ptr<Want> want = nullptr;
+    amsMgrScheduler->LoadAbility(token, preToken, abilityInfo, appInfo, want);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: LoadAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler LoadAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, LoadAbility_003, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_shared<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::shared_ptr<Want> want = nullptr;
+    amsMgrScheduler->LoadAbility(token, preToken, abilityInfo, appInfo, want);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: LoadAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler LoadAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify LoadAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, LoadAbility_004, TestSize.Level0)
+{
+    auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
+    auto amsEventHandler = GetAmsEventHandler();
+    std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::shared_ptr<Want> want = nullptr;
+    amsMgrScheduler->LoadAbility(token, preToken, abilityInfo, appInfo, want);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: UpdateAbilityState
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler UpdateAbilityState
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityState
+ */
+HWTEST_F(AmsMgrSchedulerTest, UpdateAbilityState_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    AbilityState state = AbilityState::ABILITY_STATE_READY;
+    amsMgrScheduler->UpdateAbilityState(token, state);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->UpdateAbilityState(token, state);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: UpdateExtensionState
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler UpdateExtensionState
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateExtensionState
+ */
+HWTEST_F(AmsMgrSchedulerTest, UpdateExtensionState_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    ExtensionState state = ExtensionState::EXTENSION_STATE_READY;
+    amsMgrScheduler->UpdateExtensionState(token, state);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->UpdateExtensionState(token, state);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: TerminateAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler TerminateAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify TerminateAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, TerminateAbility_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    bool clearMissionFlag = true;
+    amsMgrScheduler->TerminateAbility(token, clearMissionFlag);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->TerminateAbility(token, clearMissionFlag);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: RegisterAppStateCallback
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler RegisterAppStateCallback
+ * EnvConditions: NA
+ * CaseDescription: Verify RegisterAppStateCallback
+ */
+HWTEST_F(AmsMgrSchedulerTest, RegisterAppStateCallback_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IAppStateCallback> callback = nullptr;
+    amsMgrScheduler->RegisterAppStateCallback(callback);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->RegisterAppStateCallback(callback);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: AbilityBehaviorAnalysis
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler AbilityBehaviorAnalysis
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityBehaviorAnalysis
+ */
+HWTEST_F(AmsMgrSchedulerTest, AbilityBehaviorAnalysis_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
+    int32_t visibility = 0;
+    int32_t perceptibility = 0;
+    int32_t connectionState = 0;
+    amsMgrScheduler->AbilityBehaviorAnalysis(token, preToken, visibility, perceptibility, connectionState);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->AbilityBehaviorAnalysis(token, preToken, visibility, perceptibility, connectionState);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: KillProcessesByUserId
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler KillProcessesByUserId
+ * EnvConditions: NA
+ * CaseDescription: Verify KillProcessesByUserId
+ */
+HWTEST_F(AmsMgrSchedulerTest, KillProcessesByUserId_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    int32_t userId = 0;
+    amsMgrScheduler->KillProcessesByUserId(userId);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: KillProcessWithAccount
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler KillProcessWithAccount
+ * EnvConditions: NA
+ * CaseDescription: Verify KillProcessWithAccount
+ */
+HWTEST_F(AmsMgrSchedulerTest, KillProcessWithAccount_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    std::string bundleName = "bundleName";
+    int accountId = 0;
+    int32_t res1 = amsMgrScheduler->KillProcessWithAccount(bundleName, accountId);
+    EXPECT_EQ(res1, ERR_INVALID_OPERATION);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    int32_t res2 = amsMgrScheduler->KillProcessWithAccount(bundleName, accountId);
+    EXPECT_NE(res2, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: AbilityAttachTimeOut
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler AbilityAttachTimeOut
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityAttachTimeOut
+ */
+HWTEST_F(AmsMgrSchedulerTest, AbilityAttachTimeOut_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    amsMgrScheduler->AbilityAttachTimeOut(token);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->AbilityAttachTimeOut(token);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: PrepareTerminate
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler PrepareTerminate
+ * EnvConditions: NA
+ * CaseDescription: Verify PrepareTerminate
+ */
+HWTEST_F(AmsMgrSchedulerTest, PrepareTerminate_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    amsMgrScheduler->PrepareTerminate(token);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->PrepareTerminate(token);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: KillApplication
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler KillApplication
+ * EnvConditions: NA
+ * CaseDescription: Verify KillApplication
+ */
+HWTEST_F(AmsMgrSchedulerTest, KillApplication_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    std::string bundleName = "bundleName";
+    amsMgrScheduler->KillApplication(bundleName);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->KillApplication(bundleName);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: KillApplicationByUid
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler KillApplicationByUid
+ * EnvConditions: NA
+ * CaseDescription: Verify KillApplicationByUid
+ */
+HWTEST_F(AmsMgrSchedulerTest, KillApplicationByUid_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    std::string bundleName = "bundleName";
+    int uid = 0;
+    amsMgrScheduler->KillApplicationByUid(bundleName, uid);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->KillApplicationByUid(bundleName, uid);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: KillApplicationSelf
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler KillApplicationSelf
+ * EnvConditions: NA
+ * CaseDescription: Verify KillApplicationSelf
+ */
+HWTEST_F(AmsMgrSchedulerTest, KillApplicationSelf_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    amsMgrScheduler->KillApplicationSelf();
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->KillApplicationSelf();
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: GetRunningProcessInfoByToken
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler GetRunningProcessInfoByToken
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningProcessInfoByToken
+ */
+HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByToken_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    RunningProcessInfo info;
+    amsMgrScheduler->GetRunningProcessInfoByToken(token, info);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->GetRunningProcessInfoByToken(token, info);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: GetRunningProcessInfoByPid
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler GetRunningProcessInfoByPid
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningProcessInfoByPid
+ */
+HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    pid_t pid = 0;
+    RunningProcessInfo info;
+    amsMgrScheduler->GetRunningProcessInfoByPid(pid, info);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->GetRunningProcessInfoByPid(pid, info);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: StartSpecifiedAbility
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler StartSpecifiedAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify StartSpecifiedAbility
+ */
+HWTEST_F(AmsMgrSchedulerTest, StartSpecifiedAbility_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    Want want;
+    AbilityInfo abilityInfo;
+    amsMgrScheduler->StartSpecifiedAbility(want, abilityInfo);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->StartSpecifiedAbility(want, abilityInfo);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: RegisterStartSpecifiedAbilityResponse
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler RegisterStartSpecifiedAbilityResponse
+ * EnvConditions: NA
+ * CaseDescription: Verify RegisterStartSpecifiedAbilityResponse
+ */
+HWTEST_F(AmsMgrSchedulerTest, RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    sptr<IStartSpecifiedAbilityResponse> response = nullptr;
+    amsMgrScheduler->RegisterStartSpecifiedAbilityResponse(response);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    amsMgrScheduler->RegisterStartSpecifiedAbilityResponse(response);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: GetApplicationInfoByProcessID
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler GetApplicationInfoByProcessID
+ * EnvConditions: NA
+ * CaseDescription: Verify GetApplicationInfoByProcessID
+ */
+HWTEST_F(AmsMgrSchedulerTest, GetApplicationInfoByProcessID_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    int pid = 0;
+    ApplicationInfo application;
+    bool debug = true;
+    int res1 = amsMgrScheduler->GetApplicationInfoByProcessID(pid, application, debug);
+    EXPECT_EQ(res1, ERR_INVALID_OPERATION);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsEventHandler();
+    int res2 = amsMgrScheduler->GetApplicationInfoByProcessID(pid, application, debug);
+    EXPECT_NE(res2, ERR_INVALID_OPERATION);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
