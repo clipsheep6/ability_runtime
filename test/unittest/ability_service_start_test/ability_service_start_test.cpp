@@ -153,32 +153,6 @@ HWTEST_F(AbilityServiceStartTest, StartUp_004, TestSize.Level1)
     GTEST_LOG_(INFO) << "ability_manager_service_startup_004 end";
 }
 
-/*
- * Feature: AbilityManagerService
- * Function: Service
- * SubFunction: NA
- * FunctionPoints: AbilityManager start & stop 10 times
- * EnvConditions: NA
- * CaseDescription: Verify if AbilityManagerService start & stop successfully.
- */
-HWTEST_F(AbilityServiceStartTest, StartUp_005, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "ability_manager_service_startup_005 start";
-    for (int i = 0; i < 10; i++) {
-        aams_->OnStart();
-        auto handler = aams_->GetEventHandler();
-        ASSERT_NE(handler, nullptr);
-        handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
-        handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
-        GTEST_LOG_(INFO) << "start " << i << "times";
-        EXPECT_EQ(ServiceRunningState::STATE_RUNNING, aams_->QueryServiceState());
-        aams_->OnStop();
-        GTEST_LOG_(INFO) << "stop " << i << "times";
-        EXPECT_EQ(ServiceRunningState::STATE_NOT_START, aams_->QueryServiceState());
-    }
-    GTEST_LOG_(INFO) << "ability_manager_service_startup_005 end";
-}
-
 /**
  * @tc.name: AbilityServiceStartTest_StartUpEvent_001
  * @tc.desc: OnStart

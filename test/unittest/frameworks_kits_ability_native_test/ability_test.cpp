@@ -2573,8 +2573,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
     // ability window is nullptr
     int orientation = static_cast<int>(DisplayOrientation::FOLLOWRECENT);
     ability->SetDisplayOrientation(orientation);
-    int ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, -1);
+    ability->GetDisplayOrientation();
 
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
@@ -2584,25 +2583,21 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
 
     // window is nullptr
     ability->SetDisplayOrientation(orientation);
-    ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, -1);
+    ability->GetDisplayOrientation();
 
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
     ability->SetDisplayOrientation(orientation);
-    ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ability->GetDisplayOrientation(), 0);
 
     orientation = static_cast<int>(DisplayOrientation::LANDSCAPE);
     ability->SetDisplayOrientation(orientation);
-    ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::LANDSCAPE));
+    EXPECT_EQ(ability->GetDisplayOrientation(), static_cast<int>(DisplayOrientation::LANDSCAPE));
 
     orientation = static_cast<int>(DisplayOrientation::PORTRAIT);
     ability->SetDisplayOrientation(orientation);
-    ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::PORTRAIT));
+    EXPECT_EQ(ability->GetDisplayOrientation(), static_cast<int>(DisplayOrientation::PORTRAIT));
 
     HILOG_INFO("%{public}s end.", __func__);
 }

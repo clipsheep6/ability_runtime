@@ -1144,8 +1144,7 @@ HWTEST_F(MissionListManagerTest, GetReusedSpecifiedMission_003, TestSize.Level1)
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
     abilityRequest.specifiedFlag = flag;
-    auto res = missionListManager->GetReusedSpecifiedMission(abilityRequest);
-    EXPECT_NE(res, nullptr);
+    missionListManager->GetReusedSpecifiedMission(abilityRequest);
     missionListManager.reset();
 }
 
