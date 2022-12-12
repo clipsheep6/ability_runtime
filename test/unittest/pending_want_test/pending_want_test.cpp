@@ -52,6 +52,7 @@
 #include "short_wrapper.h"
 #include "string_wrapper.h"
 #include "array_wrapper.h"
+#include "hilog_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -62,6 +63,9 @@ using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
 
 namespace OHOS::AbilityRuntime::WantAgent {
+namespace {
+    constexpr int32_t NOTEQ = -1;
+}
 class PendingWantTest : public testing::Test {
 public:
     PendingWantTest()
@@ -950,4 +954,418 @@ HWTEST_F(PendingWantTest, PendingWant_5400, Function | MediumTest | Level1)
     callBackCancelListenerConnt = 0;
 }
 
+/*
+ * @tc.number    : PendingWant_5500
+ * @tc.name      : PendingWant GetAbilitys
+ * @tc.desc      : 1.Get pendingWant (context is nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_5500, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_5500 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    std::shared_ptr<Want> want2 = std::make_shared<Want>();
+    ElementName element2("device", "bundleName", "abilityName");
+    want2->SetElement(element2);
+    std::vector<std::shared_ptr<Want>> wants;
+    wants.emplace_back(want);
+    wants.emplace_back(want2);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetAbilities(nullptr, requestCode, wants, flags, wParams, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_5500 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_5600
+ * @tc.name      : PendingWant GetAbilities
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr FLAG_NO_CREATE)
+ */
+HWTEST_F(PendingWantTest, PendingWant_5600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_5600 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    std::shared_ptr<Want> want2 = std::make_shared<Want>();
+    ElementName element2("device", "bundleName", "abilityName");
+    want2->SetElement(element2);
+    std::vector<std::shared_ptr<Want>> wants;
+    wants.emplace_back(want);
+    wants.emplace_back(want2);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetAbilities(GetAppContext(), requestCode, wants, flags, wParams, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_5600 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_5700
+ * @tc.name      : PendingWant GetAbilities
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr FLAG_ONE_SHOT)
+ */
+HWTEST_F(PendingWantTest, PendingWant_5700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_5700 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    std::shared_ptr<Want> want2 = std::make_shared<Want>();
+    ElementName element2("device", "bundleName", "abilityName");
+    want2->SetElement(element2);
+    std::vector<std::shared_ptr<Want>> wants;
+    wants.emplace_back(want);
+    wants.emplace_back(want2);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetAbilities(GetAppContext(), requestCode, wants, flags, wParams, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_5700 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_5800
+ * @tc.name      : PendingWant GetAbilitie
+ * @tc.desc      : 1.Get pendingWant (context is nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_5800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_5800 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetAbility(nullptr, requestCode, want, flags, wParams, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_5800 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_5800
+ * @tc.name      : PendingWant GetAbilitie
+ * @tc.desc      : 1.Get pendingWant (context not nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_5900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_5900 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    bool value = true;
+    std::string key = "key";
+    std::shared_ptr<WantParams> wParams = std::make_shared<WantParams>();
+    wParams->SetParam(key, Boolean::Box(value));
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetAbility(GetAppContext(), requestCode, want, flags, wParams, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_5900 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6000
+ * @tc.name      : PendingWant GetCommonEvent
+ * @tc.desc      : 1.Get pendingWant (context is nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6000 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetCommonEvent(nullptr, requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_6000 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6100
+ * @tc.name      : PendingWant GetCommonEvent
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6100 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetCommonEvent(GetAppContext(), requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_6100 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6200
+ * @tc.name      : PendingWant GetService
+ * @tc.desc      : 1.Get pendingWant (context is nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6200 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetService(nullptr, requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_6200 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6300
+ * @tc.name      : PendingWant GetService
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6300 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetService(nullptr, requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_6300 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6400
+ * @tc.name      : PendingWant GetService
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6400, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6400 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetService(GetAppContext(), requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_6400 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6500
+ * @tc.name      : PendingWant GetService
+ * @tc.desc      : 1.Get pendingWant (context is not nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6500, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6500 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetForegroundService(GetAppContext(), requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_6500 start.");
+}
+
+/*
+ * @tc.number    : PendingWant_6600
+ * @tc.name      : PendingWant GetService
+ * @tc.desc      : 1.Get pendingWant (context is nullptr)
+ */
+HWTEST_F(PendingWantTest, PendingWant_6600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6600 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_NO_CREATE;
+    std::shared_ptr<PendingWant> pendingWant;
+    ErrCode err = PendingWant::GetForegroundService(nullptr, requestCode, want, flags, pendingWant);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    HILOG_INFO("PendingWant_6500 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6700
+ * @tc.name      : PendingWant Cancel
+ * @tc.desc      : Cancel a WantAgent
+ */
+HWTEST_F(PendingWantTest, PendingWant_6700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6700 start.");
+    sptr<AAFwk::IWantSender> target = nullptr;
+    std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>();
+    ErrCode err = pendingWant->Cancel(target);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    HILOG_INFO("PendingWant_6700 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6800
+ * @tc.name      : PendingWant IsEquals
+ * @tc.desc      : 1.IsEquals
+ */
+HWTEST_F(PendingWantTest, PendingWant_6800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6800 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
+
+    sptr<AAFwk::IWantSender> target(nullptr);
+    std::shared_ptr<PendingWant> pendingWant2 = std::make_shared<PendingWant>(target);
+    EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    HILOG_INFO("PendingWant_6800 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_6900
+ * @tc.name      : PendingWant IsEquals
+ * @tc.desc      : 1.IsEquals
+ */
+HWTEST_F(PendingWantTest, PendingWant_6900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_6900 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    ElementName element("device", "bundleName", "abilityName");
+    want->SetElement(element);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
+
+    std::shared_ptr<PendingWant> pendingWant2 = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant2);
+    EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_OK);
+    HILOG_INFO("PendingWant_6900 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_7000
+ * @tc.name      : PendingWant IsEquals
+ * @tc.desc      : 1.IsEquals
+ */
+HWTEST_F(PendingWantTest, PendingWant_7000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_7000 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want1 = std::make_shared<Want>();
+    ElementName element1("ohos_device", "bundleName", "abilityName");
+    want1->SetElement(element1);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want1, flags, type, pendingWant);
+
+    std::shared_ptr<Want> want2 = std::make_shared<Want>();
+    ElementName element2("ohos_device", "ohos_bundleName", "ohos_abilityName");
+    want2->SetElement(element2);
+    std::shared_ptr<PendingWant> pendingWant2 = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want2, flags, type, pendingWant2);
+    EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), NOTEQ);
+    HILOG_INFO("PendingWant_7000 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_7100
+ * @tc.name      : PendingWant GetBundleName
+ * @tc.desc      : 1.GetBundleName
+ */
+HWTEST_F(PendingWantTest, PendingWant_7100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_7100 start.");
+    PendingWant pendingWant(nullptr);
+    std::string bundleName;
+    ErrCode err = pendingWant.GetBundleName(nullptr, bundleName);
+    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    HILOG_INFO("PendingWant_7100 end.");
+}
+
+/*
+ * @tc.number    : PendingWant_7200
+ * @tc.name      : PendingWant GetBundleName
+ * @tc.desc      : 1.GetBundleName
+ */
+HWTEST_F(PendingWantTest, PendingWant_7200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("PendingWant_7200 start.");
+    int requestCode = 10;
+    std::shared_ptr<Want> want1 = std::make_shared<Want>();
+    ElementName element1("ohos_device", "bundleName", "abilityName");
+    want1->SetElement(element1);
+    unsigned int flags = 1;
+    flags |= FLAG_ONE_SHOT;
+    WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> context =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    PendingWant::BuildServicePendingWant(context, requestCode, want1, flags, type, pendingWant);
+
+    std::string bundleName;
+    ErrCode err = pendingWant->GetBundleName(pendingWant->GetTarget(), bundleName);
+    EXPECT_EQ(err, ERR_OK);
+    HILOG_INFO("PendingWant_7200 start.");
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent
