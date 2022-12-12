@@ -102,7 +102,6 @@ public:
 
 private:
     void Timer();
-    bool WaitForDuration(uint32_t duration);
     void ReportEvent();
 
     std::atomic_bool appMainThreadIsAlive_ = false;

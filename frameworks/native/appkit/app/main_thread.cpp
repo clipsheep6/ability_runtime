@@ -175,6 +175,10 @@ MainThread::MainThread()
 MainThread::~MainThread()
 {
     HILOG_INFO("MainThread::MainThread call destructor.");
+    if (watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        watchdog_->Stop();
+        watchdog_ = nullptr;
+    }
 #ifdef ABILITY_LIBRARY_LOADER
     CloseAbilityLibrary();
 #endif  // ABILITY_LIBRARY_LOADER
@@ -695,8 +699,9 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
 
-    if (watchdog_ != nullptr) {
+    if (watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
         watchdog_->Stop();
+        watchdog_ = nullptr;
     }
 
     int ret = runner->Stop();
@@ -1573,8 +1578,9 @@ void MainThread::HandleTerminateApplication()
         return;
     }
 
-    if (watchdog_ != nullptr) {
+    if (watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
         watchdog_->Stop();
+        watchdog_ = nullptr;
     }
 
     int ret = runner->Stop();
