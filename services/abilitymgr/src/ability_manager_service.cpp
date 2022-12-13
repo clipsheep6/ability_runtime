@@ -4360,13 +4360,13 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
 {
     HILOG_INFO("%{public}s, oldUserId:%{public}d, newUserId:%{public}d", __func__, oldUserId, userId);
     SwitchManagers(userId);
-    PauseOldUser(oldUserId);
     bool isBoot = false;
     if (oldUserId == U0_USER_ID) {
         isBoot = true;
     }
     ConnectBmsService();
     StartUserApps(userId, isBoot);
+    PauseOldUser(oldUserId);
     PauseOldConnectManager(oldUserId);
 }
 
