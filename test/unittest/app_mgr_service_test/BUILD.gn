@@ -14,9 +14,9 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/appmgrservice"
+module_output_path = "ability_runtime/appmgr"
 
-ohos_unittest("AppMgrServiceTest") {
+ohos_unittest("app_mgr_service_test") {
   module_out_path = module_output_path
 
   include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
@@ -53,5 +53,5 @@ ohos_unittest("AppMgrServiceTest") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":AppMgrServiceTest" ]
+  deps = [ ":app_mgr_service_test" ]
 }
