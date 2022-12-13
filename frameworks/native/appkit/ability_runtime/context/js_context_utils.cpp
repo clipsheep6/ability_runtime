@@ -77,7 +77,7 @@ private:
 
 void JsBaseContext::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
-    HILOG_INFO("JsBaseContext::Finalizer is called");
+    HILOG_DEBUG("JsBaseContext::Finalizer is called");
     std::unique_ptr<JsBaseContext>(static_cast<JsBaseContext*>(data));
 }
 
@@ -512,7 +512,7 @@ NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* h
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr application context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
         }, nullptr);
     return contextObj;

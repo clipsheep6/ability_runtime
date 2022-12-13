@@ -480,7 +480,7 @@ std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
-    HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     if (engine == nullptr) {
         HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
         return std::unique_ptr<NativeReference>();

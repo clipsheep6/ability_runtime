@@ -1212,7 +1212,7 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
         std::string extensionName = it->second;
 
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
-        HILOG_INFO("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
+        HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
         AbilityLoader::GetInstance().RegisterExtension(extensionName, [application = application_, file]() {
             return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(application->GetRuntime());
         });
