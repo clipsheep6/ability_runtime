@@ -173,6 +173,14 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<
     return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
 }
 
+ErrCode AbilityManagerClient::StartEnableNotifictionDialogAbility(Want &want, int requestCode)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("%{public}s come", __func__);
+    return abms->StartEnableNotifictionDialogAbility(want, requestCode);
+}
+
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     auto abms = GetAbilityManager();

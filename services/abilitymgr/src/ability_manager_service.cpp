@@ -485,6 +485,29 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     return ret;
 }
 
+int AbilityManagerService::StartEnableNotifictionDialogAbility(Want &want, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    sptr<IRemoteObject> token;
+    int result = IN_PROCESS_CALL(GetTopAbility(token));
+    if (result == ERR_OK) {
+        want.SetElementName("com.ohos.notificationdialog", "EnableNotificationDialog");
+        want.SetParam("tokenId", token);
+        want.SetParam("from", GetTopAbility().GetBundleName());
+        int ret = StartAbility(want, token, -1);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("%{public}s failed to start ability. ret = %{public}d", __func__, ret);
+            return ret;
+        } else {
+            HILOG_INFO("%{public}s start ability succeed.", __func__);
+        }
+    } else {
+        HILOG_ERROR("%{public}s failed to get top ability's token. result = %{public}d", __func__, result);
+        return result;
+    }
+    return result;
+}
+
 int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, int requestCode)
 {

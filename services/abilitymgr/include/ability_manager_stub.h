@@ -92,6 +92,7 @@ private:
     int DumpStateInner(MessageParcel &data, MessageParcel &reply);
     int DumpSysStateInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply);
+    int StartEnableNotifictionDialogAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
