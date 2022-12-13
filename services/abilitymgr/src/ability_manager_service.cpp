@@ -5241,6 +5241,8 @@ int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, con
 int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
+    HILOG_INFO("Do not start systemui for test");
+    return;
     HILOG_DEBUG("%{public}s", __func__);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
