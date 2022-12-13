@@ -20,67 +20,67 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityLocalRecord::AbilityLocalRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)
+AbilityLocalRecord::AbilityLocalRecord(const std::shared_ptr<AbilityInfo>& info, const sptr<IRemoteObject>& token)
     : abilityInfo_(info), token_(token) {}
 
 AbilityLocalRecord::~AbilityLocalRecord() {}
 
-const std::shared_ptr<AbilityInfo> &AbilityLocalRecord::GetAbilityInfo()
+const std::shared_ptr<AbilityInfo>& AbilityLocalRecord::GetAbilityInfo()
 {
     return abilityInfo_;
 }
 
-const std::shared_ptr<EventHandler> &AbilityLocalRecord::GetEventHandler()
+const std::shared_ptr<EventHandler>& AbilityLocalRecord::GetEventHandler()
 {
     return handler_;
 }
 
-void AbilityLocalRecord::SetEventHandler(const std::shared_ptr<EventHandler> &handler)
+void AbilityLocalRecord::SetEventHandler(const std::shared_ptr<EventHandler>& handler)
 {
     handler_ = handler;
 }
 
-const std::shared_ptr<EventRunner> &AbilityLocalRecord::GetEventRunner()
+const std::shared_ptr<EventRunner>& AbilityLocalRecord::GetEventRunner()
 {
     return runner_;
 }
 
-void AbilityLocalRecord::SetEventRunner(const std::shared_ptr<EventRunner> &runner)
+void AbilityLocalRecord::SetEventRunner(const std::shared_ptr<EventRunner>& runner)
 {
     runner_ = runner;
 }
 
-const sptr<IRemoteObject> &AbilityLocalRecord::GetToken()
+const sptr<IRemoteObject>& AbilityLocalRecord::GetToken()
 {
     return token_;
 }
 
-const std::shared_ptr<AbilityImpl> &AbilityLocalRecord::GetAbilityImpl()
+const std::shared_ptr<AbilityImpl>& AbilityLocalRecord::GetAbilityImpl()
 {
     return abilityImpl_;
 }
 
-void AbilityLocalRecord::SetAbilityImpl(const std::shared_ptr<AbilityImpl> &abilityImpl)
+void AbilityLocalRecord::SetAbilityImpl(const std::shared_ptr<AbilityImpl>& abilityImpl)
 {
     abilityImpl_ = abilityImpl;
 }
 
-const sptr<AbilityThread> &AbilityLocalRecord::GetAbilityThread()
+const sptr<AbilityThread>& AbilityLocalRecord::GetAbilityThread()
 {
     return abilityThread_;
 }
 
-void AbilityLocalRecord::SetAbilityThread(const sptr<AbilityThread> &abilityThread)
+void AbilityLocalRecord::SetAbilityThread(const sptr<AbilityThread>& abilityThread)
 {
     abilityThread_ = abilityThread;
 }
 
-void AbilityLocalRecord::SetWant(const std::shared_ptr<AAFwk::Want> &want)
+void AbilityLocalRecord::SetWant(const std::shared_ptr<AAFwk::Want>& want)
 {
     want_ = want;
 }
 
-const std::shared_ptr<AAFwk::Want> &AbilityLocalRecord::GetWant()
+const std::shared_ptr<AAFwk::Want>& AbilityLocalRecord::GetWant()
 {
     return want_;
 }

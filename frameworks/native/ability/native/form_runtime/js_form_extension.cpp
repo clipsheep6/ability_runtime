@@ -49,14 +49,14 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
     NativeValue* object = CreateJsFormExtensionContext(*engine, ptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.FormExtensionContext", &object, 1)->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachFormExtensionContext,
         value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(ptr);
     nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void * data, void *) {
+        [](NativeEngine*, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr form extension context is called");
-            delete static_cast<std::weak_ptr<FormExtensionContext> *>(data);
+            delete static_cast<std::weak_ptr<FormExtensionContext>*>(data);
         }, nullptr);
     return contextObj;
 }
@@ -70,10 +70,10 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsFormExtension::~JsFormExtension() = default;
 
-void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application,
-    std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,
+    const std::shared_ptr<OHOSApplication>& application,
+    std::shared_ptr<AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("JsFormExtension::Init begin.");
     FormExtension::Init(record, application, handler, token);
@@ -119,7 +119,7 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
     NativeValue* contextObj = CreateJsFormExtensionContext(engine, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.FormExtensionContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return;
@@ -190,7 +190,7 @@ void JsFormExtension::OnDestroy(const int64_t formId)
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(formId).c_str(), NAPI_AUTO_LENGTH,
         &napiFormId);
     NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormId);
-    NativeValue* argv[] = {nativeFormId};
+    NativeValue* argv[] = { nativeFormId };
     CallObjectMethod("onRemoveForm", "onDestroy", argv, 1);
 }
 
@@ -210,7 +210,7 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
     napi_value napiMessage = nullptr;
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), message.c_str(), NAPI_AUTO_LENGTH, &napiMessage);
     NativeValue* nativeMessage = reinterpret_cast<NativeValue*>(napiMessage);
-    NativeValue* argv[] = {nativeFormId, nativeMessage};
+    NativeValue* argv[] = { nativeFormId, nativeMessage };
     CallObjectMethod("onFormEvent", "onEvent", argv, ON_EVENT_PARAMS_SIZE);
 }
 
@@ -226,7 +226,7 @@ void JsFormExtension::OnUpdate(const int64_t formId)
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(formId).c_str(),
         NAPI_AUTO_LENGTH, &napiFormId);
     NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormId);
-    NativeValue* argv[] = {nativeFormId};
+    NativeValue* argv[] = { nativeFormId };
     CallObjectMethod("onUpdateForm", "onUpdate", argv, 1);
 }
 
@@ -242,7 +242,7 @@ void JsFormExtension::OnCastToNormal(const int64_t formId)
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(formId).c_str(), NAPI_AUTO_LENGTH,
         &napiFormId);
     NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormId);
-    NativeValue* argv[] = {nativeFormId};
+    NativeValue* argv[] = { nativeFormId };
     CallObjectMethod("onCastToNormalForm", "onCastToNormal", argv, 1);
 }
 
@@ -257,7 +257,7 @@ void JsFormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formE
     for (auto item = formEventsMap.begin(); item != formEventsMap.end(); item++) {
         nativeObj->SetProperty(std::to_string(item->first).c_str(), CreateJsValue(*nativeEngine, item->second));
     }
-    NativeValue* argv[] = {nativeFormEventsMap};
+    NativeValue* argv[] = { nativeFormEventsMap };
     CallObjectMethod("onChangeFormVisibility", "onVisibilityChange", argv, 1);
 }
 
@@ -276,7 +276,7 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
     return providerRemoteObject_;
 }
 
-NativeValue* JsFormExtension::CallObjectMethod(const char* name, const char *bakName, NativeValue* const* argv,
+NativeValue* JsFormExtension::CallObjectMethod(const char* name, const char* bakName, NativeValue* const* argv,
     size_t argc)
 {
     HILOG_INFO("JsFormExtension::CallObjectMethod(%{public}s), begin", name);
@@ -311,7 +311,7 @@ NativeValue* JsFormExtension::CallObjectMethod(const char* name, const char *bak
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
-void JsFormExtension::GetSrcPath(std::string &srcPath)
+void JsFormExtension::GetSrcPath(std::string& srcPath)
 {
     if (!Extension::abilityInfo_->isModuleJson) {
         /* temporary compatibility api8 + config.json */
@@ -354,7 +354,7 @@ void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& co
     CallObjectMethod("onConfigurationUpdate", "onConfigurationUpdated", &jsConfiguration, 1);
 }
 
-FormState JsFormExtension::OnAcquireFormState(const Want &want)
+FormState JsFormExtension::OnAcquireFormState(const Want& want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     auto state = static_cast<int32_t>(FormState::DEFAULT);
@@ -385,7 +385,7 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     }
 }
 
-bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
+bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams& wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     HandleScope handleScope(jsRuntime_);

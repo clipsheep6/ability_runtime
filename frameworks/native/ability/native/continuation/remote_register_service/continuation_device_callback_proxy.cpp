@@ -19,7 +19,7 @@ namespace AppExecFwk {
 /**
  * A constructor used to create a {@link ohos.aafwk.ability.continuation.ContinuationDeviceCallbackProxy} instance.
  */
-ContinuationDeviceCallbackProxy::ContinuationDeviceCallbackProxy(std::shared_ptr<IContinuationDeviceCallback> &callback)
+ContinuationDeviceCallbackProxy::ContinuationDeviceCallbackProxy(std::shared_ptr<IContinuationDeviceCallback>& callback)
 {
     callback_ = std::weak_ptr<IContinuationDeviceCallback>(callback);
 }
@@ -28,7 +28,7 @@ ContinuationDeviceCallbackProxy::ContinuationDeviceCallbackProxy(std::shared_ptr
  */
 ContinuationDeviceCallbackProxy::~ContinuationDeviceCallbackProxy()
 {}
-void ContinuationDeviceCallbackProxy::Connect(const std::string &deviceId, const std::string &deviceType)
+void ContinuationDeviceCallbackProxy::Connect(const std::string& deviceId, const std::string& deviceType)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<IContinuationDeviceCallback> callback = nullptr;
@@ -41,7 +41,7 @@ void ContinuationDeviceCallbackProxy::Connect(const std::string &deviceId, const
     HILOG_INFO("%{public}s called end", __func__);
 }
 
-void ContinuationDeviceCallbackProxy::Disconnect(const std::string &deviceId)
+void ContinuationDeviceCallbackProxy::Disconnect(const std::string& deviceId)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<IContinuationDeviceCallback> callback = nullptr;

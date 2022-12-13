@@ -192,20 +192,20 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     }
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto innerErrorCode = (unwrapArgc == 1) ?
-                context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
-            if (innerErrorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
-            }
-        };
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto innerErrorCode = (unwrapArgc == 1) ?
+            context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+        if (innerErrorCode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
@@ -259,7 +259,7 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
                 } else {
                     task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
                 }
-        };
+    };
 
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
@@ -291,7 +291,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
 
     calls->callerCallBack = std::make_shared<CallerCallBack>();
 
-    auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
+    auto callBackDone = [calldata = calls](const sptr<IRemoteObject>& obj) {
         HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
         HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
@@ -300,11 +300,11 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         HILOG_INFO("OnStartAbilityByCall callBackDone is called end");
     };
 
-    auto releaseListen = [](const std::string &str) {
+    auto releaseListen = [](const std::string& str) {
         HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
     };
 
-    auto callExecute = [calldata = calls] () {
+    auto callExecute = [calldata = calls]() {
         constexpr int CALLER_TIME_OUT = 10; // 10s
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
         if (calldata->remoteCallee != nullptr) {
@@ -319,36 +319,36 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         HILOG_DEBUG("OnStartAbilityByCall callExecute end");
     };
 
-    auto callComplete = [weak = context_, calldata = calls] (
+    auto callComplete = [weak = context_, calldata = calls](
         NativeEngine& engine, AsyncTask& task, int32_t status) {
-        if (calldata->err != 0) {
-            HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
-            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-            return;
-        }
+            if (calldata->err != 0) {
+                HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
 
-        auto context = weak.lock();
-        if (context != nullptr && calldata->callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
-            auto releaseCallAbilityFunc = [weak] (
-                const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
-                auto contextForRelease = weak.lock();
-                if (contextForRelease == nullptr) {
-                    HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
-                    return -1;
-                }
-                return contextForRelease->ReleaseCall(callback);
-            };
-            task.Resolve(engine,
-                CreateJsCallerComplex(
-                    engine, releaseCallAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
-        } else {
-            HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
-                context == nullptr ? "context" :
+            auto context = weak.lock();
+            if (context != nullptr && calldata->callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
+                auto releaseCallAbilityFunc = [weak](
+                    const std::shared_ptr<CallerCallBack>& callback) -> ErrCode {
+                        auto contextForRelease = weak.lock();
+                        if (contextForRelease == nullptr) {
+                            HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
+                            return -1;
+                        }
+                        return contextForRelease->ReleaseCall(callback);
+                };
+                task.Resolve(engine,
+                    CreateJsCallerComplex(
+                        engine, releaseCallAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
+            } else {
+                HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
+                    context == nullptr ? "context" :
                     (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
-            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-        }
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            }
 
-        HILOG_DEBUG("OnStartAbilityByCall callComplete end");
+            HILOG_DEBUG("OnStartAbilityByCall callComplete end");
     };
 
     calls->callerCallBack->SetCallBack(callBackDone);
@@ -516,19 +516,19 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto errcode = context->StartServiceExtensionAbility(want);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto errcode = context->StartServiceExtensionAbility(want);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
     NativeValue* result = nullptr;
@@ -550,26 +550,26 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
     int32_t accountId = -1;
     if (!JsAbilityContext::UnWrapWant(engine, info.argv[0], want) ||
         !OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
-                                              reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
+            reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return engine.CreateUndefined();
     }
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto errcode = context->StartServiceExtensionAbility(want, accountId);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto errcode = context->StartServiceExtensionAbility(want, accountId);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_TWO) ? info.argv[ARGC_TWO] : nullptr;
     NativeValue* result = nullptr;
@@ -595,19 +595,19 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, cons
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto errcode = context->StopServiceExtensionAbility(want);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto errcode = context->StopServiceExtensionAbility(want);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
     NativeValue* result = nullptr;
@@ -629,26 +629,26 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
     AAFwk::Want want;
     if (!JsAbilityContext::UnWrapWant(engine, info.argv[0], want) ||
         !OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
-                                              reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
+            reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return engine.CreateUndefined();
     }
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto errcode = context->StopServiceExtensionAbility(want, accountId);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto errcode = context->StopServiceExtensionAbility(want, accountId);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_TWO) ? info.argv[ARGC_TWO] : nullptr;
     NativeValue* result = nullptr;
@@ -682,20 +682,20 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, resultCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
 
-            auto errorCode = context->TerminateAbilityWithResult(want, resultCode);
-            if (errorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errorCode));
-            }
-        };
+        auto errorCode = context->TerminateAbilityWithResult(want, resultCode);
+        if (errorCode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errorCode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
     NativeValue* result = nullptr;
@@ -741,18 +741,18 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     HILOG_INFO("%{public}s not find connection, make new one", __func__);
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            HILOG_INFO("OnConnectAbility begin");
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("Connect ability failed, context is released.");
-                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                return;
-            }
-            if (!context->ConnectAbility(want, connection)) {
-                connection->CallJsFailed(ERROR_CODE_ONE);
-            }
-            task.Resolve(engine, engine.CreateUndefined());
-        };
+        HILOG_INFO("OnConnectAbility begin");
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("Connect ability failed, context is released.");
+            task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+            return;
+        }
+        if (!context->ConnectAbility(want, connection)) {
+            connection->CallJsFailed(ERROR_CODE_ONE);
+        }
+        task.Resolve(engine, engine.CreateUndefined());
+    };
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnConnectAbility",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
@@ -816,7 +816,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
                     connection->CallJsFailed(ERROR_CODE_ONE);
                 }
                 task.Resolve(engine, engine.CreateUndefined());
-        };
+    };
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnConnectAbilityWithAccount",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
@@ -843,7 +843,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
     HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(abilityConnects_.begin(),
         abilityConnects_.end(),
-        [&connectId](const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
+        [&connectId](const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type& obj) {
             return connectId == obj.first.id;
         });
     if (item != abilityConnects_.end()) {
@@ -858,22 +858,22 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, connection](
             NativeEngine& engine, AsyncTask& task, int32_t status) {
-            HILOG_INFO("OnDisconnectAbility begin");
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("OnDisconnectAbility context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            if (connection == nullptr) {
-                HILOG_WARN("connection nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            HILOG_INFO("context->DisconnectAbility");
-            context->DisconnectAbility(want, connection);
-            task.Resolve(engine, engine.CreateUndefined());
-        };
+                HILOG_INFO("OnDisconnectAbility begin");
+                auto context = weak.lock();
+                if (!context) {
+                    HILOG_WARN("OnDisconnectAbility context is released");
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                    return;
+                }
+                if (connection == nullptr) {
+                    HILOG_WARN("connection nullptr");
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                    return;
+                }
+                HILOG_INFO("context->DisconnectAbility");
+                context->DisconnectAbility(want, connection);
+                task.Resolve(engine, engine.CreateUndefined());
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
     NativeValue* result = nullptr;
@@ -892,20 +892,20 @@ NativeValue* JsAbilityContext::OnTerminateSelf(NativeEngine& engine, NativeCallb
 
     AsyncTask::CompleteCallback complete =
         [weak = context_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
 
-            auto errcode = context->TerminateSelf();
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto errcode = context->TerminateSelf();
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[ARGC_ZERO] : nullptr;
     NativeValue* result = nullptr;
@@ -941,7 +941,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
     auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     PermissionRequestTask task =
-        [&engine, asyncTask](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
+        [&engine, asyncTask](const std::vector<std::string>& permissions, const std::vector<int>& grantResults) {
         HILOG_INFO("OnRequestPermissionsFromUser async callback is called");
         NativeValue* requestResult = JsAbilityContext::WrapPermissionRequestResult(engine, permissions, grantResults);
         if (requestResult == nullptr) {
@@ -1055,7 +1055,7 @@ NativeValue* JsAbilityContext::WrapAbilityResult(NativeEngine& engine, const int
 }
 
 NativeValue* JsAbilityContext::WrapPermissionRequestResult(NativeEngine& engine,
-    const std::vector<std::string> &permissions, const std::vector<int> &grantResults)
+    const std::vector<std::string>& permissions, const std::vector<int>& grantResults)
 {
     NativeValue* jsPermissionRequestResult = engine.CreateObject();
     NativeObject* permissionRequestResult = ConvertNativeValueTo<NativeObject>(jsPermissionRequestResult);
@@ -1064,7 +1064,7 @@ NativeValue* JsAbilityContext::WrapPermissionRequestResult(NativeEngine& engine,
     return jsPermissionRequestResult;
 }
 
-void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
+void JsAbilityContext::InheritWindowMode(AAFwk::Want& want)
 {
     HILOG_INFO("%{public}s called.", __func__);
 #ifdef SUPPORT_GRAPHICS
@@ -1083,8 +1083,8 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 #endif
 }
 
-void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration> &config)
+void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference>& jsContext,
+    const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
     HILOG_INFO("ConfigurationUpdated begin.");
     if (jsContext == nullptr || config == nullptr) {
@@ -1107,7 +1107,7 @@ void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_pt
     HILOG_INFO("JSAbilityConnection::CallFunction onUpdateConfiguration, success");
 
     HILOG_INFO("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
-    NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
+    NativeValue* argv[] = { CreateJsConfiguration(*engine, *config) };
     engine->CallFunction(value, method, argv, ARGC_ONE);
 }
 
@@ -1131,7 +1131,7 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
     }
 
-    const char *moduleName = "JsAbilityContext";
+    const char* moduleName = "JsAbilityContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsAbilityContext::StartAbility);
     BindNativeFunction(engine, *object, "startAbilityWithAccount", moduleName,
         JsAbilityContext::StartAbilityWithAccount);
@@ -1175,45 +1175,45 @@ JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine)
 
 JSAbilityConnection::~JSAbilityConnection()
 {
-    uv_loop_t *loop = engine_.GetUVLoop();
+    uv_loop_t* loop = engine_.GetUVLoop();
     if (loop == nullptr) {
         HILOG_ERROR("~JSAbilityConnection: failed to get uv loop.");
         return;
     }
 
-    ConnectCallback *cb = new (std::nothrow) ConnectCallback();
+    ConnectCallback* cb = new (std::nothrow) ConnectCallback();
     if (cb == nullptr) {
         HILOG_ERROR("~JSAbilityConnection: failed to create cb.");
         return;
     }
     cb->jsConnectionObject_ = std::move(jsConnectionObject_);
 
-    uv_work_t *work = new (std::nothrow) uv_work_t;
+    uv_work_t* work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         HILOG_ERROR("~JSAbilityConnection: failed to create work.");
         delete cb;
         cb = nullptr;
         return;
     }
-    work->data = reinterpret_cast<void *>(cb);
-    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
-    [](uv_work_t *work, int status) {
-        if (work == nullptr) {
-            HILOG_ERROR("~JSAbilityConnection: work is nullptr.");
-            return;
-        }
-        if (work->data == nullptr) {
-            HILOG_ERROR("~JSAbilityConnection: data is nullptr.");
+    work->data = reinterpret_cast<void*>(cb);
+    int ret = uv_queue_work(loop, work, [](uv_work_t* work) {},
+        [](uv_work_t* work, int status) {
+            if (work == nullptr) {
+                HILOG_ERROR("~JSAbilityConnection: work is nullptr.");
+                return;
+            }
+            if (work->data == nullptr) {
+                HILOG_ERROR("~JSAbilityConnection: data is nullptr.");
+                delete work;
+                work = nullptr;
+                return;
+            }
+            ConnectCallback* cb = reinterpret_cast<ConnectCallback*>(work->data);
+            delete cb;
+            cb = nullptr;
             delete work;
             work = nullptr;
-            return;
-        }
-        ConnectCallback *cb = reinterpret_cast<ConnectCallback *>(work->data);
-        delete cb;
-        cb = nullptr;
-        delete work;
-        work = nullptr;
-    });
+        });
     if (ret != 0) {
         if (cb != nullptr) {
             delete cb;
@@ -1231,8 +1231,8 @@ void JSAbilityConnection::SetConnectionId(int64_t id)
     connectionId_ = id;
 }
 
-void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
-    const sptr<IRemoteObject> &remoteObject, int resultCode)
+void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
+    const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
     HILOG_INFO("OnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
@@ -1252,8 +1252,8 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
     handler_->PostTask(task, "OnAbilityConnectDone");
 }
 
-void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
-    const sptr<IRemoteObject> &remoteObject, int resultCode)
+void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName& element,
+    const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
     HILOG_INFO("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
@@ -1283,7 +1283,7 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
     HILOG_INFO("OnAbilityConnectDone end");
 }
 
-void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
     HILOG_INFO("OnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
@@ -1303,7 +1303,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
     handler_->PostTask(task, "OnAbilityDisconnectDone");
 }
 
-void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int resultCode)
 {
     HILOG_INFO("HandleOnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
@@ -1329,8 +1329,8 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
     auto item = std::find_if(abilityConnects_.begin(), abilityConnects_.end(),
-        [bundleName, abilityName, connectionId = connectionId_] (
-            const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
+        [bundleName, abilityName, connectionId = connectionId_](
+            const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type& obj) {
                 return (bundleName == obj.first.want.GetBundle()) &&
                     (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
                     connectionId == obj.first.id;
@@ -1366,13 +1366,13 @@ void JSAbilityConnection::CallJsFailed(int32_t errorCode)
         return;
     }
 
-    NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
+    NativeValue* argv[] = { engine_.CreateNumber(errorCode) };
     HILOG_INFO("CallJsFailed CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
     HILOG_INFO("CallJsFailed end");
 }
 
-NativeValue* JSAbilityConnection::ConvertElement(const AppExecFwk::ElementName &element)
+NativeValue* JSAbilityConnection::ConvertElement(const AppExecFwk::ElementName& element)
 {
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
     return reinterpret_cast<NativeValue*>(napiElementName);
@@ -1414,20 +1414,20 @@ NativeValue* JsAbilityContext::OnSetMissionLabel(NativeEngine& engine, NativeCal
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, label](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
 
-            auto errcode = context->SetMissionLabel(label);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto errcode = context->SetMissionLabel(label);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
     NativeValue* result = nullptr;
@@ -1455,20 +1455,20 @@ NativeValue* JsAbilityContext::OnSetMissionIcon(NativeEngine& engine, NativeCall
 
     AsyncTask::CompleteCallback complete =
         [weak = context_, icon](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released when set mission icon");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released when set mission icon");
+            task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
 
-            auto errcode = context->SetMissionIcon(icon);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
-            }
-        };
+        auto errcode = context->SetMissionIcon(icon);
+        if (errcode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
     NativeValue* result = nullptr;

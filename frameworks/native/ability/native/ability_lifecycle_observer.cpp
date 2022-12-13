@@ -21,18 +21,18 @@ void LifecycleObserver::OnActive() {}
 
 void LifecycleObserver::OnInactive() {}
 
-void LifecycleObserver::OnStart(const Want &want) {}
+void LifecycleObserver::OnStart(const Want& want) {}
 
 void LifecycleObserver::OnStop() {}
 
-void LifecycleObserver::OnStateChanged(Lifecycle::Event event, const Want &want) {}
+void LifecycleObserver::OnStateChanged(Lifecycle::Event event, const Want& want) {}
 
 virtual void LifecycleObserver::OnStateChanged(LifeCycle::Event event) {}
 
 #ifdef SUPPORT_GRAPHICS
 void LifecycleObserver::OnBackground() {}
 
-void LifecycleObserver::OnForeground(const Want &want) {}
+void LifecycleObserver::OnForeground(const Want& want) {}
 #endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

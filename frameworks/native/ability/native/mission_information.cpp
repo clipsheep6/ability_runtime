@@ -19,23 +19,23 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-bool MissionInformation::ReadFromParcel(Parcel &parcel)
+bool MissionInformation::ReadFromParcel(Parcel& parcel)
 {
     label = Str16ToStr8(parcel.ReadString16());
     iconPath = Str16ToStr8(parcel.ReadString16());
 
     return true;
 }
-bool MissionInformation::Marshalling(Parcel &parcel) const
+bool MissionInformation::Marshalling(Parcel& parcel) const
 {
     parcel.WriteString16(Str8ToStr16(label));
     parcel.WriteString16(Str8ToStr16(iconPath));
 
     return true;
 }
-MissionInformation *MissionInformation::Unmarshalling(Parcel &parcel)
+MissionInformation* MissionInformation::Unmarshalling(Parcel& parcel)
 {
-    MissionInformation *info = new (std::nothrow) MissionInformation();
+    MissionInformation* info = new (std::nothrow) MissionInformation();
     if (info == nullptr) {
         return nullptr;
     }

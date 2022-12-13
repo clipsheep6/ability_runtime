@@ -24,8 +24,8 @@ namespace AppExecFwk {
  * @param extras filter with supported device list.
  * @param callback callback for device connect and disconnect.
  */
-int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sptr<IRemoteObject> &token,
-    const ExtraParams &extras, const sptr<IConnectCallback> &callback)
+int RemoteRegisterServiceProxy::Register(const std::string& bundleName, const sptr<IRemoteObject>& token,
+    const ExtraParams& extras, const sptr<IConnectCallback>& callback)
 {
     HILOG_INFO("%{public}s called", __func__);
 
@@ -100,7 +100,7 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
  * @param deviceId deviceid.
  * @param status device status.
  */
-bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const std::string &deviceId, int status)
+bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const std::string& deviceId, int status)
 {
     HILOG_INFO("%{public}s called", __func__);
 
@@ -135,7 +135,7 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
  * @param registerToken token from register
  * @param extras filter with supported device list.
  */
-bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraParams &extras)
+bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraParams& extras)
 {
     HILOG_INFO("%{public}s called", __func__);
 

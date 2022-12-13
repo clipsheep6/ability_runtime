@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-TaskHandler::TaskHandler(const std::shared_ptr<EventRunner> &runner) : EventHandler(runner)
+TaskHandler::TaskHandler(const std::shared_ptr<EventRunner>& runner) : EventHandler(runner)
 {}
 
 /**
@@ -25,7 +25,7 @@ TaskHandler::TaskHandler(const std::shared_ptr<EventRunner> &runner) : EventHand
  *
  * @param event The event should be processed.
  */
-void TaskHandler::ProcessEvent([[maybe_unused]] const InnerEvent::Pointer &event)
+void TaskHandler::ProcessEvent([[maybe_unused]] const InnerEvent::Pointer& event)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

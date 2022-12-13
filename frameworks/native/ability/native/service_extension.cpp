@@ -40,20 +40,20 @@ ServiceExtension* ServiceExtension::Create(const std::unique_ptr<Runtime>& runti
     }
 }
 
-void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application,
-    std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,
+    const std::shared_ptr<OHOSApplication>& application,
+    std::shared_ptr<AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     ExtensionBase<ServiceExtensionContext>::Init(record, application, handler, token);
     HILOG_INFO("ServiceExtension begin init context");
 }
 
 std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
-    const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application,
-    std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+    const std::shared_ptr<AbilityLocalRecord>& record,
+    const std::shared_ptr<OHOSApplication>& application,
+    std::shared_ptr<AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     std::shared_ptr<ServiceExtensionContext> context =
         ExtensionBase<ServiceExtensionContext>::CreateAndInitContext(record, application, handler, token);

@@ -39,8 +39,8 @@ void AbilityWindow::Init(std::shared_ptr<AbilityHandler>& handler, std::shared_p
     windowScene_ = std::make_shared<Rosen::WindowScene>();
 }
 
-bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-    sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option, bool isPrivacy)
+bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext>& abilityContext,
+    sptr<Rosen::IWindowLifeCycle>& listener, int32_t displayId, sptr<Rosen::WindowOption> option, bool isPrivacy)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (windowScene_ == nullptr) {
@@ -143,7 +143,7 @@ const sptr<Rosen::Window> AbilityWindow::GetWindow()
 }
 
 #ifdef SUPPORT_GRAPHICS
-ErrCode AbilityWindow::SetMissionLabel(const std::string &label)
+ErrCode AbilityWindow::SetMissionLabel(const std::string& label)
 {
     HILOG_DEBUG("%{public}s start", __func__);
     auto window = GetWindow();
@@ -161,7 +161,7 @@ ErrCode AbilityWindow::SetMissionLabel(const std::string &label)
     return ERR_OK;
 }
 
-ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
 {
     HILOG_DEBUG("%{public}s start", __func__);
     auto window = GetWindow();

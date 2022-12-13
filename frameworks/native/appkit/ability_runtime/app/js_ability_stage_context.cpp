@@ -24,8 +24,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration> &config)
+void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference>& jsContext,
+    const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (!jsContext || !config) {

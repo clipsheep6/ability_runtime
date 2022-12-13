@@ -22,8 +22,8 @@ extern const char _binary_delegator_mgmt_abc_start[];
 extern const char _binary_delegator_mgmt_abc_end[];
 namespace OHOS {
 namespace RunnerRuntime {
-std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
-    const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel)
+std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime>& runtime,
+    const std::shared_ptr<AbilityDelegatorArgs>& args, const AppExecFwk::BundleInfo& bundleInfo, bool isFaJsModel)
 {
     if (!runtime) {
         HILOG_ERROR("Invalid runtime");
@@ -35,7 +35,7 @@ std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> 
         return nullptr;
     }
 
-    auto pTestRunner = new (std::nothrow) JsTestRunner(static_cast<JsRuntime &>(*runtime), args, bundleInfo,
+    auto pTestRunner = new (std::nothrow) JsTestRunner(static_cast<JsRuntime&>(*runtime), args, bundleInfo,
         isFaJsModel);
     if (!pTestRunner) {
         HILOG_ERROR("Failed to create test runner");
@@ -46,7 +46,7 @@ std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> 
 }
 
 JsTestRunner::JsTestRunner(
-    JsRuntime &jsRuntime, const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo,
+    JsRuntime& jsRuntime, const std::shared_ptr<AbilityDelegatorArgs>& args, const AppExecFwk::BundleInfo& bundleInfo,
     bool isFaJsModel)
     : jsRuntime_(jsRuntime), isFaJsModel_(isFaJsModel)
 {
@@ -143,7 +143,7 @@ void JsTestRunner::Run()
     HILOG_INFO("End");
 }
 
-void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc)
+void JsTestRunner::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     HILOG_INFO("JsTestRunner::CallObjectMethod(%{public}s)", name);
     if (isFaJsModel_) {
@@ -182,17 +182,17 @@ void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, 
     }
 
     HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
-    NativeValue *value = jsTestRunnerObj_->Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    NativeValue* value = jsTestRunnerObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get Test Runner object");
         ReportFinished("Failed to get Test Runner object");
         return;
     }
 
-    NativeValue *methodOnCreate = obj->GetProperty(name);
+    NativeValue* methodOnCreate = obj->GetProperty(name);
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get '%{public}s' from Test Runner object", name);
         ReportStatus("Failed to get " + std::string(name) + " from Test Runner object");
@@ -201,7 +201,7 @@ void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, 
     nativeEngine.CallFunction(value, methodOnCreate, argv, argc);
 }
 
-void JsTestRunner::ReportFinished(const std::string &msg)
+void JsTestRunner::ReportFinished(const std::string& msg)
 {
     HILOG_INFO("Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -213,7 +213,7 @@ void JsTestRunner::ReportFinished(const std::string &msg)
     delegator->FinishUserTest(msg, -1);
 }
 
-void JsTestRunner::ReportStatus(const std::string &msg)
+void JsTestRunner::ReportStatus(const std::string& msg)
 {
     HILOG_INFO("Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();

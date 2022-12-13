@@ -23,10 +23,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
-    const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord>& record,
+    const std::shared_ptr<AppExecFwk::OHOSApplication>& application,
+    std::shared_ptr<AppExecFwk::AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     HILOG_INFO("Init begin.");
     if ((record == nullptr) || (application == nullptr) || (handler == nullptr) || (token == nullptr)) {
@@ -39,7 +39,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void Extension::OnStart(const AAFwk::Want &want)
+void Extension::OnStart(const AAFwk::Want& want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnStart begin, extension:%{public}s.", abilityInfo_->name.c_str());
@@ -54,7 +54,7 @@ void Extension::OnStop()
     HILOG_INFO("OnStop end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
-sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
+sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want& want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnConnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
@@ -62,21 +62,21 @@ sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
     return nullptr;
 }
 
-void Extension::OnDisconnect(const AAFwk::Want &want)
+void Extension::OnDisconnect(const AAFwk::Want& want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnDisconnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
     HILOG_INFO("OnDisconnect end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
-void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
-    bool &isAsyncCallback)
+void Extension::OnDisconnect(const AAFwk::Want& want, AppExecFwk::AbilityTransactionCallbackInfo* callbackInfo,
+    bool& isAsyncCallback)
 {
     isAsyncCallback = false;
     OnDisconnect(want);
 }
 
-void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
+void Extension::OnCommand(const AAFwk::Want& want, bool restart, int startId)
 {
     HILOG_INFO("%{public}s begin restart=%{public}s,startId=%{public}d.",
         __func__,
@@ -86,17 +86,17 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void Extension::SetLaunchWant(const AAFwk::Want &want)
+void Extension::SetLaunchWant(const AAFwk::Want& want)
 {
     launchWant_ = std::make_shared<AAFwk::Want>(want);
 }
 
-void Extension::SetLastRequestWant(const AAFwk::Want &want)
+void Extension::SetLastRequestWant(const AAFwk::Want& want)
 {
     lastRequestWant_ = std::make_shared<AAFwk::Want>(want);
 }
 
-void Extension::SetCallingInfo(const CallingInfo &callingInfo)
+void Extension::SetCallingInfo(const CallingInfo& callingInfo)
 {
     callingInfo_ = std::make_shared<CallingInfo>(callingInfo);
 }
@@ -106,7 +106,7 @@ std::shared_ptr<CallingInfo> Extension::GetCallingInfo()
     return callingInfo_;
 }
 
-void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
+void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     HILOG_INFO("%{public}s called.", __func__);
 }
@@ -116,7 +116,7 @@ void Extension::OnMemoryLevel(int level)
     HILOG_INFO("%{public}s called.", __func__);
 }
 
-void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
+void Extension::Dump(const std::vector<std::string>& params, std::vector<std::string>& info)
 {
     HILOG_INFO("%{public}s called.", __func__);
 }

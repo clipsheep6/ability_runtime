@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void AbilityLifecycleExecutor::DispatchLifecycleState(const AbilityLifecycleExecutor::LifecycleState &state)
+void AbilityLifecycleExecutor::DispatchLifecycleState(const AbilityLifecycleExecutor::LifecycleState& state)
 {
     state_ = state;
 }

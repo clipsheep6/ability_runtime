@@ -20,7 +20,7 @@ namespace OHOS::AbilityRuntime {
 ServiceExtensionModuleLoader::ServiceExtensionModuleLoader() = default;
 ServiceExtensionModuleLoader::~ServiceExtensionModuleLoader() = default;
 
-Extension *ServiceExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
+Extension* ServiceExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
 {
     return ServiceExtension::Create(runtime);
 }

@@ -29,10 +29,10 @@ JsEnvironmentCallback::JsEnvironmentCallback(NativeEngine* engine)
 int32_t JsEnvironmentCallback::serialNumber_ = 0;
 
 void JsEnvironmentCallback::CallConfigurationUpdatedInner(
-    const std::string &methodName, const AppExecFwk::Configuration &config)
+    const std::string& methodName, const AppExecFwk::Configuration& config)
 {
     HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
-    for (auto &callback : callbacks_) {
+    for (auto& callback : callbacks_) {
         if (!callback.second) {
             HILOG_ERROR("CallConfigurationUpdatedInner, Invalid jsCallback");
             return;
@@ -51,32 +51,32 @@ void JsEnvironmentCallback::CallConfigurationUpdatedInner(
             return;
         }
 
-        NativeValue *argv[] = { CreateJsConfiguration(*engine_, config) };
+        NativeValue* argv[] = { CreateJsConfiguration(*engine_, config) };
         engine_->CallFunction(value, method, argv, ArraySize(argv));
     }
 }
 
-void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configuration &config)
+void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configuration& config)
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [thisWeakPtr, config](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        [thisWeakPtr, config](NativeEngine& engine, AsyncTask& task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
                 jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config);
             }
         }
     );
-    NativeReference *callback = nullptr;
+    NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule("JsEnvironmentCallback::OnConfigurationUpdated",
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level)
+void JsEnvironmentCallback::CallMemoryLevelInner(const std::string& methodName, const int level)
 {
     HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
-    for (auto &callback : callbacks_) {
+    for (auto& callback : callbacks_) {
         if (!callback.second) {
             HILOG_ERROR("CallMemoryLevelInner, Invalid jsCallback");
             return;
@@ -95,7 +95,7 @@ void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, 
             return;
         }
 
-        NativeValue *argv[] = { CreateJsValue(*engine_, level) };
+        NativeValue* argv[] = { CreateJsValue(*engine_, level) };
         engine_->CallFunction(value, method, argv, ArraySize(argv));
     }
 }
@@ -104,20 +104,20 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [thisWeakPtr, level](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        [thisWeakPtr, level](NativeEngine& engine, AsyncTask& task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
                 jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level);
             }
         }
     );
-    NativeReference *callback = nullptr;
+    NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule("JsEnvironmentCallback::OnMemoryLevel",
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback)
+int32_t JsEnvironmentCallback::Register(NativeValue* jsCallback)
 {
     if (engine_ == nullptr) {
         return -1;

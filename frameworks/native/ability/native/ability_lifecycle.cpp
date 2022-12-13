@@ -24,7 +24,7 @@ LifeCycle::Event LifeCycle::GetLifecycleState()
     return state_;
 }
 
-void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver>& observer)
 {
     HILOG_DEBUG("LifeCycle::AddObserver: called");
 
@@ -36,7 +36,7 @@ void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
     callbacks_.emplace_back(observer);
 }
 
-void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &want)
+void LifeCycle::DispatchLifecycle(const LifeCycle::Event& event, const Want& want)
 {
     HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_FOREGROUND) && (event != LifeCycle::Event::ON_START)) {
@@ -46,7 +46,7 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &wan
 
     state_ = event;
     if (callbacks_.size() != 0) {
-        for (auto &callback : callbacks_) {
+        for (auto& callback : callbacks_) {
             switch (event) {
 #ifdef SUPPORT_GRAPHICS
                 case ON_FOREGROUND: {
@@ -72,7 +72,7 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &wan
     }
 }
 
-void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
+void LifeCycle::DispatchLifecycle(const LifeCycle::Event& event)
 {
     HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_ACTIVE) && (event != LifeCycle::Event::ON_BACKGROUND) &&
@@ -83,7 +83,7 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 
     state_ = event;
     if (callbacks_.size() != 0) {
-        for (auto &callback : callbacks_) {
+        for (auto& callback : callbacks_) {
             switch (event) {
                 case ON_ACTIVE: {
                     if (callback != nullptr) {
@@ -121,7 +121,7 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
     }
 }
 
-void LifeCycle::RemoveObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+void LifeCycle::RemoveObserver(const std::shared_ptr<ILifecycleObserver>& observer)
 {
     HILOG_DEBUG("LifeCycle::RemoveObserver: called");
 

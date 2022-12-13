@@ -24,7 +24,7 @@ namespace AppExecFwk {
  * @param appInfo
  * @return void
  */
-void ApplicationEnvImpl::SetAppInfo(const AppInfo &appInfo)
+void ApplicationEnvImpl::SetAppInfo(const AppInfo& appInfo)
 {
     bundleName_ = appInfo.bundleName;
     dataPath_ = appInfo.dataPath;
@@ -37,7 +37,7 @@ void ApplicationEnvImpl::SetAppInfo(const AppInfo &appInfo)
  * @param appInfo indicates
  * @return void
  */
-void ApplicationEnvImpl::SetAppInfo(const ApplicationInfo &appInfo)
+void ApplicationEnvImpl::SetAppInfo(const ApplicationInfo& appInfo)
 {
     bundleName_ = appInfo.bundleName;
     dataPath_ = appInfo.dataDir;
@@ -49,7 +49,7 @@ void ApplicationEnvImpl::SetAppInfo(const ApplicationInfo &appInfo)
  * @param -
  * @return bundleName
  */
-const std::string &ApplicationEnvImpl::GetBundleName() const
+const std::string& ApplicationEnvImpl::GetBundleName() const
 {
     return bundleName_;
 }
@@ -59,7 +59,7 @@ const std::string &ApplicationEnvImpl::GetBundleName() const
  * @param -
  * @return SrcPath
  */
-const std::string &ApplicationEnvImpl::GetSrcPath() const
+const std::string& ApplicationEnvImpl::GetSrcPath() const
 {
     return srcPath_;
 }
@@ -69,7 +69,7 @@ const std::string &ApplicationEnvImpl::GetSrcPath() const
  * @param -
  * @return DataPath
  */
-const std::string &ApplicationEnvImpl::GetDataPath() const
+const std::string& ApplicationEnvImpl::GetDataPath() const
 {
     return dataPath_;
 }

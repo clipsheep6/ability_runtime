@@ -26,7 +26,7 @@ namespace AppExecFwk {
  * @param deviceType indicators type of connection device.
  * @return none
  */
-void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceType)
+void ConnectCallbackProxy::Connect(const string& deviceId, const string& deviceType)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel data;
@@ -43,7 +43,7 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
  * @param deviceId indicators id of disconnection device.
  * @return none
  */
-void ConnectCallbackProxy::Disconnect(const string &deviceId)
+void ConnectCallbackProxy::Disconnect(const string& deviceId)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel data;
@@ -54,7 +54,7 @@ void ConnectCallbackProxy::Disconnect(const string &deviceId)
     RemoteRequest(data, COMMAND_DISCONNECT);
     HILOG_INFO("%{public}s called end", __func__);
 }
-void ConnectCallbackProxy::RemoteRequest(MessageParcel &data, int commandDisconnect)
+void ConnectCallbackProxy::RemoteRequest(MessageParcel& data, int commandDisconnect)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel reply;

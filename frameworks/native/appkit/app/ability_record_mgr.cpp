@@ -33,7 +33,7 @@ sptr<IRemoteObject> AbilityRecordMgr::GetToken() const
  *
  * @param token The token which the is launched by app.
  */
-void AbilityRecordMgr::SetToken(const sptr<IRemoteObject> &token)
+void AbilityRecordMgr::SetToken(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityRecordMgr::SetToken failed, application is nullptr");
@@ -48,7 +48,7 @@ void AbilityRecordMgr::SetToken(const sptr<IRemoteObject> &token)
  * @param eventRunner The runner of the abilitythread.
  *
  */
-void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner> &eventRunner)
+void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner>& eventRunner)
 {
     if (eventRunner == nullptr) {
         HILOG_ERROR("AbilityRecordMgr::SetEventRunner failed, eventRunner is nullptr");
@@ -76,7 +76,7 @@ void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner> &eventR
  *
  */
 void AbilityRecordMgr::AddAbilityRecord(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+    const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityLocalRecord>& abilityRecord)
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityRecordMgr::AddAbilityRecord failed, token is nullptr");
@@ -97,7 +97,7 @@ void AbilityRecordMgr::AddAbilityRecord(
  * @param token The token which the abilityRecord belongs to.
  *
  */
-void AbilityRecordMgr::RemoveAbilityRecord(const sptr<IRemoteObject> &token)
+void AbilityRecordMgr::RemoveAbilityRecord(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityRecordMgr::RemoveAbilityRecord failed, token is nullptr");
@@ -123,14 +123,14 @@ int AbilityRecordMgr::GetRecordCount() const
  * @param token The token which the abilityRecord belongs to.
  *
  */
-std::shared_ptr<AbilityLocalRecord> AbilityRecordMgr::GetAbilityItem(const sptr<IRemoteObject> &token) const
+std::shared_ptr<AbilityLocalRecord> AbilityRecordMgr::GetAbilityItem(const sptr<IRemoteObject>& token) const
 {
     if (token == nullptr) {
         HILOG_ERROR("AbilityRecordMgr::GetAbilityItem failed, token is nullptr");
         return nullptr;
     }
 
-    const auto &iter = abilityRecords_.find(token);
+    const auto& iter = abilityRecords_.find(token);
     if (iter != abilityRecords_.end()) {
         HILOG_INFO("AbilityRecordMgr::GetAbilityItem : the ability found");
         return iter->second;
@@ -149,8 +149,8 @@ std::vector<sptr<IRemoteObject>> AbilityRecordMgr::GetAllTokens()
 {
     std::vector<sptr<IRemoteObject>> tokens;
     for (std::map<sptr<IRemoteObject>, std::shared_ptr<AbilityLocalRecord>>::iterator it = abilityRecords_.begin();
-         it != abilityRecords_.end();
-         ++it) {
+        it != abilityRecords_.end();
+        ++it) {
         sptr<IRemoteObject> token = it->first;
         tokens.emplace_back(token);
     }

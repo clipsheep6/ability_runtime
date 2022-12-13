@@ -30,16 +30,16 @@ const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
 }
 
-void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
-    std::shared_ptr<ContextDeal> &contextDeal)
+void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std::shared_ptr<AbilityLocalRecord>& record,
+    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token,
+    std::shared_ptr<ContextDeal>& contextDeal)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityImpl::init begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         ability == nullptr || contextDeal == nullptr) {
         HILOG_ERROR("AbilityImpl::init failed, token is nullptr, application is nullptr, handler is nullptr, record is "
-                 "nullptr, ability is nullptr, contextDeal is nullptr");
+            "nullptr, ability is nullptr, contextDeal is nullptr");
         return;
     }
 
@@ -62,7 +62,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     HILOG_DEBUG("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want &want)
+void AbilityImpl::Start(const Want& want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
@@ -114,7 +114,7 @@ void AbilityImpl::Stop()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::Stop(bool &isAsyncCallback)
+void AbilityImpl::Stop(bool& isAsyncCallback)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
@@ -123,7 +123,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
         return;
     }
 
-    auto *callbackInfo = AbilityTransactionCallbackInfo::Create();
+    auto* callbackInfo = AbilityTransactionCallbackInfo::Create();
     if (callbackInfo == nullptr) {
         ability_->OnStop();
         StopCallback();
@@ -228,7 +228,7 @@ void AbilityImpl::DispatchSaveAbilityState()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
+void AbilityImpl::DispatchRestoreAbilityState(const PacMap& inState)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -241,13 +241,13 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void AbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {}
 
-void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
+void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState& state)
 {}
 
-sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
+sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want& want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -262,7 +262,7 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
     return object;
 }
 
-void AbilityImpl::DisconnectAbility(const Want &want)
+void AbilityImpl::DisconnectAbility(const Want& want)
 {
     if (ability_ == nullptr) {
         HILOG_ERROR("Disconnect ability error, ability_ is nullptr.");
@@ -272,7 +272,7 @@ void AbilityImpl::DisconnectAbility(const Want &want)
     ability_->OnDisconnect(want);
 }
 
-void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
+void AbilityImpl::CommandAbility(const Want& want, bool restart, int startId)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -290,7 +290,7 @@ int AbilityImpl::GetCurrentState()
     return lifecycleState_;
 }
 
-void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
+void AbilityImpl::SendResult(int requestCode, int resultCode, const Want& resultData)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -304,7 +304,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::NewWant(const Want &want)
+void AbilityImpl::NewWant(const Want& want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -319,76 +319,76 @@ void AbilityImpl::NewWant(const Want &want)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
+std::vector<std::string> AbilityImpl::GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
 {
     HILOG_DEBUG("AbilityImpl::GetFileTypes");
     std::vector<std::string> types;
     return types;
 }
 
-int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
+int AbilityImpl::OpenFile(const Uri& uri, const std::string& mode)
 {
     HILOG_DEBUG("AbilityImpl::OpenFile");
     return -1;
 }
 
-int AbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
+int AbilityImpl::OpenRawFile(const Uri& uri, const std::string& mode)
 {
     HILOG_DEBUG("AbilityImpl::OpenRawFile");
     return -1;
 }
 
-int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int AbilityImpl::Insert(const Uri& uri, const NativeRdb::ValuesBucket& value)
 {
     HILOG_DEBUG("AbilityImpl::Insert");
     return -1;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityImpl::Call(
-    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri& uri, const std::string& method, const std::string& arg, const AppExecFwk::PacMap& pacMap)
 {
     HILOG_DEBUG("AbilityImpl::Call");
     return nullptr;
 }
 
 int AbilityImpl::Update(
-    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, const NativeRdb::ValuesBucket& value, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HILOG_DEBUG("AbilityImpl::Update");
     return -1;
 }
 
-int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityImpl::Delete(const Uri& uri, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HILOG_DEBUG("AbilityImpl::Delete");
     return -1;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
-    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri& uri, std::vector<std::string>& columns, const NativeRdb::DataAbilityPredicates& predicates)
 {
     HILOG_DEBUG("AbilityImpl::Query");
     return nullptr;
 }
 
-std::string AbilityImpl::GetType(const Uri &uri)
+std::string AbilityImpl::GetType(const Uri& uri)
 {
     HILOG_DEBUG("AbilityImpl::GetType");
     return "";
 }
 
-bool AbilityImpl::Reload(const Uri &uri, const PacMap &extras)
+bool AbilityImpl::Reload(const Uri& uri, const PacMap& extras)
 {
     return false;
 }
 
-int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int AbilityImpl::BatchInsert(const Uri& uri, const std::vector<NativeRdb::ValuesBucket>& values)
 {
     HILOG_DEBUG("AbilityImpl::BatchInsert");
     return -1;
 }
 
-void AbilityImpl::SerUriString(const std::string &uri)
+void AbilityImpl::SerUriString(const std::string& uri)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (contextDeal_ == nullptr) {
@@ -399,7 +399,7 @@ void AbilityImpl::SerUriString(const std::string &uri)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
+void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo& info)
 {
     if (contextDeal_ == nullptr) {
         HILOG_ERROR("AbilityImpl::SetLifeCycleStateInfo contextDeal_ is nullptr");
@@ -448,32 +448,32 @@ bool AbilityImpl::CheckAndSave()
     return true;
 }
 
-PacMap &AbilityImpl::GetRestoreData()
+PacMap& AbilityImpl::GetRestoreData()
 {
     return restoreData_;
 }
 
-void AbilityImpl::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
-    const std::string &abilityName, const std::string &moduleName)
+void AbilityImpl::SetCallingContext(const std::string& deviceId, const std::string& bundleName,
+    const std::string& abilityName, const std::string& moduleName)
 {
     if (ability_ != nullptr) {
         ability_->SetCallingContext(deviceId, bundleName, abilityName, moduleName);
     }
 }
 
-Uri AbilityImpl::NormalizeUri(const Uri &uri)
+Uri AbilityImpl::NormalizeUri(const Uri& uri)
 {
     HILOG_DEBUG("AbilityImpl::NormalizeUri");
     return uri;
 }
 
-Uri AbilityImpl::DenormalizeUri(const Uri &uri)
+Uri AbilityImpl::DenormalizeUri(const Uri& uri)
 {
     HILOG_DEBUG("AbilityImpl::DenormalizeUri");
     return uri;
 }
 
-void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
+void AbilityImpl::ScheduleUpdateConfiguration(const Configuration& config)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
@@ -500,7 +500,7 @@ std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(s
 }
 
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
-    const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
+    const std::vector<std::shared_ptr<DataAbilityOperation>>& operations)
 {
     HILOG_DEBUG("AbilityImpl::ExecuteBatch");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
@@ -679,7 +679,7 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
         AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
 }
 
-void AbilityImpl::Foreground(const Want &want)
+void AbilityImpl::Foreground(const Want& want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {

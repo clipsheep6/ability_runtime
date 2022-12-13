@@ -35,7 +35,7 @@ DataAbilityResult::DataAbilityResult(int count) : uri_("")
  * @brief A constructor used to create a DataAbilityResult instance
  * with a Parcel object specified.
  */
-DataAbilityResult::DataAbilityResult(Parcel &parcel) : uri_(""), count_(0)
+DataAbilityResult::DataAbilityResult(Parcel& parcel) : uri_(""), count_(0)
 {
     ReadFromParcel(parcel);
 }
@@ -44,14 +44,14 @@ DataAbilityResult::DataAbilityResult(Parcel &parcel) : uri_(""), count_(0)
  * @brief A constructor used to create a DataAbilityResult instance
  * with the input parameter uri specified
  */
-DataAbilityResult::DataAbilityResult(const Uri &uri) : uri_(uri.ToString()), count_(0)
+DataAbilityResult::DataAbilityResult(const Uri& uri) : uri_(uri.ToString()), count_(0)
 {}
 
 /**
  * @brief A constructor used to create a DataAbilityResult instance
  * with input parameters uri, count, and failure specified.
  */
-DataAbilityResult::DataAbilityResult(const Uri &uri, int count) : uri_(uri.ToString())
+DataAbilityResult::DataAbilityResult(const Uri& uri, int count) : uri_(uri.ToString())
 {
     count_ = count;
 }
@@ -83,9 +83,9 @@ int DataAbilityResult::GetCount()
  * @param parcel Indicates the Parcel object.
  * @return Returns the DataAbilityResult object.
  */
-DataAbilityResult *DataAbilityResult::CreateFromParcel(Parcel &parcel)
+DataAbilityResult* DataAbilityResult::CreateFromParcel(Parcel& parcel)
 {
-    DataAbilityResult *dataAbilityResult = new (std::nothrow) DataAbilityResult(parcel);
+    DataAbilityResult* dataAbilityResult = new (std::nothrow) DataAbilityResult(parcel);
     if (dataAbilityResult == nullptr) {
         HILOG_ERROR("DataAbilityResult::CreateFromParcel dataAbilityResult is nullptr");
     }
@@ -111,7 +111,7 @@ std::string DataAbilityResult::ToString()
  * @param parcel Indicates the Parcel object for marshalling.
  * @return Returns true if the marshalling is successful; returns false otherwise.
  */
-bool DataAbilityResult::Marshalling(Parcel &parcel) const
+bool DataAbilityResult::Marshalling(Parcel& parcel) const
 {
     // uri_
     if (uri_.ToString().empty()) {
@@ -138,9 +138,9 @@ bool DataAbilityResult::Marshalling(Parcel &parcel) const
  * @param parcel Indicates the Parcel object for unmarshalling.
  * @return Returns true if the unmarshalling is successful; returns false otherwise.
  */
-DataAbilityResult *DataAbilityResult::Unmarshalling(Parcel &parcel)
+DataAbilityResult* DataAbilityResult::Unmarshalling(Parcel& parcel)
 {
-    DataAbilityResult *dataAbilityResult = new (std::nothrow) DataAbilityResult(0);
+    DataAbilityResult* dataAbilityResult = new (std::nothrow) DataAbilityResult(0);
     if (dataAbilityResult != nullptr) {
         if (!dataAbilityResult->ReadFromParcel(parcel)) {
             delete dataAbilityResult;
@@ -151,7 +151,7 @@ DataAbilityResult *DataAbilityResult::Unmarshalling(Parcel &parcel)
     return dataAbilityResult;
 }
 
-bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
+bool DataAbilityResult::ReadFromParcel(Parcel& parcel)
 {
     // uri_
     int32_t empty = VALUE_NULL;

@@ -17,13 +17,13 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-ShellCmdResult::ShellCmdResult(const int32_t exitCode, const std::string &stdResult)
+ShellCmdResult::ShellCmdResult(const int32_t exitCode, const std::string& stdResult)
     : exitCode_(exitCode), stdResult_(stdResult)
 {}
 
-ShellCmdResult::ShellCmdResult(const AAFwk::ShellCommandResult &result)
+ShellCmdResult::ShellCmdResult(const AAFwk::ShellCommandResult& result)
 {
-    exitCode_  = result.exitCode;
+    exitCode_ = result.exitCode;
     stdResult_ = result.stdResult;
 }
 
@@ -37,7 +37,7 @@ int32_t ShellCmdResult::GetExitCode() const
     return exitCode_;
 }
 
-void ShellCmdResult::SetStdResult(const std::string &stdResult)
+void ShellCmdResult::SetStdResult(const std::string& stdResult)
 {
     stdResult_ = stdResult;
 }

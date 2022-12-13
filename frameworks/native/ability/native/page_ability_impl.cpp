@@ -27,11 +27,11 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  * @param targetState The life cycle state to switch to.
  *
  */
-void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void PageAbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Handle ability transaction start, sourceState:%{public}d, targetState:%{public}d, "
-             "isNewWant:%{public}d, sceneFlag:%{public}d.",
+        "isNewWant:%{public}d, sceneFlag:%{public}d.",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant,
@@ -91,7 +91,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  * @return return true if the lifecycle transaction successfully, otherwise return false.
  *
  */
-bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+bool PageAbilityImpl::AbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("PageAbilityImpl::AbilityTransaction begin");
     bool ret = true;
@@ -115,7 +115,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
                 NewWant(want);
             }
             SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
-                         targetState.caller.abilityName);
+                targetState.caller.abilityName);
 
             if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
                 lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {

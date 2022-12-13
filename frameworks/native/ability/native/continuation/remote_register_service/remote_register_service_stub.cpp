@@ -31,7 +31,7 @@ RemoteRegisterServiceStub::~RemoteRegisterServiceStub()
 }
 
 int RemoteRegisterServiceStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     HILOG_INFO("%{public}s called, cmd=%{public}d, flags=%{public}d", __func__, code, option.GetFlags());
 
@@ -54,12 +54,12 @@ int RemoteRegisterServiceStub::OnRemoteRequest(
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel &reply)
+int RemoteRegisterServiceStub::RegisterInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::string bundleName = data.ReadString();
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    ExtraParams *pExtras = nullptr;
+    ExtraParams* pExtras = nullptr;
     int32_t extraId = data.ReadInt32();
     if (extraId != 0) {
         pExtras = ExtraParams::Unmarshalling(data);
@@ -88,7 +88,7 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
     return NO_ERROR;
 }
 
-int RemoteRegisterServiceStub::UnregisterInner(MessageParcel &data, MessageParcel &reply)
+int RemoteRegisterServiceStub::UnregisterInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
@@ -98,7 +98,7 @@ int RemoteRegisterServiceStub::UnregisterInner(MessageParcel &data, MessageParce
     return NO_ERROR;
 }
 
-int RemoteRegisterServiceStub::UpdateConnectStatusInner(MessageParcel &data, MessageParcel &reply)
+int RemoteRegisterServiceStub::UpdateConnectStatusInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32(registerToken);
@@ -110,11 +110,11 @@ int RemoteRegisterServiceStub::UpdateConnectStatusInner(MessageParcel &data, Mes
     return NO_ERROR;
 }
 
-int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageParcel &reply)
+int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel& data, MessageParcel& reply)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     int registerToken = data.ReadInt32();
-    ExtraParams *pExtras = nullptr;
+    ExtraParams* pExtras = nullptr;
     int32_t extraId = data.ReadInt32();
     if (extraId != 0) {
         pExtras = ExtraParams::Unmarshalling(data);

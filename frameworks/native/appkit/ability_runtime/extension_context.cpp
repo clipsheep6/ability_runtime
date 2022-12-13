@@ -21,7 +21,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 const size_t ExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ExtensionContext"));
 
-void ExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
+void ExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo>& abilityInfo)
 {
     if (abilityInfo == nullptr) {
         HILOG_ERROR("ExtensionContext::SetAbilityInfo Info == nullptr");

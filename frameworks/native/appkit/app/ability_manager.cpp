@@ -21,13 +21,13 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityManager &AbilityManager::GetInstance()
+AbilityManager& AbilityManager::GetInstance()
 {
     static AbilityManager abilityManager;
     return abilityManager;
 }
 
-void AbilityManager::StartAbility(const Want &want, int requestCode = -1)
+void AbilityManager::StartAbility(const Want& want, int requestCode = -1)
 {
     HILOG_DEBUG("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
@@ -36,7 +36,7 @@ void AbilityManager::StartAbility(const Want &want, int requestCode = -1)
     }
 }
 
-int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
+int32_t AbilityManager::ClearUpApplicationData(const std::string& bundleName)
 {
     HILOG_DEBUG("%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
@@ -64,7 +64,7 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
     return info;
 }
 
-int AbilityManager::KillProcessesByBundleName(const std::string &bundleName)
+int AbilityManager::KillProcessesByBundleName(const std::string& bundleName)
 {
     HILOG_DEBUG("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName);

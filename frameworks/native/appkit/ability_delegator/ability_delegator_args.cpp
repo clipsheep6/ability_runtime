@@ -17,20 +17,20 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string AbilityDelegatorArgs::KEY_TEST_BUNDLE_NAME {"-b"};
-const std::string AbilityDelegatorArgs::KEY_TEST_PACKAGE_NAME {"-p"};
-const std::string AbilityDelegatorArgs::KEY_TEST_MODULE_NAME {"-m"};
-const std::string AbilityDelegatorArgs::KEY_TEST_RUNNER_CLASS {"-s unittest"};
-const std::string AbilityDelegatorArgs::KEY_TEST_CASE {"-s class"};
-const std::string AbilityDelegatorArgs::KEY_TEST_WAIT_TIMEOUT {"-w"};
+const std::string AbilityDelegatorArgs::KEY_TEST_BUNDLE_NAME{ "-b" };
+const std::string AbilityDelegatorArgs::KEY_TEST_PACKAGE_NAME{ "-p" };
+const std::string AbilityDelegatorArgs::KEY_TEST_MODULE_NAME{ "-m" };
+const std::string AbilityDelegatorArgs::KEY_TEST_RUNNER_CLASS{ "-s unittest" };
+const std::string AbilityDelegatorArgs::KEY_TEST_CASE{ "-s class" };
+const std::string AbilityDelegatorArgs::KEY_TEST_WAIT_TIMEOUT{ "-w" };
 
-const std::string AbilityDelegatorArgs::KEY_TEST_DEBUG {"-D"};
-const std::string AbilityDelegatorArgs::VALUE_TEST_DEBUG {"true"};
+const std::string AbilityDelegatorArgs::KEY_TEST_DEBUG{ "-D" };
+const std::string AbilityDelegatorArgs::VALUE_TEST_DEBUG{ "true" };
 
 AbilityDelegatorArgs::AbilityDelegatorArgs()
 {}
 
-AbilityDelegatorArgs::AbilityDelegatorArgs(const AAFwk::Want &want)
+AbilityDelegatorArgs::AbilityDelegatorArgs(const AAFwk::Want& want)
 {
     bundleName_ = want.GetStringParam(AbilityDelegatorArgs::KEY_TEST_BUNDLE_NAME);
 
@@ -88,7 +88,7 @@ bool AbilityDelegatorArgs::FindDebugFlag() const
     return !pos->second.compare(VALUE_TEST_DEBUG);
 }
 
-std::string AbilityDelegatorArgs::GetParamValue(const std::string &key) const
+std::string AbilityDelegatorArgs::GetParamValue(const std::string& key) const
 {
     auto target = params_.find(key);
     return (target != params_.end()) ? target->second : std::string();

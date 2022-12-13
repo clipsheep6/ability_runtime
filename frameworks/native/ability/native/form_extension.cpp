@@ -38,20 +38,20 @@ FormExtension* FormExtension::Create(const std::unique_ptr<Runtime>& runtime)
     }
 }
 
-void FormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application,
-    std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+void FormExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,
+    const std::shared_ptr<OHOSApplication>& application,
+    std::shared_ptr<AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     ExtensionBase<FormExtensionContext>::Init(record, application, handler, token);
     HILOG_INFO("FormExtension begin init");
 }
 
 std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
-    const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application,
-    std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
+    const std::shared_ptr<AbilityLocalRecord>& record,
+    const std::shared_ptr<OHOSApplication>& application,
+    std::shared_ptr<AbilityHandler>& handler,
+    const sptr<IRemoteObject>& token)
 {
     std::shared_ptr<FormExtensionContext> context =
         ExtensionBase<FormExtensionContext>::CreateAndInitContext(record, application, handler, token);
@@ -95,13 +95,13 @@ void FormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formEve
     HILOG_INFO("%{public}s called.", __func__);
 }
 
-FormState FormExtension::OnAcquireFormState(const Want &want)
+FormState FormExtension::OnAcquireFormState(const Want& want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     return FormState::DEFAULT;
 }
 
-bool FormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
+bool FormExtension::OnShare(int64_t formId, AAFwk::WantParams& wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     return false;

@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *)
+NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_DEBUG("AttachAbilityStageContext");
     if (engine == nullptr || value == nullptr) {
@@ -39,14 +39,14 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsAbilityStageContext(*engine, ptr, nullptr, nullptr);
+    NativeValue* object = CreateJsAbilityStageContext(*engine, ptr, nullptr, nullptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
         return nullptr;
     }
     auto contextObj = systemModule->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nObject == nullptr) {
         HILOG_WARN("LoadSystemModuleByEngine or ConvertNativeValueTo failed.");
         return nullptr;
@@ -54,9 +54,9 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachAbilityStageContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
     nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void *data, void *) {
+        [](NativeEngine*, void* data, void*) {
             HILOG_DEBUG("Finalizer for weak_ptr ability stage context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
         }, nullptr);
     return contextObj;
 }
@@ -106,7 +106,7 @@ JsAbilityStage::JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeRefer
 
 JsAbilityStage::~JsAbilityStage() = default;
 
-void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
+void JsAbilityStage::Init(const std::shared_ptr<Context>& context)
 {
     AbilityStage::Init(context);
 
@@ -136,7 +136,7 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
         return;
     }
     contextObj = shellContextRef_->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject* nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return;
@@ -155,7 +155,7 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
         }, nullptr);
 }
 
-void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
+void JsAbilityStage::OnCreate(const AAFwk::Want& want) const
 {
     HILOG_DEBUG("JsAbilityStage::OnCreate come");
     AbilityStage::OnCreate(want);
@@ -189,7 +189,7 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
     }
 }
 
-std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
+std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want& want)
 {
     HILOG_DEBUG("JsAbilityStage::OnAcceptWant come");
     AbilityStage::OnAcceptWant(want);
@@ -267,13 +267,13 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
         return;
     }
 
-    NativeValue *jsLevel = CreateJsValue(nativeEngine, level);
-    NativeValue *argv[] = { jsLevel };
+    NativeValue* jsLevel = CreateJsValue(nativeEngine, level);
+    NativeValue* argv[] = { jsLevel };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * const * argv, size_t argc)
+NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     HILOG_DEBUG("JsAbilityStage::CallObjectMethod %{public}s", name);
     if (!jsAbilityStageObj_) {
@@ -309,7 +309,7 @@ std::shared_ptr<AppExecFwk::DelegatorAbilityStageProperty> JsAbilityStage::Creat
     return property;
 }
 
-std::string JsAbilityStage::GetHapModuleProp(const std::string &propName) const
+std::string JsAbilityStage::GetHapModuleProp(const std::string& propName) const
 {
     auto context = GetContext();
     if (!context) {

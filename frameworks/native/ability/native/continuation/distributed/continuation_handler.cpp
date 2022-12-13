@@ -25,14 +25,14 @@ namespace AppExecFwk {
 const std::string ContinuationHandler::ORIGINAL_DEVICE_ID("deviceId");
 const std::string VERSION_CODE_KEY = "version";
 ContinuationHandler::ContinuationHandler(
-    std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<Ability> &ability)
+    std::weak_ptr<ContinuationManager>& continuationManager, std::weak_ptr<Ability>& ability)
 {
     ability_ = ability;
     continuationManager_ = continuationManager;
 }
 
-bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObject> &token,
-    const std::string &deviceId, uint32_t versionCode)
+bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObject>& token,
+    const std::string& deviceId, uint32_t versionCode)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (token == nullptr) {
@@ -79,7 +79,7 @@ bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObj
     return true;
 }
 
-bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &token, const std::string &deviceId)
+bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject>& token, const std::string& deviceId)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (token == nullptr) {
@@ -130,7 +130,7 @@ bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &tok
     return true;
 }
 
-void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject> &remoteReplica)
+void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject>& remoteReplica)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (remoteReplica == nullptr) {
@@ -180,7 +180,7 @@ void ContinuationHandler::SetReversible(bool reversible)
     reversible_ = reversible;
 }
 
-void ContinuationHandler::SetAbilityInfo(std::shared_ptr<AbilityInfo> &abilityInfo)
+void ContinuationHandler::SetAbilityInfo(std::shared_ptr<AbilityInfo>& abilityInfo)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     abilityInfo_ = std::make_shared<AbilityInfo>(*(abilityInfo.get()));
@@ -188,20 +188,20 @@ void ContinuationHandler::SetAbilityInfo(std::shared_ptr<AbilityInfo> &abilityIn
     HILOG_DEBUG("%{public}s called end", __func__);
 }
 
-void ContinuationHandler::SetPrimaryStub(const sptr<IRemoteObject> &Primary)
+void ContinuationHandler::SetPrimaryStub(const sptr<IRemoteObject>& Primary)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     remotePrimaryStub_ = Primary;
 }
 
-void ContinuationHandler::ClearDeviceInfo(std::shared_ptr<AbilityInfo> &abilityInfo)
+void ContinuationHandler::ClearDeviceInfo(std::shared_ptr<AbilityInfo>& abilityInfo)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     abilityInfo->deviceId = "";
     abilityInfo->deviceTypes.clear();
 }
 
-void ContinuationHandler::OnReplicaDied(const wptr<IRemoteObject> &remote)
+void ContinuationHandler::OnReplicaDied(const wptr<IRemoteObject>& remote)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (remoteReplicaProxy_ == nullptr) {
@@ -248,7 +248,7 @@ void ContinuationHandler::NotifyReplicaTerminated()
     continuationManagerTmp->NotifyRemoteTerminated();
 }
 
-Want ContinuationHandler::SetWantParams(const WantParams &wantParams)
+Want ContinuationHandler::SetWantParams(const WantParams& wantParams)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     Want want;
@@ -273,7 +273,7 @@ void ContinuationHandler::CleanUpAfterReverse()
     remoteReplicaProxy_ = nullptr;
 }
 
-void ContinuationHandler::PassPrimary(const sptr<IRemoteObject> &Primary)
+void ContinuationHandler::PassPrimary(const sptr<IRemoteObject>& Primary)
 {
     HILOG_DEBUG("%{public}s called", __func__);
     remotePrimaryProxy_ = iface_cast<IReverseContinuationSchedulerPrimary>(Primary);
@@ -342,7 +342,7 @@ void ContinuationHandler::NotifyReverseResult(int reverseResult)
     HILOG_DEBUG("%{public}s called end", __func__);
 }
 
-bool ContinuationHandler::ContinuationBack(const Want &want)
+bool ContinuationHandler::ContinuationBack(const Want& want)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<ContinuationManager> continuationManagerTmp = nullptr;

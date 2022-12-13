@@ -45,8 +45,8 @@ ContinuationManager::ContinuationManager()
     progressState_ = ProgressState::INITIAL;
 }
 
-bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sptr<IRemoteObject> &continueToken,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ContinuationHandler> &continuationHandler)
+bool ContinuationManager::Init(const std::shared_ptr<Ability>& ability, const sptr<IRemoteObject>& continueToken,
+    const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ContinuationHandler>& continuationHandler)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (ability == nullptr) {
@@ -89,7 +89,7 @@ std::string ContinuationManager::GetOriginalDeviceId()
     return originalDeviceId_;
 }
 
-void ContinuationManager::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
+void ContinuationManager::ContinueAbilityWithStack(const std::string& deviceId, uint32_t versionCode)
 {
     HILOG_INFO("%{public}s called begin", __func__);
 
@@ -97,7 +97,7 @@ void ContinuationManager::ContinueAbilityWithStack(const std::string &deviceId, 
     HILOG_INFO("%{public}s called end", __func__);
 }
 
-bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
+bool ContinuationManager::HandleContinueAbilityWithStack(const std::string& deviceId, uint32_t versionCode)
 {
     HILOG_INFO("%{public}s called begin", __func__);
 
@@ -126,7 +126,7 @@ bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &devi
     return true;
 }
 
-int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
+int32_t ContinuationManager::OnStartAndSaveData(WantParams& wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
@@ -148,17 +148,17 @@ int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
     return ERR_OK;
 }
 
-bool ContinuationManager::IsContinuePageStack(const WantParams &wantParams)
+bool ContinuationManager::IsContinuePageStack(const WantParams& wantParams)
 {
     auto value = wantParams.GetParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME);
-    IBoolean *ao = IBoolean::Query(value);
+    IBoolean* ao = IBoolean::Query(value);
     if (ao != nullptr) {
         return AAFwk::Boolean::Unbox(ao);
     }
     return true;
 }
 
-int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
+int32_t ContinuationManager::OnContinueAndGetContent(WantParams& wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
@@ -193,7 +193,7 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
     return ERR_OK;
 }
 
-int32_t ContinuationManager::OnContinue(WantParams &wantParams)
+int32_t ContinuationManager::OnContinue(WantParams& wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     auto ability = ability_.lock();
@@ -213,7 +213,7 @@ int32_t ContinuationManager::OnContinue(WantParams &wantParams)
 }
 
 #ifdef SUPPORT_GRAPHICS
-bool ContinuationManager::GetContentInfo(WantParams &wantParams)
+bool ContinuationManager::GetContentInfo(WantParams& wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
@@ -236,7 +236,7 @@ bool ContinuationManager::GetContentInfo(WantParams &wantParams)
 }
 #endif
 
-void ContinuationManager::ContinueAbility(bool reversible, const std::string &deviceId)
+void ContinuationManager::ContinueAbility(bool reversible, const std::string& deviceId)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
@@ -307,7 +307,7 @@ bool ContinuationManager::StartContinuation()
     return result;
 }
 
-bool ContinuationManager::SaveData(WantParams &saveData)
+bool ContinuationManager::SaveData(WantParams& saveData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     bool result = DoScheduleSaveData(saveData);
@@ -321,7 +321,7 @@ bool ContinuationManager::SaveData(WantParams &saveData)
 }
 
 bool ContinuationManager::RestoreData(
-    const WantParams &restoreData, bool reversible, const std::string &originalDeviceId)
+    const WantParams& restoreData, bool reversible, const std::string& originalDeviceId)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     ChangeProcessState(ProgressState::IN_PROGRESS);
@@ -336,7 +336,7 @@ bool ContinuationManager::RestoreData(
 }
 
 void ContinuationManager::NotifyCompleteContinuation(
-    const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler)
+    const std::string& originDeviceId, int sessionId, bool success, const sptr<IRemoteObject>& reverseScheduler)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     AAFwk::AbilityManagerClient::GetInstance()->NotifyCompleteContinuation(
@@ -373,7 +373,7 @@ void ContinuationManager::CompleteContinuation(int result)
     HILOG_INFO("%{public}s called end", __func__);
 }
 
-bool ContinuationManager::RestoreFromRemote(const WantParams &restoreData)
+bool ContinuationManager::RestoreFromRemote(const WantParams& restoreData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     ChangeProcessState(ProgressState::IN_PROGRESS);
@@ -427,7 +427,7 @@ bool ContinuationManager::CheckContinuationIllegal()
     return false;
 }
 
-bool ContinuationManager::HandleContinueAbility(bool reversible, const std::string &deviceId)
+bool ContinuationManager::HandleContinueAbility(bool reversible, const std::string& deviceId)
 {
     HILOG_INFO("%{public}s called begin", __func__);
 
@@ -462,7 +462,7 @@ ContinuationManager::ProgressState ContinuationManager::GetProcessState()
     return progressState_;
 }
 
-void ContinuationManager::ChangeProcessState(const ProgressState &newState)
+void ContinuationManager::ChangeProcessState(const ProgressState& newState)
 {
     HILOG_INFO("%{public}s called begin. progressState_: %{public}d, newState: %{public}d",
         __func__,
@@ -482,7 +482,7 @@ void ContinuationManager::ChangeProcessStateToInit()
     ChangeProcessState(ProgressState::INITIAL);
 }
 
-void ContinuationManager::RestoreStateWhenTimeout(long timeoutInMs, const ProgressState &preState)
+void ContinuationManager::RestoreStateWhenTimeout(long timeoutInMs, const ProgressState& preState)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     InitMainHandlerIfNeed();
@@ -524,7 +524,7 @@ bool ContinuationManager::CheckAbilityToken()
     return true;
 }
 
-void ContinuationManager::CheckDmsInterfaceResult(int result, const std::string &interfaceName)
+void ContinuationManager::CheckDmsInterfaceResult(int result, const std::string& interfaceName)
 {
     HILOG_INFO("ContinuationManager::CheckDmsInterfaceResult called. interfaceName: %{public}s, result: %{public}d.",
         interfaceName.c_str(),
@@ -554,7 +554,7 @@ bool ContinuationManager::DoScheduleStartContinuation()
     return true;
 }
 
-bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
+bool ContinuationManager::DoScheduleSaveData(WantParams& saveData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
@@ -582,7 +582,7 @@ bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
     return ret;
 }
 
-bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
+bool ContinuationManager::DoScheduleRestoreData(const WantParams& restoreData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
@@ -610,7 +610,7 @@ bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
     return ret;
 }
 
-bool ContinuationManager::DoRestoreFromRemote(const WantParams &restoreData)
+bool ContinuationManager::DoRestoreFromRemote(const WantParams& restoreData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;

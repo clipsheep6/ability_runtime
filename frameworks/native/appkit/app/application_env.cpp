@@ -25,10 +25,10 @@ extern "C" {
  * @param -
  * @return Returns the pointer to the bundle name if the operation is successful; returns a null pointer otherwise.
  */
-const char *GetBundleName()
+const char* GetBundleName()
 {
-    OHOS::AppExecFwk::ApplicationEnvImpl *pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
-    const char *pBundleName = nullptr;
+    OHOS::AppExecFwk::ApplicationEnvImpl* pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
+    const char* pBundleName = nullptr;
 
     if (pApplicationEnvIml) {
         pBundleName = pApplicationEnvIml->GetBundleName().c_str();
@@ -42,10 +42,10 @@ const char *GetBundleName()
  * @param -
  * @return Returns the pointer to the source code path of this application.
  */
-const char *GetSrcPath()
+const char* GetSrcPath()
 {
-    OHOS::AppExecFwk::ApplicationEnvImpl *pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
-    const char *pSrcPath = nullptr;
+    OHOS::AppExecFwk::ApplicationEnvImpl* pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
+    const char* pSrcPath = nullptr;
 
     if (pApplicationEnvIml) {
         pSrcPath = pApplicationEnvIml->GetSrcPath().c_str();
@@ -59,10 +59,10 @@ const char *GetSrcPath()
  * @param -
  * @return Returns the pointer to the data path of this application.
  */
-const char *GetDataPath()
+const char* GetDataPath()
 {
-    OHOS::AppExecFwk::ApplicationEnvImpl *pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
-    const char *pDataPath = nullptr;
+    OHOS::AppExecFwk::ApplicationEnvImpl* pApplicationEnvIml = OHOS::AppExecFwk::ApplicationEnvImpl::GetInstance();
+    const char* pDataPath = nullptr;
 
     if (pApplicationEnvIml) {
         pDataPath = pApplicationEnvIml->GetDataPath().c_str();

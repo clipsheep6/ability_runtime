@@ -20,17 +20,17 @@ using namespace std::chrono_literals;
 
 namespace OHOS {
 namespace AppExecFwk {
-IAbilityMonitor::IAbilityMonitor(const std::string &abilityName) : abilityName_(abilityName)
+IAbilityMonitor::IAbilityMonitor(const std::string& abilityName) : abilityName_(abilityName)
 {}
 
-bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ability, bool isNotify)
+bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty>& ability, bool isNotify)
 {
     if (!ability) {
         HILOG_WARN("Invalid ability property");
         return false;
     }
 
-    const auto &aName = ability->name_;
+    const auto& aName = ability->name_;
 
     if (abilityName_.empty() || aName.empty()) {
         HILOG_WARN("Invalid name");
@@ -80,25 +80,25 @@ std::shared_ptr<ADelegatorAbilityProperty> IAbilityMonitor::WaitForAbility(const
     return matchedAbility_;
 }
 
-void IAbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 
-void IAbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+void IAbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference>& abilityObj)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

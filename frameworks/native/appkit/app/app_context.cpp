@@ -49,7 +49,7 @@ const std::shared_ptr<AbilityInfo> AppContext::GetAbilityInfo()
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::StartAbility(const AAFwk::Want &want, int requestCode)
+ErrCode AppContext::StartAbility(const AAFwk::Want& want, int requestCode)
 {
     return ERR_INVALID_VALUE;
 }
@@ -64,8 +64,8 @@ ErrCode AppContext::StartAbility(const AAFwk::Want &want, int requestCode)
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::StartAbility(const Want &want, int requestCode,
-    const AbilityStartSetting &abilityStartSetting)
+ErrCode AppContext::StartAbility(const Want& want, int requestCode,
+    const AbilityStartSetting& abilityStartSetting)
 {
     return ERR_INVALID_VALUE;
 }
@@ -135,7 +135,7 @@ std::string AppContext::GetCallingBundle()
  *
  * @return True means success and false means failure
  */
-bool AppContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
+bool AppContext::ConnectAbility(const Want& want, const sptr<AAFwk::IAbilityConnection>& conn)
 {
     return false;
 }
@@ -148,7 +148,7 @@ bool AppContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConn
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+ErrCode AppContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection>& conn)
 {
     return ERR_INVALID_VALUE;
 }
@@ -163,7 +163,7 @@ ErrCode AppContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &con
  *
  * @return Returns true if the ability is destroyed successfully; returns false otherwise.
  */
-bool AppContext::StopAbility(const AAFwk::Want &want)
+bool AppContext::StopAbility(const AAFwk::Want& want)
 {
     return false;
 }
@@ -178,7 +178,7 @@ sptr<IRemoteObject> AppContext::GetToken()
  *
  * @param wants Indicates the Want containing information array about the target ability to start.
  */
-void AppContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
+void AppContext::StartAbilities(const std::vector<AAFwk::Want>& wants)
 {}
 
 /**

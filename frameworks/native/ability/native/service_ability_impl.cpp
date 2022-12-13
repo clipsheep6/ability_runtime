@@ -26,10 +26,10 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  * @param targetState The life cycle state to switch to.
  *
  */
-void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void ServiceAbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
 {
     HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
-             "isNewWant: %{public}d",
+        "isNewWant: %{public}d",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant);
@@ -53,7 +53,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
         case AAFwk::ABILITY_STATE_INACTIVE: {
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
                 SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
-                             targetState.caller.abilityName);
+                    targetState.caller.abilityName);
                 Start(want);
             }
             break;
@@ -70,7 +70,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
     }
 }
 
-void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
+void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState& state)
 {
     HILOG_INFO("Handle service transaction done, notify ability manager service.");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());

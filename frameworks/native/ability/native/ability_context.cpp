@@ -42,7 +42,7 @@ const std::string TOKEN_KEY = "ohos.ability.params.token";
 const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 }
 
-ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
+ErrCode AbilityContext::StartAbility(const AAFwk::Want& want, int requestCode)
 {
     HILOG_DEBUG("AbilityContext::StartAbility called, requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
@@ -55,7 +55,7 @@ ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
     return err;
 }
 
-ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
+ErrCode AbilityContext::StartAbility(const Want& want, int requestCode, const AbilityStartSetting& abilityStartSetting)
 {
     HILOG_DEBUG("AbilityContext::StartAbility with start setting called, requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
@@ -143,7 +143,7 @@ std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
     return elementName;
 }
 
-bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
+bool AbilityContext::ConnectAbility(const Want& want, const sptr<AAFwk::IAbilityConnection>& conn)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
@@ -171,7 +171,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
     return value;
 }
 
-ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection>& conn)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
@@ -190,7 +190,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
     return ret;
 }
 
-bool AbilityContext::StopAbility(const AAFwk::Want &want)
+bool AbilityContext::StopAbility(const AAFwk::Want& want)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
@@ -238,7 +238,7 @@ std::string AbilityContext::GetDataDir()
     return ContextContainer::GetDataDir();
 }
 
-std::string AbilityContext::GetDir(const std::string &name, int mode)
+std::string AbilityContext::GetDir(const std::string& name, int mode)
 {
     return ContextContainer::GetDir(name, mode);
 }
@@ -332,7 +332,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
     return resourceManager;
 }
 
-int AbilityContext::VerifyPermission(const std::string &permission, int pid, int uid)
+int AbilityContext::VerifyPermission(const std::string& permission, int pid, int uid)
 {
     HILOG_INFO("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
         __func__,
@@ -373,7 +373,7 @@ int AbilityContext::VerifyPermission(const std::string &permission, int pid, int
     return 0;
 }
 
-void AbilityContext::GetPermissionDes(const std::string &permissionName, std::string &des)
+void AbilityContext::GetPermissionDes(const std::string& permissionName, std::string& des)
 {
     Security::AccessToken::PermissionDef permissionDef;
     int32_t ret = Security::AccessToken::AccessTokenKit::GetDefPermission(permissionName, permissionDef);
@@ -384,8 +384,8 @@ void AbilityContext::GetPermissionDes(const std::string &permissionName, std::st
     HILOG_DEBUG("%{public}s end GetPermissionDef.", __func__);
 }
 
-void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permissions,
-    std::vector<int> &permissionsState, PermissionRequestTask &&task)
+void AbilityContext::RequestPermissionsFromUser(std::vector<std::string>& permissions,
+    std::vector<int>& permissionsState, PermissionRequestTask&& task)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (permissions.size() == 0) {
@@ -404,13 +404,13 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-bool AbilityContext::DeleteFile(const std::string &fileName)
+bool AbilityContext::DeleteFile(const std::string& fileName)
 {
     return ContextContainer::DeleteFile(fileName);
 }
 
-void AbilityContext::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
-    const std::string &abilityName, const std::string &moduleName)
+void AbilityContext::SetCallingContext(const std::string& deviceId, const std::string& bundleName,
+    const std::string& abilityName, const std::string& moduleName)
 {
     callingDeviceId_ = deviceId;
     callingBundleName_ = bundleName;
@@ -423,7 +423,7 @@ Uri AbilityContext::GetCaller()
     return ContextContainer::GetCaller();
 }
 
-void AbilityContext::AttachBaseContext(const std::shared_ptr<Context> &base)
+void AbilityContext::AttachBaseContext(const std::shared_ptr<Context>& base)
 {
     HILOG_DEBUG("AbilityContext::AttachBaseContext.");
     ContextContainer::AttachBaseContext(base);
@@ -434,7 +434,7 @@ std::string AbilityContext::GetExternalCacheDir()
     return ContextContainer::GetExternalCacheDir();
 }
 
-std::string AbilityContext::GetExternalFilesDir(std::string &type)
+std::string AbilityContext::GetExternalFilesDir(std::string& type)
 {
     return ContextContainer::GetExternalFilesDir(type);
 }
@@ -449,7 +449,7 @@ std::string AbilityContext::GetNoBackupFilesDir()
     return ContextContainer::GetNoBackupFilesDir();
 }
 
-void AbilityContext::UnauthUriPermission(const std::string &permission, const Uri &uri, int uid)
+void AbilityContext::UnauthUriPermission(const std::string& permission, const Uri& uri, int uid)
 {
     ContextContainer::UnauthUriPermission(permission, uri, uid);
 }
@@ -474,7 +474,7 @@ std::string AbilityContext::GetProcessName()
     return ContextContainer::GetProcessName();
 }
 
-void AbilityContext::InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal)
+void AbilityContext::InitResourceManager(BundleInfo& bundleInfo, std::shared_ptr<ContextDeal>& deal)
 {
     ContextContainer::InitResourceManager(bundleInfo, deal);
 }
@@ -564,7 +564,7 @@ int AbilityContext::GetMissionId()
     return ContextContainer::GetMissionId();
 }
 
-void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
+void AbilityContext::StartAbilities(const std::vector<AAFwk::Want>& wants)
 {
     for (auto want : wants) {
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
