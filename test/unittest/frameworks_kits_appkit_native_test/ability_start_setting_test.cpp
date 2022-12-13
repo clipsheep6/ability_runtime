@@ -17,7 +17,11 @@
 #include <string>
 #include <memory>
 #include <set>
+
+#define private public
 #include "ability_start_setting.h"
+#undef private
+
 #include "parcel.h"
 
 namespace OHOS {
@@ -113,6 +117,25 @@ HWTEST_F(AbilityStartSettingTest, AppExecFwk_IsEmpty_0100, Function | MediumTest
         EXPECT_EQ(*it, AbilityStartSetting::WINDOW_MODE_KEY.c_str());
         GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 6";
     }
+}
+
+/**
+ * @tc.number: AbilityStartSetting_Operator_0100
+ * @tc.name: operator=
+ * @tc.desc: Test operator=.
+ */
+HWTEST_F(AbilityStartSettingTest, AbilityStartSetting_Operator_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<AbilityStartSetting> setting = AbilityStartSetting::GetEmptySetting();
+    AbilityStartSetting abilitySetting = *setting;
+    AbilityStartSetting newSetting = *setting;
+    abilitySetting = newSetting;
+    setting->AddProperty("hello", "world");
+    EXPECT_TRUE("world" == setting->GetProperty("hello"));
+
+    Parcel parcel;
+    parcel.WriteUint32(10001);
+    EXPECT_TRUE(nullptr == AbilityStartSetting::Unmarshalling(parcel));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
