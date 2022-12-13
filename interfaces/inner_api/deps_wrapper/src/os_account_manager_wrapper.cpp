@@ -33,11 +33,11 @@ const int32_t UID_TRANSFORM_DIVISOR = 200000;
 ErrCode OsAccountManagerWrapper::QueryActiveOsAccountIds(std::vector<int32_t>& ids)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    HILOG_INFO("execute %{public}s without os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s without os account subsystem.", __func__);
     ids.emplace_back(DEFAULT_OS_ACCOUNT_ID);
     return ERR_OK;
 #else
-    HILOG_INFO("execute %{public}s with os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s with os account subsystem.", __func__);
     return AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -45,11 +45,11 @@ ErrCode OsAccountManagerWrapper::QueryActiveOsAccountIds(std::vector<int32_t>& i
 ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromUid(const int32_t uid, int32_t &id)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    HILOG_INFO("execute %{public}s without os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s without os account subsystem.", __func__);
     id = uid / UID_TRANSFORM_DIVISOR;
     return ERR_OK;
 #else
-    HILOG_INFO("execute %{public}s with os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s with os account subsystem.", __func__);
     return AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -57,11 +57,11 @@ ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromUid(const int32_t uid, i
 ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromProcess(int &id)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    HILOG_INFO("execute %{public}s without os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s without os account subsystem.", __func__);
     id = DEFAULT_OS_ACCOUNT_ID;
     return ERR_OK;
 #else
-    HILOG_INFO("execute %{public}s with os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s with os account subsystem.", __func__);
     return AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
@@ -69,11 +69,11 @@ ErrCode OsAccountManagerWrapper::GetOsAccountLocalIdFromProcess(int &id)
 ErrCode OsAccountManagerWrapper::IsOsAccountExists(const int id, bool &isOsAccountExists)
 {
 #ifndef OS_ACCOUNT_PART_ENABLED
-    HILOG_INFO("execute %{public}s without os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s without os account subsystem.", __func__);
     isOsAccountExists = (id == DEFAULT_OS_ACCOUNT_ID);
     return ERR_OK;
 #else // OS_ACCOUNT_PART_ENABLED
-    HILOG_INFO("execute %{public}s with os account subsystem.", __func__);
+    HILOG_DEBUG("execute %{public}s with os account subsystem.", __func__);
     return AccountSA::OsAccountManager::IsOsAccountExists(id, isOsAccountExists);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
