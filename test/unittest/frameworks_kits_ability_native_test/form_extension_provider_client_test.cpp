@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "accesstoken_kit.h"
 #include "appexecfwk_errors.h"
 #include "form_constants.h"
 #include "form_mgr_errors.h"
-#include "mock_form_supply_callback.h"
-
 #define private public
 #include "form_runtime/form_extension_provider_client.h"
+#include "form_runtime/js_form_extension.h"
 #undef private
+#include "form_supply_stub.h"
+#include "mock_form_supply_callback.h"
+#include "runtime.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -31,9 +34,23 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::Security;
+using testing::_;
+using testing::Return;
 
 const std::string FORM_MANAGER_SERVICE_BUNDLE_NAME = "com.form.fms.app";
 const std::string FORM_SUPPLY_INFO = "com.form.supply.info.test";
+
+class FormSupplyCallbackMock : public FormSupplyStub {
+public:
+    FormSupplyCallbackMock() = default;
+    virtual ~FormSupplyCallbackMock() = default;
+    MOCK_METHOD2(OnAcquire, int(const FormProviderInfo& formInfo, const Want& want));
+    MOCK_METHOD1(OnEventHandle, int(const Want& want));
+    MOCK_METHOD4(OnAcquireStateResult, int(FormState state, const std::string& provider, const Want& wantArg,
+        const Want& want));
+    MOCK_METHOD5(OnShareAcquire, void(int64_t formId, const std::string& remoteDeviceId,
+        const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result));
+};
 
 class FormExtensionProviderClientTest : public testing::Test {
 public:
@@ -191,6 +208,176 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0600, Func
     formExtensionProviderClient.FireFormExtensionEvent(formId, message, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0600 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0700
+ * @tc.name: AcquireProviderFormInfo
+ * @tc.desc: callerToken is nullptr, failed to verify AcquireProviderFormInfo.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0700 start";
+    FormJsInfo formJsInfo;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.AcquireProviderFormInfo(formJsInfo, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0700 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0800
+ * @tc.name: SetOwner and GetOwner
+ * @tc.desc: FormExtension is nullptr Verify GetOwner is nullptr.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0800 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0800 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0900
+ * @tc.name: SetOwner and GetOwner
+ * @tc.desc: FormExtension is not nullptr Verify that GetOwner is not null.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0900 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    formExtensionProviderClient.ClearOwner(nullptr);
+    extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    formExtensionProviderClient.ClearOwner(formExtension);
+    extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0900 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1000
+ * @tc.name: AcquireShareFormData
+ * @tc.desc: formSupplyCallback is nullptr, failed to verify AcquireShareFormData.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1000 start";
+    int64_t formId = 0;
+    std::string remoteDeviceId = "deviceId";
+    sptr<IRemoteObject> formSupplyCallback = nullptr;
+    int64_t requestCode = 0;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.AcquireShareFormData(
+        formId, remoteDeviceId, formSupplyCallback, requestCode);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1000 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1100
+ * @tc.name: HandleResultCode
+ * @tc.desc: callerToken is nullptr, failed to verify HandleResultCode.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1100 start";
+    int32_t errorCode = ERR_OK;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.HandleResultCode(errorCode, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1100 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1200
+ * @tc.name: AcquireShareFormData
+ * @tc.desc: callerToken is not nullptr, verify HandleResultCode success.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1200 start";
+    int32_t errorCode = ERR_OK;
+    Want want;
+    sptr<IRemoteObject> callerToken = new (std::nothrow) MockFormSupplyCallback;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.HandleResultCode(errorCode, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1200 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1300
+ * @tc.name: AcquireShareFormData
+ * @tc.desc: errorCode is error, HandleResultCode return errorCode.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1300 start";
+    int32_t errorCode = 1;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.HandleResultCode(errorCode, want, callerToken);
+    EXPECT_EQ(result, errorCode);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1300 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1400
+ * @tc.name: AcquireFormExtensionProviderInfo
+ * @tc.desc: Successful case of verifying AcquireFormExtensionProviderInfo
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1400 start";
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    EXPECT_CALL(*callerToken, OnAcquire(_, _)).Times(1).WillOnce(Return(0));
+    FormJsInfo formJsInfo;
+    Want want;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    formExtensionProviderClient.AcquireFormExtensionProviderInfo(formJsInfo, want, callerToken->AsObject());
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1400 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1500
+ * @tc.name: NotifyFormExtensionAcquireState
+ * @tc.desc: Successful case of verifying NotifyFormExtensionAcquireState
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1500 start";
+    Want wantArg;
+    std::string provider;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    formExtensionProviderClient.NotifyFormExtensionAcquireState(wantArg, provider, want, callerToken);
+
+    sptr<FormSupplyCallbackMock> callback = new (std::nothrow) FormSupplyCallbackMock;
+    EXPECT_CALL(*callback, OnAcquireStateResult(_, _, _, _)).Times(1).WillOnce(Return(0));
+    formExtensionProviderClient.NotifyFormExtensionAcquireState(wantArg, provider, want, callback->AsObject());
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1500 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -148,6 +148,39 @@ HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_AddAbility_002, Function | Me
 }
 
 /**
+ * @tc.number: AppExecFwk_AbilityStage_AddAbility_003
+ * @tc.name: AddAbility
+ * @tc.desc: Test whether the abnormal input parameters of calling addability return to normal.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_AddAbility_003, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_AddAbility_003 start";
+    EXPECT_FALSE(abilityStage_->ContainsAbility());
+    abilityStage_->AddAbility(nullptr, std::make_shared<AppExecFwk::AbilityLocalRecord>(nullptr, nullptr));
+    EXPECT_FALSE(abilityStage_->ContainsAbility());
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_AddAbility_003 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_AddAbility_004
+ * @tc.name: AddAbility
+ * @tc.desc: Test whether the abnormal input parameters of calling addability return to normal.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_AddAbility_004, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_AddAbility_004 start";
+    EXPECT_FALSE(abilityStage_->ContainsAbility());
+    sptr<IRemoteObject> token = new (std::nothrow) MockToken();
+    abilityStage_->AddAbility(token, nullptr);
+    EXPECT_FALSE(abilityStage_->ContainsAbility());
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_AddAbility_004 end";
+}
+
+/**
  * @tc.number: AppExecFwk_AbilityStage_RemoveAbility_001
  * @tc.name: RemoveAbility
  * @tc.desc: Test whether RemoveAbility is called normally.
@@ -209,6 +242,21 @@ HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_ContainsAbility_002, Function
     abilityStage_->AddAbility(token, std::make_shared<AppExecFwk::AbilityLocalRecord>(nullptr, nullptr));
     EXPECT_TRUE(abilityStage_->ContainsAbility());
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_ContainsAbility_002 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_OnAcceptWant_001
+ * @tc.name: OnAcceptWant
+ * @tc.desc: Test whether OnAcceptWant is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_OnAcceptWant_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnAcceptWant_001 start";
+    AAFwk::Want want;
+    EXPECT_TRUE(abilityStage_->OnAcceptWant(want) == "");
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnAcceptWant_001 end";
 }
 }  // namespace AppExecFwk
 }
