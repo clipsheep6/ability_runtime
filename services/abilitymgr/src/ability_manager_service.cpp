@@ -579,6 +579,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    if (!IsComponentInterceptionStart(want, callerToken, requestCode, result, abilityRequest)) {
+        return ERR_OK;
+    }
+
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -3140,10 +3144,10 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission();
-    if (isPerm) {
-        sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject("abilityInfoCallback");
-        if (abilityInfoCallback != nullptr) {
+    sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject(Want::PARAM_RESV_ABILITY_INFO_CALLBACK);
+    if (abilityInfoCallback != nullptr) {
+        auto isPerm = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
+        if (isPerm) {
             request.abilityInfoCallback = abilityInfoCallback;
         }
     }
@@ -5705,6 +5709,55 @@ bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord>
     }
 
     return true;
+}
+
+int AbilityManagerService::SetComponentInterception(
+    const sptr<AppExecFwk::IComponentInterception> &componentInterception)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
+    if (!isPerm) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::lock_guard<std::recursive_mutex> guard(globalLock_);
+    componentInterception_ = componentInterception;
+    HILOG_DEBUG("%{public}s, end", __func__);
+    return ERR_OK;
+}
+
+bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int requestCode, int componentStatus, AbilityRequest &request)
+{
+    if (componentInterception_ != nullptr) {
+        HILOG_DEBUG("%{public}s", __func__);
+        sptr<Want> extraParam = new (std::nothrow) Want();
+        bool isStart = componentInterception_->AllowComponentStart(want, callerToken,
+            requestCode, componentStatus, extraParam);
+        UpdateAbilityRequestInfo(extraParam, request);
+        if (!isStart) {
+            HILOG_INFO("not finishing start component because interception");
+            return false;
+        }
+    }
+    return true;
+}
+
+void AbilityManagerService::UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request)
+{
+    if (want == nullptr) {
+        return;
+    }
+    sptr<IRemoteObject> tempCallBack = want->GetRemoteObject(Want::PARAM_RESV_ABILITY_INFO_CALLBACK);
+    if (tempCallBack == nullptr) {
+        return;
+    }
+    request.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE,
+        want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
+    request.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
+        want->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
+    request.abilityInfoCallback = tempCallBack;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

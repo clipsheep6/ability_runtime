@@ -713,6 +713,15 @@ public:
      */
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
 
+    /**
+     * Set component interception.
+     *
+     * @param componentInterception, component interception.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int SetComponentInterception(
+        const sptr<AppExecFwk::IComponentInterception> &componentInterception) override;
+
     bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
@@ -720,6 +729,9 @@ public:
     bool IsAbilityControllerStartById(int32_t missionId);
 
     void GrantUriPermission(const Want &want, int32_t validUserId, uint32_t targetTokenId);
+
+    bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int requestCode, int componentStatus, AbilityRequest &request);
 
     /**
      * Send not response process ID to ability manager service.
@@ -1164,6 +1176,8 @@ private:
 
     void InitStartupFlag();
 
+    void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1193,6 +1207,7 @@ private:
     bool controllerIsAStabilityTest_ = false;
     std::recursive_mutex globalLock_;
     std::shared_mutex managersMutex_;
+    sptr<AppExecFwk::IComponentInterception> componentInterception_ = nullptr;
 
     std::multimap<std::string, std::string> timeoutMap_;
 

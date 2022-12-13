@@ -27,6 +27,7 @@
 #include "ability_start_setting.h"
 #include "extension_running_info.h"
 #include "iability_controller.h"
+#include "icomponent_interception.h"
 #include "mission_listener_interface.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
@@ -552,6 +553,17 @@ public:
         bool imAStabilityTest) = 0;
 
     /**
+     * Set component interception.
+     *
+     * @param componentInterception, component interception.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int SetComponentInterception(const sptr<AppExecFwk::IComponentInterception> &componentInterception)
+    {
+        return 0;
+    }
+
+    /**
      * Is user a stability test.
      *
      * @return Returns true if user is a stability test.
@@ -859,6 +871,8 @@ public:
 
         // stop extension ability (61)
         STOP_EXTENSION_ABILITY,
+
+        SET_COMPONENT_INTERCEPTION,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

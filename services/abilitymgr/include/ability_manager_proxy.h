@@ -475,6 +475,9 @@ public:
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override;
 
+    virtual int SetComponentInterception(
+        const sptr<AppExecFwk::IComponentInterception> &componentInterception) override;
+
     /**
      * Is user a stability test.
      *
