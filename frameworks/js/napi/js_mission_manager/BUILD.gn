@@ -26,7 +26,10 @@ ohos_shared_library("missionmanager") {
 
   include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits" ]
 
-  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
+  deps = [
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+  ]
 
   external_deps = [
     "ability_base:base",
