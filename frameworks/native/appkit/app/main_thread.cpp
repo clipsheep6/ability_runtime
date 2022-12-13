@@ -1286,7 +1286,7 @@ void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OH
         std::string extensionName = it->second;
 
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
-        HILOG_INFO("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
+        HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
         AbilityLoader::GetInstance().RegisterExtension(extensionName,
             [wpApplication, file]() -> AbilityRuntime::Extension* {
             auto app = wpApplication.lock();
