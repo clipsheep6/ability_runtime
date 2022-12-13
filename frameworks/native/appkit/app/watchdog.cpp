@@ -54,7 +54,7 @@ void Watchdog::Stop()
 {
     HILOG_DEBUG("Watchdog is stop !");
     std::unique_lock<std::mutex> lock(cvMutex_);
-    if (IsStopWatchdog()) {
+    if (stopWatchdog_) {
         HILOG_ERROR("Watchdog has stoped.");
         return;
     }
@@ -101,7 +101,6 @@ bool Watchdog::IsReportEvent()
 
 bool Watchdog::IsStopWatchdog()
 {
-    std::unique_lock<std::mutex> lock(cvMutex_);
     return stopWatchdog_;
 }
 
