@@ -28,6 +28,8 @@ namespace AppExecFwk {
  */
 class ConnectCallbackProxy : public IRemoteProxy<IConnectCallback> {
 public:
+    ConnectCallbackProxy(const sptr<IRemoteObject> &object) : IRemoteProxy(object) {};
+    virtual ~ConnectCallbackProxy() = default;
     /**
      * @brief Remote device sends connection request.
      * @param deviceId indicators id of connection device.

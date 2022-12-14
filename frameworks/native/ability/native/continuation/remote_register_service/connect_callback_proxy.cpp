@@ -31,7 +31,7 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
     HILOG_INFO("%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId) ||
-        data.WriteString(deviceType)) {
+        !data.WriteString(deviceType)) {
         HILOG_ERROR("%{public}s params is wrong", __func__);
         return;
     }
