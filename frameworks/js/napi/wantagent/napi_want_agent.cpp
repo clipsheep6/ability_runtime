@@ -389,6 +389,7 @@ NativeValue* JsWantAgent::OnGetOperationType(NativeEngine &engine, NativeCallbac
         return engine.CreateUndefined();
     }
 
+    NativeValue *lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
         errCode = ERR_NOT_OK;
@@ -497,6 +498,7 @@ NativeValue* JsWantAgent::OnCancel(NativeEngine &engine, NativeCallbackInfo &inf
         return engine.CreateUndefined();
     }
 
+    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
         errCode = ERR_NOT_OK;
