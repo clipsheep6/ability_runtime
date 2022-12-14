@@ -150,8 +150,8 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_INFO("Ability::Init call RegisterDisplayListener");
-        OHOS::sptr<OHOS::Rosen::DisplayManager::IDisplayListener> thisAbility(this);
-        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(thisAbility);
+        abilityDisplayListener_ = new AbilityDisplayListener(ability);
+        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif
     lifecycle_ = std::make_shared<LifeCycle>();
@@ -340,6 +340,9 @@ void Ability::OnStop()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin.", __func__);
+#ifdef SUPPORT_GRAPHICS
+    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+#endif
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
@@ -1651,15 +1654,6 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
     return (AbilityLifecycleExecutor::LifecycleState)abilityLifecycleExecutor_->GetState();
 }
 
-/**
- * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
- * ability from installed abilities based on the value of the intent parameter and then starts it. You can specify
- * the ability to start using the intent parameter.
- *
- * @param intent Indicates the ability to start.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbility(const Want &want)
 {
     HILOG_INFO("%{public}s begin Ability::StartAbility", __func__);

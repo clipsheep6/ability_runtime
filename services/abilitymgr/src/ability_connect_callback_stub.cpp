@@ -39,7 +39,7 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write interface token failed.");
