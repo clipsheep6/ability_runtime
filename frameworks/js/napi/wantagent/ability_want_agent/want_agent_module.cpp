@@ -53,7 +53,7 @@ NativeValue* JsNapiWantAgentInit(NativeEngine* engine, NativeValue* exportObj)
     object->SetNativePointer(jsWantAgent.release(), JsWantAgent::Finalizer, nullptr);
 
     object->SetProperty("WantAgentFlags", WantAgentFlagsInit(engine));
-    object->SetProperty("OperationType", WantAgentOperationTypeInit(engine));\
+    object->SetProperty("OperationType", WantAgentOperationTypeInit(engine));
 
     HILOG_DEBUG("JsNapiWantAgentInit BindNativeFunction called");
     const char *moduleName = "JsWantAgent";
