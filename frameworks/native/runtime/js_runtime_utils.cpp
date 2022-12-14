@@ -100,7 +100,7 @@ HandleScope::HandleScope(JsRuntime& jsRuntime)
 {
     scopeManager_ = jsRuntime.GetNativeEngine().GetScopeManager();
     if (scopeManager_ != nullptr) {
-        nativeScope_ = scopeManager_->OpenEscape();
+        nativeScope_ = scopeManager_->Open();
     }
 }
 
@@ -108,11 +108,37 @@ HandleScope::HandleScope(NativeEngine& engine)
 {
     scopeManager_ = engine.GetScopeManager();
     if (scopeManager_ != nullptr) {
-        nativeScope_ = scopeManager_->OpenEscape();
+        nativeScope_ = scopeManager_->Open();
     }
 }
 
 HandleScope::~HandleScope()
+{
+    if (nativeScope_ != nullptr) {
+        scopeManager_->Close(nativeScope_);
+        nativeScope_ = nullptr;
+    }
+    scopeManager_ = nullptr;
+}
+
+// Handle Escape
+HandleEscape::HandleEscape(JsRuntime& jsRuntime)
+{
+    scopeManager_ = jsRuntime.GetNativeEngine().GetScopeManager();
+    if (scopeManager_ != nullptr) {
+        nativeScope_ = scopeManager_->OpenEscape();
+    }
+}
+
+HandleEscape::HandleEscape(NativeEngine& engine)
+{
+    scopeManager_ = engine.GetScopeManager();
+    if (scopeManager_ != nullptr) {
+        nativeScope_ = scopeManager_->OpenEscape();
+    }
+}
+
+HandleEscape::~HandleEscape()
 {
     if (nativeScope_ != nullptr) {
         scopeManager_->CloseEscape(nativeScope_);
@@ -121,7 +147,7 @@ HandleScope::~HandleScope()
     scopeManager_ = nullptr;
 }
 
-NativeValue* HandleScope::Escape(NativeValue* value)
+NativeValue* HandleEscape::Escape(NativeValue* value)
 {
     if (nativeScope_ != nullptr) {
         scopeManager_->Escape(nativeScope_, value);

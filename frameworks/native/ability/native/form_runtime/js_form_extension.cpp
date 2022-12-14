@@ -285,7 +285,7 @@ NativeValue* JsFormExtension::CallObjectMethod(const char* name, const char *bak
         return nullptr;
     }
 
-    HandleScope handleScope(jsRuntime_);
+    HandleEscape handleEscape(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
     NativeValue* value = jsObj_->Get();
@@ -308,7 +308,7 @@ NativeValue* JsFormExtension::CallObjectMethod(const char* name, const char *bak
         }
     }
     HILOG_INFO("JsFormExtension::CallFunction(%{public}s), success", name);
-    return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
+    return handleEscape.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
 void JsFormExtension::GetSrcPath(std::string &srcPath)

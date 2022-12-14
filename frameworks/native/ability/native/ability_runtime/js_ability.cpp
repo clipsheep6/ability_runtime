@@ -832,7 +832,7 @@ NativeValue *JsAbility::CallObjectMethod(const char *name, NativeValue *const *a
         return nullptr;
     }
 
-    HandleScope handleScope(jsRuntime_);
+    HandleEscape handleEscape(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
 
     NativeValue *value = jsAbilityObj_->Get();
@@ -848,7 +848,7 @@ NativeValue *JsAbility::CallObjectMethod(const char *name, NativeValue *const *a
         return nullptr;
     }
     if (withResult) {
-        return handleScope.Escape(nativeEngine.CallFunction(value, methodOnCreate, argv, argc));
+        return handleEscape.Escape(nativeEngine.CallFunction(value, methodOnCreate, argv, argc));
     }
     nativeEngine.CallFunction(value, methodOnCreate, argv, argc);
     return nullptr;
