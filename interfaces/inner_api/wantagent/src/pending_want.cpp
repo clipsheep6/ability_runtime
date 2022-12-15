@@ -42,7 +42,7 @@ WantAgentConstant::OperationType PendingWant::GetType(const sptr<AAFwk::IWantSen
 {
     int32_t operationType = 0;
     WantAgentClient::GetInstance().GetPendingWantType(target, operationType);
-    return (WantAgentConstant::OperationType)operationType;
+    return static_cast<WantAgentConstant::OperationType>(operationType);
 }
 
 std::shared_ptr<PendingWant> PendingWant::GetAbility(

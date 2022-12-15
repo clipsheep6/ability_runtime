@@ -34,7 +34,7 @@ class EventHandler;
 
 namespace AbilityBase {
 class Extractor;
-} //namespace AbilityBase
+} // namespace AbilityBase
 
 namespace AbilityRuntime {
 class TimerTask;

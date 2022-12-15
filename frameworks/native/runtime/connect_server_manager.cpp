@@ -44,7 +44,7 @@ using SendLayoutMessage = void (*)(const std::string&);
 using StopServer = void (*)(const std::string&);
 using StoreMessage = void (*)(int32_t, const std::string&);
 using StoreInspectorInfo = void (*)(const std::string&, const std::string&);
-using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus, 
+using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
     const std::function<void(int32_t)> &createLayoutInfo, int32_t instanceId);
 using RemoveMessage = void (*)(int32_t);
 using WaitForDebugger = bool (*)();

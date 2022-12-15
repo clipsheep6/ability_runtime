@@ -841,9 +841,9 @@ NativeValue* JsWantAgent::WrapWantAgent(NativeEngine &engine, WantAgent* wantAge
     NativeObject* nativeObject = reinterpret_cast<NativeObject*>(result->GetInterface(NativeObject::INTERFACE_ID));
     NativeFinalize nativeFinalize = [](NativeEngine* engine, void* data, void* hint) {
         HILOG_DEBUG("delete wantAgent.");
-        auto wantAgent = static_cast<WantAgent*>(data);
-        delete wantAgent;
-        wantAgent = nullptr;
+        auto agent = static_cast<WantAgent*>(data);
+        delete agent;
+        agent = nullptr;
     };
 
     nativeObject->SetNativePointer(reinterpret_cast<void*>(wantAgent), nativeFinalize, nullptr);
