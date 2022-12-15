@@ -1397,6 +1397,20 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.bundleIndex = bundleIndex;
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
+
+    if (bundleName == "com.hw.hostappdemo") {
+        HspInfo hsp = {"com.hw.thirdpartysdkdemo", "mydemosdk", 10001};
+        startMsg.hspList.emplace_back(hsp);
+        // for (int i = 0; i < 16; i++) {
+        //     hsp = {
+        //         "com.hw.thirdpartysdkdemo" + std::to_string(i),
+        //         "mydemosdk" + std::to_string(i),
+        //         10000 + i
+        //     };
+        //     startMsg.hspList.emplace_back(hsp);
+        // }
+    }
+
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 

@@ -25,6 +25,12 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+struct HspInfo { // TODO:由BMS提供
+    std::string bundleName;
+    std::string moduleName;
+    uint32_t versionCode;
+};
+
 struct AppSpawnStartMsg {
     int32_t uid;
     int32_t gid;
@@ -44,6 +50,7 @@ struct AppSpawnStartMsg {
     uint8_t reserved1;
     uint8_t reserved2;
     uint64_t accessTokenIdEx;
+    std::vector<HspInfo> hspList;
 };
 
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;
@@ -108,6 +115,13 @@ public:
         return isValid_ ? sizeof(AppSpawnMsg) : 0;
     }
 
+    /**
+     * Get function, return hsp list string
+    */
+    const std::string& GetHspListStr() const {
+        return hspListStr;
+    }
+
 private:
     /**
      * Verify message.
@@ -132,6 +146,7 @@ private:
     bool isValid_ = false;
     // because AppSpawnMsg's size is uncertain, so should use raw pointer.
     AppSpawnMsg *msg_ = nullptr;
+    std::string hspListStr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
