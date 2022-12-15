@@ -53,7 +53,7 @@ TriggerCompleteCallBack::TriggerCompleteCallBack()
 TriggerCompleteCallBack::~TriggerCompleteCallBack()
 {}
 
-vvoid TriggerCompleteCallBack::SetCallbackInfo(NativeEngine &engine, NativeReference* ref)
+void TriggerCompleteCallBack::SetCallbackInfo(NativeEngine &engine, NativeReference* ref)
 {
     triggerCompleteInfo_.engine = &engine;
     triggerCompleteInfo_.nativeRef.reset(ref);

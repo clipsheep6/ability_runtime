@@ -57,7 +57,7 @@ struct CallbackInfo {
 };
 
 struct TriggerReceiveDataWorker {
-    NativeEngine* engine = nullptr
+    NativeEngine* engine = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
     WantAgent* wantAgent;
     AAFwk::Want want;
