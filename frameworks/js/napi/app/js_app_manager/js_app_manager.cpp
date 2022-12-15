@@ -55,7 +55,7 @@ public:
         abilityManager_(abilityManager) {}
     ~JsAppManager()
     {
-        if (observer_ != nullptr){
+        if (observer_ != nullptr) {
             HILOG_INFO("Set valid false");
             observer_->SetValid(false);
         }
