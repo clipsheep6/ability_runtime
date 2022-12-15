@@ -23,7 +23,8 @@ group("fuzztest") {
     "abilitycontext_fuzzer:fuzztest",
     "abilityeventhandler_fuzzer:fuzztest",
     "abilitymanagerservicea_fuzzer:fuzztest",
-    "abilitymanagerserviceb_fuzzer:fuzztest",
+
+    # "abilitymanagerserviceb_fuzzer:fuzztest",
     "abilitymanagerservicec_fuzzer:fuzztest",
     "abilitymanagerserviced_fuzzer:fuzztest",
     "abilitymanagerservicee_fuzzer:fuzztest",
