@@ -71,6 +71,7 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
+#include "container_manager_client.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -3753,6 +3754,16 @@ void AbilityManagerService::StartResidentApps()
     HILOG_DEBUG("%{public}s", __func__);
     ConnectBmsService();
     auto bms = GetBundleManager();
+    auto func = []() {
+        auto client = ContainerManagerClient::GetInstance();
+        if (client == nullptr) {
+            HILOG_ERROR("%{public}s get ContainerManagerClient null", __func__);
+        } else {
+            client->NotifyBootComplete(0);
+            HILOG_INFO("StartSystemApplication NotifyBootComplete");
+        }
+    };
+    std::thread(func).detach();
     CHECK_POINTER_IS_NULLPTR(bms);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     if (!IN_PROCESS_CALL(
