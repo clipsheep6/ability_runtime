@@ -23,6 +23,7 @@ namespace AppExecFwk {
 namespace {
 const int32_t CONNECT_RETRY_DELAY = 200 * 1000;  // 200ms
 const int32_t CONNECT_RETRY_MAX_TIMES = 2;
+const size_t SOCK_MAX_SEND_BUFFER = 5 * 1024; // 5KB
 }  // namespace
 
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
@@ -140,6 +141,11 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
             HILOG_ERROR("WriteMessage failed!");
             return result;
         }
+        result = WriteHspList(msgWrapper);
+        if (FAILED(result)) {
+            HILOG_ERROR("WriteHspList failed!");
+            return result;
+        }
         result = socket_->ReadMessage(reinterpret_cast<void *>(pidMsg.pidBuf), LEN_PID);
         if (FAILED(result)) {
             HILOG_ERROR("ReadMessage failed!");
@@ -151,6 +157,35 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
         result = ERR_APPEXECFWK_INVALID_PID;
     } else {
         pid = pidMsg.pid;
+    }
+    return result;
+}
+
+ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
+{
+    ErrCode result = ERR_OK;
+    const std::string& hspListStr = msgWrapper.GetHspListStr();
+    if (hspListStr.empty()) {
+        return result;
+    }
+
+    // split msg
+    const char *buff = hspListStr.c_str();
+    size_t leftLen = hspListStr.size() + 1;
+    HILOG_DEBUG("hspList length is %u", leftLen);
+    while (leftLen >= SOCK_MAX_SEND_BUFFER)
+    {
+        result = socket_->WriteMessage(buff, SOCK_MAX_SEND_BUFFER);
+        if (FAILED(result)) {
+            return result;
+        }
+        buff += SOCK_MAX_SEND_BUFFER;
+        leftLen -= SOCK_MAX_SEND_BUFFER;
+    }
+
+    HILOG_DEBUG("WriteHspList: leftLen = %u", leftLen);
+    if (leftLen > 0) {
+        result = socket_->WriteMessage(buff, leftLen);
     }
     return result;
 }

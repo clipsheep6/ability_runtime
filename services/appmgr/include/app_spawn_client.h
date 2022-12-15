@@ -98,6 +98,13 @@ private:
      */
     ErrCode PreStartNWebSpawnProcessImpl();
 
+    /**
+     * write hsp list to appspawn
+     *
+     * @param msgWrapper, request message wrapper.
+     */
+    ErrCode WriteHspList(AppSpawnMsgWrapper &msgWrapper);
+
 private:
     std::shared_ptr<AppSpawnSocket> socket_;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;

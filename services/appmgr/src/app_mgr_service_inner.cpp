@@ -1436,6 +1436,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    HspList hspList;
+    ErrCode ret = bundleMgr_->GetBaseSharedPackageInfos(bundleName, userId, hspList);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetBaseSharedPackageInfos failed: %d", ret);
+        return;
+    }
+
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     auto token = bundleInfo.applicationInfo.accessTokenId;
@@ -1460,6 +1467,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.bundleIndex = bundleIndex;
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
+    startMsg.hspList = hspList;
+
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 

@@ -29,6 +29,8 @@ int MockSleep([[maybe_unused]] uint32_t seconds)
 
 namespace OHOS {
 namespace AppExecFwk {
+using SharedPackage = BaseSharedPackageInfo;
+
 class AmsServiceAppSpawnMsgWrapperTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -48,6 +50,16 @@ void AmsServiceAppSpawnMsgWrapperTest::SetUp()
 
 void AmsServiceAppSpawnMsgWrapperTest::TearDown()
 {}
+
+static SharedPackage CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
+{
+    SharedPackage hsp;
+    hsp.bundleName = bundle;
+    hsp.moduleName = module;
+    hsp.versionCode = version;
+    hsp.nativeLibraryPath = libPath;
+    return hsp;
+}
 
 /*
  * Feature: AppMgrService
@@ -343,6 +355,58 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_010, TestSize.Level1
     EXPECT_EQ(lhs, appSpawnMsgWrapper->GetMsgLength());
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_010 end");
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: AppSpawnMsgWrapper
+ * SubFunction: AssembleMsg
+ * FunctionPoints: check message
+ * EnvConditions: mobile that can run ohos test framework
+ * CaseDescription: Verify the function AssembleMsg can check empty HspList.
+ */
+HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_011, TestSize.Level1)
+{
+    HILOG_INFO("ams_service_app_spawn_msg_wrapper_011 start");
+
+    std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
+
+    EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
+    AppSpawnMsg *msg = (AppSpawnMsg *)appSpawnMsgWrapper->GetMsgBuf();
+    EXPECT_NE(nullptr, msg);
+    EXPECT_EQ(0, msg->hspList.totalLength);
+    EXPECT_EQ("", appSpawnMsgWrapper->GetHspListStr());
+
+    HILOG_INFO("ams_service_app_spawn_msg_wrapper_011 end");
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: AppSpawnMsgWrapper
+ * SubFunction: AssembleMsg
+ * FunctionPoints: check message
+ * EnvConditions: mobile that can run ohos test framework
+ * CaseDescription: Verify the function AssembleMsg can stringify HspList.
+ */
+HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_012, TestSize.Level1)
+{
+    HILOG_INFO("ams_service_app_spawn_msg_wrapper_012 start");
+
+    std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
+    AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
+    params.hspList = {
+        CreateHsp("testBundle", "testModule", 10001, "testLibPath"),
+        CreateHsp("testBundle", "testModule", 10001, "testLibPath")
+    };
+
+    EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
+    AppSpawnMsg *msg = (AppSpawnMsg *)appSpawnMsgWrapper->GetMsgBuf();
+    EXPECT_NE(nullptr, msg);
+    EXPECT_NE("", appSpawnMsgWrapper->GetHspListStr());
+    EXPECT_EQ(msg->hspList.totalLength, appSpawnMsgWrapper->GetHspListStr().length() + 1);
+
+    HILOG_INFO("ams_service_app_spawn_msg_wrapper_012 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
