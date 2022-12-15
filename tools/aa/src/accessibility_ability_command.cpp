@@ -243,7 +243,7 @@ AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, cha
         HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
     }
     if (abilityClientPtr_ == nullptr) {
-        abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetInstance();
+        abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetShellCommandInstance();
         if (abilityClientPtr_ == nullptr) {
             HILOG_ERROR("Get accessibility system ability client failed.");
         }
