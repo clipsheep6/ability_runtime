@@ -15,6 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#include <cstring>
+#include <fcntl.h>
+#include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
@@ -80,6 +85,33 @@ static int GetServicePid(const std::string& serviceName)
     return pid;
 }
 
+static bool CheckMixStackKeyWords(const char *filePath, std::string *keywords, int length)
+{
+    std::ifstream file;
+    file.open(filePath, std::ios::in);
+    std::vector<std::string> buf(128); // 128 : buf size
+    int cnt = 0;
+    int i = 0;
+    int j = 0;
+    std::string::size_type idx;
+    while (!file.eof()) {
+        file >> buf.at(i);
+        idx = buf.at(i).find(keywords[j]);
+        if (idx != std::string::npos) {
+            GTEST_LOG_(INFO) << buf.at(i);
+            cnt++;
+            j++;
+            if (j == length) {
+                break;
+            }
+            continue;
+        }
+        i++;
+    }
+    file.close();
+    return cnt == length;
+}
+
 /**
  * @tc.number: MixStackDumperTest001
  * @tc.name: dump com.ohos.systemui process
@@ -87,12 +119,24 @@ static int GetServicePid(const std::string& serviceName)
  */
 HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Level3)
 {
+    char testFile[] = "/data/mix_stack_header_test01";
+    int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
+    if (fd == -1) {
+        GTEST_LOG_(ERROR) << "Failed to create test file.";
+        return;
+    }
     MixStackDumper mixDumper;
     pid_t pid = GetServicePid("com.ohos.systemui");
     mixDumper.Init(pid);
-    bool ret = mixDumper.DumpMixFrame(1, pid, pid);
+    bool ret = mixDumper.DumpMixFrame(fd, pid, pid);
     mixDumper.Destroy();
     EXPECT_FALSE(ret);
+    close(fd);
+    std::string keywords[] = {
+        "Tid:" + std::to_string(pid), "Failed", "suspend",
+    };
+    int length = sizeof(keywords) / sizeof(keywords[0]);
+    EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
 }
 
 /**
@@ -102,15 +146,28 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Leve
  */
 HWTEST_F(MixStackDumperTest, MixStackDumperTest002, Function | MediumTest | Level3)
 {
+    char testFile[] = "/data/mix_stack_header_test02";
+    int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
+    if (fd == -1) {
+        GTEST_LOG_(ERROR) << "Failed to create test file.";
+        return;
+    }
     MixStackDumper mixDumper;
-    bool ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
+    bool ret = mixDumper.DumpMixFrame(fd, getpid(), getpid());
     EXPECT_FALSE(ret);
     mixDumper.Init(getpid());
-    ret = mixDumper.DumpMixFrame(1, -1, -1);
+    ret = mixDumper.DumpMixFrame(fd, -1, -1);
     EXPECT_FALSE(ret);
-    ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
+    ret = mixDumper.DumpMixFrame(fd, getpid(), getpid());
     mixDumper.Destroy();
     EXPECT_TRUE(ret);
+    close(fd);
+    std::string keywords[] = {
+        "Tid:-1", "Failed", "suspend", "Tid:" + std::to_string(getpid()), "#00", "pc",
+        "libappkit_native.z.so", "mix_stack_dumper_test",
+    };
+    int length = sizeof(keywords) / sizeof(keywords[0]);
+    EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
 }
 
 /**
@@ -141,8 +198,21 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest004, Function | MediumTest | Leve
     nativeFrames.emplace_back(nativeFrame2);
     nativeFrames.emplace_back(nullptr);
     MixStackDumper mixDumper;
-    mixDumper.PrintNativeFrames(1, nativeFrames);
-    EXPECT_TRUE(true);
+    char testFile[] = "/data/mix_stack_header_test04";
+    int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
+    if (fd == -1) {
+        GTEST_LOG_(ERROR) << "Failed to create test file.";
+        mixDumper.PrintNativeFrames(1, nativeFrames);
+        EXPECT_TRUE(true);
+    } else {
+        mixDumper.PrintNativeFrames(fd, nativeFrames);
+        close(fd);
+        std::string keywords[] = {
+            "#00", "pc", "testmapname", "Unknown",
+        };
+        int length = sizeof(keywords) / sizeof(keywords[0]);
+        EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
+    }
 }
 
 /**
@@ -155,7 +225,8 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest005, Function | MediumTest | Leve
     MixStackDumper mixDumper;
     std::string label = mixDumper.GetThreadStackTraceLabel(gettid());
     GTEST_LOG_(INFO) << label;
-    EXPECT_TRUE(true);
+    std::string keyword = "mix_stack_dump";
+    EXPECT_TRUE(label.find(keyword) != std::string::npos);
 }
 
 /**
@@ -168,6 +239,31 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest006, Function | MediumTest | Leve
     MixStackDumper mixDumper;
     mixDumper.HandleMixDumpRequest();
     EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.number: MixStackDumperTest007
+ * @tc.name: Call PrintProcessHeader Func
+ * @tc.desc: test PrintProcessHeader Func
+ */
+HWTEST_F(MixStackDumperTest, MixStackDumperTest007, Function | MediumTest | Level3)
+{
+    MixStackDumper mixDumper;
+    char testFile[] = "/data/mix_stack_header_test07";
+    int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
+    if (fd == -1) {
+        GTEST_LOG_(ERROR) << "Failed to create test file.";
+        mixDumper.PrintProcessHeader(1, getpid(), getuid());
+        EXPECT_TRUE(true);
+    } else {
+        mixDumper.PrintProcessHeader(fd, getpid(), getuid());
+        close(fd);
+        std::string headerKeywords[] = {
+            "Timestamp:", "Pid:" + std::to_string(getpid()), "Uid:" + std::to_string(getuid()), "mix_stack_dumper_test",
+        };
+        int length = sizeof(headerKeywords) / sizeof(headerKeywords[0]);
+        EXPECT_TRUE(CheckMixStackKeyWords(testFile, headerKeywords, length));
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

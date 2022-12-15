@@ -44,6 +44,7 @@ private:
         std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames);
     std::string GetThreadStackTraceLabel(pid_t tid);
     void PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames);
+    void PrintProcessHeader(int fd, pid_t pid, uid_t uid);
 
     static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
     static void HandleMixDumpRequest();
