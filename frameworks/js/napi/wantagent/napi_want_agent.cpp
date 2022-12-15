@@ -573,7 +573,8 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(NativeEngine &engine, NativeCallback
         return ret;
     }
 
-    UnwrapWantAgent(engine, info.argv[0], reinterpret_cast<void **>(&pWantAgent));
+    NativeReference *ref = engine.CreateReference(info.argv[ARGC_TWO], 1);
+    triggerObj->SetCallbackInfo(engine, ref);
     triggerObj->SetWantAgentInstance(wantAgent);
     return BUSINESS_ERROR_CODE_OK;
 }
