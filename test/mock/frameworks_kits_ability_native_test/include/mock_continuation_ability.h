@@ -16,6 +16,7 @@
 #ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_CONTINUATION_ABILITY_H
 #define MOCK_OHOS_ABILITY_RUNTIME_MOCK_CONTINUATION_ABILITY_H
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "ability.h"
@@ -29,16 +30,18 @@ public:
     MockContinuationAbility() = default;
     virtual ~MockContinuationAbility() = default;
 
-    bool OnStartContinuation()
-    {
-        GTEST_LOG_(INFO) << "MockContinuationAbility::OnStartContinuation called";
-        return true;
-    }
+    MOCK_METHOD0(OnStartContinuation, bool());
+    MOCK_METHOD0(TerminateAbility, int());
+    MOCK_METHOD0(OnRemoteTerminated, void());
+    MOCK_METHOD0(GetContentInfo, std::string());
+    MOCK_METHOD1(OnSaveData, bool(WantParams &saveData));
+    MOCK_METHOD1(OnRestoreData, bool(WantParams &restoreData));
+    MOCK_METHOD1(OnCompleteContinuation, void(int result));
+    MOCK_METHOD1(OnContinue, int32_t(WantParams &wantParams));
 
-    bool OnSaveData(WantParams& saveData)
+    const std::shared_ptr<AbilityInfo> GetAbilityInfo()
     {
-        GTEST_LOG_(INFO) << "MockContinuationAbility::OnSaveData called";
-        return true;
+        return abilityInfo_;
     }
 };
 }  // namespace AppExecFwk
