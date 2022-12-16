@@ -94,20 +94,21 @@ HWTEST_F(RuntimeExtractorTest, RuntimeExtractorInit_001, TestSize.Level1)
  */
 HWTEST_F(RuntimeExtractorTest, RuntimeExtractorCreate_001, TestSize.Level1)
 {
+    bool newCreate = false;
     std::string loadPath;
-    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor1 = AbilityBase::Extractor::Create(loadPath);
-    EXPECT_TRUE(runtimeExtractor1 == nullptr);
+    std::shared_ptr<AbilityBase::Extractor> extractor1 = AbilityBase::ExtractorUtil::GetExtractor(loadPath, newCreate);
+    EXPECT_TRUE(extractor1 == nullptr);
 
     loadPath = ERROR_HAP_PATH;
-    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor2 = AbilityBase::Extractor::Create(loadPath);
-    EXPECT_TRUE(runtimeExtractor2 == nullptr);
+    std::shared_ptr<AbilityBase::Extractor> extractor2 = AbilityBase::ExtractorUtil::GetExtractor(loadPath, newCreate);
+    EXPECT_TRUE(extractor2 == nullptr);
 
-    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor3 = AbilityBase::Extractor::Create(testPath_);
-    EXPECT_TRUE(runtimeExtractor3 != nullptr);
+    std::shared_ptr<AbilityBase::Extractor> extractor3 = AbilityBase::ExtractorUtil::GetExtractor(testPath_, newCreate);
+    EXPECT_TRUE(extractor3 != nullptr);
 
     loadPath = TEST_THIRD_HAP_PATH;
-    std::shared_ptr<AbilityBase::Extractor> runtimeExtractor4 = AbilityBase::Extractor::Create(loadPath);
-    EXPECT_TRUE(runtimeExtractor4 == nullptr);
+    std::shared_ptr<AbilityBase::Extractor> extractor4 = AbilityBase::ExtractorUtil::GetExtractor(loadPath, newCreate);
+    EXPECT_TRUE(extractor4 == nullptr);
 }
 
 /*
