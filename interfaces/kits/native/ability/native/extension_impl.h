@@ -37,7 +37,7 @@ namespace AbilityRuntime {
 class ExtensionImpl : public std::enable_shared_from_this<ExtensionImpl> {
 public:
     ExtensionImpl() = default;
-    virtual ~ExtensionImpl() = default;
+    virtual ~ExtensionImpl();
 
     /**
      * @brief Init the object.
