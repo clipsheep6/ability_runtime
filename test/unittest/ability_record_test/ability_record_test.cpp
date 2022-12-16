@@ -17,30 +17,46 @@
 
 #define private public
 #define protected public
+#include "ability_manager_service.h"
 #include "ability_record.h"
 #undef private
 #undef protected
 
 #include "ability_connect_callback_stub.h"
-#include "ability_manager_service.h"
 #include "ability_scheduler.h"
 #include "connection_record.h"
+#include "constants.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_bundle_manager.h"
+#include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
+#ifdef SUPPORT_GRAPHICS
+#define private public
+#define protected public
+#include "mission_info_mgr.h"
+#undef private
+#undef protected
+#endif
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::AbilityBase::Constants;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string DEBUG_APP = "debugApp";
+const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+}
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    std::shared_ptr<AbilityRecord> GetAbilityRecord();
 
     std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
     std::shared_ptr<AbilityResult> abilityResult_{ nullptr };
@@ -76,6 +92,14 @@ void AbilityRecordTest::TearDown(void)
     abilityRecord_.reset();
 }
 
+std::shared_ptr<AbilityRecord> AbilityRecordTest::GetAbilityRecord()
+{
+    Want want;
+    OHOS::AppExecFwk::AbilityInfo abilityInfo;
+    OHOS::AppExecFwk::ApplicationInfo applicationInfo;
+    return std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+}
+
 bool IsTestAbilityExist(const std::string& data)
 {
     return std::string::npos != data.find("previous ability app name [NULL]");
@@ -90,6 +114,30 @@ bool IsTestAbilityExist2(const std::string& data)
 {
     return std::string::npos != data.find("test_next_app");
 }
+
+class MockWMSHandler : public IWindowManagerServiceHandler {
+public:
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo)
+    {}
+
+    virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken)
+    {
+        return 0;
+    }
+
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info,
+        std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor) {}
+
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap) {}
+
+    virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken)
+    {}
+
+    virtual sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    }
+};
 
 /*
  * Feature: AbilityRecord
@@ -701,6 +749,707 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityRecordByToken_001, TestSiz
 
 /*
  * Feature: AbilityRecord
+ * Function: CreateAbilityRecord
+ * SubFunction: CreateAbilityRecord
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityRecord
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityRecord_001, TestSize.Level1)
+{
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityStartSetting> abilityStartSetting = std::make_shared<AbilityStartSetting>();
+    abilityRequest.startSetting = abilityStartSetting;
+    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
+    auto res = abilityRecord_->CreateAbilityRecord(abilityRequest);
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isRestarting_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->restartCount_ = 0;
+    int res = abilityRecord->LoadAbility();
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, abilityRecord);
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isRestarting_ = true;
+    abilityRecord->isLauncherAbility_ = false;
+    abilityRecord->callerList_.push_back(caller);
+    int res = abilityRecord->LoadAbility();
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, nullptr);
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isRestarting_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->restartCount_ = 1;
+    abilityRecord->callerList_.push_back(caller);
+    int res = abilityRecord->LoadAbility();
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = false;
+    abilityRecord->callerList_.push_back(nullptr);
+    int res = abilityRecord->LoadAbility();
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ForegroundAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(abilityRecord_);
+    abilityRecord->ForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ForegroundAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(nullptr);
+    abilityRecord->ForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ForegroundAbility_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->SetIsNewWant(false);
+    abilityRecord->ForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->isReady_ = true;
+    abilityRecord->currentState_ = AbilityState::FOREGROUND;
+    abilityRecord->ProcessForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->isReady_ = true;
+    abilityRecord->currentState_ = AbilityState::BACKGROUND;
+    abilityRecord->ProcessForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->isReady_ = false;
+    abilityRecord->ProcessForegroundAbility(sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetLabel
+ * SubFunction: GetLabel
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetLabel
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetLabel_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->applicationInfo_.label = "label";
+    abilityRecord->abilityInfo_.resourcePath = "resource";
+    std::string res = abilityRecord->GetLabel();
+    EXPECT_EQ(res, "label");
+}
+
+#ifdef SUPPORT_GRAPHICS
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbility = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->currentState_ = AbilityState::FOREGROUND;
+    abilityRecord->ProcessForegroundAbility(callerAbility, sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbility = GetAbilityRecord();
+    sptr<IWindowManagerServiceHandler> wmsHandler = new MockWMSHandler();
+    uint32_t sceneFlag = 0;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->wmsHandler_ = wmsHandler;
+    EXPECT_EQ(DelayedSingleton<AbilityManagerService>::GetInstance()->GetWMSHandler(), wmsHandler);
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->currentState_ = AbilityState::BACKGROUND;
+    abilityRecord->ProcessForegroundAbility(callerAbility, sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromTerminatingAbility
+ * SubFunction: NotifyAnimationFromTerminatingAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromTerminatingAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromTerminatingAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool flag = false;
+    sptr<IWindowManagerServiceHandler> wmsHandler = new MockWMSHandler();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->wmsHandler_ = wmsHandler;
+    abilityRecord->NotifyAnimationFromTerminatingAbility(nullptr, flag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromTerminatingAbility
+ * SubFunction: NotifyAnimationFromTerminatingAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromTerminatingAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromTerminatingAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IWindowManagerServiceHandler> wmsHandler = new MockWMSHandler();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->wmsHandler_ = wmsHandler;
+    abilityRecord->NotifyAnimationFromTerminatingAbility();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromTerminatingAbility
+ * SubFunction: NotifyAnimationFromTerminatingAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromTerminatingAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromTerminatingAbility_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->wmsHandler_ = nullptr;
+    abilityRecord->NotifyAnimationFromTerminatingAbility();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_006, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRecent = false;
+    AbilityRequest abilityRequest;
+    std::shared_ptr<StartOptions> startOptions = nullptr ;
+    std::shared_ptr<AbilityRecord> callerAbility;
+    uint32_t sceneFlag = 1;
+    abilityRecord->isReady_ = true;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = nullptr;
+    abilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility, sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_007, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRecent = false;
+    AbilityRequest abilityRequest;
+    std::shared_ptr<StartOptions> startOptions = nullptr ;
+    std::shared_ptr<AbilityRecord> callerAbility;
+    uint32_t sceneFlag = 1;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->isReady_ = true;
+    abilityRecord->currentState_ = AbilityState::FOREGROUND;
+    abilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility, sceneFlag);
+    isRecent = true;
+    abilityRecord->currentState_ = AbilityState::BACKGROUND;
+    abilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility, sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ProcessForegroundAbility
+ * SubFunction: ProcessForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ProcessForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_008, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRecent = false;
+    AbilityRequest abilityRequest;
+    std::shared_ptr<StartOptions> startOptions = nullptr ;
+    std::shared_ptr<AbilityRecord> callerAbility;
+    uint32_t sceneFlag = 1;
+    abilityRecord->isReady_ = false;
+    abilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility, sceneFlag);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetWantFromMission
+ * SubFunction: GetWantFromMission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetWantFromMission
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetWantFromMission_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    auto res = abilityRecord->GetWantFromMission();
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetWantFromMission
+ * SubFunction: GetWantFromMission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetWantFromMission
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetWantFromMission_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int32_t missionId = 1;
+    InnerMissionInfo innerMissionInfo;
+    Want want;
+    innerMissionInfo.missionInfo.id = missionId;
+    innerMissionInfo.missionInfo.want = want;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->missionIdMap_[missionId] = true;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(innerMissionInfo);
+    abilityRecord->missionId_ = 1;
+    auto res = abilityRecord->GetWantFromMission();
+    EXPECT_NE(res, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: AnimationTask
+ * SubFunction: AnimationTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord AnimationTask
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_AnimationTask_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRecent = true;
+    AbilityRequest abilityRequest;
+    std::shared_ptr<StartOptions> startOptions = nullptr ;
+    std::shared_ptr<AbilityRecord> callerAbility;
+    abilityRecord->AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetShowWhenLocked
+ * SubFunction: SetShowWhenLocked
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetShowWhenLocked
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetShowWhenLocked_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    AbilityInfo abilityInfo;
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    CustomizeData data1;
+    CustomizeData data2;
+    data1.name = SHOW_ON_LOCK_SCREEN;
+    data2.name = "";
+    abilityInfo.metaData.customizeData.push_back(data1);
+    abilityInfo.metaData.customizeData.push_back(data2);
+    info->isShowWhenLocked_ = false;
+    abilityRecord->SetShowWhenLocked(abilityInfo, info);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromRecentTask
+ * SubFunction: NotifyAnimationFromRecentTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromRecentTask
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromRecentTask_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = nullptr;
+    abilityRecord->NotifyAnimationFromRecentTask(startOptions, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromStartingAbility
+ * SubFunction: NotifyAnimationFromStartingAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromStartingAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbility = GetAbilityRecord();
+    AbilityRequest abilityRequest;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationFromStartingAbility
+ * SubFunction: NotifyAnimationFromStartingAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationFromStartingAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbility = nullptr;
+    AbilityRequest abilityRequest;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: StartingWindowTask
+ * SubFunction: StartingWindowTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord StartingWindowTask
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_StartingWindowTask_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRecent = true;
+    AbilityRequest abilityRequest;
+    std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->StartingWindowTask(isRecent, true, abilityRequest, startOptions);
+    abilityRecord->StartingWindowTask(isRecent, false, abilityRequest, startOptions);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetWindowModeAndDisplayId
+ * SubFunction: SetWindowModeAndDisplayId
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetWindowModeAndDisplayId
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<AbilityTransitionInfo> info = nullptr;
+    std::shared_ptr<Want> want = nullptr;
+    abilityRecord->SetWindowModeAndDisplayId(info, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetWindowModeAndDisplayId
+ * SubFunction: SetWindowModeAndDisplayId
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetWindowModeAndDisplayId
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    want->SetParam(Want::PARAM_RESV_WINDOW_MODE, 1);
+    want->SetParam(Want::PARAM_RESV_DISPLAY_ID, 1);
+    abilityRecord->SetWindowModeAndDisplayId(info, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetWindowModeAndDisplayId
+ * SubFunction: SetWindowModeAndDisplayId
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetWindowModeAndDisplayId
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    want->SetParam(Want::PARAM_RESV_WINDOW_MODE, -1);
+    want->SetParam(Want::PARAM_RESV_DISPLAY_ID, -1);
+    abilityRecord->SetWindowModeAndDisplayId(info, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = nullptr;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    abilityRecord->CreateAbilityTransitionInfo(startOptions, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    startOptions->SetWindowMode(1);
+    startOptions->SetDisplayID(1);
+    abilityRecord->CreateAbilityTransitionInfo(startOptions, want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    AbilityRequest abilityRequest;
+    abilityRequest.startSetting = nullptr;
+    abilityRecord->CreateAbilityTransitionInfo(abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityStartSetting> startSetting = std::make_shared<AbilityStartSetting>();
+    startSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY, "windowMode");
+    startSetting->AddProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY, "displayId");
+    abilityRequest.startSetting = startSetting;
+    abilityRecord->CreateAbilityTransitionInfo(abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = nullptr;
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityStartSetting> startSetting = std::make_shared<AbilityStartSetting>();
+    startSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY, "windowMode");
+    startSetting->AddProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY, "displayId");
+    abilityRequest.startSetting = startSetting;
+    abilityRecord->CreateAbilityTransitionInfo(startOptions, want, abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateAbilityTransitionInfo
+ * SubFunction: CreateAbilityTransitionInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateAbilityTransitionInfo
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_006, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    AbilityRequest abilityRequest;
+    abilityRecord->CreateAbilityTransitionInfo(startOptions, want, abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CreateResourceManager
+ * SubFunction: CreateResourceManager
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CreateResourceManager
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateResourceManager_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    system::SetParameter(COMPRESS_PROPERTY, "1");
+    abilityRecord->abilityInfo_.hapPath = "path";
+    auto res = abilityRecord->CreateResourceManager();
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
  * Function: GetPixelMap
  * SubFunction: GetPixelMap
  * FunctionPoints: NA
@@ -716,6 +1465,78 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_001, TestSize.Level1)
 
 /*
  * Feature: AbilityRecord
+ * Function: GetPixelMap
+ * SubFunction: GetPixelMap
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetPixelMap
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
+    system::SetParameter(COMPRESS_PROPERTY, "1");
+    abilityRecord->abilityInfo_.hapPath = "path";
+    auto res = abilityRecord->GetPixelMap(1, resourceMgr);
+    EXPECT_EQ(res, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: StartingWindowHot
+ * SubFunction: StartingWindowHot
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord StartingWindowHot
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_StartingWindowHot_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    AbilityRequest abilityRequest;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->StartingWindowHot(startOptions, want, abilityRequest);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetColdStartingWindowResource
+ * SubFunction: GetColdStartingWindowResource
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetColdStartingWindowResource
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetColdStartingWindowResource_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<Media::PixelMap> bg;
+    uint32_t bgColor = 0;
+    abilityRecord->startingWindowBg_ = std::make_shared<Media::PixelMap>();
+    abilityRecord->GetColdStartingWindowResource(bg, bgColor);
+    abilityRecord->startingWindowBg_ = nullptr;
+    abilityRecord->GetColdStartingWindowResource(bg, bgColor);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: InitColdStartingWindowResource
+ * SubFunction: InitColdStartingWindowResource
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord InitColdStartingWindowResource
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_InitColdStartingWindowResource_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
+    abilityRecord->InitColdStartingWindowResource(nullptr);
+    abilityRecord->InitColdStartingWindowResource(resourceMgr);
+}
+#endif
+
+/*
+ * Feature: AbilityRecord
  * Function: SetPendingState
  * SubFunction: SetPendingState
  * FunctionPoints: NA
@@ -728,6 +1549,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SetPendingState_001, TestSize.Level1)
     EXPECT_EQ(abilityRecord_->GetPendingState(), OHOS::AAFwk::AbilityState::FOREGROUND);
 }
 
+#ifdef SUPPORT_GRAPHICS
 /*
  * Feature: AbilityRecord
  * Function: PostCancelStartingWindowHotTask
@@ -800,6 +1622,717 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CreateResourceManager_001, TestSize.Le
 
     abilityInfo.hapPath = "abc";
     EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
+}
+#endif
+
+/*
+ * Feature: AbilityRecord
+ * Function: BackgroundAbility
+ * SubFunction: BackgroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord BackgroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_BackgroundAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task;
+    EXPECT_FALSE(task);
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->BackgroundAbility(task);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: BackgroundAbility
+ * SubFunction: BackgroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord BackgroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_BackgroundAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task = []() {};
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, false);
+    abilityRecord->SetTerminatingState();
+    abilityRecord->SetRestarting(false, 0);
+    abilityRecord->BackgroundAbility(task);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: BackgroundAbility
+ * SubFunction: BackgroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord BackgroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_BackgroundAbility_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task = []() {};
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->SetTerminatingState();
+    abilityRecord->SetRestarting(true, 0);
+    abilityRecord->BackgroundAbility(task);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetScheduler
+ * SubFunction: SetScheduler
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetScheduler
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetScheduler_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->schedulerDeathRecipient_ =
+        new AbilitySchedulerRecipient([abilityRecord](const wptr<IRemoteObject> &remote) {});
+    abilityRecord->SetScheduler(scheduler);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetScheduler
+ * SubFunction: SetScheduler
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetScheduler
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetScheduler_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->schedulerDeathRecipient_ = nullptr;
+    abilityRecord->SetScheduler(scheduler);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetScheduler
+ * SubFunction: SetScheduler
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetScheduler
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetScheduler_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IAbilityScheduler> scheduler = nullptr;
+    abilityRecord->scheduler_ = new AbilityScheduler();
+    abilityRecord->schedulerDeathRecipient_ = nullptr;
+    abilityRecord->SetScheduler(scheduler);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Activate
+ * SubFunction: Activate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Activate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Activate_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(abilityRecord_);
+    abilityRecord->Activate();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Activate
+ * SubFunction: Activate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Activate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Activate_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(nullptr);
+    abilityRecord->Activate();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Terminate
+ * SubFunction: Terminate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Terminate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Terminate_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task = []() {};
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->Terminate(task);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendResultToCallers
+ * SubFunction: SendResultToCallers
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendResultToCallers
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendResultToCallers_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, callerAbilityRecord);
+    std::shared_ptr<AbilityResult> result = std::make_shared<AbilityResult>();
+    callerAbilityRecord->SetResult(result);
+    abilityRecord->callerList_.push_back(nullptr);
+    abilityRecord->callerList_.push_back(caller);
+    abilityRecord->SendResultToCallers();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendResultToCallers
+ * SubFunction: SendResultToCallers
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendResultToCallers
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendResultToCallers_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, callerAbilityRecord);
+    std::shared_ptr<AbilityResult> result = std::make_shared<AbilityResult>();
+    std::string srcAbilityId = "id";
+    callerAbilityRecord->SetResult(nullptr);
+    caller->saCaller_ = std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
+    abilityRecord->callerList_.push_back(caller);
+    abilityRecord->SendResultToCallers();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendResultToCallers
+ * SubFunction: SendResultToCallers
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendResultToCallers
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendResultToCallers_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, nullptr);
+    caller->saCaller_ = nullptr;
+    abilityRecord->callerList_.push_back(caller);
+    abilityRecord->SendResultToCallers();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SaveResultToCallers
+ * SubFunction: SaveResultToCallers
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SaveResultToCallers
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int resultCode = 0;
+    Want *resultWant;
+    abilityRecord->callerList_.clear();
+    abilityRecord->SaveResultToCallers(resultCode, resultWant);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SaveResultToCallers
+ * SubFunction: SaveResultToCallers
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SaveResultToCallers
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller1 = std::make_shared<CallerRecord>(0, callerAbilityRecord);
+    std::shared_ptr<CallerRecord> caller2 = std::make_shared<CallerRecord>();
+    int resultCode = 0;
+    Want *resultWant = new Want();
+    abilityRecord->callerList_.push_back(nullptr);
+    abilityRecord->callerList_.push_back(caller1);
+    abilityRecord->callerList_.push_back(caller2);
+    abilityRecord->SaveResultToCallers(resultCode, resultWant);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SaveResult
+ * SubFunction: SaveResult
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SaveResult
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, callerAbilityRecord);
+    int resultCode = 0;
+    Want *resultWant = new Want();
+    caller->saCaller_ = nullptr;
+    abilityRecord->SaveResult(resultCode, resultWant, caller);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SaveResult
+ * SubFunction: SaveResult
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SaveResult
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, nullptr);
+    std::string srcAbilityId = "id";
+    int resultCode = 0;
+    Want *resultWant = new Want();
+    caller->saCaller_ = std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
+    abilityRecord->SaveResult(resultCode, resultWant, caller);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetResultToSystemAbility
+ * SubFunction: SetResultToSystemAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify SystemAbilityCallerRecord SetResultToSystemAbility
+ */
+HWTEST_F(AbilityRecordTest, SystemAbilityCallerRecord_SetResultToSystemAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::string srcAbilityId = "srcAbility_id";
+    std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
+        std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
+    Want resultWant;
+    int resultCode = 1;
+    systemAbilityRecord->SetResultToSystemAbility(systemAbilityRecord, resultWant, resultCode);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendResultToSystemAbility
+ * SubFunction: SendResultToSystemAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify SystemAbilityCallerRecord SendResultToSystemAbility
+ */
+HWTEST_F(AbilityRecordTest, SystemAbilityCallerRecord_SendResultToSystemAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::string srcAbilityId = "srcAbility_id";
+    std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
+        std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
+    int requestCode = 0;
+    int resultCode = 0;
+    Want resultWant;
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    systemAbilityRecord->SendResultToSystemAbility(requestCode, resultCode, resultWant, callerToken);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: AddCallerRecord
+ * SubFunction: AddCallerRecord
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord AddCallerRecord
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_AddCallerRecord_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    callerAbilityRecord->Init();
+    sptr<IRemoteObject> callerToken = callerAbilityRecord->GetToken();
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, callerAbilityRecord);
+    abilityRecord->callerList_.push_back(caller);
+    int requestCode = 0;
+    std::string srcAbilityId = "srcAbility_id";
+    abilityRecord->AddCallerRecord(callerToken, requestCode, srcAbilityId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: IsSystemAbilityCall
+ * SubFunction: IsSystemAbilityCall
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord IsSystemAbilityCall
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_IsSystemAbilityCall_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool res1 = abilityRecord->IsSystemAbilityCall(nullptr);
+    EXPECT_FALSE(res1);
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
+    sptr<IRemoteObject> callerToken = callerAbilityRecord->GetToken();
+    bool res2 = abilityRecord->IsSystemAbilityCall(callerToken);
+    EXPECT_FALSE(res2);
+    callerAbilityRecord->Init();
+    callerToken = callerAbilityRecord->GetToken();
+    bool res3 = abilityRecord->IsSystemAbilityCall(callerToken);
+    EXPECT_FALSE(res3);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: AddSystemAbilityCallerRecord
+ * SubFunction: AddSystemAbilityCallerRecord
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord AddSystemAbilityCallerRecord
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    int requestCode = 0;
+    std::string srcAbilityId = "srcAbility_id";
+    abilityRecord->callerList_.clear();
+    abilityRecord->AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: AddSystemAbilityCallerRecord
+ * SubFunction: AddSystemAbilityCallerRecord
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord AddSystemAbilityCallerRecord
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    int requestCode = 0;
+    std::string srcAbilityId = "srcAbility_id";
+    std::shared_ptr<SystemAbilityCallerRecord> saCaller =
+        std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, callerToken);
+    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(requestCode, saCaller);
+    abilityRecord->callerList_.push_back(caller);
+    abilityRecord->AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetConnectingRecordList
+ * SubFunction: GetConnectingRecordList
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetConnectingRecordList
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetConnectingRecordList_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
+    std::shared_ptr<ConnectionRecord> connection1 =
+        std::make_shared<ConnectionRecord>(abilityRecord->GetToken(), abilityRecord, callback);
+    std::shared_ptr<ConnectionRecord> connection2 =
+        std::make_shared<ConnectionRecord>(abilityRecord->GetToken(), abilityRecord, callback);
+    connection1->SetConnectState(ConnectionState::CONNECTING);
+    connection2->SetConnectState(ConnectionState::CONNECTED);
+    abilityRecord->connRecordList_.push_back(connection1);
+    abilityRecord->connRecordList_.push_back(connection2);
+    abilityRecord->GetConnectingRecordList();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpAbilityState
+ * SubFunction: DumpAbilityState
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpAbilityState
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityState_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::vector<std::string> info;
+    bool isClient = false;
+    std::vector<std::string> params;
+    abilityRecord->callContainer_ = std::make_shared<CallContainer>();
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->DumpAbilityState(info, isClient, params);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetStartTime
+ * SubFunction: SetStartTime
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetStartTime
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetStartTime_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->startTime_ = 1;
+    abilityRecord->SetStartTime();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpService
+ * SubFunction: DumpService
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpService
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpService_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::vector<std::string> info;
+    std::vector<std::string> params;
+    bool isClient = false;
+    OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
+    std::shared_ptr<ConnectionRecord> connection =
+        std::make_shared<ConnectionRecord>(abilityRecord->GetToken(), abilityRecord, callback);
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->connRecordList_.push_back(nullptr);
+    abilityRecord->connRecordList_.push_back(connection);
+    abilityRecord->DumpService(info, params, isClient);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendEvent
+ * SubFunction: SendEvent
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendEvent
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendEvent_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t msg = 0;
+    uint32_t timeOut = 0;
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    EXPECT_TRUE(abilityRecord->want_.GetBoolParam(DEBUG_APP, false));
+    abilityRecord->SendEvent(msg, timeOut);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetRestarting
+ * SubFunction: SetRestarting
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetRestarting
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestarting_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRestart = false;
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->SetRestarting(isRestart);
+    abilityRecord->isLauncherAbility_ = false;
+    abilityRecord->SetRestarting(isRestart);
+    abilityRecord->isLauncherRoot_ = false;
+    abilityRecord->SetRestarting(isRestart);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetRestarting
+ * SubFunction: SetRestarting
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetRestarting
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestarting_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool isRestart = false;
+    int32_t canReStartCount = 1;
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->SetRestarting(isRestart, canReStartCount);
+    abilityRecord->isLauncherAbility_ = false;
+    abilityRecord->SetRestarting(isRestart, canReStartCount);
+    abilityRecord->isLauncherRoot_ = false;
+    abilityRecord->SetRestarting(isRestart, canReStartCount);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CallRequestDone
+ * SubFunction: CallRequestDone
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CallRequestDone
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CallRequestDone_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    bool res1 = abilityRecord->CallRequestDone(nullptr);
+    EXPECT_FALSE(res1);
+    abilityRecord->callContainer_ = std::make_shared<CallContainer>();
+    abilityRecord->Init();
+    sptr<IRemoteObject> callStub = abilityRecord->GetToken();
+    bool res2 = abilityRecord->CallRequestDone(callStub);
+    EXPECT_TRUE(res2);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpSys
+ * SubFunction: DumpSys
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpSys
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpSys_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::vector<std::string> info;
+    bool isClient = false;
+    abilityRecord->SetPreAbilityRecord(nullptr);
+    abilityRecord->SetNextAbilityRecord(nullptr);
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->abilityInfo_.isStageBasedModel = true;
+    abilityRecord->DumpSys(info, isClient);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpSys
+ * SubFunction: DumpSys
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpSys
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpSys_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> preAbility = GetAbilityRecord();
+    std::shared_ptr<AbilityRecord> nextAbility = GetAbilityRecord();
+    std::vector<std::string> info;
+    bool isClient = false;
+    abilityRecord->SetPreAbilityRecord(preAbility);
+    abilityRecord->SetNextAbilityRecord(nextAbility);
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->abilityInfo_.isStageBasedModel = false;
+    abilityRecord->DumpSys(info, isClient);
+    abilityRecord->isLauncherRoot_ = false;
+    abilityRecord->DumpSys(info, isClient);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpClientInfo
+ * SubFunction: DumpClientInfo
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpClientInfo
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpClientInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::vector<std::string> info;
+    const std::vector<std::string> params;
+    bool isClient = true;
+    bool dumpConfig = false;
+    abilityRecord->scheduler_ = nullptr;
+    abilityRecord->DumpClientInfo(info, params, isClient, dumpConfig);
+    abilityRecord->scheduler_ = new AbilityScheduler();
+    abilityRecord->isReady_ = false;
+    abilityRecord->DumpClientInfo(info, params, isClient, dumpConfig);
+    abilityRecord->isReady_ = true;
+    abilityRecord->DumpClientInfo(info, params, isClient, dumpConfig);
+    dumpConfig = true;
+    abilityRecord->DumpClientInfo(info, params, isClient, dumpConfig);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpAbilityInfoDone
+ * SubFunction: DumpAbilityInfoDone
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord DumpAbilityInfoDone
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityInfoDone_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    std::vector<std::string> infos;
+    abilityRecord->isDumpTimeout_ = true;
+    abilityRecord->DumpAbilityInfoDone(infos);
+    abilityRecord->isDumpTimeout_ = false;
+    abilityRecord->DumpAbilityInfoDone(infos);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
+    want.SetFlags(1);
+    abilityRecord->GrantUriPermission(want);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: HandleDlpClosed
+ * SubFunction: HandleDlpClosed
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord HandleDlpClosed
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_HandleDlpClosed_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.bundleName = DLP_BUNDLE_NAME;
+    abilityRecord->appIndex_ = 1;
+    abilityRecord->HandleDlpClosed();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetCurrentAccountId
+ * SubFunction: GetCurrentAccountId
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetCurrentAccountId
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->GetCurrentAccountId();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
