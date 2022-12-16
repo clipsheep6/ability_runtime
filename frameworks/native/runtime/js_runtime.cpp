@@ -128,21 +128,20 @@ public:
         bool result = false;
         if (!hapPath.empty()) {
             std::ostringstream outStream;
-            std::shared_ptr<Extractor> runtimeExtractor;
-            if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
-                runtimeExtractor = Extractor::Create(hapPath);
-                if (runtimeExtractor == nullptr) {
-                    return result;
-                }
-                runtimeExtractor->SetRuntimeFlag(true);
-                runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
-                ExtractorUtil::AddExtractor(hapPath, runtimeExtractor);
+            bool newCreate = false;
+            std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+            std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+            if (!extractor) {
+                HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+                return false;
+            }
+            if (newCreate) {
+                ExtractorUtil::AddExtractor(loadPath, extractor);
+                extractor->SetRuntimeFlag(true);
                 panda::JSNApi::LoadAotFile(vm_, hapPath);
-            } else {
-                runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
             if (isBundle_) {
-                if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+                if (!extractor->GetFileBuffer(srcPath, outStream)) {
                     HILOG_ERROR("Get abc file failed");
                     return result;
                 }
@@ -156,7 +155,7 @@ public:
                     return result;
                 }
 
-                if (!runtimeExtractor->GetFileBuffer(mergeAbcPath, outStream)) {
+                if (!extractor->GetFileBuffer(mergeAbcPath, outStream)) {
                     HILOG_ERROR("Get Module abc file failed");
                     return result;
                 }
@@ -340,16 +339,20 @@ private:
         if (!options.preload) {
             bundleName_ = options.bundleName;
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
-            std::shared_ptr<Extractor> runtimeExtractor = Extractor::Create(options.hapPath);
-            if (runtimeExtractor == nullptr) {
+            bool newCreate = false;
+            std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
+            std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+            if (!extractor) {
+                HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", options.hapPath.c_str());
                 return false;
             }
-            runtimeExtractor->SetRuntimeFlag(true);
-            runtimeExtractorMap_.insert(make_pair(options.hapPath, runtimeExtractor));
-            ExtractorUtil::AddExtractor(options.hapPath, runtimeExtractor);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor));
-            panda::JSNApi::LoadAotFile(vm_, options.hapPath);
+            if (newCreate) {
+                ExtractorUtil::AddExtractor(loadPath, extractor);
+                extractor->SetRuntimeFlag(true);
+                panda::JSNApi::SetHostResolveBufferTracker(vm_, JsModuleReader(options.bundleName,
+                    options.hapPath, extractor));
+                panda::JSNApi::LoadAotFile(vm_, options.hapPath);
+            }
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
@@ -702,26 +705,25 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     bool result = false;
     if (!hapPath.empty()) {
         std::ostringstream outStream;
-        std::shared_ptr<Extractor> runtimeExtractor;
-        if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
-            runtimeExtractor = Extractor::Create(hapPath);
-            if (runtimeExtractor == nullptr) {
-                return result;
-            }
-            runtimeExtractor->SetRuntimeFlag(true);
-            runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
-            ExtractorUtil::AddExtractor(hapPath, runtimeExtractor);
-        } else {
-            runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+        bool newCreate = false;
+        std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+        if (!extractor) {
+            HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+            return false;
+        }
+        if (newCreate) {
+            extractor->SetRuntimeFlag(true);
+            ExtractorUtil::AddExtractor(loadPath, extractor);
         }
         if (isBundle_) {
-            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+            if (!extractor->GetFileBuffer(srcPath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
                 return result;
             }
         } else {
             std::string mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
-            if (!runtimeExtractor->GetFileBuffer(mergeAbcPath, outStream)) {
+            if (!extractor->GetFileBuffer(mergeAbcPath, outStream)) {
                 HILOG_ERROR("Get Module abc file failed");
                 return result;
             }
