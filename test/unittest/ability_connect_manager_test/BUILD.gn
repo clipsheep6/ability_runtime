@@ -16,13 +16,13 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("ability_connect_manage_test") {
+ohos_unittest("ability_connect_manager_test") {
   module_out_path = module_output_path
 
   sources = [
     # add mock file
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
-    "ability_connect_manage_test.cpp",
+    "ability_connect_manager_test.cpp",
   ]
 
   configs = [
@@ -62,5 +62,5 @@ ohos_unittest("ability_connect_manage_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_connect_manage_test" ]
+  deps = [ ":ability_connect_manager_test" ]
 }
