@@ -53,8 +53,8 @@ void JsModuleReaderTest::TearDown()
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
 {
-    JsModuleReader jsModuleReader("JsModuleReader", "", nullptr);
-    std::vector<uint8_t> result = jsModuleReader("", "");
+    JsModuleReader jsModuleReader("JsModuleReader");
+    std::vector<uint8_t> result = jsModuleReader("");
     EXPECT_EQ(result.size(), 0);
 }
 
@@ -66,31 +66,8 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
 {
-    auto extractor = std::make_shared<Extractor>("");
-    if (extractor == nullptr) {
-        EXPECT_TRUE(extractor == nullptr);
-        return;
-    }
-    JsModuleReader jsModuleReader("JsModuleReader", "", extractor);
-    std::vector<uint8_t> result = jsModuleReader("", "");
-    EXPECT_EQ(result.size(), 0);
-}
-
-/**
- * @tc.name: JsModuleReaderTest_0300
- * @tc.desc: JsModuleReaderTest test
- * @tc.type: FUNC
- * @tc.require: issueI581RO
- */
-HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0300, TestSize.Level0)
-{
-    auto extractor = std::make_shared<Extractor>("");
-    if (extractor == nullptr) {
-        EXPECT_TRUE(extractor == nullptr);
-        return;
-    }
-    JsModuleReader jsModuleReader("JsModuleReader", "", extractor);
-    std::vector<uint8_t> result = jsModuleReader("/test", "/test2");
+    JsModuleReader jsModuleReader("JsModuleReader");
+    std::vector<uint8_t> result = jsModuleReader("bundleName/moduleName");
     EXPECT_EQ(result.size(), 0);
 }
 }  // namespace AAFwk

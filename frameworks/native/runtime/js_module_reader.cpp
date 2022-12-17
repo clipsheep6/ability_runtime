@@ -23,29 +23,27 @@ using namespace OHOS::AbilityBase;
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::vector<uint8_t> JsModuleReader::operator()(
-    const std::string& curJsModulePath, const std::string& newJsModuleUri) const
+std::vector<uint8_t> JsModuleReader::operator()(const std::string& hapPath) const
 {
     std::vector<uint8_t> buffer;
-    if (runtimeExtractor_ == nullptr) {
-        HILOG_ERROR("Runtime extractor does not exist");
+    if (hapPath.empty()) {
+        HILOG_ERROR("hapPath is empty");
         return buffer;
     }
-
-    std::string newJsModulePath = NormalizeUri(GetBundleName(), curJsModulePath, newJsModuleUri);
-    if (newJsModulePath.empty()) {
+    std::string realHapPath = std::string(ABS_CODE_PATH) + hapPath + std::string(HAP_SUFFIX);
+    bool newCreate = false;
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(realHapPath);
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("realHapPath %{private}s GetExtractor failed", realHapPath.c_str());
         return buffer;
     }
-
-    std::ostringstream dest;
-    if (!runtimeExtractor_->GetFileBuffer(newJsModulePath, dest)) {
-        HILOG_ERROR("Get abc file failed");
-        return buffer;
+    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+    size_t len = 0;
+    if (!extractor->ExtractToBufByName(MERGE_ABC_PATH, dataPtr, len)) {
+        HILOG_ERROR("get mergeAbc fileBuffer failed");
     }
-
-    const auto& outStr = dest.str();
-    buffer.assign(outStr.begin(), outStr.end());
-
+    buffer.assign(dataPtr.get(), dataPtr.get() + len);
     return buffer;
 }
 } // namespace AbilityRuntime

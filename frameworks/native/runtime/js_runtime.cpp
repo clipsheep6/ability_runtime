@@ -349,13 +349,12 @@ private:
             if (newCreate) {
                 ExtractorUtil::AddExtractor(loadPath, extractor);
                 extractor->SetRuntimeFlag(true);
-                panda::JSNApi::SetHostResolveBufferTracker(vm_, JsModuleReader(options.bundleName,
-                    options.hapPath, extractor));
                 panda::JSNApi::LoadAotFile(vm_, options.hapPath);
             }
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
+        panda::JSNApi::SetHostResolveBufferTracker(vm_, JsModuleReader(options.bundleName));
         return JsRuntime::Initialize(options);
     }
 

@@ -28,10 +28,10 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsModuleReader final : private JsModuleSearcher {
 public:
-    JsModuleReader(const std::string& bundleName, const std::string& hapPath,
-        const std::shared_ptr<Extractor>& runtimeExtractor)
-        : JsModuleSearcher(bundleName), hapPath_(hapPath), runtimeExtractor_(runtimeExtractor)
-    {}
+    static constexpr char ABS_CODE_PATH[] = "/data/app/el1/bundle/public/";
+    static constexpr char MERGE_ABC_PATH[] = "ets/modules.abc";
+    static constexpr char HAP_SUFFIX[] = ".hap";
+    explicit JsModuleReader(const std::string& bundleName) : JsModuleSearcher(bundleName) {}
     ~JsModuleReader() = default;
 
     JsModuleReader(const JsModuleReader&) = default;
@@ -39,11 +39,7 @@ public:
     JsModuleReader& operator=(const JsModuleReader&) = default;
     JsModuleReader& operator=(JsModuleReader&&) = default;
 
-    std::vector<uint8_t> operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
-
-private:
-    std::string hapPath_;
-    std::shared_ptr<Extractor> runtimeExtractor_;
+    std::vector<uint8_t> operator()(const std::string& hapPath) const;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
