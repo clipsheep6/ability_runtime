@@ -264,7 +264,7 @@ group("unittest") {
     "ability_business_error_test:unittest",
     "ability_connect_callback_proxy_test:unittest",
     "ability_connect_callback_stub_test:unittest",
-    "ability_connect_manage_test:unittest",
+    "ability_connect_manager_test:unittest",
     "ability_event_handler_test:unittest",
     "ability_extension_base_test:unittest",
     "ability_extension_context_test:unittest",
