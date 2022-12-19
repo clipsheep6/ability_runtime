@@ -95,7 +95,52 @@ const std::string JSVM_TYPE = "ARK";
 const std::string SIGNAL_HANDLER = "SignalHandler";
 constexpr char EXTENSION_PARAMS_TYPE[] = "type";
 constexpr char EXTENSION_PARAMS_NAME[] = "name";
+
+void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Options &options)
+{
+    std::string patchNativeLibraryPath = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath;
+    if (!patchNativeLibraryPath.empty()) {
+        // libraries in patch lib path has a higher priority when loading.
+        std::string patchLibPath = LOCAL_CODE_PATH;
+        patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
+        HILOG_INFO("napi patch lib path = %{private}s", patchLibPath.c_str());
+        options.appLibPaths["default"].emplace_back(patchLibPath);
+    }
+
+    std::string nativeLibraryPath = bundleInfo.applicationInfo.nativeLibraryPath;
+    if (!nativeLibraryPath.empty()) {
+        if (nativeLibraryPath.back() == '/') {
+            nativeLibraryPath.pop_back();
+        }
+        std::string libPath = LOCAL_CODE_PATH;
+        libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
+        HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
+        options.appLibPaths["default"].emplace_back(libPath);
+    }
+
+    for (auto &hapInfo : bundleInfo.hapModuleInfos) {
+        HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
+            hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
+        if (!hapInfo.isLibIsolated) {
+            continue;
+        }
+        std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
+
+        // libraries in patch lib path has a higher priority when loading.
+        std::string patchNativeLibraryPath = hapInfo.hqfInfo.nativeLibraryPath;
+        if (!patchNativeLibraryPath.empty()) {
+            std::string patchLibPath = LOCAL_CODE_PATH;
+            patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
+            HILOG_INFO("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
+            options.appLibPaths[appLibPathKey].emplace_back(patchLibPath);
+        }
+
+        std::string libPath = LOCAL_CODE_PATH;
+        libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+        options.appLibPaths[appLibPathKey].emplace_back(libPath);
+    }
 }
+} // namespace
 
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
@@ -967,27 +1012,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isBundle = (bundleInfo.hapModuleInfos.back().compileMode != AppExecFwk::CompileMode::ES_MODULE);
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
-        std::string nativeLibraryPath = appInfo.nativeLibraryPath;
-        if (!nativeLibraryPath.empty()) {
-            if (nativeLibraryPath.back() == '/') {
-                nativeLibraryPath.pop_back();
-            }
-            std::string libPath = LOCAL_CODE_PATH;
-            libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-            HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
-            options.appLibPaths["default"].emplace_back(libPath);
-        }
-        for (auto &hapInfo : bundleInfo.hapModuleInfos) {
-            HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
-                hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
-            if (!hapInfo.isLibIsolated) {
-                continue;
-            }
-            std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
-            std::string libPath = LOCAL_CODE_PATH;
-            libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-            options.appLibPaths[appLibPathKey].emplace_back(libPath);
-        }
+        SetNativeLibPath(bundleInfo, options);
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
