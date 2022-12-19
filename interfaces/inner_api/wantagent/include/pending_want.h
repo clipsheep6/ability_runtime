@@ -60,7 +60,7 @@ public:
         const std::shared_ptr<AAFwk::Want> &want, unsigned int flags);
 
     /**
-     * Retrieve a PendingWant that will start a new ability
+     * Retrieve a PendingWant that will start a new ability.
      *
      * @param context The Context in which this PendingWant should start
      * the ability.
@@ -68,17 +68,14 @@ public:
      * @param want Want of the ability to be launched.
      * @param flags May be FLAG_ONE_SHOT, FLAG_NO_CREATE,
      * FLAG_CANCEL_CURRENT, FLAG_UPDATE_CURRENT.
-     * @param options Additional options for how the ability should be started.
-     * May be null if there are no options.
      *
-     * @return Returns an existing or new PendingWant matching the given
-     * parameters.  May return null only if FLAG_NO_CREATE has been
-     * supplied.
+     * @return Returns ERR_OK If get PendingWant correctly.
      */
-    static std::shared_ptr<PendingWant> GetAbility(
+    static ErrCode GetAbility(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
         const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
-        const std::shared_ptr<AAFwk::WantParams> &options);
+        const std::shared_ptr<AAFwk::WantParams> &options,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * Like GetAbility(Context, int, Want, int)}, but allows an
@@ -112,17 +109,15 @@ public:
      * @param requestCode Private request code for the sender
      * @param wants Array of Wants of the abilities to be launched.
      * @param flags May be FLAG_ONE_SHOT, FLAG_NO_CREATE,
-     * FLAG_CANCEL_CURRENT} link #FLAG_UPDATE_CURRENT,
-     * FLAG_IMMUTABLE.
+     * FLAG_CANCEL_CURRENT, FLAG_UPDATE_CURRENT.
      *
-     * @return Returns an existing or new PendingWant matching the given
-     * parameters.  May return null only if FLAG_NO_CREATE has been
-     * supplied.
+     * @return Returns ERR_OK If get PendingWant correctly.
      */
-    static std::shared_ptr<PendingWant> GetAbilities(
+    static ErrCode GetAbilities(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
         std::vector<std::shared_ptr<AAFwk::Want>> &wants, unsigned int flags,
-        const std::shared_ptr<AAFwk::WantParams> &options);
+        const std::shared_ptr<AAFwk::WantParams> &options,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * Retrieve a PendingWant that will perform a common event.
@@ -135,21 +130,21 @@ public:
      * FLAG_CANCEL_CURRENT, FLAG_UPDATE_CURRENT,
      * FLAG_IMMUTABLE.
      *
-     * @return Returns an existing or new PendingWant matching the given
-     * parameters.  May return null only if FLAG_NO_CREATE has been
-     * supplied.
+     * @return Returns ERR_OK If get PendingWant correctly.
      */
-    static std::shared_ptr<PendingWant> GetCommonEvent(
+    static ErrCode GetCommonEvent(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context, int requestCode,
-        const std::shared_ptr<AAFwk::Want> &want, unsigned int flags);
+        const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * Note that current user will be interpreted at the time the
      * common event is sent, not when the pending want is created.
      */
-    static std::shared_ptr<PendingWant> GetCommonEventAsUser(
+    static ErrCode GetCommonEventAsUser(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
-        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags, int uid);
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags, int uid,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * Retrieve a PendingWant that will start a service.
@@ -162,13 +157,12 @@ public:
      * FLAG_CANCEL_CURRENT, FLAG_UPDATE_CURRENT,
      * FLAG_IMMUTABLE.
      *
-     * @return Returns an existing or new PendingWant matching the given
-     * parameters.  May return null only if FLAG_NO_CREATE has been
-     * supplied.
+     * @return Returns ERR_OK If get PendingWant correctly.
      */
-    static std::shared_ptr<PendingWant> GetService(
+    static ErrCode GetService(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
-        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags);
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * Retrieve a PendingWant that will start a foreground service.
@@ -181,13 +175,12 @@ public:
      * FLAG_CANCEL_CURRENT, FLAG_UPDATE_CURRENT,
      * FLAG_IMMUTABLE .
      *
-     * @return Returns an existing or new PendingWant matching the given
-     * parameters.  May return null only if FLAG_NO_CREATE has been
-     * supplied.
+     * @return Returns ERR_OK If get PendingWant correctly.
      */
-    static std::shared_ptr<PendingWant> GetForegroundService(
+    static ErrCode GetForegroundService(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
-        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags);
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
+        std::shared_ptr<PendingWant> &pendingWant);
 
     /**
      * @description: Marshals a Want into a Parcel.
@@ -205,10 +198,10 @@ public:
      */
     static PendingWant *Unmarshalling(Parcel &parcel);
 
-    static bool Equals(
+    static ErrCode IsEquals(
         const std::shared_ptr<PendingWant> &targetPendingWant, const std::shared_ptr<PendingWant> &otherPendingWant);
 
-    void Cancel(const sptr<AAFwk::IWantSender> &target);
+    ErrCode Cancel(const sptr<AAFwk::IWantSender> &target);
 
     void Send(const sptr<AAFwk::IWantSender> &target);
 
@@ -227,7 +220,7 @@ public:
         const std::shared_ptr<AAFwk::Want> &want, const sptr<CompletedDispatcher> &onCompleted,
         const std::string &requiredPermission, const sptr<AAFwk::IWantSender> &target);
 
-    void Send(int resultCode, const std::shared_ptr<AAFwk::Want> &want,
+    ErrCode Send(int resultCode, const std::shared_ptr<AAFwk::Want> &want,
         const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
         const std::shared_ptr<AAFwk::WantParams> &options, const sptr<AAFwk::IWantSender> &target);
 
@@ -235,9 +228,9 @@ public:
         const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
         const std::shared_ptr<AAFwk::WantParams> &options, const sptr<AAFwk::IWantSender> &target);
 
-    std::string GetBundleName(const sptr<AAFwk::IWantSender> &target);
+    ErrCode GetBundleName(const sptr<AAFwk::IWantSender> &target, std::string &bundleName);
 
-    int GetUid(const sptr<AAFwk::IWantSender> &target);
+    ErrCode GetUid(const sptr<AAFwk::IWantSender> &target, int32_t &uid);
 
     sptr<AAFwk::IWantSender> GetTarget();
 
@@ -251,7 +244,7 @@ public:
     void UnregisterCancelListener(
         const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target);
 
-    int GetHashCode(const sptr<AAFwk::IWantSender> &target);
+    ErrCode GetHashCode(const sptr<AAFwk::IWantSender> &target, int &code);
 
     std::shared_ptr<AAFwk::Want> GetWant(const sptr<AAFwk::IWantSender> &target);
 
@@ -281,10 +274,11 @@ private:
         std::weak_ptr<PendingWant> outerInstance_;
     };
 
-    static std::shared_ptr<PendingWant> BuildServicePendingWant(
+    static ErrCode BuildServicePendingWant(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
         int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
-        WantAgentConstant::OperationType serviceKind);
+        WantAgentConstant::OperationType serviceKind,
+        std::shared_ptr<PendingWant> &pendingWant);
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
 #endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_H

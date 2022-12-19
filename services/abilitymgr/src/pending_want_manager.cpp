@@ -97,7 +97,6 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         }
         MakeWantSenderCanceledLocked(*ref);
         wantRecords_.erase(ref->GetKey());
-        return nullptr;
     }
 
     if (!needCreate) {

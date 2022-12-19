@@ -282,6 +282,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0600, TestSize.Level1)
  * @tc.number    : PendingWantManagerTest_0700
  * @tc.name      : PendingWantManager GetWantSenderLocked
  * @tc.desc      : 1.GetWantSenderLocked Flags::NO_BUILD_FLAG ,cancel PendingWantRecord
+ *                 2.CANCEL_PRESENT_FLAG means delet existing wantagent before create a new one
  */
 HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0700, TestSize.Level1)
 {
@@ -296,8 +297,8 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0700, TestSize.Level1)
     EXPECT_EQ((int)pendingManager_->wantRecords_.size(), 1);
     WantSenderInfo wantSenderInfo1 = MakeWantSenderInfo(want, static_cast<int32_t>(Flags::CANCEL_PRESENT_FLAG), 0);
     EXPECT_TRUE(((unsigned int)wantSenderInfo1.flags & (unsigned int)Flags::CANCEL_PRESENT_FLAG) != 0);
-    EXPECT_EQ(pendingManager_->GetWantSenderLocked(1, 1, wantSenderInfo1.userId, wantSenderInfo1, nullptr), nullptr);
-    EXPECT_EQ((int)pendingManager_->wantRecords_.size(), 0);
+    EXPECT_NE(pendingManager_->GetWantSenderLocked(1, 1, wantSenderInfo1.userId, wantSenderInfo1, nullptr), nullptr);
+    EXPECT_EQ((int)pendingManager_->wantRecords_.size(), 1);
 }
 
 /*
