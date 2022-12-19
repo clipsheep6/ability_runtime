@@ -15,7 +15,13 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "application_impl.h"
+#undef private
+#undef protected
+#include "context_impl.h"
+#include "application_context.h"
 #include "mock_application.h"
 
 namespace OHOS {
@@ -298,6 +304,137 @@ HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_GetRecordId_0100, Funct
         EXPECT_EQ(1, applicationImpl_->GetRecordId());
     }
     GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_GetRecordId_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_PerformTerminateStrong_0100
+ * @tc.name: PerformTerminateStrong
+ * @tc.desc: Test PerformTerminateStrong normal function call
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_PerformTerminateStrong_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_PerformTerminateStrong_0100 start";
+    EXPECT_NE(applicationImpl_, nullptr);
+    if (applicationImpl_ != nullptr) {
+        std::shared_ptr<MockApplication> application = std::make_shared<MockApplication>();
+        applicationImpl_->SetApplication(application);
+        applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+        EXPECT_NE(applicationImpl_->application_, nullptr);
+        applicationImpl_->PerformTerminateStrong();
+    }
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_PerformTerminateStrong_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_PerformTerminateStrong_0200
+ * @tc.name: PerformTerminateStrong
+ * @tc.desc: Test PerformTerminateStrong no normal function call
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_PerformTerminateStrong_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_PerformTerminateStrong_0200 start";
+    EXPECT_NE(applicationImpl_, nullptr);
+    if (applicationImpl_ != nullptr) {
+        EXPECT_EQ(applicationImpl_->application_, nullptr);
+        if (applicationImpl_->application_ == nullptr) {
+            applicationImpl_->PerformTerminateStrong();
+        }
+    }
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_PerformTerminateStrong_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_RemoveUriPermission_0100
+ * @tc.name: RemoveUriPermission
+ * @tc.desc: Test RemoveUriPermission is called when GetAppContext is nullptr.
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0100 start";
+    auto application = std::make_shared<MockApplication>();
+    applicationImpl_->SetApplication(application);
+    applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+    EXPECT_NE(applicationImpl_->application_, nullptr);
+    EXPECT_EQ(applicationImpl_->application_->GetAppContext(), nullptr);
+    applicationImpl_->RemoveUriPermission();
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_RemoveUriPermission_0200
+ * @tc.name: RemoveUriPermission
+ * @tc.desc: Test RemoveUriPermission is called when GetApplicationInfo is nullptr.
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0200 start";
+    auto application = std::make_shared<MockApplication>();
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    auto applicationContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    applicationContext->AttachContextImpl(contextImpl);
+    applicationContext->InitApplicationContext();
+    application->SetApplicationContext(applicationContext);
+    applicationImpl_->SetApplication(application);
+    applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+    EXPECT_NE(applicationImpl_->application_->GetAppContext(), nullptr);
+    EXPECT_EQ(applicationImpl_->application_->GetAppContext()->GetApplicationInfo(), nullptr);
+    applicationImpl_->RemoveUriPermission();
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_RemoveUriPermission_0300
+ * @tc.name: RemoveUriPermission
+ * @tc.desc: Test RemoveUriPermission normal function call.
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0300 start";
+    auto application = std::make_shared<MockApplication>();
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    auto applicationContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    applicationContext->AttachContextImpl(contextImpl);
+    applicationContext->InitApplicationContext();
+    application->SetApplicationContext(applicationContext);
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    contextImpl->SetApplicationInfo(applicationInfo);
+    applicationImpl_->SetApplication(application);
+    applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+    EXPECT_NE(applicationImpl_->application_, nullptr);
+    EXPECT_NE(applicationImpl_->application_->GetAppContext()->GetApplicationInfo(), nullptr);
+    applicationImpl_->RemoveUriPermission();
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_RemoveUriPermission_0400
+ * @tc.name: RemoveUriPermission
+ * @tc.desc: Test RemoveUriPermission is called when SetApplication is nullptr.
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0400 start";
+    std::shared_ptr<MockApplication> application = nullptr;
+    applicationImpl_->application_ = application;
+    applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+    EXPECT_EQ(applicationImpl_->application_, nullptr);
+    applicationImpl_->RemoveUriPermission();
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0400 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_ApplicationImpl_SetApplication_0100
+ * @tc.name: SetApplication
+ * @tc.desc: Test SetApplication is nullptr branch.
+ */
+HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_SetApplication_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_SetApplication_0100 start";
+    std::shared_ptr<MockApplication> application = nullptr;
+    applicationImpl_->SetApplication(application);
+    applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
+    EXPECT_EQ(applicationImpl_->application_, nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_SetApplication_0100 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

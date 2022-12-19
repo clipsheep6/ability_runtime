@@ -15,7 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "application_data_manager.h"
+#undef private
+#undef protected
 #include "ierror_observer.h"
 
 using namespace testing::ext;
@@ -77,5 +81,23 @@ HWTEST_F(ApplicationDataManagerTest, ApplicationDataManager_AddErrorObservers_00
     EXPECT_EQ(true, ApplicationDataManagerTest::Flag);
     GTEST_LOG_(INFO) << "ApplicationDataManager_AddErrorObservers_001 end";
 }
+
+/**
+ * @tc.number: ApplicationDataManager_RemoveErrorObserver_001
+ * @tc.name: ApplicationDataManager RemoveErrorObserver
+ * @tc.desc: Test whether remove Registerabilitylifecyclecallbacks and are called normally.
+ */
+HWTEST_F(ApplicationDataManagerTest, ApplicationDataManager_RemoveErrorObserver_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "ApplicationDataManager_RemoveErrorObserver_001 start";
+    std::shared_ptr<MyObserver> observer = std::make_shared<MyObserver>();
+    ApplicationDataManager::GetInstance().AddErrorObserver(observer);
+    ApplicationDataManager::GetInstance().NotifyUnhandledException("test");
+    EXPECT_EQ(true, ApplicationDataManagerTest::Flag);
+    ApplicationDataManager::GetInstance().RemoveErrorObserver();
+    EXPECT_EQ(nullptr, ApplicationDataManager::GetInstance().errorObserver_);
+    GTEST_LOG_(INFO) << "ApplicationDataManager_RemoveErrorObserver_001 end";
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
