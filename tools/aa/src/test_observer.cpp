@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "hilog_wrapper.h"
+#include "shell_command_config_loader.h"
 #include "shell_command_executor.h"
 #include "system_time.h"
 
@@ -27,6 +28,10 @@ using namespace std::chrono_literals;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+    constexpr const char* AA_TOOL_COMMAND_CONFIG = "/system/etc/shell_command_excutor_config.json";
+}
+
 TestObserver::TestObserver() : isFinished_(false)
 {}
 
@@ -58,6 +63,11 @@ ShellCommandResult TestObserver::ExecuteShellCommand(const std::string& cmd, con
         return {};
     }
 
+    if(!std::make_shared<ShellCommandConfigLoder>()->ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
+        HILOG_ERROR("Failed to read config");
+        return {};
+    }
+    
     return cmdExecutor->WaitWorkDone();
 }
 
