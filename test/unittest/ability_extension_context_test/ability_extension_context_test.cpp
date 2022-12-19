@@ -128,5 +128,44 @@ HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0100, TestSize.Level1)
     HILOG_INFO("SetAbilityInfo end");
 }
 
+/**
+ * @tc.number: SetAbilityInfo_0200
+ * @tc.name: SetAbilityInfo
+ * @tc.desc: Set AbilityInfo Failed
+ */
+HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0200, TestSize.Level1)
+{
+    HILOG_INFO("SetAbilityInfo start");
+
+    std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
+    info->name = "ExtensionContextTest";
+    std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
+        std::make_shared<AppExecFwk::AbilityLocalRecord>(info, nullptr);
+    std::shared_ptr<AppExecFwk::OHOSApplication> application = std::make_shared<AppExecFwk::OHOSApplication>();
+    std::shared_ptr<AppExecFwk::AbilityHandler> handler = std::make_shared<AppExecFwk::AbilityHandler>(nullptr);
+    sptr<IRemoteObject> token = new AppExecFwk::MockAbilityToken();
+
+    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    applicationContext->AttachContextImpl(contextImpl);
+    applicationContext->InitApplicationContext();
+    application->SetApplicationContext(applicationContext);
+
+    ExtensionBase<ExtensionContext> extensionBase;
+    extensionBase.Init(record, application, handler, token);
+    std::shared_ptr<ExtensionContext> context = extensionBase.GetContext();
+
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context->GetAbilityInfo();
+    EXPECT_STREQ(abilityInfo->name.c_str(), "ExtensionContextTest");
+
+    info = nullptr;
+    context->SetAbilityInfo(info);
+
+    abilityInfo = context->GetAbilityInfo();
+    EXPECT_EQ(abilityInfo, nullptr);
+
+    HILOG_INFO("SetAbilityInfo end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
