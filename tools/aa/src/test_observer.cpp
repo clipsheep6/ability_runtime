@@ -27,6 +27,10 @@ using namespace std::chrono_literals;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+    constexpr const char* AA_TOOL_COMMAND_CONFIG = "/system/etc/shell_command_excutor_config.json";
+}
+
 TestObserver::TestObserver() : isFinished_(false)
 {}
 
@@ -58,6 +62,12 @@ ShellCommandResult TestObserver::ExecuteShellCommand(const std::string& cmd, con
         return {};
     }
 
+    if(ShellCommandExecutor::configStatus_ == 0) {
+        if(ShellCommandExecutor::ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
+            HILOG_ERROR("Failed to read ShellCommandExecutor config");
+            return {};
+        }
+    }
     return cmdExecutor->WaitWorkDone();
 }
 

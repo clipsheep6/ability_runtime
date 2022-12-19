@@ -19,6 +19,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <set>
 #include "event_handler.h"
 #include "shell_command_result.h"
 
@@ -46,9 +47,12 @@ public:
      */
     ShellCommandResult WaitWorkDone();
 
+    static bool ReadConfig(const std::string &filePath);
+
+    static int configStatus_;
 private:
     bool DoWork();
-
+    bool CheckCommand();
 private:
     std::string cmd_;
     int64_t timeoutSec_{ 0 };
@@ -59,6 +63,8 @@ private:
     std::condition_variable cvWork_;
     std::mutex mtxWork_;
     std::mutex mtxCopy_;
+    static std::mutex mtxRead_;
+    static std::set<std::string> commands_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
