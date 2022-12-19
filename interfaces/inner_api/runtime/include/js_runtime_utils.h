@@ -134,12 +134,28 @@ public:
     explicit HandleScope(NativeEngine& engine);
     ~HandleScope();
 
-    NativeValue* Escape(NativeValue* value);
-
     HandleScope(const HandleScope&) = delete;
     HandleScope(HandleScope&&) = delete;
     HandleScope& operator=(const HandleScope&) = delete;
     HandleScope& operator=(HandleScope&&) = delete;
+
+private:
+    NativeScopeManager* scopeManager_ = nullptr;
+    NativeScope* nativeScope_ = nullptr;
+};
+
+class HandleEscape final {
+public:
+    explicit HandleEscape(JsRuntime& jsRuntime);
+    explicit HandleEscape(NativeEngine& engine);
+    ~HandleEscape();
+
+    NativeValue* Escape(NativeValue* value);
+
+    HandleEscape(const HandleEscape&) = delete;
+    HandleEscape(HandleEscape&&) = delete;
+    HandleEscape& operator=(const HandleEscape&) = delete;
+    HandleEscape& operator=(HandleEscape&&) = delete;
 
 private:
     NativeScopeManager* scopeManager_ = nullptr;

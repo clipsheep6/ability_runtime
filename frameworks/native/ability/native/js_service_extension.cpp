@@ -329,7 +329,7 @@ void JsServiceExtension::GetSrcPath(std::string &srcPath)
 
 NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
-    HandleScope handleScope(jsRuntime_);
+    HandleEscape handleEscape(jsRuntime_);
     NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
@@ -353,7 +353,7 @@ NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool 
     }
 
     if (withResult) {
-        return handleScope.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
+        return handleEscape.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
     } else {
         nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
         return nullptr;
