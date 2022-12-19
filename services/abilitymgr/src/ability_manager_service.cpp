@@ -1968,18 +1968,33 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     CHECK_POINTER_AND_RETURN(bms, nullptr);
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int userId = wantSenderInfo.userId;
-    std::string apl;
-    AppExecFwk::BundleInfo bundleInfo;
-    if (!wantSenderInfo.bundleName.empty()) {
-        bool bundleMgrResult = false;
-        if (wantSenderInfo.userId < 0) {
-            if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
-                GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
-                HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
-                return nullptr;
-            }
+    int32_t userId = wantSenderInfo.userId;
+    bool bundleMgrResult = false;
+    if (userId < 0) {
+        if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+            GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
+            HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
+            return nullptr;
         }
+    }
+
+    int32_t appUid = 0;
+    if (!wantSenderInfo.allWants.empty()) {
+        AppExecFwk::BundleInfo bundleInfo;
+        std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
+        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        if (!bundleMgrResult) {
+            HILOG_ERROR("Get App bundleinfo failed");
+            return nullptr;
+        }
+        appUid = bundleInfo.uid;
+        HILOG_INFO("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
+    }
+
+    std::string apl;
+    if (!wantSenderInfo.bundleName.empty()) {
+        AppExecFwk::BundleInfo bundleInfo;
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (bundleMgrResult) {
@@ -1988,7 +2003,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     }
 
     HILOG_INFO("AbilityManagerService::GetWantSender: bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager_->GetWantSender(callerUid, bundleInfo.uid, apl, wantSenderInfo, callerToken);
+    return pendingWantManager_->GetWantSender(callerUid, appUid, apl, wantSenderInfo, callerToken);
 }
 
 int AbilityManagerService::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
