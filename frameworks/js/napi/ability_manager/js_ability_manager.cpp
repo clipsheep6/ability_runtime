@@ -84,19 +84,22 @@ private:
     NativeValue* OnGetAbilityRunningInfos(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        std::vector<AAFwk::AbilityRunningInfo> infos;
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [&infos, &errCode]() {
+            errCode = AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(infos);
+        };
         AsyncTask::CompleteCallback complete =
-            [](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                std::vector<AAFwk::AbilityRunningInfo> infos;
-                auto errcode = AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(infos);
-                if (errcode == 0) {
+            [errCode, infos](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (errCode == 0) {
 #ifdef ENABLE_ERRCODE
                     task.ResolveWithNoError(engine, CreateJsAbilityRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errcode)));
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errCode)));
 #else
                     task.Resolve(engine, CreateJsAbilityRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Get mission infos failed."));
+                    task.Reject(engine, CreateJsError(engine, errCode, "Get mission infos failed."));
 #endif
                 }
             };
@@ -105,7 +108,7 @@ private:
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JsAbilityManager::OnGetAbilityRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine,
-            lastParam, nullptr, std::move(complete), &result));
+            lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
@@ -128,19 +131,22 @@ private:
             return engine.CreateUndefined();
         }
 
+        std::vector<AAFwk::ExtensionRunningInfo> infos;
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [upperLimit, &infos, &errCode]() {
+            errCode = AbilityManagerClient::GetInstance()->GetExtensionRunningInfos(upperLimit, infos);
+        };
         AsyncTask::CompleteCallback complete =
-            [upperLimit](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                std::vector<AAFwk::ExtensionRunningInfo> infos;
-                auto errcode = AbilityManagerClient::GetInstance()->GetExtensionRunningInfos(upperLimit, infos);
-                if (errcode == 0) {
+            [infos, errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (errCode == 0) {
 #ifdef ENABLE_ERRCODE
                     task.ResolveWithNoError(engine, CreateJsExtensionRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errcode)));
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errCode)));
 #else
                     task.Resolve(engine, CreateJsExtensionRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Get mission infos failed."));
+                    task.Reject(engine, CreateJsError(engine, errCode, "Get mission infos failed."));
 #endif
                 }
             };
@@ -156,6 +162,7 @@ private:
     NativeValue* OnUpdateConfiguration(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        AsyncTask::ExecuteCallback execute;
         AsyncTask::CompleteCallback complete;
 
         do {
@@ -184,17 +191,20 @@ private:
                 break;
             }
 
-            complete = [changeConfig](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                auto errcode = GetAppManagerInstance()->UpdateConfiguration(changeConfig);
-                if (errcode == 0) {
+            int errCode = 0;
+            execute = [changeConfig, &errCode]() {
+                errCode = GetAppManagerInstance()->UpdateConfiguration(changeConfig);
+            };
+            complete = [errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode == 0) {
 #ifdef ENABLE_ERRCODE
                     task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errcode)));
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errCode)));
 #else
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "update config failed."));
+                    task.Reject(engine, CreateJsError(engine, errCode, "update config failed."));
 #endif
                 }
             };
@@ -204,16 +214,19 @@ private:
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JsAbilityManager::OnGetExtensionRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine,
-            lastParam, nullptr, std::move(complete), &result));
+            lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnGetTopAbility(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        AppExecFwk::ElementName elementName;
+        AsyncTask::ExecuteCallback execute = [&elementName]() {
+            elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+        };
         AsyncTask::CompleteCallback complete =
-            [](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                AppExecFwk::ElementName elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+            [elementName](NativeEngine &engine, AsyncTask &task, int32_t status) {
 #ifdef ENABLE_ERRCOE
                 task.ResolveWithNoError(engine, CreateJsElementName(engine, elementName));
 #else
@@ -225,7 +238,7 @@ private:
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JsAbilityManager::OnGetTopAbility",
             engine, CreateAsyncTaskWithLastParam(engine,
-            lastParam, nullptr, std::move(complete), &result));
+            lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 };

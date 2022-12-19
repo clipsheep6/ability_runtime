@@ -106,7 +106,7 @@ public:
     static NativeValue* KillProcessesByBundleName(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-        return (me != nullptr) ? me->OnkillProcessesByBundleName(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnKillProcessesByBundleName(*engine, *info) : nullptr;
     }
 
     static NativeValue* ClearUpApplicationData(NativeEngine* engine, NativeCallbackInfo* info)
@@ -205,50 +205,59 @@ private:
         }
         HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, static_cast<int32_t>(observerId));
 
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [appManager = appManager_, observer = observer_, observerId, &errCode]() {
+            if (observer == nullptr || appManager == nullptr) {
+                HILOG_ERROR("observer or appManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
+            if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
+                errCode = 0;
+                std::lock_guard<std::mutex> lock(g_observerMutex);
+                HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu",
+                observer->GetJsObserverMapSize());
+            }
+        };
+
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer = observer_, observerId](
-                NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (observer == nullptr || appManager == nullptr) {
-                    HILOG_ERROR("observer or appManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
-                if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
+            [errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode == 0) {
                     task.ResolveWithNoError(engine, engine.CreateUndefined());
-                    std::lock_guard<std::mutex> lock(g_observerMutex);
-                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu",
-                        observer->GetJsObserverMapSize());
                 } else {
-                    HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
-                    task.Reject(engine, CreateJsErrorByNativeErr(engine, ret));
+                    HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", errCode);
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode));
                 }
             };
 
         NativeValue* lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnGetForegroundApplications(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int errCode = 0;
+        std::vector<AppExecFwk::AppStateData> list;
+        AsyncTask::ExecuteCallback execute = [appManager = appManager_, &errCode, &list]() {
+            if (appManager == nullptr) {
+                HILOG_ERROR("appManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            errCode = appManager->GetForegroundApplications(list);
+        };
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (appManager == nullptr) {
-                    HILOG_ERROR("appManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                std::vector<AppExecFwk::AppStateData> list;
-                int32_t ret = appManager->GetForegroundApplications(list);
-                if (ret == 0) {
+            [errCode, list](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode == 0) {
                     HILOG_DEBUG("OnGetForegroundApplications success.");
                     task.ResolveWithNoError(engine, CreateJsAppStateDataArray(engine, list));
                 } else {
-                    HILOG_ERROR("OnGetForegroundApplications failed error:%{public}d", ret);
+                    HILOG_ERROR("OnGetForegroundApplications failed error:%{public}d", errCode);
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
                 }
             };
@@ -256,24 +265,29 @@ private:
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnGetForegroundApplications",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnGetProcessRunningInfos(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int errCode = 0;
+        std::vector<AppExecFwk::RunningProcessInfo> infos;
+        AsyncTask::ExecuteCallback execute = [appManager = appManager_, &errCode, &infos]() {
+            if (appManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            errCode = appManager->GetAllRunningProcesses(infos);
+        };
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                if (appManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                std::vector<AppExecFwk::RunningProcessInfo> infos;
-                auto ret = appManager->GetAllRunningProcesses(infos);
-                if (ret == 0) {
+            [errCode, infos](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (errCode == 0) {
                     task.ResolveWithNoError(engine, CreateJsProcessRunningInfoArray(engine, infos));
+                } else if (errCode == static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER)) {
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                 } else {
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
                 }
@@ -282,33 +296,40 @@ private:
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInfos",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnIsRunningInStabilityTest(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [abilityManager = abilityManager_, &errCode]() {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            errCode = abilityManager->IsRunningInStabilityTest() ? 0 : 1;
+        };
         AsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
+            [errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode == 0) {
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
+                } else {
+                    HILOG_INFO("IsRunningInStabilityTest result:%{public}d", errCode);
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode));
                 }
-                bool ret = abilityManager->IsRunningInStabilityTest();
-                HILOG_INFO("IsRunningInStabilityTest result:%{public}d", ret);
-                task.ResolveWithNoError(engine, CreateJsValue(engine, ret));
             };
 
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnIsRunningInStabilityTest",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
-    NativeValue* OnkillProcessesByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
+    NativeValue* OnKillProcessesByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
@@ -325,25 +346,28 @@ private:
         }
 
         HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
-        AsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [bundleName, abilityManager = abilityManager_, &errCode]() {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
                 return;
             }
-            auto ret = abilityManager->KillProcess(bundleName);
-            if (ret == 0) {
+            errCode = abilityManager->KillProcess(bundleName);
+        };
+        AsyncTask::CompleteCallback complete =
+            [errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (errCode == 0) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "kill process failed."));
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode, "kill process failed."));
             }
         };
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnkillProcessesByBundleName",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        AsyncTask::Schedule("JSAppManager::OnKillProcessesByBundleName",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
@@ -363,25 +387,28 @@ private:
             return engine.CreateUndefined();
         }
 
-        AsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [bundleName, abilityManager = abilityManager_, &errCode]() {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
                 return;
             }
-            auto ret = abilityManager->ClearUpApplicationData(bundleName);
-            if (ret == 0) {
+            errCode = abilityManager->ClearUpApplicationData(bundleName);
+        };
+        AsyncTask::CompleteCallback complete =
+            [errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (errCode == 0) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "clear up application failed."));
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode, "clear up application failed."));
             }
         };
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnClearUpApplicationData",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
@@ -407,59 +434,78 @@ private:
             return engine.CreateUndefined();
         }
 
+        int errCode = 0;
+        AsyncTask::ExecuteCallback execute = [appManager = appManager_, bundleName, accountId, &errCode]() {
+            if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
+                HILOG_WARN("appManager is nullptr or amsMgr is nullptr.");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            errCode = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
+        };
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, accountId](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
-                    HILOG_WARN("appManager is nullptr or amsMgr is nullptr.");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
-                if (ret == 0) {
+            [errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (errCode == 0) {
                     task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsErrorByNativeErr(engine, ret, "Kill processes failed."));
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode, "Kill processes failed."));
                 }
             };
 
         NativeValue* lastParam = (info.argc == ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnKillProcessWithAccount",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnGetAppMemorySize(NativeEngine& engine, const NativeCallbackInfo& info)
     {
+        int errCode = 0;
+        int32_t memorySize = 0;
+        AsyncTask::ExecuteCallback execute = [abilityManager = abilityManager_, &errCode, &memorySize]() {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            memorySize = abilityManager->GetAppMemorySize();
+        };
         AsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
+            [errCode, memorySize](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode == 0) {
+                    HILOG_INFO("GetAppMemorySize memorySize:%{public}d", memorySize);
+                    task.ResolveWithNoError(engine, CreateJsValue(engine, memorySize));
+                } else {
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode, "Get app memory size failed."));
                 }
-                int32_t memorySize = abilityManager->GetAppMemorySize();
-                HILOG_INFO("GetAppMemorySize memorySize:%{public}d", memorySize);
-                task.ResolveWithNoError(engine, CreateJsValue(engine, memorySize));
             };
 
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnGetAppMemorySize",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
     NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, const NativeCallbackInfo& info)
     {
+        int errCode = 0;
+        bool ret = 0;
+        AsyncTask::ExecuteCallback execute = [abilityManager = abilityManager_, &errCode, &ret]() {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                errCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            ret = abilityManager->IsRamConstrainedDevice();
+        };
         AsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            [errCode, ret](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, errCode));
                     return;
                 }
-                bool ret = abilityManager->IsRamConstrainedDevice();
                 HILOG_INFO("IsRamConstrainedDevice result:%{public}d", ret);
                 task.ResolveWithNoError(engine, CreateJsValue(engine, ret));
             };
@@ -467,7 +513,7 @@ private:
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnIsRamConstrainedDevice",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
