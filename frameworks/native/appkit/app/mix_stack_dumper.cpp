@@ -15,6 +15,7 @@
 
 #include "mix_stack_dumper.h"
 
+#include <ctime>
 #include <dirent.h>
 #include <securec.h>
 #include <unistd.h>
@@ -35,8 +36,10 @@ static const char PID_STR_NAME[] = "Pid:";
 static const char PPID_STR_NAME[] = "PPid:";
 static const char NSPID_STR_NAME[] = "NSpid:";
 static const char PROC_SELF_STATUS_PATH[] = "/proc/self/status";
+static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
 static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
+static constexpr int HEADER_BUF_LEN = 512;
 static constexpr int NATIVE_DUMP = -1;
 static constexpr int MIX_DUMP = -2;
 static constexpr int NAMESPACE_MATCH_NUM = 2;
@@ -190,6 +193,31 @@ static void TidToNstid(const int tid, int& nstid)
     (void)fclose(fp);
 }
 
+static std::string GetCurrentTimeStr(uint64_t current = 0)
+{
+    time_t now = time(nullptr);
+    uint64_t millisecond = 0;
+    const uint64_t ratio = 1000;
+    if (current > static_cast<uint64_t>(now)) {
+        millisecond = current % ratio;
+        now = static_cast<time_t>(current / ratio);
+    }
+
+    auto tm = std::localtime(&now);
+    char seconds[128] = { 0 }; // 128 : time buffer size
+    if (tm == nullptr || strftime(seconds, sizeof(seconds) - 1, "%Y-%m-%d %H:%M:%S", tm) == 0) {
+        return "invalid timestamp\n";
+    }
+
+    char formatTimeBuf[256] = { 0 }; // 256 : buffer size
+    int ret = snprintf_s(formatTimeBuf, sizeof(formatTimeBuf), sizeof(formatTimeBuf) - 1,
+        "%s.%03u\n", seconds, millisecond);
+    if (ret <= 0) {
+        return "invalid timestamp\n";
+    }
+    return std::string(formatTimeBuf, strlen(formatTimeBuf));
+}
+
 void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
 {
     switch (si->si_code) {
@@ -200,6 +228,7 @@ void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
             break;
         }
         case MIX_DUMP: {
+            HILOG_INFO("Received mix stack dump request.");
             auto handler = signalHandler_.lock();
             if (handler == nullptr) {
                 return;
@@ -296,6 +325,27 @@ void MixStackDumper::PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS:
     }
 }
 
+void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
+{
+    char headerBuf[HEADER_BUF_LEN] = { 0 };
+    std::string processName = "";
+    int ret = 1;
+    if (LoadStringFromFile(PROC_SELF_CMDLINE_PATH, processName)) {
+        ret = snprintf_s(headerBuf, HEADER_BUF_LEN, HEADER_BUF_LEN - 1,
+                         "Timestamp:%sPid:%d\nUid:%d\nProcess name:%s\n",
+                         GetCurrentTimeStr().c_str(), pid, uid, processName.c_str());
+    } else {
+        ret = snprintf_s(headerBuf, HEADER_BUF_LEN, HEADER_BUF_LEN - 1,
+                         "Timestamp:%sPid:%d\nUid:%d\nProcess name:unknown\n",
+                         GetCurrentTimeStr().c_str(), pid, uid);
+    }
+    if (ret <= 0) {
+        HILOG_ERROR("snprintf_s process mix stack header failed.");
+        return;
+    }
+    write(fd, headerBuf, strlen(headerBuf));
+}
+
 bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
 {
     if (catcher_ == nullptr) {
@@ -333,7 +383,6 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     }
 
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);
-    write(fd, "\n", 1);
     return true;
 }
 
@@ -388,6 +437,7 @@ void MixStackDumper::HandleMixDumpRequest()
     int dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_ESUCCESS;
     (void)memset_s(&g_procInfo, sizeof(g_procInfo), 0, sizeof(g_procInfo));
     (void)GetProcStatus(&g_procInfo);
+    HILOG_INFO("Current process is ready to dump stack trace.");
     do {
         fd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
         resFd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
@@ -398,6 +448,7 @@ void MixStackDumper::HandleMixDumpRequest()
         }
         MixStackDumper mixDumper;
         mixDumper.Init(GetPid());
+        mixDumper.PrintProcessHeader(fd, GetPid(), getuid());
         if (g_targetDumpTid > 0) {
             pid_t targetNsTid = g_targetDumpTid;
             if (HasNameSpace()) {
@@ -436,6 +487,7 @@ void MixStackDumper::HandleMixDumpRequest()
     if (fd != -1) {
         close(fd);
     }
+    HILOG_INFO("Finish dumping stack trace.");
 }
 } // AppExecFwk
 } // OHOS
