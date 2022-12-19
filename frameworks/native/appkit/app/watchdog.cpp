@@ -53,8 +53,14 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 void Watchdog::Stop()
 {
     HILOG_DEBUG("Watchdog is stop !");
+    std::unique_lock<std::mutex> lock(cvMutex_);
+    if (stopWatchdog_) {
+        HILOG_ERROR("Watchdog has stoped.");
+        return;
+    }
     stopWatchdog_.store(true);
     cvWatchdog_.notify_all();
+    OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
 
     if (appMainHandler_) {
         appMainHandler_.reset();
@@ -98,20 +104,9 @@ bool Watchdog::IsStopWatchdog()
     return stopWatchdog_;
 }
 
-bool Watchdog::WaitForDuration(uint32_t duration)
-{
-    std::unique_lock<std::mutex> lock(cvMutex_);
-    auto condition = [this] {
-        return this->IsStopWatchdog();
-    };
-    if (cvWatchdog_.wait_for(lock, std::chrono::milliseconds(duration), condition)) {
-        return true;
-    }
-    return false;
-}
-
 void Watchdog::Timer()
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     if (!needReport_) {
         HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
         return;
