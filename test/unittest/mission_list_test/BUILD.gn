@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/ability_call_test"
+module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("mission_list_test") {
   module_out_path = module_output_path
@@ -60,6 +60,10 @@ ohos_unittest("mission_list_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
   }
 }
 
