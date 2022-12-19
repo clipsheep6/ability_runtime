@@ -1981,10 +1981,8 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (!bundleMgrResult) {
-            HILOG_ERROR("Get App bundleinfo failed");
-            return nullptr;
+            appUid = bundleInfo.uid;
         }
-        appUid = bundleInfo.uid;
         HILOG_INFO("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
 
