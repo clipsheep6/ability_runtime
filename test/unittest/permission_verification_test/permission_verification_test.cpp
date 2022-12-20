@@ -23,6 +23,9 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+}
 class PermissionVerificationTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -128,6 +131,80 @@ HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0100, TestSize.L
     verificationInfo.isBackgroundCall = false;
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckSpecificSystemAbilityAccessPermission_0100
+ * @tc.desc: CheckSpecificSystemAbilityAccessPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5AFTJ
+ */
+HWTEST_F(PermissionVerificationTest, CheckSpecificSystemAbilityAccessPermission_0100, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: VerifyControllerPerm_0100
+ * @tc.desc: VerifyControllerPerm Test
+ * @tc.type: FUNC
+ * @tc.require: issueI4WS9F
+ */
+HWTEST_F(PermissionVerificationTest, VerifyControllerPerm_0100, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->VerifyControllerPerm();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: VerifyDlpPermission_0100
+ * @tc.desc: VerifyDlpPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI55UJZ
+ */
+HWTEST_F(PermissionVerificationTest, VerifyDlpPermission_0100, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(DLP_PARAMS_INDEX, 1);
+    bool result = AAFwk::PermissionVerification::GetInstance()->VerifyDlpPermission(want);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: VerifyMissionPermission_0100
+ * @tc.desc: VerifyMissionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5I8XP
+ */
+HWTEST_F(PermissionVerificationTest, VerifyMissionPermission_0100, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: VerifyInstallBundlePermission_0100
+ * @tc.desc: VerifyInstallBundlePermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(PermissionVerificationTest, VerifyInstallBundlePermission_0100, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission();
+    EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: VerifyGetBundleInfoPrivilegedPermission_0100
+ * @tc.desc: VerifyGetBundleInfoPrivilegedPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(PermissionVerificationTest, VerifyGetBundleInfoPrivilegedPermission_0100, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->VerifyGetBundleInfoPrivilegedPermission();
+    EXPECT_TRUE(result);
 }
 
 /**

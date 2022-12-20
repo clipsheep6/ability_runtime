@@ -20,6 +20,7 @@
 #define private public
 #include "data_ability_observer_proxy.h"
 #include "dataobs_mgr_inner.h"
+#include "dataobs_mgr_errors.h"
 #include "mock_data_ability_observer_stub.h"
 
 using namespace OHOS;
@@ -78,6 +79,113 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleRegisterObserver_0100, TestS
 
 /*
  * Feature: DataObsMgrInner
+ * Function: Register function test
+ * SubFunction: HandleRegisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleRegisterObserver_0200, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList;
+    obsList.push_back(callback);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    int res = dataObsMgrInner->HandleRegisterObserver(uri, callback);
+    EXPECT_EQ(res, OBS_EXIST);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Register function test
+ * SubFunction: HandleRegisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleRegisterObserver_0300, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    const sptr<IDataAbilityObserver> callback1(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList;
+    obsList.push_back(callback1);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    int res = dataObsMgrInner->HandleRegisterObserver(uri, callback);
+    EXPECT_EQ(res, OBS_EXIST);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleUnregisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleUnregisterObserver_0100, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    dataObsMgrInner->obsmap_.clear();
+    int res = dataObsMgrInner->HandleUnregisterObserver(uri, callback);
+    EXPECT_EQ(res, NO_OBS_FOR_URI);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleUnregisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleUnregisterObserver_0200, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList;
+    obsList.push_back(callback);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    int res = dataObsMgrInner->HandleUnregisterObserver(uri, callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleUnregisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleUnregisterObserver_0300, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    const sptr<IDataAbilityObserver> callback2(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList;
+    obsList.push_back(callback);
+    obsList.push_back(callback2);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    dataObsMgrInner->obsmap_.emplace("exit", obsList);
+    int res = dataObsMgrInner->HandleUnregisterObserver(uri, callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: DataObsMgrInner
  * Function: Register and unregister function test
  * SubFunction: OnChange
  * FunctionPoints: When the data changes, call the OnChange function of the registered dataabilityobserver
@@ -97,6 +205,84 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleNotifyChange_0100, TestSize.
     const sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(mockDataAbilityObserverStub));
     dataObsMgrInner_->HandleRegisterObserver(uri, callback);
     dataObsMgrInner_->HandleNotifyChange(uri);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleUnregisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleNotifyChange_0200, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    dataObsMgrInner->obsmap_.clear();
+    int res = dataObsMgrInner->HandleNotifyChange(uri);
+    EXPECT_EQ(res, NO_OBS_FOR_URI);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleUnregisterObserver
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleNotifyChange_0300, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    ObsListType obsList;
+    obsList.push_back(nullptr);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    int res = dataObsMgrInner->HandleNotifyChange(uri);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: CheckRegisteFull
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_CheckRegisteFull_0100, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    ObsListType obsList;
+    while (obsList.size() < dataObsMgrInner->obs_max_) {
+        obsList.push_back(nullptr);
+    }
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    bool res = dataObsMgrInner->CheckRegisteFull(uri);
+    EXPECT_TRUE(res);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: CheckRegisteFull
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_CheckRegisteFull_0200, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList;
+    obsList.push_back(callback);
+    dataObsMgrInner->obsmap_.emplace(uri.ToString(), obsList);
+    bool res = dataObsMgrInner->CheckRegisteFull(uri);
+    EXPECT_FALSE(res);
 }
 
 /*
@@ -160,14 +346,86 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_AddRemove_ObsDeathRecipient_0100, 
     sptr<IRemoteObject> observer(new (std::nothrow) MockDataAbilityObserverStub());
     sptr<IDataAbilityObserver> callback(new (std::nothrow) DataAbilityObserverProxy(observer));
     dataObsMgrInner_->AddObsDeathRecipient(callback);
+    dataObsMgrInner_->AddObsDeathRecipient(nullptr);
 
     ObsRecipientMapType::const_iterator it;
     it = dataObsMgrInner_->recipientMap_.find(observer);
     EXPECT_EQ(true, it != dataObsMgrInner_->recipientMap_.end());
 
     dataObsMgrInner_->RemoveObsDeathRecipient(callback);
+    dataObsMgrInner_->RemoveObsDeathRecipient(nullptr);
     it = dataObsMgrInner_->recipientMap_.find(observer);
     EXPECT_EQ(false, it != dataObsMgrInner_->recipientMap_.end());
+
+    dataObsMgrInner_->recipientMap_.clear();
+    dataObsMgrInner_->RemoveObsDeathRecipient(callback);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: OnCallBackDied
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_OnCallBackDied_0100, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    dataObsMgrInner->OnCallBackDied(nullptr);
+
+    sptr<IRemoteObject> remoteObject;
+    wptr<IRemoteObject> remote(remoteObject);
+    dataObsMgrInner->SetHandler(nullptr);
+    dataObsMgrInner->OnCallBackDied(remote);
+
+    auto handler = std::make_shared<EventHandler>(AppExecFwk::EventRunner::Create());
+    dataObsMgrInner->SetHandler(handler);
+    dataObsMgrInner->OnCallBackDied(remote);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: HandleCallBackDiedTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_HandleCallBackDiedTask_0100, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    dataObsMgrInner->HandleCallBackDiedTask(nullptr);
+
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    dataObsMgrInner->OnCallBackDied(observer);
+}
+
+/*
+ * Feature: DataObsMgrInner
+ * Function: Unregister function test
+ * SubFunction: RemoveObsFromMap
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription:NA
+ */
+HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_RemoveObsFromMap_0100, TestSize.Level1)
+{
+    std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    std::string uri1 = "uri1";
+    std::string uri2 = "uri2";
+    sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());
+    const sptr<IDataAbilityObserver> callback1(new (std::nothrow) DataAbilityObserverProxy(observer));
+    const sptr<IDataAbilityObserver> callback2(new (std::nothrow) DataAbilityObserverProxy(observer));
+    ObsListType obsList1;
+    ObsListType obsList2;
+    ObsListType obsList3;
+    obsList1.push_back(callback1);
+    obsList2.push_back(callback1);
+    obsList2.push_back(callback2);
+    dataObsMgrInner->obsmap_.emplace(uri1, obsList1);
+    dataObsMgrInner->obsmap_.emplace(uri2, obsList2);
+    dataObsMgrInner->RemoveObsFromMap(callback2);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
