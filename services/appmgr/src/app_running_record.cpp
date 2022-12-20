@@ -1353,5 +1353,16 @@ int64_t AppRunningRecord::GetAppStartTime() const
 {
     return startTimeMillis_;
 }
+
+void AppRunningRecord::SetRequestProcCode(int32_t requestProcCode)
+{
+    requestProcCode_ = requestProcCode;
+}
+
+int32_t AppRunningRecord::GetRequestProcCode() const
+{
+    return requestProcCode_;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

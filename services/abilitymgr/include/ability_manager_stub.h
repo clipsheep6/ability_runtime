@@ -150,6 +150,7 @@ private:
     int SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply);
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
+    int SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply);
 
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);

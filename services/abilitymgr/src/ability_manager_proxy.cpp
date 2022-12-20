@@ -2294,6 +2294,30 @@ int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityCon
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::SetComponentInterception(const sptr<AppExecFwk::IComponentInterception> &componentInterception)
+{
+    if (!componentInterception) {
+        HILOG_ERROR("componentInterception nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(componentInterception->AsObject())) {
+        HILOG_ERROR("componentInterception write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::SET_COMPONENT_INTERCEPTION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 bool AbilityManagerProxy::IsRunningInStabilityTest()
 {
     MessageParcel data;

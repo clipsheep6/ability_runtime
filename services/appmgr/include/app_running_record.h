@@ -548,6 +548,10 @@ public:
 
     int64_t GetAppStartTime() const;
 
+    void SetRequestProcCode(int32_t requestProcCode);
+
+    int32_t GetRequestProcCode() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -644,6 +648,7 @@ private:
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
+    int32_t requestProcCode_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

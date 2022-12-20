@@ -151,6 +151,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
 #endif
+    requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1250,6 +1251,23 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
     HILOG_INFO("AbilityManagerStub: setAbilityControllerInner result = %{public}d", result);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("setAbilityControllerInner failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AppExecFwk::IComponentInterception> componentInterception =
+        iface_cast<AppExecFwk::IComponentInterception>(data.ReadRemoteObject());
+    if (componentInterception == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: SetComponentInterceptionInner readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = SetComponentInterception(componentInterception);
+    HILOG_INFO("AbilityManagerStub: SetComponentInterceptionInner result = %{public}d", result);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("SetComponentInterceptionInner failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
