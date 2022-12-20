@@ -16,8 +16,4 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("tools_target") {
   deps = [ "aa:tools_aa" ]
-
-  if (ability_runtime_graphics) {
-    deps += [ "fm:tools_fm" ]
-  }
 }
