@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/abilitymgr"
+module_output_path = "ability_runtime/common"
 
 ohos_unittest("permission_verification_test") {
   module_out_path = module_output_path
@@ -26,7 +26,10 @@ ohos_unittest("permission_verification_test") {
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 
-  external_deps = [ "ipc:ipc_core" ]
+  external_deps = [
+    "ability_base:want",
+    "ipc:ipc_core",
+  ]
 }
 
 group("unittest") {
