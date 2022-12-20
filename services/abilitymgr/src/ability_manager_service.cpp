@@ -1980,7 +1980,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-        if (!bundleMgrResult) {
+        if (bundleMgrResult) {
             appUid = bundleInfo.uid;
         }
         HILOG_INFO("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
