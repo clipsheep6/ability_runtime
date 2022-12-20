@@ -29,6 +29,7 @@
 #include "snapshot.h"
 #include "start_options.h"
 #include "want.h"
+#include "iability_info_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
