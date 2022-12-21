@@ -200,7 +200,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr module context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr module context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
@@ -399,7 +399,7 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr bundle context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr bundle context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
@@ -442,7 +442,7 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr application context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
         },
         nullptr);
@@ -478,7 +478,7 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr base context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr base context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         }, nullptr);
     return contextObj;

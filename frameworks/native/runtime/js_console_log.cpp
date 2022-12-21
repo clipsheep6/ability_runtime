@@ -45,7 +45,7 @@ std::string MakeLogContent(NativeCallbackInfo& info)
 
         size_t bufferLen = str->GetLength();
         if (bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
-            HILOG_ERROR("Log length exceeds maximum");
+            HILOG_DEBUG("Log length exceeds maximum");
             return content;
         }
 
