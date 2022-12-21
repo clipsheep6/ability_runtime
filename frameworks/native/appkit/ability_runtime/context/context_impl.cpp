@@ -490,7 +490,7 @@ void ContextImpl::InitHapModuleInfo(const AppExecFwk::HapModuleInfo &hapModuleIn
 std::shared_ptr<AppExecFwk::HapModuleInfo> ContextImpl::GetHapModuleInfo() const
 {
     if (hapModuleInfo_ == nullptr) {
-        HILOG_ERROR("ContextImpl::GetHapModuleInfo, hapModuleInfo is empty");
+        HILOG_DEBUG("ContextImpl::GetHapModuleInfo, hapModuleInfo is empty");
     }
     return hapModuleInfo_;
 }
