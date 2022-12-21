@@ -372,7 +372,6 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     ApplicationState appState = appRecord->GetState();
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
-        appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
