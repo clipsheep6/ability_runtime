@@ -85,8 +85,8 @@ constexpr int32_t BASE_USER_RANGE = 200000;
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
 const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "APP_LIFECYCLE_TIMEOUT";
-constexpr char EVENT_KEY_UID[] = "UID";
-constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_APP_UID[] = "APP_UID";
+constexpr char EVENT_KEY_APP_PID[] = "APP_PID";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
@@ -2409,7 +2409,7 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
             break;
     }
 
-    HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
+    HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, appUid = %{public}d,appPid = %{public}d, \
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
         eventName.c_str(), uid, pid, packageName.c_str(), processName.c_str(), msg.c_str());
 
@@ -2417,8 +2417,8 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
         OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
         eventName,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_PID, pid,
-        EVENT_KEY_UID, uid,
+        EVENT_KEY_APP_PID, pid,
+        EVENT_KEY_APP_UID, uid,
         EVENT_KEY_PACKAGE_NAME, packageName,
         EVENT_KEY_PROCESS_NAME, processName,
         EVENT_KEY_MESSAGE, msg);
