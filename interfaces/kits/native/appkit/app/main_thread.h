@@ -28,6 +28,7 @@
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/source_map.h"
 #include "ipc_singleton.h"
+#include "native_engine/native_engine.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER
 
@@ -422,7 +423,7 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    void LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath, const BundleInfo &bundleInfo);
 
     /**
      *

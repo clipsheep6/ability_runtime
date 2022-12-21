@@ -24,6 +24,7 @@
 #include <regex>
 
 #include "ability_constants.h"
+#include "bundlemgr/bundle_mgr_interface.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "event_handler.h"
@@ -616,12 +617,28 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
     return exportObj;
 }
 
+// sptr<AppExecFwk::IBundleMgr> JsRuntime::GetBundleMgr()
+// {
+//     auto bundleObj = DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+//     if (bundleObj == nullptr) {
+//         HILOG_ERROR("Failed to get bundle manager service.");
+//         return nullptr;
+//     }
+//     sptr<AppExecFwk::IBundleMgr> bundleMgr = iface_cast<IBundleMgr>(bundleObj);
+//     return bundleMgr;
+// }
+
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(
     const std::string& moduleName, const std::string& modulePath, const std::string& hapPath, bool esmodule)
 {
-    HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
+    HILOG_INFO("JsRuntime::LoadModule(%{public}s, %{public}s, %{public}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
+
     HandleScope handleScope(*this);
+    auto info = nativeEngine_->GetExtensionInfos().find(modulePath);
+    if (info != nativeEngine_->GetExtensionInfos().end() && nativeEngine_->GetModuleManager()) {
+        nativeEngine_->GetModuleManager()->SetRunningScriptType(info->second);
+    }
 
     std::string path = moduleName;
     auto pos = path.find("::");
@@ -629,9 +646,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
         path.erase(pos, path.size() - pos);
         moduleName_ = path;
     }
-
     NativeValue* classValue = nullptr;
-
     auto it = modules_.find(modulePath);
     if (it != modules_.end()) {
         classValue = it->second->Get();
@@ -648,6 +663,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
             }
         }
 
+        HILOG_DEBUG("Module file path =  %{public}s", fileName.c_str());
         classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath);
         if (classValue == nullptr) {
             return std::unique_ptr<NativeReference>();
@@ -686,6 +702,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
 {
+    HILOG_DEBUG("raul RunScript srcPath = %{public}s", srcPath.c_str());
+    
     bool result = false;
     if (!hapPath.empty()) {
         std::ostringstream outStream;
@@ -716,7 +734,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         const auto& outStr = outStream.str();
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
-
         result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
     } else {
         result = nativeEngine_->RunScript(srcPath.c_str()) != nullptr;

@@ -32,6 +32,8 @@ public:
     virtual Extension *Create(const std::unique_ptr<Runtime>& runtime) const override;
 
     virtual std::map<std::string, std::string> GetParams() override;
+
+    virtual std::set<std::string> GetBlackList() override;
 };
 }
 #endif // OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_MODULE_LOADER_H

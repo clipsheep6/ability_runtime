@@ -30,6 +30,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
+class IBundleMgr;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class TimerTask;
@@ -79,6 +80,7 @@ public:
     virtual bool RunScript(const std::string& path, const std::string& hapPath) = 0;
 
     void PreloadSystemModule(const std::string& moduleName) override;
+    // sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
 protected:
     JsRuntime() = default;

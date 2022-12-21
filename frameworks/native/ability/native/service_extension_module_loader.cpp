@@ -35,6 +35,16 @@ std::map<std::string, std::string> ServiceExtensionModuleLoader::GetParams()
     return params;
 }
 
+std::set<std::string> ServiceExtensionModuleLoader::GetBlackList()
+{
+    std::set<std::string> blackList;
+    blackList.insert("test.so");
+    blackList.insert("test2.so");
+    blackList.insert("test3.so");
+    blackList.insert("test4.so");
+    return blackList;
+}
+
 extern "C" __attribute__((visibility("default"))) void* OHOS_EXTENSION_GetExtensionModule()
 {
     return &ServiceExtensionModuleLoader::GetInstance();

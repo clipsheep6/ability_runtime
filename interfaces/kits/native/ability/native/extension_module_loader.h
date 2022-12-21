@@ -48,6 +48,12 @@ public:
         std::map<std::string, std::string> params;
         return params;
     }
+
+    virtual std::set<std::string> GetBlackList()
+    {
+        std::set<std::string> blackList;
+        return blackList;
+    }
 };
 } // namespace OHOS::AbilityRuntime
 

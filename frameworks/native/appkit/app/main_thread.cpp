@@ -33,6 +33,7 @@
 #include "configuration_convertor.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "extension_ability_info.h"
 #include "extension_module_loader.h"
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
@@ -1048,9 +1049,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return AbilityRuntime::StaticSubscriberExtension::Create(application->GetRuntime());
         });
 #ifdef __aarch64__
-        LoadAllExtensions("system/lib64/extensionability");
+        LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
 #else
-        LoadAllExtensions("system/lib/extensionability");
+        LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
 #endif
     }
 
@@ -1177,9 +1178,15 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
 }
 
-void MainThread::LoadAllExtensions(const std::string &filePath)
+void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath,
+    const BundleInfo &bundleInfo)
 {
     HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s", filePath.c_str());
+    std::unordered_map<std::string, ExtensionAbilityType> extensionInfo;
+    for (const auto &info : bundleInfo.extensionInfos) {
+        extensionInfo.emplace(info.moduleName + info.srcEntrance, info.type);
+    }
+    nativeEngine.SetExtensionInfos(std::move(extensionInfo));
     if (application_ == nullptr) {
         HILOG_ERROR("application launch failed");
         return;
@@ -1191,6 +1198,7 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
         HILOG_ERROR("no extension files.");
         return;
     }
+    std::map<std::string, std::set<std::string>> extensionBlacklist;
     std::map<int32_t, std::string> extensionTypeMap;
     for (auto file : extensionFiles) {
         HILOG_DEBUG("Begin load extension file:%{public}s", file.c_str());
@@ -1220,14 +1228,19 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
             continue;
         }
         std::string extensionName = it->second;
-
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
         HILOG_INFO("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
         AbilityLoader::GetInstance().RegisterExtension(extensionName, [application = application_, file]() {
             return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(application->GetRuntime());
         });
+        extensionBlacklist.emplace(extensionName,
+            AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).GetBlackList());
     }
     application_->SetExtensionTypeMap(extensionTypeMap);
+    auto moduleManager = nativeEngine.GetModuleManager();
+    if (moduleManager) {
+        moduleManager->SetModuleBlacklist(std::move(extensionBlacklist));
+    }
 }
 
 bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
