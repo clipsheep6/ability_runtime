@@ -3095,6 +3095,17 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
 
+    auto func = []() {
+        auto client = ContainerManagerClient::GetInstance();
+        if (client == nullptr) {
+            HILOG_ERROR("%{public}s get ContainerManagerClient null", __func__);
+        } else {
+            client->NotifyBootComplete(0);
+            HILOG_INFO("StartSystemApplication NotifyBootComplete");
+        }
+    };
+    std::thread(func).detach();
+
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
     want.AddEntity(HIGHEST_PRIORITY_ABILITY_ENTITY);
@@ -3108,6 +3119,10 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
+            return;
+        }
+        AbilityRequest abilityRequest;
+        if (!IsComponentInterceptionStart(want, nullptr, 0, 0, abilityRequest)) {
             return;
         }
         usleep(REPOLL_TIME_MICRO_SECONDS);
@@ -3747,16 +3762,6 @@ void AbilityManagerService::StartResidentApps()
     HILOG_DEBUG("%{public}s", __func__);
     ConnectBmsService();
     auto bms = GetBundleManager();
-    auto func = []() {
-        auto client = ContainerManagerClient::GetInstance();
-        if (client == nullptr) {
-            HILOG_ERROR("%{public}s get ContainerManagerClient null", __func__);
-        } else {
-            client->NotifyBootComplete(0);
-            HILOG_INFO("StartSystemApplication NotifyBootComplete");
-        }
-    };
-    std::thread(func).detach();
     CHECK_POINTER_IS_NULLPTR(bms);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     if (!IN_PROCESS_CALL(
