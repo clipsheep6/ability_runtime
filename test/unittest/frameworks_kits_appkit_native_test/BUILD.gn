@@ -370,6 +370,39 @@ ohos_unittest("ability_stage_test") {
   ]
 }
 
+ohos_unittest("form_extension_context_test") {
+  module_out_path = module_output_path
+
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "form_extension_context_test.cpp",
+  ]
+
+  configs = [ ":module_context_config" ]
+
+  deps = [
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:form_extension",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -383,6 +416,7 @@ group("unittest") {
     ":application_test",
     ":context_container_test",
     ":context_deal_test",
+    ":form_extension_context_test",
     ":mix_stack_dumper_test",
     ":watchdog_test",
   ]
