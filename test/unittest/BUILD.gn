@@ -386,6 +386,7 @@ group("unittest") {
     "start_options_test:unittest",
     "stop_user_callback_proxy_test:unittest",
     "stop_user_callback_stub_test:unittest",
+    "sys_mgr_client_test:unittest",
     "system_ability_token_callback_stub_test:unittest",
     "task_data_persistence_mgr_test:unittest",
     "trigger_Info_test:unittest",

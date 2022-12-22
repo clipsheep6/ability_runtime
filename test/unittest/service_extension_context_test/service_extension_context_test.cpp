@@ -16,11 +16,12 @@
 #include <gtest/gtest.h>
 
 #define private public
+#include "ability_manager_client.h"
 #include "service_extension_context.h"
 #undef private
 
 #include "ability_connection.h"
-#include "ability_manager_client.h"
+#include "ability_manager_stub_mock.h"
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -254,6 +255,114 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_GetAbilityInfoTy
 {   
     ServiceExtensionContext serviceExtensionContextTest;
     EXPECT_EQ(AppExecFwk::AbilityType::UNKNOWN, serviceExtensionContextTest.GetAbilityInfoType());
+}
+
+/**
+ * @tc.number: service_extension_context_startAbility_003
+ * @tc.name: StartAbility
+ * @tc.desc: Start ability success
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "service_extension_context_startAbility_003 start";
+    ServiceExtensionContext serviceExtensionContextTest;
+    sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("device", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    auto ret = serviceExtensionContextTest.StartAbility(want);
+    EXPECT_EQ(ret, ERR_OK);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+    GTEST_LOG_(INFO) << "service_extension_context_startAbility_003 end";
+}
+
+/**
+ * @tc.number: service_extension_context_StartAbilityWithAccount_003
+ * @tc.name: StartAbility
+ * @tc.desc: Start ability with Account success
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityWithAccount_003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "service_extension_context_StartAbilityWithAccount_003 start";
+    ServiceExtensionContext serviceExtensionContextTest;
+    sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("device", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    int32_t accountId = 1;
+
+    auto ret = serviceExtensionContextTest.StartAbilityWithAccount(want, accountId);
+    EXPECT_EQ(ret, ERR_OK);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+    GTEST_LOG_(INFO) << "service_extension_context_StartAbilityWithAccount_003 end";
+}
+
+/**
+ * @tc.number: service_extension_context_StartServiceExtensionAbility_002
+ * @tc.name: StartAbility
+ * @tc.desc: Start service extension ability success
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartServiceExtensionAbility_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "service_extension_context_StartServiceExtensionAbility_002 start";
+    ServiceExtensionContext serviceExtensionContextTest;
+    sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("device", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    int32_t accountId = 1;
+
+    auto ret = serviceExtensionContextTest.StartServiceExtensionAbility(want, accountId);
+    EXPECT_EQ(ret, ERR_OK);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+    GTEST_LOG_(INFO) << "service_extension_context_StartServiceExtensionAbility_002 end";
+}
+
+/**
+ * @tc.number: service_extension_context_StopServiceExtensionAbility_002
+ * @tc.name: StopServiceExtensionAbility
+ * @tc.desc: Stop service extension ability success
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_StopServiceExtensionAbility_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "service_extension_context_StopServiceExtensionAbility_002 start";
+    ServiceExtensionContext serviceExtensionContextTest;
+    sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
+
+    AAFwk::Want want;
+    AppExecFwk::ElementName element("device", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    int32_t accountId = 1;
+
+    auto ret = serviceExtensionContextTest.StopServiceExtensionAbility(want, accountId);
+    EXPECT_EQ(ret, ERR_OK);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+    GTEST_LOG_(INFO) << "service_extension_context_StopServiceExtensionAbility_002 end";
+}
+
+/**
+ * @tc.number: service_extension_context_TerminateAbility_002
+ * @tc.name: TerminateAbility
+ * @tc.desc: Terminate ability success
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_TerminateAbility_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "service_extension_context_TerminateAbility_002 start";
+    ServiceExtensionContext serviceExtensionContextTest;
+    sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
+
+    auto ret = serviceExtensionContextTest.TerminateAbility();
+    EXPECT_EQ(ret, ERR_OK);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+    GTEST_LOG_(INFO) << "service_extension_context_TerminateAbility_002 end";
 }
 }
 }

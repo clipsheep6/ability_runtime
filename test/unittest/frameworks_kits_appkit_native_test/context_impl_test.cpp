@@ -29,6 +29,7 @@
 #include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "mock_bundle_manager.h"
+#include "mock_resource_manager.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -943,6 +944,126 @@ HWTEST_F(ContextImplTest, GetDeviceType_0100, TestSize.Level1)
     deviceType = contextImpl->GetDeviceType();
     EXPECT_EQ(deviceType, Global::Resource::DeviceType::DEVICE_PHONE);
 
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: GetCacheDir_0100
+ * @tc.name: GetCacheDir_0100
+ * @tc.desc: Get cache dir test.
+ */
+HWTEST_F(ContextImplTest, GetCacheDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto cacheDir = contextImpl->GetCacheDir();
+    EXPECT_EQ(cacheDir, "/data/storage/el2/base/cache");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: GetConfiguration_0100
+ * @tc.name: GetConfiguration_0100
+ * @tc.desc: Get configuration test.
+ */
+HWTEST_F(ContextImplTest, GetConfiguration_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    auto configRet = contextImpl->GetConfiguration();
+    EXPECT_EQ(configRet, nullptr);
+
+     // construct configuration
+    auto config = std::make_shared<AppExecFwk::Configuration>();
+    EXPECT_NE(config, nullptr);
+    config->AddItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, "phone");
+    contextImpl->SetConfiguration(config);
+
+    configRet = contextImpl->GetConfiguration();
+    EXPECT_NE(configRet, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: IsCreateBySystemApp_0100
+ * @tc.name: IsCreateBySystemApp_0100
+ * @tc.desc: Is create by system app test.
+ */
+HWTEST_F(ContextImplTest, IsCreateBySystemApp_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    auto isSystemApp = contextImpl->IsCreateBySystemApp();
+    EXPECT_EQ(isSystemApp, false);
+
+    contextImpl->flags_ = CONTEXT_CREATE_BY_SYSTEM_APP;
+    isSystemApp = contextImpl->IsCreateBySystemApp();
+    EXPECT_EQ(isSystemApp, true);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: SetResourceManager_0100
+ * @tc.name: SetResourceManager_0100
+ * @tc.desc: Set Resource Manager test.
+ */
+HWTEST_F(ContextImplTest, SetResourceManager_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
+
+    auto resourceManager = std::make_shared<Global::Resource::MockResourceManager>();
+    EXPECT_NE(resourceManager, nullptr);
+
+    contextImpl->SetResourceManager(resourceManager);
+    EXPECT_NE(contextImpl->GetResourceManager(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: GetResourceManager_0100
+ * @tc.name: GetResourceManager_0100
+ * @tc.desc: Get Resource Manager test.
+ */
+HWTEST_F(ContextImplTest, GetResourceManager_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
+
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    contextImpl->SetParentContext(parentContext);
+    auto resourceManager = std::make_shared<Global::Resource::MockResourceManager>();
+    EXPECT_NE(resourceManager, nullptr);
+
+    parentContext->SetResourceManager(resourceManager);
+    EXPECT_NE(contextImpl->GetResourceManager(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: GetBundleManager_0100
+ * @tc.name: GetBundleManager_0100
+ * @tc.desc: Get Bundle Manager test.
+ */
+HWTEST_F(ContextImplTest, GetBundleManager_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    EXPECT_NE(contextImpl->GetBundleManager(), nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 }  // namespace AppExecFwk
