@@ -55,6 +55,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION)] =
+        &AppMgrStub::HandleGetProcessRunningInformation;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
         &AppMgrStub::HandleAddAbilityStageDone;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::STARTUP_RESIDENT_PROCESS)] =
@@ -229,6 +231,23 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
     int32_t userId = data.ReadInt32();
     std::vector<RunningProcessInfo> info;
     auto result = GetProcessRunningInfosByUserId(info, userId);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetProcessRunningInformation(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::vector<RunningProcessInfo> info;
+    auto result = GetProcessRunningInformation(info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {

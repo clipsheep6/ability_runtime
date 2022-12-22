@@ -20,6 +20,7 @@
 
 #include "configuration.h"
 #include "bundle_mgr_interface.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -238,6 +239,20 @@ public:
      * @return token The token which the is launched by app.
      */
     void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config);
+
+    /**
+     * @brief Kill process itself
+     *
+     * @return error code
+     */
+    void KillProcessBySelf();
+
+    /**
+     * @brief Get running informationfor cuirrent process
+     *
+     * @return error code
+     */
+    void GetProcessRunningInformation(const AppExecFwk::RunningProcessInfo &info);
 
     /**
      * @brief Get the token witch the app launched.

@@ -30,6 +30,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
@@ -77,6 +78,8 @@ public:
     NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info);
 
     static NativeValue* GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
@@ -86,6 +89,8 @@ public:
     static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info);
 
     void KeepApplicationContext(std::shared_ptr<ApplicationContext> applicationContext)
     {
@@ -433,6 +438,83 @@ NativeValue *JsApplicationContextUtils::OnGetBundleCodeDir(NativeEngine &engine,
     }
     std::string path = applicationContext->GetBundleCodeDir();
     return engine.CreateString(path.c_str(), path.length());
+}
+
+NativeValue *JsApplicationContextUtils::KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    HILOG_INFO("JsApplicationContextUtils::KillProcessBySelf is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnKillProcessBySelf(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    int32_t errCode = 0;
+
+    // only support 0 or 1 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        errCode = -1;
+    }
+    auto applicationContext = applicationContext_.lock();
+    HILOG_INFO("kill self process");
+    AsyncTask::CompleteCallback complete =
+        [applicationContext, errCode](NativeEngine& engine, AsyncTask& task,
+            int32_t status) {
+        if (errCode != 0) {
+            task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+            return;
+        }
+        applicationContext->KillProcessBySelf();
+    };
+    AsyncTask::Schedule("JSAppManager::OnkillProcessBySelf",
+        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+    return engine.CreateUndefined();
+}
+
+NativeValue *JsApplicationContextUtils::GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    HILOG_INFO("JsApplicationContextUtils::GetProcessRunningInformation is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetProcessRunningInformation(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    int32_t errCode = 0;
+
+    // only support 0 or 1 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        errCode = -1;
+    }
+    auto applicationContext = applicationContext_.lock();
+    HILOG_INFO("Get Process Info");
+    AsyncTask::CompleteCallback complete =
+        [applicationContext, errCode](NativeEngine& engine, AsyncTask& task,
+            int32_t status) {
+            if (errCode != 0) {
+                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                return;
+            }
+            AAFwk::AbilityRunningInfo info;
+            auto ret = applicationContext->GetProcessRunningInformation(&info);
+            if (ret == 0) {
+                task.Resolve(engine, CreateJsProcessRunningInfoArray(engine, infos));
+            } else {
+                task.Reject(engine, CreateJsError(engine, ret, "Get mission infos failed."));
+            }
+    };
+
+    NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInformation",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
 }
 
 void JsApplicationContextUtils::Finalizer(NativeEngine *engine, void *data, void *hint)
@@ -909,6 +991,10 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
     BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
         JsApplicationContextUtils::GetApplicationContext);
+    BindNativeFunction(engine, *object, "killProcessBySelf", MD_NAME,
+        JsApplicationContextUtils::KillProcessBySelf);
+    BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
+        JsApplicationContextUtils::GetProcessRunningInformation);
 
     return objValue;
 }

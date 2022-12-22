@@ -30,6 +30,7 @@
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "sys_mgr_client.h"
+#include "app_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
 #include "configuration_convertor.h"
@@ -546,6 +547,22 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& 
 void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     config_ = config;
+}
+
+void ContextImpl::KillProcessBySelf()
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    appMgrClient->KillApplicationSelf();
+    return;
+}
+
+void ContextImpl::GetProcessRunningInformation(const AppExecFwk::RunningProcessInfo &info)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    appMgrClient->GetProcessRunningInformation(info);
+    return;
 }
 
 std::shared_ptr<AppExecFwk::Configuration> ContextImpl::GetConfiguration() const

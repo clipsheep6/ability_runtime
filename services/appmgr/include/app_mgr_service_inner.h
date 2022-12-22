@@ -257,6 +257,15 @@ public:
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
 
     /**
+     * GetProcessRunningInfosByUserId, Obtains information about current application process which is running on the device.
+     *
+     * @param info, app name in Application record.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
      * NotifyMemoryLevel, Notify applications background the current memory level.
      *
      * @param level, current memory level.

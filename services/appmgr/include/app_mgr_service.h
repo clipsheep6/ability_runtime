@@ -135,6 +135,16 @@ public:
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
 
     /**
+     * GetProcessRunningInformation, call GetProcessRunningInformation() through proxy project.
+     * Obtains information about current application process which is running on the device.
+     *
+     * @param info, app name in Application record.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info) override;
+
+    /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
      * Notify applications background the current memory level.
      *
