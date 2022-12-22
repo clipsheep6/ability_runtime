@@ -203,8 +203,13 @@ ohos_unittest("application_impl_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_env.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "app_context_test.cpp",
+    "app_loader_test.cpp",
+    "application_env_impl_test.cpp",
     "application_impl_test.cpp",
   ]
 
