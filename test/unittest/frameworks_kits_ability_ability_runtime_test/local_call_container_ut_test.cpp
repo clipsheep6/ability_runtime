@@ -411,5 +411,24 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalRecord_0200, F
     bool ret = localCallContainer.GetCallLocalRecord(elementName, localCallRecord);
     EXPECT_TRUE(ret == false);
 }
+
+/**
+ * @tc.number: Local_Call_Container_OnCallStubDied_0100
+ * @tc.name: OnCallStubDied
+ * @tc.desc: Verify that function IsSameObject.
+ */
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnCallStubDied_0100, Function | MediumTest | Level1)
+{
+    LocalCallContainer localCallContainer;
+
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
+
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) MockServiceAbilityManagerService();
+    wptr<IRemoteObject> remote(remoteObject);
+
+    localCallContainer.OnCallStubDied(remote);
+    EXPECT_TRUE(localCallContainer.callProxyRecords_.empty());
+}
 } // namespace AppExecFwk
 } // namespace OHOS
