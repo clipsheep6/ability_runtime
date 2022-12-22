@@ -3142,6 +3142,10 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
             HILOG_ERROR("Query highest priority ability failed.");
             return;
         }
+        AbilityRequest abilityRequest;
+        if (!IsComponentInterceptionStart(want, nullptr, 0, 0, abilityRequest)) {
+            return;
+        }
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
 
