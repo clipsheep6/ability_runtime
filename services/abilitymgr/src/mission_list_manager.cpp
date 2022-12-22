@@ -31,8 +31,8 @@ namespace AAFwk {
 namespace {
 constexpr uint32_t DELAY_NOTIFY_LABEL_TIME = 30; // 30ms
 constexpr uint32_t SCENE_FLAG_KEYGUARD = 1;
-constexpr char EVENT_KEY_MISSION_UID[] = "MISSION_UID";
-constexpr char EVENT_KEY_MISSION_PID[] = "MISSION_PID";
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
@@ -1678,8 +1678,8 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
     std::string eventType = "LIFECYCLE_TIMEOUT";
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_MISSION_UID, processInfo.uid_,
-        EVENT_KEY_MISSION_PID, processInfo.pid_,
+        EVENT_KEY_UID, processInfo.uid_,
+        EVENT_KEY_PID, processInfo.pid_,
         EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);

@@ -26,8 +26,8 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-constexpr char EVENT_KEY_THREAD_UID[] = "THREAD_PID";
-constexpr char EVENT_KEY_THREAD_PID[] = "THREAD_PID";
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
@@ -168,8 +168,8 @@ void Watchdog::ReportEvent()
     msgContent += handlerDumper.GetDumpInfo();
 
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_THREAD_UID, applicationInfo_->uid,
-        EVENT_KEY_THREAD_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
+        EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
         EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent);
     HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
 
