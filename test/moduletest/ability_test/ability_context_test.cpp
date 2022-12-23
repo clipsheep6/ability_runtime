@@ -278,11 +278,19 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetCallingBundle_0100, Functi
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetElementName_0100, Function | MediumTest | Level1)
 {
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->type = AppExecFwk::AbilityType::DATA;
+    abilityInfo->name = "DemoAbility";
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
     auto result = context_->GetElementName();
-    EXPECT_TRUE(result == nullptr);
+    EXPECT_TRUE(result != nullptr);
+
 }
 
 /**
@@ -961,19 +969,10 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetPreferencesDir_0100, Funct
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_SetColorMode_0100, Function | MediumTest | Level1)
 {
-    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
-    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
-    AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    deal->SetAbilityInfo(abilityInfo);
-    context_->AttachBaseContext(deal);
     int32_t mode = 1;
     context_->SetColorMode(mode);
     auto result = context_->GetColorMode();
-    EXPECT_EQ(result, 1);
-    EXPECT_TRUE(context_->baseContext_ != nullptr);
+    EXPECT_EQ(result, -1);
 }
 
 /**
