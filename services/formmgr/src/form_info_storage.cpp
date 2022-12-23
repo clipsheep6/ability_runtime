@@ -67,8 +67,12 @@ void to_json(nlohmann::json &jsonObject, const FormInfoStorage &formInfoStorage)
 
 void from_json(const nlohmann::json &jsonObject, FormInfoStorage &formInfoStorage)
 {
-    formInfoStorage.userId = jsonObject.at(JSON_KEY_USER_ID).get<int32_t>();
-    formInfoStorage.formInfos = jsonObject.at(JSON_KEY_FORM_INFO).get<std::vector<AppExecFwk::FormInfo>>();
+    if (!jsonObject.at(JSON_KEY_USER_ID).is_null()) {
+        formInfoStorage.userId = jsonObject.at(JSON_KEY_USER_ID).get<int32_t>();
+    }
+    if (!jsonObject.at(JSON_KEY_FORM_INFO).is_null()) {
+        formInfoStorage.formInfos = jsonObject.at(JSON_KEY_FORM_INFO).get<std::vector<AppExecFwk::FormInfo>>();
+    }
 }
 } // namespace AppExecFwk
 } // namespace OHOS
