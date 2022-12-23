@@ -715,8 +715,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0100, F
     auto returnQuery =
         [&](const Uri &uri, const std::vector<std::string> &columns,
             const NativeRdb::DataAbilityPredicates &predicates) {
-                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
-                    "resultset");
+                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = nullptr;
                 return set;
     };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Query(testing::_, testing::_, testing::_))
@@ -749,8 +748,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0200, F
     auto returnQuery =
         [&](const Uri &uri, const std::vector<std::string> &columns,
             const NativeRdb::DataAbilityPredicates &predicates) {
-                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
-                    "resultset");
+                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = nullptr;
                 return set;
     };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Query(testing::_, testing::_, testing::_))
@@ -786,8 +784,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0300, F
     auto returnQuery =
         [&](const Uri &uri, const std::vector<std::string> &columns,
             const NativeRdb::DataAbilityPredicates &predicates) {
-                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>(
-                    "resultset");
+                std::shared_ptr<NativeRdb::AbsSharedResultSet> set = nullptr;
                 return set;
     };
     EXPECT_CALL(*mockTools->GetMockAbilityScheduler(), Query(testing::_, testing::_, testing::_))

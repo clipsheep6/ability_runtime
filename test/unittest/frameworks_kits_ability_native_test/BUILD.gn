@@ -363,7 +363,6 @@ ohos_unittest("data_ability_helper_test") {
   ]
 
   sources = [
-    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_helper.cpp",
     "data_ability_helper_test.cpp",
     "mock_ability_runtime_context.cpp",
   ]
