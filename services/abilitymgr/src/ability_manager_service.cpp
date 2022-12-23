@@ -51,6 +51,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "os_account_manager_wrapper.h"
+#include "permission_constants.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "hisysevent.h"
@@ -4972,7 +4973,8 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     // verify permission if 'permission' is not empty
-    if (abilityInfo.permissions.empty()) {
+    if (abilityInfo.permissions.empty() ||
+        AccessTokenKit::VerifyAccessToken(tokenId, PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY)) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
