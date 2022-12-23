@@ -399,7 +399,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         return;
     }
     auto isLastAbility =
-        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+        clearMissionFlag ? appRecord->IsLastUIAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     appRecord->TerminateAbility(token, false);
 
     auto isKeepAliveApp = appRecord->IsKeepAliveApp();

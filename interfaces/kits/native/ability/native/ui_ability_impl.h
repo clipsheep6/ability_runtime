@@ -24,19 +24,19 @@ class Ability;
 class AbilityHandler;
 class AbilityLocalRecord;
 class AbilityImpl;
-class NewAbilityImpl final : public AbilityImpl {
+class UIAbilityImpl final : public AbilityImpl {
 public:
     /**
      * @brief Constructor.
      *
      */
-    NewAbilityImpl() = default;
+    UIAbilityImpl() = default;
 
     /**
      * @brief Destructor.
      *
      */
-    ~NewAbilityImpl() = default;
+    ~UIAbilityImpl() = default;
 
     /**
      * @brief Handling the life cycle switching of NewAbility.

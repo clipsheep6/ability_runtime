@@ -16,11 +16,11 @@
 #include "ability_impl_factory.h"
 #include "data_ability_impl.h"
 #include "hilog_wrapper.h"
-#include "new_ability_impl.h"
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
 #endif
 #include "service_ability_impl.h"
+#include "ui_ability_impl.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -42,7 +42,7 @@ std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std
 #ifdef SUPPORT_GRAPHICS
         case AppExecFwk::AbilityType::PAGE:
             if (info->isStageBasedModel) {
-                abilityImpl = std::make_shared<NewAbilityImpl>();
+                abilityImpl = std::make_shared<UIAbilityImpl>();
             } else {
                 abilityImpl = std::make_shared<PageAbilityImpl>();
             }

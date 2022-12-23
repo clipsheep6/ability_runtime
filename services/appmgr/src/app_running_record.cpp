@@ -1047,7 +1047,7 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     return false;
 }
 
-bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
+bool AppRunningRecord::IsLastUIAbilityRecord(const sptr<IRemoteObject> &token)
 {
     auto moduleRecord = GetModuleRunningRecordByToken(token);
     if (!moduleRecord) {
@@ -1055,16 +1055,16 @@ bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
         return false;
     }
 
-    int32_t pageAbilitySize = 0;
+    int32_t uIAbilitySize = 0;
     auto moduleRecordList = GetAllModuleRecord();
     for (auto moduleRecord : moduleRecordList) {
-        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
-        if (pageAbilitySize > 1) {
+        uIAbilitySize += moduleRecord->GetUIAbilitySize() ;
+        if (uIAbilitySize > 1) {
             return false;
         }
     }
 
-    return pageAbilitySize == 1;
+    return uIAbilitySize == 1;
 }
 
 void AppRunningRecord::SetTerminating()

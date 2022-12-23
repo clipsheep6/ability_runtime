@@ -98,7 +98,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     moduleRecord.RemoveTerminateAbilityTimeoutTask(token);
     moduleRecord.ClearAbility(record);
     moduleRecord.GetModuleName();
-    moduleRecord.GetPageAbilitySize();
+    moduleRecord.GetUIAbilitySize();
     moduleRecord.GetModuleRecordState();
     moduleRecord.GetAppInfo();
     moduleRecord.GetState();

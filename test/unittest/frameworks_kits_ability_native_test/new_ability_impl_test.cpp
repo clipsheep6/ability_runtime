@@ -16,8 +16,8 @@
 #include <gtest/gtest.h>
 #include "mock_ability_token.h"
 #include "mock_new_ability.h"
-#include "new_ability_impl.h"
 #include "ohos_application.h"
+#include "ui_ability_impl.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -26,15 +26,15 @@ using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
 
-class NewAbilityImplTest : public testing::Test {
+class UIAbilityImplTest : public testing::Test {
 public:
-    NewAbilityImplTest() : newAbilityImpl_(nullptr)
+    UIAbilityImplTest() : uIAbilityImpl_(nullptr)
     {}
-    ~NewAbilityImplTest()
+    ~UIAbilityImplTest()
     {
-        newAbilityImpl_ = nullptr;
+        uIAbilityImpl_ = nullptr;
     }
-    std::shared_ptr<NewAbilityImpl> newAbilityImpl_;
+    std::shared_ptr<UIAbilityImpl> uIAbilityImpl_;
 
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
@@ -42,34 +42,34 @@ public:
     void TearDown();
 };
 
-void NewAbilityImplTest::SetUpTestCase(void)
+void UIAbilityImplTest::SetUpTestCase(void)
 {}
 
-void NewAbilityImplTest::TearDownTestCase(void)
+void UIAbilityImplTest::TearDownTestCase(void)
 {}
 
-void NewAbilityImplTest::SetUp(void)
+void UIAbilityImplTest::SetUp(void)
 {
-    newAbilityImpl_ = std::make_shared<NewAbilityImpl>();
+    uIAbilityImpl_ = std::make_shared<UIAbilityImpl>();
 }
 
-void NewAbilityImplTest::TearDown(void)
+void UIAbilityImplTest::TearDown(void)
 {}
 
 /**
- * @tc.number: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100
+ * @tc.number: AaFwk_UIAbilityImpl_HandleAbilityTransaction_0100
  * @tc.name: HandleAbilityTransaction
  * @tc.desc: Handle transactions in the Initial state
  */
  /**
-  * @tc.name: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100
+  * @tc.name: AaFwk_UIAbilityImpl_HandleAbilityTransaction_0100
   * @tc.desc: Handle transactions in the foreground state and isNewWant is true.
   * @tc.type: FUNC
   * @tc.require: I58047
   */
-HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100, Level1)
+HWTEST_F(UIAbilityImplTest, AaFwk_UIAbilityImpl_HandleAbilityTransaction_0100, Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100 start";
+    GTEST_LOG_(INFO) << "AaFwk_UIAbilityImpl_HandleAbilityTransaction_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -88,18 +88,18 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
     }
 
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    newAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    uIAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
     state.state = ABILITY_STATE_FOREGROUND_NEW;
     state.isNewWant = true;
-    newAbilityImpl_->HandleAbilityTransaction(want, state);
-    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_INITIAL);
+    uIAbilityImpl_->HandleAbilityTransaction(want, state);
+    EXPECT_EQ(uIAbilityImpl_->GetCurrentState(), ABILITY_STATE_INITIAL);
     EXPECT_EQ(newAbility->onNewWantCalled_, true);
     EXPECT_EQ(newAbility->continueRestoreCalled_, true);
 
-    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100 end";
+    GTEST_LOG_(INFO) << "AaFwk_UIAbilityImpl_HandleAbilityTransaction_0100 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
