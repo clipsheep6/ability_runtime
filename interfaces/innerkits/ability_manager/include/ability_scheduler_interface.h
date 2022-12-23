@@ -293,7 +293,7 @@ public:
 	
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) = 0;
 
-    virtual sptr<IRemoteObject> CallRequest() = 0;
+    virtual void CallRequest() = 0;
 
     enum {
         // ipc id for scheduling ability to a state of life cycle

@@ -150,9 +150,9 @@ public:
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     }
 
-    virtual sptr<IRemoteObject> CallRequest()
+    virtual void CallRequest()
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     }
 
     int code_ = 0;

@@ -116,9 +116,9 @@ public:
         Uri urivalue("");
         return urivalue;
     }
-    virtual sptr<IRemoteObject> CallRequest() override
+    virtual void CallRequest() override
     {
-        return sptr<IRemoteObject>(nullptr);
+        return;
     }
 };
 }  // namespace AAFwk

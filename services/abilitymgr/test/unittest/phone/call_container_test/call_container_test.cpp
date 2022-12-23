@@ -235,8 +235,8 @@ HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_001, TestSize.Level
     std::shared_ptr<CallContainer> callContainer = get();
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilitySchedulerMock();
     abilityRecord_->SetScheduler(scheduler);
-    sptr<IRemoteObject> object = scheduler->CallRequest();
-    bool result = callContainer->CallRequestDone(object);
+    scheduler->CallRequest();
+    bool result = callContainer->CallRequestDone(nullptr);
     EXPECT_EQ(result, false);
 }
 
@@ -251,12 +251,13 @@ HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_001, TestSize.Level
 HWTEST_F(CallContainerTest, Call_Container_Call_Request_Done_002, TestSize.Level1)
 {
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock {
-        virtual sptr<IRemoteObject> CallRequest() { return this; }
+    public:
+        sptr<IRemoteObject> CallRequestModify() { return this; }
     };
 
     std::shared_ptr<CallContainer> callContainer = get();
-    OHOS::sptr<IAbilityScheduler> scheduler = new AbilitySchedulerMockFunction();
-    sptr<IRemoteObject> object = scheduler->CallRequest();
+    auto scheduler = new AbilitySchedulerMockFunction();
+    sptr<IRemoteObject> object = scheduler->CallRequestModify();
     bool result = callContainer->CallRequestDone(object);
     EXPECT_EQ(result, true);
 }
@@ -274,7 +275,7 @@ HWTEST_F(CallContainerTest, Call_Container_Dump_001, TestSize.Level1)
     std::shared_ptr<CallContainer> callContainer = get();
     std::vector<std::string> dumpInfo;
     callContainer->Dump(dumpInfo);
-    EXPECT_EQ(dumpInfo.size(), 0);
+    EXPECT_EQ(static_cast<int>(dumpInfo.size()), 0);
 }
 
 /*
@@ -299,7 +300,7 @@ HWTEST_F(CallContainerTest, Call_Container_Dump_002, TestSize.Level1)
 
     std::vector<std::string> dumpInfo;
     callContainer->Dump(dumpInfo);
-    EXPECT_NE(dumpInfo.size(), 0);
+    EXPECT_NE(static_cast<int>(dumpInfo.size()), 0);
 }
 
 /*
@@ -398,7 +399,7 @@ HWTEST_F(CallContainerTest, Call_Container_Add_Connect_Death_Recipient_001, Test
     std::shared_ptr<CallContainer> callContainer = get();
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     callContainer->AddConnectDeathRecipient(connect);
-    EXPECT_EQ(callContainer->deathRecipientMap_.size(), 1);
+    EXPECT_EQ(static_cast<int>(callContainer->deathRecipientMap_.size()), 1);
 }
 
 /*
@@ -415,7 +416,7 @@ HWTEST_F(CallContainerTest, Call_Container_Remove_Connect_Death_Recipient_001, T
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     callContainer->AddConnectDeathRecipient(connect);
     callContainer->RemoveConnectDeathRecipient(connect);
-    EXPECT_EQ(callContainer->deathRecipientMap_.size(), 0);
+    EXPECT_EQ(static_cast<int>(callContainer->deathRecipientMap_.size()), 0);
 }
 
 /*
@@ -429,7 +430,7 @@ HWTEST_F(CallContainerTest, Call_Container_Remove_Connect_Death_Recipient_001, T
 HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
+    EXPECT_EQ(static_cast<int>(callContainer->callRecordMap_.size()), 0);
 
     AbilityRequest abilityRequest;
     abilityRequest.callerUid = 1;
@@ -440,7 +441,7 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
         abilityRequest.connect, abilityRequest.callerToken);
     callRecord->SetCallState(CallState::REQUESTED);
     callContainer->AddCallRecord(abilityRequest.connect, callRecord);
-    EXPECT_EQ(callContainer->callRecordMap_.size(), 1);
+    EXPECT_EQ(static_cast<int>(callContainer->callRecordMap_.size()), 1);
 
     auto mission = std::make_shared<Mission>(0, abilityRecord_, "launcher");
     auto missionList = std::make_shared<MissionList>();
@@ -453,7 +454,7 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
     WaitUntilTaskFinished();
 
-    EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
+    EXPECT_EQ(static_cast<int>(callContainer->callRecordMap_.size()), 0);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

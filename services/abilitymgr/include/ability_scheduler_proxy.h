@@ -323,7 +323,7 @@ public:
      * @return Ability Runner info.
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override;
-    sptr<IRemoteObject> CallRequest() override;
+    void CallRequest() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

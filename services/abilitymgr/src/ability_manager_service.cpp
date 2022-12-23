@@ -4779,5 +4779,12 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
 }
+
+void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER(abilityRecord);
+    abilityRecord->CallRequestDone(callStub);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
