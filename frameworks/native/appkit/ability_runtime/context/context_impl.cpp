@@ -368,7 +368,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
             if (currentBundle) {
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
-            } else if (bundleInfo.applicationInfo.bundleName == "com.hw.thirdpartysdkdemo") { // TODO: 判断bundle是否为library
+            } else if (moduleName == "mydemosdk" || moduleName == "mydemo2sdk") { // TODO: 判断bundle是否为library
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_CODE_PATH);
             } else {
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
