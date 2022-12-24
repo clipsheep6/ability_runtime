@@ -284,7 +284,8 @@ RState GetProfileDataByName(const char *name, size_t &len, std::unique_ptr<uint8
     return SUCCESS;
 }
 
-RState GetRawFileFromHap(const std::string &rawFileName, std::unique_ptr<RawFile> &rawFile)
+RState GetRawFileFromHap(const std::string& rawFileName, size_t& len,
+    std::unique_ptr<uint8_t[]>& outValue)
 {
     return SUCCESS;
 }
@@ -294,7 +295,7 @@ RState GetRawFileDescriptorFromHap(const std::string &rawFileName, RawFileDescri
     return SUCCESS;
 }
 
-RState IsLoadHap()
+RState IsLoadHap(std::string& hapPath)
 {
     return SUCCESS;
 }
