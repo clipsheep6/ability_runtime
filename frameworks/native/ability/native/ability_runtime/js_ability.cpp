@@ -418,6 +418,7 @@ void JsAbility::OnForeground(const Want &want)
 void JsAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("OnBackground begin, ability is %{public}s.", GetAbilityName().c_str());
     CallObjectMethod("onBackground");
 
     Ability::OnBackground();
@@ -432,6 +433,7 @@ void JsAbility::OnBackground()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
+    HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
