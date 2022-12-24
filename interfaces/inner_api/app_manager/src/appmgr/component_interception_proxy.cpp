@@ -44,7 +44,14 @@ bool ComponentInterceptionProxy::AllowComponentStart(const Want &want, const spt
         return true;
     }
     data.WriteParcelable(&want);
-    data.WriteRemoteObject(callerToken);
+
+    if (callerToken == nullptr) {
+        data.WriteBool(false);
+    } else {
+        data.WriteBool(true);
+        data.WriteRemoteObject(callerToken);
+    }
+
     data.WriteInt32(requestCode);
     data.WriteInt32(componentStatus);
     sptr<IRemoteObject> remote = Remote();

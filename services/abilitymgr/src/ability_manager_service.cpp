@@ -1643,6 +1643,14 @@ int AbilityManagerService::ConnectAbilityCommon(
         AppExecFwk::ExtensionAbilityInfo extensionInfo;
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+
+        AbilityRequest abilityRequest;
+        abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
+        if (!IsComponentInterceptionStart(abilityWant, callerToken, 0, 0, abilityRequest)) {
+            return ERR_OK;
+        }
+        abilityWant.RemoveParam("abilityConnectionObj");
+
         bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
         if (!queryResult || extensionInfo.name.empty() || extensionInfo.bundleName.empty()) {
             HILOG_ERROR("Invalid extension ability info.");

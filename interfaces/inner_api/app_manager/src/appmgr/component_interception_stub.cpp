@@ -68,7 +68,12 @@ int32_t ComponentInterceptionStub::HandleAllowComponentStart(MessageParcel &data
         HILOG_ERROR("ReadParcelable<Want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<IRemoteObject> token = nullptr;
+    bool hasRemoteToken = data.ReadBool();
+    if (hasRemoteToken) {
+        token = data.ReadRemoteObject();
+    }
+
     int requestCode = data.ReadInt32();
     int componentStatus = data.ReadInt32();
     
