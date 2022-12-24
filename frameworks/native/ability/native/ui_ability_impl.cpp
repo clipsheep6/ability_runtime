@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "new_ability_impl.h"
+#include "ui_ability_impl.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -27,9 +27,9 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  *
  */
 
-void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void UIAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+    HILOG_INFO("UIAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_,
         targetState.state,
@@ -65,7 +65,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     }
 }
 
-void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
+void UIAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
     HILOG_INFO("Handle ability transaction done, notify ability manager service.");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
@@ -80,9 +80,9 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
  * @return return true if need notify ams, otherwise return false.
  *
  */
-bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
+    HILOG_DEBUG("UIAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -131,11 +131,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
         }
         default: {
             ret = false;
-            HILOG_ERROR("NewAbilityImpl::HandleAbilityTransaction state error");
+            HILOG_ERROR("UIAbilityImpl::HandleAbilityTransaction state error");
             break;
         }
     }
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
+    HILOG_DEBUG("UIAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 }  // namespace AppExecFwk

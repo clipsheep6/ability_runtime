@@ -92,7 +92,7 @@ class Ability : public IAbilityEvent,
                 public IAbilityCallback,
                 public std::enable_shared_from_this<Ability> {
 public:
-    friend class NewAbilityImpl;
+    friend class UIAbilityImpl;
 
     static Ability* Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime);
 

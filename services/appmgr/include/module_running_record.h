@@ -77,7 +77,7 @@ public:
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
-    int32_t GetPageAbilitySize();
+    int32_t GetUIAbilitySize();
 
     // Get abilities_ for this process
     /**

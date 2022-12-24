@@ -450,7 +450,7 @@ public:
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
-    bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
+    bool IsLastUIAbilityRecord(const sptr<IRemoteObject> &token);
 
     void SetTerminating();
 

@@ -115,7 +115,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Closure task;
     appRecord->PostTask(stringMsg, timeOut, task);
     appRecord->IsLastAbilityRecord(token);
-    appRecord->IsLastPageAbilityRecord(token);
+    appRecord->IsLastUIAbilityRecord(token);
     appRecord->ScheduleAcceptWant(moduleName);
     appRecord->UpdateConfiguration(config);
     std::string description(data, size);
