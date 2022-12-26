@@ -722,6 +722,7 @@ public:
     virtual int SetComponentInterception(
         const sptr<AppExecFwk::IComponentInterception> &componentInterception) override;
 
+    
     bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
@@ -1177,6 +1178,7 @@ private:
     void InitStartupFlag();
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
+
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
