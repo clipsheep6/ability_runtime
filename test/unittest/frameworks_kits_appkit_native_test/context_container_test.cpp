@@ -1259,5 +1259,757 @@ HWTEST_F(ContextContainerTest, PrintDrawnCompleted_0200, Function | MediumTest |
     context_->AttachBaseContext(nullptr);
     EXPECT_FALSE(context_->PrintDrawnCompleted());
 }
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_DeleteFile_0100
+ * @tc.name: Delete File
+ * @tc.desc: Test Delete File When baseContext is not null,
+ *           and verify whether the return value of DeleteFile is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_DeleteFile_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_TRUE(context_->DeleteFile("test"));
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_DeleteFile_0200
+ * @tc.name: Delete File
+ * @tc.desc: Test Delete File When baseContext is null.
+ *           and verify whether the return value of DeleteFile is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_DeleteFile_0200, Function | MediumTest | Level3)
+{
+    EXPECT_FALSE(context_->DeleteFile("test"));
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetExternalCacheDir_0100
+ * @tc.name: Get External Cache Dir
+ * @tc.desc: Test Get External Cache Dir When baseContext is not null,
+ *           and verify whether the return value of Get External Cache Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetExternalCacheDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetExternalCacheDir(), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetExternalCacheDir_0200
+ * @tc.name: Get External Cache Dir
+ * @tc.desc: Test Get External Cache Dir When baseContext is null.
+ *           and verify whether the return value of Get External Cache Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetExternalCacheDir_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetExternalCacheDir(), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetExternalFilesDir_0100
+ * @tc.name: Get External Files Dir
+ * @tc.desc: Test Get External Files Dir When baseContext is not null,
+ *           and verify whether the return value of Get External Files Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetExternalFilesDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    std::string type = "type";
+    EXPECT_EQ(context_->GetExternalFilesDir(type), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetExternalFilesDir_0200
+ * @tc.name: Get External FilesDir
+ * @tc.desc: Test Get External Files Dir When baseContext is null.
+ *           and verify whether the return value of Get External Files Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetExternalFilesDir_0200, Function | MediumTest | Level3)
+{
+    std::string type = "type";
+    EXPECT_EQ(context_->GetExternalFilesDir(type), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetNoBackupFilesDir_0100
+ * @tc.name: Get No Backup Files Dir
+ * @tc.desc: Test Get No Backup Files Dir When baseContext is not null,
+ *           and verify whether the return value of Get No Backup Files Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetNoBackupFilesDir(), "/data/storage/el2/base/data/no_backup");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetNoBackupFilesDir_0200
+ * @tc.name: Get No Backup FilesDir
+ * @tc.desc: Test Get No Backup Files Dir When baseContext is null.
+ *           and verify whether the return value of Get No Backup Files Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetNoBackupFilesDir_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetNoBackupFilesDir(), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_VerifySelfPermission_0100
+ * @tc.name: Verify Self Permission
+ * @tc.desc: Test Verify Self Permission When baseContext is not null,
+ *           and verify whether the return value of Verify Self Permission is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_VerifySelfPermission_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->VerifySelfPermission("permission"), AppExecFwk::Constants::PERMISSION_GRANTED);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_VerifySelfPermission_0200
+ * @tc.name: Verify Self Permission
+ * @tc.desc: Test Verify Self Permission When baseContext is null.
+ *           and verify whether the return value of Verify Self Permission is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_VerifySelfPermission_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->VerifySelfPermission("permission"), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_UnauthUriPermission_0100
+ * @tc.name: Unauth Uri Permission
+ * @tc.desc: Test Unauth Uri Permission When baseContext is not null
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    Uri urivalue("");
+    context_->UnauthUriPermission("permission", urivalue, 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_UnauthUriPermission_0200
+ * @tc.name: Unauth Uri Permission
+ * @tc.desc: TestUnauth Uri Permission When baseContext is null.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0200, Function | MediumTest | Level3)
+{
+    Uri urivalue("");
+    context_->UnauthUriPermission("permission", urivalue, 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetDistributedDir_0100
+ * @tc.name: Get Distributed Dir
+ * @tc.desc: Test Get Distributed Dir When baseContext is not null,
+ *           and verify whether the return value of Get Distributed Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDistributedDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetDistributedDir(), "/data/storage/el2/distributedfiles");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetDistributedDir_0200
+ * @tc.name: Get Distributed Dir
+ * @tc.desc: Test Get Distributed Dir When baseContext is null.
+ *           and verify whether the return value of Get Distributed Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDistributedDir_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetDistributedDir(), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetAbilityPackageContext_0100
+ * @tc.name: Get Ability Package Context
+ * @tc.desc: Test Get Ability Package Context When baseContext is not null,
+ *           and verify whether the return value of Get Ability Package Context is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetAbilityPackageContext_0200
+ * @tc.name: Get Ability Package Context
+ * @tc.desc: Test Get Ability Package Context When baseContext is null.
+ *           and verify whether the return value of Get Ability Package Context is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetHapModuleInfo_0100
+ * @tc.name: Get Hap Module Info
+ * @tc.desc: Test Get Hap Module Info When baseContext is not null,
+ *           and verify whether the return value of Get Hap Module Info is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetHapModuleInfo_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    contextDeal_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_NE(context_->GetHapModuleInfo(), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetHapModuleInfo_0200
+ * @tc.name: Get Hap Module Info
+ * @tc.desc: Test Get Hap Module Info When baseContext is null.
+ *           and verify whether the return value of Get Hap Module Info is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetHapModuleInfo_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetHapModuleInfo(), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetCaller_0100
+ * @tc.name: Get Caller
+ * @tc.desc: Test Get Caller When baseContext is not null,
+ *           and verify whether the return value of Get Caller is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCaller_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    contextDeal_->SerUriString("test");
+    context_->AttachBaseContext(contextDeal_);
+
+    Uri uri("test");
+    EXPECT_EQ(context_->GetCaller(), uri);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetCaller_0200
+ * @tc.name: Request Permissions From User
+ * @tc.desc: Test Get Caller When baseContext is null.
+ *           and verify whether the return value of Get Caller is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCaller_0200, Function | MediumTest | Level3)
+{
+    Uri uri("");
+    EXPECT_EQ(context_->GetCaller(), uri);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetString_0100
+ * @tc.name: Get String
+ * @tc.desc: Test Get String When baseContext is not null,
+ *           and verify whether the return value of Get String is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetString_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetString(0), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetString_0200
+ * @tc.name: Get String
+ * @tc.desc: Test Get String When baseContext is null.
+ *           and verify whether the return value of Get String is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetString_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetString(0), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetStringArray_0100
+ * @tc.name: Get String Array
+ * @tc.desc: Test Get String Array When baseContext is not null,
+ *           and verify whether the return value of Get String Array is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetStringArray_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    std::vector<std::string> ret = context_->GetStringArray(0);
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetStringArray_0200
+ * @tc.name: Get String Array
+ * @tc.desc: Test Get String Array When baseContext is null.
+ *           and verify whether the return value of Get String Array is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetStringArray_0200, Function | MediumTest | Level3)
+{
+    std::vector<std::string> ret = context_->GetStringArray(0);
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetIntArray_0100
+ * @tc.name: Get Int Array
+ * @tc.desc: Test Get Int Array When baseContext is not null,
+ *           and verify whether the return value of Get Int Array is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetIntArray_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    std::vector<int> ret = context_->GetIntArray(0);
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetIntArray_0200
+ * @tc.name: Get Int Array
+ * @tc.desc: Test Get Int Array When baseContext is null.
+ *           and verify whether the return value of Get Int Array is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetIntArray_0200, Function | MediumTest | Level3)
+{
+    std::vector<int> ret = context_->GetIntArray(0);
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetTheme_0100
+ * @tc.name: Get Theme
+ * @tc.desc: Test Get Theme When baseContext is not null,
+ *           and verify whether the return value of Get Theme is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetTheme_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+    std::map<std::string, std::string> ret = context_->GetTheme();
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetTheme_0200
+ * @tc.name: Get Theme
+ * @tc.desc: Test Get Theme When baseContext is null.
+ *           and verify whether the return value of Get Theme is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetTheme_0200, Function | MediumTest | Level3)
+{
+    std::map<std::string, std::string> ret = context_->GetTheme();
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_SetTheme_0100
+ * @tc.name: Set Theme
+ * @tc.desc: Test Set Theme When baseContext is not null,
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+    context_->SetTheme(0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_SetTheme_0200
+ * @tc.name: Set Theme
+ * @tc.desc: Test Set Theme When baseContext is null.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0200, Function | MediumTest | Level3)
+{
+    context_->SetTheme(0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainerGetPattern_0100
+ * @tc.name: Get Pattern
+ * @tc.desc: Test Get Pattern When baseContext is not null,
+ *           and verify whether the return value of Get Pattern is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPattern_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    std::map<std::string, std::string> ret = context_->GetPattern();
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetPattern_0200
+ * @tc.name: Get Pattern
+ * @tc.desc: Test Get Pattern When baseContext is null.
+ *           and verify whether the return value of Get Pattern is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPattern_0200, Function | MediumTest | Level3)
+{
+    std::map<std::string, std::string> ret = context_->GetPattern();
+    EXPECT_EQ(ret.size(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainerSetPattern_0100
+ * @tc.name: Set Pattern
+ * @tc.desc: Test Get Pattern When baseContext is not null,
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    context_->SetPattern(0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_SetPattern_0200
+ * @tc.name: Set Pattern
+ * @tc.desc: Test Set Pattern When baseContext is null.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0200, Function | MediumTest | Level3)
+{
+    context_->SetPattern(0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetColor_0100
+ * @tc.name: Get Color
+ * @tc.desc: Test Get Color When baseContext is not null,
+ *           and verify whether the return value of Get Color is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColor_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetColor(0), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetColor_0200
+ * @tc.name: Get Color
+ * @tc.desc: Test Get Color When baseContext is null.
+ *           and verify whether the return value of Get Color is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColor_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetColor(0), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetThemeId_0100
+ * @tc.name: Get Theme Id
+ * @tc.desc: Test Get Theme Id When baseContext is not null,
+ *           and verify whether the return value of Get Theme Id is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetThemeId_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetThemeId(), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetThemeId_0200
+ * @tc.name: Get Theme Id
+ * @tc.desc: Test Get Theme Id When baseContext is null.
+ *           and verify whether the return value of Get Theme Id is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetThemeId_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetThemeId(), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetDisplayOrientation_0100
+ * @tc.name: Get Display Orientation
+ * @tc.desc: Test Get Display Orientation When baseContext is not null,
+ *           and verify whether the return value of Get Display Orientation is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDisplayOrientation_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    contextDeal_-> abilityInfo_ = std::make_shared<AbilityInfo>();
+    contextDeal_->abilityInfo_->orientation = DisplayOrientation::LANDSCAPE;
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetDisplayOrientation(), 1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetDisplayOrientation_0200
+ * @tc.name: Get Display Orientation
+ * @tc.desc: Test Get Display Orientation When baseContext is null.
+ *           and verify whether the return value of Get Display Orientation is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDisplayOrientation_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetDisplayOrientation(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetPreferencesDir_0100
+ * @tc.name: Get Preferences Dir
+ * @tc.desc: Test Get Preferences Dir When baseContext is not null,
+ *           and verify whether the return value of Get Preferences Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPreferencesDire_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetPreferencesDir(), "/data/storage/el2/base/preferences");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetPreferencesDir_0200
+ * @tc.name: Get Preferences Dir
+ * @tc.desc: Test Get Preferences Dir When baseContext is null.
+ *           and verify whether the return value of Get Preferences Dir is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPreferencesDir_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetPreferencesDir(), "");
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetColorMode_0100
+ * @tc.name: Get Color Mode
+ * @tc.desc: Test Get Color Mode When baseContext is not null,
+ *           and verify whether the return value of Get Color Mode is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColorMode_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    contextDeal_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
+    context_->AttachBaseContext(contextDeal_);
+
+    context_->SetColorMode(static_cast<int>(ModuleColorMode::DARK));
+    EXPECT_EQ(context_->GetColorMode(), static_cast<int>(ModuleColorMode::DARK));
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetColorMode_0200
+ * @tc.name: Get Color Mode
+ * @tc.desc: Test Get Color Mode When baseContext is null.
+ *           and verify whether the return value of Get Color Mode is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColorMode_0200, Function | MediumTest | Level3)
+{
+    context_->SetColorMode(-1);
+    EXPECT_EQ(context_->GetColorMode(), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetMissionId_0100
+ * @tc.name: Get Mission Id
+ * @tc.desc: Test Get Mission Id When baseContext is not null,
+ *           and verify whether the return value of Get Mission Id is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetMissionId_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+
+    AAFwk::LifeCycleStateInfo lifeCycleStateInfo;
+    lifeCycleStateInfo.missionId = 0;
+    contextDeal_->SetLifeCycleStateInfo(lifeCycleStateInfo);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->GetMissionId(), 0);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_GetMissionId_0200
+ * @tc.name: Get Mission Id
+ * @tc.desc: Test Get Mission Id When baseContext is null.
+ *           and verify whether the return value of Get Mission Id is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetMissionId_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->GetMissionId(), -1);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100
+ * @tc.name: Is Updating Configurations
+ * @tc.desc: Test Is Updating Configurations When baseContext is not null,
+ *           and verify whether the return value of Is Updating Configurations is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->IsUpdatingConfigurations(), false);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200
+ * @tc.name: Is Updating Configurations
+ * @tc.desc: Test Is Updating Configurations When baseContext is null.
+ *           and verify whether the return value of Is Updating Configurations is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->IsUpdatingConfigurations(), false);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_PrintDrawnCompleted_0100
+ * @tc.name: Print Drawn Completed
+ * @tc.desc: Test Print Drawn Completed When baseContext is not null,
+ *           and verify whether the return value of Print Drawn Completed is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_PrintDrawnCompleted_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->PrintDrawnCompleted(), false);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_PrintDrawnCompleted_0200
+ * @tc.name: Print Drawn Completed
+ * @tc.desc: Test Print Drawn Completed When baseContext is null.
+ *           and verify whether the return value of Print Drawn Completed is correct.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_PrintDrawnCompleted_0200, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->PrintDrawnCompleted(), false);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_CreateBundleContext_0100
+* @tc.name: Create Bundle Context
+ * @tc.desc: Test Create Bundle Context return is not null.
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    std::string bundleName = "BundleName";
+    info->bundleName = bundleName;
+    contextDeal_->SetContext(context);
+    contextDeal_->SetApplicationInfo(info);
+    contextDeal_->SetApplicationContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_NE(context_->CreateBundleContext("BundleName", 0, 0), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_CreateBundleContext_0200
+ * @tc.name: Create Bundle Context
+ * @tc.desc: Test Create Bundle Context return is null because bundle info is error account id is not DEFAULT_ACCOUNT_ID
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0200, Function | MediumTest | Level3)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->CreateBundleContext("bundlename", 0, 0), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_CreateBundleContext_0300
+ * @tc.name: Create Bundle Context
+ * @tc.desc: Test Create Bundle Context return is null because bundle info is error account id is DEFAULT_ACCOUNT_ID
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0300, Function | MediumTest | Level3)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<Context> context(ability);
+    contextDeal_->SetContext(context);
+    context_->AttachBaseContext(contextDeal_);
+
+    EXPECT_EQ(context_->CreateBundleContext("bundlename", 0, DEFAULT_ACCOUNT_ID), nullptr);
+}
+
+/**
+ * @tc.number: AppExecFwk_ContextContainer_CreateBundleContext_0400
+ * @tc.name: Create Bundle Context
+ * @tc.desc: Test Create Bundle Context return is null because bundle name is empty
+ */
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0400, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(context_->CreateBundleContext("", 0, 0), nullptr);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
