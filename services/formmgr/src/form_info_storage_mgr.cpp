@@ -256,7 +256,7 @@ DistributedKv::Status FormInfoStorageMgr::GetKvStore()
     DistributedKv::Options options = {
         .createIfMissing = true,
         .encrypt = false,
-        .autoSync = true,
+        .autoSync = false,
         .kvStoreType = DistributedKv::KvStoreType::SINGLE_VERSION
     };
 
