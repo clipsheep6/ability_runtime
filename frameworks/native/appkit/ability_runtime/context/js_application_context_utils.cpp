@@ -20,11 +20,13 @@
 #include "ability_runtime_error_util.h"
 #include "application_context.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
 #include "js_hap_module_info_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -101,6 +103,8 @@ private:
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
+    bool CheckCallerIsSystemApp();
+
     std::shared_ptr<ApplicationContext> keepApplicationContext_;
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
@@ -115,6 +119,12 @@ NativeValue *JsApplicationContextUtils::CreateBundleContext(NativeEngine *engine
 
 NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engine, NativeCallbackInfo &info)
 {
+    if (!CheckCallerIsSystemApp()) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
+        return engine.CreateUndefined();
+    }
+
     if (info.argc == 0) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -223,6 +233,12 @@ NativeValue* JsApplicationContextUtils::CreateModuleContext(NativeEngine* engine
 
 NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info)
 {
+    if (!CheckCallerIsSystemApp()) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
+        return engine.CreateUndefined();
+    }
+
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
         HILOG_WARN("applicationContext is already released");
@@ -856,6 +872,15 @@ NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& en
         },
         nullptr);
     return contextObj;
+}
+
+bool JsApplicationContextUtils::CheckCallerIsSystemApp()
+{
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        return false;
+    }
+    return true;
 }
 }  // namespace
 

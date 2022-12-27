@@ -115,5 +115,9 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
 {
     return MyFlag::flag_;
 }
+bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
+{
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

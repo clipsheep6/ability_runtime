@@ -26,6 +26,7 @@ namespace {
 constexpr const char* TAG_PERMISSION = " permission:";
 constexpr const char* ERROR_MSG_OK = "OK.";
 constexpr const char* ERROR_MSG_PERMISSION_DENIED = "The application does not have permission to call the interface.";
+constexpr const char* ERROR_MSG_NOT_SYSTEM_APP = "The application is not system-app, can not use system-api.";
 constexpr const char* ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
 constexpr const char* ERROR_MSG_SYSTEMCAP = "The specified SystemCapability name was not found.";
 constexpr const char* ERROR_MSG_INNER = "Internal error.";
@@ -53,6 +54,7 @@ constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specifie
 static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_OK, ERROR_MSG_OK },
     { AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED, ERROR_MSG_PERMISSION_DENIED },
+    { AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP, ERROR_MSG_NOT_SYSTEM_APP },
     { AbilityErrorCode::ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM },
     { AbilityErrorCode::ERROR_CODE_SYSTEMCAP, ERROR_MSG_SYSTEMCAP },
     { AbilityErrorCode::ERROR_CODE_INNER, ERROR_MSG_INNER },
@@ -80,6 +82,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
     {0, AbilityErrorCode::ERROR_OK},
     {CHECK_PERMISSION_FAILED, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED},
+    {ERR_PERMISSION_DENIED, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED},
+    {ERR_NOT_SYSTEM_APP, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP},
     {RESOLVE_ABILITY_ERR, AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY},
     {ERR_WRONG_INTERFACE_CALL, AbilityErrorCode::ERROR_CODE_INVALID_ABILITY_TYPE},
     {TARGET_ABILITY_NOT_SERVICE, AbilityErrorCode::ERROR_CODE_INVALID_ABILITY_TYPE},

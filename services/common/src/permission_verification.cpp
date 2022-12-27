@@ -19,6 +19,7 @@
 #include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
 #include "permission_constants.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -356,6 +357,15 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
     }
 
     return ERR_OK;
+}
+
+bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
+{
+    if (IsSACall() || IsShellCall()) {
+        return true;
+    }
+    auto callerToken = IPCSkeleton::GetCallingFullTokenID();
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerToken);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

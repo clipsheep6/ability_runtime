@@ -889,7 +889,8 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     std::unique_ptr<MissionSnapshot> info(reply.ReadParcelable<MissionSnapshot>());
     if (!info) {
         HILOG_ERROR("readParcelableInfo failed.");
-        return ERR_UNKNOWN_OBJECT;
+        auto errorCode = reply.ReadInt32();
+        return errorCode ? errorCode : ERR_UNKNOWN_OBJECT;
     }
     snapshot = *info;
     return reply.ReadInt32();

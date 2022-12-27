@@ -303,6 +303,11 @@ enum {
      * Result(2097208) for not granted for static permission.
      */
     ERR_STATIC_CFG_PERMISSION,
+
+    /**
+     * Result(2097209) for non-system-app use system-api.
+     */
+    ERR_NOT_SYSTEM_APP,
 };
 
 enum {

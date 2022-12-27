@@ -42,6 +42,7 @@ enum {
     QUICK_FIX_SET_INFO_FAILED = 17,
     QUICK_FIX_PROCESS_TIMEOUT = 18,
     QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED = 19,
+    QUICK_FIX_NOT_SYSTEM_APP = 20,
 };
 
 enum {
@@ -50,6 +51,9 @@ enum {
 
     // The application does not have permission to call the interface.
     ERR_QUICKFIX_PERMISSION_DENIED = 201,
+
+    // non-system-app use system-api.
+    ERR_QUICKFIX_NOT_SYSTEM_APP = 202,
 
     // Invalid input parameter.
     ERR_QUICKFIX_PARAM_INVALID = 401,

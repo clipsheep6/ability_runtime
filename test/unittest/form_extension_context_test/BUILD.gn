@@ -27,7 +27,6 @@ ohos_unittest("form_extension_context_test") {
   ]
 
   sources = [
-    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "form_extension_context_test.cpp",  # add mock file
   ]
@@ -46,6 +45,7 @@ ohos_unittest("form_extension_context_test") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
@@ -60,7 +60,6 @@ ohos_unittest("form_extension_context_test") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
-    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",

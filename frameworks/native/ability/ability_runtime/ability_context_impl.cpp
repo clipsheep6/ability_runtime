@@ -243,23 +243,23 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
     HILOG_INFO("%{public}s. End calling OnAbilityResult.", __func__);
 }
 
-bool AbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
+ErrCode AbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ConnectAbility begin, name:%{public}s.", abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret = ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
     HILOG_INFO("AbilityContextImpl::ConnectAbility ErrorCode = %{public}d", ret);
-    return ret == ERR_OK;
+    return ret;
 }
 
-bool AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, int accountId,
+ErrCode AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, int accountId,
     const sptr<AbilityConnectCallback>& connectCallback)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbilityWithAccount(token_, want, accountId, connectCallback);
     HILOG_INFO("AbilityContextImpl::ConnectAbility ErrorCode = %{public}d", ret);
-    return ret == ERR_OK;
+    return ret;
 }
 
 void AbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,

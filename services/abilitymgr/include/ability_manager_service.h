@@ -1174,6 +1174,10 @@ private:
 
     AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
+    int CheckDlpForExtension(
+        const Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t userId, AAFWK::EventInfo &eventInfo, const std::string &eventName);
+
     void InitStartupFlag();
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);

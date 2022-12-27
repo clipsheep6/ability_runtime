@@ -151,7 +151,7 @@ private:
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(engine, PermissionConstants::PERMISSION_MANAGE_MISSION);
             } else {
-                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+                ThrowError(engine, GetJsErrorCodeByNativeError(ret));
             }
             return engine.CreateUndefined();
         }
@@ -172,7 +172,7 @@ private:
         }
 
         int32_t missionListenerId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionListenerId)) {
+        if (!ConvertFromJsValue(engine, info.argv[ARGC_ONE], missionListenerId)) {
             HILOG_ERROR("Parse missionListenerId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();

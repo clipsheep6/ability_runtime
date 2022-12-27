@@ -27,6 +27,9 @@ enum class AbilityErrorCode {
     // no such permission.
     ERROR_CODE_PERMISSION_DENIED = 201,
 
+    // non-system-app use system-api.
+    ERROR_CODE_NOT_SYSTEM_APP = 202,
+
     // invalid param.
     ERROR_CODE_INVALID_PARAM = 401,
 

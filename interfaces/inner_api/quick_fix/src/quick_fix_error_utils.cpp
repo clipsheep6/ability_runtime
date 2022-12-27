@@ -29,6 +29,7 @@ const std::map<int32_t, int32_t> INTERNAL_ERR_CODE_MAP = {
     { QUICK_FIX_INVALID_PARAM,              ERR_QUICKFIX_PARAM_INVALID },
     { QUICK_FIX_CONNECT_FAILED,             ERR_QUICKFIX_INTERNAL_ERROR },
     { QUICK_FIX_VERIFY_PERMISSION_FAILED,   ERR_QUICKFIX_PERMISSION_DENIED },
+    { QUICK_FIX_NOT_SYSTEM_APP,             ERR_QUICKFIX_NOT_SYSTEM_APP },
     { QUICK_FIX_GET_BUNDLE_INFO_FAILED,     ERR_QUICKFIX_BUNDLE_NAME_INVALID },
     { QUICK_FIX_DEPLOY_FAILED,              ERR_QUICKFIX_HQF_DEPLOY_FAILED },
     { QUICK_FIX_SWICH_FAILED,               ERR_QUICKFIX_HQF_SWITCH_FAILED },
@@ -59,6 +60,7 @@ const std::map<int32_t, std::string> INTERNAL_ERR_MSG_MAP = {
 const std::map<int32_t, std::string> EXTERNAL_ERR_MSG_MAP = {
     { ERR_OK,                           "Success." },
     { ERR_QUICKFIX_PERMISSION_DENIED,   "The application does not have permission to call the interface." },
+    { ERR_QUICKFIX_NOT_SYSTEM_APP,   "The application is not system-app, can not use system-api." },
     { ERR_QUICKFIX_PARAM_INVALID,       "Invalid input parameter." },
     { ERR_QUICKFIX_BUNDLE_NAME_INVALID, "The specified bundleName is invalid." },
     { ERR_QUICKFIX_HQF_INVALID,         "The specified hqf is invalid. Hqf may not exist or inaccessible." },

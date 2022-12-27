@@ -121,6 +121,8 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
         "Internal error." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_NO_ACCESS_PERMISSION,
         "The application does not have permission to call the interface." },
+    { ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP,
+        "The application is not system-app, can not use system-api." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
         "Invalid input parameter." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_SYSCAP,

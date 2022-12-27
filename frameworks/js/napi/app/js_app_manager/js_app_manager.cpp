@@ -188,7 +188,6 @@ private:
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
-
         if (!CheckOnOffType(engine, info)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -198,8 +197,13 @@ private:
         napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), &observerId);
         std::lock_guard<std::mutex> lock(g_observerMutex);
+        if (observer_ == nullptr) {
+            HILOG_ERROR("observer_ is nullpter, please register first");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
         if (!observer_->FindObserverByObserverId(observerId)) {
-            HILOG_INFO("not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
+            HILOG_ERROR("not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
@@ -249,7 +253,7 @@ private:
                     task.ResolveWithNoError(engine, CreateJsAppStateDataArray(engine, list));
                 } else {
                     HILOG_ERROR("OnGetForegroundApplications failed error:%{public}d", ret);
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(ret)));
                 }
             };
 
@@ -275,7 +279,7 @@ private:
                 if (ret == 0) {
                     task.ResolveWithNoError(engine, CreateJsProcessRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(ret)));
                 }
             };
 

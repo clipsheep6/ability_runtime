@@ -79,6 +79,8 @@ struct VerificationInfo {
 
     int CheckStartByCallPermission(const VerificationInfo &verificationInfo) const;
 
+    bool JudgeCallerIsAllowedToUseSystemAPI() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

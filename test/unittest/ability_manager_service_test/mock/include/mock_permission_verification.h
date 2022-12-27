@@ -91,6 +91,8 @@ struct VerificationInfo {
     {
         return IPCSkeleton::GetCallingTokenID() == accessTokenId;
     }
+
+    bool JudgeCallerIsAllowedToUseSystemAPI() const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

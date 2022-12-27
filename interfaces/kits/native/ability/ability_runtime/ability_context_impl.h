@@ -68,9 +68,9 @@ public:
     ErrCode StopServiceExtensionAbility(const Want& want, int32_t accountId = -1) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
     void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) override;
-    bool ConnectAbility(const AAFwk::Want &want,
+    ErrCode ConnectAbility(const AAFwk::Want &want,
                         const sptr<AbilityConnectCallback> &connectCallback) override;
-    bool ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
+    ErrCode ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
                         const sptr<AbilityConnectCallback> &connectCallback) override;
     void DisconnectAbility(const AAFwk::Want &want,
                            const sptr<AbilityConnectCallback> &connectCallback) override;

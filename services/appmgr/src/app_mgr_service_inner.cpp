@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "application_state_observer_stub.h"
 #include "datetime_ex.h"
@@ -58,6 +59,12 @@ using namespace OHOS::Rosen;
 using namespace OHOS::Security;
 
 namespace {
+#define CHECK_CALLER_IS_SYSTEM_APP                                                             \
+    if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) { \
+        HILOG_ERROR("The caller is not system-app, can not use system-api");                   \
+        return AAFwk::ERR_NOT_SYSTEM_APP;                                                             \
+    }
+
 // NANOSECONDS mean 10^9 nano second
 constexpr int64_t NANOSECONDS = 1000000000;
 // MICROSECONDS mean 10^6 milli second
@@ -577,9 +584,9 @@ int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleNam
         HILOG_ERROR("appRunningManager_ is nullptr");
         return ERR_NO_INIT;
     }
-
-    if (VerifyAccountPermission(AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES, userId) ==
-        ERR_PERMISSION_DENIED) {
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (VerifyAccountPermission(
+        AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES, userId) == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return ERR_PERMISSION_DENIED;
     }
@@ -1880,18 +1887,21 @@ void AppMgrServiceInner::NotifyAppStatusByCallerUid(const std::string &bundleNam
 int32_t AppMgrServiceInner::RegisterApplicationStateObserver(
     const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterApplicationStateObserver(
         observer, bundleNameList);
 }
 
 int32_t AppMgrServiceInner::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterApplicationStateObserver(observer);
 }
 
 int32_t AppMgrServiceInner::GetForegroundApplications(std::vector<AppStateData> &list)
 {
     HILOG_INFO("%{public}s, begin.", __func__);
+    CHECK_CALLER_IS_SYSTEM_APP;
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
     if (!isPerm) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -2221,6 +2231,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         HILOG_ERROR("appRunningManager_ is null");
         return ERR_INVALID_VALUE;
     }
+    CHECK_CALLER_IS_SYSTEM_APP;
 
     auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateConfigurationPerm();
     if (ret != ERR_OK) {

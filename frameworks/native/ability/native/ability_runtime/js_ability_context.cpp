@@ -24,6 +24,7 @@
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "ability_runtime/js_caller_complex.h"
+#include "ipc_skeleton.h"
 #include "napi_common_ability.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
@@ -33,6 +34,7 @@
 #include "want.h"
 #include "event_handler.h"
 #include "hitrace_meter.h"
+#include "tokenid_kit.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
@@ -45,7 +47,6 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
-constexpr int32_t ERROR_CODE_ONE = 1;
 
 class StartAbilityByCallParameters {
 public:
@@ -453,6 +454,12 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
 NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_INFO("OnStartAbilityForResultWithAccount is called");
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        return engine.CreateUndefined();
+    }
     if (info.argc < ARGC_TWO) {
         HILOG_ERROR("Not enough params");
         ThrowTooFewParametersError(engine);
@@ -760,8 +767,11 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
                 task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
                 return;
             }
-            if (!context->ConnectAbility(want, connection)) {
-                connection->CallJsFailed(ERROR_CODE_ONE);
+            HILOG_INFO("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
+            auto innerErrorCode = context->ConnectAbility(want, connection);
+            int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
+            if (errcode) {
+                connection->CallJsFailed(errcode);
             }
             task.Resolve(engine, engine.CreateUndefined());
         };
@@ -823,9 +833,11 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
                     task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
                     return;
                 }
-                HILOG_INFO("context->ConnectAbilityWithAccount connection:%{public}d", (int32_t)connectId);
-                if (!context->ConnectAbilityWithAccount(want, accountId, connection)) {
-                    connection->CallJsFailed(ERROR_CODE_ONE);
+                HILOG_INFO("context->ConnectAbilityWithAccount connection:%{public}d", static_cast<int32_t>(connectId));
+                auto innerErrorCode = context->ConnectAbilityWithAccount(want, accountId, connection);
+                int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
+                if (errcode) {
+                    connection->CallJsFailed(errcode);
                 }
                 task.Resolve(engine, engine.CreateUndefined());
         };

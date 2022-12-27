@@ -27,11 +27,13 @@
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "js_ability_manager_utils.h"
 #include "event_runner.h"
 #include "napi_common_configuration.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -211,6 +213,14 @@ private:
     NativeValue* OnGetTopAbility(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+#ifdef ENABLE_ERRCODE
+        auto selfToken = IPCSkeleton::GetSelfTokenID();
+        if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+            HILOG_ERROR("This application is not system-app, can not use system-api");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return engine.CreateUndefined();
+        }
+#endif
         AsyncTask::CompleteCallback complete =
             [](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 AppExecFwk::ElementName elementName = AbilityManagerClient::GetInstance()->GetTopAbility();

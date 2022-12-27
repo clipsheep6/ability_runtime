@@ -155,7 +155,7 @@ private:
                 } else {
                     HILOG_ERROR("Failed to StartAbility, errorCode: %{public}d.", innerErrorCode);
                     task.Reject(engine,
-                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, ERR_APPEXECFWK_FORM_COMMON_CODE));
+                        NapiFormUtil::CreateErrorByInternalErrorCode(engine, innerErrorCode));
                 }
             };
 

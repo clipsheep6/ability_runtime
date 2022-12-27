@@ -22,9 +22,12 @@
 
 #include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "js_runtime_utils.h"
 #include "napi_common.h"
 #include "want_agent_helper.h"
+#include "tokenid_kit.h"
+
 using namespace OHOS::AbilityRuntime;
 namespace OHOS {
 #define NAPI_ASSERT_RETURN_NULL(env, assertion, message)    \
@@ -924,6 +927,12 @@ NativeValue* JsWantAgent::OnNapiGetWant(NativeEngine &engine, NativeCallbackInfo
     if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
         return engine.CreateUndefined();
     }
 

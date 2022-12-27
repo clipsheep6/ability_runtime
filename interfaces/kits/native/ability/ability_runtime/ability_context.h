@@ -134,7 +134,7 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * @return True means success and false means failure
     */
-    virtual bool ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual ErrCode ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
@@ -143,7 +143,7 @@ public:
      * @param connectCallback Indicates the callback object when the target ability is connected.
      * @return True means success and false means failure
      */
-    virtual bool ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
+    virtual ErrCode ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
                                 const sptr<AbilityConnectCallback> &connectCallback) = 0;
 
     /**
