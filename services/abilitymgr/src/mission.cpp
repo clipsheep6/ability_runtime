@@ -68,6 +68,15 @@ bool Mission::IsSpecifiedAbility() const
     return false;
 }
 
+bool Mission::IsStandardAbility() const
+{
+    if (abilityRecord_) {
+        return abilityRecord_->GetAbilityInfo().launchMode == AppExecFwk::LaunchMode::STANDARD;
+    }
+
+    return false;
+}
+
 void Mission::SetSpecifiedFlag(const std::string &flag)
 {
     specifiedFlag_ = flag;

@@ -71,6 +71,14 @@ public:
     std::shared_ptr<Mission> GetSpecifiedMission(const std::string& missionName, const std::string& flag) const;
 
     /**
+     * Get recent standard mission by name.
+     *
+     * @param missionName target mission name.
+     * @return founded mission.
+     */
+    std::shared_ptr<Mission> GetRecentStandardMission(const std::string& missionName) const;
+
+    /**
      * Get top mission of this mission list.
      *
      * @return founded mission.

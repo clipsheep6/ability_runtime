@@ -31,6 +31,7 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
+constexpr uint8_t ENABLE = 2;
 }
 
 uint32_t GetU32Data(const char* ptr)
@@ -43,6 +44,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
+    bool boolParam = *data % ENABLE;
     InnerMissionInfo innerMissionInfo;
 
     // fuzz for MissionInfoMgr
@@ -52,7 +54,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     MissionInfo missionInfo;
     missionInfoMgr->GetMissionInfoById(int32Param, missionInfo);
     missionInfoMgr->GetInnerMissionInfoById(int32Param, innerMissionInfo);
-    missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, innerMissionInfo);
+    missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, boolParam, innerMissionInfo);
 
     return true;
 }
@@ -90,4 +92,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     ch = nullptr;
     return 0;
 }
-

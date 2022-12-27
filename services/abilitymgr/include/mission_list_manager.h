@@ -392,11 +392,12 @@ private:
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
+    std::shared_ptr<Mission> GetReusedStandardMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
     bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
-    std::string GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const;
+    std::string GetMissionName(const AbilityRequest &abilityRequest) const;
     bool CreateOrReusedMissionInfo(const AbilityRequest &abilityRequest, InnerMissionInfo &info) const;
     void MoveMissionToTargetList(bool isCallFromLauncher,
         const std::shared_ptr<MissionList> &targetMissionList,

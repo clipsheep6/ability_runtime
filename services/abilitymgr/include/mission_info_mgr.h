@@ -97,10 +97,12 @@ public:
      *
      * @param missionName name of mission.
      * @param flag name of specified mission flag.
+     * @param isFindRecentStandard find recent standard mission.
      * @param info found mission info.
      * @return true if success.
      */
-    bool FindReusedMissionInfo(const std::string &missionName, const std::string &flag, InnerMissionInfo &info);
+    bool FindReusedMissionInfo(const std::string &missionName, const std::string &flag,
+        bool isFindRecentStandard, InnerMissionInfo &info);
 
     /**
      * @brief Delete all the mission info.
