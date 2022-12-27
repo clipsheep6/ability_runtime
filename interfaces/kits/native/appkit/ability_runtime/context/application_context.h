@@ -74,6 +74,8 @@ public:
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
+    void KillProcessBySelf();
+    int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
 
     void InitApplicationContext();
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);

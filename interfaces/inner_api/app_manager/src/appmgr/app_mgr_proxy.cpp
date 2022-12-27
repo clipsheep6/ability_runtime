@@ -268,6 +268,22 @@ int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessIn
     return result;
 }
 
+int32_t AppMgrProxy::GetProcessRunningInformation(RunningProcessInfo &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!SendTransactCmd(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<RunningProcessInfo> infoReply(reply.ReadParcelable<RunningProcessInfo>());
+    info = *infoReply;
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
 {
     MessageParcel data;

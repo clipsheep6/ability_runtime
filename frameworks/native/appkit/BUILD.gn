@@ -200,6 +200,7 @@ ohos_shared_library("app_context") {
   external_deps = [
     "ability_base:configuration",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -248,6 +249,7 @@ ohos_shared_library("app_context_utils") {
 
   external_deps = [
     "ability_runtime:ability_runtime_error_util",
+    "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",

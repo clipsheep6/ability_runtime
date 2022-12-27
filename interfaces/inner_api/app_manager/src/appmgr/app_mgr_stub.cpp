@@ -89,6 +89,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleRegisterConfigurationObserver;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_CONFIGURATION_OBSERVER)] =
         &AppMgrStub::HandleUnregisterConfigurationObserver;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION)] =
+        &AppMgrStub::HandleGetProcessRunningInformation;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -234,6 +236,20 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
         if (!reply.WriteParcelable(&it)) {
             return ERR_INVALID_VALUE;
         }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetProcessRunningInformation(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    RunningProcessInfo info;
+    auto result = GetProcessRunningInformation(info);
+    if (!reply.WriteParcelable(&info)) {
+        return ERR_INVALID_VALUE;
     }
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;

@@ -30,9 +30,11 @@
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "sys_mgr_client.h"
+#include "app_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
 #include "configuration_convertor.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -546,6 +548,20 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& 
 void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     config_ = config;
+}
+
+void ContextImpl::KillProcessBySelf()
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    appMgrClient->KillApplicationSelf();
+}
+
+int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info)
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    auto result = appMgrClient->GetProcessRunningInformation(info);
+    HILOG_DEBUG("result is %{public}d.", result);
+    return result;
 }
 
 std::shared_ptr<AppExecFwk::Configuration> ContextImpl::GetConfiguration() const
