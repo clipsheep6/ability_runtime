@@ -328,7 +328,7 @@ private:
     void ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
     void RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
     std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByToken(const sptr<IRemoteObject> &token);
-
+    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByName(const std::string &name);
     inline void CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
 private:

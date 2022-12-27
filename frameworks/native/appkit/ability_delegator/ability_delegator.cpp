@@ -204,16 +204,25 @@ AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRem
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::GetCurrentTopAbility()
 {
-    sptr<IRemoteObject> topAbilityToken;
-    if (AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(topAbilityToken)) {
+    AppExecFwk::ElementName elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    std::string bundleName = elementName.GetBundleName();
+    std::string abilityName = elementName.GetAbilityName();
+    if (abilityName.empty()) {
         HILOG_ERROR("Failed to get top ability");
         return {};
     }
 
+    if (!bundleName.empty()) {
+        std::string::size_type pos = abilityName.find(bundleName);
+        if (pos == std::string::npos || pos != 0) {
+            abilityName = bundleName + "." + abilityName;
+        }
+    }
+
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
-    auto existedProperty = FindPropertyByToken(topAbilityToken);
+    auto existedProperty = FindPropertyByName(abilityName);
     if (!existedProperty) {
-        HILOG_WARN("Unknown ability token");
+        HILOG_WARN("Unknown ability name");
         return {};
     }
 
@@ -654,7 +663,31 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
         }
 
         if (token == it->token_) {
-            HILOG_INFO("Porperty exists");
+            HILOG_INFO("Property exists");
+            return it;
+        }
+    }
+
+    return {};
+}
+
+std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(const std::string &name)
+{
+    HILOG_INFO("Enter");
+
+    if (name.empty()) {
+        HILOG_WARN("Invalid input parameter");
+        return {};
+    }
+
+    for (const auto &it : abilityProperties_) {
+        if (!it) {
+            HILOG_WARN("Invalid ability property");
+            continue;
+        }
+
+        if (name == it->name_) {
+            HILOG_INFO("Property exists");
             return it;
         }
     }
