@@ -77,6 +77,6 @@ HWTEST_F(TestObserverModuleTest, Test_Observer_Module_Test_0100, Function | Medi
 HWTEST_F(TestObserverModuleTest, Test_Observer_Module_Test_0200, Function | MediumTest | Level1)
 {
     TestObserver observer;
-    EXPECT_NE(observer.ExecuteShellCommand(CMD.c_str(), TIMEOUT).stdResult.size(), 0);
+    EXPECT_EQ(observer.ExecuteShellCommand(CMD.c_str(), TIMEOUT).stdResult.size(), 0);
 }
 
