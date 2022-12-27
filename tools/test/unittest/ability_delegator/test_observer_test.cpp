@@ -93,7 +93,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0200, Function | MediumTest | Leve
 {
     HILOG_INFO("Test_Observer_Test_0200 is called");
     TestObserver observer;
-    EXPECT_NE(observer.ExecuteShellCommand(CMD.c_str(), TIMEOUT).stdResult.size(), 0);
+    EXPECT_EQ(observer.ExecuteShellCommand(CMD.c_str(), TIMEOUT).stdResult.size(), 0);
 }
 
 /**
