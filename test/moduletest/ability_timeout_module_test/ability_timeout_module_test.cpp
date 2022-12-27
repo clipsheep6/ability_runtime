@@ -328,7 +328,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart);
+    abilityMs_->GetMaxRestartNum(maxRestart, true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -369,7 +369,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart);
+    abilityMs_->GetMaxRestartNum(maxRestart, true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -415,7 +415,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart);
+    abilityMs_->GetMaxRestartNum(maxRestart, true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.

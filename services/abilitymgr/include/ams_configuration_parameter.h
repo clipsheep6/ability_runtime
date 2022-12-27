@@ -31,6 +31,8 @@ constexpr const char* DEVICE_TYPE = "device_type";
 constexpr const char* SYSTEM_CONFIGURATION = "system_configuration";
 constexpr const char* SYSTEM_ORIENTATION = "system_orientation";
 constexpr const char* ROOT_LAUNCHER_RESTART_MAX = "root_launcher_restart_max";
+constexpr const char* RESIDENT_RESTART_MAX = "resident_restart_max";
+constexpr const char* RESTART_INTERVAL_TIME = "restart_interval_time";
 constexpr const char* BOOT_ANIMATION_TIMEOUT_TIME = "boot_animation_timeout_time";
 }  // namespace AmsConfig
 
@@ -63,7 +65,12 @@ public:
     /**
      * Get the max number of restart.
      */
-    int GetMaxRestartNum() const;
+    int GetMaxRestartNum(bool isRootLauncher) const;
+
+    /**
+     * Get the interval time after restart out of the max number of restart.
+     */
+    int GetRestartIntervalTime() const;
 
     /**
      * get the application not response process timeout time.
@@ -99,7 +106,9 @@ private:
 
 private:
     bool nonConfigFile_ {false};
-    int maxRestartNum_ = 0;
+    int maxRootLauncherRestartNum_ = 0;
+    int maxResidentRestartNum_ = 0;
+    int restartIntervalTime_ {120000};
     std::string orientation_ {""};
     int missionSaveTime_ {12 * 60 * 60 * 1000};
     int anrTime_ {5000};

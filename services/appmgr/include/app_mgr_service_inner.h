@@ -793,6 +793,7 @@ private:
     std::recursive_mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
+    std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

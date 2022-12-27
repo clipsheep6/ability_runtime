@@ -2,6 +2,8 @@
     "service_startup_config":{
         "mission_save_time" : 43200000,
         "root_launcher_restart_max":15,
+        "resident_restart_max": 3,
+        "restart_interval_time": 120000,
         "app_not_response_process_timeout_time" : 1000,
         "ams_timeout_time" : 180,
         "device_type" : "phone",

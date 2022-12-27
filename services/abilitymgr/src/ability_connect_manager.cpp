@@ -220,7 +220,13 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         }
         if (targetService && abilityRequest.abilityInfo.name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
             targetService->SetLauncherRoot();
-            targetService->SetRestarting(abilityRequest.restart, abilityRequest.restartCount);
+            targetService->SetKeepAlive();
+            targetService->SetRestartTime(abilityRequest.restartTime);
+            targetService->SetRestartCount(abilityRequest.restartCount);
+        } else if (IsAbilityNeedKeepAlive(targetService)) {
+            targetService->SetKeepAlive();
+            targetService->SetRestartTime(abilityRequest.restartTime);
+            targetService->SetRestartCount(abilityRequest.restartCount);
         }
         serviceMap_.emplace(element.GetURI(), targetService);
         isLoadedAbility = false;
@@ -364,9 +370,6 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
     abilityRecord->SetScheduler(scheduler);
     abilityRecord->Inactivate();
-    if (IsAbilityNeedRestart(abilityRecord)) {
-        abilityRecord->SetRestartCount(RESTART_RESIDENT_ABILITY_MAX_TIMES);
-    }
 
     return ERR_OK;
 }
@@ -654,6 +657,40 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
         abilityRecord->GetWant());
 }
 
+void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilityRequest)
+{
+    HILOG_INFO("PostRestartResidentTask start.");
+    CHECK_POINTER(eventHandler_);
+    std::string taskName = std::string("RestartResident_") + std::string(abilityRequest.abilityInfo.name);
+    auto task = [abilityRequest, connectManager = shared_from_this()]() {
+        CHECK_POINTER(connectManager);
+        connectManager->HandleRestartResidentTask(abilityRequest);
+    };
+    int restartIntervalTime = 0;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (abilityMgr) {
+        abilityMgr->GetRestartIntervalTime(restartIntervalTime);
+    }
+    HILOG_DEBUG("PostRestartResidentTask, time:%{public}d", restartIntervalTime);
+    eventHandler_->PostTask(task, taskName, restartIntervalTime);
+    HILOG_INFO("PostRestartResidentTask end.");
+}
+
+void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abilityRequest)
+{
+    HILOG_INFO("HandleRestartResidentTask start.");
+    auto findRestartResidentTask = [abilityRequest](const AbilityRequest &requestInfo) {
+        return (requestInfo.want.GetElement().GetBundleName() == abilityRequest.want.GetElement().GetBundleName() &&
+            requestInfo.want.GetElement().GetModuleName() == abilityRequest.want.GetElement().GetModuleName() &&
+            requestInfo.want.GetElement().GetAbilityName() == abilityRequest.want.GetElement().GetAbilityName());
+    };
+    auto findIter = find_if(restartResidentTaskList_.begin(), restartResidentTaskList_.end(), findRestartResidentTask);
+    if (findIter != restartResidentTaskList_.end()) {
+        restartResidentTaskList_.erase(findIter);
+    }
+    StartAbilityLocked(abilityRequest);
+}
+
 void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t messageId)
 {
     CHECK_POINTER(abilityRecord);
@@ -722,7 +759,7 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
         RemoveServiceAbility(abilityRecord);
         if (abilityRecord->GetAbilityInfo().name != AbilityConfig::LAUNCHER_ABILITY_NAME) {
             DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
-            if (IsAbilityNeedRestart(abilityRecord)) {
+            if (IsAbilityNeedKeepAlive(abilityRecord)) {
                 HILOG_WARN("Load time out , try to restart.");
                 RestartAbility(abilityRecord, userId_);
             }
@@ -758,6 +795,7 @@ void AbilityConnectManager::StartRootLauncher(const std::shared_ptr<AbilityRecor
     requestInfo.want = abilityRecord->GetWant();
     requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
     requestInfo.appInfo = abilityRecord->GetApplicationInfo();
+    requestInfo.restartTime = abilityRecord->GetRestartTime();
     requestInfo.restart = true;
     requestInfo.restartCount = abilityRecord->GetRestartCount() - 1;
 
@@ -1028,7 +1066,7 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
     HILOG_DEBUG("HandleInactiveTimeout end");
 }
 
-bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRecord> &abilityRecord)
+bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, false);
@@ -1039,7 +1077,7 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
         return false;
     }
 
-    auto CheckIsAbilityKeepAlive = [](const AppExecFwk::HapModuleInfo &hapModuleInfo,
+    auto CheckIsAbilityNeedKeepAlive = [](const AppExecFwk::HapModuleInfo &hapModuleInfo,
         const std::string processName, std::string &mainElement) {
         if (!hapModuleInfo.isModuleJson) {
             // old application model
@@ -1069,7 +1107,7 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
             std::string bundleName = bundleInfos[i].name;
             for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
                 std::string mainElement;
-                if (CheckIsAbilityKeepAlive(hapModuleInfo, processName, mainElement) && !mainElement.empty()) {
+                if (CheckIsAbilityNeedKeepAlive(hapModuleInfo, processName, mainElement) && !mainElement.empty()) {
                     keepAliveAbilities.push_back(std::make_pair(bundleName, mainElement));
                 }
             }
@@ -1086,7 +1124,11 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
     std::vector<std::pair<std::string, std::string>> keepAliveAbilities;
     GetKeepAliveAbilities(keepAliveAbilities);
     auto findIter = find_if(keepAliveAbilities.begin(), keepAliveAbilities.end(), findKeepAliveAbility);
-    return (findIter != keepAliveAbilities.end());
+    if (findIter != keepAliveAbilities.end()) {
+        abilityRecord->SetKeepAlive();
+        return true;
+    }
+    return false;
 }
 
 void AbilityConnectManager::HandleAbilityDiedTask(
@@ -1108,7 +1150,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         RemoveConnectionRecordFromMap(connectRecord);
     }
 
-    if (IsAbilityNeedRestart(abilityRecord)) {
+    if (IsAbilityNeedKeepAlive(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RemoveServiceAbility(abilityRecord);
         RestartAbility(abilityRecord, currentUserId);
@@ -1120,36 +1162,48 @@ void AbilityConnectManager::HandleAbilityDiedTask(
 
 void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
-        AbilityRequest requestInfo;
-        requestInfo.want = abilityRecord->GetWant();
-        requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
-        requestInfo.appInfo = abilityRecord->GetApplicationInfo();
-        requestInfo.restart = true;
+    HILOG_INFO("Restart ability");
+    AbilityRequest requestInfo;
+    requestInfo.want = abilityRecord->GetWant();
+    requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
+    requestInfo.appInfo = abilityRecord->GetApplicationInfo();
+    requestInfo.restartTime = abilityRecord->GetRestartTime();
+    requestInfo.restart = true;
+    abilityRecord->SetRestarting(true);
 
-        if (currentUserId != userId_ &&
-            abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
-            HILOG_WARN("delay restart root launcher until switch user.");
+    if (currentUserId != userId_ &&
+        abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
+        HILOG_WARN("delay restart root launcher until switch user.");
+        return;
+    }
+
+    if (abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
+        requestInfo.restartCount = abilityRecord->GetRestartCount();
+        HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
+        StartAbilityLocked(requestInfo);
+        return;
+    }
+
+    // restart other resident ability
+    if (abilityRecord->CanRestartResident()) {
+        requestInfo.restartCount = abilityRecord->GetRestartCount();
+        requestInfo.restartTime = AbilityUtil::SystemTimeMillis();
+        StartAbilityLocked(requestInfo);
+    } else {
+        auto findRestartResidentTask = [requestInfo](const AbilityRequest &abilityRequest) {
+            return (requestInfo.want.GetElement().GetBundleName() == abilityRequest.want.GetElement().GetBundleName() &&
+                requestInfo.want.GetElement().GetModuleName() == abilityRequest.want.GetElement().GetModuleName() &&
+                requestInfo.want.GetElement().GetAbilityName() == abilityRequest.want.GetElement().GetAbilityName());
+        };
+        auto findIter = find_if(restartResidentTaskList_.begin(), restartResidentTaskList_.end(),
+            findRestartResidentTask);
+        if (findIter != restartResidentTaskList_.end()) {
+            HILOG_WARN("The restart task has been registered.");
             return;
         }
-
-        if (abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
-            requestInfo.restartCount = abilityRecord->GetRestartCount() - 1;
-            HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
-            StartAbilityLocked(requestInfo);
-            return;
-        }
-
-        if (abilityRecord->GetRestartCount() < 0) {
-            abilityRecord->SetRestartCount(RESTART_RESIDENT_ABILITY_MAX_TIMES); // set default value
-        }
-
-        int restartCount = abilityRecord->GetRestartCount();
-        if (restartCount > 0) {
-            HILOG_INFO("restart ability: %{public}s, remain restart count: %{public}d",
-                abilityRecord->GetAbilityInfo().name.c_str(), restartCount);
-            abilityRecord->SetRestartCount(--restartCount);
-            StartAbilityLocked(requestInfo);
-        }
+        restartResidentTaskList_.emplace_back(requestInfo);
+        PostRestartResidentTask(requestInfo);
+    }
 }
 
 void AbilityConnectManager::DumpState(std::vector<std::string> &info, bool isClient, const std::string &args) const
