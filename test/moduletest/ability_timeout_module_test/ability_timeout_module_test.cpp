@@ -32,7 +32,6 @@
 #include "mock_ability_connect_callback.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "os_account_manager.h"
 
 using namespace testing;
 using namespace testing::ext;

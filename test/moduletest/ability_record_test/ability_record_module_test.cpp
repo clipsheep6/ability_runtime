@@ -31,7 +31,6 @@
 #include "connection_record.h"
 #include "mock_app_mgr_client.h"
 #include "mock_ability_scheduler_stub.h"
-#include "os_account_manager.h"
 #undef private
 
 using namespace testing::ext;

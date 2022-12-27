@@ -32,8 +32,6 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "os_account_manager.h"
-#include "os_account_info.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
