@@ -15,8 +15,12 @@
 
 #include <gtest/gtest.h>
 
-#include "ability_impl.h"
 #include "ability.h"
+#define private public
+#define protected public
+#include "ability_impl.h"
+#undef protected
+#undef private
 #include "context_deal.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
@@ -1525,6 +1529,1606 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndRestore_001, TestSize.Level1
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_001 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0200
+ * @tc.name: Init
+ * @tc.desc: application is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0200 start";
+    std::shared_ptr<OHOSApplication> application;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0300
+ * @tc.name: Init
+ * @tc.desc: record is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0300 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> record;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create("");
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0400
+ * @tc.name: Init
+ * @tc.desc: ability is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0400 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<Ability> ability;
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0500
+ * @tc.name: Init
+ * @tc.desc: handler is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0500 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityHandler> handler;
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0500 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0600
+ * @tc.name: Init
+ * @tc.desc: token is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0600, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0600 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> token = nullptr;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0600 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Init_0700
+ * @tc.name: Init
+ * @tc.desc: contextDeal is nullptr, Verify Init failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_0700, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0700 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<ContextDeal> contextDeal;
+    AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    EXPECT_TRUE(AbilityImpl_->token_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_0700 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Start_0200
+ * @tc.name: Start
+ * @tc.desc: Test the normal behavior of the AbilityImpl::Start
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0200 start";
+
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    abilityInfo->type = AbilityType::DATA;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(token, nullptr);
+    if (token != nullptr) {
+        std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetAbilityInfo(abilityInfo);
+            ability->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplStart(want);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
+        }
+    }
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Start_0300
+ * @tc.name: Start
+ * @tc.desc: Test the normal behavior of the AbilityImpl::Start
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0300 start";
+
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    abilityInfo->type = AppExecFwk::AbilityType::PAGE;
+    abilityInfo->isStageBasedModel = true;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(token, nullptr);
+    if (token != nullptr) {
+        std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetAbilityInfo(abilityInfo);
+            ability->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplStart(want);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_STARTED_NEW, mockAbilityimpl->GetCurrentState());
+        }
+    }
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Start_0400
+ * @tc.name: Start
+ * @tc.desc: ability is nullptr, Verify Start failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0400 start";
+    AbilityImpl_->ability_ = nullptr;
+    Want want;
+    AbilityImpl_->Start(want);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Start_0500
+ * @tc.name: Start
+ * @tc.desc: abilityInfo is nullptr, Verify Start failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0500 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    Want want;
+    AbilityImpl_->Start(want);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0500 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Start_0600
+ * @tc.name: Start
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Start failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_0600, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0600 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    Want want;
+    AbilityImpl_->Start(want);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_0600 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0200
+ * @tc.name: Stop
+ * @tc.desc: ability is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0200 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->Stop();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0300
+ * @tc.name: Stop
+ * @tc.desc: abilityInfo is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0300 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->Stop();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0400
+ * @tc.name: Stop
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0400 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    AbilityImpl_->Stop();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0500
+ * @tc.name: Stop
+ * @tc.desc: ability is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0500 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    AbilityImpl_->ability_ = nullptr;
+    bool isAsyncCallback = true;
+    AbilityImpl_->Stop(isAsyncCallback);
+    EXPECT_FALSE(isAsyncCallback);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0500 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0600
+ * @tc.name: Stop
+ * @tc.desc: abilityInfo is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0600, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0600 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    bool isAsyncCallback = true;
+    AbilityImpl_->Stop(isAsyncCallback);
+    EXPECT_FALSE(isAsyncCallback);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0600 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0700
+ * @tc.name: Stop
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0700, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0700 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    bool isAsyncCallback = true;
+    AbilityImpl_->Stop(isAsyncCallback);
+    EXPECT_FALSE(isAsyncCallback);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0700 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Stop_0800
+ * @tc.name: Stop
+ * @tc.desc: Verify Stop succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_0800, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0800 start";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(token, nullptr);
+    if (token != nullptr) {
+        std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility* pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetAbilityInfo(abilityInfo);
+            ability->AttachBaseContext(contextDeal);
+            AbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+            AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+            bool isAsyncCallback = false;
+            AbilityImpl_->Stop(isAsyncCallback);
+
+            EXPECT_EQ(MockPageAbility::Event::ON_STOP, pMocKPageAbility->state_);
+            EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+        }
+    }
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_0800 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_StopCallback_0200
+ * @tc.name: StopCallback
+ * @tc.desc: ability is nullptr, Verify StopCallback failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_StopCallback_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0200 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->StopCallback();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_StopCallback_0300
+ * @tc.name: StopCallback
+ * @tc.desc: abilityInfo is nullptr, Verify StopCallback failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_StopCallback_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0300 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->StopCallback();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_StopCallback_0400
+ * @tc.name: Stop
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Stop failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_StopCallback_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0400 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    AbilityImpl_->StopCallback();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_StopCallback_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Active_0200
+ * @tc.name: Active
+ * @tc.desc: ability is nullptr, Verify Active failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Active_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0200 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->Active();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Active_0300
+ * @tc.name: Active
+ * @tc.desc: abilityInfo is nullptr, Verify Active failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Active_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0300 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->Active();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Active_0400
+ * @tc.name: Active
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Active failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Active_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0400 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    AbilityImpl_->Active();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Inactive_0200
+ * @tc.name: Inactive
+ * @tc.desc: ability is nullptr, Verify Inactive failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Inactive_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0200 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->Inactive();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Inactive_0300
+ * @tc.name: Inactive
+ * @tc.desc: abilityInfo is nullptr, Verify Inactive failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Inactive_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0300 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->Inactive();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Inactive_0400
+ * @tc.name: Inactive
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify Inactive failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Inactive_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0400 start";
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    AbilityImpl_->Inactive();
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_IsStageBasedModel_0100
+ * @tc.name: IsStageBasedModel
+ * @tc.desc: Verify IsStageBasedModel succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_IsStageBasedModel_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_IsStageBasedModel_0100 start";
+    EXPECT_FALSE(AbilityImpl_->IsStageBasedModel());
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_IsStageBasedModel_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DispatchSaveAbilityState_0100
+ * @tc.name: DispatchSaveAbilityState
+ * @tc.desc: ability is nullptr, Verify DispatchSaveAbilityState failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchSaveAbilityState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->DispatchSaveAbilityState();
+    EXPECT_FALSE(AbilityImpl_->needSaveDate_);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DispatchSaveAbilityState_0200
+ * @tc.name: DispatchSaveAbilityState
+ * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify DispatchSaveAbilityState failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchSaveAbilityState_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    AbilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    AbilityImpl_->DispatchSaveAbilityState();
+    EXPECT_FALSE(AbilityImpl_->needSaveDate_);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DispatchRestoreAbilityState_0100
+ * @tc.name: DispatchRestoreAbilityState
+ * @tc.desc: ability is nullptr, Verify DispatchRestoreAbilityState failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchRestoreAbilityState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchRestoreAbilityState_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    PacMap inState;
+    AbilityImpl_->DispatchRestoreAbilityState(inState);
+    EXPECT_FALSE(AbilityImpl_->hasSaveData_);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchRestoreAbilityState_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_HandleAbilityTransaction_0100
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Verify HandleAbilityTransaction succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_HandleAbilityTransaction_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_HandleAbilityTransaction_0100 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    AbilityImpl_->HandleAbilityTransaction(want, targetState);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_HandleAbilityTransaction_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AbilityTransactionCallback_0100
+ * @tc.name: AbilityTransactionCallback
+ * @tc.desc: Verify AbilityTransactionCallback succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AbilityTransactionCallback_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AbilityTransactionCallback_0100 start";
+    AAFwk::AbilityLifeCycleState state = AAFwk::ABILITY_STATE_INITIAL;
+    AbilityImpl_->AbilityTransactionCallback(state);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AbilityTransactionCallback_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ConnectAbility_0100
+ * @tc.name: ConnectAbility
+ * @tc.desc: ability is nullptr, Verify ConnectAbility failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ConnectAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ConnectAbility_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    Want want;
+    AbilityImpl_->ConnectAbility(want);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ConnectAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DisconnectAbility_0100
+ * @tc.name: DisconnectAbility
+ * @tc.desc: ability is nullptr, Verify DisconnectAbility failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DisconnectAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DisconnectAbility_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    Want want;
+    AbilityImpl_->DisconnectAbility(want);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DisconnectAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DisconnectAbility_0200
+ * @tc.name: DisconnectAbility
+ * @tc.desc: Verify DisconnectAbility succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DisconnectAbility_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DisconnectAbility_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    Want want;
+    AbilityImpl_->DisconnectAbility(want);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DisconnectAbility_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CommandAbility_0100
+ * @tc.name: CommandAbility
+ * @tc.desc: ability is nullptr, Verify CommandAbility failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CommandAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CommandAbility_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    AbilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    Want want;
+    bool restart = false;
+    int32_t startId = 0;
+    AbilityImpl_->CommandAbility(want, restart, startId);
+    EXPECT_EQ(AbilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_INITIAL);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CommandAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SendResult_0100
+ * @tc.name: SendResult
+ * @tc.desc: ability is nullptr, Verify SendResult failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SendResult_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    int32_t requestCode = 0;
+    int32_t resultCode = 0;
+    Want resultData;
+    AbilityImpl_->SendResult(requestCode, resultCode, resultData);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SendResult_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NewWant_0100
+ * @tc.name: NewWant
+ * @tc.desc: ability is nullptr, Verify NewWant failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NewWant_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NewWant_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    Want want;
+    AbilityImpl_->NewWant(want);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NewWant_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_OpenRawFile_0100
+ * @tc.name: OpenRawFile
+ * @tc.desc: Verify OpenRawFile succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_OpenRawFile_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_OpenRawFile_0100 start";
+    Uri uri("");
+    std::string mode = "";
+    auto result = AbilityImpl_->OpenRawFile(uri, mode);
+    EXPECT_EQ(result, -1);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_OpenRawFile_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Call_0100
+ * @tc.name: Call
+ * @tc.desc: Verify Call succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Call_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Call_0100 start";
+    Uri uri("");
+    std::string mode = "";
+    std::string arg = "";
+    AppExecFwk::PacMap pacMap;
+    auto obj = AbilityImpl_->Call(uri, mode, arg, pacMap);
+    EXPECT_TRUE(obj == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Call_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_GetType_0100
+ * @tc.name: GetType
+ * @tc.desc: Verify GetType succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_GetType_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_GetType_0100 start";
+    Uri uri("");
+    auto type = AbilityImpl_->GetType(uri);
+    EXPECT_STREQ(type.c_str(), "");
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_GetType_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_Reload_0100
+ * @tc.name: Reload
+ * @tc.desc: Verify Reload succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Reload_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Reload_0100 start";
+    Uri uri("");
+    PacMap extras;
+    auto result = AbilityImpl_->Reload(uri, extras);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Reload_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_BatchInsert_0100
+ * @tc.name: BatchInsert
+ * @tc.desc: Verify BatchInsert succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_BatchInsert_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_BatchInsert_0100 start";
+    Uri uri("");
+    std::vector<NativeRdb::ValuesBucket> values;
+    auto result = AbilityImpl_->BatchInsert(uri, values);
+    EXPECT_EQ(result, -1);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_BatchInsert_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SerUriString_0100
+ * @tc.name: SerUriString
+ * @tc.desc: Verify SerUriString succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SerUriString_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SerUriString_0100 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->contextDeal_ = contextDeal;
+
+    std::string uri = "abc";
+    AbilityImpl_->SerUriString(uri);
+    auto getUri = AbilityImpl_->contextDeal_->GetCaller();
+    EXPECT_STREQ(getUri.ToString().c_str(), "abc");
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SerUriString_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SerUriString_0200
+ * @tc.name: SerUriString
+ * @tc.desc: contextDeal_ is nullptr, Verify SerUriString failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SerUriString_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SerUriString_0200 start";
+    AbilityImpl_->contextDeal_ = nullptr;
+    std::string uri = "abc";
+    AbilityImpl_->SerUriString(uri);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SerUriString_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SetLifeCycleStateInfo_0100
+ * @tc.name: SetLifeCycleStateInfo
+ * @tc.desc: Verify SetLifeCycleStateInfo succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SetLifeCycleStateInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetLifeCycleStateInfo_0100 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->contextDeal_ = contextDeal;
+
+    AAFwk::LifeCycleStateInfo info;
+    info.isNewWant = true;
+    AbilityImpl_->SetLifeCycleStateInfo(info);
+    auto state = AbilityImpl_->contextDeal_->GetLifeCycleStateInfo();
+    EXPECT_TRUE(state.isNewWant);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetLifeCycleStateInfo_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200
+ * @tc.name: SetLifeCycleStateInfo
+ * @tc.desc: Verify SetLifeCycleStateInfo succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200 start";
+    AbilityImpl_->contextDeal_ = nullptr;
+    AAFwk::LifeCycleStateInfo info;
+    info.isNewWant = true;
+    AbilityImpl_->SetLifeCycleStateInfo(info);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CheckAndRestore_0100
+ * @tc.name: CheckAndRestore
+ * @tc.desc: hasSaveData_ is false, Verify CheckAndRestore failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndRestore_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_0100 start";
+    AbilityImpl_->hasSaveData_ = false;
+    auto result = AbilityImpl_->CheckAndRestore();
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CheckAndRestore_0200
+ * @tc.name: CheckAndRestore
+ * @tc.desc: ability is nullptr, Verify CheckAndRestore failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndRestore_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_0200 start";
+    AbilityImpl_->hasSaveData_ = true;
+    AbilityImpl_->ability_ = nullptr;
+    auto result = AbilityImpl_->CheckAndRestore();
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CheckAndSave_0100
+ * @tc.name: CheckAndSave
+ * @tc.desc: needSaveDate_ is false, Verify CheckAndSave failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndSave_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndSave_0100 start";
+    AbilityImpl_->needSaveDate_ = false;
+    auto result = AbilityImpl_->CheckAndSave();
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndSave_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CheckAndSave_0200
+ * @tc.name: CheckAndSave
+ * @tc.desc: ability is nullptr, Verify CheckAndSave failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndSave_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndSave_0200 start";
+    AbilityImpl_->needSaveDate_ = true;
+    AbilityImpl_->ability_ = nullptr;
+    auto result = AbilityImpl_->CheckAndSave();
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndSave_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_GetRestoreData_0100
+ * @tc.name: GetRestoreData
+ * @tc.desc: Verify GetRestoreData succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_GetRestoreData_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_GetRestoreData_0100 start";
+    PacMap pacMap;
+    std::string key = "key";
+    pacMap.PutIntValue(key, 1);
+    AbilityImpl_->restoreData_ = pacMap;
+    auto result = AbilityImpl_->GetRestoreData();
+    auto value = result.GetIntValue(key, 0);
+    EXPECT_EQ(value, 1);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_GetRestoreData_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_SetCallingContext_0100
+ * @tc.name: SetCallingContext
+ * @tc.desc: Verify GetRestoreData succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SetCallingContext_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetCallingContext_0100 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    std::string deviceId = "deviceId";
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    std::string moduleName = "moduleName";
+    AbilityImpl_->SetCallingContext(deviceId, bundleName, abilityName, moduleName);
+
+    auto element = AbilityImpl_->ability_->GetCallingAbility();
+    EXPECT_STREQ(element->GetDeviceID().c_str(), deviceId.c_str());
+    EXPECT_STREQ(element->GetBundleName().c_str(), bundleName.c_str());
+    EXPECT_STREQ(element->GetAbilityName().c_str(), abilityName.c_str());
+    EXPECT_STREQ(element->GetModuleName().c_str(), moduleName.c_str());
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetCallingContext_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NormalizeUri_0100
+ * @tc.name: NormalizeUri
+ * @tc.desc: Verify NormalizeUri succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NormalizeUri_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NormalizeUri_0100 start";
+    Uri uri("abc");
+    auto result = AbilityImpl_->NormalizeUri(uri);
+    EXPECT_STREQ(result.ToString().c_str(), "abc");
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NormalizeUri_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_DenormalizeUri_0100
+ * @tc.name: DenormalizeUri
+ * @tc.desc: Verify DenormalizeUri succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DenormalizeUri_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DenormalizeUri_0100 start";
+    Uri uri("abc");
+    auto result = AbilityImpl_->DenormalizeUri(uri);
+    EXPECT_STREQ(result.ToString().c_str(), "abc");
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DenormalizeUri_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100
+ * @tc.name: ScheduleUpdateConfiguration
+ * @tc.desc: ability is nullptr, Verify ScheduleUpdateConfiguration failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    Configuration config;
+    AbilityImpl_->ScheduleUpdateConfiguration(config);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_CreatePostEventTimeouter_0100
+ * @tc.name: CreatePostEventTimeouter
+ * @tc.desc: ability is nullptr, Verify CreatePostEventTimeouter failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CreatePostEventTimeouter_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CreatePostEventTimeouter_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    std::string taskstr = "";
+    auto timeout = AbilityImpl_->CreatePostEventTimeouter(taskstr);
+    EXPECT_TRUE(timeout == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CreatePostEventTimeouter_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ExecuteBatch_0100
+ * @tc.name: ExecuteBatch
+ * @tc.desc: Verify ExecuteBatch succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ExecuteBatch_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ExecuteBatch_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    std::string taskstr = "";
+    std::vector<std::shared_ptr<DataAbilityOperation>> operations;
+    auto result = AbilityImpl_->ExecuteBatch(operations);
+    EXPECT_EQ(static_cast<int32_t>(result.size()), 0);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ExecuteBatch_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ContinueAbility_0100
+ * @tc.name: ContinueAbility
+ * @tc.desc: ability is nullptr, Verify ContinueAbility failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ContinueAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ContinueAbility_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    std::string deviceId = "deviceId";
+    uint32_t versionCode = 0;
+    AbilityImpl_->ContinueAbility(deviceId, versionCode);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ContinueAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ContinueAbility_0200
+ * @tc.name: ContinueAbility
+ * @tc.desc: Verify ContinueAbility succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ContinueAbility_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ContinueAbility_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    std::string deviceId = "deviceId";
+    uint32_t versionCode = 0;
+    AbilityImpl_->ContinueAbility(deviceId, versionCode);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ContinueAbility_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NotifyContinuationResult_0100
+ * @tc.name: NotifyContinuationResult
+ * @tc.desc: ability is nullptr, Verify NotifyContinuationResult failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyContinuationResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyContinuationResult_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    int32_t result = 0;
+    AbilityImpl_->NotifyContinuationResult(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyContinuationResult_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NotifyContinuationResult_0200
+ * @tc.name: NotifyContinuationResult
+ * @tc.desc: Verify NotifyContinuationResult succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyContinuationResult_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyContinuationResult_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    int32_t result = 0;
+    AbilityImpl_->NotifyContinuationResult(result);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyContinuationResult_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NotifyMemoryLevel_0100
+ * @tc.name: NotifyMemoryLevel
+ * @tc.desc: ability is nullptr, Verify NotifyMemoryLevel failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyMemoryLevel_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyMemoryLevel_0100 start";
+    AbilityImpl_->ability_ = nullptr;
+    int32_t level = 0;
+    AbilityImpl_->NotifyMemoryLevel(level);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyMemoryLevel_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_NotifyMemoryLevel_0200
+ * @tc.name: NotifyMemoryLevel
+ * @tc.desc: Verify NotifyMemoryLevel succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyMemoryLevel_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyMemoryLevel_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+
+    int32_t level = 0;
+    AbilityImpl_->NotifyContinuationResult(level);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyMemoryLevel_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterUnFocused_0100
+ * @tc.name: AfterUnFocused
+ * @tc.desc: Verify AfterUnFocused succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnFocused_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnFocused_0100 start";
+    AbilityImpl_->AfterUnFocused();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnFocused_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocused_0100
+ * @tc.name: AfterFocused
+ * @tc.desc: Verify AfterFocused succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocused_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocused_0100 start";
+    AbilityImpl_->AfterFocused();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocused_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0100
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: ability is nullptr, Verify AfterFocusedCommon failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0100 start";
+    AbilityImpl_->AfterFocusedCommon(true);
+    AbilityImpl_->AfterFocusedCommon(false);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0200
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: abilityInfo is nullptr, Verify AfterFocusedCommon failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0200 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->AfterFocusedCommon(true);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0300
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: contextDeal_ is nullptr, Verify AfterFocusedCommon failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0300 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->AfterFocusedCommon(true);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0400
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: handler_ is nullptr, Verify AfterFocusedCommon failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0400 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    auto contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->contextDeal_ = contextDeal;
+
+    AbilityImpl_->AfterFocusedCommon(true);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0400 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0500
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: Verify AfterFocusedCommon succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0500 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->isStageBasedModel = true;
+    auto contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->contextDeal_ = contextDeal;
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    AbilityImpl_->handler_ = handler;
+
+    AbilityImpl_->AfterFocusedCommon(true);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0500 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterFocusedCommon_0600
+ * @tc.name: AfterFocusedCommon
+ * @tc.desc: Verify AfterFocusedCommon succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0600, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0600 start";
+    std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+    std::shared_ptr<Ability> ability = pMocKPageAbility;
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->isStageBasedModel = false;
+    auto contextDeal = std::make_shared<ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    ability->AttachBaseContext(contextDeal);
+    AbilityImpl_->ability_ = ability;
+    AbilityImpl_->contextDeal_ = contextDeal;
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+    AbilityImpl_->handler_ = handler;
+
+    AbilityImpl_->AfterFocusedCommon(true);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0600 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterForeground_0100
+ * @tc.name: AfterForeground
+ * @tc.desc: Verify AfterForeground succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0100 start";
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    abilityImpl->notifyForegroundByAbility_ = true;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->AfterForeground();
+    EXPECT_FALSE(abilityImpl->notifyForegroundByAbility_);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterForeground_0200
+ * @tc.name: AfterForeground
+ * @tc.desc: Verify AfterForeground succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterForeground_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0200 start";
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    abilityImpl->notifyForegroundByAbility_ = false;
+    abilityImpl->notifyForegroundByWindow_ = false;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->AfterForeground();
+    EXPECT_TRUE(abilityImpl->notifyForegroundByWindow_);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterForeground_0300
+ * @tc.name: AfterForeground
+ * @tc.desc: Verify AfterForeground failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterForeground_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0300 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    impl->AfterForeground();
+
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = false;
+    abilityImpl->notifyForegroundByAbility_ = false;
+    abilityImpl->notifyForegroundByWindow_ = false;
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl1 =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl1->AfterForeground();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterForeground_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterBackground_0100
+ * @tc.name: AfterBackground
+ * @tc.desc: Verify AfterBackground failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterBackground_0100 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    impl->AfterBackground();
+
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = false;
+    abilityImpl->notifyForegroundByAbility_ = false;
+    abilityImpl->notifyForegroundByWindow_ = false;
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl1 =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl1->AfterBackground();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterBackground_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterBackground_0200
+ * @tc.name: AfterBackground
+ * @tc.desc: Verify AfterBackground succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterBackground_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterBackground_0200 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    abilityImpl->notifyForegroundByAbility_ = false;
+    abilityImpl->notifyForegroundByWindow_ = false;
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->AfterBackground();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterBackground_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_WindowLifeCycleImpl_0100
+ * @tc.name: AfterFocused
+ * @tc.desc: Verify AfterFocused succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_WindowLifeCycleImpl_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0100 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->AfterFocused();
+    GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_WindowLifeCycleImpl_0200
+ * @tc.name: AfterFocused
+ * @tc.desc: abilityImpl is nullptr, Verify AfterFocused failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_WindowLifeCycleImpl_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0200 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    impl->AfterFocused();
+    GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterUnfocused_0100
+ * @tc.name: AfterUnfocused
+ * @tc.desc: abilityImpl is nullptr, Verify AfterUnfocused failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnfocused_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0100 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    impl->AfterUnfocused();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_AfterUnfocused_0200
+ * @tc.name: AfterUnfocused
+ * @tc.desc: Verify AfterUnfocused succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnfocused_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0200 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->AfterUnfocused();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ForegroundFailed_0100
+ * @tc.name: ForegroundFailed
+ * @tc.desc: Verify ForegroundFailed succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0100 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->ForegroundFailed();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ForegroundInvalidMode_0100
+ * @tc.name: ForegroundInvalidMode
+ * @tc.desc: Verify ForegroundFailed failed.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundInvalidMode_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0100 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    impl->ForegroundInvalidMode();
+
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = false;
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl1 =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl1->ForegroundInvalidMode();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityImpl_ForegroundInvalidMode_0200
+ * @tc.name: ForegroundInvalidMode
+ * @tc.desc: Verify ForegroundFailed succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundInvalidMode_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0200 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    sptr<AbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    impl->ForegroundInvalidMode();
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_InputEventConsumerImpl_0100
+ * @tc.name: OnInputEvent
+ * @tc.desc: Verify OnInputEvent succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_InputEventConsumerImpl_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0100 start";
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    auto impl = std::make_shared<AbilityImpl::InputEventConsumerImpl>(abilityImpl);
+    auto keyEvent = MMI::KeyEvent::Create();
+    impl->OnInputEvent(keyEvent);
+    GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_InputEventConsumerImpl_0200
+ * @tc.name: OnInputEvent
+ * @tc.desc: Verify OnInputEvent succeeded.
+ */
+HWTEST_F(AbilityImplTest, AaFwk_InputEventConsumerImpl_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0200 start";
+    auto abilityImpl = std::make_shared<AbilityImpl>();
+    auto impl = std::make_shared<AbilityImpl::InputEventConsumerImpl>(abilityImpl);
+    std::shared_ptr<MMI::PointerEvent> pointerEvent;
+    impl->OnInputEvent(pointerEvent);
+    GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0200 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
