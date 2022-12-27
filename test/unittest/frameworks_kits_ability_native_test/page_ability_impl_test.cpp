@@ -17,7 +17,11 @@
 #include "mock_page_ability.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_ability_token.h"
+#define private public
+#define protected public
 #include "page_ability_impl.h"
+#undef protected
+#undef private
 #include "ohos_application.h"
 
 namespace OHOS {
@@ -667,6 +671,280 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_NewWant_0100, Function | Med
     pageAbilityImpl_->NewWant(want);
 
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_NewWant_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Handle transactions in the ABILITY_STATE_FOREGROUND_NEW state
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_FOREGROUND_NEW;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000 midle";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_FOREGROUND_NEW;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000 midle2";
+    EXPECT_EQ(ABILITY_STATE_FOREGROUND_NEW, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1000 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Handle transactions in the ABILITY_STATE_BACKGROUND_NEW and ABILITY_STATE_ACTIVE state
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_INACTIVE;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100 midle";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND_NEW;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100 midle2";
+    EXPECT_EQ(ABILITY_STATE_BACKGROUND_NEW, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1100 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Handle transactions in the ABILITY_STATE_INACTIVE and ABILITY_STATE_ACTIVE state
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_INACTIVE;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200 midle";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_ACTIVE;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200 midle2";
+    EXPECT_EQ(ABILITY_STATE_ACTIVE, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1200 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Case ABILITY_STATE_INITIAL in test AbilityTransaction is the state of ABILITY_STATE_INACTIVE
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_INITIAL;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300 midle";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_INACTIVE;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300 midle2";
+    EXPECT_EQ(ABILITY_STATE_INACTIVE, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1300 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Case ABILITY_STATE_FOREGROUND_NEW in test AbilityTransaction is the state of ABILITY_STATE_INITIAL
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_FOREGROUND_NEW;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400 midle";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_INITIAL;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400 midle2";
+    EXPECT_EQ(ABILITY_STATE_INITIAL, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1400 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Case ABILITY_STATE_BACKGROUND_NEW in test AbilityTransaction is the state of ABILITY_STATE_INACTIVE
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_BACKGROUND_NEW;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500 midle";
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500 midle2";
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_INACTIVE;
+    pageAbilityImpl_->HandleAbilityTransaction(want, state);
+    EXPECT_EQ(ABILITY_STATE_INACTIVE, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1500 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Case ABILITY_STATE_BACKGROUND_NEW in test AbilityTransaction is the state of ABILITY_STATE_INACTIVE
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600 start";
+    auto application = std::make_shared<OHOSApplication>();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "pageAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    auto eventRunner = EventRunner::Create(abilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
+
+    auto contextDeal = std::make_shared<ContextDeal>();
+    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_ACTIVE;
+    pageAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND;
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600 midle";
+    pageAbilityImpl_->AbilityTransaction(want, state);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600 midle2";
+    EXPECT_EQ(ABILITY_STATE_BACKGROUND, pageAbilityImpl_->GetCurrentState());
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_1600 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_DoKeyDown_0300
+ * @tc.name: DoKeyDown
+ * @tc.desc: Test DoKeyDown function when ability_ is nullptr
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyDown_0300 start";
+    auto keyEvent = MMI::KeyEvent::Create();
+    pageAbilityImpl_->ability_ = nullptr;
+    pageAbilityImpl_->DoKeyDown(keyEvent);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyDown_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_DoKeyUp_0300
+ * @tc.name: DoKeyUp
+ * @tc.desc: Test DoKeyUp function when ability_ is nullptr
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0300 start";
+    auto keyEvent = MMI::KeyEvent::Create();
+    pageAbilityImpl_->ability_ = nullptr;
+    pageAbilityImpl_->DoKeyUp(keyEvent);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_PageAbilityImpl_DoTouchEvent_0300
+ * @tc.name: DoTouchEvent
+ * @tc.desc: Test DoPointerEvent function when ability_ is nullptr
+ */
+HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0300 start";
+    auto pointerEvent = MMI::PointerEvent::Create();
+    pageAbilityImpl_->ability_ = nullptr;
+    pageAbilityImpl_->DoPointerEvent(pointerEvent);
+    GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0300 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
