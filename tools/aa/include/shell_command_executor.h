@@ -19,6 +19,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <set>
 #include "event_handler.h"
 #include "shell_command_result.h"
 
@@ -48,7 +49,7 @@ public:
 
 private:
     bool DoWork();
-
+    bool CheckCommand();
 private:
     std::string cmd_;
     int64_t timeoutSec_ {0};

@@ -18,8 +18,10 @@
 #include <chrono>
 #include <cinttypes>
 #include <iostream>
+#include <sstream>
 
 #include "hilog_wrapper.h"
+#include "shell_command_config_loader.h"
 
 using namespace std::chrono_literals;
 namespace OHOS {
@@ -77,6 +79,11 @@ bool ShellCommandExecutor::DoWork()
         HILOG_ERROR("Invalid event handler");
         return false;
     }
+    
+    if(!CheckCommand()) {
+        HILOG_ERROR("Invalid command");
+        return false;
+    }
 
     auto self(shared_from_this());
     handler_->PostTask([this, self]() {
@@ -116,6 +123,17 @@ bool ShellCommandExecutor::DoWork()
     });
 
     return true;
+}
+
+bool ShellCommandExecutor::CheckCommand()
+{
+    std::istringstream iss(cmd_);
+    std::string firstCommand = "";
+    iss >> firstCommand;
+    if(ShellCommandConfigLoder::commands_.find(firstCommand) != ShellCommandConfigLoder::commands_.end()) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
