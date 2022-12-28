@@ -616,7 +616,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0100
  * @tc.name: NotifyFormDelete
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormDelete.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0100, Function | MediumTest | Level1)
 {
@@ -635,7 +635,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0100,
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0200
  * @tc.name: NotifyFormDelete
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormDelete.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0200, Function | MediumTest | Level1)
 {
@@ -651,7 +651,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0200,
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0300
  * @tc.name: NotifyFormDelete
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormDelete.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0300, Function | MediumTest | Level1)
 {
@@ -669,7 +669,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0300,
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0100
  * @tc.name: NotifyFormUpdate
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormUpdate.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0100, Function | MediumTest | Level1)
 {
@@ -689,7 +689,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0100,
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0200
  * @tc.name: NotifyFormUpdate
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormUpdate.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0200, Function | MediumTest | Level1)
 {
@@ -705,7 +705,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0200,
 /**
  * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0300
  * @tc.name: NotifyFormUpdate
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function NotifyFormUpdate.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0300, Function | MediumTest | Level1)
 {
@@ -723,7 +723,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0300,
 /**
  * @tc.number: AaFwk_FormProviderClient_CheckIsSystemApp_0100
  * @tc.name: CheckIsSystemApp
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function CheckIsSystemApp.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_CheckIsSystemApp_0100, Function | MediumTest | Level1)
 {
@@ -736,7 +736,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_CheckIsSystemApp_0100,
 /**
  * @tc.number: AaFwk_FormProviderClient_AcquireState_0100
  * @tc.name: AcquireState
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function AcquireState.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0100, Function | MediumTest | Level1)
 {
@@ -753,7 +753,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0100, Fun
 /**
  * @tc.number: AaFwk_FormProviderClient_AcquireState_0200
  * @tc.name: AcquireState
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function AcquireState.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0200, Function | MediumTest | Level1)
 {
@@ -772,7 +772,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0200, Fun
 /**
  * @tc.number: AaFwk_FormProviderClient_ClearOwner_0200
  * @tc.name: ClearOwner
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function ClearOwner.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_ClearOwner_0200, Function | MediumTest | Level1)
 {
@@ -785,7 +785,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_ClearOwner_0200, Funct
 /**
  * @tc.number: AaFwk_FormProviderClient_GetOwner_0100
  * @tc.name: GetOwner
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function GetOwner.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0100, Function | MediumTest | Level1)
 {
@@ -798,7 +798,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0100, Functio
 /**
  * @tc.number: AaFwk_FormProviderClient_GetOwner_0200
  * @tc.name: GetOwner
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function GetOwner.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0200, Function | MediumTest | Level1)
 {
@@ -813,7 +813,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0200, Functio
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleAcquire_0100
  * @tc.name: HandleAcquire
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleAcquire.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0100, Function | MediumTest | Level1)
 {
@@ -829,7 +829,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0100, Fu
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleAcquire_0200
  * @tc.name: HandleAcquire
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleAcquire.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0200, Function | MediumTest | Level1)
 {
@@ -845,7 +845,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0200, Fu
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleDisconnect_0100
  * @tc.name: HandleDisconnect
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleDisconnect.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleDisconnect_0100, Function | MediumTest | Level1)
 {
@@ -860,7 +860,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleDisconnect_0100,
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleAcquireStateResult_0100
  * @tc.name: HandleAcquireStateResult
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleAcquireStateResult.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResult_0100, Function | MediumTest | Level1)
 {
@@ -878,7 +878,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResu
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleAcquireStateResult_0200
  * @tc.name: HandleAcquireStateResult
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleAcquireStateResult.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResult_0200, Function | MediumTest | Level1)
 {
@@ -896,7 +896,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResu
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleRemoteAcquire_0100
  * @tc.name: HandleRemoteAcquire
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleRemoteAcquire.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_0100, Function | MediumTest | Level1)
 {
@@ -914,7 +914,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_01
 /**
  * @tc.number: AaFwk_FormProviderClient_HandleRemoteAcquire_0200
  * @tc.name: HandleRemoteAcquire
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function HandleRemoteAcquire.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_0200, Function | MediumTest | Level1)
 {
@@ -938,7 +938,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_02
 /**
  * @tc.number: AaFwk_FormProviderClient_IsCallBySelfBundle_0100
  * @tc.name: IsCallBySelfBundle
- * @tc.desc: Verify that function NotifyFormDelete and the GetCurrentState is 3.
+ * @tc.desc: Verify that function IsCallBySelfBundle.
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_IsCallBySelfBundle_0100, Function | MediumTest | Level1)
 {
@@ -947,5 +947,5 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_IsCallBySelfBundle_010
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_IsCallBySelfBundle_0100 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS
