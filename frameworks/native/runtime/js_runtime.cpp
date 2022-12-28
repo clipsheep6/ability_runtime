@@ -585,6 +585,18 @@ bool JsRuntime::Initialize(const Options& options)
         InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
+    auto task = []() {
+        Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
+        if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    nativeEngine_->RegisterPermissionCheck(task);
+
     preloaded_ = options.preload;
     return true;
 }
@@ -810,18 +822,6 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 
     NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
     nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-}
-
-bool JsRuntime::VerifyRunAnyCodePermission()
-{
-    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
-    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        return true;
-    } else {
-        return false;
-    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
