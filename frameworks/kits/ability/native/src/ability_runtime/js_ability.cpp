@@ -45,7 +45,47 @@ Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 
 JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {}
-JsAbility::~JsAbility() = default;
+
+JsAbility::~JsAbility() {
+    if (jsAbilityObj_ == nullptr) {
+        return;
+    }
+
+    auto &engine = jsRuntime_.GetNativeEngine();
+    uv_loop_t *loop = engine.GetUVLoop();
+    if (loop == nullptr) {
+        return;
+    }
+
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return;
+    }
+
+    work->data = reinterpret_cast<void *>(jsAbilityObj_.release());
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work == nullptr) {
+            return;
+        }
+        if (work->data == nullptr) {
+            delete work;
+            work = nullptr;
+            return;
+        }
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    });
+
+    if (ret != 0) {
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
+}
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
