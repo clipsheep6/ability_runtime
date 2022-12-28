@@ -24,6 +24,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#include "accesstoken_kit.h"
 #include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
@@ -32,6 +33,7 @@
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "hot_reloader.h"
+#include "ipc_skeleton.h"
 #include "js_console_log.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
@@ -66,6 +68,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 constexpr char TIMER_TASK[] = "uv_timer_task";
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
+constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -807,6 +810,18 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 
     NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
     nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+}
+
+bool JsRuntime::VerifyRunAnyCodePermission()
+{
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
+    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        return true;
+    } else {
+        return false;
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
