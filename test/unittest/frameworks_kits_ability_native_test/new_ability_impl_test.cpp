@@ -16,8 +16,12 @@
 #include <gtest/gtest.h>
 #include "mock_ability_token.h"
 #include "mock_new_ability.h"
+#define private public
+#define protected public
 #include "new_ability_impl.h"
 #include "ohos_application.h"
+#undef protected
+#undef private
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -100,6 +104,134 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
     EXPECT_EQ(newAbility->continueRestoreCalled_, true);
 
     GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Verify that function HandleAbilityTransaction and the GetCurrentState is 3.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_BACKGROUND_NEW;
+    newAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND;
+    newAbilityImpl_->HandleAbilityTransaction(want, state);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_BACKGROUND);
+    EXPECT_TRUE(newAbilityImpl_->ability_ == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300
+ * @tc.name: HandleAbilityTransaction
+ * @tc.desc: Verify that function HandleAbilityTransaction and the GetCurrentState is 3.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300 start";
+
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "newAbility";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+
+    std::shared_ptr<Ability> ability;
+    MockNewAbility* newAbility = new (std::nothrow) MockNewAbility();
+    EXPECT_NE(newAbility, nullptr);
+    if (newAbility != nullptr) {
+        ability.reset(newAbility);
+    }
+
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    newAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+
+    Want want;
+    AAFwk::LifeCycleStateInfo state;
+    state.state = ABILITY_STATE_BACKGROUND_NEW;
+    state.isNewWant = true;
+    newAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND;
+    newAbilityImpl_->HandleAbilityTransaction(want, state);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_BACKGROUND);
+    EXPECT_TRUE(newAbilityImpl_->ability_ != nullptr);
+
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_AbilityTransaction_0100
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify that function AbilityTransaction and the result is true.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_AbilityTransaction_0100, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0100 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = ABILITY_STATE_INITIAL;
+    auto result = newAbilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_INITIAL);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_AbilityTransaction_0200
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify that function AbilityTransaction and the result is false.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_AbilityTransaction_0200, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0200 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = ABILITY_STATE_FOREGROUND_NEW;
+    auto result = newAbilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_INITIAL);
+    EXPECT_TRUE(!result);
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_AbilityTransaction_0300
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify that function AbilityTransaction and the result is true.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_AbilityTransaction_0300, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0300 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = ABILITY_STATE_BACKGROUND_NEW;
+    newAbilityImpl_->lifecycleState_ = ABILITY_STATE_STARTED_NEW;
+    auto result = newAbilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_STARTED_NEW);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_NewAbilityImpl_AbilityTransaction_0400
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify that function AbilityTransaction and the result is false.
+ */
+HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_AbilityTransaction_0400, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0400 start";
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = ABILITY_STATE_INACTIVE;
+    newAbilityImpl_->lifecycleState_ = ABILITY_STATE_STARTED_NEW;
+    auto result = newAbilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_STARTED_NEW);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_AbilityTransaction_0400 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

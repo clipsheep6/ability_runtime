@@ -311,5 +311,74 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsExistCallBack_0100, Function |
     localCallRecord.AddCaller(callback);
     EXPECT_TRUE(localCallRecord.IsExistCallBack() == true);
 }
+
+/**
+* @tc.number: Local_Call_Record_GetRecordId_0100
+* @tc.name: GetRecordId
+* @tc.desc: Verify that function GetRecordId is 1.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetRecordId_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.recordId_ = 1;
+    EXPECT_TRUE(localCallRecord.GetRecordId() == 1);
+}
+
+/**
+* @tc.number: Local_Call_Record_GetCallers_0100
+* @tc.name: GetCallers
+* @tc.desc: Verify that function GetCallers.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_GetCallers_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    auto result = localCallRecord.GetCallers();
+    EXPECT_TRUE(result.empty());
+}
+
+/**
+* @tc.number: Local_Call_Record_IsSameObject_0100
+* @tc.name: IsSameObject
+* @tc.desc: Verify that function IsSameObject.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsSameObject_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    sptr<IRemoteObject> remote = new (std::nothrow) MockServiceAbilityManagerService();
+    localCallRecord.remoteObject_ = remote;
+    auto result = localCallRecord.IsSameObject(remote);
+    EXPECT_TRUE(result);
+}
+
+/**
+* @tc.number: Local_Call_Record_IsSameObject_0200
+* @tc.name: IsSameObject
+* @tc.desc: Verify that function IsSameObject.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsSameObject_0200, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    sptr<IRemoteObject> remote = nullptr;
+    auto result = localCallRecord.IsSameObject(remote);
+    EXPECT_FALSE(result);
+}
+
+/**
+* @tc.number: Local_Call_Record_IsSameObject_0300
+* @tc.name: IsSameObject
+* @tc.desc: Verify that function IsSameObject.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsSameObject_0300, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    sptr<IRemoteObject> remote = new (std::nothrow) MockServiceAbilityManagerService();
+    auto result = localCallRecord.IsSameObject(remote);
+    EXPECT_FALSE(result);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
