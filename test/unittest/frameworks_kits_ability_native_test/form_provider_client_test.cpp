@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
 #include <gtest/gtest.h>
 
 #include "accesstoken_kit.h"
@@ -21,7 +23,9 @@
 #include "form_mgr_errors.h"
 #include "form_provider_client.h"
 #include "mock_form_supply_callback.h"
-
+#include "want_params.h"
+#undef private
+#undef protected
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
@@ -608,5 +612,372 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0500 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0100
+ * @tc.name: NotifyFormDelete
+ * @tc.desc: Verify that function NotifyFormDelete.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0100 start";
+    int64_t formId = 10;
+    Want want;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    want.SetParam(Constants::PARAM_FORM_HOST_TOKEN, FORM_MANAGER_SERVICE_BUNDLE_NAME);
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->NotifyFormDelete(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0200
+ * @tc.name: NotifyFormDelete
+ * @tc.desc: Verify that function NotifyFormDelete.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0200 start";
+    int64_t formId = 10;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->NotifyFormDelete(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormDelete_0300
+ * @tc.name: NotifyFormDelete
+ * @tc.desc: Verify that function NotifyFormDelete.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormDelete_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0300 start";
+    int64_t formId = 10;
+    Want want;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->NotifyFormDelete(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormDelete_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0100
+ * @tc.name: NotifyFormUpdate
+ * @tc.desc: Verify that function NotifyFormUpdate.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0100 start";
+    int64_t formId = 10;
+    Want want;
+    WantParams wantParams;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    sptr<IRemoteObject> callerToken = nullptr;
+    wantParams.params_.emplace(Constants::FORM_CONNECT_ID, nullptr);
+    auto result = instance_->NotifyFormUpdate(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0200
+ * @tc.name: NotifyFormUpdate
+ * @tc.desc: Verify that function NotifyFormUpdate.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0200 start";
+    int64_t formId = 10;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->NotifyFormUpdate(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_NotifyFormUpdate_0300
+ * @tc.name: NotifyFormUpdate
+ * @tc.desc: Verify that function NotifyFormUpdate.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormUpdate_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0300 start";
+    int64_t formId = 10;
+    Want want;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->NotifyFormUpdate(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormUpdate_0300 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_CheckIsSystemApp_0100
+ * @tc.name: CheckIsSystemApp
+ * @tc.desc: Verify that function CheckIsSystemApp.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_CheckIsSystemApp_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_CheckIsSystemApp_0100 start";
+    auto result = instance_->CheckIsSystemApp();
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_CheckIsSystemApp_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_AcquireState_0100
+ * @tc.name: AcquireState
+ * @tc.desc: Verify that function AcquireState.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireState_0100 start";
+    Want wantArg;
+    std::string provider;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->AcquireState(wantArg, provider, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireState_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_AcquireState_0200
+ * @tc.name: AcquireState
+ * @tc.desc: Verify that function AcquireState.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireState_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireState_0200 start";
+    Want wantArg;
+    std::string provider;
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    auto result = instance_->AcquireState(wantArg, provider, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireState_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_ClearOwner_0200
+ * @tc.name: ClearOwner
+ * @tc.desc: Verify that function ClearOwner.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_ClearOwner_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_ClearOwner_0200 start";
+    instance_->ClearOwner(nullptr);
+    EXPECT_TRUE(instance_->GetOwner() == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_ClearOwner_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_GetOwner_0100
+ * @tc.name: GetOwner
+ * @tc.desc: Verify that function GetOwner.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_GetOwner_0100 start";
+    auto result = instance_->GetOwner();
+    EXPECT_TRUE(result == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_GetOwner_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_GetOwner_0200
+ * @tc.name: GetOwner
+ * @tc.desc: Verify that function GetOwner.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_GetOwner_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_GetOwner_0200 start";
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+    auto result = instance_->GetOwner();
+    EXPECT_TRUE(result != nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_GetOwner_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleAcquire_0100
+ * @tc.name: HandleAcquire
+ * @tc.desc: Verify that function HandleAcquire.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquire_0100 start";
+    FormProviderInfo formProviderInfo;
+    Want newWant;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->HandleAcquire(formProviderInfo, newWant, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquire_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleAcquire_0200
+ * @tc.name: HandleAcquire
+ * @tc.desc: Verify that function HandleAcquire.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquire_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquire_0200 start";
+    FormProviderInfo formProviderInfo;
+    Want newWant;
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->HandleAcquire(formProviderInfo, newWant, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquire_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_DCRtnHelper_0100
+ * @tc.name: DCRtnHelper
+ * @tc.desc: Verify that function DCRtnHelper.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_DCRtnHelper_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_DCRtnHelper_0100 start";
+    int32_t errCode = ERR_NO_MEMORY;
+    Want Want;
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->DCRtnHelper(errCode, Want, callerToken);
+    EXPECT_EQ(result, ERR_NO_MEMORY);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_DCRtnHelper_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_DCRtnHelper_0200
+ * @tc.name: DCRtnHelper
+ * @tc.desc: Verify that function DCRtnHelper.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_DCRtnHelper_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_DCRtnHelper_0200 start";
+    int32_t errCode = ERR_OK;
+    Want Want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->DCRtnHelper(errCode, Want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_DCRtnHelper_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleDisconnect_0100
+ * @tc.name: HandleDisconnect
+ * @tc.desc: Verify that function HandleDisconnect.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleDisconnect_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleDisconnect_0100 start";
+    Want Want;
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->HandleDisconnect(Want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleDisconnect_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleAcquireStateResult_0100
+ * @tc.name: HandleAcquireStateResult
+ * @tc.desc: Verify that function HandleAcquireStateResult.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResult_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquireStateResult_0100 start";
+    FormState state = FormState::UNKNOWN;
+    Want wantArg;
+    Want Want;
+    std::string str;
+    sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    auto result = instance_->HandleAcquireStateResult(state, str, wantArg, Want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquireStateResult_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleAcquireStateResult_0200
+ * @tc.name: HandleAcquireStateResult
+ * @tc.desc: Verify that function HandleAcquireStateResult.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleAcquireStateResult_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquireStateResult_0200 start";
+    FormState state = FormState::UNKNOWN;
+    Want wantArg;
+    Want Want;
+    std::string str;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = instance_->HandleAcquireStateResult(state, str, wantArg, Want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleAcquireStateResult_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleRemoteAcquire_0100
+ * @tc.name: HandleRemoteAcquire
+ * @tc.desc: Verify that function HandleRemoteAcquire.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleRemoteAcquire_0100 start";
+    FormJsInfo formJsInfo;
+    FormProviderInfo formProviderInfo;
+    Want Want;
+    sptr<IRemoteObject> Token = nullptr;
+    auto result = Want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
+    instance_->HandleRemoteAcquire(formJsInfo, formProviderInfo, Want, Token);
+    EXPECT_TRUE(result == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleRemoteAcquire_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_HandleRemoteAcquire_0200
+ * @tc.name: HandleRemoteAcquire
+ * @tc.desc: Verify that function HandleRemoteAcquire.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_HandleRemoteAcquire_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleRemoteAcquire_0200 start";
+    FormJsInfo formJsInfo;
+    FormProviderInfo formProviderInfo;
+    Want Want;
+    WantParams wantParams;
+    sptr<IInterface> iInterface = nullptr;
+    wantParams.params_.emplace(TYPE_PROPERTY, iInterface);
+    wantParams.params_.emplace(VALUE_PROPERTY, iInterface);
+    wantParams.SetParam(TYPE_PROPERTY, iInterface);
+    sptr<IRemoteObject> Token = MockFormSupplyCallback::GetInstance();
+    Want.SetParam(Constants::PARAM_FORM_HOST_TOKEN, FORM_MANAGER_SERVICE_BUNDLE_NAME);
+    auto result = Want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
+    instance_->HandleRemoteAcquire(formJsInfo, formProviderInfo, Want, Token);
+    EXPECT_TRUE(result == nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_HandleRemoteAcquire_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_FormProviderClient_IsCallBySelfBundle_0100
+ * @tc.name: IsCallBySelfBundle
+ * @tc.desc: Verify that function IsCallBySelfBundle.
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_IsCallBySelfBundle_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_IsCallBySelfBundle_0100 start";
+    auto result = instance_->IsCallBySelfBundle();
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_IsCallBySelfBundle_0100 end";
+}
+} // namespace AppExecFwk
+} // namespace OHOS

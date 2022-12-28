@@ -206,5 +206,18 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
 
     GTEST_LOG_(INFO) << "AaFwk_ServiceAbilityImpl_HandleAbilityTransaction_0400 end";
 }
+
+/**
+ * @tc.number: AbilityTransactionCallback_0100
+ * @tc.name: AbilityTransactionCallback
+ * @tc.desc: Verify that function AbilityTransactionCallback.
+ */
+HWTEST_F(ServiceAbilityImplTest, AbilityTransactionCallback_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityTransactionCallback_0100 start";
+    AbilityLifeCycleState state = ABILITY_STATE_INACTIVE;
+    serviceAbilityImpl_->AbilityTransactionCallback(state);
+    GTEST_LOG_(INFO) << "AbilityTransactionCallback_0100 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
