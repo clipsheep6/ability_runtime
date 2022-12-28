@@ -24,8 +24,12 @@
 #include "ability_config.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler.h"
+#include "ability_util.h"
+#include "bundlemgr/mock_bundle_manager.h"
 #include "event_handler.h"
 #include "mock_ability_connect_callback.h"
+#include "sa_mgr_client.h"
+#include "system_ability_definition.h"
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -74,10 +78,13 @@ public:
 protected:
     AbilityRequest abilityRequest_{};
     AbilityRequest abilityRequest1_{};
+    AbilityRequest abilityRequest2_{};
     std::shared_ptr<AbilityRecord> serviceRecord_{ nullptr };
     std::shared_ptr<AbilityRecord> serviceRecord1_{ nullptr };
+    std::shared_ptr<AbilityRecord> serviceRecord2_{ nullptr };
     OHOS::sptr<Token> serviceToken_{ nullptr };
     OHOS::sptr<Token> serviceToken1_{ nullptr };
+    OHOS::sptr<Token> serviceToken2_{ nullptr };
     OHOS::sptr<IAbilityConnection> callbackA_{ nullptr };
     OHOS::sptr<IAbilityConnection> callbackB_{ nullptr };
 
@@ -108,6 +115,7 @@ AbilityRequest AbilityConnectManagerTest::GenerateAbilityRequest(const std::stri
     abilityRequest.want = want;
     abilityRequest.abilityInfo = abilityInfo;
     abilityRequest.appInfo = appinfo;
+    abilityInfo.process = bundleName;
 
     return abilityRequest;
 }
@@ -136,9 +144,20 @@ void AbilityConnectManagerTest::SetUp(void)
     std::string moduleName1 = "entry";
     abilityRequest1_ = GenerateAbilityRequest(deviceName1, abilityName1, appName1, bundleName1, moduleName1);
     serviceRecord1_ = AbilityRecord::CreateAbilityRecord(abilityRequest1_);
+    std::string deviceName2 = "device";
+    std::string abilityName2 = "residentServiceAbility";
+    std::string appName2 = "residentservcie";
+    std::string bundleName2 = "com.ix.residentservcie";
+    std::string moduleName2 = "entry";
+    abilityRequest2_ = GenerateAbilityRequest(deviceName2, abilityName2, appName2, bundleName2, moduleName2);
+    serviceRecord2_ = AbilityRecord::CreateAbilityRecord(abilityRequest2_);
+    serviceToken2_ = serviceRecord_->GetToken();
     serviceToken1_ = serviceRecord_->GetToken();
     callbackA_ = new AbilityConnectCallback();
     callbackB_ = new AbilityConnectCallback();
+    // mock bms
+    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
+        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
 }
 
 void AbilityConnectManagerTest::TearDown(void)
@@ -2362,6 +2381,137 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestS
     connectManager->serviceMap_.emplace("first", abilityRecord1);
     connectManager->serviceMap_.emplace("second", abilityRecord2);
     connectManager->StopAllExtensions();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: IsAbilityNeedKeepAlive
+ * SubFunction:
+ * FunctionPoints: IsAbilityNeedKeepAlive
+ * EnvConditions:NA
+ * CaseDescription: Verify the IsAbilityNeedKeepAlive need keep alive.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFWK_IsAbilityNeedKeepAlive_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+
+    // mock bms return
+    EXPECT_TRUE(ConnectManager()->IsAbilityNeedKeepAlive(serviceRecord2_));
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: RestartAbility
+ * SubFunction:
+ * FunctionPoints: RestartAbility
+ * EnvConditions:NA
+ * CaseDescription: Verify ability not restart the normal ability died.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+
+    int userId = 0;
+
+    auto result = ConnectManager()->StartAbility(abilityRequest_);
+    EXPECT_EQ(OHOS::ERR_OK, result);
+    WaitUntilTaskDone(handler);
+
+    auto elementName = abilityRequest_.want.GetElement().GetURI();
+    std::shared_ptr<AbilityRecord> service = ConnectManager()->GetServiceRecordByElementName(elementName);
+    EXPECT_NE(service, nullptr);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+    
+    // HandleTerminate
+    ConnectManager()->OnAbilityDied(service, userId);
+    WaitUntilTaskDone(handler);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: RestartAbility
+ * SubFunction:
+ * FunctionPoints: RestartAbility
+ * EnvConditions:NA
+ * CaseDescription: Verify ability restart when the resident ability died.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_002, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+
+    int userId = 0;
+
+    auto result = ConnectManager()->StartAbility(abilityRequest2_);
+    EXPECT_EQ(OHOS::ERR_OK, result);
+    WaitUntilTaskDone(handler);
+
+    auto elementName = abilityRequest2_.want.GetElement().GetURI();
+    auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
+    EXPECT_NE(service, nullptr);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+    
+    // HandleTerminate
+    ConnectManager()->HandleAbilityDiedTask(service, userId);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: RestartAbility
+ * SubFunction:
+ * FunctionPoints: RestartAbility
+ * EnvConditions:NA
+ * CaseDescription: Verify ability restart when the resident ability died and restart out of max times.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_003, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+
+    int userId = 0;
+
+    auto result = ConnectManager()->StartAbility(abilityRequest2_);
+    EXPECT_EQ(OHOS::ERR_OK, result);
+    WaitUntilTaskDone(handler);
+ 
+    auto elementName = abilityRequest2_.want.GetElement().GetURI();
+    std::shared_ptr<AbilityRecord> service = ConnectManager()->GetServiceRecordByElementName(elementName);
+    EXPECT_NE(service, nullptr);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+    // set the over interval time according the config; without init config, the interval time is 0.
+    // ensure now - restartTime < intervalTime
+    service->SetRestartTime(AbilityUtil::SystemTimeMillis() + 1000);
+    
+    // HandleTerminate
+    ConnectManager()->HandleAbilityDiedTask(service, userId);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: PostRestartResidentTask
+ * SubFunction:
+ * FunctionPoints: PostRestartResidentTask
+ * EnvConditions:NA
+ * CaseDescription: Verify the PostRestartResidentTask process.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFWK_PostRestartResidentTask_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+
+    ConnectManager()->PostRestartResidentTask(abilityRequest2_);
+    WaitUntilTaskDone(handler);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

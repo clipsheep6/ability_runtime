@@ -46,6 +46,10 @@ using ::testing::DoAll;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
+static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+}
 class AmsAppRunningRecordTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -2655,6 +2659,93 @@ HWTEST_F(AmsAppRunningRecordTest, AbilityUnfocused_001, TestSize.Level1)
     record->AbilityUnfocused(abilityRecord);
 
     HILOG_INFO("AmsAppRunningRecordTest AbilityUnfocused_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: SetRestartTimeMillis
+ * SubFunction: SetRestartTimeMillis
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetRestartTimeMillis_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest SetRestartTimeMillis_001 start");
+    std::shared_ptr<AppRunningRecord> record = GetTestAppRunningRecord();
+    record->SetRestartTimeMillis(1000);
+    EXPECT_EQ(record->restartTimeMillis_, 1000);
+
+    HILOG_INFO("AmsAppRunningRecordTest SetRestartTimeMillis_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: CanRestartResidentProc
+ * SubFunction: CanRestartResidentProc
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_001, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_001 start");
+    std::shared_ptr<AppRunningRecord> record = GetTestAppRunningRecord();
+    record->restartResidentProcCount_ = 1;
+    EXPECT_TRUE(record->CanRestartResidentProc());
+
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_001 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: CanRestartResidentProc
+ * SubFunction: CanRestartResidentProc
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_002, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_002 start");
+    std::shared_ptr<AppRunningRecord> record = GetTestAppRunningRecord();
+    record->restartResidentProcCount_ = -1;
+    record->restartTimeMillis_ = 0;
+    EXPECT_TRUE(record->CanRestartResidentProc());
+
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_002 end");
+}
+
+/*
+ * Feature: AMS
+ * Function: CanRestartResidentProc
+ * SubFunction: CanRestartResidentProc
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_003, TestSize.Level1)
+{
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 start");
+    std::shared_ptr<AppRunningRecord> record = GetTestAppRunningRecord();
+    record->restartResidentProcCount_ = -1;
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    int64_t systemTimeMillis = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
+    record->restartTimeMillis_ = systemTimeMillis + 1000;
+    EXPECT_FALSE(record->CanRestartResidentProc());
+
+    record->SetState(ApplicationState::APP_STATE_FOREGROUND);
+    record->SetRestartResidentProcCount(0);
+    EXPECT_TRUE(record->CanRestartResidentProc());
+
+    HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -2334,5 +2334,55 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     abilityRecord->GetCurrentAccountId();
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: CanRestartResident
+ * SubFunction:
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify CanRestartResident return true when the ability is not a restart requestion.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_004, TestSize.Level1)
+{
+    abilityRecord_->SetKeepAlive();
+    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
+
+    abilityRecord_->SetRestarting(true, -1);
+    EXPECT_TRUE(abilityRecord_->isRestarting_);
+    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+
+    EXPECT_FALSE(abilityRecord_->CanRestartResident());
+
+    // restart success
+    abilityRecord_->SetAbilityState(AbilityState::ACTIVE);
+
+    EXPECT_TRUE(abilityRecord_->CanRestartResident());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CanRestartResident
+ * SubFunction:
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify CanRestartResident return true when the restartCount is out of max times but the interval
+ *  time is over configuration.
+ * @tc.require: issueI6588V
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_005, TestSize.Level1)
+{
+    abilityRecord_->SetKeepAlive();
+    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
+
+    abilityRecord_->SetRestarting(true, -1);
+    EXPECT_TRUE(abilityRecord_->isRestarting_);
+    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+    abilityRecord_->SetRestartTime(0);
+    EXPECT_EQ(abilityRecord_->restartTime_, 0);
+
+    EXPECT_TRUE(abilityRecord_->CanRestartResident());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

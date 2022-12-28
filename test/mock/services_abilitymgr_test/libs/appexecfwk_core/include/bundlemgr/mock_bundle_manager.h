@@ -267,6 +267,24 @@ public:
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
 
+    bool GetBundleInfos(const BundleFlag flag,
+        std::vector<BundleInfo> &bundleInfos, int32_t userId = Constants::UNSPECIFIED_USERID)
+    {
+        OHOS::AppExecFwk::BundleInfo bundleInfo;
+        bundleInfo.name = "com.ix.residentservcie";
+        bundleInfo.isKeepAlive = true;
+        bundleInfo.applicationInfo.process = "com.ix.residentservcie";
+        
+        OHOS::AppExecFwk::HapModuleInfo hapModuleInfo;
+        hapModuleInfo.isModuleJson = true;
+        hapModuleInfo.mainElementName = "residentServiceAbility";
+        hapModuleInfo.process = "com.ix.residentservcie";
+        bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+
+        bundleInfos.emplace_back(bundleInfo);
+        return true;
+    }
+
     int32_t GetDisposedStatus(const std::string& bundleName) override;
 
     virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
