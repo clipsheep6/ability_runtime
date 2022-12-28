@@ -262,7 +262,6 @@ using namespace BackgroundTaskMgr;
 #endif
 const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
-const int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
@@ -484,7 +483,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s coldStart:%{public}d", __func__, want.GetBoolParam("coldStart", false));
-    if (userId != DEFAULT_INVAL_VALUE) {
+    if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
@@ -501,7 +500,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (userId != DEFAULT_INVAL_VALUE) {
+    if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     auto flags = want.GetFlags();
@@ -677,7 +676,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability setting.");
-    if (userId != DEFAULT_INVAL_VALUE) {
+    if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
@@ -822,7 +821,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability options.");
-    if (userId != DEFAULT_INVAL_VALUE) {
+    if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
@@ -1608,7 +1607,7 @@ int AbilityManagerService::ConnectAbilityCommon(
     HILOG_DEBUG("Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
-    if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && userId != DEFAULT_INVAL_VALUE) {
+    if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);

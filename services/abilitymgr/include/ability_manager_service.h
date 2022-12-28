@@ -58,6 +58,7 @@ namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
+const int32_t U0_USER_ID = 0;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 /**
@@ -1181,6 +1182,11 @@ private:
     void InitStartupFlag();
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
+
+    inline bool IsCrossUserCall(int32_t userId)
+    {
+        return (userId != U0_USER_ID && GetValidUserId(userId) != GetUserId());
+    }
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
