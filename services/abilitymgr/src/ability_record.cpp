@@ -338,6 +338,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 std::string AbilityRecord::GetLabel()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::string strLabel = applicationInfo_.label;
 
     if (abilityInfo_.resourcePath.empty()) {
@@ -743,6 +744,7 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const Abi
 
 std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResourceManager() const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
@@ -774,6 +776,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
 std::shared_ptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (resourceMgr == nullptr) {
         HILOG_WARN("%{public}s resource manager does not exist.", __func__);
         return nullptr;
@@ -900,6 +903,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
 void AbilityRecord::InitColdStartingWindowResource(
     const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!resourceMgr) {
         HILOG_ERROR("invalid resourceManager.");
         return;
