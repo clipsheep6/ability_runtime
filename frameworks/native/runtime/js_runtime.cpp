@@ -582,7 +582,7 @@ bool JsRuntime::Initialize(const Options& options)
     bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
     if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName);
     }
 
     preloaded_ = options.preload;
