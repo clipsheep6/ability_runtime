@@ -299,6 +299,11 @@ RState IsLoadHap(std::string& hapPath)
 {
     return SUCCESS;
 }
+
+RState GetRawFileList(const std::string rawDirPath, std::vector<std::string>& rawfileList)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global
