@@ -49,8 +49,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0100, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0100 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     connectServerManager.~ConnectServerManager();
     HILOG_INFO("ConnectServerManagerTest_0100 is end");
@@ -65,8 +65,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0200, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0200 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string bundleName = "StartServer";
     connectServerManager.StartConnectServer(bundleName);
@@ -83,8 +83,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0300, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0300 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     connectServerManager.StopConnectServer();
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
@@ -108,8 +108,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0400 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string instanceName = "test";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -133,8 +133,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0500 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
@@ -161,8 +161,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0600, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0600 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string jsonTreeStr = "jsonTreeStr";
     const std::string jsonSnapshotStr = "jsonSnapshotStr";
@@ -181,8 +181,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0700 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -201,8 +201,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0800, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0800 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -222,8 +222,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0900, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_0900 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -245,8 +245,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1000, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_1000 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    auto createTask = {} (int32_t value) {};
-    auto setTask = {} (int32_t value) {};
+    auto createTask = [] (int32_t value) {};
+    auto setTask = [] (int32_t value) {};
     connectServerManager.SetLayoutInspectorCallback(createTask, setTask);
     auto resuflt = connectServerManager.GetLayoutInspectorCallback();
     EXPECT_TRUE(resuflt != nullptr);
