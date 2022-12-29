@@ -47,10 +47,6 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {}
 
 JsAbility::~JsAbility() {
-    if (jsAbilityObj_ == nullptr) {
-        return;
-    }
-
     auto &engine = jsRuntime_.GetNativeEngine();
     uv_loop_t *loop = engine.GetUVLoop();
     if (loop == nullptr) {
@@ -62,7 +58,17 @@ JsAbility::~JsAbility() {
         return;
     }
 
-    work->data = reinterpret_cast<void *>(jsAbilityObj_.release());
+    auto cb = new (std::nothrow)JsAbilityDeleterObject();
+    if (cb == nullptr) {
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    cb->jsAbilityObj_ = std::move(jsAbilityObj_);
+    cb->shellContextRef_ = std::move(shellContextRef_);
+    work->data = reinterpret_cast<void *>(cb);
+
     int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
     [](uv_work_t *work, int status) {
         if (work == nullptr) {
@@ -73,14 +79,14 @@ JsAbility::~JsAbility() {
             work = nullptr;
             return;
         }
-        delete reinterpret_cast<NativeReference *>(work->data);
+        delete reinterpret_cast<JsAbilityDeleterObject *>(work->data);
         work->data = nullptr;
         delete work;
         work = nullptr;
     });
 
     if (ret != 0) {
-        delete reinterpret_cast<NativeReference *>(work->data);
+        delete reinterpret_cast<JsAbilityDeleterObject *>(work->data);
         work->data = nullptr;
         delete work;
         work = nullptr;
