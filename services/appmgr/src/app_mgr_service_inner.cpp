@@ -459,6 +459,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
+    appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
     appRunningManager_->RemoveAppRunningRecordById(recordId);
     RemoveAppFromRecentListById(recordId);
@@ -1522,6 +1523,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     if (appInfo && upmClient) {
         upmClient->RemoveUriPermission(appInfo->accessTokenId);
     }
+    appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_REMOTE_DIED);
 
     for (const auto &item : appRecord->GetAbilities()) {
         const auto &abilityRecord = item.second;
@@ -1677,6 +1679,7 @@ void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId
     }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
+    appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED_TIMEOUT);
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {

@@ -1382,5 +1382,14 @@ int32_t AppRunningRecord::GetRequestProcCode() const
     return requestProcCode_;
 }
 
+void AppRunningRecord::SetProcessChangeReason(ProcessChangeReason reason)
+{
+    processChangeReason_ = reason;
+}
+
+ProcessChangeReason AppRunningRecord::GetProcessChangeReason() const
+{
+    return processChangeReason_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
