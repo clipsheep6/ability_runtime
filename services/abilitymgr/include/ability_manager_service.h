@@ -59,6 +59,7 @@ namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
 const int32_t U0_USER_ID = 0;
+constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 /**
@@ -1185,7 +1186,7 @@ private:
 
     inline bool IsCrossUserCall(int32_t userId)
     {
-        return (userId != U0_USER_ID && GetValidUserId(userId) != GetUserId());
+        return (userId != INVALID_USER_ID && userId != U0_USER_ID && userId != GetUserId());
     }
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
