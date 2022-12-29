@@ -175,6 +175,18 @@ public:
     }
 
     /**
+     * Start EnableNotifictionDialog ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartEnableNotifictionDialogAbility(Want &want, int requestCode)
+    {
+        return 0;
+    }
+
+    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -998,6 +1010,9 @@ public:
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,
         ABILITY_RECOVERY_ENABLE = 3011,
+
+        // ipc id to start ability for enableNotification dialog
+        START_ENABLE_NOTIFICATION_DIALOG_ABILITY,
     };
 };
 }  // namespace AAFwk

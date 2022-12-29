@@ -124,6 +124,18 @@ public:
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * Start EnableNotifictionDialog ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartEnableNotifictionDialogAbility(
+        Want& want,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
     /**
      * TerminateAbility, terminate the special ability.
      *

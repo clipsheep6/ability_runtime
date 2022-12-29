@@ -61,6 +61,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DUMP_STATE] = &AbilityManagerStub::DumpStateInner;
     requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
+    requestFuncMap_[START_ENABLE_NOTIFICATION_DIALOG_ABILITY] =
+        &AbilityManagerStub::StartEnableNotifictionDialogAbilityInner;
     requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
     requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
@@ -575,6 +577,20 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     reply.WriteInt32(result);
     delete want;
     delete abilityStartSetting;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartEnableNotifictionDialogAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int requestCode = data.ReadInt32();
+    int32_t result = StartEnableNotifictionDialogAbility(*want, requestCode);
+    reply.WriteInt32(result);
+    delete want;
     return NO_ERROR;
 }
 

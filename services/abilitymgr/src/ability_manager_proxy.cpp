@@ -316,6 +316,34 @@ int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemo
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartEnableNotifictionDialogAbility(Want &want, int requestCode)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+
+    error = Remote()->SendRequest(IAbilityManager::START_ENABLE_NOTIFICATION_DIALOG_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     return TerminateAbility(token, resultCode, resultWant, true);

@@ -175,6 +175,14 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     /**
+     * Start EnableNotifictionDialog ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartEnableNotifictionDialogAbility(Want& want, int requestCode = DEFAULT_INVAL_VALUE);
+
+    /**
      * TerminateAbility with want, return want from ability manager service.
      *
      * @param token Ability token.
