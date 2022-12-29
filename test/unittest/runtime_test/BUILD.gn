@@ -16,6 +16,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
+config("coverage_flags") {
+  cflags = [ "--coverage" ]
+  ldflags = [ "--coverage" ]
+}
+
 ohos_unittest("runtime_test") {
   module_out_path = module_output_path
 
@@ -72,10 +77,45 @@ ohos_unittest("js_runtime_test") {
   ]
 }
 
+ohos_unittest("hdc_register_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "//foundation/ability/ability_runtime/frameworks/native/runtime/hdc_register.cpp",
+    "hdc_register_test.cpp",
+  ]
+
+  configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    ":coverage_flags",
+  ]
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "napi:ace_napi",
+  ]
+}
+
 group("unittest") {
   testonly = true
 
   deps = [
+    ":hdc_register_test",
     ":js_runtime_test",
     ":runtime_test",
   ]

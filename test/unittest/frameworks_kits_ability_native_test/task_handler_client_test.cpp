@@ -65,20 +65,6 @@ HWTEST_F(TaskHandlerClientTest, AaFwk_TaskHandlerClient_GetInstance_0100, Functi
 }
 
 /**
- * @tc.number: AaFwk_TaskHandlerClient_CreateRunner_0100
- * @tc.name: CreateRunner
- * @tc.desc: Test whether TaskHandlerClient::CreateRunner is true.
- */
-HWTEST_F(TaskHandlerClientTest, AaFwk_TaskHandlerClient_CreateRunner_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_TaskHandlerClient_CreateRunner_0100 start";
-
-    EXPECT_EQ(TaskHandlerClient::GetInstance()->CreateRunner(), true);
-
-    GTEST_LOG_(INFO) << "AaFwk_TaskHandlerClient_CreateRunner_0100 end";
-}
-
-/**
  * @tc.number: AaFwk_TaskHandlerClient_PostTask_0100
  * @tc.name: PostTask
  * @tc.desc: Test whether TaskHandlerClient::PostTask is true.
@@ -92,6 +78,20 @@ HWTEST_F(TaskHandlerClientTest, AaFwk_TaskHandlerClient_PostTask_0100, Function 
     EXPECT_EQ(TaskHandlerClient::GetInstance()->PostTask(task, 1000), true);
 
     GTEST_LOG_(INFO) << "AaFwk_TaskHandlerClient_PostTask_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_TaskHandlerClient_CreateRunner_0100
+ * @tc.name: CreateRunner
+ * @tc.desc: Test whether TaskHandlerClient::CreateRunner is true.
+ */
+HWTEST_F(TaskHandlerClientTest, AaFwk_TaskHandlerClient_CreateRunner_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_TaskHandlerClient_CreateRunner_0100 start";
+
+    EXPECT_EQ(TaskHandlerClient::GetInstance()->CreateRunner(), true);
+
+    GTEST_LOG_(INFO) << "AaFwk_TaskHandlerClient_CreateRunner_0100 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

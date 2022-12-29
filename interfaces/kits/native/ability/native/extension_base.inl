@@ -40,6 +40,10 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     std::shared_ptr<C> context = std::make_shared<C>();
     context->SetToken(token);
     auto appContext = Context::GetApplicationContext();
+    if (appContext == nullptr) {
+        HILOG_ERROR("ServiceExtension::CreateAndInitContext appContext is nullptr");
+        return context;
+    }
     context->SetApplicationInfo(appContext->GetApplicationInfo());
     context->SetResourceManager(appContext->GetResourceManager());
     context->SetParentContext(appContext);
