@@ -584,6 +584,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        if (!IsComponentInterceptionStart(want, callerToken, requestCode, result, abilityRequest)) {
+            return ERR_OK;
+        }
         abilityRequest.Voluation(want, requestCode, callerToken);
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
@@ -5306,7 +5309,8 @@ int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
 int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
+    if (!isSaCall && !isGatewayCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -5792,6 +5796,25 @@ void AbilityManagerService::UpdateAbilityRequestInfo(const sptr<Want> &want, Abi
     request.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
         want->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
     request.abilityInfoCallback = tempCallBack;
+}
+
+int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
+    int32_t requestCode, int32_t resultCode, int32_t userId)
+{
+    HILOG_DEBUG("%{public}s, requestCode: %{public}d, resultCode: %{public}d", __func__, requestCode, resultCode);
+    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
+    if (!isGatewayCall) {
+        HILOG_ERROR("%{public}s, Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("%{public}s, abilityRecord is null", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, want));
+    abilityRecord->SendResult();
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

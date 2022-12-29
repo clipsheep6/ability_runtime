@@ -563,6 +563,12 @@ public:
         return 0;
     }
 
+    virtual int32_t SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
+        int32_t requestCode, int32_t resultCode, int32_t userId)
+    {
+        return 0;
+    }
+
     /**
      * Is user a stability test.
      *
@@ -873,6 +879,8 @@ public:
         STOP_EXTENSION_ABILITY,
 
         SET_COMPONENT_INTERCEPTION,
+
+        SEND_ABILITY_RESULT_BY_TOKEN,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
