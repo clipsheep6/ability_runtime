@@ -151,6 +151,7 @@ private:
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
     int SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply);
+    int SendResultToAbilityByTokenInner(MessageParcel &data, MessageParcel &reply);
 
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);
