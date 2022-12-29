@@ -347,6 +347,9 @@ public:
     void HandleUncaughtException() override
     {}
 
+    void RegisterPermissionCheck(PermissionCheckCallback callback) override
+    {}
+    
     void DumpHeapSnapshot(bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON,
         bool isPrivate = false) override
     {}
