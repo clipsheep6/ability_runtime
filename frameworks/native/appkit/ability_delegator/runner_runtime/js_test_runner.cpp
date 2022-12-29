@@ -67,9 +67,7 @@ JsTestRunner::JsTestRunner(
         srcPath_ = srcPath;
     }
     HILOG_DEBUG("JsTestRunner srcPath is %{public}s", srcPath_.c_str());
-    if (isFaJsModel) {
-        return;
-    }
+
     if (!moduleName.empty()) {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
             if ((hapModuleInfo.isModuleJson && hapModuleInfo.name == moduleName) ||
@@ -82,6 +80,11 @@ JsTestRunner::JsTestRunner(
         hapPath_ = bundleInfo.hapModuleInfos.back().hapPath;
     }
     HILOG_DEBUG("JsTestRunner hapPath is %{public}s", hapPath_.c_str());
+
+    if (isFaJsModel) {
+        return;
+    }
+
     jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
         bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
 }

@@ -23,9 +23,16 @@
 #include <unistd.h>
 
 #include "connect_server_manager.h"
+#include "commonlibrary/c_utils/base/include/refbase.h"
 #ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
 #endif
+#include "extractor.h"
+#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
+#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
+#include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
+#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "system_ability_definition.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_runtime_utils.h"
@@ -93,36 +100,12 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 }
 
-bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content, bool isDebugVersion)
-{
-    char path[PATH_MAX];
-    if (realpath(filePath.c_str(), path) == nullptr) {
-        HILOG_ERROR("ReadAssetData realpath(%{private}s) failed, errno = %{public}d", filePath.c_str(), errno);
-        return false;
-    }
-
-    std::ifstream stream(path, std::ios::binary | std::ios::ate);
-    if (!stream.is_open()) {
-        HILOG_ERROR("ReadAssetData failed to open file %{private}s", filePath.c_str());
-        return false;
-    }
-
-    auto fileLen = stream.tellg();
-    if (!isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
-        HILOG_ERROR("ReadAssetData failed, file is too large");
-        return false;
-    }
-
-    content.resize(fileLen);
-
-    stream.seekg(0);
-    stream.read(reinterpret_cast<char*>(content.data()), content.size());
-    return true;
-}
-
 struct AssetHelper final {
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion)
+    using Extractor = AbilityBase::Extractor;
+    using ExtractorUtil = AbilityBase::ExtractorUtil;
+    using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -143,16 +126,93 @@ struct AssetHelper final {
             return;
         }
 
-        ami = codePath_ + uri.substr(0, index) + ".abc";
+        std::string filePath = uri.substr(0, index) + ".abc";
+        ami = codePath_ + filePath;
         HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
-        if (!ReadAssetData(ami, content, isDebugVersion_)) {
+        if (!ReadAssetData(filePath, content)) {
             HILOG_ERROR("Get asset content failed.");
             return;
         }
     }
 
+    sptr<BundleMgrProxy> GetBundleMgrProxy() const
+    {
+        auto systemAbilityManager =
+            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (!systemAbilityManager) {
+            HILOG_ERROR("fail to get system ability mgr.");
+            return nullptr;
+        }
+
+        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        if (!remoteObject) {
+            HILOG_ERROR("fail to get bundle manager proxy.");
+            return nullptr;
+        }
+
+        HILOG_INFO("get bundle manager proxy success.");
+        return iface_cast<BundleMgrProxy>(remoteObject);
+    }
+
+    bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content) const
+    {
+        bool newCreate = false;
+        size_t fileLen = 0;
+        size_t pos = filePath.find('/');
+
+        if (bundleName_.empty()) {
+            HILOG_ERROR("BundleName is nullptr.");
+            return false;
+        }
+        auto bundleMgrProxy = GetBundleMgrProxy();
+        if (!bundleMgrProxy) {
+            HILOG_ERROR("bundle mgr proxy is nullptr.");
+            return false;
+        }
+
+        AppExecFwk::BundleInfo bundleInfo;
+        auto getInfoResult = bundleMgrProxy->GetBundleInfoV9(bundleName_,
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, 100);
+        if (getInfoResult != 0) {
+            HILOG_ERROR("GetBundleInfo failed through %{private}s.", bundleName_.c_str());
+            return false;
+        }
+        if (bundleInfo.hapModuleInfos.size() == 0) {
+            HILOG_ERROR("get hapModuleInfo of bundleInfo failed.");
+            return false;
+        }
+        std::string newHapPath;
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
+                newHapPath = hapModuleInfo.hapPath;
+                break;
+            }
+        }
+
+        std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
+        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+        if (extractor == nullptr) {
+            HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
+            return false;
+        }
+        std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+        std::string realfilePath = filePath.substr(pos + 1);
+        HILOG_INFO("Get asset, realfilePath: %{private}s", realfilePath.c_str());
+        if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
+            HILOG_ERROR("get mergeAbc fileBuffer failed");
+            return false;
+        }
+        if (!isDebugVersion_ && fileLen > ASSET_FILE_MAX_SIZE) {
+            HILOG_ERROR("ReadAssetData failed, file is too large");
+            return false;
+        }
+        content.assign(dataPtr.get(), dataPtr.get() + fileLen);
+        return true;
+    }
+
     std::string codePath_;
     bool isDebugVersion_ = false;
+    std::string bundleName_;
 };
 
 int32_t GetContainerId()
@@ -179,11 +239,12 @@ ContainerScope::UpdateCurrent(-1);
 }
 }
 
-void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion)
+void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
+    bool isDebugVersion, const std::string& bundleName)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);
