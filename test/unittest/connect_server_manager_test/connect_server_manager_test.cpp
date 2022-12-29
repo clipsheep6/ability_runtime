@@ -91,11 +91,6 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0300, TestSize.Level
     connectServerManager.handlerConnectServerSo_ = nullptr;
     connectServerManager.StopConnectServer();
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
-    char data[] = "StopServer";
-    char *dptr = data;
-    connectServerManager.handlerConnectServerSo_ = dptr;
-    connectServerManager.StopConnectServer();
-    EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
     HILOG_INFO("ConnectServerManagerTest_0300 is end");
 }
 
