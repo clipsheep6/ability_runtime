@@ -109,10 +109,6 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     const std::string instanceName = "test";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
-    char data[] = "WaitForDebugger";
-    char *dptr = data;
-    connectServerManager.handlerConnectServerSo_ = dptr;
-    EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
     connectServerManager.handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
     connectServerManager.instanceMap_.try_emplace(ONE, instanceName);
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
@@ -135,9 +131,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
     connectServerManager.RemoveInstance(ONE);
     const std::string instanceName = "test";
-    char data[] = "WaitForDebugger";
-    char *dptr = data;
-    connectServerManager.handlerConnectServerSo_ = dptr;
+    connectServerManager.handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
     connectServerManager.instanceMap_.clear();
     auto res = connectServerManager.instanceMap_.try_emplace(ONE, instanceName);
     EXPECT_TRUE(res.second);
