@@ -60,6 +60,13 @@ enum AppMgrResultCode {
     ERROR_SERVICE_NOT_CONNECTED,
     ERROR_KILL_APPLICATION
 };
+
+enum class ProcessChangeReason {
+    REASON_NONE = 0,
+    REASON_REMOTE_DIED,
+    REASON_APP_TERMINATED,
+    REASON_APP_TERMINATED_TIMEOUT,
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_CONSTANTS_H

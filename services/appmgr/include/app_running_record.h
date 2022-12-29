@@ -552,6 +552,10 @@ public:
 
     int32_t GetRequestProcCode() const;
 
+    void SetProcessChangeReason(ProcessChangeReason reason);
+
+    ProcessChangeReason GetProcessChangeReason() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -649,6 +653,7 @@ private:
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
     int32_t requestProcCode_;
+    ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
