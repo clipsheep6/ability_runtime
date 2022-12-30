@@ -898,14 +898,15 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
 {
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
     property->token_          = GetAbilityContext()->GetToken();
+    property->name_           = GetAbilityName();
     if (GetApplicationInfo() == nullptr || GetApplicationInfo()->bundleName.empty()) {
-        property->name_ = GetAbilityName();
+        property->fullName_ = GetAbilityName();
     } else {
         std::string::size_type pos = GetAbilityName().find(GetApplicationInfo()->bundleName);
         if (pos == std::string::npos || pos != 0) {
-            property->name_ = GetApplicationInfo()->bundleName + "." + GetAbilityName();
+            property->fullName_ = GetApplicationInfo()->bundleName + "." + GetAbilityName();
         } else {
-            property->name_ = GetAbilityName();
+            property->fullName_ = GetAbilityName();
         }
     }
     property->lifecycleState_ = GetState();
