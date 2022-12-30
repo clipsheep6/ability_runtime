@@ -28,7 +28,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsModuleReader final : private JsModuleSearcher {
 public:
-    static constexpr char ABS_CODE_PATH[] = "/data/app/el1/bundle/public/";
+    static constexpr char ABS_CODE_PATH[] = "/data/storage/el1/";
     static constexpr char MERGE_ABC_PATH[] = "ets/modules.abc";
     static constexpr char HAP_SUFFIX[] = ".hap";
     explicit JsModuleReader(const std::string& bundleName) : JsModuleSearcher(bundleName) {}

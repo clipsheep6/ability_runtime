@@ -159,6 +159,7 @@ public:
                 if (vm_ && !moduleName_.empty()) {
                     mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
                     panda::JSNApi::SetAssetPath(vm_, mergeAbcPath);
+                    panda::JSNApi::SetModuleName(vm_, moduleName_);
                 } else {
                     HILOG_ERROR("vm is nullptr or moduleName is hole");
                     return result;
@@ -363,6 +364,7 @@ private:
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
+        panda::JSNApi::SetBundleName(vm_, options.bundleName);
         panda::JSNApi::SetHostResolveBufferTracker(vm_, JsModuleReader(options.bundleName));
         return JsRuntime::Initialize(options);
     }
