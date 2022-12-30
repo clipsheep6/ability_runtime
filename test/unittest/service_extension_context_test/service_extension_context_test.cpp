@@ -28,17 +28,6 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AbilityRuntime {
-//const size_t ServiceExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ServiceExtensionContext"));
-//int ServiceExtensionContext::ILLEGAL_REQUEST_CODE(-1);
-
-// class MockServiceExtensionContext : public ExtensionContext {
-// public:
-//     MockServiceExtensionContext() = default;
-//     virtual ~MockServiceExtensionContext() = default;
-
-//     ErrCode StartAbility(const AAFwk::Want &want) const;
-// };
-
 class ServiceExtensionContextTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
