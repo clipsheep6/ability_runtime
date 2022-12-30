@@ -187,6 +187,11 @@ public:
     {
         return 0;
     }
+    
+    bool CheckFMSReady() override
+    {
+        return false;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
