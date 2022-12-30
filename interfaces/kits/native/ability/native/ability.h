@@ -209,7 +209,7 @@ public:
      * @param callbackInfo Indicates the lifecycle transaction callback information
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
-    virtual void OnStop(AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback);
+    virtual void OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
 
     /**
      * @brief The callback of OnStop.

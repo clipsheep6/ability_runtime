@@ -22,23 +22,78 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-using AbilityTransactionCallbackFunc = std::function<void()>;;
+template<typename T = void>
 class AbilityTransactionCallbackInfo {
 public:
-    static AbilityTransactionCallbackInfo *Create();
+    using CallbackFunc = std::function<void(T&)>;
 
-    static void Destroy(AbilityTransactionCallbackInfo *callbackInfo);
+    static AbilityTransactionCallbackInfo *Create()
+    {
+        return new(std::nothrow) AbilityTransactionCallbackInfo();
+    }
 
-    void Push(const AbilityTransactionCallbackFunc &callback);
+    static void Destroy(AbilityTransactionCallbackInfo *callbackInfo)
+    {
+        delete callbackInfo;
+    }
 
-    void Call();
+    void Push(const CallbackFunc &callback)
+    {
+        callbackStack_.push(callback);
+    }
+
+    void Call(T &callbackResult)
+    {
+        while (!callbackStack_.empty()) {
+            CallbackFunc &callbackFunc = callbackStack_.top();
+            callbackFunc(callbackResult);
+            callbackStack_.pop();
+        }
+    }
 
 private:
-    AbilityTransactionCallbackInfo();
+    AbilityTransactionCallbackInfo() = default;
 
-    ~AbilityTransactionCallbackInfo();
+    ~AbilityTransactionCallbackInfo() = default;
 
-    std::stack<AbilityTransactionCallbackFunc> callbackStack_ {};
+    std::stack<CallbackFunc> callbackStack_ {};
+};
+
+template<>
+class AbilityTransactionCallbackInfo<void> {
+public:
+    using CallbackFunc = std::function<void()>;
+
+    static AbilityTransactionCallbackInfo *Create()
+    {
+        return new(std::nothrow) AbilityTransactionCallbackInfo();
+    }
+
+    static void Destroy(AbilityTransactionCallbackInfo *callbackInfo)
+    {
+        delete callbackInfo;
+    }
+
+    void Push(const CallbackFunc &callback)
+    {
+        callbackStack_.push(callback);
+    }
+
+    void Call()
+    {
+        while (!callbackStack_.empty()) {
+            CallbackFunc &callbackFunc = callbackStack_.top();
+            callbackFunc();
+            callbackStack_.pop();
+        }
+    }
+
+private:
+    AbilityTransactionCallbackInfo() = default;
+
+    ~AbilityTransactionCallbackInfo() = default;
+
+    std::stack<CallbackFunc> callbackStack_ {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

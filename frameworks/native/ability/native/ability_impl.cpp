@@ -123,7 +123,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
         return;
     }
 
-    auto *callbackInfo = AbilityTransactionCallbackInfo::Create();
+    auto *callbackInfo = AbilityTransactionCallbackInfo<>::Create();
     if (callbackInfo == nullptr) {
         ability_->OnStop();
         StopCallback();
@@ -145,7 +145,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
     ability_->OnStop(callbackInfo, isAsyncCallback);
     if (!isAsyncCallback) {
         StopCallback();
-        AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+        AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     }
     // else: callbackInfo will be destroyed after the async callback
     HILOG_DEBUG("%{public}s end.", __func__);

@@ -85,6 +85,19 @@ public:
     sptr<IRemoteObject> ConnectExtension(const Want &want);
 
     /**
+     * @brief Connect the Extension. and Calling information back to Extension.
+     *
+     * @param want The Want object to connect to.
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    sptr<IRemoteObject> ConnectExtension(const Want &want, bool &isAsyncCallback);
+
+    /**
+     * @brief The callback of connect.
+     */
+    void ConnectExtensionCallback(sptr<IRemoteObject> &service);
+
+    /**
      * @brief Disconnects the connected object.
      *
      * @param want The Want object to disconnect to.

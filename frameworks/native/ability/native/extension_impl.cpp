@@ -189,6 +189,55 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
     return object;
 }
 
+sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want, bool &isAsyncCallback)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ExtensionImpl::ConnectAbility extension_ is nullptr");
+        isAsyncCallback = false;
+        return nullptr;
+    }
+
+    HILOG_INFO("ExtensionImpl:: ConnectAbility");
+    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Create();
+    if (callbackInfo == nullptr) {
+        sptr<IRemoteObject> object = extension_->OnConnect(want);
+        lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+        isAsyncCallback = false;
+        HILOG_INFO("%{public}s end.", __func__);
+        return object;
+    }
+
+    std::weak_ptr<ExtensionImpl> weakPtr = shared_from_this();
+    auto asyncCallback = [extensionImplWeakPtr = weakPtr](sptr<IRemoteObject> &service) {
+        auto extensionImpl = extensionImplWeakPtr.lock();
+        if (extensionImpl == nullptr) {
+            HILOG_ERROR("extensionImpl is nullptr.");
+            return;
+        }
+        extensionImpl->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+        extensionImpl->ConnectExtensionCallback(service);
+    };
+    callbackInfo->Push(asyncCallback);
+
+    sptr<IRemoteObject> object = extension_->OnConnect(want, callbackInfo, isAsyncCallback);
+    if (!isAsyncCallback) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+        AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
+    }
+    // else: callbackInfo will be destroyed after the async callback
+    HILOG_INFO("%{public}s end.", __func__);
+    return object;
+}
+
+void ExtensionImpl::ConnectExtensionCallback(sptr<IRemoteObject> &service)
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ScheduleConnectAbilityDone(token_, service);
+    if (err != ERR_OK) {
+        HILOG_ERROR("AbilityThread::HandleConnectExtension failed err = %{public}d", err);
+    }
+}
+
 /**
  * @brief Disconnects the connected object.
  *
@@ -215,7 +264,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
         return;
     }
 
-    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo::Create();
+    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<>::Create();
     if (callbackInfo == nullptr) {
         extension_->OnDisconnect(want);
         isAsyncCallback = false;
@@ -234,7 +283,7 @@ void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
 
     extension_->OnDisconnect(want, callbackInfo, isAsyncCallback);
     if (!isAsyncCallback) {
-        AppExecFwk::AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+        AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     }
     // else: callbackInfo will be destroyed after the async callback
     HILOG_DEBUG("%{public}s end.", __func__);
