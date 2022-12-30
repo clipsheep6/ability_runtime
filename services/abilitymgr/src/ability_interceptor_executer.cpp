@@ -15,6 +15,7 @@
 
 #include "ability_interceptor_executer.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -27,6 +28,7 @@ void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<AbilityInt
 
 ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
     auto item = interceptorList_.begin();
     while (item != interceptorList_.end()) {

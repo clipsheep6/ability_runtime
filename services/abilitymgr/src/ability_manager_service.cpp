@@ -527,16 +527,18 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int requestCode, int callerUid, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "CHECK_DLP");
+        if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
+            VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
+            !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
+            HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+            return CHECK_PERMISSION_FAILED;
+        }
 
-    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
-        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
-        !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
-        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
-        return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
+        if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+            return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
+        }
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
@@ -3727,30 +3729,39 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 
 bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
-    for (auto item: missionListManagers_) {
-        if (item.second && item.second->GetAbilityRecordByToken(token)) {
-            return true;
-        }
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
+        for (auto item: missionListManagers_) {
+            if (item.second && item.second->GetAbilityRecordByToken(token)) {
+                return true;
+            }
 
-        if (item.second && item.second->GetAbilityFromTerminateList(token)) {
-            return true;
-        }
-    }
-
-    for (auto item: dataAbilityManagers_) {
-        if (item.second && item.second->GetAbilityRecordByToken(token)) {
-            return true;
+            if (item.second && item.second->GetAbilityFromTerminateList(token)) {
+                return true;
+            }
         }
     }
 
-    for (auto item: connectManagers_) {
-        if (item.second && item.second->GetServiceRecordByToken(token)) {
-            return true;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchDataAbilityManagers_");
+        for (auto item: dataAbilityManagers_) {
+            if (item.second && item.second->GetAbilityRecordByToken(token)) {
+                return true;
+            }
         }
     }
 
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
+        for (auto item: connectManagers_) {
+            if (item.second && item.second->GetServiceRecordByToken(token)) {
+                return true;
+            }
+        }
+    }
     HILOG_ERROR("Failed to verify all token.");
     return false;
 }
@@ -4991,6 +5002,7 @@ int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, c
 
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
         // do not need check static config permission when start ability by SA
@@ -5606,6 +5618,7 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
 
 int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin", __func__);
     if (!IsUseNewStartUpRule(abilityRequest)) {
         return CheckCallerPermissionOldRule(abilityRequest);
@@ -5659,6 +5672,7 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 
 int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
         return ERR_OK;
     }
