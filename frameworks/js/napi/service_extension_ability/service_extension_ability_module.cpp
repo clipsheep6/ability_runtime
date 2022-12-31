@@ -27,7 +27,7 @@ void NAPI_app_ability_ServiceExtensionAbility_AutoRegister()
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
         .name = "app.ability.ServiceExtensionAbility",
-        .fileName = "app/ability/libserviceextensionability_napi.so/service_extension_ability.js",
+        .fileName = "app/ability/libserviceextensionability.so/service_extension_ability.js",
     };
 
     moduleManager->Register(&newModuleInfo);

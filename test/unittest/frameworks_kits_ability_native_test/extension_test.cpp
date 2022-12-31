@@ -269,7 +269,7 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1100, Function | MediumTest | Level1)
     GTEST_LOG_(INFO) << "AaFwk_Extension_1100 start";
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
-    AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo = nullptr;
+    AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo = nullptr;
     bool isAsyncCallback = true;
     extension_->OnDisconnect(want, callbackInfo, isAsyncCallback);
     EXPECT_FALSE(isAsyncCallback);

@@ -686,7 +686,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(
             continue;
         }
 
-        if (name == it->name_) {
+        if (name == it->fullName_) {
             HILOG_INFO("Property exists");
             return it;
         }

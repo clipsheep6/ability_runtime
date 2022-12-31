@@ -163,7 +163,7 @@ HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0200, TestSize.Level1)
     context->SetAbilityInfo(info);
 
     abilityInfo = context->GetAbilityInfo();
-    EXPECT_EQ(abilityInfo, nullptr);
+    EXPECT_NE(abilityInfo, nullptr);
 
     HILOG_INFO("SetAbilityInfo end");
 }

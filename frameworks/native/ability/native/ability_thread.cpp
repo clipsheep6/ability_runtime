@@ -559,10 +559,10 @@ void AbilityThread::HandleConnectExtension(const Want &want)
         HILOG_ERROR("AbilityThread::HandleConnectExtension extensionImpl_ == nullptr");
         return;
     }
-    sptr<IRemoteObject> service = extensionImpl_->ConnectExtension(want);
-    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleConnectAbilityDone(token_, service);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityThread::HandleConnectExtension failed err = %{public}d", err);
+    bool isAsyncCallback = false;
+    sptr<IRemoteObject> service = extensionImpl_->ConnectExtension(want, isAsyncCallback);
+    if (!isAsyncCallback) {
+        extensionImpl_->ConnectExtensionCallback(service);
     }
     HILOG_DEBUG("AbilityThread::HandleConnectExtension end");
 }

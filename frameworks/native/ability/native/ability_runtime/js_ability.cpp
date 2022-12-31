@@ -50,9 +50,9 @@ NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
         return nullptr;
     }
     void *data = info->functionInfo->data;
-    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo *>(data);
+    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<> *>(data);
     callbackInfo->Call();
-    AppExecFwk::AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     info->functionInfo->data = nullptr;
     return nullptr;
 }
@@ -232,7 +232,7 @@ void JsAbility::OnStop()
     HILOG_DEBUG("OnStop end.");
 }
 
-void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback)
+void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
@@ -869,7 +869,7 @@ bool JsAbility::CheckPromise(NativeValue *result)
     return true;
 }
 
-bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo)
+bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
 {
     auto *retObj = ConvertNativeValueTo<NativeObject>(result);
     if (retObj == nullptr) {
@@ -898,14 +898,15 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
 {
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
     property->token_          = GetAbilityContext()->GetToken();
+    property->name_           = GetAbilityName();
     if (GetApplicationInfo() == nullptr || GetApplicationInfo()->bundleName.empty()) {
-        property->name_ = GetAbilityName();
+        property->fullName_ = GetAbilityName();
     } else {
         std::string::size_type pos = GetAbilityName().find(GetApplicationInfo()->bundleName);
         if (pos == std::string::npos || pos != 0) {
-            property->name_ = GetApplicationInfo()->bundleName + "." + GetAbilityName();
+            property->fullName_ = GetApplicationInfo()->bundleName + "." + GetAbilityName();
         } else {
-            property->name_ = GetAbilityName();
+            property->fullName_ = GetAbilityName();
         }
     }
     property->lifecycleState_ = GetState();

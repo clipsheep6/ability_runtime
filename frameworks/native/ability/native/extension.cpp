@@ -62,6 +62,13 @@ sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
     return nullptr;
 }
 
+sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want,
+    AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *callbackInfo, bool &isAsyncCallback)
+{
+    isAsyncCallback = false;
+    return OnConnect(want);
+}
+
 void Extension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -69,7 +76,7 @@ void Extension::OnDisconnect(const AAFwk::Want &want)
     HILOG_INFO("OnDisconnect end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
-void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
+void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo,
     bool &isAsyncCallback)
 {
     isAsyncCallback = false;

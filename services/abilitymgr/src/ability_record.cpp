@@ -754,8 +754,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     resourceMgr->UpdateResConfig(*resConfig);
 
     std::string loadPath;
-    if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
-        !abilityInfo_.hapPath.empty()) {
+    if (!abilityInfo_.hapPath.empty()) {
         loadPath = abilityInfo_.hapPath;
     } else {
         loadPath = abilityInfo_.resourcePath;
@@ -785,8 +784,7 @@ std::shared_ptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windo
     Media::SourceOptions opts;
     uint32_t errorCode = 0;
     std::unique_ptr<Media::ImageSource> imageSource;
-    if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
-        !abilityInfo_.hapPath.empty()) { // hap is not unzip
+    if (!abilityInfo_.hapPath.empty()) { // hap is not unzip
         std::unique_ptr<uint8_t[]> iconOut;
         size_t len;
         if (resourceMgr->GetMediaDataById(windowIconId, len, iconOut) != Global::Resource::RState::SUCCESS) {

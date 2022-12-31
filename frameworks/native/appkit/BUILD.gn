@@ -124,6 +124,7 @@ ohos_shared_library("appkit_native") {
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
     "ability_runtime:ability_manager",
