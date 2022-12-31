@@ -333,6 +333,7 @@ group("unittest") {
     "background_task_observer_test:unittest",
     "completed_dispatcher_test:unittest",
     "configuration_test:unittest",
+    "connect_server_manager_test:unittest",
     "connection_observer_controller_test:unittest",
     "connection_observer_test:unittest",
     "connection_record_test:unittest",
