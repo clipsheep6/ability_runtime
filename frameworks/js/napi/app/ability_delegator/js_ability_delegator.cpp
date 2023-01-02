@@ -741,8 +741,11 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
             task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
             return;
         }
-        bool ret = delegator->DoAbilityForeground(remoteObject);
-        ResolveWithNoError(engine, task, engine.CreateBoolean(ret));
+        if (delegator->DoAbilityForeground(remoteObject)) {
+            ResolveWithNoError(engine, task, engine.CreateNull());
+        } else {
+            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
+        }
     };
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
@@ -769,8 +772,11 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
             task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
             return;
         }
-        bool ret = delegator->DoAbilityBackground(remoteObject);
-        ResolveWithNoError(engine, task, engine.CreateBoolean(ret));
+        if (delegator->DoAbilityBackground(remoteObject)) {
+            ResolveWithNoError(engine, task, engine.CreateNull());
+        } else {
+            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
+        }
     };
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
