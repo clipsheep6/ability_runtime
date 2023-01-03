@@ -100,6 +100,7 @@ bool JsTestRunner::Initialize()
         }
         std::vector<uint8_t> buffer((uint8_t*)_binary_delegator_mgmt_abc_start,
             (uint8_t*)_binary_delegator_mgmt_abc_end);
+        HILOG_INFO("[DongLin]%{public}s", buffer.data());
         auto mgmtResult = jsRuntime_.GetNativeEngine().RunBufferScript(buffer);
         if (mgmtResult == nullptr) {
             HILOG_ERROR("mgmtResult init error");
