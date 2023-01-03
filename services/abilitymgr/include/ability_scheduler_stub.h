@@ -19,12 +19,22 @@
 #include <functional>
 
 #include "ability_scheduler_interface.h"
+#include "timer.h"
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
+#include <mutex>
 
 namespace OHOS {
+namespace NativeRdb {
+class ISharedResultSet;
+};
 namespace AAFwk {
+struct TimerParam {
+    uint32_t timerId = 0;
+    sptr<OHOS::NativeRdb::ISharedResultSet> resultPtr;
+};
+
 /**
  * @class AbilitySchedulerStub
  * AbilityScheduler Stub.
@@ -71,8 +81,14 @@ private:
     int CallRequestInner(MessageParcel &data, MessageParcel &reply);
 
     int ContinueAbilityInner(MessageParcel &data, MessageParcel &reply);
+    void RestartTimer(sptr<OHOS::NativeRdb::ISharedResultSet> result);
+    static void AutoClose(uint32_t id, AbilitySchedulerStub *stub);
     using RequestFuncType = int (AbilitySchedulerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;
+    std::mutex mutex_;
+    std::shared_ptr<Utils::Timer> timer_;
+    uint32_t id_ = 0;
+    std::map<uint32_t, TimerParam> timerClearMap_;
 };
 
 /**
