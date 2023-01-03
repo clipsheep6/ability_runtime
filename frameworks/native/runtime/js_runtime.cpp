@@ -184,19 +184,26 @@ public:
 
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
     {
-        if (!RunScript(path, hapPath)) {
-            HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
-            return nullptr;
-        }
+        std::vector<char> buffer;
+        if (!hapPath.empty()) {
+            std::ostringstream outStream;
+            if (runtimeExtractor_ == nullptr) {
+                runtimeExtractor_ = InitRuntimeExtractor(hapPath);
+            }
+            if (!GetFileBuffer(runtimeExtractor_, path, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return nullptr;
+            }
 
-        panda::Local<panda::ObjectRef> exportObj = panda::JSNApi::GetExportObject(vm_, path, "default");
-        if (exportObj->IsNull()) {
-            HILOG_ERROR("Get export object failed");
-            return nullptr;
+            const auto& outStr = outStream.str();
+            buffer.assign(outStr.begin(), outStr.end());
         }
-
-        return ArkNativeEngine::ArkValueToNativeValue(
-            static_cast<ArkNativeEngine*>(nativeEngine_.get()), exportObj);
+        NativeValue *result = reinterpret_cast<ArkNativeEngine *>(nativeEngine_.get())->
+            LoadArkModule(buffer.data(), buffer.size(), path);
+        if (result == nullptr) {
+            HILOG_ERROR("Load module failed");
+        }
+        return result;
     }
 
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
