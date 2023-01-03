@@ -41,9 +41,9 @@ private:
     void GetThreadList(std::vector<pid_t>& threadList);
     bool IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset);
     void BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFrames,
-        std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames);
+        std::vector<OHOS::HiviewDFX::NativeFrame>& nativeFrames);
     std::string GetThreadStackTraceLabel(pid_t tid);
-    void PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames);
+    void PrintNativeFrames(int fd, std::vector<OHOS::HiviewDFX::NativeFrame>& nativeFrames);
     void PrintProcessHeader(int fd, pid_t pid, uid_t uid);
 
     static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
