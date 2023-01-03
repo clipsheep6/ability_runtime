@@ -184,6 +184,7 @@ HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityStop_0100, TestSize.Leve
 {
     GTEST_LOG_(INFO) << "Ability_Window_OnPostAbilityStop_0100 start";
     abilityWindow_->windowScene_ = std::make_shared<WindowScene>();
+    abilityWindow_->OnPostAbilityStop();
     abilityWindow_->isWindowAttached = true;
     abilityWindow_->OnPostAbilityStop();
     EXPECT_FALSE(abilityWindow_->isWindowAttached);

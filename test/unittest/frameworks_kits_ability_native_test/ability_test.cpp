@@ -2606,5 +2606,511 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
 
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.number: Ability_Create_0100
+ * @tc.name: Ability_Create_0100
+ * @tc.desc: Create JS ability.
+ */
+HWTEST_F(AbilityBaseTest, Ability_Create_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    AbilityRuntime::Runtime::Options options;
+    options.lang = AbilityRuntime::Runtime::Language::JS;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    auto ability = Ability::Create(runtime);
+    EXPECT_NE(ability, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_Create_0200
+ * @tc.name: Ability_Create_0200
+ * @tc.desc: Create ability which runtime is NULL.
+ */
+HWTEST_F(AbilityBaseTest, Ability_Create_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    auto ability = Ability::Create(NULL);
+    EXPECT_NE(ability, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_GetResourceManager_0100
+ * @tc.name: GetResourceManager
+ * @tc.desc: Get ResourceManager by function GetResourceManager.
+ */
+HWTEST_F(AbilityBaseTest, Ability_GetResourceManager_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    auto resourceMgr = ability->GetResourceManager();
+    EXPECT_EQ(resourceMgr, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_OnStop_AsyncCallback_0100
+ * @tc.name: OnStop
+ * @tc.desc: Verify OnStop with AsyncCallback.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnStop_AsyncCallback_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->type = AbilityType::PAGE;
+    std::shared_ptr<OHOSApplication> application = nullptr;
+    std::shared_ptr<AbilityHandler> handler = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    bool isAsyncCallback = false;
+    ability_->OnStop(nullptr, isAsyncCallback);
+
+    AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
+    std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
+    LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
+
+    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
+    EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycleState);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_OnConfigurationUpdatedNotify_0100
+ * @tc.name: OnConfigurationUpdatedNotify
+ * @tc.desc: Verify OnConfigurationUpdatedNotify.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnConfigurationUpdatedNotify_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    Configuration configuration;
+    ability_->OnConfigurationUpdatedNotify(configuration);
+    EXPECT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_Update_0100
+ * @tc.name: Update
+ * @tc.desc: Verify function Update.
+ */
+HWTEST_F(AbilityBaseTest, Ability_Update_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    Uri uri("test_update");
+    NativeRdb::ValuesBucket value;
+    NativeRdb::DataAbilityPredicates predicates;
+    int result = ability_->Update(uri, value, predicates);
+    EXPECT_EQ(result, 0);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_OnKeyDown_0100
+ * @tc.name: OnKeyDown
+ * @tc.desc: Verify function OnKeyDown.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnKeyDown_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    auto keyEvent = std::make_shared<MMI::KeyEvent>(MMI::KeyEvent::KEYCODE_BACK);
+    ability_->OnKeyDown(keyEvent);
+    EXPECT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: Ability_OnPointerEvent_0100
+ * @tc.name: OnPointerEvent
+ * @tc.desc: Verify function OnPointerEvent.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnPointerEvent_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    auto pointerEvent = std::make_shared<MMI::PointerEvent>(MMI::PointerEvent::POINTER_ACTION_BUTTON_DOWN);
+    ability_->OnPointerEvent(pointerEvent);
+    EXPECT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_SetUIContent_0100
+ * @tc.desc: SetUIContent test
+ * @tc.desc: Verify function SetUIContent.
+ */
+HWTEST_F(AbilityBaseTest, Ability_SetUIContent_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    ComponentContainer componentContainer;
+    std::shared_ptr<Context> context = nullptr;
+    int typeFlag = 0;
+    ability->SetUIContent(componentContainer, context, typeFlag);
+
+    int layoutRes = 0;
+    ability->SetUIContent(layoutRes, context, typeFlag);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_InitWindow_0100
+ * @tc.desc: InitWindow test
+ * @tc.desc: Verify function InitWindow.
+ */
+HWTEST_F(AbilityBaseTest, Ability_InitWindow_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::PAGE;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = false;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    int32_t displayId = 0;
+    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    ability_->InitWindow(displayId, option);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_HasWindowFocus_0100
+ * @tc.desc: HasWindowFocus test
+ * @tc.desc: Verify function HasWindowFocus when ability info is nullptr.
+ */
+HWTEST_F(AbilityBaseTest, Ability_HasWindowFocus_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    bool hasFocus = ability_->HasWindowFocus();
+    ASSERT_EQ(hasFocus, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_HasWindowFocus_0200
+ * @tc.desc: HasWindowFocus test
+ * @tc.desc: Verify function HasWindowFocus when ability type is except PAGE.
+ */
+HWTEST_F(AbilityBaseTest, Ability_HasWindowFocus_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::UNKNOWN;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = false;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    bool hasFocus = ability_->HasWindowFocus();
+    ASSERT_EQ(hasFocus, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_HasWindowFocus_0300
+ * @tc.desc: HasWindowFocus test
+ * @tc.desc: Verify function HasWindowFocus when ability type is PAGE.
+ */
+HWTEST_F(AbilityBaseTest, Ability_HasWindowFocus_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::PAGE;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = false;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    bool hasFocus = ability_->HasWindowFocus();
+    ASSERT_EQ(hasFocus, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_OnKeyPressAndHold_0100
+ * @tc.desc: OnKeyPressAndHold test
+ * @tc.desc: Verify function OnKeyPressAndHold.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnKeyPressAndHold_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    int keyCode = 0;
+    std::shared_ptr<KeyEvent> keyEvent = nullptr;
+    bool isPressAndHold = ability_->OnKeyPressAndHold(keyCode, keyEvent);
+    ASSERT_EQ(isPressAndHold, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_OnWindowFocusChanged_0100
+ * @tc.desc: OnWindowFocusChanged test
+ * @tc.desc: Verify function OnWindowFocusChanged.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnWindowFocusChanged_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    ability_->OnWindowFocusChanged(true);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_OnTopActiveAbilityChanged_0100
+ * @tc.desc: OnTopActiveAbilityChanged test
+ * @tc.desc: Verify function OnTopActiveAbilityChanged.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnTopActiveAbilityChanged_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    ability_->OnTopActiveAbilityChanged(true);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_OnShare_0100
+ * @tc.desc: OnShare test
+ * @tc.desc: Verify function OnShare.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnShare_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    int64_t formId = 0;
+    AAFwk::WantParams wantParams;
+    bool isOnShare = ability_->OnShare(formId, wantParams);
+    ASSERT_EQ(isOnShare, false);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_OnDelete_0100
+ * @tc.desc: OnDelete test
+ * @tc.desc: Verify function OnDelete.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnDelete_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    int64_t formId = 0;
+    ability_->OnDelete(formId);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: OnCastTemptoNormal_0100
+ * @tc.desc: OnCastTemptoNormal test
+ * @tc.desc: Verify function OnCastTemptoNormal.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnCastTemptoNormal_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    int64_t formId = 0;
+    ability_->OnCastTemptoNormal(formId);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: OnVisibilityChanged_0100
+ * @tc.desc: OnVisibilityChanged test
+ * @tc.desc: Verify function OnVisibilityChanged.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnVisibilityChanged_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::map<int64_t, int32_t> formEventsMap;
+    ability_->OnVisibilityChanged(formEventsMap);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: OnTriggerEvent_0100
+ * @tc.desc: OnTriggerEvent test
+ * @tc.desc: Verify function OnTriggerEvent.
+ */
+HWTEST_F(AbilityBaseTest, Ability_OnTriggerEvent_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    int64_t formId = 0;
+    std::string message;
+    ability_->OnTriggerEvent(formId, message);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SetSceneListener_0100
+ * @tc.desc: SetSceneListener test
+ * @tc.desc: Verify function SetSceneListener.
+ */
+HWTEST_F(AbilityBaseTest, Ability_SetSceneListener_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    sptr<Rosen::IWindowLifeCycle> listener;
+    ability_->SetSceneListener(listener);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_GetWindowOption_0100
+ * @tc.desc: GetWindowOption test
+ * @tc.desc: Verify function GetWindowOption.
+ */
+HWTEST_F(AbilityBaseTest, Ability_GetWindowOption_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::PAGE;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = false;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    CustomizeData custData = CustomizeData("ShowOnLockScreen", "0", "");
+    std::vector<CustomizeData> vecCustData;
+    vecCustData.push_back(custData);
+    abilityInfo->metaData.customizeData = vecCustData;
+
+    Want want;
+    auto option = ability_->GetWindowOption(want);
+    ASSERT_NE(option, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_DoOnForeground_0100
+ * @tc.desc: DoOnForeground test
+ * @tc.desc: Verify function DoOnForeground when abilityWindow is not nullptr.
+ */
+HWTEST_F(AbilityBaseTest, Ability_DoOnForeground_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::PAGE;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = false;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    Want want;
+    ability_->DoOnForeground(want);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: Ability_DoOnForeground_0200
+ * @tc.desc: DoOnForeground test
+ * @tc.desc: Verify function DoOnForeground when abilityWindow is nullptr.
+ */
+HWTEST_F(AbilityBaseTest, Ability_DoOnForeground_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    AbilityType type = AbilityType::PAGE;
+    abilityInfo->type = type;
+    abilityInfo->isStageBasedModel = true;
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    ability_->Init(abilityInfo, application, handler, token);
+
+    Want want;
+    ability_->DoOnForeground(want);
+    ASSERT_NE(ability_, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetAbilityContext_0100
+ * @tc.desc: GetAbilityContext test
+ * @tc.desc: Verify function GetAbilityContext.
+ */
+HWTEST_F(AbilityBaseTest, Ability_GetAbilityContext_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    auto abilityContext = ability_->GetAbilityContext();
+    ASSERT_EQ(abilityContext, nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

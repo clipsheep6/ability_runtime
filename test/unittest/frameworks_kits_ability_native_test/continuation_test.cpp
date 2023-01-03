@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #define private public
+#define protected public
 #include "ability.h"
 #include "ability_impl.h"
 #include "abs_shared_result_set.h"
@@ -34,6 +35,7 @@
 #include "ohos_application.h"
 #include "page_ability_impl.h"
 #include "values_bucket.h"
+#undef protected
 #undef private
 
 namespace OHOS {
@@ -769,6 +771,24 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReplicaTerminated_001, TestSiz
 }
 
 /*
+ * @tc.number: continue_handler_NotifyReplicaTerminated_002
+ * @tc.name: NotifyReplicaTerminated
+ * @tc.desc: call NotifyReplicaTerminated with null continuationManager
+ */
+HWTEST_F(ContinuationTest, continue_handler_NotifyReplicaTerminated_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_NotifyReplicaTerminated_002 start";
+
+    EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(0);
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    continuationHandler->continuationManager_.reset();
+    continuationHandler->NotifyReplicaTerminated();
+    GTEST_LOG_(INFO) << "continue_handler_NotifyReplicaTerminated_002 end";
+}
+
+/*
  * @tc.number: continue_handler_NotifyTerminationToPrimary_001
  * @tc.name: NotifyTerminationToPrimary
  * @tc.desc: call NotifyTerminationToPrimary with null remotePrimaryProxy_
@@ -886,9 +906,9 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinueAbility_002, TestSize
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     std::weak_ptr<Ability> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
-    sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
-        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(remoteObject);
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
     EXPECT_CALL(*primary, ReverseContinuation()).Times(1).WillOnce(Return(true));
     continuationHandler->remoteReplicaProxy_ = primary;
     auto result = continuationHandler->ReverseContinueAbility();
@@ -1285,9 +1305,9 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_004, TestSize
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->continuationState_ = ContinuationState::REMOTE_RUNNING;
-    sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
-        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(remoteObject);
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
     EXPECT_CALL(*primary, ReverseContinuation()).Times(1).WillOnce(Return(true));
     continuationHandler->remoteReplicaProxy_ = primary;
     bool result = continuationManager_->ReverseContinueAbility();
@@ -1308,9 +1328,9 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_005, TestSize
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->continuationState_ = ContinuationState::REMOTE_RUNNING;
-    sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
-        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(remoteObject);
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
     EXPECT_CALL(*primary, ReverseContinuation()).Times(1).WillOnce(Return(false));
     continuationHandler->remoteReplicaProxy_ = primary;
     bool result = continuationManager_->ReverseContinueAbility();
@@ -1878,6 +1898,25 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleSaveData_001, TestSize.Lev
 }
 
 /*
+ * @tc.name: continue_manager_DoScheduleSaveData_002
+ * @tc.name: DoScheduleSaveData
+ * @tc.desc: call DoScheduleSaveData with ability is null
+ */
+HWTEST_F(ContinuationTest, continue_manager_DoScheduleSaveData_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_manager_DoScheduleSaveData_002 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
+    continuationManager_->ability_.reset();
+    WantParams saveData;
+    bool result = continuationManager_->DoScheduleSaveData(saveData);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "continue_manager_DoScheduleSaveData_002 end";
+}
+
+/*
  * @tc.name: continue_manager_DoScheduleRestoreData_001
  * @tc.name: DoScheduleRestoreData
  * @tc.desc: call DoScheduleRestoreData with CheckContinuationIllegal failed
@@ -1914,6 +1953,171 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleRestoreData_002, TestSize.
     bool result = continuationManager_->DoScheduleRestoreData(restoreData);
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleRestoreData_002 end";
+}
+
+/*
+ * @tc.number: continue_handler_OnReplicaDied_001
+ * @tc.name: OnReplicaDied
+ * @tc.desc: call OnReplicaDied with schedulerDeathRecipient_ is null
+ */
+HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_001 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
+    continuationHandler->remoteReplicaProxy_ = primary;
+    continuationHandler->OnReplicaDied(primary->AsObject());
+    EXPECT_TRUE(continuationHandler->remoteReplicaProxy_ == nullptr);
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_001 end";
+}
+
+/*
+ * @tc.number: continue_handler_OnReplicaDied_002
+ * @tc.name: OnReplicaDied
+ * @tc.desc: call OnReplicaDied with remoteReplicaProxy_ is null
+ */
+HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_002 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
+    continuationHandler->OnReplicaDied(primary->AsObject());
+    EXPECT_TRUE(continuationHandler->remoteReplicaProxy_ == nullptr);
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_002 end";
+}
+
+/*
+ * @tc.number: continue_handler_OnReplicaDied_003
+ * @tc.name: OnReplicaDied
+ * @tc.desc: call OnReplicaDied with remote is null
+ */
+HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_003 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
+    continuationHandler->remoteReplicaProxy_ = primary;
+    continuationHandler->OnReplicaDied(nullptr);
+    EXPECT_TRUE(continuationHandler->remoteReplicaProxy_ != nullptr);
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_003 end";
+}
+
+/*
+ * @tc.number: continue_handler_OnReplicaDied_004
+ * @tc.name: OnReplicaDied
+ * @tc.desc: call OnReplicaDied with schedulerDeathRecipient_ is not null
+ */
+HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_004 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
+    continuationHandler->remoteReplicaProxy_ = primary;
+    continuationHandler->HandleReceiveRemoteScheduler(stub);
+    continuationHandler->OnReplicaDied(primary->AsObject());
+    EXPECT_TRUE(continuationHandler->remoteReplicaProxy_ == nullptr);
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_004 end";
+}
+
+/*
+ * @tc.number: continue_handler_OnReplicaDied_005
+ * @tc.name: OnReplicaDied
+ * @tc.desc: call OnReplicaDied with remoteReplica is not matches with remote
+ */
+HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_005 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<IRemoteObject> stubTwo = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
+        new (std::nothrow) MockReverseContinuationSchedulerReplicaProxy(stub);
+    continuationHandler->remoteReplicaProxy_ = primary;
+    continuationHandler->OnReplicaDied(stubTwo);
+    EXPECT_TRUE(continuationHandler->remoteReplicaProxy_ != nullptr);
+    GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_005 end";
+}
+
+/*
+ * @tc.number: continue_handler_SetWantParams_001
+ * @tc.name: SetWantParams
+ * @tc.desc: call SetWantParams with reversible_ is true and launchMode is STANDARD
+ */
+HWTEST_F(ContinuationTest, continue_handler_SetWantParams_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_handler_SetWantParams_001 start";
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    WantParams wantParams;
+    abilityInfo_->launchMode = LaunchMode::STANDARD;
+    continuationHandler->abilityInfo_ = abilityInfo_;
+    continuationHandler->reversible_ = true;
+    auto result = continuationHandler->SetWantParams(wantParams);
+    auto flags = result.GetFlags();
+    EXPECT_EQ(1032U, flags);
+    GTEST_LOG_(INFO) << "continue_handler_SetWantParams_001 end";
+}
+#ifdef SUPPORT_GRAPHICS
+/*
+ * @tc.number: continue_manager_GetContentInfo_001
+ * @tc.name: GetContentInfo
+ * @tc.desc: call GetContentInfo with ability is null
+ */
+HWTEST_F(ContinuationTest, continue_manager_GetContentInfo_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_manager_GetContentInfo_001 start";
+    WantParams wantParams;
+    bool result = continuationManager_->GetContentInfo(wantParams);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "continue_manager_GetContentInfo_001 end";
+}
+#endif
+/*
+ * @tc.number: continue_manager_NotifyCompleteContinuation_001
+ * @tc.name: NotifyCompleteContinuation
+ * @tc.desc: call NotifyCompleteContinuation success
+ */
+HWTEST_F(ContinuationTest, continue_manager_NotifyCompleteContinuation_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_manager_GetContentInfo_001 start";
+    WantParams wantParams;
+    int sessionId = 0;
+    bool success = true;
+    sptr<IRemoteObject> reverseScheduler = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
+    continuationManager_->NotifyCompleteContinuation("originDeviceId", sessionId, success, reverseScheduler);
+    GTEST_LOG_(INFO) << "continue_manager_NotifyCompleteContinuation_001 end";
+}
+
+/*
+ * @tc.number: continue_manager_GetProcessState_001
+ * @tc.name: GetProcessState
+ * @tc.desc: call GetProcessState success
+ */
+HWTEST_F(ContinuationTest, continue_manager_GetProcessState_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_manager_GetProcessState_001 start";
+    auto result = continuationManager_->GetProcessState();
+    EXPECT_EQ(ContinuationManager::ProgressState::INITIAL, result);
+    GTEST_LOG_(INFO) << "continue_manager_GetProcessState_001 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
