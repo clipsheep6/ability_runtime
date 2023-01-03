@@ -15,11 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#define private public
 #define protected public
 #include "ability_tool_command.h"
 #undef protected
 #include "mock_ability_manager_stub.h"
-#define private public
 #include "ability_manager_client.h"
 #undef private
 #include "ability_manager_interface.h"
@@ -502,6 +502,268 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0500, TestSize.Level1)
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+}
+
+/**
+ * @tc.number: AbilityTool_Test_0600
+ * @tc.name: RunAsTestCommand
+ * @tc.desc: "ability_tool test --bundle com.example.abilitytooltest --options --package-name unittest"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Test_0600, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("--package-name"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+}
+
+ /**
+ * @tc.number: AbilityTool_Test_0700
+ * @tc.name: RunAsTestCommand
+ * @tc.desc: "ability_tool test --bundle com.example.abilitytooltest --options --module-name unittest"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Test_0700, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("--module-name"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+}
+
+ /**
+ * @tc.number: AbilityTool_Test_0800
+ * @tc.name: RunAsTestCommand
+ * @tc.desc: "ability_tool test --bundle com.example.abilitytooltest --options --watchdog unittest"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Test_0800, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("--watchdog"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+}
+
+ /**
+ * @tc.number: AbilityTool_Test_0900
+ * @tc.name: RunAsTestCommand
+ * @tc.desc: "ability_tool test --bundle com.example.abilitytooltest --options -D unittest"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Test_0900, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("test"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--options"),
+        const_cast<char*>("-D"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+}
+
+/**
+ * @tc.number: AbilityTool_Start_0800
+ * @tc.name: RunAsStartAbility
+ * @tc.desc: Run As StartAbility sucess
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Start_0800, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--flags"),
+        const_cast<char*>("abc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+
+    auto managerClientPtr = AbilityManagerClient::GetInstance();
+    auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
+    ASSERT_NE(mockAbilityManagerStub, nullptr);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
+
+    EXPECT_EQ(cmd.RunAsStartAbility(), OHOS::ERR_OK);
+    testing::Mock::AllowLeak(mockAbilityManagerStub);
+}
+
+/**
+ * @tc.number: AbilityTool_Start_0900
+ * @tc.name: RunAsStartAbility
+ * @tc.desc: "ability_tool start --device --ability"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Start_0900, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--device"),
+        const_cast<char*>("--ability"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
+    ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" + ABILITY_TOOL_HELP_MSG_START);
+}
+
+/**
+ * @tc.number: AbilityTool_Start_1000
+ * @tc.name: RunAsStartAbility
+ * @tc.desc: "ability_tool start --ability TestAbility --bundle com.example.abilitytooltest --flags --cold-start"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Start_1000, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--flags"),
+        const_cast<char*>("--cold-start"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: AbilityTool_Start_1100
+ * @tc.name: RunAsStartAbility
+ * @tc.desc: "ability_tool start --ability TestAbility --bundle com.example.abilitytooltest --flags -D"
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_Start_1100, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("start"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("TestAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.example.abilitytooltest"),
+        const_cast<char*>("--flags"),
+        const_cast<char*>("-D"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.name: AbilityTool_StopService_0600
+ * @tc.desc: RunAsStopService
+ * @tc.type: stop-service "ability_tool stop-service --ability TestAbility" test.
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_StopService_0600, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--ability"),
+        const_cast<char*>("com.ohos.screenshot.ServiceExtAbility"),
+        const_cast<char*>("--bundle"),
+        const_cast<char*>("com.ohos.screenshot"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+
+    auto managerClientPtr = AbilityManagerClient::GetInstance();
+    auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
+    ASSERT_NE(mockAbilityManagerStub, nullptr);
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
+
+    EXPECT_EQ(cmd.RunAsStopService(), OHOS::ERR_OK);
+    testing::Mock::AllowLeak(mockAbilityManagerStub);
+}
+
+/**
+ * @tc.name: AbilityTool_StopService_0700
+ * @tc.desc: RunAsStopService
+ * @tc.type: stop-service "ability_tool stop-service --device --ability" test.
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_StopService_0700, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("stop-service"),
+        const_cast<char*>("--device"),
+        const_cast<char*>("--ability"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" +
+    ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" + ABILITY_TOOL_HELP_MSG_STOP_SERVICE);
+}
+
+/**
+ * @tc.name: AbilityTool_ForceStop_0200
+ * @tc.desc: RunAsForceStop
+ * @tc.type: "ability_tool force-stop" test
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0200, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("force-stop"),
+        const_cast<char*>("com.ohos.screenshot.ServiceExtAbility"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_FORCE_STOP_OK + "\n");
+}
+
+/**
+ * @tc.name: AbilityTool_ForceStop_0300
+ * @tc.desc: RunAsForceStop
+ * @tc.type: "ability_tool force-stop" test
+ */
+HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0300, TestSize.Level1)
+{
+    char* argv[] = {
+        const_cast<char*>("ability_tool"),
+        const_cast<char*>("force-stop"),
+        const_cast<char*>("com.ohos.screenshot.ServiceExtAbility"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    AbilityToolCommand cmd(argc, argv);
+
+    auto managerClientPtr = AbilityManagerClient::GetInstance();
+    auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
+    ASSERT_NE(mockAbilityManagerStub, nullptr);
+    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(testing::_))
+        .Times(1)
+        .WillOnce(testing::Return(0));
+    managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
+
+    EXPECT_EQ(cmd.RunAsForceStop(), OHOS::ERR_OK);
+    testing::Mock::AllowLeak(mockAbilityManagerStub);
 }
 } // namespace AAFwk
 } // namespace OHOS

@@ -716,3 +716,143 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2600, Function | MediumTest | 
     AbilityManagerShellCommand cmd(argc, argv);
     EXPECT_EQ(cmd.RunAsTestCommand(), OHOS::ERR_INVALID_VALUE);
 }
+
+/**
+ * @tc.number: Ability_Command_Test_2700
+ * @tc.name: GetAbilityManagerService
+ * @tc.desc: Get Ability Manager Service
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_2700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_2700 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    auto ret = cmd.GetAbilityManagerService();
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.number: Ability_Command_Test_2800
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -c" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_2800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_2800 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-c",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.RunAsTestCommand(), OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Command_Test_2900
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -c or --client" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_2900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_2900 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-c",
+        (char*)"--client",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.RunAsTestCommand(), OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Command_Test_3000
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -u" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_3000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_3000 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-u",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.RunAsTestCommand(), OHOS::ERR_INVALID_VALUE);
+}
+
+
+/**
+ * @tc.number: Ability_Command_Test_3100
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -u or userId" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_3100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_3100 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-u",
+        (char*)"-userId",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.RunAsTestCommand(), OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Command_Test_3200
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -s" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_3200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_3200 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-s",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    Want want;
+    std::string windowMode;
+    EXPECT_EQ(cmd.MakeWantFromCmd(want, windowMode), OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Command_Test_3300
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa test -m" command.
+ */
+HWTEST_F(AbilityCommandTest, Ability_Command_Test_3300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_3300 is called");
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-m",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    Want want;
+    std::string windowMode;
+    EXPECT_EQ(cmd.MakeWantFromCmd(want, windowMode), OHOS::ERR_INVALID_VALUE);
+}
