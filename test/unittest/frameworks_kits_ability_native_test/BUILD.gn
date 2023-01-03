@@ -38,6 +38,8 @@ config("module_private_config") {
     "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/app_distributeddata/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -1698,6 +1700,200 @@ ohos_unittest("ability_impl_factory_test") {
   ]
 }
 
+ohos_unittest("ability_loader_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_loader.cpp",
+    "ability_loader_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("ability_local_record_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_local_record.cpp",
+    "ability_local_record_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("reverse_continuation_scheduler_replica_proxy_test") {
+  module_out_path = module_output_path
+
+  sources = [ "reverse_continuation_scheduler_replica_proxy_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:continuation_ipc",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
+  module_out_path = module_output_path
+
+  sources = [ "reverse_continuation_scheduler_replica_stub_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:continuation_ipc",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("ability_connection_manager_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/ability/ability_runtime/connection_manager.cpp",
+    "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "ability_connection_manager_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "ability_runtime:runtime",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtoken_callback_sdk",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "faultloggerd:lib_dfx_dump_catcher",
+    "hichecker_native:libhichecker",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("ability_runtime_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "//third_party/zlib/contrib/minizip",
+    "${ability_runtime_test_path}/mock/frameworks_kits_runtime_test",
+    "//third_party/zlib",
+  ]
+
+  sources = [ "ability_runtime_test.cpp" ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -1705,14 +1901,18 @@ group("unittest") {
   deps = []
 
   deps += [
+    ":ability_connection_manager_test",
     ":ability_context_test",
     ":ability_handler_test",
     ":ability_impl_factory_test",
     ":ability_impl_test",
     ":ability_lifecycle_executor_test",
     ":ability_lifecycle_test",
+    ":ability_loader_test",
+    ":ability_local_record_test",
     ":ability_permission_test",
     ":ability_process_test",
+    ":ability_runtime_test",
     ":ability_test",
     ":ability_thread_call_request_test",
     ":ability_thread_dataability_test",
@@ -1736,6 +1936,8 @@ group("unittest") {
     ":pac_map_test",
     ":reserse_continuation_scheduler_primary_proxy_test",
     ":reserse_continuation_scheduler_primary_stub_test",
+    ":reverse_continuation_scheduler_replica_proxy_test",
+    ":reverse_continuation_scheduler_replica_stub_test",
     ":service_ability_impl_test",
     ":service_extension_module_loader_test",
     ":task_handler_client_test",
