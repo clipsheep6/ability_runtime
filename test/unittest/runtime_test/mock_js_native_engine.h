@@ -339,6 +339,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::NotifyApplicationState called";
     }
 
+    void NotifyIdleTime(int idleMicroSec) override
+    {}
+
     void NotifyMemoryPressure(bool inHighMemoryPressure = false) override
     {}
 
