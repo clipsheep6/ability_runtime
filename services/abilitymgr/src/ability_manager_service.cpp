@@ -551,6 +551,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
@@ -701,6 +706,11 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_CALLER;
     }
 
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
@@ -844,6 +854,11 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CALLER;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
     }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1102,6 +1117,11 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return ERR_INVALID_CALLER;
     }
 
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
     if (result != ERR_OK) {
@@ -1190,6 +1210,12 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
         AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CALLER;
     }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -1628,6 +1654,11 @@ int AbilityManagerService::ConnectAbilityCommon(
     if (result != ERR_OK) {
         return result;
     }
+	
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 
     int32_t validUserId = GetValidUserId(userId);
 
@@ -1993,6 +2024,11 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return nullptr;
+    }
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t userId = wantSenderInfo.userId;
@@ -2434,6 +2470,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         return nullptr;
     }
 
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return nullptr;
+    }
+
     auto userId = GetValidUserId(INVALID_USER_ID);
     AbilityRequest abilityRequest;
     std::string dataAbilityUri = localUri.ToString();
@@ -2481,6 +2522,11 @@ int AbilityManagerService::ReleaseDataAbility(
     if (!dataAbilityScheduler || !callerToken) {
         HILOG_ERROR("dataAbilitySchedule or callerToken is nullptr");
         return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManager(dataAbilityScheduler);
