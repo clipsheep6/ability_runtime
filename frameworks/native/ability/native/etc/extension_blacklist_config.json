@@ -1,0 +1,16 @@
+{
+    "blacklist": {
+        "ServiceExtension": [],
+        "FormExtension": [],
+        "FileAccessExtension": [],
+        "BackupExtension": [],
+        "EnterpriseAdminExtension": [],
+        "WindowExtensionExtension": [],
+        "WallpaperExtension": [],
+        "StaticSubscriberExtension": [],
+        "AccessibilityExtension": [],
+        "InputMethodExtension": [],
+        "WorkSchedulerExtension": [],
+        "DataShareExtension": []
+    }
+}
