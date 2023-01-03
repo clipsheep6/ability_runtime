@@ -432,7 +432,7 @@ private:
      *
      */
     bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
-        const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
+        BundleInfo& bundleInfo);
 
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
@@ -523,8 +523,7 @@ private:
         Profile &appProfile);
     bool CheckForHandleLaunchApplication(const AppLaunchData &appLaunchData);
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
-        const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
-        bool multiProjects, const Configuration &config);
+        BundleInfo& bundleInfo, const Configuration &config);
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
