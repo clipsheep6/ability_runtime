@@ -145,7 +145,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     const std::string eventData(data, size);
     appMgrServiceInner->NotifyAppStatus(bundleName, eventData);
     appMgrServiceInner->NotifyAppStatusByCallerUid(bundleName, static_cast<int32_t>(userId), callerUid, eventData);
-    return appMgrServiceInner->KillProcessByPid(pid);
+    return true;
 }
 }
 
