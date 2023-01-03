@@ -463,7 +463,10 @@ ohos_unittest("data_ability_helper_impl_test") {
 
 ohos_unittest("data_ability_operation_test") {
   module_out_path = module_output_path
-  sources = [ "data_ability_operation_test.cpp" ]
+  sources = [
+    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
+    "data_ability_operation_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
