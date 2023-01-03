@@ -363,7 +363,8 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
-            std::string loadPath =  hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
+            std::string loadPath =  (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
+                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
             if (loadPath.empty()) {
                 continue;
             }

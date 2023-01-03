@@ -607,7 +607,8 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
     std::regex pattern(AbilityBase::Constants::ABS_CODE_PATH);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
         std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
+        if (system::GetBoolParameter(AbilityBase::Constants::COMPRESS_PROPERTY, false) &&
+            !hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;
