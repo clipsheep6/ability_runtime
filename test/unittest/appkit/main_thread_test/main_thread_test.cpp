@@ -345,40 +345,48 @@ HWTEST_F(MainThreadTest, InitResourceManager_0100, TestSize.Level1)
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_TRUE(resourceManager != nullptr);
-    HapModuleInfo info;
+    AppExecFwk::BundleInfo bundleInfo;
     Configuration config;
-    bool multiProjects = true;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.applicationInfo.multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
-    multiProjects = false;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.applicationInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 
+    HapModuleInfo info;
     info.name = "com.ohos.contactsdataability";
     info.moduleName = "entry";
     info.description = "dataability_description";
     info.iconPath = "$media:icon";
     info.deviceTypes = { "smartVision" };
     info.bundleName = "com.ohos.contactsdataability";
-    multiProjects = true;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.hapModuleInfos.push_back(info);
+    bundleInfo.applicationInfo.multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 
-    multiProjects = false;
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.applicationInfo.multiProjects = false;
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.resourcePath = "/data/app/el1/budle/public/com.ohos.contactsdataability"\
         "/com.ohos.contactsdataability/assets/entry/resources.index";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.hapPath = "/system/app/com.ohos.contactsdataability/Contacts_DataAbility.hap";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 
     info.resourcePath = "";
-    mainThread_->InitResourceManager(resourceManager, info, info.bundleName, multiProjects, config);
+    bundleInfo.hapModuleInfos.clear();
+    bundleInfo.hapModuleInfos.push_back(info);
+    mainThread_->InitResourceManager(resourceManager, bundleInfo, config);
     EXPECT_TRUE(resourceManager != nullptr);
 }
 
@@ -776,8 +784,8 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0100, TestSize.Level1)
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
     bool isStageBased = true;
-    HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
+    BundleInfo bundleInfo;
+    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -791,8 +799,8 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     bool isStageBased = true;
-    HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(nullptr, isStageBased, hapModuleInfo));
+    BundleInfo bundleInfo;
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(nullptr, isStageBased, bundleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -810,8 +818,10 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
     bool isStageBased = false;
     AbilityInfo abilityInfo;
     HapModuleInfo hapModuleInfo;
+    BundleInfo bundleInfo;
     hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
-    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -828,7 +838,9 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0400, TestSize.Level1)
     std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
     bool isStageBased = false;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
+    BundleInfo bundleInfo;
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
