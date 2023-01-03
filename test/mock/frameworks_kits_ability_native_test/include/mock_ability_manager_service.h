@@ -139,13 +139,13 @@ public:
     sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken) override
     {
-        return acquireDataAbility_;
+        return nullptr;
     }
 
     int ReleaseDataAbility(
         sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken) override
     {
-        return releaseDataAbility_;
+        return 0;
     }
 
     int KillProcess(const std::string& bundleName) override;
@@ -279,8 +279,6 @@ public:
 
     sptr<IAbilityScheduler> abilityScheduler_;  // kit interface used to schedule ability life
     Want want_;
-    sptr<IAbilityScheduler> acquireDataAbility_;
-    int releaseDataAbility_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
