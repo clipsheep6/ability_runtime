@@ -33,6 +33,7 @@
 #include "configuration_convertor.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "extension_ability_info.h"
 #include "extension_module_loader.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
@@ -956,10 +957,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     BundleInfo bundleInfo;
     bool queryResult;
     if (appLaunchData.GetAppIndex() != 0) {
+        HILOG_INFO("GetSandboxBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
         queryResult = (bundleMgr->GetSandboxBundleInfo(appInfo.bundleName,
             appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
-        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT,
+        HILOG_INFO("GetBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
+        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO,
             bundleInfo, UNSPECIFIED_USERID);
     }
 
@@ -1111,9 +1114,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
         if (application_ != nullptr) {
 #ifdef __aarch64__
-        LoadAllExtensions("system/lib64/extensionability", wpApplication);
+        LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
 #else
-        LoadAllExtensions("system/lib/extensionability", wpApplication);
+        LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
 #endif
         }
     }
@@ -1264,9 +1267,11 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
 }
 
-void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication)
+void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath,
+    const BundleInfo &bundleInfo)
 {
-    HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s", filePath.c_str());
+    HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s, extensionInfo size = %{public}d", filePath.c_str(), static_cast<int32_t>(bundleInfo.extensionInfos.size()));
+
     // scan all extensions in path
     std::vector<std::string> extensionFiles;
     ScanDir(filePath, extensionFiles);
@@ -1274,6 +1279,8 @@ void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OH
         HILOG_ERROR("no extension files.");
         return;
     }
+
+    std::map<OHOS::AppExecFwk::ExtensionAbilityType, std::set<std::string>> extensionBlacklist;
     std::map<int32_t, std::string> extensionTypeMap;
     for (auto file : extensionFiles) {
         HILOG_DEBUG("Begin load extension file:%{public}s", file.c_str());
@@ -1305,10 +1312,12 @@ void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OH
         std::string extensionName = it->second;
 
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
+        extensionConfigMgr_->AddBlackListItem(extensionName, type);
         HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
+        std::weak_ptr<OHOSApplication> wApp = application_;
         AbilityLoader::GetInstance().RegisterExtension(extensionName,
-            [wpApplication, file]() -> AbilityRuntime::Extension* {
-            auto app = wpApplication.lock();
+            [wApp, file]() -> AbilityRuntime::Extension* {
+            auto app = wApp.lock();
             if (app != nullptr) {
                 return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(app->GetRuntime());
             }
@@ -1317,6 +1326,7 @@ void MainThread::LoadAllExtensions(const std::string &filePath, std::weak_ptr<OH
         });
     }
     application_->SetExtensionTypeMap(extensionTypeMap);
+    extensionConfigMgr_->UpdateBlackListToEngine(nativeEngine);
 }
 
 bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
@@ -1406,6 +1416,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     mainThreadState_ = MainThreadState::RUNNING;
     std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
+    UpdateProcessExtensionType(abilityRecord);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
 #else
@@ -1713,6 +1724,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
     signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
+    extensionConfigMgr_ = std::make_unique<AbilityRuntime::ExtensionConfigMgr>();
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -1728,6 +1740,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
+    extensionConfigMgr_->Init();
     HILOG_DEBUG("MainThread:Init end.");
 }
 
@@ -2216,6 +2229,26 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return NO_ERROR;
+}
+
+void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+{
+    auto &runtime = application_->GetRuntime();
+    if (!runtime) {
+        HILOG_ERROR("Get runtime failed");
+        return;
+    }
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    auto &abilityInfo = abilityRecord->GetAbilityInfo();
+    if (!abilityInfo) {
+        HILOG_ERROR("Get abilityInfo failed");
+        return;
+    }
+    runtime->UpdateExtensionType(static_cast<int32_t>(abilityInfo->extensionAbilityType));
+    HILOG_INFO("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
