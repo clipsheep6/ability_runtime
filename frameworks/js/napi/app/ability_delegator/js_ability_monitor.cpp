@@ -24,6 +24,10 @@ using namespace OHOS::AbilityRuntime;
 JSAbilityMonitor::JSAbilityMonitor(const std::string &abilityName) : abilityName_(abilityName)
 {}
 
+JSAbilityMonitor::JSAbilityMonitor(const std::string &abilityName, const std::string &moduleName)
+    : abilityName_(abilityName), moduleName_(moduleName)
+{}
+
 void JSAbilityMonitor::OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
     HILOG_INFO("enter");

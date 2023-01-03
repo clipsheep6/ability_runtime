@@ -824,26 +824,41 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
         if (value->StrictEquals(jsMonitor->Get())) {
             HILOG_ERROR("monitor existed");
             monitor = iter->second;
-            return monitor ? engine.CreateNull() : nullptr;
+            return engine.CreateNull();
         }
     }
 
     NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
     if (object == nullptr) {
         HILOG_ERROR("Failed to get object");
-        return nullptr;
+        return engine.CreateNull();
     }
 
     auto abilityNameValue = object->GetProperty("abilityName");
     if (abilityNameValue == nullptr) {
         HILOG_ERROR("Failed to get property abilityName");
-        return nullptr;
+        return engine.CreateNull();
     }
+
     std::string abilityName;
     if (!ConvertFromJsValue(engine, abilityNameValue, abilityName)) {
+        return engine.CreateNull();
+    }
+
+    std::string moduleName = "";
+    auto moduleNameValue = object->GetProperty("moduleName");
+    if (moduleNameValue != nullptr && !ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
+        HILOG_ERROR("Failed to get property moduleName");
         return nullptr;
     }
-    std::shared_ptr<JSAbilityMonitor> abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
+
+    std::shared_ptr<JSAbilityMonitor> abilityMonitor = nullptr;
+    if (moduleName.empty()) {
+        abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
+    } else {
+        abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName, moduleName);
+    }
+
     abilityMonitor->SetJsAbilityMonitorEnv(&engine);
     abilityMonitor->SetJsAbilityMonitor(value);
 
