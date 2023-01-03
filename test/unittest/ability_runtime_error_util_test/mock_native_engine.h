@@ -343,6 +343,9 @@ public:
     void NotifyApplicationState(bool inBackground) override
     {}
 
+    void NotifyIdleTime(int idleMicroSec) override
+    {}
+
     void NotifyMemoryPressure(bool inHighMemoryPressure = false) override
     {}
 
