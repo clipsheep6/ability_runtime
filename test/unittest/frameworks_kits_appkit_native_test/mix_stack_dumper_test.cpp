@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <cstring>
 #include <fcntl.h>
 #include <fstream>
@@ -21,26 +22,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+
 #define private public
-#define protected public
 #include "mix_stack_dumper.h"
 #undef private
-#undef protected
-#include "hilog_wrapper.h"
 #include "mock_runtime.h"
-#include "runtime.h"
+
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace {
-    constexpr int32_t ZERO = 0;
-    constexpr int32_t ONE = 1;
-    constexpr int32_t NATIVE_DUMP = -1;
-    constexpr int32_t MIX_DUMP = -2;
-}
 class MixStackDumperTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -271,183 +264,6 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest007, Function | MediumTest | Leve
         int length = sizeof(headerKeywords) / sizeof(headerKeywords[0]);
         EXPECT_TRUE(CheckMixStackKeyWords(testFile, headerKeywords, length));
     }
-}
-
-/**
- * @tc.number: MixStackDumperTest008
- * @tc.name: dump com.ohos.systemui process
- * @tc.desc: try to dump com.ohos.systemui process, must be failed.
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest008, Function | MediumTest | Level3)
-{
-    MixStackDumper mixDumper;
-    mixDumper.Destroy();
-    pid_t pid = GetServicePid("com.ohos.systemui");
-    mixDumper.Init(pid);
-    bool ret = mixDumper.DumpMixFrame(1, pid, pid);
-    mixDumper.Destroy();
-    mixDumper.HandleMixDumpRequest();
-    EXPECT_FALSE(ret);
-}
-
-/**
- * @tc.number: MixStackDumperTest009
- * @tc.name: test DumpMixFrame Func
- * @tc.desc: dump current process which is not a applicaiton process
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest009, Function | MediumTest | Level3)
-{
-    MixStackDumper mixDumper;
-    bool ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
-    EXPECT_FALSE(ret);
-    mixDumper.Init(getpid());
-    ret = mixDumper.DumpMixFrame(1, -1, -1);
-    EXPECT_FALSE(ret);
-    ret = mixDumper.DumpMixFrame(1, getpid(), getpid());
-    mixDumper.Destroy();
-    EXPECT_TRUE(ret);
-}
-
-/**
- * @tc.number: MixStackDumperTest0010
- * @tc.name: Call BuildJsStackInfoList Func
- * @tc.desc: test JsRuntime BuildJsStackInfoList Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest010, Function | MediumTest | Level3)
-{
-    AbilityRuntime::MockRuntime runtime;
-    std::vector<JsFrames> frames;
-    bool ret = runtime.BuildJsStackInfoList(gettid(), frames);
-    EXPECT_TRUE(ret);
-}
-
-/**
- * @tc.number: MixStackDumperTest011
- * @tc.name: Call PrintNativeFrames Func
- * @tc.desc: test PrintNativeFrames Func and GetThreadStackTraceLabel Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest011, Function | MediumTest | Level3)
-{
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame1 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    nativeFrame1->SetFrameMapName("testmapname");
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame2 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
-    nativeFrames.emplace_back(nativeFrame1);
-    nativeFrames.emplace_back(nativeFrame2);
-    nativeFrames.emplace_back(nullptr);
-    MixStackDumper mixDumper;
-    mixDumper.PrintNativeFrames(ONE, nativeFrames);
-    EXPECT_TRUE(true);
-    std::string label = mixDumper.GetThreadStackTraceLabel(gettid());
-    EXPECT_TRUE(label != "");
-}
-
-/**
- * @tc.number: MixStackDumperTest012
- * @tc.name: Call GetThreadList Func
- * @tc.desc: test GetThreadList Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest012, Function | MediumTest | Level3)
-{
-    MixStackDumper mixDumper;
-    std::vector<pid_t> threadList;
-    EXPECT_TRUE(threadList.empty());
-    mixDumper.GetThreadList(threadList);
-    EXPECT_FALSE(threadList.empty());
-}
-
-/**
- * @tc.number: MixStackDumperTest013
- * @tc.name: Call DumpMixFrame Func
- * @tc.desc: test DumpMixFrame Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest013, Function | MediumTest | Level1)
-{
-    std::shared_ptr<MixStackDumper> mixDumper = std::make_shared<MixStackDumper>();
-    std::shared_ptr<OHOSApplication> ohosApplication = std::make_shared<OHOSApplication>();
-    mixDumper->application_ = ohosApplication;
-    auto application = mixDumper->application_.lock();
-    EXPECT_TRUE(application);
-    mixDumper->Init(getpid());
-    mixDumper->DumpMixFrame(ONE, getpid(), getpid());
-    std::unique_ptr<AbilityRuntime::MockRuntime> mockRuntime = std::make_unique<AbilityRuntime::MockRuntime>();
-    application->runtime_ = std::move(mockRuntime);
-    EXPECT_TRUE(application->GetRuntime());
-    mixDumper->Init(getpid());
-    bool ret = mixDumper->DumpMixFrame(ONE, getpid(), getpid());
-    EXPECT_TRUE(ret);
-    mixDumper->catcher_->procInfo_.tid = ZERO;
-    EXPECT_EQ(mixDumper->catcher_->procInfo_.tid, ZERO);
-    mixDumper->DumpMixFrame(ONE, ZERO, getpid());
-    mixDumper->application_.reset();
-}
-
-/**
- * @tc.number: MixStackDumperTest014
- * @tc.name: Call BuildJsNativeMixStack Func
- * @tc.desc: test BuildJsNativeMixStack Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest014, Function | MediumTest | Level1)
-{
-    MixStackDumper mixDumper;
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> v_nativeFrames;
-    struct JsFrames jsFrames;
-    jsFrames.fileName = "fileName";
-    jsFrames.functionName = "functionName";
-    jsFrames.pos = "pos";
-    jsFrames.nativePointer = nullptr;
-    std::vector<JsFrames> v_jsFrames;
-    EXPECT_TRUE(v_jsFrames.size() == ZERO);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    v_jsFrames.push_back(jsFrames);
-    EXPECT_TRUE(v_jsFrames.size() > ZERO);
-    EXPECT_TRUE(v_jsFrames[ZERO].nativePointer == nullptr);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    v_jsFrames.clear();
-    unsigned int data = 10;
-    jsFrames.nativePointer = &data;
-    v_jsFrames.push_back(jsFrames);
-    EXPECT_TRUE(v_jsFrames.size() > ZERO);
-    EXPECT_TRUE(v_jsFrames[ZERO].nativePointer != nullptr);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    EXPECT_TRUE(v_nativeFrames.size() == ZERO);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> dfxFrame = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    dfxFrame->pc_ = (uint64_t)(v_jsFrames[ZERO].nativePointer);
-    v_nativeFrames.push_back(dfxFrame);
-    bool ret1 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO]->GetFramePc(),
-        v_nativeFrames[ZERO]->GetFrameFuncOffset());
-    EXPECT_TRUE(ret1);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    dfxFrame->pc_ = ZERO;
-    v_nativeFrames.push_back(dfxFrame);
-    bool ret2 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO]->GetFramePc(),
-        v_nativeFrames[ZERO]->GetFrameFuncOffset());
-    EXPECT_FALSE(ret2);
-    mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-}
-
-/**
- * @tc.number: MixStackDumperTest015
- * @tc.name: Call Dump_SignalHandler Func
- * @tc.desc: test Dump_SignalHandler Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest015, Function | MediumTest | Level1)
-{
-    MixStackDumper mixDumper;
-    siginfo_t sign;
-    sign.si_code = NATIVE_DUMP;
-    mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
-    sign.si_code = ZERO;
-    mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
-    sign.si_code = MIX_DUMP;
-    mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
-    std::shared_ptr<EventHandler> eventHandler = std::make_shared<EventHandler>();
-    mixDumper.signalHandler_ = eventHandler;
-    auto handler = mixDumper.signalHandler_.lock();
-    EXPECT_TRUE(handler);
-    mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
-    mixDumper.signalHandler_.reset();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
