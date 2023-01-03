@@ -51,6 +51,8 @@ private:
 
     std::string GetHapModuleProp(const std::string &propName) const;
 
+    static bool useCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo);
+
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;
     std::shared_ptr<NativeReference> shellContextRef_;

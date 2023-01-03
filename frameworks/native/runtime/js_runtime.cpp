@@ -127,64 +127,71 @@ public:
         debugMode_ = true;
     }
 
-    bool RunScript(const std::string& srcPath, const std::string& hapPath) override
+    bool RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk) override
     {
-        bool result = false;
-        if (!hapPath.empty()) {
-            std::ostringstream outStream;
-            bool newCreate = false;
-            std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-            std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
-            if (!extractor) {
-                HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
-                return false;
+        std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
+        std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
+        if (hapPath.empty()) {
+            if (useCommonChunk) {
+                (void)nativeEngine_->RunScriptPath(commonsPath.c_str());
+                (void)nativeEngine_->RunScriptPath(vendorsPath.c_str());
             }
-            if (newCreate) {
-                ExtractorUtil::AddExtractor(loadPath, extractor);
-                extractor->SetRuntimeFlag(true);
-                panda::JSNApi::LoadAotFile(vm_, hapPath);
-                auto resourceManager =
-                    AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
-                if (resourceManager) {
-                    resourceManager->AddResource(loadPath.c_str());
-                }
-            }
-            if (isBundle_) {
-                if (!extractor->GetFileBuffer(srcPath, outStream)) {
-                    HILOG_ERROR("Get abc file failed");
-                    return result;
-                }
-            } else {
-                std::string mergeAbcPath;
-                if (vm_ && !moduleName_.empty()) {
-                    mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
-                    panda::JSNApi::SetAssetPath(vm_, mergeAbcPath);
-                    panda::JSNApi::SetModuleName(vm_, moduleName_);
-                } else {
-                    HILOG_ERROR("vm is nullptr or moduleName is hole");
-                    return result;
-                }
+            return nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
+        }
 
-                if (!extractor->GetFileBuffer(mergeAbcPath, outStream)) {
-                    HILOG_ERROR("Get Module abc file failed");
-                    return result;
-                }
+        bool newCreate = false;
+        std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+        if (!extractor) {
+            HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+            return false;
+        }
+        if (newCreate) {
+            ExtractorUtil::AddExtractor(loadPath, extractor);
+            extractor->SetRuntimeFlag(true);
+            panda::JSNApi::LoadAotFile(vm_, hapPath);
+            auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
+            if (resourceManager) {
+                resourceManager->AddResource(loadPath.c_str());
+            }
+        }
+
+        auto func = [&](std::string abcPath) {
+            std::ostringstream outStream;
+            if (!extractor->GetFileBuffer(abcPath, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return false;
             }
 
             const auto& outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
 
-            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
-        } else {
-            result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
+            return nativeEngine_->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
+        };
+
+        if (useCommonChunk) {
+            (void)func(commonsPath);
+            (void)func(vendorsPath);
         }
-        return result;
+
+        std::string path = srcPath;
+        if (!isBundle_) {
+            std::string mergeAbcPath;
+            if (!vm_ || moduleName_.empty()) {
+                HILOG_ERROR("vm is nullptr or moduleName is hole");
+                return false;
+            }
+            std::string mergeAbpathcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+            panda::JSNApi::SetAssetPath(vm_, path);
+            panda::JSNApi::SetModuleName(vm_, moduleName_);
+        }
+        return func(path);
     }
 
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
     {
-        if (!RunScript(path, hapPath)) {
+        if (!RunScript(path, hapPath, false)) {
             HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
             return nullptr;
         }
@@ -628,13 +635,13 @@ void JsRuntime::Deinitialize()
     nativeEngine_.reset();
 }
 
-NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath)
+NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
     NativeValue* exports = nativeEngine_->CreateObject();
     globalObj->SetProperty("exports", exports);
 
-    if (!RunScript(path, hapPath)) {
+    if (!RunScript(path, hapPath, useCommonChunk)) {
         HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
@@ -654,8 +661,8 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
     return exportObj;
 }
 
-std::unique_ptr<NativeReference> JsRuntime::LoadModule(
-    const std::string& moduleName, const std::string& modulePath, const std::string& hapPath, bool esmodule)
+std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
+    const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
@@ -685,8 +692,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
                 return std::unique_ptr<NativeReference>();
             }
         }
-
-        classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath);
+        classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath, useCommonChunk);
         if (classValue == nullptr) {
             return std::unique_ptr<NativeReference>();
         }
@@ -722,7 +728,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
 }
 
-bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
+bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
     bool result = false;
     if (!hapPath.empty()) {
