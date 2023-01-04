@@ -296,36 +296,44 @@ private:
             return engine.CreateUndefined();
         }
 
-        AsyncTask::CompleteCallback complete =
-            [deviceId, missionId, isLowResolution](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                AAFwk::MissionSnapshot missionSnapshot;
-                auto ret = AbilityManagerClient::GetInstance()->GetMissionSnapshot(
-                    deviceId, missionId, missionSnapshot, isLowResolution);
-                if (ret == 0) {
-                    NativeValue* objValue = engine.CreateObject();
-                    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-                    NativeValue* abilityValue = engine.CreateObject();
-                    NativeObject* abilityObj = ConvertNativeValueTo<NativeObject>(abilityValue);
-                    abilityObj->SetProperty(
-                        "bundleName", CreateJsValue(engine, missionSnapshot.topAbility.GetBundleName()));
-                    abilityObj->SetProperty(
-                        "abilityName", CreateJsValue(engine, missionSnapshot.topAbility.GetAbilityName()));
-                    object->SetProperty("ability", abilityValue);
+        class MissionSnapshotWrap {
+        public:
+            int result = -1;
+            AAFwk::MissionSnapshot missionSnapshot;
+        };
+
+        std::shared_ptr<MissionSnapshotWrap> snapshotWrap = std::make_shared<MissionSnapshotWrap>();
+        auto excute = [deviceId, missionId, isLowResolution, snapshotWrap]() {
+            snapshotWrap->result = AbilityManagerClient::GetInstance()->GetMissionSnapshot(
+                deviceId, missionId, snapshotWrap->missionSnapshot, isLowResolution);
+        };
+
+        auto complete = [snapshotWrap](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            if (snapshotWrap->result == 0) {
+                NativeValue* objValue = engine.CreateObject();
+                NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+                NativeValue* abilityValue = engine.CreateObject();
+                NativeObject* abilityObj = ConvertNativeValueTo<NativeObject>(abilityValue);
+                abilityObj->SetProperty(
+                    "bundleName", CreateJsValue(engine, snapshotWrap->missionSnapshot.topAbility.GetBundleName()));
+                abilityObj->SetProperty(
+                    "abilityName", CreateJsValue(engine, snapshotWrap->missionSnapshot.topAbility.GetAbilityName()));
+                object->SetProperty("ability", abilityValue);
 #ifdef SUPPORT_GRAPHICS
-                    auto snapshotValue = reinterpret_cast<NativeValue*>(Media::PixelMapNapi::CreatePixelMap(
-                        reinterpret_cast<napi_env>(&engine), missionSnapshot.snapshot));
-                    object->SetProperty("snapshot", snapshotValue);
+                auto snapshotValue = reinterpret_cast<NativeValue*>(Media::PixelMapNapi::CreatePixelMap(
+                    reinterpret_cast<napi_env>(&engine), snapshotWrap->missionSnapshot.snapshot));
+                object->SetProperty("snapshot", snapshotValue);
 #endif
-                    task.ResolveWithNoError(engine, objValue);
-                } else {
-                    task.Reject(engine,
-                        CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
-                }
-            };
+                task.ResolveWithNoError(engine, objValue);
+            } else {
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, snapshotWrap->result,
+                    PermissionConstants::PERMISSION_MANAGE_MISSION));
+            }
+        };
         NativeValue* lastParam = (info.argc > ARG_COUNT_TWO) ? info.argv[ARG_COUNT_TWO] : nullptr;
         NativeValue* result = nullptr;
         AsyncTask::Schedule("MissioManager::OnGetMissionSnapShot",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(excute), std::move(complete), &result));
         return result;
     }
 
