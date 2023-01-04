@@ -44,7 +44,7 @@ export default class TipsServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+            this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             winNum++;
         })
     }
