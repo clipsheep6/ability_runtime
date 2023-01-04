@@ -159,6 +159,11 @@ public:
 
     MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
+    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
+    {
+        return false;
+    }
+
     NativeValue* CallFunction(
         NativeValue* thisVar, NativeValue* function, NativeValue* const* argv, size_t argc) override
     {
@@ -339,6 +344,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::NotifyApplicationState called";
     }
 
+    void NotifyIdleTime(int idleMicroSec) override
+    {}
+
     void NotifyMemoryPressure(bool inHighMemoryPressure = false) override
     {}
 
@@ -348,6 +356,14 @@ public:
     void HandleUncaughtException() override
     {}
 
+    void RegisterPermissionCheck(PermissionCheckCallback callback) override
+    {}
+
+    bool ExecutePermissionCheck() override
+    {
+        return true;
+    }
+    
     void DumpHeapSnapshot(
         bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON, bool isPrivate = false) override
     {

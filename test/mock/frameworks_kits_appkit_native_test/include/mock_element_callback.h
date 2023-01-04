@@ -36,7 +36,6 @@ public:
     virtual void OnConfigurationUpdated(const std::shared_ptr<Ability>& ability, const Configuration& config)
     {
         GTEST_LOG_(INFO) << "MockElementsCallback::OnConfigurationUpdated called";
-        configurationUpdated_ = true;
     }
 
     /**
@@ -48,11 +47,7 @@ public:
     virtual void OnMemoryLevel(int level)
     {
         GTEST_LOG_(INFO) << "MockElementsCallback::OnMemoryLevel called";
-        onMemoryLevel_ = true;
     }
-
-    bool configurationUpdated_ = false;
-    bool onMemoryLevel_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

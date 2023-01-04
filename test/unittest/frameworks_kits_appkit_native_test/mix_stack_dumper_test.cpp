@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <cstring>
 #include <fcntl.h>
 #include <fstream>
@@ -21,6 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+
 #define private public
 #define protected public
 #include "mix_stack_dumper.h"
