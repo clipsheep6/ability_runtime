@@ -240,12 +240,6 @@ NativeValue* JsApplicationContextUtils::CreateModuleContext(NativeEngine* engine
 
 NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
-        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
-        return engine.CreateUndefined();
-    }
-
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
         HILOG_WARN("applicationContext is already released");
@@ -268,6 +262,11 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
             AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            return engine.CreateUndefined();
+        }
+        if (!CheckCallerIsSystemApp()) {
+            HILOG_ERROR("This application is not system-app, can not use system-api");
+            AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
             return engine.CreateUndefined();
         }
         HILOG_INFO("Parse outer module name.");
