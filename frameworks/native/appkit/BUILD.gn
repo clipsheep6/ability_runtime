@@ -104,6 +104,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
+    "${ability_runtime_native_path}/appkit/app/idle_time.cpp",
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/mix_stack_dumper.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
@@ -118,6 +119,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
+    "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
   ]
 
   public_deps =

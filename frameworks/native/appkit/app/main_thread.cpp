@@ -1119,6 +1119,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
 #endif
         }
+        std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);
+        idleTime_ = std::make_shared<IdleTime>(mainHandler_, nativeEngine);
+        idleTime_->Start();
     }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();

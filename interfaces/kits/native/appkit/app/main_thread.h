@@ -20,6 +20,7 @@
 #include <mutex>
 #include "event_handler.h"
 #include "extension_config_mgr.h"
+#include "idle_time.h"
 #include "inner_event.h"
 #include "app_scheduler_host.h"
 #include "app_mgr_interface.h"
@@ -426,8 +427,8 @@ private:
 
     /**
      * @brief Load all extension so
-     * 
-     * @param nativeEngine nativeEngine instance 
+     *
+     * @param nativeEngine nativeEngine instance
      * @param filePath extension so file path
      * @param bundleInfo application bundle information
      */
@@ -445,7 +446,7 @@ private:
 
     /**
      * @brief Update current process extension type
-     * 
+     *
      * @param abilityRecord current running ability record
      */
     void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
@@ -549,6 +550,7 @@ private:
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
+    std::shared_ptr<IdleTime> idleTime_ = nullptr;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.
