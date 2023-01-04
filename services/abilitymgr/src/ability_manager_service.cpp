@@ -4850,7 +4850,6 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool needVe
         return CHECK_PERMISSION_FAILED;
     }
 #ifdef SUPPORT_GRAPHICS
-    CHECK_CALLER_IS_SYSTEM_APP;
     if (!wmsHandler_) {
         HILOG_ERROR("wmsHandler_ is nullptr.");
         return ERR_INVALID_VALUE;
