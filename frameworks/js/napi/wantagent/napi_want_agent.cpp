@@ -391,7 +391,7 @@ NativeValue* JsWantAgent::OnGetWant(NativeEngine &engine, NativeCallbackInfo &in
     WantAgent* pWantAgent = nullptr;
     if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
-         return engine.CreateUndefined();
+        return engine.CreateUndefined();
     }
 
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
@@ -877,7 +877,7 @@ NativeValue* JsWantAgent::OnGetWantAgent(NativeEngine &engine, NativeCallbackInf
 
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
-    uint32_t ret = GetWantAgentParam(engine, info, *spParas);
+    int32_t ret = GetWantAgentParam(engine, info, *spParas);
     if (ret != 0) {
         HILOG_ERROR("Failed to get wantAgent param.");
         return RetErrMsg(engine, lastParam, ret);
@@ -992,7 +992,7 @@ NativeValue* JsWantAgent::OnNapiGetWantAgent(NativeEngine &engine, NativeCallbac
     }
 
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
-    uint32_t ret = GetWantAgentParam(engine, info, *spParas);
+    int32_t ret = GetWantAgentParam(engine, info, *spParas);
     if (ret != 0) {
         HILOG_ERROR("Failed to get wantAgent param.");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);

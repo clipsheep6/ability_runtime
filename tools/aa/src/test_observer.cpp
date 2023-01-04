@@ -63,7 +63,7 @@ ShellCommandResult TestObserver::ExecuteShellCommand(const std::string &cmd, con
         return {};
     }
 
-    if(!std::make_shared<ShellCommandConfigLoder>()->ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
+    if (!std::make_shared<ShellCommandConfigLoder>()->ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
         HILOG_ERROR("Failed to read config");
         return {};
     }

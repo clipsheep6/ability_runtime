@@ -21,15 +21,14 @@
 
 namespace OHOS {
 namespace AAFwk {
-class ShellCommandConfigLoder final
-{
+class ShellCommandConfigLoder final {
 public:
     ShellCommandConfigLoder() = default;
     ~ShellCommandConfigLoder() = default;
 
     /**
      * @brief Read configuration file.
-     * 
+     *
      * @param filePath Configuration directory.
      * @return true Read successfully.
      * @return false Read failed.
