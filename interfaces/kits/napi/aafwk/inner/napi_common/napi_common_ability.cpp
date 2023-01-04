@@ -29,6 +29,22 @@ namespace AppExecFwk {
 
 napi_ref thread_local g_dataAbilityHelper;
 bool thread_local g_dataAbilityHelperStatus = false;
+const int32_t ERR_ABILITY_START_SUCCESS = 0;
+const int32_t ERR_ABILITY_QUERY_FAILED = 1;
+const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
+const int32_t ERR_PARAM_INVALID = 202;
+const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
+    { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
+    { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
+    { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_PARAM_INVALID, ERR_PARAM_INVALID },
+    { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { ERR_OK, ERR_ABILITY_START_SUCCESS },
+    { RESOLVE_ABILITY_ERR, ERR_ABILITY_QUERY_FAILED },
+    { CHECK_PERMISSION_FAILED, ERR_PERMISSION_VERIFY_FAILED },
+    { RESOLVE_CALL_NO_PERMISSIONS, ERR_PERMISSION_VERIFY_FAILED },
+};
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
@@ -137,33 +153,6 @@ bool CheckAbilityType(const AsyncCallbackInfo *asyncCallbackInfo)
     return CheckAbilityType((AbilityType)info->type, asyncCallbackInfo->abilityType);
 }
 
-void SaveAppInfo(AppInfo_ &appInfo, const ApplicationInfo &appInfoOrg)
-{
-    HILOG_INFO("%{public}s.", __func__);
-    appInfo.name = appInfoOrg.name;
-    appInfo.description = appInfoOrg.description;
-    appInfo.descriptionId = appInfoOrg.descriptionId;
-    appInfo.systemApp = appInfoOrg.isSystemApp;
-    appInfo.enabled = appInfoOrg.enabled;
-    appInfo.label = appInfoOrg.label;
-    appInfo.labelId = std::to_string(appInfoOrg.labelId);
-    appInfo.icon = appInfoOrg.iconPath;
-    appInfo.iconId = std::to_string(appInfoOrg.iconId);
-    appInfo.process = appInfoOrg.process;
-    appInfo.supportedModes = appInfoOrg.supportedModes;
-    for (size_t i = 0; i < appInfoOrg.moduleInfos.size(); i++) {
-        appInfo.moduleSourceDirs.emplace_back(appInfoOrg.moduleInfos.at(i).moduleSourceDir);
-    }
-    for (size_t i = 0; i < appInfoOrg.permissions.size(); i++) {
-        appInfo.permissions.emplace_back(appInfoOrg.permissions.at(i));
-    }
-    for (size_t i = 0; i < appInfoOrg.moduleInfos.size(); i++) {
-        appInfo.moduleInfos.emplace_back(appInfoOrg.moduleInfos.at(i));
-    }
-    appInfo.entryDir = appInfoOrg.entryDir;
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
 napi_value GetContinueAbilityOptionsInfoCommon(
     const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info)
 {
@@ -234,7 +223,7 @@ napi_value GetContinueAbilityOptionsDeviceID(
     return result;
 }
 
-napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo)
+napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
 {
     HILOG_INFO("%{public}s.", __func__);
     napi_value result = nullptr;
@@ -249,17 +238,17 @@ napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo)
     NAPI_CALL(env, napi_create_int32(env, appInfo.descriptionId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "descriptionId", proValue));
 
-    NAPI_CALL(env, napi_get_boolean(env, appInfo.systemApp, &proValue));
+    NAPI_CALL(env, napi_get_boolean(env, appInfo.isSystemApp, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "systemApp", proValue));
     NAPI_CALL(env, napi_get_boolean(env, appInfo.enabled, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "enabled", proValue));
     NAPI_CALL(env, napi_create_string_utf8(env, appInfo.label.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "label", proValue));
-    NAPI_CALL(env, napi_create_string_utf8(env, appInfo.labelId.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, std::to_string(appInfo.labelId).c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "labelId", proValue));
-    NAPI_CALL(env, napi_create_string_utf8(env, appInfo.icon.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, appInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "icon", proValue));
-    NAPI_CALL(env, napi_create_string_utf8(env, appInfo.iconId.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, std::to_string(appInfo.iconId).c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "iconId", proValue));
     NAPI_CALL(env, napi_create_string_utf8(env, appInfo.process.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "process", proValue));
@@ -303,6 +292,15 @@ napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
+}
+
+int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
+{
+    auto iter = START_ABILITY_ERROR_CODE_MAP.find(innerErrorCode);
+    if (iter != START_ABILITY_ERROR_CODE_MAP.end()) {
+        return iter->second;
+    }
+    return ERR_ABILITY_QUERY_FAILED;
 }
 
 /**
@@ -1315,54 +1313,7 @@ AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
     return abilityInfoCB;
 }
 
-void SaveAbilityInfo(AbilityInfo_ &abilityInfo, const AbilityInfo &abilityInfoOrg)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    abilityInfo.bundleName = abilityInfoOrg.bundleName;
-    abilityInfo.name = abilityInfoOrg.name;
-    abilityInfo.label = abilityInfoOrg.label;
-    abilityInfo.description = abilityInfoOrg.description;
-    abilityInfo.icon = abilityInfoOrg.iconPath;
-    abilityInfo.labelId = abilityInfoOrg.applicationInfo.labelId;
-    abilityInfo.descriptionId = abilityInfoOrg.applicationInfo.descriptionId;
-    abilityInfo.iconId = abilityInfoOrg.applicationInfo.iconId;
-    abilityInfo.moduleName = abilityInfoOrg.moduleName;
-    abilityInfo.process = abilityInfoOrg.process;
-    abilityInfo.isVisible = abilityInfoOrg.visible;
-
-    abilityInfo.type = static_cast<int32_t>(abilityInfoOrg.type);
-    abilityInfo.orientation = static_cast<int32_t>(abilityInfoOrg.orientation);
-    abilityInfo.launchMode = static_cast<int32_t>(abilityInfoOrg.launchMode);
-
-    abilityInfo.uri = abilityInfoOrg.uri;
-    abilityInfo.targetAbility = abilityInfoOrg.targetAbility;
-
-    for (size_t i = 0; i < abilityInfoOrg.permissions.size(); i++) {
-        abilityInfo.permissions.emplace_back(abilityInfoOrg.permissions.at(i));
-    }
-    for (size_t i = 0; i < abilityInfoOrg.deviceTypes.size(); i++) {
-        abilityInfo.deviceTypes.emplace_back(abilityInfoOrg.deviceTypes.at(i));
-    }
-    for (size_t i = 0; i < abilityInfoOrg.deviceCapabilities.size(); i++) {
-        abilityInfo.deviceCapabilities.emplace_back(abilityInfoOrg.deviceCapabilities.at(i));
-    }
-
-    SaveAppInfo(abilityInfo.appInfo, abilityInfoOrg.applicationInfo);
-
-    abilityInfo.readPermission = abilityInfoOrg.readPermission;
-    abilityInfo.writePermission = abilityInfoOrg.writePermission;
-    abilityInfo.formEntity = 0;         // no data
-    abilityInfo.minFormHeight = 0;      // no data
-    abilityInfo.defaultFormHeight = 0;  // no data
-    abilityInfo.minFormWidth = 0;       // no data
-    abilityInfo.defaultFormWidth = 0;   // no data
-    abilityInfo.backgroundModes = 0;    // no data
-    abilityInfo.subType = 0;            // no data
-    abilityInfo.formEnabled = false;    // no data
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-napi_value WrapAbilityInfo(napi_env env, const AbilityInfo_ &abilityInfo)
+napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_value result = nullptr;
@@ -1380,7 +1331,7 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo_ &abilityInfo)
     NAPI_CALL(env, napi_create_string_utf8(env, abilityInfo.description.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "description", proValue));
 
-    NAPI_CALL(env, napi_create_string_utf8(env, abilityInfo.icon.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, abilityInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "icon", proValue));
 
     NAPI_CALL(env, napi_create_string_utf8(env, abilityInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
@@ -1437,10 +1388,10 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo_ &abilityInfo)
     NAPI_CALL(env, napi_create_int32(env, abilityInfo.backgroundModes, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "backgroundModes", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, abilityInfo.subType, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(abilityInfo.subType), &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "subType", proValue));
 
-    NAPI_CALL(env, napi_get_boolean(env, abilityInfo.isVisible, &proValue));
+    NAPI_CALL(env, napi_get_boolean(env, abilityInfo.visible, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "isVisible", proValue));
 
     NAPI_CALL(env, napi_get_boolean(env, abilityInfo.formEnabled, &proValue));
@@ -1476,18 +1427,16 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo_ &abilityInfo)
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "deviceTypes", jsArrayDeviceTypes));
 
-    napi_value appInfo = nullptr;
-    appInfo = WrapAppInfo(env, abilityInfo.appInfo);
-    NAPI_CALL(env, napi_set_named_property(env, result, "applicationInfo", appInfo));
+    napi_value applicationInfo = nullptr;
+    applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
+    NAPI_CALL(env, napi_set_named_property(env, result, "applicationInfo", applicationInfo));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
 }
 
 napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
 {
-    AbilityInfo_ temp;
-    SaveAbilityInfo(temp, abilityInfo);
-    return WrapAbilityInfo(env, temp);
+    return WrapAbilityInfo(env, abilityInfo);
 }
 
 /**
@@ -1520,7 +1469,7 @@ void GetAbilityInfoExecuteCB(napi_env env, void *data)
 
     std::shared_ptr<AbilityInfo> abilityInfoPtr = abilityInfoCB->cbBase.ability->GetAbilityInfo();
     if (abilityInfoPtr != nullptr) {
-        SaveAbilityInfo(abilityInfoCB->abilityInfo, *abilityInfoPtr);
+        abilityInfoCB->abilityInfo = *abilityInfoPtr;
     } else {
         abilityInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;
     }
@@ -1761,38 +1710,6 @@ HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
     return hapModuleInfoCB;
 }
 
-void SaveHapModuleInfo(HapModuleInfo_ &hapModuleInfo, const HapModuleInfo &hapModuleInfoOrg)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    hapModuleInfo.name = hapModuleInfoOrg.name;
-    hapModuleInfo.description = hapModuleInfoOrg.description;
-    hapModuleInfo.icon = hapModuleInfoOrg.iconPath;
-    hapModuleInfo.label = hapModuleInfoOrg.label;
-    hapModuleInfo.backgroundImg = hapModuleInfoOrg.backgroundImg;
-    hapModuleInfo.moduleName = hapModuleInfoOrg.moduleName;
-    hapModuleInfo.supportedModes = hapModuleInfoOrg.supportedModes;
-    hapModuleInfo.descriptionId = 0;         // no data
-    hapModuleInfo.labelId = 0;               // no data
-    hapModuleInfo.iconId = 0;                // no data
-    hapModuleInfo.mainAbilityName = "";      // no data
-    hapModuleInfo.installationFree = false;  // no data
-
-    for (size_t i = 0; i < hapModuleInfoOrg.reqCapabilities.size(); i++) {
-        hapModuleInfo.reqCapabilities.emplace_back(hapModuleInfoOrg.reqCapabilities.at(i));
-    }
-
-    for (size_t i = 0; i < hapModuleInfoOrg.deviceTypes.size(); i++) {
-        hapModuleInfo.deviceTypes.emplace_back(hapModuleInfoOrg.deviceTypes.at(i));
-    }
-
-    for (size_t i = 0; i < hapModuleInfoOrg.abilityInfos.size(); i++) {
-        AbilityInfo_ abilityInfo;
-        SaveAbilityInfo(abilityInfo, hapModuleInfoOrg.abilityInfos.at(i));
-        hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
-    }
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
 napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoCB)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -1808,7 +1725,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoC
     NAPI_CALL(env, napi_set_named_property(env, result, "description", proValue));
 
     NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.icon.c_str(), NAPI_AUTO_LENGTH, &proValue));
+        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "icon", proValue));
 
     NAPI_CALL(
@@ -1837,7 +1754,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoC
 
     NAPI_CALL(env,
         napi_create_string_utf8(
-            env, hapModuleInfoCB.hapModuleInfo.mainAbilityName.c_str(), NAPI_AUTO_LENGTH, &proValue));
+            env, hapModuleInfoCB.hapModuleInfo.mainAbility.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "mainAbilityName", proValue));
 
     NAPI_CALL(env, napi_get_boolean(env, hapModuleInfoCB.hapModuleInfo.installationFree, &proValue));
@@ -1872,7 +1789,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoC
         abilityInfo = WrapAbilityInfo(env, hapModuleInfoCB.hapModuleInfo.abilityInfos.at(i));
         NAPI_CALL(env, napi_set_element(env, abilityInfos, i, abilityInfo));
     }
-    NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfos", abilityInfos));
+    NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfo", abilityInfos));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
 }
@@ -1901,7 +1818,7 @@ void GetHapModuleInfoExecuteCB(napi_env env, void *data)
 
     std::shared_ptr<HapModuleInfo> hapModuleInfoPtr = hapModuleInfoCB->cbBase.ability->GetHapModuleInfo();
     if (hapModuleInfoPtr != nullptr) {
-        SaveHapModuleInfo(hapModuleInfoCB->hapModuleInfo, *hapModuleInfoPtr);
+        hapModuleInfoCB->hapModuleInfo = *hapModuleInfoPtr;
     } else {
         hapModuleInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;
     }
@@ -2176,10 +2093,9 @@ void GetAppVersionInfoExecuteCB(napi_env env, void *data)
         return;
     }
 
-    std::shared_ptr<AbilityInfo> abilityInfoPtr = appVersionInfoCB->cbBase.ability->GetAbilityInfo();
     std::shared_ptr<ApplicationInfo> appInfoPtr = appVersionInfoCB->cbBase.ability->GetApplicationInfo();
-    if (abilityInfoPtr != nullptr && appInfoPtr != nullptr) {
-        SaveAppVersionInfo(appVersionInfoCB->appVersionInfo, abilityInfoPtr->appName, appInfoPtr->versionName,
+    if (appInfoPtr != nullptr) {
+        SaveAppVersionInfo(appVersionInfoCB->appVersionInfo, appInfoPtr->name, appInfoPtr->versionName,
             appInfoPtr->versionCode);
     } else {
         appVersionInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;
@@ -3257,7 +3173,9 @@ void StartAbilityCallbackCompletedCB(napi_env env, napi_status status, void *dat
     napi_value result[ARGS_TWO] = {0};
     napi_value callResult = 0;
     napi_get_undefined(env, &undefined);
-    result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+
+    int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+    result[PARAM0] = GetCallbackErrorValue(env, errCode);
     if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
         napi_create_int32(env, 0, &result[PARAM1]);
     } else {
@@ -3285,7 +3203,8 @@ void StartAbilityPromiseCompletedCB(napi_env env, napi_status status, void *data
         napi_create_int32(env, 0, &result);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+        int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+        result = GetCallbackErrorValue(env, errCode);
         napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
     }
 

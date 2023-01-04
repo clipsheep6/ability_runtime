@@ -39,6 +39,7 @@ constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr int32_t ERR_NOT_OK = -1;
 
 class JsAppManager final {
 public:
@@ -101,6 +102,17 @@ public:
         return (me != nullptr) ? me->OnClearUpApplicationData(*engine, *info) : nullptr;
     }
 
+    static NativeValue* GetAppMemorySize(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnGetAppMemorySize(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* IsRamConstrainedDevice(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnIsRamConstrainedDevice(*engine, *info) : nullptr;
+    }
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -390,6 +402,70 @@ private:
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    NativeValue* OnGetAppMemorySize(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        int32_t errCode = 0;
+
+        // only support 0 or 1 params
+        if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+            HILOG_ERROR("Not enough params");
+            errCode = ERR_NOT_OK;
+        }
+        AsyncTask::CompleteCallback complete =
+            [abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
+                if (abilityManager == nullptr) {
+                    HILOG_WARN("abilityManager nullptr");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                    return;
+                }
+                int32_t memorySize = abilityManager->GetAppMemorySize();
+                HILOG_INFO("GetAppMemorySize memorySize:%{public}d", memorySize);
+                task.Resolve(engine, CreateJsValue(engine, memorySize));
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule(
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        int32_t errCode = 0;
+
+        // only support 0 or 1 params
+        if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+            HILOG_ERROR("Not enough params");
+            errCode = ERR_NOT_OK;
+        }
+        AsyncTask::CompleteCallback complete =
+            [abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
+                if (abilityManager == nullptr) {
+                    HILOG_WARN("abilityManager nullptr");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                    return;
+                }
+                bool ret = abilityManager->IsRamConstrainedDevice();
+                HILOG_INFO("IsRamConstrainedDevice result:%{public}d", ret);
+                task.Resolve(engine, CreateJsValue(engine, ret));
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule(
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
 };
 } // namespace
 
@@ -449,6 +525,10 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::KillProcessesByBundleName);
     BindNativeFunction(*engine, *object, "clearUpApplicationData",
         JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(*engine, *object, "getAppMemorySize",
+        JsAppManager::GetAppMemorySize);
+    BindNativeFunction(*engine, *object, "isRamConstrainedDevice",
+        JsAppManager::IsRamConstrainedDevice);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }

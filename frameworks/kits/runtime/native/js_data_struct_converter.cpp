@@ -151,7 +151,7 @@ NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::App
     object->SetProperty("enabled", CreateJsValue(engine, applicationInfo.enabled));
     object->SetProperty("label", CreateJsValue(engine, applicationInfo.label));
     object->SetProperty("labelId", CreateJsValue(engine, std::to_string(applicationInfo.labelId)));
-    object->SetProperty("icon", CreateJsValue(engine, applicationInfo.icon));
+    object->SetProperty("icon", CreateJsValue(engine, applicationInfo.iconPath));
     object->SetProperty("iconId", CreateJsValue(engine, std::to_string(applicationInfo.iconId)));
     object->SetProperty("process", CreateJsValue(engine, applicationInfo.process));
     object->SetProperty("supportedModes", CreateJsValue(engine, applicationInfo.supportedModes));

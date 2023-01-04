@@ -150,8 +150,8 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_INFO("Ability::Init call RegisterDisplayListener");
-        OHOS::sptr<OHOS::Rosen::DisplayManager::IDisplayListener> thisAbility(this);
-        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(thisAbility);
+        abilityDisplayListener_ = new AbilityDisplayListener(ability);
+        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif
     lifecycle_ = std::make_shared<LifeCycle>();
@@ -340,6 +340,9 @@ void Ability::OnStop()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin.", __func__);
+#ifdef SUPPORT_GRAPHICS
+    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+#endif
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
@@ -1072,10 +1075,10 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
 
 #ifdef SUPPORT_GRAPHICS
     // Notify WindowScene
-    if (scene_ != nullptr && !language.empty()) {
+    if (scene_ != nullptr) {
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(changeConfiguration);
         scene_->UpdateConfiguration(diffConfiguration);
-        HILOG_ERROR("%{public}s scene_ -> UpdateConfiguration success.", __func__);
+        HILOG_INFO("%{public}s scene_ -> UpdateConfiguration success.", __func__);
     }
 #endif
     if (abilityContext_ != nullptr && application_ != nullptr) {
@@ -1651,15 +1654,6 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
     return (AbilityLifecycleExecutor::LifecycleState)abilityLifecycleExecutor_->GetState();
 }
 
-/**
- * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
- * ability from installed abilities based on the value of the intent parameter and then starts it. You can specify
- * the ability to start using the intent parameter.
- *
- * @param intent Indicates the ability to start.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbility(const Want &want)
 {
     HILOG_INFO("%{public}s begin Ability::StartAbility", __func__);
@@ -3721,7 +3715,10 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     HILOG_INFO("changeKeyV size :%{public}u", size);
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
-        OnConfigurationUpdated(*configuration);
+        auto task = [ability = shared_from_this(), configuration = *configuration]() {
+            ability->OnConfigurationUpdated(configuration);
+        };
+        handler_->PostTask(task);
     }
 
     HILOG_INFO("%{public}s end", __func__);
@@ -3771,7 +3768,10 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     HILOG_INFO("changeKeyV size :%{public}u", size);
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
-        OnConfigurationUpdated(*configuration);
+        auto task = [ability = shared_from_this(), configuration = *configuration]() {
+            ability->OnConfigurationUpdated(configuration);
+        };
+        handler_->PostTask(task);
     }
 }
 

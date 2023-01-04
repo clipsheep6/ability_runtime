@@ -23,6 +23,7 @@
 #include <thread_ex.h>
 #include <unordered_map>
 
+#include "form_bundle_event_callback.h"
 #include "event_handler.h"
 #include "form_mgr_stub.h"
 #include "form_provider_data.h"
@@ -294,6 +295,7 @@ private:
     std::shared_ptr<EventRunner> runner_ = nullptr;
     std::shared_ptr<EventHandler> handler_ = nullptr;
     std::shared_ptr<FormSysEventReceiver> formSysEventReceiver_ = nullptr;
+    sptr<FormBundleEventCallback> formBundleEventCallback_ = nullptr;
 
     bool resetFlag = false;
 

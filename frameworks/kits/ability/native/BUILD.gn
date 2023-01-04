@@ -184,7 +184,6 @@ ohos_shared_library("abilitykit_native") {
     "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_start_options.cpp",
     "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_util.cpp",
     "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_want.cpp",
-    "${kits_path}/appkit/native/ability_runtime/context/context_impl.cpp",
     "${kits_path}/appkit/native/ability_runtime/datashare_ext_ability_context.cpp",
     "${kits_path}/appkit/native/ability_runtime/extension_context.cpp",
     "${kits_path}/appkit/native/ability_runtime/service_extension_context.cpp",

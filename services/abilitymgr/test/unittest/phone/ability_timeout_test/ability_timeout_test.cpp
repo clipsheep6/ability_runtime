@@ -240,6 +240,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
     auto mission = std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(defList);
+    abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
     defList->AddMissionToTop(mission);
     EXPECT_TRUE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
@@ -276,6 +277,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(lauList);
     abilityRecord->SetLauncherRoot();
+    abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
     lauList->AddMissionToTop(mission);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 

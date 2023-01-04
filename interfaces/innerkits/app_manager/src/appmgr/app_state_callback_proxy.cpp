@@ -38,7 +38,7 @@ void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     HILOG_DEBUG("begin");
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -75,7 +75,7 @@ void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessDa
     HILOG_DEBUG("begin");
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }

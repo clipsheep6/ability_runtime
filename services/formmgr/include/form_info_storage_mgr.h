@@ -66,7 +66,7 @@ private:
     DistributedKv::Status GetEntries(std::vector<DistributedKv::Entry> &allEntries);
 
     const DistributedKv::AppId appId_ {"form_storage"};
-    const DistributedKv::StoreId storeId_ {"form_infos"};
+    const DistributedKv::StoreId storeId_ {"local_form_infos"};
     DistributedKv::DistributedKvDataManager dataManager_;
     std::shared_ptr<DistributedKv::SingleKvStore> kvStorePtr_;
     mutable std::mutex kvStorePtrMutex_;
