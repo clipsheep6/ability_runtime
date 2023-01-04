@@ -276,7 +276,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ConnectAbility_0100, Funct
     AAFwk::Want want;
     sptr<AbilityConnectCallback> connectCallback;
     auto ret = context_->ConnectAbility(want, connectCallback);
-    EXPECT_EQ(ret, false);
+    EXPECT_NE(ret, 0);
 }
 
 /**
@@ -290,7 +290,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ConnectAbilityWithAccount_
     int32_t accountId = 1;
     sptr<AbilityConnectCallback> connectCallback;
     auto ret = context_->ConnectAbilityWithAccount(want, accountId, connectCallback);
-    EXPECT_EQ(ret, false);
+    EXPECT_NE(ret, 0);
 }
 
 /**

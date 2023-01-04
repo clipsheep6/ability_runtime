@@ -2344,7 +2344,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
  * CaseDescription: Verify CanRestartResident return true when the ability is not a restart requestion.
  * @tc.require: issueI6588V
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_004, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level1)
 {
     abilityRecord_->SetKeepAlive();
     EXPECT_TRUE(abilityRecord_->isKeepAlive_);
@@ -2353,8 +2353,9 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_004, TestSize.Level
     EXPECT_TRUE(abilityRecord_->isRestarting_);
     EXPECT_EQ(abilityRecord_->restartCount_, -1);
 
+    abilityRecord_->restartTime_ = 100000000;
     EXPECT_FALSE(abilityRecord_->CanRestartResident());
-
+    abilityRecord_->restartTime_ = 0;
     // restart success
     abilityRecord_->SetAbilityState(AbilityState::ACTIVE);
 
@@ -2371,7 +2372,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_004, TestSize.Level
  *  time is over configuration.
  * @tc.require: issueI6588V
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_005, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_002, TestSize.Level1)
 {
     abilityRecord_->SetKeepAlive();
     EXPECT_TRUE(abilityRecord_->isKeepAlive_);

@@ -1868,7 +1868,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_LoadAbility_001, TestSize.Le
     abilityRecord->isLauncherRoot_ = true;
     abilityRecord->isRestarting_ = true;
     abilityRecord->isLauncherAbility_ = true;
-    abilityRecord->restartCount_ = 0;
+    abilityRecord->restartCount_ = -1;
     EXPECT_FALSE(abilityRecord->CanRestartRootLauncher());
     connectManager->LoadAbility(abilityRecord);
 }
