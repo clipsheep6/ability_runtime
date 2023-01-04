@@ -45,6 +45,7 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
+#include "permission_verification.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
@@ -846,6 +847,12 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 
     NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
     nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+}
+
+bool VerifyRunAnyCodePermission()
+{
+    const std::string executePermission = "ohos.permission.RUN_ANY_CODE";
+    return AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(executePermission);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

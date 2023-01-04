@@ -69,6 +69,7 @@ ohos_shared_library("runtime") {
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_services_path}/common:perm_verification",
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]

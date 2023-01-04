@@ -84,6 +84,8 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
 
+    bool VerifyRunAnyCodePermission();
+
 protected:
     JsRuntime() = default;
 
