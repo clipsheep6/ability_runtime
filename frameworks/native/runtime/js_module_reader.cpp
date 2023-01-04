@@ -30,7 +30,7 @@ std::vector<uint8_t> JsModuleReader::operator()(const std::string& hapPath) cons
         HILOG_ERROR("hapPath is empty");
         return buffer;
     }
-    std::string realHapPath = std::string(ABS_CODE_PATH) + hapPath + std::string(HAP_SUFFIX);
+    std::string realHapPath = std::string(ABS_CODE_PATH) + hapPath + std::string(SHARED_FILE_SUFFIX);
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(realHapPath, newCreate);
     if (extractor == nullptr) {
