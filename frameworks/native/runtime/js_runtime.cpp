@@ -71,6 +71,17 @@ constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
+static auto PermissionCheckFunc = []() {
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
+    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 class ArkJsRuntime : public JsRuntime {
 public:
     ArkJsRuntime()
@@ -599,17 +610,7 @@ bool JsRuntime::Initialize(const Options& options)
         InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName);
     }
 
-    auto task = []() {
-        Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
-        if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-    nativeEngine_->RegisterPermissionCheck(task);
+    nativeEngine_->RegisterPermissionCheck(PermissionCheckFunc);
 
     preloaded_ = options.preload;
     return true;
