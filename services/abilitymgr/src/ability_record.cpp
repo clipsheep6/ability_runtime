@@ -57,6 +57,7 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
@@ -475,9 +476,13 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     } else {
         HILOG_INFO("SUPPORT_GRAPHICS: to load ability.");
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
-        StartingWindowTask(isRecent, true, abilityRequest, startOptions);
-        AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
-        PostCancelStartingWindowColdTask();
+        auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+        auto needStartingWindow = abilityRequest.want.GetBoolParam(NEED_STARTINGWINDOW, true);
+        if (!isSaCall || needStartingWindow) {
+            StartingWindowTask(isRecent, true, abilityRequest, startOptions);
+            AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
+            PostCancelStartingWindowColdTask();
+        }
         LoadAbility();
     }
 }
