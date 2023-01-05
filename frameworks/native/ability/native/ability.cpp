@@ -330,6 +330,12 @@ void Ability::OnActive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
+    AAFwk::EventInfo eventInfo;
+    eventInfo.bundleName = abilityInfo_->bundleName;
+    eventInfo.moduleName = abilityInfo_->moduleName;
+    eventInfo.abilityName = abilityInfo_->name;
+    AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
+        HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
@@ -351,6 +357,12 @@ void Ability::OnInactive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
+    AAFwk::EventInfo eventInfo;
+    eventInfo.bundleName = abilityInfo_->bundleName;
+    eventInfo.moduleName = abilityInfo_->moduleName;
+    eventInfo.abilityName = abilityInfo_->name;
+    AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONINACTIVE,
+        HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
@@ -1522,11 +1534,11 @@ void Ability::OnForeground(const Want &want)
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
     HILOG_DEBUG("%{public}s end.", __func__);
-    AAFWK::EventInfo eventInfo;
+    AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = want.GetElement().GetBundleName();
     eventInfo.moduleName = want.GetElement().GetModuleName();
     eventInfo.abilityName = want.GetElement().GetAbilityName();
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONFOREGROUND,
+    AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONFOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -1576,11 +1588,11 @@ void Ability::OnBackground()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
     HILOG_DEBUG("%{public}s end", __func__);
-    AAFWK::EventInfo eventInfo;
+    AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
     eventInfo.abilityName = abilityInfo_->name;
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONBACKGROUND,
+    AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONBACKGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 

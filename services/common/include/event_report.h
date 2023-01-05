@@ -24,44 +24,7 @@ using HiSysEventType = OHOS::HiviewDFX::HiSysEvent::EventType;
 using HiSysEvent = OHOS::HiviewDFX::HiSysEvent;
 
 namespace OHOS {
-namespace AAFWK {
-namespace {
-// fault event
-constexpr const char* START_ABILITY_ERROR = "START_ABILITY_ERROR";
-constexpr const char* TERMINATE_ABILITY_ERROR = "TERMINATE_ABILITY_ERROR";
-constexpr const char* START_EXTENSION_ERROR = "START_EXTENSION_ERROR";
-constexpr const char* STOP_EXTENSION_ERROR = "STOP_EXTENSION_ERROR";
-constexpr const char* CONNECT_SERVICE_ERROR = "CONNECT_SERVICE_ERROR";
-constexpr const char* DISCONNECT_SERVICE_ERROR = "DISCONNECT_SERVICE_ERROR";
-// ability behavior event
-constexpr const char* START_ABILITY = "START_ABILITY";
-constexpr const char* TERMINATE_ABILITY = "TERMINATE_ABILITY";
-constexpr const char* CLOSE_ABILITY = "CLOSE_ABILITY";
-constexpr const char* ABILITY_ONFOREGROUND = "ABILITY_ONFOREGROUND";
-constexpr const char* ABILITY_ONBACKGROUND = "ABILITY_ONBACKGROUND";
-// serviceExtensionAbility behavior event
-constexpr const char* START_SERVICE = "START_SERVICE";
-constexpr const char* STOP_SERVICE = "STOP_SERVICE";
-constexpr const char* CONNECT_SERVICE = "CONNECT_SERVICE";
-constexpr const char* DISCONNECT_SERVICE = "DISCONNECT_SERVICE";
-// form behavior event
-constexpr const char* ADD_FORM = "ADD_FORM";
-constexpr const char* REQUEST_FORM = "REQUEST_FORM";
-constexpr const char* DELETE_FORM = "DELETE_FORM";
-constexpr const char* CASTTEMP_FORM = "CASTTEMP_FORM";
-constexpr const char* ACQUIREFORMSTATE_FORM = "ACQUIREFORMSTATE_FORM";
-constexpr const char* MESSAGE_EVENT_FORM = "MESSAGE_EVENT_FORM";
-constexpr const char* ROUTE_EVENT_FORM = "ROUTE_EVENT_FORM";
-constexpr const char* RELEASE_FORM = "RELEASE_FORM";
-constexpr const char* DELETE_INVALID_FORM = "DELETE_INVALID_FORM";
-constexpr const char* SET_NEXT_REFRESH_TIME_FORM = "SET_NEXT_REFRESH_TIME_FORM";
-// app behavior event
-constexpr const char* APP_ATTACH = "APP_ATTACH";
-constexpr const char* APP_LAUNCH = "APP_LAUNCH";
-constexpr const char* APP_FOREGROUND = "APP_FOREGROUND";
-constexpr const char* APP_BACKGROUND = "APP_BACKGROUND";
-constexpr const char* APP_TERMINATE = "APP_TERMINATE";
-}
+namespace AAFwk {
 
 struct EventInfo {
     int32_t pid = -1;
@@ -77,16 +40,62 @@ struct EventInfo {
     std::string processName;
 };
 
+enum class EventName {
+    // fault event
+    START_ABILITY_ERROR,
+    TERMINATE_ABILITY_ERROR,
+    START_EXTENSION_ERROR,
+    STOP_EXTENSION_ERROR,
+    CONNECT_SERVICE_ERROR,
+    DISCONNECT_SERVICE_ERROR,
+
+    // ability behavior event
+    START_ABILITY,
+    TERMINATE_ABILITY,
+    CLOSE_ABILITY,
+    ABILITY_ONFOREGROUND,
+    ABILITY_ONBACKGROUND,
+    ABILITY_ONACTIVE,
+    ABILITY_ONINACTIVE,
+
+    // serviceExtensionAbility behavior event
+    START_SERVICE,
+    STOP_SERVICE,
+    CONNECT_SERVICE,
+    DISCONNECT_SERVICE,
+
+    // form behavior event
+    ADD_FORM,
+    REQUEST_FORM,
+    DELETE_FORM,
+    CASTTEMP_FORM,
+    ACQUIREFORMSTATE_FORM,
+    MESSAGE_EVENT_FORM,
+    ROUTE_EVENT_FORM,
+    RELEASE_FORM,
+    DELETE_INVALID_FORM,
+    SET_NEXT_REFRESH_TIME_FORM,
+
+    // app behavior event
+    APP_ATTACH,
+    APP_LAUNCH,
+    APP_FOREGROUND,
+    APP_BACKGROUND,
+    APP_TERMINATE,
+};
+
 class EventReport {
 public:
-    static void SendAppEvent(const std::string &eventName, HiSysEventType type,
+    static void SendAppEvent(const EventName &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
-    static void SendAbilityEvent(const std::string &eventName, HiSysEventType type,
+    static void SendAbilityEvent(const EventName &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
-    static void SendExtensionEvent(const std::string &eventName, HiSysEventType type,
+    static void SendExtensionEvent(const EventName &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
-    static void SendFormEvent(const std::string &eventName, HiSysEventType type,
+    static void SendFormEvent(const EventName &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
+private:
+    static std::string ConvertEventName(const EventName &eventName);
 };
 }  // namespace AAFWK
 }  // namespace OHOS

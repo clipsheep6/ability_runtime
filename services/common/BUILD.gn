@@ -59,7 +59,10 @@ ohos_shared_library("event_report") {
 
   sources = [ "src/event_report.cpp" ]
 
-  external_deps = [ "hisysevent_native:libhisysevent" ]
+  external_deps = [
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

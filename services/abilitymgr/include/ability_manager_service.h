@@ -1177,11 +1177,11 @@ private:
 
     void RecoverAbilityRestart(const Want &want);
 
-    AAFWK::EventInfo BuildEventInfo(const Want &want, int32_t userId);
+    AAFwk::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
     int CheckDlpForExtension(
         const Want &want, const sptr<IRemoteObject> &callerToken,
-        int32_t userId, AAFWK::EventInfo &eventInfo, const std::string &eventName);
+        int32_t userId, AAFwk::EventInfo &eventInfo, const EventName &eventName);
 
     void InitStartupFlag();
 
