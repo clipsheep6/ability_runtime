@@ -147,9 +147,9 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Opt
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
 #ifdef _ARM64_
-    const std::string acelibdir("/system/lib64/libace.z.so");
+    const std::string acelibdir("libace.z.so");
 #else
-    const std::string acelibdir("/system/lib/libace.z.so");
+    const std::string acelibdir("lib/libace.z.so");
 #endif
 #endif
 
