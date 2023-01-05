@@ -25,7 +25,7 @@ ohos_hap("serviceAbilityBundleForStop") {
     ":serviceAbilityBundleForStop_ets_resources",
   ]
   ets2abc = true
-  certificate_profile = "../signature/openharmony_sx.p7b"
+  certificate_profile = "./signature/openharmony_sx.p7b"
 }
 ohos_js_assets("serviceAbilityBundleForStop_ets_assets") {
   source_dir = "./src/main/ets"
