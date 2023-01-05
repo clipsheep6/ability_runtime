@@ -107,6 +107,36 @@ public:
         return value;
     }
 
+    virtual std::shared_ptr<AppExecFwk::PacMap> Call(
+        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    {
+        GTEST_LOG_(INFO) << "MockDataAbility::Call called";
+        std::shared_ptr<AppExecFwk::PacMap> set = std::make_shared<AppExecFwk::PacMap>();
+        return set;
+    }
+
+    virtual Uri NormalizeUri(const Uri &uri)
+    {
+        GTEST_LOG_(INFO) << "MockDataAbility::NormalizeUri called";
+        Uri urivalue("UriTest");
+        return urivalue;
+    }
+
+    virtual Uri DenormalizeUri(const Uri &uri)
+    {
+        GTEST_LOG_(INFO) << "MockDataAbility::DenormalizeUri called";
+        Uri urivalue("UriTest");
+        return urivalue;
+    }
+
+    virtual std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
+        const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
+    {
+        GTEST_LOG_(INFO) << "MockDataAbility::ExecuteBatch called";
+        std::vector<std::shared_ptr<DataAbilityResult>> results;
+        return results;
+    }
+
     int datatest = 0;
     MockDataAbility::Event state_ = UNDEFINED;
     std::vector<std::string> value;
