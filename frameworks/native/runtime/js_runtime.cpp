@@ -156,9 +156,9 @@ public:
             }
         }
 
-        auto func = [&](std::string abcPath) {
+        auto func = [&](std::string modulePath, std::string abcPath) {
             std::ostringstream outStream;
-            if (!extractor->GetFileBuffer(abcPath, outStream)) {
+            if (!extractor->GetFileBuffer(modulePath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
                 return false;
             }
@@ -171,22 +171,21 @@ public:
         };
 
         if (useCommonChunk) {
-            (void)func(commonsPath);
-            (void)func(vendorsPath);
+            (void)func(commonsPath, commonsPath);
+            (void)func(vendorsPath, vendorsPath);
         }
 
         std::string path = srcPath;
         if (!isBundle_) {
-            std::string mergeAbcPath;
             if (!vm_ || moduleName_.empty()) {
                 HILOG_ERROR("vm is nullptr or moduleName is hole");
                 return false;
             }
-            std::string mergeAbpathcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+            path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
             panda::JSNApi::SetAssetPath(vm_, path);
             panda::JSNApi::SetModuleName(vm_, moduleName_);
         }
-        return func(path);
+        return func(path, srcPath);
     }
 
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
