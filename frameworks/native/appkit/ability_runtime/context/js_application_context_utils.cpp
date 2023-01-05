@@ -109,7 +109,6 @@ private:
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const AppExecFwk::RunningProcessInfo &info);
     bool CheckCallerIsSystemApp();
 
     std::shared_ptr<ApplicationContext> keepApplicationContext_;
@@ -466,13 +465,6 @@ NativeValue *JsApplicationContextUtils::KillProcessBySelf(NativeEngine *engine, 
 
 NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    auto applicationContext = applicationContext_.lock();
-    if (!applicationContext) {
-        HILOG_WARN("applicationContext if already released");
-        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST);
-        return engine.CreateUndefined();
-    }
-
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params");
@@ -481,15 +473,21 @@ NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine
     }
     HILOG_DEBUG("kill self process");
     AsyncTask::CompleteCallback complete =
-        [applicationContext](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            applicationContext->KillProcessBySelf();
-            task.Resolve(engine, engine.CreateUndefined());
-    };
+        [applicationContext = applicationContext_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            auto context = applicationContext.lock();
+            if (!context) {
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                    "applicationContext if already released."));
+                return;
+            }
+            context->KillProcessBySelf();
+            task.ResolveWithNoError(engine, engine.CreateUndefined());
+        };
     NativeValue* lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JSAppManager::OnkillProcessBySelf",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return engine.CreateUndefined();
+    return result;
 }
 
 NativeValue *JsApplicationContextUtils::GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info)
@@ -501,13 +499,6 @@ NativeValue *JsApplicationContextUtils::GetProcessRunningInformation(NativeEngin
 
 NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    auto applicationContext = applicationContext_.lock();
-    if (!applicationContext) {
-        HILOG_WARN("applicationContext if already released");
-        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST);
-        return engine.CreateUndefined();
-    }
-
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params");
@@ -515,17 +506,31 @@ NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEng
         return engine.CreateUndefined();
     }
     HILOG_DEBUG("Get Process Info");
-    auto complete =
-        [applicationContext, this](NativeEngine& engine, AsyncTask& task,
-            int32_t status) {
-            AppExecFwk::RunningProcessInfo processInfo;
-            auto ret = applicationContext->GetProcessRunningInformation(processInfo);
-            if (ret == 0) {
-                task.Resolve(engine, this->CreateJsProcessRunningInfo(engine, processInfo));
-            } else {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
-                    "Get process infos failed."));
-            }
+    auto complete = [applicationContext = applicationContext_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        auto context = applicationContext.lock();
+        if (!context) {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                "applicationContext if already released."));
+            return;
+        }
+        AppExecFwk::RunningProcessInfo processInfo;
+        auto ret = context->GetProcessRunningInformation(processInfo);
+        if (ret == 0) {
+            NativeValue* objValue = engine.CreateObject();
+            NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+            object->SetProperty("processName", CreateJsValue(engine, processInfo.processName_));
+            object->SetProperty("pid", CreateJsValue(engine, processInfo.pid_));
+            object->SetProperty("uid", CreateJsValue(engine, processInfo.uid_));
+            object->SetProperty("bundleNames", CreateNativeArray(engine, processInfo.bundleNames));
+            object->SetProperty("state", CreateJsValue(engine, processInfo.state_));
+            object->SetProperty("isContinuousTask", CreateJsValue(engine, processInfo.isContinuousTask));
+            object->SetProperty("isKeepAlive", CreateJsValue(engine, processInfo.isKeepAlive));
+            object->SetProperty("isFocused", CreateJsValue(engine, processInfo.isFocused));
+            task.ResolveWithNoError(engine, objValue);
+        } else {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+                "Get process infos failed."));
+        }
     };
 
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
@@ -533,23 +538,6 @@ NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEng
     AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInformation",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
-}
-
-NativeValue* JsApplicationContextUtils::CreateJsProcessRunningInfo(NativeEngine &engine,
-    const AppExecFwk::RunningProcessInfo &info)
-{
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    object->SetProperty("processName", CreateJsValue(engine, info.processName_));
-    object->SetProperty("pid", CreateJsValue(engine, info.pid_));
-    object->SetProperty("uid", CreateJsValue(engine, info.uid_));
-    object->SetProperty("bundleNames", CreateNativeArray(engine, info.bundleNames));
-    object->SetProperty("state", CreateJsValue(engine, info.state_));
-    object->SetProperty("isContinuousTask", CreateJsValue(engine, info.isContinuousTask));
-    object->SetProperty("isKeepAlive", CreateJsValue(engine, info.isKeepAlive));
-    object->SetProperty("isFocused", CreateJsValue(engine, info.isFocused));
-    return objValue;
 }
 
 void JsApplicationContextUtils::Finalizer(NativeEngine *engine, void *data, void *hint)
@@ -1035,7 +1023,7 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
     BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
         JsApplicationContextUtils::GetApplicationContext);
-    BindNativeFunction(engine, *object, "killProcessBySelf", MD_NAME,
+    BindNativeFunction(engine, *object, "killProcessesBySelf", MD_NAME,
         JsApplicationContextUtils::KillProcessBySelf);
     BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetProcessRunningInformation);

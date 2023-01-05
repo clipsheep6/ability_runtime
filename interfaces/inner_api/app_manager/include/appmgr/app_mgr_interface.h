@@ -310,6 +310,7 @@ public:
     };
 #endif
 
+    // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
