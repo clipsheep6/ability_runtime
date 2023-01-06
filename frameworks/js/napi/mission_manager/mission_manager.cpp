@@ -313,7 +313,7 @@ private:
                     reinterpret_cast<napi_env>(&engine), snapshotWrap->missionSnapshot.snapshot));
                 object->SetProperty("snapshot", snapshotValue);
 #endif
-                task.ResolveWithNoError(engine, objValue);
+                task.Resolve(engine, objValue);
             } else {
                 task.Reject(engine, CreateJsErrorByNativeErr(engine, snapshotWrap->result,
                     PermissionConstants::PERMISSION_MANAGE_MISSION));
