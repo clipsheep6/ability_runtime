@@ -764,7 +764,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("Connect ability failed, context is released.");
-                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
             HILOG_INFO("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
@@ -830,7 +830,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
                 HILOG_INFO("context->ConnectAbilityWithAccount connection:%{public}d", static_cast<int32_t>(connectId));
