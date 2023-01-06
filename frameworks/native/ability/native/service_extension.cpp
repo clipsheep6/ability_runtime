@@ -25,11 +25,23 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
+
+CreatorFunc ServiceExtension::creator_ = nullptr;
+void ServiceExtension::SetCreator(const CreatorFunc& creator)
+{
+    creator_ = creator;
+}
+
 ServiceExtension* ServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     if (!runtime) {
         return new ServiceExtension();
     }
+
+    if (creator_) {
+        return creator_(runtime);
+    }
+
     HILOG_INFO("ServiceExtension::Create runtime");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
