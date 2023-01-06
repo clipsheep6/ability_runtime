@@ -848,8 +848,8 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
     std::string moduleName = "";
     auto moduleNameValue = object->GetProperty("moduleName");
     if (moduleNameValue != nullptr && !ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
-        HILOG_ERROR("Failed to get property moduleName");
-        return nullptr;
+        HILOG_WARN("Failed to get property moduleName");
+        moduleName = "";
     }
 
     std::shared_ptr<JSAbilityMonitor> abilityMonitor = nullptr;
