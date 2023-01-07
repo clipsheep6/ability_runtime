@@ -76,7 +76,9 @@ NativeValue* ConsoleLog(NativeEngine* engine, NativeCallbackInfo* info)
     }
 
     std::string content = MakeLogContent(*info);
-    HiLogPrint(LOG_APP, LEVEL, JS_CONSOLE_LOG_DOMAIN, JS_CONSOLE_LOG_TAG, "%{public}s", content.c_str());
+    if (LEVEL != LOG_INFO) {
+        HiLogPrint(LOG_APP, LEVEL, JS_CONSOLE_LOG_DOMAIN, JS_CONSOLE_LOG_TAG, "%{public}s", content.c_str());
+    }
 
     return engine->CreateUndefined();
 }
