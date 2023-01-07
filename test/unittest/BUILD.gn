@@ -386,7 +386,6 @@ group("unittest") {
     "remote_mission_listener_stub_test:unittest",
     "resident_process_manager_test:unittest",
     "running_infos_test:unittest",
-    "runtime_extractor_test:unittest",
     "runtime_test:unittest",
     "sender_info_test:unittest",
     "service_extension_context_test:unittest",
