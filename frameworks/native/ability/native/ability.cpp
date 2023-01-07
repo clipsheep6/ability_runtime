@@ -208,6 +208,7 @@ void Ability::OnStart(const Want &want)
         auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
         if (display) {
             float density = display->GetVirtualPixelRatio();
+            int densityDpi = display->GetDpi();
             int32_t width = display->GetWidth();
             int32_t height = display->GetHeight();
             std::shared_ptr<Configuration> configuration = nullptr;
@@ -230,7 +231,7 @@ void Ability::OnStart(const Want &want)
             auto resourceManager = GetResourceManager();
             if (resourceManager != nullptr) {
                 resourceManager->GetResConfig(*resConfig);
-                resConfig->SetScreenDensity(density);
+                resConfig->SetScreenDensity(static_cast<float>(densityDpi));
                 resConfig->SetDirection(ConvertDirection(height, width));
                 resourceManager->UpdateResConfig(*resConfig);
                 HILOG_DEBUG("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
@@ -1933,6 +1934,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
 
     // Notify ResourceManager
     float density = display->GetVirtualPixelRatio();
+    int densityDpi = display->GetDpi();
     int32_t width = display->GetWidth();
     int32_t height = display->GetHeight();
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -1940,7 +1942,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         auto resourceManager = GetResourceManager();
         if (resourceManager != nullptr) {
             resourceManager->GetResConfig(*resConfig);
-            resConfig->SetScreenDensity(density);
+            resConfig->SetScreenDensity(static_cast<float>(densityDpi));
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
             HILOG_INFO("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
@@ -1990,6 +1992,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 
     // Get new display config
     float density = display->GetVirtualPixelRatio();
+    int densityDpi = display->GetDpi();
     int32_t width = display->GetWidth();
     int32_t height = display->GetHeight();
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -1997,7 +2000,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
         auto resourceManager = GetResourceManager();
         if (resourceManager != nullptr) {
             resourceManager->GetResConfig(*resConfig);
-            resConfig->SetScreenDensity(density);
+            resConfig->SetScreenDensity(static_cast<float>(densityDpi));
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
             HILOG_INFO("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
