@@ -372,6 +372,7 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
         return nullptr;
     }
     Media::DecodeOptions decodeOptions;
+    decodeOptions.allocatorType = Media::AllocatorType::SHARE_MEM_ALLOC;
     auto pixelMapPtr = imageSource->CreatePixelMap(decodeOptions, errCode);
     if (errCode != OHOS::Media::SUCCESS) {
         HILOG_ERROR("snapshot: CreatePixelMap failed, errCode = %{public}d", errCode);
