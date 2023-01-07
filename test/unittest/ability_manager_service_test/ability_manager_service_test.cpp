@@ -1720,7 +1720,7 @@ HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StopServiceAbility_001 start");
     Want want;
-    EXPECT_EQ(abilityMs_->StopServiceAbility(want, 100), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->StopServiceAbility(want, 100), ERR_CROSS_USER);
     HILOG_INFO("AbilityManagerServiceTest StopServiceAbility_001 end");
 }
 
@@ -3074,6 +3074,48 @@ HWTEST_F(AbilityManagerServiceTest, AddStartControlParam_001, TestSize.Level1)
     MyFlag::flag_ = 0;
     EXPECT_EQ(abilityMs_->AddStartControlParam(want, nullptr), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest AddStartControlParam_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsCrossUserCall
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsCrossUserCall
+ */
+HWTEST_F(AbilityManagerServiceTest, IsCrossUserCall_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_001 start");
+    int32_t userId = -1;
+    EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), false);
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsCrossUserCall
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsCrossUserCall
+ */
+HWTEST_F(AbilityManagerServiceTest, IsCrossUserCall_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_002 start");
+    int32_t userId = 0;
+    EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), false);
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsCrossUserCall
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsCrossUserCall
+ */
+HWTEST_F(AbilityManagerServiceTest, IsCrossUserCall_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_003 start");
+    int32_t userId = 10;
+    EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), true);
+    HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_003 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS
