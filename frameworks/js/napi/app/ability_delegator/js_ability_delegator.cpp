@@ -824,25 +824,25 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
         if (value->StrictEquals(jsMonitor->Get())) {
             HILOG_ERROR("monitor existed");
             monitor = iter->second;
-            return engine.CreateNull();
+            return monitor ? engine.CreateNull() : nullptr;
         }
     }
 
     NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
     if (object == nullptr) {
         HILOG_ERROR("Failed to get object");
-        return engine.CreateNull();
+        return nullptr;
     }
 
     auto abilityNameValue = object->GetProperty("abilityName");
     if (abilityNameValue == nullptr) {
         HILOG_ERROR("Failed to get property abilityName");
-        return engine.CreateNull();
+        return nullptr;
     }
 
     std::string abilityName;
     if (!ConvertFromJsValue(engine, abilityNameValue, abilityName)) {
-        return engine.CreateNull();
+        return nullptr;
     }
 
     std::string moduleName = "";
