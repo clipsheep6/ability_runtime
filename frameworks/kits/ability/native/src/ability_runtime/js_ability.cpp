@@ -67,6 +67,7 @@ JsAbility::~JsAbility() {
 
     cb->jsAbilityObj_ = std::move(jsAbilityObj_);
     cb->shellContextRef_ = std::move(shellContextRef_);
+    cb->abilityContext_ = std::move(abilityContext_);
     work->data = reinterpret_cast<void *>(cb);
 
     int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},

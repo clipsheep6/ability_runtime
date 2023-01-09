@@ -37,6 +37,7 @@ using Configuration = AppExecFwk::Configuration;
 struct JsAbilityDeleterObject {
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::unique_ptr<NativeReference> jsAbilityObj_ = nullptr;
+    std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
 };
 
 class JsAbility : public Ability {
