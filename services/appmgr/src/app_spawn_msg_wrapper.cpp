@@ -18,6 +18,7 @@
 #include "securec.h"
 
 #include "hilog_wrapper.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -77,6 +78,25 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         }
         msg_->flags = startMsg.flags;
         msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
+
+        if (!startMsg.hspList.empty()) {
+            nlohmann::json extraJson;
+            std::vector<std::string> bundles;
+            std::vector<std::string> modules;
+            std::vector<std::string> versions;
+
+            for (auto& hsp : startMsg.hspList) {
+                bundles.emplace_back(hsp.bundleName);
+                modules.emplace_back(hsp.moduleName);
+                versions.emplace_back("v" + std::to_string(hsp.versionCode));
+            }
+
+            extraJson["bundles"] = bundles;
+            extraJson["modules"] = modules;
+            extraJson["versions"] = versions;
+            this->hspListStr = extraJson.dump();
+            msg_->hspList.totalLength = this->hspListStr.size() + 1;
+        }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {

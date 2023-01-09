@@ -141,6 +141,7 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Opt
         libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
         options.appLibPaths[appLibPathKey].emplace_back(libPath);
     }
+    options.appLibPaths["com.hw.thirdpartysdkdemo/mydemosdk"].push_back("/data/storage/el1/bundle/com.hw.thirdpartysdkdemo/mydemosdk/libs/arm");
 }
 } // namespace
 
