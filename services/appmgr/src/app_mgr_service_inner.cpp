@@ -543,6 +543,10 @@ int32_t AppMgrServiceInner::KillApplicationSelf()
 
     auto callerPid = IPCSkeleton::GetCallingPid();
     auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr");
+        return ERR_NO_INIT;
+    }
     auto bundleName = appRecord->GetBundleName();
     return KillApplicationByBundleName(bundleName);
 }
