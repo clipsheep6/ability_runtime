@@ -46,7 +46,7 @@ public:
     {
         return true;
     }
-    bool RunScript(const std::string& path, const std::string& hapPath)
+    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return true;
     }
@@ -55,7 +55,7 @@ public:
         return true;
     }
     void Deinitialize() {}
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath)
+    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return nullptr;
     }

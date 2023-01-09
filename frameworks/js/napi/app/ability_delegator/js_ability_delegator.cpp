@@ -741,8 +741,11 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
             task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
             return;
         }
-        bool ret = delegator->DoAbilityForeground(remoteObject);
-        ResolveWithNoError(engine, task, engine.CreateBoolean(ret));
+        if (delegator->DoAbilityForeground(remoteObject)) {
+            ResolveWithNoError(engine, task, engine.CreateNull());
+        } else {
+            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
+        }
     };
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
@@ -769,8 +772,11 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
             task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
             return;
         }
-        bool ret = delegator->DoAbilityBackground(remoteObject);
-        ResolveWithNoError(engine, task, engine.CreateBoolean(ret));
+        if (delegator->DoAbilityBackground(remoteObject)) {
+            ResolveWithNoError(engine, task, engine.CreateNull());
+        } else {
+            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
+        }
     };
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
@@ -833,11 +839,26 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
         HILOG_ERROR("Failed to get property abilityName");
         return nullptr;
     }
+
     std::string abilityName;
     if (!ConvertFromJsValue(engine, abilityNameValue, abilityName)) {
         return nullptr;
     }
-    std::shared_ptr<JSAbilityMonitor> abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
+
+    std::string moduleName = "";
+    auto moduleNameValue = object->GetProperty("moduleName");
+    if (moduleNameValue != nullptr && !ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
+        HILOG_WARN("Failed to get property moduleName");
+        moduleName = "";
+    }
+
+    std::shared_ptr<JSAbilityMonitor> abilityMonitor = nullptr;
+    if (moduleName.empty()) {
+        abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
+    } else {
+        abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName, moduleName);
+    }
+
     abilityMonitor->SetJsAbilityMonitorEnv(&engine);
     abilityMonitor->SetJsAbilityMonitor(value);
 

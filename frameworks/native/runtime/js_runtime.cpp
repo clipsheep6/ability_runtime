@@ -118,57 +118,65 @@ public:
         debugMode_ = true;
     }
 
-    bool RunScript(const std::string& srcPath, const std::string& hapPath) override
+    bool RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk) override
     {
-        bool result = false;
-        if (!hapPath.empty()) {
-            std::ostringstream outStream;
-            std::shared_ptr<RuntimeExtractor> runtimeExtractor;
-            if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
-                runtimeExtractor = RuntimeExtractor::Create(hapPath);
-                if (runtimeExtractor == nullptr) {
-                    return result;
-                }
-                runtimeExtractor->SetRuntimeFlag(true);
-                runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
-            } else {
-                runtimeExtractor = runtimeExtractorMap_.at(hapPath);
-            }
-            if (isBundle_) {
-                if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-                    HILOG_ERROR("Get abc file failed");
-                    return result;
-                }
-            } else {
-                std::string mergeAbcPath;
-                if (vm_ && !moduleName_.empty()) {
-                    mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
-                    panda::JSNApi::SetAssetPath(vm_, mergeAbcPath);
-                } else {
-                    HILOG_ERROR("vm is nullptr or moduleName is hole");
-                    return result;
-                }
+        std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
+        std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
 
-                if (!runtimeExtractor->GetFileBuffer(mergeAbcPath, outStream)) {
-                    HILOG_ERROR("Get Module abc file failed");
-                    return result;
-                }
+        if (hapPath.empty()) {
+            if (useCommonChunk) {
+                (void)nativeEngine_->RunScriptPath(commonsPath.c_str());
+                (void)nativeEngine_->RunScriptPath(vendorsPath.c_str());
+            }
+            return nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
+        }
+
+        std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+        if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
+            runtimeExtractor = RuntimeExtractor::Create(hapPath);
+            if (runtimeExtractor == nullptr) {
+                return false;
+            }
+            runtimeExtractor->SetRuntimeFlag(true);
+            runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+        } else {
+            runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+        }
+
+        auto func = [&](std::string modulePath, std::string abcPath) {
+            std::ostringstream outStream;
+            if (!runtimeExtractor->GetFileBuffer(modulePath, outStream)) {
+                HILOG_ERROR("Get Module abc file failed");
+                return false;
             }
 
             const auto& outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
 
-            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
-        } else {
-            result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
+            return nativeEngine_->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
+        };
+
+        if (useCommonChunk) {
+            (void)func(commonsPath, commonsPath);
+            (void)func(vendorsPath, vendorsPath);
         }
-        return result;
+
+        std::string path = srcPath;
+        if (!isBundle_) {
+            if (!vm_ || moduleName_.empty()) {
+                HILOG_ERROR("vm is nullptr or moduleName is hole");
+                return false;
+            }
+            path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+            panda::JSNApi::SetAssetPath(vm_, path);
+        }
+        return func(path, srcPath);
     }
 
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
     {
-        if (!RunScript(path, hapPath)) {
+        if (!RunScript(path, hapPath, false)) {
             HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
             return nullptr;
         }
@@ -598,13 +606,13 @@ void JsRuntime::Deinitialize()
     nativeEngine_.reset();
 }
 
-NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath)
+NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
     NativeValue* exports = nativeEngine_->CreateObject();
     globalObj->SetProperty("exports", exports);
 
-    if (!RunScript(path, hapPath)) {
+    if (!RunScript(path, hapPath, useCommonChunk)) {
         HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
@@ -624,8 +632,8 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
     return exportObj;
 }
 
-std::unique_ptr<NativeReference> JsRuntime::LoadModule(
-    const std::string& moduleName, const std::string& modulePath, const std::string& hapPath, bool esmodule)
+std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
+    const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
@@ -655,8 +663,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
                 return std::unique_ptr<NativeReference>();
             }
         }
-
-        classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath);
+        HILOG_ERROR("Failed to make module file path: %{public}s", fileName.c_str());
+        classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath, useCommonChunk);
         if (classValue == nullptr) {
             return std::unique_ptr<NativeReference>();
         }
@@ -692,7 +700,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
 }
 
-bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
+bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
     bool result = false;
     if (!hapPath.empty()) {

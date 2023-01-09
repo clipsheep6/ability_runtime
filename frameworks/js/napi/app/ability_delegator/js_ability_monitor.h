@@ -34,6 +34,17 @@ public:
     explicit JSAbilityMonitor(const std::string &abilityName);
 
     /**
+     * A constructor used to create a JSAbilityMonitor instance with the input parameter passed.
+     *
+     * @param abilityName Indicates the specified ability name for monitoring the lifecycle state changes
+     * of the ability.
+     *
+     * @param moduleName Indicates the specified module name for monitoring the lifecycle state changes
+     * of the ability.
+     */
+    explicit JSAbilityMonitor(const std::string &abilityName, const std::string &moduleName);
+
+    /**
      * Default deconstructor used to deconstruct.
      */
     ~JSAbilityMonitor() = default;
@@ -126,7 +137,8 @@ private:
         const std::weak_ptr<NativeReference> &abilityObj);
 
 private:
-    std::string abilityName_;
+    std::string abilityName_ = "";
+    std::string moduleName_ = "";
     NativeEngine* engine_ = nullptr;
     std::unique_ptr<NativeReference> jsAbilityMonitor_ = nullptr;
 };

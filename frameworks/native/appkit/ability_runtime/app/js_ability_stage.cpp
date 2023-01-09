@@ -61,6 +61,20 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
     return contextObj;
 }
 
+bool JsAbilityStage::UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo)
+{
+    for (auto &md: hapModuleInfo.metadata) {
+        if (md.name == "USE_COMMON_CHUNK") {
+            if (md.value != "true") {
+                HILOG_WARN("USE_COMMON_CHUNK = %s{public}s", md.value.c_str());
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
@@ -72,7 +86,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     std::string srcPath(hapModuleInfo.name);
     std::string moduleName(hapModuleInfo.moduleName);
     moduleName.append("::").append("AbilityStage");
-
+    bool commonChunkFlag = UseCommonChunk(hapModuleInfo);
     /* temporary compatibility api8 + config.json */
     if (!hapModuleInfo.isModuleJson) {
         srcPath.append("/assets/js/");
@@ -83,7 +97,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
             srcPath.append("/AbilityStage.abc");
         }
         auto moduleObj = jsRuntime.LoadModule(moduleName, srcPath, hapModuleInfo.hapPath,
-            hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE);
+            hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE, commonChunkFlag);
         return std::make_shared<JsAbilityStage>(jsRuntime, std::move(moduleObj));
     }
 
@@ -94,7 +108,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
         srcPath.erase(srcPath.rfind("."));
         srcPath.append(".abc");
         moduleObj = jsRuntime.LoadModule(moduleName, srcPath, hapModuleInfo.hapPath,
-            hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE);
+            hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE, commonChunkFlag);
         HILOG_INFO("JsAbilityStage srcPath is %{public}s", srcPath.c_str());
     }
     return std::make_shared<JsAbilityStage>(jsRuntime, std::move(moduleObj));

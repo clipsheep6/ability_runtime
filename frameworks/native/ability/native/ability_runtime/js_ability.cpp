@@ -687,12 +687,12 @@ void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
         return;
     }
 
-    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
+        reinterpret_cast<napi_env>(&nativeEngine), configuration);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
     CallObjectMethod("onConfigurationUpdate", &jsConfiguration, 1);
+    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 }
 
 void JsAbility::OnMemoryLevel(int level)
@@ -898,6 +898,16 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
     property->token_          = GetAbilityContext()->GetToken();
     property->name_           = GetAbilityName();
+    if (GetApplicationInfo() == nullptr || GetApplicationInfo()->bundleName.empty()) {
+        property->fullName_ = GetAbilityName();
+    } else {
+        std::string::size_type pos = GetAbilityName().find(GetApplicationInfo()->bundleName);
+        if (pos == std::string::npos || pos != 0) {
+            property->fullName_ = GetApplicationInfo()->bundleName + "." + GetAbilityName();
+        } else {
+            property->fullName_ = GetAbilityName();
+        }
+    }
     property->lifecycleState_ = GetState();
     property->object_         = jsAbilityObj_;
 

@@ -29,6 +29,8 @@ struct ADelegatorAbilityProperty {
     sptr<IRemoteObject> token_;
     // name of ability
     std::string name_;
+    // name of bundle + ability
+    std::string fullName_;
     // lifecycle state of ability
     AbilityLifecycleExecutor::LifecycleState lifecycleState_ {AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED};
     // ability object in jsruntime
