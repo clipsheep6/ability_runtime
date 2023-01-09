@@ -97,9 +97,18 @@ void IdleTime::RequestVSync()
         }
         receiver_->Init();
     }
+    std::weak_ptr<IdleTime> weak(shared_from_this());
+    auto task = [weak](int64_t timestamp, void* data) {
+        auto idleTime = weak.lock();
+        if (idleTime == nullptr) {
+            HILOG_ERROR("idleTime is nullptr.");
+            return;
+        }
+        idleTime->OnVSync(timestamp, data);
+    };
     Rosen::VSyncReceiver::FrameCallback frameCallback = {
         .userData_ = this,
-        .callback_ = [this](int64_t timestamp, void* data) { OnVSync(timestamp, data); },
+        .callback_ = task,
     };
     receiver_->RequestNextVSync(frameCallback);
 }
