@@ -202,14 +202,14 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
 int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     const Want &want, const StartAbilityClosure &callBack, const AbilityCallType &callType)
 {
-    AAFWK::EventInfo eventInfo;
+    EventInfo eventInfo;
     eventInfo.userId = userId;
     eventInfo.bundleName = want.GetElement().GetBundleName();
     eventInfo.moduleName = want.GetElement().GetModuleName();
     eventInfo.abilityName = want.GetElement().GetAbilityName();
 
     if (callType == AbilityCallType::INVALID_TYPE) {
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+        EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     }
 
     HILOG_INFO("ability:%{public}s, bundle:%{public}s", eventInfo.abilityName.c_str(), eventInfo.bundleName.c_str());
@@ -218,7 +218,7 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         if (callType == AbilityCallType::INVALID_TYPE) {
-            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         }
     }
     return ret;
