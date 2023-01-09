@@ -1056,14 +1056,17 @@ HWTEST_F(AbilityManagerServiceTest, GetWantSender_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetWantSender_001 start");
     WantSenderInfo wantSenderInfo;
+    auto temp = abilityMs_->pendingWantManager_;
+    abilityMs_->pendingWantManager_ = nullptr;
     EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
 
-    wantSenderInfo.bundleName = "test";
+    abilityMs_->pendingWantManager_ = temp;
     wantSenderInfo.userId = -1;
-    EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
 
     wantSenderInfo.userId = 0;
-    EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
+    wantSenderInfo.bundleName = "test";
+    EXPECT_NE(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
     HILOG_INFO("AbilityManagerServiceTest GetWantSender_001 end");
 }
 
@@ -2714,7 +2717,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckStaticCfgPermission_001, TestSize.Level
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;

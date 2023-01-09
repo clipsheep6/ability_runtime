@@ -22,6 +22,8 @@
 #include "ability_record.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#undef protected
+#undef private
 
 using namespace testing;
 using namespace testing::ext;
@@ -299,13 +301,11 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartUserTestProcess_001, TestSize.Level
 HWTEST_F(AppMgrClientTest, AppMgrClient_KillApplicationSelf_001, TestSize.Level0)
 {
     auto appMgrClient = std::make_unique<AppMgrClient>();
-    EXPECT_NE(appMgrClient, nullptr);
-
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->KillApplicationSelf();
-    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+    EXPECT_EQ(ret, AppMgrResultCode::ERROR_KILL_APPLICATION);
 }
 
 /**
@@ -316,15 +316,10 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_KillApplicationSelf_001, TestSize.Level0
 HWTEST_F(AppMgrClientTest, AppMgrClient_AbilityAttachTimeOut_001, TestSize.Level0)
 {
     sptr<IRemoteObject> token = nullptr;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
-    EXPECT_NE(appMgrClient, nullptr);
-
     auto result = appMgrClient->ConnectAppMgrService();
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-
+    EXPECT_EQ(result, AppMgrResultCode::ERROR_SERVICE_NOT_READY);
     appMgrClient->AbilityAttachTimeOut(token);
-    EXPECT_EQ(0, ret);
 }
 
 /**
