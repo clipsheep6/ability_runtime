@@ -23,16 +23,10 @@
 #include <unistd.h>
 
 #include "connect_server_manager.h"
-#include "commonlibrary/c_utils/base/include/refbase.h"
 #ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
 #endif
 #include "extractor.h"
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
-#include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
-#include "system_ability_definition.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_runtime_utils.h"
@@ -103,9 +97,8 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
 struct AssetHelper final {
     using Extractor = AbilityBase::Extractor;
     using ExtractorUtil = AbilityBase::ExtractorUtil;
-    using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName)
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& hapPath)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion), hapPath_(hapPath)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -118,15 +111,19 @@ struct AssetHelper final {
             HILOG_ERROR("Uri is empty.");
             return;
         }
+        size_t startIndex = 0;
+        if (uri[0] == '/') {
+            startIndex++;
+        }
 
         HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
-        size_t index = uri.find_last_of(".");
+        size_t index = uri.find_last_of(".") - startIndex;
         if (index == std::string::npos) {
             HILOG_ERROR("Invalid uri");
             return;
         }
 
-        std::string filePath = uri.substr(0, index) + ".abc";
+        std::string filePath = uri.substr(startIndex, index) + ".abc";
         ami = codePath_ + filePath;
         HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
         if (!ReadAssetData(filePath, content)) {
@@ -135,61 +132,17 @@ struct AssetHelper final {
         }
     }
 
-    sptr<BundleMgrProxy> GetBundleMgrProxy() const
-    {
-        auto systemAbilityManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityManager) {
-            HILOG_ERROR("fail to get system ability mgr.");
-            return nullptr;
-        }
-
-        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (!remoteObject) {
-            HILOG_ERROR("fail to get bundle manager proxy.");
-            return nullptr;
-        }
-
-        HILOG_INFO("get bundle manager proxy success.");
-        return iface_cast<BundleMgrProxy>(remoteObject);
-    }
-
     bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content) const
     {
         bool newCreate = false;
         size_t fileLen = 0;
         size_t pos = filePath.find('/');
-
-        if (bundleName_.empty()) {
-            HILOG_ERROR("BundleName is nullptr.");
-            return false;
-        }
-        auto bundleMgrProxy = GetBundleMgrProxy();
-        if (!bundleMgrProxy) {
-            HILOG_ERROR("bundle mgr proxy is nullptr.");
+        if (hapPath_.empty()) {
+            HILOG_ERROR("get hap path failed.");
             return false;
         }
 
-        AppExecFwk::BundleInfo bundleInfo;
-        auto getInfoResult = bundleMgrProxy->GetBundleInfoV9(bundleName_,
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, 100);
-        if (getInfoResult != 0) {
-            HILOG_ERROR("GetBundleInfo failed through %{private}s.", bundleName_.c_str());
-            return false;
-        }
-        if (bundleInfo.hapModuleInfos.size() == 0) {
-            HILOG_ERROR("get hapModuleInfo of bundleInfo failed.");
-            return false;
-        }
-        std::string newHapPath;
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
-                newHapPath = hapModuleInfo.hapPath;
-                break;
-            }
-        }
-
-        std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
+        std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath_);
         std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
         if (extractor == nullptr) {
             HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
@@ -212,7 +165,7 @@ struct AssetHelper final {
 
     std::string codePath_;
     bool isDebugVersion_ = false;
-    std::string bundleName_;
+    std::string hapPath_;
 };
 
 int32_t GetContainerId()
@@ -240,11 +193,11 @@ ContainerScope::UpdateCurrent(-1);
 }
 
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, const std::string& bundleName)
+    bool isDebugVersion, const std::string& hapPath)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, hapPath));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);
