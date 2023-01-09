@@ -120,6 +120,8 @@ public:
 
     bool RunScript(const std::string& srcPath, const std::string& hapPath) override
     {
+        std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
+        std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
         bool result = false;
         if (!hapPath.empty()) {
             std::ostringstream outStream;
