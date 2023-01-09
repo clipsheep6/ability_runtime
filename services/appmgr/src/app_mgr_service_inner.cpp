@@ -543,6 +543,10 @@ int32_t AppMgrServiceInner::KillApplicationSelf()
 
     auto callerPid = IPCSkeleton::GetCallingPid();
     auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord, callerPid:%{public}d", callerPid);
+        return ERR_INVALID_VALUE;
+    }
     auto bundleName = appRecord->GetBundleName();
     return KillApplicationByBundleName(bundleName);
 }
