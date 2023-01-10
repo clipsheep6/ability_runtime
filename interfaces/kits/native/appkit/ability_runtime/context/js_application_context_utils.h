@@ -24,8 +24,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-
-
 class JsApplicationContextUtils {
 public:
     explicit JsApplicationContextUtils(std::weak_ptr<ApplicationContext> &&applicationContext)
@@ -94,8 +92,8 @@ private:
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const AppExecFwk::RunningProcessInfo &info);
     bool CheckCallerIsSystemApp();
+    static void BindNativeApplicationContext(NativeEngine &engine, NativeObject* object);
 
     std::shared_ptr<ApplicationContext> keepApplicationContext_;
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;

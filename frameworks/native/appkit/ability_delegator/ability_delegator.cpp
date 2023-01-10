@@ -644,7 +644,9 @@ void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbi
         ability->name_.data(), ability->lifecycleState_);
 
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
-    abilityProperties_.remove(ability);
+    abilityProperties_.remove_if([ability](auto &properties) {
+        return ability->fullName_ == properties->fullName_;
+    });
 }
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken(const sptr<IRemoteObject> &token)

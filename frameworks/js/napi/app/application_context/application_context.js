@@ -95,6 +95,14 @@ class ApplicationContext {
         return this.__context_impl__.unregisterEnvironmentCallback(callbackId, envcallback)
     }
 
+    on(type, callback) {
+        return this.__context_impl__.on(type, callback);
+    }
+
+    off(type, callbackId, callback) {
+        return this.__context_impl__.off(type, callbackId, callback);
+    }
+
     createBundleContext(bundleName) {
         return this.__context_impl__.createBundleContext(bundleName)
     }
@@ -109,6 +117,14 @@ class ApplicationContext {
 
     getApplicationContext() {
         return this.__context_impl__.getApplicationContext()
+    }
+
+    killProcessesBySelf(callback) {
+        this.__context_impl__.killProcessesBySelf(callback)
+    }
+
+    getProcessRunningInformation(callback) {
+        return this.__context_impl__.getProcessRunningInformation(callback)
     }
 
     set area(mode) {

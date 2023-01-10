@@ -666,10 +666,10 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->KillApplicationSelf();
+    EXPECT_EQ(appMgrServiceInner->KillApplicationSelf(), ERR_INVALID_VALUE);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->KillApplicationSelf();
+    EXPECT_EQ(appMgrServiceInner->KillApplicationSelf(), ERR_NO_INIT);
 
     HILOG_INFO("KillApplicationSelf_001 end");
 }

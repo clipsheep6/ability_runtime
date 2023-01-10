@@ -17,11 +17,9 @@
 #include <gtest/gtest.h>
 
 #define private public
-#include "app_launch_data.h"
+#include "app_mgr_proxy.h"
+#include "app_mgr_stub.h"
 #include "main_thread.h"
-#include "ohos_application.h"
-#undef private
-
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -30,6 +28,8 @@
 #include "quick_fix_callback_stub.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
+#include "ohos_application.h"
+#undef private
 
 using namespace testing;
 using namespace testing::ext;
@@ -94,7 +94,166 @@ void MainThreadTest::SetUp()
 }
 
 void MainThreadTest::TearDown()
-{}
+{
+    mainThread_->applicationForDump_.reset();
+}
+
+class MockAppMgrStub : public AppMgrStub {
+    MockAppMgrStub() = default;
+    virtual ~MockAppMgrStub() = default;
+
+    void AttachApplication(const sptr<IRemoteObject> &app) override
+    {}
+
+    void ApplicationForegrounded(const int32_t recordId) override
+    {}
+
+    void ApplicationBackgrounded(const int32_t recordId) override
+    {}
+
+    void ApplicationTerminated(const int32_t recordId) override
+    {}
+
+    int CheckPermission(const int32_t recordId, const std::string &permission) override
+    {
+        return 0;
+    }
+
+    void AbilityCleaned(const sptr<IRemoteObject> &token) override
+    {}
+
+    sptr<IAmsMgr> GetAmsMgr() override
+    {
+        return nullptr;
+    }
+
+    int32_t ClearUpApplicationData(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
+    int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override
+    {
+        return 0;
+    }
+
+    int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override
+    {
+        return 0;
+    }
+
+    int NotifyMemoryLevel(int32_t level) override
+    {
+        return 0;
+    }
+
+    void AddAbilityStageDone(const int32_t recordId) override
+    {}
+
+    void StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos) override
+    {}
+
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) override
+    {
+        return 0;
+    }
+
+    int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override
+    {
+        return 0;
+    }
+
+    int32_t GetForegroundApplications(std::vector<AppStateData> &list) override
+    {
+        return 0;
+    }
+
+    int StartUserTestProcess(
+        const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId) override
+    {
+        return 0;
+    }
+
+    int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override
+    {
+        return 0;
+    }
+
+    void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override
+    {}
+
+    int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override
+    {
+        return 0;
+    }
+
+    #ifdef ABILITY_COMMAND_FOR_TEST
+    int BlockAppService() override
+    {
+        return 0;
+    }
+    #endif
+
+    int PreStartNWebSpawnProcess() override
+    {
+        return 0;
+    }
+
+    int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+        int32_t sharedFd, pid_t &renderPid) override
+    {
+        return 0;
+    }
+
+    void AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler) override
+    {}
+
+    int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) override
+    {
+        return 0;
+    }
+
+    int32_t GetConfiguration(Configuration& config) override
+    {
+        return 0;
+    }
+
+    int32_t UpdateConfiguration(const Configuration &config) override
+    {
+        return 0;
+    }
+
+    int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override
+    {
+        return 0;
+    }
+
+    int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override
+    {
+        return 0;
+    }
+
+    bool GetAppRunningStateByBundleName(const std::string &bundleName) override
+    {
+        return false;
+    }
+
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override
+    {
+        return 0;
+    }
+
+    int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override
+    {
+        return 0;
+    }
+
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override
+    {
+        return 0;
+    }
+};
 
 /*
  * Feature: MainThread
@@ -1374,6 +1533,445 @@ HWTEST_F(MainThreadTest, HandleDumpHeap_0100, TestSize.Level1)
     mainThread_->mainHandler_ = nullptr;
     mainThread_->HandleDumpHeap(isPrivate);
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ScheduleNotifyLoadRepairPatch_0200
+ * @tc.desc: schedule notify load repair patch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string bundleName;
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    int32_t recordId = 0;
+    auto bakHandler = mainThread_->mainHandler_;
+    mainThread_->mainHandler_ = nullptr;
+    auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
+    mainThread_->mainHandler_ = bakHandler;
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ScheduleNotifyHotReloadPage_0200
+ * @tc.desc: schedule notify ace hot reload page.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    int32_t recordId = 0;
+    auto bakHandler = mainThread_->mainHandler_;
+    mainThread_->mainHandler_ = nullptr;
+    auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback, recordId);
+    mainThread_->mainHandler_ = bakHandler;
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ScheduleNotifyUnLoadRepairPatch_0200
+ * @tc.desc: schedule notify unload repair patch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string bundleName;
+    int32_t recordId = 0;
+    sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
+    auto bakHandler = mainThread_->mainHandler_;
+    mainThread_->mainHandler_ = nullptr;
+    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+    mainThread_->mainHandler_ = bakHandler;
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: InitResourceManager_0200
+ * @tc.desc: init resourceManager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, InitResourceManager_0200, TestSize.Level1)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    EXPECT_TRUE(resourceManager != nullptr);
+    Configuration config;
+    HapModuleInfo hapModuleInfo = {};
+    hapModuleInfo.isStageBasedModel = true;
+    const std::string bundleName = "bundleName";
+    bool multiProjects = true;
+    mainThread_->InitResourceManager(resourceManager, hapModuleInfo, bundleName, multiProjects, config);
+    EXPECT_TRUE(resourceManager != nullptr);
+}
+
+/**
+ * @tc.name: HandleLaunchApplication_0200
+ * @tc.desc: Handle launch application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, HandleLaunchApplication_0200, TestSize.Level1)
+{
+    Configuration config;
+    AppLaunchData lanchdate;
+    ProcessInfo processing("TestProcess", 9999);
+    ApplicationInfo appinf;
+    appinf.name = "MockTestApplication";
+    appinf.moduleSourceDirs.push_back("/hos/lib/libabilitydemo_native.z.so");
+    lanchdate.SetApplicationInfo(appinf);
+    lanchdate.SetProcessInfo(processing);
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+}
+
+/**
+ * @tc.name: HandleLaunchApplication_0300
+ * @tc.desc: Handle launch application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, HandleLaunchApplication_0300, TestSize.Level1)
+{
+    Configuration config;
+    AppLaunchData lanchdate;
+    ProcessInfo processing("TestProcess", 9999);
+    ApplicationInfo appinf;
+    appinf.name = "MockTestApplication";
+    lanchdate.SetProcessInfo(processing);
+    appinf.bundleName = "com.ohos.contactsdataability";
+    lanchdate.SetApplicationInfo(appinf);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    appinf.bundleName = "com.ohos.medialibrary.medialibrarydata";
+    lanchdate.SetApplicationInfo(appinf);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    appinf.bundleName = "com.ohos.telephonydataability";
+    lanchdate.SetApplicationInfo(appinf);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    appinf.bundleName = "com.ohos.FusionSearch";
+    lanchdate.SetApplicationInfo(appinf);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+    mainThread_->handleAbilityLib_.clear();
+}
+
+/**
+ * @tc.name: HandleLaunchApplication_0400
+ * @tc.desc: Handle launch application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, HandleLaunchApplication_0400, TestSize.Level1)
+{
+    Configuration config;
+    AppLaunchData lanchdate;
+    ProcessInfo processing("TestProcess", 9999);
+    ApplicationInfo appinf;
+    appinf.name = "MockTestApplication";
+    appinf.moduleSourceDirs.push_back("/hos/lib/libabilitydemo_native.z.so");
+    lanchdate.SetAppIndex(1);
+    lanchdate.SetApplicationInfo(appinf);
+    lanchdate.SetProcessInfo(processing);
+    mainThread_->HandleLaunchApplication(lanchdate, config);
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+}
+
+/**
+ * @tc.name: OnRemoteDied_0100
+ * @tc.desc: remote Object OnRemoteDied callde.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, OnRemoteDied_0100, TestSize.Level1)
+{
+    sptr<AppMgrDeathRecipient> death = new (std::nothrow) AppMgrDeathRecipient();
+    EXPECT_TRUE(death != nullptr);
+    wptr<IRemoteObject> remote = nullptr;
+    death->OnRemoteDied(remote);
+}
+
+/**
+ * @tc.name: RemoveAppMgrDeathRecipient_0200
+ * @tc.desc: Remove app mgr death recipient.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, RemoveAppMgrDeathRecipient_0200, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    EXPECT_TRUE(mainThread_->appMgr_ == nullptr);
+    sptr<IRemoteObject> object;
+    EXPECT_TRUE(object == nullptr);
+    mainThread_->appMgr_ = new (std::nothrow) AppMgrProxy(object);
+    mainThread_->RemoveAppMgrDeathRecipient();
+    EXPECT_TRUE(mainThread_->appMgr_ != nullptr);
+}
+
+/**
+ * @tc.name: RemoveAppMgrDeathRecipient_0300
+ * @tc.desc: Remove app mgr death recipient.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, RemoveAppMgrDeathRecipient_0300, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    EXPECT_TRUE(mainThread_->appMgr_ == nullptr);
+    mainThread_->appMgr_ = new (std::nothrow) AppMgrProxy(mainThread_);
+    mainThread_->RemoveAppMgrDeathRecipient();
+    EXPECT_TRUE(mainThread_->appMgr_ != nullptr);
+}
+
+/**
+ * @tc.name: PostTask_0100
+ * @tc.desc: Post task.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, PostTask_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->applicationInfo_ = std::make_shared<ApplicationInfo>();
+    EXPECT_TRUE(mainThread_->applicationInfo_ != nullptr);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_TRUE(mainThread_->applicationImpl_ != nullptr);
+    auto startThreadTask = [main = mainThread_] () {
+        main->Start();
+    };
+    std::thread testThread(startThreadTask);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    mainThread_->ScheduleForegroundApplication();
+    mainThread_->ScheduleBackgroundApplication();
+    mainThread_->ScheduleTerminateApplication();
+    constexpr int32_t level = 0;
+    mainThread_->ScheduleShrinkMemory(level);
+    mainThread_->ScheduleMemoryLevel(level);
+    mainThread_->ScheduleProcessSecurityExit();
+    mainThread_->ScheduleLowMemory();
+    AppLaunchData applaunchData = {};
+    Configuration configuration = {};
+    mainThread_->ScheduleLaunchApplication(applaunchData, configuration);
+    HapModuleInfo hapModuleInfo = {};
+    mainThread_->ScheduleAbilityStage(hapModuleInfo);
+    AbilityInfo abilityInfo = {};
+    sptr<IRemoteObject> token = nullptr;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    mainThread_->ScheduleLaunchAbility(abilityInfo, token, want);
+    mainThread_->ScheduleCleanAbility(token);
+    Profile profile = {};
+    mainThread_->ScheduleProfileChanged(profile);
+    mainThread_->ScheduleConfigurationUpdated(configuration);
+    bool isPrivate = false;
+    mainThread_->HandleDumpHeap(isPrivate);
+    const std::string moduleName = "";
+    mainThread_->ScheduleAcceptWant(*want, moduleName);
+    const std::string bundleName = "";
+    sptr<IQuickFixCallback> callback = nullptr;
+    constexpr int32_t recordId = 0;
+    mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
+    mainThread_->ScheduleNotifyHotReloadPage(callback, recordId);
+    mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    mainThread_->HandleTerminateApplicationLocal();
+    testThread.join();
+}
+
+/**
+ * @tc.name: ChangeToLocalPath_0100
+ * @tc.desc: Change to local path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ChangeToLocalPath_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    const std::string bundleName = "";
+    const std::vector<std::string> sourceDirs1 = { "test1", "", "test3" };
+    std::vector<std::string> localPath = {};
+    mainThread_->ChangeToLocalPath(bundleName, sourceDirs1, localPath);
+
+    const std::vector<std::string> sourceDirs2 = {};
+    mainThread_->ChangeToLocalPath(bundleName, sourceDirs2, localPath);
+}
+
+/**
+ * @tc.name: HandleLaunchAbility_0200
+ * @tc.desc: handle launch ability.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, HandleLaunchAbility_0200, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    const std::shared_ptr<AbilityLocalRecord> abilityRecord1 = nullptr;
+    AAFwk::Want want = {};
+    want.SetParam("debugApp", false);
+    EXPECT_TRUE(abilityRecord1 == nullptr);
+    mainThread_->HandleLaunchAbility(abilityRecord1);
+
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    mainThread_->HandleLaunchAbility(abilityRecord1);
+
+    mainThread_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    mainThread_->HandleLaunchAbility(abilityRecord1);
+
+    const std::shared_ptr<AbilityInfo> info1 = nullptr;
+    const sptr<IRemoteObject> token = nullptr;
+    const std::shared_ptr<AbilityLocalRecord> abilityRecord2 = std::make_shared<AbilityLocalRecord>(info1, token);
+    mainThread_->HandleLaunchAbility(abilityRecord2);
+
+    const std::shared_ptr<AbilityInfo> info2 = std::make_shared<AbilityInfo>();
+    const std::shared_ptr<AbilityLocalRecord> abilityRecord3 = std::make_shared<AbilityLocalRecord>(info2, token);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    mainThread_->HandleLaunchAbility(abilityRecord3);
+
+    abilityRecord3->token_ = mainThread_;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    mainThread_->application_->SetRuntime(std::move(runtime));
+    auto contextDeal = std::make_shared<ContextDeal>();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->debug = true;
+    contextDeal->SetApplicationInfo(appInfo);
+    mainThread_->application_->AttachBaseContext(contextDeal);
+    mainThread_->HandleLaunchAbility(abilityRecord3);
+}
+
+/**
+ * @tc.name: HandleCleanAbility_0100
+ * @tc.desc: handle clean ability.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, HandleCleanAbility_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    EXPECT_TRUE(mainThread_->abilityRecordMgr_ != nullptr);
+    mainThread_->applicationInfo_ = std::make_shared<ApplicationInfo>();
+    EXPECT_TRUE(mainThread_->applicationInfo_ != nullptr);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_TRUE(mainThread_->applicationImpl_ != nullptr);
+    mainThread_->appMgr_ = new (std::nothrow) AppMgrProxy(mainThread_);
+    EXPECT_TRUE(mainThread_->appMgr_ != nullptr);
+
+    sptr<IRemoteObject> token = nullptr;
+    mainThread_->HandleCleanAbility(token);
+
+    token = new (std::nothrow) BundleMgrService();
+    mainThread_->HandleCleanAbility(token);
+
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
+    mainThread_->abilityRecordMgr_->abilityRecords_[token] = abilityRecord;
+    mainThread_->HandleCleanAbility(token);
+
+    std::shared_ptr<AbilityInfo> info = nullptr;
+    abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
+    mainThread_->abilityRecordMgr_->AddAbilityRecord(token, abilityRecord);
+    mainThread_->HandleCleanAbility(token);
+
+    info = std::make_shared<AbilityInfo>();
+    abilityRecord->abilityInfo_ = info;
+    mainThread_->abilityRecordMgr_->AddAbilityRecord(token, abilityRecord);
+    mainThread_->HandleCleanAbility(token);
+
+    mainThread_->application_ = nullptr;
+    mainThread_->HandleCleanAbility(token);
+}
+
+/**
+ * @tc.name: LoadAbilityLibrary_0100
+ * @tc.desc: Load ability library.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, LoadAbilityLibrary_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    const std::vector<std::string> libraryPaths = {
+        "/system/lib/module/web/",
+    };
+
+    mainThread_->LoadAbilityLibrary(libraryPaths);
+    mainThread_->handleAbilityLib_.clear();
+}
+
+/**
+ * @tc.name: ScanDir_0100
+ * @tc.desc: Close ability library.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ScanDir_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    const std::string path1 = "";
+    std::vector<std::string> files1;
+    mainThread_->ScanDir(path1, files1);
+
+    const std::string path2 = "/system/lib/module/web/";
+    std::vector<std::string> files2;
+    mainThread_->ScanDir(path2, files2);
+}
+
+/**
+ * @tc.name: CheckMainThreadIsAlive_0100
+ * @tc.desc: Close ability library.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, CheckMainThreadIsAlive_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = std::make_shared<Watchdog>();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+
+    mainThread_->CheckMainThreadIsAlive();
+}
+
+/**
+ * @tc.name: ProcessEvent_0100
+ * @tc.desc: Main handler process event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, ProcessEvent_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    auto callback = [] () {};
+    const std::string name = "";
+    auto event = InnerEvent::Get(callback, name);
+    mainThread_->mainHandler_->ProcessEvent(event);
+
+    event->innerEventId_ = CHECK_MAIN_THREAD_IS_ALIVE;
+    mainThread_->mainHandler_->ProcessEvent(event);
+
+    auto mainThreadObj = mainThread_->mainHandler_->mainThreadObj_.promote();
+    mainThread_->mainHandler_->mainThreadObj_ = nullptr;
+    mainThread_->mainHandler_->ProcessEvent(event);
+    mainThread_->mainHandler_->mainThreadObj_ = mainThreadObj;
+}
+
+/**
+ * @tc.name: Start_0100
+ * @tc.desc: Main thread start.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, Start_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->application_ = std::make_shared<OHOSApplication>();
+    EXPECT_TRUE(mainThread_->application_ != nullptr);
+    mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
+    EXPECT_TRUE(mainThread_->applicationImpl_ != nullptr);
+    auto startThreadTask = [main = mainThread_] () {
+        GTEST_LOG_(INFO) << "main thread Begin.";
+        main->Start();
+        GTEST_LOG_(INFO) << "main thread End.";
+    };
+
+    std::thread testThread(startThreadTask);
+    GTEST_LOG_(INFO) << "Wait main thread run.";
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    GTEST_LOG_(INFO) << "Stop to main thread called.";
+    mainThread_->HandleTerminateApplicationLocal();
+    GTEST_LOG_(INFO) << "Wait main thread release.";
+    testThread.join();
 }
 } // namespace AppExecFwk
 } // namespace OHOS

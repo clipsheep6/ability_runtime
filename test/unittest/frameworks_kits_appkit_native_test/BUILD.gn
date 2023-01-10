@@ -315,6 +315,7 @@ ohos_unittest("watchdog_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -336,10 +337,7 @@ ohos_unittest("mix_stack_dumper_test") {
   external_deps = [
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "c_utils:utils",
     "faultloggerd:lib_dfx_dump_catcher",
-    "faultloggerd:libfaultloggerd",
-    "hiviewdfx_hilog_native:libhilog",
   ]
 }
 

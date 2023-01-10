@@ -97,6 +97,9 @@ public:
         return true;
     };
 
+    void UpdateExtensionType(int32_t extensionType) override
+    {};
+
     Language language;
 };
 

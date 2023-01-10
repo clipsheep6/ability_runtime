@@ -136,7 +136,8 @@ public:
      *
      * @return
      */
-    void TerminateAbility(const sptr<IRemoteObject> &token, const bool isForce);
+    void TerminateAbility(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const sptr<IRemoteObject> &token, const bool isForce);
 
     /**
      * AbilityTerminated, terminate the ability.
@@ -172,8 +173,6 @@ public:
     void GetHapModuleInfo(HapModuleInfo &info);
 
     void SetApplicationClient(std::shared_ptr<AppLifeCycleDeal> &appLifeCycleDeal);
-
-    void SetAppRunningRecord(const std::shared_ptr<AppRunningRecord> &appRunningRecord);
 
     const std::shared_ptr<ApplicationInfo> GetAppInfo();
 

@@ -70,8 +70,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     moduleRecord.SetModuleRecordState(moduleState);
     std::shared_ptr<AppLifeCycleDeal> appLifeCycleDeal;
     moduleRecord.SetApplicationClient(appLifeCycleDeal);
-    std::shared_ptr<AppRunningRecord> appRunningRecord;
-    moduleRecord.SetAppRunningRecord(appRunningRecord);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     moduleRecord.GetAbilityRunningRecordByToken(token);
     std::shared_ptr<AbilityInfo> abilityInfo;
@@ -89,7 +87,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_READY;
     moduleRecord.OnAbilityStateChanged(record, state);
     bool isForce = *data % ENABLE;
-    moduleRecord.TerminateAbility(token, isForce);
+    std::shared_ptr<AppRunningRecord> appRunningRecord;
+    moduleRecord.TerminateAbility(appRunningRecord, token, isForce);
     moduleRecord.AbilityTerminated(token);
     moduleRecord.GetAbilityByTerminateLists(token);
     uint32_t msg = GetU32Data(data);

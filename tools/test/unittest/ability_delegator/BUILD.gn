@@ -71,6 +71,43 @@ ohos_unittest("test_observer_test") {
   ]
 }
 
+ohos_unittest("test_observer_proxy_test") {
+  module_out_path = module_output_path
+
+  sources = [ "test_observer_proxy_test.cpp" ]
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("test_observer_stub_test") {
+  module_out_path = module_output_path
+
+  sources = [
+    "mock_test_observer_stub.cpp",
+    "test_observer_stub_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ohos_unittest("shell_command_result_test") {
   module_out_path = module_output_path
 
@@ -98,6 +135,8 @@ group("unittest") {
   deps = [
     ":ability_command_test",
     ":shell_command_result_test",
+    ":test_observer_proxy_test",
+    ":test_observer_stub_test",
     ":test_observer_test",
   ]
 }

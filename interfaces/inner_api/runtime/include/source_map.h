@@ -72,7 +72,7 @@ public:
     ~ModSourceMap() = default;
 
     static std::string TranslateBySourceMap(const std::string& stackStr, ModSourceMap& targetMaps,
-        const std::string& BundleCodeDir);
+        const std::string& hapPath);
     static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
         const std::string& sourceCode, uint32_t& errorPos);
     static ErrorPos GetErrorPos(const std::string& rawStack);
@@ -82,7 +82,6 @@ public:
 
 private:
     static void Init(const std::string& sourceMap, SourceMapData& curMap);
-    static bool GetSourceMapData(ModSourceMap& bindSourceMaps, const std::string& temp, SourceMapData& curMapData);
     static MappingInfo Find(int32_t row, int32_t col, const SourceMapData& targetMap, const std::string& key);
     static void ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo);
     static void GetPosInfo(const std::string& temp, int32_t start, std::string& line, std::string& column);
@@ -90,7 +89,7 @@ private:
     static std::string GetRelativePath(const std::string& sources);
     static std::string GetSourceInfo(const std::string& line, const std::string& column,
         const SourceMapData& targetMap, const std::string& key);
-    static bool ReadSourceMapData(const std::string& filePath, std::string& content);
+    static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
     static std::vector<std::string> HandleMappings(const std::string& mapping);
     static uint32_t Base64CharToInt(char charCode);
     static bool VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans);

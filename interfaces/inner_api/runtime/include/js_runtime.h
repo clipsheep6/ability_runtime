@@ -70,7 +70,7 @@ public:
     }
 
     std::unique_ptr<NativeReference> LoadModule(const std::string& moduleName, const std::string& modulePath,
-        const std::string& hapPath, bool esmodule = false);
+        const std::string& hapPath, bool esmodule = false, bool useCommonChunk = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
@@ -80,11 +80,10 @@ public:
     void NotifyApplicationState(bool isBackground) override;
 
     bool RunSandboxScript(const std::string& path, const std::string& hapPath);
-    virtual bool RunScript(const std::string& path, const std::string& hapPath) = 0;
+    virtual bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false) = 0;
 
     void PreloadSystemModule(const std::string& moduleName) override;
-
-    bool VerifyRunAnyCodePermission();
+    void UpdateExtensionType(int32_t extensionType) override;
 
 protected:
     JsRuntime() = default;
@@ -92,7 +91,7 @@ protected:
     virtual bool Initialize(const Options& options);
     void Deinitialize();
 
-    virtual NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath);
+    virtual NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     virtual NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) = 0;
 
     bool isArkEngine_ = false;

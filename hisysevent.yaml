@@ -15,16 +15,16 @@ domain: AAFWK
 
 LIFECYCLE_TIMEOUT:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: ability timeout}
-  PID: {type: INT32, desc: pid}
-  UID: {type: INT32, desc: uid}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
 
 APP_LIFECYCLE_TIMEOUT:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application timeout}
-  PID: {type: INT32, desc: pid}
-  UID: {type: INT32, desc: uid}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
@@ -41,16 +41,16 @@ JS_ERROR:
 
 THREAD_BLOCK_3S:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
-  PID: {type: INT32, desc: pid}
-  UID: {type: INT32, desc: uid}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
 
 THREAD_BLOCK_6S:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
-  PID: {type: INT32, desc: pid}
-  UID: {type: INT32, desc: uid}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
@@ -119,15 +119,29 @@ CLOSE_ABILITY:
 
 TERMINATE_ABILITY:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: terminate ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
 
 ABILITY_ONFOREGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: ability onForeground}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
 
 ABILITY_ONBACKGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: ability onBackground}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onActive}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONINACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onInactive}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
@@ -204,7 +218,7 @@ APP_TERMINATE:
 
 APP_RECOVERY:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: recover app status}
-  APP_UID: {type: INT32, desc: app Uid}
+  APP_UID: {type: INT32, desc: app uid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}

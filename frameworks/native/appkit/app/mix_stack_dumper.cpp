@@ -31,6 +31,7 @@ namespace OHOS {
 namespace AppExecFwk {
 std::weak_ptr<EventHandler> MixStackDumper::signalHandler_;
 std::weak_ptr<OHOSApplication> MixStackDumper::application_;
+using OHOS::HiviewDFX::NativeFrame;
 namespace {
 static const char PID_STR_NAME[] = "Pid:";
 static const char PPID_STR_NAME[] = "PPid:";
@@ -61,13 +62,10 @@ static std::string PrintJsFrame(const JsFrames& jsFrame)
     return "  at " + jsFrame.functionName + " (" + jsFrame.fileName + ":" + jsFrame.pos + ")\n";
 }
 
-static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> frame)
+static std::string PrintNativeFrame(const NativeFrame& frame)
 {
-    if (frame == nullptr) {
-        return "";
-    }
     char buf[FRAME_BUF_LEN] = {0};
-    std::string mapName = frame->GetFrameMapName();
+    std::string mapName = frame.binaryName;
     if (mapName.empty()) {
         mapName = "Unknown";
     }
@@ -80,9 +78,9 @@ static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> f
     char frameFormatWithFuncName[] = "#%02zu pc %08" PRIx64 " %s(%s+%" PRIu64 ")\n";
 #endif
 
-    if (frame->GetFrameFuncName().empty()) {
+    if (frame.funcName.empty()) {
         int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithMapName, \
-            frame->GetFrameIndex(), frame->GetFrameRelativePc(), mapName.c_str());
+            frame.index, frame.relativePc, mapName.c_str());
         if (ret <= 0) {
             HILOG_ERROR("DfxMixStackDumper::PrintNativeFrame snprintf_s failed.");
         }
@@ -90,8 +88,8 @@ static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> f
     }
 
     int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithFuncName, \
-        frame->GetFrameIndex(), frame->GetFrameRelativePc(), mapName.c_str(),\
-        frame->GetFrameFuncName().c_str(), frame->GetFrameFuncOffset());
+        frame.index, frame.relativePc, mapName.c_str(),\
+        frame.funcName.c_str(), frame.funcOffset);
     if (ret <= 0) {
         HILOG_ERROR("DfxMixStackDumper::PrintNativeFrame snprintf_s failed.");
     }
@@ -270,7 +268,7 @@ bool MixStackDumper::IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nati
 }
 
 void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFrames,
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames)
+    std::vector<NativeFrame>& nativeFrames)
 {
     uint32_t jsIdx = 0;
     uint32_t nativeIdx = 0;
@@ -284,8 +282,8 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
             jsIdx++;
             continue;
         }
-        if (IsJsNativePcEqual(jsFrames[jsIdx].nativePointer, nativeFrames[nativeIdx]->GetFramePc(),
-            nativeFrames[nativeIdx]->GetFrameFuncOffset())) {
+        if (IsJsNativePcEqual(jsFrames[jsIdx].nativePointer, nativeFrames[nativeIdx].pc,
+            nativeFrames[nativeIdx].funcOffset)) {
             HILOG_DEBUG("DfxMixStackDumper::BuildJsNativeMixStack pc register values matched.");
             mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
             mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
@@ -297,7 +295,7 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
         }
     }
     while (nativeIdx < nativeFrames.size()) {
-        mixStackStr +=  PrintNativeFrame(nativeFrames[nativeIdx]);
+        mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
         nativeIdx++;
     }
     write(fd, mixStackStr.c_str(), mixStackStr.size());
@@ -317,7 +315,7 @@ std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
     return result.str();
 }
 
-void MixStackDumper::PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames)
+void MixStackDumper::PrintNativeFrames(int fd, std::vector<NativeFrame>& nativeFrames)
 {
     for (const auto& frame : nativeFrames) {
         std::string nativeFrameStr = PrintNativeFrame(frame);
@@ -355,11 +353,11 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
 
     std::string threadComm = GetThreadStackTraceLabel(tid);
     write(fd, threadComm.c_str(), threadComm.size());
-    if (!catcher_->RequestCatchFrame(nstid)) {
-        std::string result = "Failed to suspend thread(" + std::to_string(nstid) + ").\n";
-        HILOG_ERROR("%{public}s", result.c_str());
-        write(fd, result.c_str(), result.size());
-        return false;
+    std::vector<NativeFrame> nativeFrames;
+    bool hasNativeFrame = true;
+    if (catcher_->CatchFrame(nstid, nativeFrames) == false) {
+        HILOG_ERROR("DfxMixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", nstid);
+        hasNativeFrame = false;
     }
 
     bool onlyDumpNative = false;
@@ -372,14 +370,20 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
         }
     }
 
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
-    if (catcher_->CatchFrame(nstid, nativeFrames) == false) {
-        HILOG_ERROR("DfxMixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", nstid);
+    if (!catcher_->ReleaseThread(nstid)) {
+        std::string result = "Failed to release thread(" + std::to_string(nstid) + ").\n";
+        HILOG_ERROR("%{public}s", result.c_str());
+        write(fd, result.c_str(), result.size());
     }
 
-    if (onlyDumpNative) {
+    if (onlyDumpNative && hasNativeFrame) {
         PrintNativeFrames(fd, nativeFrames);
         return true;
+    } else if (!hasNativeFrame) {
+        std::string result = "Failed to dumpNativeFrame(" + std::to_string(nstid) + ").\n";
+        HILOG_ERROR("%{public}s", result.c_str());
+        write(fd, result.c_str(), result.size());
+        return false;
     }
 
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);

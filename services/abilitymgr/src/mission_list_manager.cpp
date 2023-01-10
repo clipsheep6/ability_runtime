@@ -1233,6 +1233,9 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &a
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
+    } else {
+        Want want;
+        abilityRecord->SaveResultToCallers(resultCode, &want);
     }
 
     return TerminateAbilityLocked(abilityRecord, flag);
@@ -1276,6 +1279,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
         if (nextAbilityRecord) {
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
 #ifdef SUPPORT_GRAPHICS
+            nextAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
         } else {
             if (!abilityRecord->IsClearMissionFlag()) {
@@ -2420,12 +2424,23 @@ void MissionListManager::PostCancelStartingWindowTask(const std::shared_ptr<Abil
 
 void MissionListManager::Dump(std::vector<std::string> &info)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
+    std::shared_ptr<MissionList> defaultStandardListBackup;
+    std::shared_ptr<MissionList> defaultSingleListBackup;
+    std::shared_ptr<MissionList> launcherListBackup;
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup = currentMissionLists_;
+        defaultStandardListBackup = defaultStandardList_;
+        defaultSingleListBackup = defaultSingleList_;
+        launcherListBackup = launcherList_;
+    }
+
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
     info.push_back(dumpInfo);
     dumpInfo = " current mission lists:{";
     info.push_back(dumpInfo);
-    for (const auto& missionList : currentMissionLists_) {
+    for (const auto& missionList : currentMissionListsBackup) {
         if (missionList) {
             missionList->Dump(info);
         }
@@ -2435,24 +2450,24 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 
     dumpInfo = " default stand mission list:{";
     info.push_back(dumpInfo);
-    if (defaultStandardList_) {
-        defaultStandardList_->Dump(info);
+    if (defaultStandardListBackup) {
+        defaultStandardListBackup->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " default single mission list:{";
     info.push_back(dumpInfo);
-    if (defaultSingleList_) {
-        defaultSingleList_->Dump(info);
+    if (defaultSingleListBackup) {
+        defaultSingleListBackup->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " launcher mission list:{";
     info.push_back(dumpInfo);
-    if (launcherList_) {
-        launcherList_->Dump(info);
+    if (launcherListBackup) {
+        launcherListBackup->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
@@ -2461,34 +2476,55 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 void MissionListManager::DumpMissionListByRecordId(
     std::vector<std::string> &info, bool isClient, int32_t abilityRecordId, const std::vector<std::string> &params)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
+    std::shared_ptr<MissionList> defaultStandardListBackup;
+    std::shared_ptr<MissionList> defaultSingleListBackup;
+    std::shared_ptr<MissionList> launcherListBackup;
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup = currentMissionLists_;
+        defaultStandardListBackup = defaultStandardList_;
+        defaultSingleListBackup = defaultSingleList_;
+        launcherListBackup = launcherList_;
+    }
+
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
     info.push_back(dumpInfo);
-    for (const auto& missionList : currentMissionLists_) {
-        if (missionList && missionList != launcherList_) {
+    for (const auto& missionList : currentMissionListsBackup) {
+        if (missionList && missionList != launcherListBackup) {
             HILOG_INFO("missionList begin to call DumpMissionListByRecordId %{public}s", __func__);
             missionList->DumpStateByRecordId(info, isClient, abilityRecordId, params);
         }
     }
 
-    if (defaultStandardList_) {
+    if (defaultStandardListBackup) {
         HILOG_INFO("defaultStandardList begin to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultStandardList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultStandardListBackup->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 
-    if (defaultSingleList_) {
+    if (defaultSingleListBackup) {
         HILOG_INFO("defaultSingleList begin to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultSingleList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultSingleListBackup->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 
-    if (launcherList_) {
+    if (launcherListBackup) {
         HILOG_INFO("launcherList begin to call DumpMissionListByRecordId %{public}s", __func__);
-        launcherList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        launcherListBackup->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 }
 void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
+    std::shared_ptr<MissionList> defaultStandardListBackup;
+    std::shared_ptr<MissionList> defaultSingleListBackup;
+    std::shared_ptr<MissionList> launcherListBackup;
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup = currentMissionLists_;
+        defaultStandardListBackup = defaultStandardList_;
+        defaultSingleListBackup = defaultSingleList_;
+        launcherListBackup = launcherList_;
+    }
 
     if (args.size() != 0 &&
         args != "NORMAL" &&
@@ -2504,7 +2540,7 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
     if (args.size() == 0 || args == "NORMAL") {
         dumpInfo = "  Current mission lists:";
         info.push_back(dumpInfo);
-        for (const auto& missionList : currentMissionLists_) {
+        for (const auto& missionList : currentMissionListsBackup) {
             if (missionList) {
                 missionList->DumpList(info, isClient);
             }
@@ -2514,23 +2550,23 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
     if (args.size() == 0 || args == "DEFAULT_STANDARD") {
         dumpInfo = "  default stand mission list:";
         info.push_back(dumpInfo);
-        if (defaultStandardList_) {
-            defaultStandardList_->DumpList(info, isClient);
+        if (defaultStandardListBackup) {
+            defaultStandardListBackup->DumpList(info, isClient);
         }
     }
 
     if (args.size() == 0 || args == "DEFAULT_SINGLE") {
         dumpInfo = "  default single mission list:";
         info.push_back(dumpInfo);
-        if (defaultSingleList_) {
-            defaultSingleList_->DumpList(info, isClient);
+        if (defaultSingleListBackup) {
+            defaultSingleListBackup->DumpList(info, isClient);
         }
     }
     if (args.size() == 0 || args == "LAUNCHER") {
         dumpInfo = "  launcher mission list:";
         info.push_back(dumpInfo);
-        if (launcherList_) {
-            launcherList_->DumpList(info, isClient);
+        if (launcherListBackup) {
+            launcherListBackup->DumpList(info, isClient);
         }
     }
 }

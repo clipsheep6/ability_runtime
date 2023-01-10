@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <cstring>
 #include <fcntl.h>
 #include <fstream>
@@ -21,6 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+
 #define private public
 #define protected public
 #include "mix_stack_dumper.h"
@@ -140,7 +142,7 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Leve
     EXPECT_FALSE(ret);
     close(fd);
     std::string keywords[] = {
-        "Tid:" + std::to_string(pid), "Failed", "suspend",
+        "Tid:" + std::to_string(pid), "Failed", "dumpNativeFrame",
     };
     int length = sizeof(keywords) / sizeof(keywords[0]);
     EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
@@ -170,8 +172,8 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest002, Function | MediumTest | Leve
     EXPECT_TRUE(ret);
     close(fd);
     std::string keywords[] = {
-        "Tid:-1", "Failed", "suspend", "Tid:" + std::to_string(getpid()), "#00", "pc",
-        "libappkit_native.z.so", "mix_stack_dumper_test",
+        "Tid:-1", "Failed", "dumpNativeFrame", "Tid:" + std::to_string(getpid()), "#00", "pc",
+        "mix_stack_dumper_test",
     };
     int length = sizeof(keywords) / sizeof(keywords[0]);
     EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
@@ -197,13 +199,12 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest003, Function | MediumTest | Leve
  */
 HWTEST_F(MixStackDumperTest, MixStackDumperTest004, Function | MediumTest | Level3)
 {
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame1 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    nativeFrame1->SetFrameMapName("testmapname");
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame2 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
+    HiviewDFX::NativeFrame nativeFrame1;
+    nativeFrame1.binaryName = "testmapname";
+    HiviewDFX::NativeFrame nativeFrame2;
+    std::vector<HiviewDFX::NativeFrame> nativeFrames;
     nativeFrames.emplace_back(nativeFrame1);
     nativeFrames.emplace_back(nativeFrame2);
-    nativeFrames.emplace_back(nullptr);
     MixStackDumper mixDumper;
     char testFile[] = "/data/mix_stack_header_test04";
     int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
@@ -328,13 +329,12 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest010, Function | MediumTest | Leve
  */
 HWTEST_F(MixStackDumperTest, MixStackDumperTest011, Function | MediumTest | Level3)
 {
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame1 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    nativeFrame1->SetFrameMapName("testmapname");
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> nativeFrame2 = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
+    HiviewDFX::NativeFrame nativeFrame1;
+    nativeFrame1.binaryName = "testmapname";
+    HiviewDFX::NativeFrame nativeFrame2;
+    std::vector<HiviewDFX::NativeFrame> nativeFrames;
     nativeFrames.emplace_back(nativeFrame1);
     nativeFrames.emplace_back(nativeFrame2);
-    nativeFrames.emplace_back(nullptr);
     MixStackDumper mixDumper;
     mixDumper.PrintNativeFrames(ONE, nativeFrames);
     EXPECT_TRUE(true);
@@ -390,7 +390,7 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest013, Function | MediumTest | Leve
 HWTEST_F(MixStackDumperTest, MixStackDumperTest014, Function | MediumTest | Level1)
 {
     MixStackDumper mixDumper;
-    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> v_nativeFrames;
+    std::vector<OHOS::HiviewDFX::NativeFrame> v_nativeFrames;
     struct JsFrames jsFrames;
     jsFrames.fileName = "fileName";
     jsFrames.functionName = "functionName";
@@ -405,24 +405,25 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest014, Function | MediumTest | Leve
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
     v_jsFrames.clear();
     unsigned int data = 10;
-    jsFrames.nativePointer = &data;
+    jsFrames.nativePointer = reinterpret_cast<uintptr_t*>(&data);
     v_jsFrames.push_back(jsFrames);
     EXPECT_TRUE(v_jsFrames.size() > ZERO);
     EXPECT_TRUE(v_jsFrames[ZERO].nativePointer != nullptr);
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
     EXPECT_TRUE(v_nativeFrames.size() == ZERO);
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    std::shared_ptr<OHOS::HiviewDFX::DfxFrame> dfxFrame = std::make_shared<OHOS::HiviewDFX::DfxFrame>();
-    dfxFrame->pc_ = (uint64_t)(v_jsFrames[ZERO].nativePointer);
-    v_nativeFrames.push_back(dfxFrame);
-    bool ret1 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO]->GetFramePc(),
-        v_nativeFrames[ZERO]->GetFrameFuncOffset());
+    HiviewDFX::NativeFrame nativeFrame1;
+    nativeFrame1.binaryName = "testmapname";
+    nativeFrame1.pc = (uint64_t)(v_jsFrames[ZERO].nativePointer);
+    v_nativeFrames.push_back(nativeFrame1);
+    bool ret1 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO].pc,
+        v_nativeFrames[ZERO].funcOffset);
     EXPECT_TRUE(ret1);
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    dfxFrame->pc_ = ZERO;
-    v_nativeFrames.push_back(dfxFrame);
-    bool ret2 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO]->GetFramePc(),
-        v_nativeFrames[ZERO]->GetFrameFuncOffset());
+    v_nativeFrames[ZERO].pc = ZERO;
+    v_nativeFrames.push_back(nativeFrame1);
+    bool ret2 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO].pc,
+        v_nativeFrames[ZERO].funcOffset);
     EXPECT_FALSE(ret2);
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
 }

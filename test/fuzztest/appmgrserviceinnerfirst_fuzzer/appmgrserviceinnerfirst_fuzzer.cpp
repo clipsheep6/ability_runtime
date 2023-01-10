@@ -43,23 +43,10 @@ uint32_t GetU32Data(const char* ptr)
     // convert fuzz input data to an integer
     return (ptr[0] << OFFSET_ZERO) | (ptr[1] << OFFSET_ONE) | (ptr[2] << OFFSET_TWO) | ptr[3];
 }
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::PAGE;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
-}
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     AppMgrServiceInner* appMgrServiceInner = new AppMgrServiceInner();
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    sptr<IRemoteObject> token = nullptr;
     sptr<IRemoteObject> preToken = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
@@ -88,7 +75,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrServiceInner->KillApplication(bundleName);
     int uid = static_cast<int>(GetU32Data(data));
     appMgrServiceInner->KillApplicationByUid(bundleName, uid);
-    appMgrServiceInner->KillApplicationSelf();
     int userId = static_cast<int>(GetU32Data(data));
     appMgrServiceInner->KillApplicationByUserId(bundleName, userId);
     appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, userId);

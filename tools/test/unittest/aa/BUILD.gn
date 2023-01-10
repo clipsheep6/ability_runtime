@@ -269,6 +269,39 @@ ohos_unittest("aa_command_test_test") {
   ]
 }
 
+print("accessibility_enable = ", accessibility_enable)
+if (accessibility_enable) {
+  ohos_unittest("accessibility_ability_utils_test") {
+    module_out_path = module_output_path
+
+    include_dirs = [ "//third_party/jsoncpp/include" ]
+
+    sources = [
+      "//foundation/ability/ability_runtime/tools/aa/src/accessibility_ability_utils.cpp",
+      "accessibility_ability_utils_test.cpp",
+    ]
+
+    cflags = []
+    if (target_cpu == "arm") {
+      cflags += [ "-DBINDER_IPC_32BIT" ]
+    }
+
+    deps = [
+      "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+      "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "//third_party/googletest:gmock_main",
+    ]
+
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "accessibility:accessibility_common",
+      "accessibility:accessibilityclient",
+      "accessibility:accessibilityconfig",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
+  }
+}
 group("unittest") {
   testonly = true
 
@@ -282,7 +315,9 @@ group("unittest") {
     ":aa_command_test",
     ":aa_command_test_test",
   ]
-
+  if (accessibility_enable) {
+    deps += [ ":accessibility_ability_utils_test" ]
+  }
   if (ability_command_for_test) {
     deps += [ ":aa_command_force_timeout_test" ]
   }

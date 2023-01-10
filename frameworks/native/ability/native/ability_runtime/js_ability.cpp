@@ -688,12 +688,12 @@ void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
         return;
     }
 
-    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
+        reinterpret_cast<napi_env>(&nativeEngine), configuration);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
     CallObjectMethod("onConfigurationUpdate", &jsConfiguration, 1);
+    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 }
 
 void JsAbility::OnMemoryLevel(int level)

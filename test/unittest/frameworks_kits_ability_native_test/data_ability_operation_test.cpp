@@ -13,20 +13,38 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+#define private public
+#define protected public
 #include "abs_shared_result_set.h"
 #include "data_ability_predicates.h"
-#include "values_bucket.h"
 #include "data_ability_operation.h"
 #include "data_ability_operation_builder.h"
-#include <gtest/gtest.h>
 #include "parcel.h"
-
+#include "values_bucket.h"
+#undef private
+#undef protected
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 static const std::string URI = "dataability://ohos.demo.TestDataAbilityOperation";
+namespace
+{
+    const int32_t ZERO = 0;
+    const int32_t ONE = 1;
+    const int32_t TWO = 2;
+    const int32_t THREE = 3;
+    const int32_t FOUR = 4;
+    const int32_t TEN = 10;
+    const int32_t TWENTY = 20;
+    const int32_t THIRTY = 30;
+    const int32_t FORTY = 40;
+    const int32_t HUNDRED = 100;
+    const int32_t DATA1 = 3145730;
+    const int32_t DATA2 = 3145728;
+}
 class DataAbilityOperationTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -723,6 +741,173 @@ HWTEST_F(DataAbilityOperationTest, AaFwk_DataAbilityOperationBuilder_WithInterru
     builder = builder->WithInterruptionAllowed(false);
     EXPECT_EQ(builder, nullptr);
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityOperationBuilder_WithInterruptionAllowed_0100 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0100
+ * @tc.name: DataAbilityOperationTest
+ * @tc.desc: Test Function DataAbilityOperation::DataAbilityOperation
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0100, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0100 start";
+    std::shared_ptr<DataAbilityOperationBuilder> dataAbilityOperationBuilder = nullptr;
+    EXPECT_FALSE(dataAbilityOperationBuilder);
+    DataAbilityOperation dataAbilityOperation(dataAbilityOperationBuilder);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0100 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0200
+ * @tc.name: Constructor
+ * @tc.desc: Test Function DataAbilityOperation::operator==
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0200, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0200 start";
+    DataAbilityOperation dataAbilityOperationNew;
+    DataAbilityOperation dataAbilityOperationOld;
+    dataAbilityOperationOld.type_ = ONE;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.type_ = ZERO;
+    std::string uri_new = "dataability://ohos.demo.";
+    std::string uri_old = "dataability://ohos.demo.TestDataAbilityOperation";
+    dataAbilityOperationNew.uri_ = std::make_shared<Uri>(uri_new);
+    dataAbilityOperationOld.uri_ = std::make_shared<Uri>(uri_old);
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.expectedCount_ = ONE;
+    dataAbilityOperationNew.uri_ = nullptr;
+    dataAbilityOperationOld.uri_ = nullptr;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    uri_new = "dataability://ohos.demo.TestDataAbilityOperation";
+    uri_old = "dataability://ohos.demo.TestDataAbilityOperation";
+    dataAbilityOperationNew.uri_ = std::make_shared<Uri>(uri_new);
+    dataAbilityOperationOld.uri_ = std::make_shared<Uri>(uri_old);
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    uri_old = "dataability://ohos.demo.TestDataAbilityOperation";
+    dataAbilityOperationNew.uri_ = nullptr;
+    dataAbilityOperationOld.uri_ = std::make_shared<Uri>(uri_old);
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    uri_new = "dataability://ohos.demo.TestDataAbilityOperation";
+    dataAbilityOperationNew.uri_ = std::make_shared<Uri>(uri_new);
+    dataAbilityOperationOld.uri_ = nullptr;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.expectedCount_ = ZERO;
+    dataAbilityOperationNew.valuesBucket_ = nullptr;
+    dataAbilityOperationOld.valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>();
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.valuesBucket_ = nullptr;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationNew.dataAbilityPredicates_ = nullptr;
+    dataAbilityOperationOld.dataAbilityPredicates_ = nullptr;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationNew.valuesBucketReferences_ = nullptr;
+    dataAbilityOperationOld.valuesBucketReferences_ = nullptr;
+    EXPECT_TRUE(dataAbilityOperationNew == dataAbilityOperationOld);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0200 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0300
+ * @tc.name: DataAbilityOperationTest
+ * @tc.desc: Test Function DataAbilityOperation::operator==
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0300, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0300 start";
+    DataAbilityOperation dataAbilityOperationNew;
+    DataAbilityOperation dataAbilityOperationOld;
+    dataAbilityOperationNew.valuesBucket_ = nullptr;
+    dataAbilityOperationOld.valuesBucket_ = nullptr;
+    dataAbilityOperationNew.dataAbilityPredicates_ = nullptr;
+    dataAbilityOperationOld.dataAbilityPredicates_ = nullptr;
+    dataAbilityOperationNew.valuesBucketReferences_ = nullptr;
+    dataAbilityOperationOld.valuesBucketReferences_ = nullptr;
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(ONE, ONE));
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationNew.dataAbilityPredicatesBackReferences_.clear();
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.clear();
+    dataAbilityOperationNew.dataAbilityPredicatesBackReferences_.insert(std::make_pair(ONE, TEN));
+    dataAbilityOperationNew.dataAbilityPredicatesBackReferences_.insert(std::make_pair(TWO, TWENTY));
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(THREE, THIRTY));
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(FOUR, FORTY));
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.clear();
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(ONE, HUNDRED));
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(TWO, TWENTY));
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.clear();
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(ONE, TEN));
+    dataAbilityOperationOld.dataAbilityPredicatesBackReferences_.insert(std::make_pair(TWO, TWENTY));
+    EXPECT_TRUE(dataAbilityOperationNew == dataAbilityOperationOld);
+    dataAbilityOperationOld.interrupted_ = true;
+    EXPECT_FALSE(dataAbilityOperationNew == dataAbilityOperationOld);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0300 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0400
+ * @tc.name: DataAbilityOperationTest
+ * @tc.desc: Test Function DataAbilityOperation::operator=
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0400, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0400 start";
+    DataAbilityOperation dataAbilityOperationNew;
+    DataAbilityOperation dataAbilityOperationOld;
+    dataAbilityOperationOld.interrupted_ = true;
+    dataAbilityOperationNew = dataAbilityOperationOld;
+    EXPECT_TRUE(dataAbilityOperationNew.interrupted_);
+    dataAbilityOperationOld.interrupted_ = false;
+    DataAbilityOperation &dataAbilityOperationNew1 = dataAbilityOperationOld;
+    dataAbilityOperationNew1 = dataAbilityOperationOld;
+    EXPECT_FALSE(dataAbilityOperationNew1.interrupted_);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0400 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0500
+ * @tc.name: DataAbilityOperationTest
+ * @tc.desc: Test Function DataAbilityOperation::Marshalling
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0500, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0500 start";
+    Parcel parcel;
+    DataAbilityOperation dataAbilityOperation;
+    dataAbilityOperation.uri_ = nullptr;
+    EXPECT_FALSE(dataAbilityOperation.uri_);
+    dataAbilityOperation.valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>();
+    EXPECT_TRUE(dataAbilityOperation.valuesBucket_);
+    dataAbilityOperation.dataAbilityPredicates_ = std::make_shared<NativeRdb::DataAbilityPredicates>();
+    EXPECT_TRUE(dataAbilityOperation.dataAbilityPredicates_);
+    dataAbilityOperation.valuesBucketReferences_ = std::make_shared<NativeRdb::ValuesBucket>();
+    EXPECT_TRUE(dataAbilityOperation.valuesBucketReferences_);
+    dataAbilityOperation.dataAbilityPredicatesBackReferences_.clear();
+    EXPECT_TRUE(dataAbilityOperation.dataAbilityPredicatesBackReferences_.empty());
+    dataAbilityOperation.Marshalling(parcel);
+    for (int i = ZERO; i < DATA1; i++)
+    {
+        dataAbilityOperation.dataAbilityPredicatesBackReferences_.insert(std::make_pair(i, i));
+    }
+    auto referenceSize = (int)dataAbilityOperation.dataAbilityPredicatesBackReferences_.size();
+    EXPECT_TRUE(referenceSize >= DATA2);
+    dataAbilityOperation.Marshalling(parcel);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0500 end";
+}
+
+/**
+ * @tc.number: DataAbilityOperationTest_0600
+ * @tc.name: DataAbilityOperationTest
+ * @tc.desc: Test Function DataAbilityOperation::PutMap
+ */
+HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0600, Level1)
+{
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0600 start";
+    Parcel parcel;
+    DataAbilityOperation dataAbilityOperation;
+    dataAbilityOperation.PutMap(parcel);
+    GTEST_LOG_(INFO) << "DataAbilityOperationTest_0600 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

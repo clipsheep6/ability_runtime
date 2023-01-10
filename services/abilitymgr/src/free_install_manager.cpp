@@ -24,6 +24,7 @@
 #include "atomic_service_status_callback.h"
 #include "distributed_client.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -45,7 +46,7 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
     HILOG_INFO("%{public}s", __func__);
     auto server = server_.lock();
     CHECK_POINTER_AND_RETURN_LOG(server, false, "Get server failed!");
-    AppExecFwk::ElementName elementName = server->GetTopAbility();
+    AppExecFwk::ElementName elementName = IN_PROCESS_CALL(server->GetTopAbility());
     if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
         HILOG_ERROR("GetBundleName or GetAbilityName empty!");
         return false;

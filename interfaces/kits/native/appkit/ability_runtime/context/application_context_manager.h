@@ -37,7 +37,7 @@ private:
 
     ~ApplicationContextManager();
 
-    std::shared_ptr<NativeReference> applicationContextObj_;   
+    std::shared_ptr<NativeReference> applicationContextObj_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

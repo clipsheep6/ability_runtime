@@ -693,5 +693,17 @@ HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_1000, TestSi
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
     EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
 }
+
+/**
+ * @tc.name: JudgeCallerIsAllowedToUseSystemAPI_1000
+ * @tc.desc: JudgeCallerIsAllowedToUseSystemAPI Test
+ * @tc.type: FUNC
+ * @tc.require: issuesI663VU
+ */
+HWTEST_F(PermissionVerificationTest, JudgeCallerIsAllowedToUseSystemAPI_1000, TestSize.Level0)
+{
+    bool result = AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI();
+    EXPECT_EQ(result, true);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

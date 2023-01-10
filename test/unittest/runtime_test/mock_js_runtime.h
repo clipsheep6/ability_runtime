@@ -46,7 +46,7 @@ public:
     {
         return true;
     }
-    bool RunScript(const std::string& path, const std::string& hapPath)
+    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::RunScript called";
         return true;
@@ -58,7 +58,7 @@ public:
     }
     void Deinitialize()
     {}
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath)
+    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadJsBundle called";
         return nullptr;

@@ -29,8 +29,8 @@ ApplicationContextManager::~ApplicationContextManager()
 
 ApplicationContextManager& ApplicationContextManager::GetApplicationContextManager()
 {
-    static ApplicationContextManager resoureManager;
-    return resoureManager;
+    static ApplicationContextManager applicationContextManager;
+    return applicationContextManager;
 }
 
 void ApplicationContextManager::AddGlobalObject(std::shared_ptr<NativeReference> applicationContextObj)

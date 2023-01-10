@@ -19,6 +19,8 @@
 #include <string>
 #include <mutex>
 #include "event_handler.h"
+#include "extension_config_mgr.h"
+#include "idle_time.h"
 #include "inner_event.h"
 #include "app_scheduler_host.h"
 #include "app_mgr_interface.h"
@@ -28,6 +30,7 @@
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/source_map.h"
 #include "ipc_singleton.h"
+#include "native_engine/native_engine.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER
 
@@ -422,7 +425,14 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath, std::weak_ptr<OHOSApplication> wpApplication);
+    /**
+     * @brief Load all extension so
+     *
+     * @param nativeEngine nativeEngine instance
+     * @param filePath extension so file path
+     * @param bundleInfo application bundle information
+     */
+    void LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath, const BundleInfo &bundleInfo);
 
     /**
      *
@@ -433,6 +443,13 @@ private:
      */
     bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
+
+    /**
+     * @brief Update current process extension type
+     *
+     * @param abilityRecord current running ability record
+     */
+    void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
 
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
@@ -470,6 +487,7 @@ private:
     static std::shared_ptr<MainHandler> mainHandler_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
     std::shared_ptr<Watchdog> watchdog_ = nullptr;
+    std::unique_ptr<AbilityRuntime::ExtensionConfigMgr> extensionConfigMgr_ = nullptr;
     MainThreadState mainThreadState_ = MainThreadState::INIT;
     sptr<IAppMgr> appMgr_ = nullptr;  // appMgrService Handler
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
@@ -532,6 +550,7 @@ private:
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
+    std::shared_ptr<IdleTime> idleTime_ = nullptr;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.

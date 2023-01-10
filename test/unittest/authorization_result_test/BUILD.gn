@@ -16,29 +16,32 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("runtime_extractor_test") {
+ohos_unittest("authorization_result_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_native_path}/runtime/utils/include",
-    "//third_party/zlib/contrib/minizip",
-    "//third_party/zlib",
+    "${ability_runtime_services_path}/common/include",
+    "base/security/access_token/interfaces/innerkits/token_callback/include",
   ]
 
-  sources = [ "runtime_extractor_test.cpp" ]
+  sources = [ "authorization_result_test.cpp" ]
 
-  deps = [ "//third_party/zlib:shared_libz" ]
+  configs = [ "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config" ]
+  cflags = []
+  deps = [
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
-    "ability_base:extractortool",
-    "ability_base:string_utils",
+    "ability_runtime:ability_context_native",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
 group("unittest") {
   testonly = true
 
-  deps = [ ":runtime_extractor_test" ]
+  deps = [ ":authorization_result_test" ]
 }

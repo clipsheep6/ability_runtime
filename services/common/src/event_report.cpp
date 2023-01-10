@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
+#include <map>
+
 #include "event_report.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
-namespace AAFWK {
+namespace AAFwk {
 namespace {
 // event params
 const std::string TYPE = "TYPE";
@@ -31,14 +34,54 @@ const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
 const std::string EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
 const std::string EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
+const std::map<EventName, std::string> eventNameToStrMap_ = {
+    std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::START_EXTENSION_ERROR, "START_EXTENSION_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::STOP_EXTENSION_ERROR, "STOP_EXTENSION_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE_ERROR, "CONNECT_SERVICE_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE_ERROR, "DISCONNECT_SERVICE_ERROR"),
+    std::map<EventName, std::string>::value_type(EventName::START_ABILITY, "START_ABILITY"),
+    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY, "TERMINATE_ABILITY"),
+    std::map<EventName, std::string>::value_type(EventName::CLOSE_ABILITY, "CLOSE_ABILITY"),
+    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONFOREGROUND, "ABILITY_ONFOREGROUND"),
+    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONBACKGROUND, "ABILITY_ONBACKGROUND"),
+    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONACTIVE, "ABILITY_ONACTIVE"),
+    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONINACTIVE, "ABILITY_ONINACTIVE"),
+    std::map<EventName, std::string>::value_type(EventName::START_SERVICE, "START_SERVICE"),
+    std::map<EventName, std::string>::value_type(EventName::STOP_SERVICE, "STOP_SERVICE"),
+    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE, "CONNECT_SERVICE"),
+    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE, "DISCONNECT_SERVICE"),
+    std::map<EventName, std::string>::value_type(EventName::ADD_FORM, "ADD_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::REQUEST_FORM, "REQUEST_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::REQUEST_FORM, "REQUEST_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::DELETE_FORM, "DELETE_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::CASTTEMP_FORM, "CASTTEMP_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::ACQUIREFORMSTATE_FORM, "ACQUIREFORMSTATE_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::MESSAGE_EVENT_FORM, "MESSAGE_EVENT_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::ROUTE_EVENT_FORM, "ROUTE_EVENT_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::RELEASE_FORM, "RELEASE_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::DELETE_INVALID_FORM, "DELETE_INVALID_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::SET_NEXT_REFRESH_TIME_FORM, "SET_NEXT_REFRESH_TIME_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::APP_ATTACH, "APP_ATTACH"),
+    std::map<EventName, std::string>::value_type(EventName::APP_LAUNCH, "APP_LAUNCH"),
+    std::map<EventName, std::string>::value_type(EventName::APP_FOREGROUND, "APP_FOREGROUND"),
+    std::map<EventName, std::string>::value_type(EventName::APP_BACKGROUND, "APP_BACKGROUND"),
+    std::map<EventName, std::string>::value_type(EventName::APP_TERMINATE, "APP_TERMINATE"),
+};
 }
 
-void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type,
+void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
     HiSysEventWrite(
         HiSysEvent::Domain::AAFWK,
-        eventName,
+        name,
         type,
         EVENT_KEY_APP_PID, eventInfo.pid,
         EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
@@ -47,126 +90,171 @@ void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type
         EVENT_KEY_PROCESS_NAME, eventInfo.processName);
 }
 
-void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType type,
+void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
-    if (eventName == START_ABILITY_ERROR || eventName == TERMINATE_ABILITY_ERROR) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_USERID, eventInfo.userId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-            EVENT_KEY_ERROR_CODE, eventInfo.errCode);
-    } else if (eventName == START_ABILITY) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_USERID, eventInfo.userId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == TERMINATE_ABILITY || eventName == CLOSE_ABILITY) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == ABILITY_ONFOREGROUND || eventName == ABILITY_ONBACKGROUND) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    switch (eventName) {
+        case EventName::START_ABILITY_ERROR:
+        case EventName::TERMINATE_ABILITY_ERROR:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+            break;
+        case EventName::START_ABILITY:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::TERMINATE_ABILITY:
+        case EventName::CLOSE_ABILITY:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::ABILITY_ONFOREGROUND:
+        case EventName::ABILITY_ONBACKGROUND:
+        case EventName::ABILITY_ONACTIVE:
+        case EventName::ABILITY_ONINACTIVE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        default:
+            break;
     }
 }
 
-void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventType type,
+void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
-    if (eventName == DISCONNECT_SERVICE) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type);
-    } else if (eventName == CONNECT_SERVICE) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_USERID, eventInfo.userId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == START_SERVICE || eventName == STOP_SERVICE) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_USERID, eventInfo.userId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-            EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
-    } else if (eventName == START_EXTENSION_ERROR || eventName == STOP_EXTENSION_ERROR ||
-        eventName == CONNECT_SERVICE_ERROR) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_USERID, eventInfo.userId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-            EVENT_KEY_ERROR_CODE, eventInfo.errCode);
-    } else if (eventName == DISCONNECT_SERVICE_ERROR) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    switch (eventName) {
+        case EventName::DISCONNECT_SERVICE:
+            HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type);
+            break;
+        case EventName::CONNECT_SERVICE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::START_SERVICE:
+        case EventName::STOP_SERVICE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
+            break;
+        case EventName::START_EXTENSION_ERROR:
+        case EventName::STOP_EXTENSION_ERROR:
+        case EventName::CONNECT_SERVICE_ERROR:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+            break;
+        case EventName::DISCONNECT_SERVICE_ERROR:
+            HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type, EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+            break;
+        default:
+            break;
     }
 }
 
-void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType type,
+void EventReport::SendFormEvent(const EventName &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
-    if (eventName == DELETE_INVALID_FORM) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type);
-    } else if (eventName == ACQUIREFORMSTATE_FORM || eventName == MESSAGE_EVENT_FORM) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == ADD_FORM || eventName == REQUEST_FORM || eventName == ROUTE_EVENT_FORM) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_FORM_ID, eventInfo.formId,
-            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == DELETE_FORM || eventName == CASTTEMP_FORM || eventName == RELEASE_FORM ||
-        eventName == SET_NEXT_REFRESH_TIME_FORM) {
-        HiSysEventWrite(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_FORM_ID, eventInfo.formId);
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    switch (eventName) {
+        case EventName::DELETE_INVALID_FORM:
+            HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type);
+            break;
+        case EventName::ACQUIREFORMSTATE_FORM:
+        case EventName::MESSAGE_EVENT_FORM:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::ADD_FORM:
+        case EventName::REQUEST_FORM:
+        case EventName::ROUTE_EVENT_FORM:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_FORM_ID, eventInfo.formId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::DELETE_FORM:
+        case EventName::CASTTEMP_FORM:
+        case EventName::RELEASE_FORM:
+        case EventName::SET_NEXT_REFRESH_TIME_FORM:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK, name, type, EVENT_KEY_FORM_ID, eventInfo.formId);
+            break;
+        default:
+            break;
     }
 }
-}  // namespace AAFWK
+
+std::string EventReport::ConvertEventName(const EventName &eventName)
+{
+    auto it = eventNameToStrMap_.find(eventName);
+    if (it != eventNameToStrMap_.end()) {
+        return it->second;
+    }
+    return "INVALIDEVENTNAME";
+}
+}  // namespace AAFwk
 }  // namespace OHOS

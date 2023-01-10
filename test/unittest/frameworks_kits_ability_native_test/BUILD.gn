@@ -17,8 +17,10 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/ability_test"
 
 config("coverage_flags") {
-  cflags = [ "--coverage" ]
-  ldflags = [ "--coverage" ]
+  if (ability_runtime_feature_coverage) {
+    cflags = [ "--coverage" ]
+    ldflags = [ "--coverage" ]
+  }
 }
 
 ###############################################################################
@@ -420,7 +422,6 @@ ohos_unittest("data_ability_helper_impl_test") {
     "//foundation/ability/ability_runtime/services/dataobsmgr/include",
   ]
   sources = [
-    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_helper_impl.cpp",
     "${ability_runtime_path}/test/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_service.cpp",
     "//foundation/ability/ability_runtime/services/dataobsmgr/src/data_ability_observer_stub.cpp",
     "data_ability_helper_impl_test.cpp",
@@ -463,7 +464,10 @@ ohos_unittest("data_ability_helper_impl_test") {
 
 ohos_unittest("data_ability_operation_test") {
   module_out_path = module_output_path
-  sources = [ "data_ability_operation_test.cpp" ]
+  sources = [
+    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
+    "data_ability_operation_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -925,6 +929,16 @@ ohos_unittest("form_extension_provider_client_test") {
 
 ohos_unittest("data_ability_impl_test") {
   module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_base_kits_path}/extractortool/include",
+    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/rdb/include",
+    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/common/include",
+    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/dataability/include",
+  ]
+
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
@@ -933,10 +947,14 @@ ohos_unittest("data_ability_impl_test") {
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_replace_ability_impl.cpp",
+    "//foundation/ability/ability_runtime/frameworks/native/ability/native/data_ability_impl.cpp",
     "data_ability_impl_test.cpp",
   ]
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    ":module_private_config",
+    ":coverage_flags",
+  ]
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
@@ -949,19 +967,32 @@ ohos_unittest("data_ability_impl_test") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_context_native",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_manager",
+    "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
+    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "relational_store:rdb_data_ability_adapter",
+    "relational_store:rdb_data_share_adapter",
+    "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {

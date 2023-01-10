@@ -29,6 +29,7 @@
 #include "hitrace_meter.h"
 #include "image_source.h"
 #include "errors.h"
+#include "event_report.h"
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
@@ -964,7 +965,16 @@ int AbilityRecord::TerminateAbility()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     HandleDlpClosed();
-    return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
+    AAFwk::EventInfo eventInfo;
+    eventInfo.bundleName = GetAbilityInfo().bundleName;
+    eventInfo.abilityName = GetAbilityInfo().name;
+    AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    eventInfo.errCode = DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
+    if (eventInfo.errCode != ERR_OK) {
+        AAFwk::EventReport::SendAbilityEvent(
+            AAFwk::EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return eventInfo.errCode;
 }
 
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const

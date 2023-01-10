@@ -159,6 +159,11 @@ public:
 
     MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
+    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
+    {
+        return false;
+    }
+
     NativeValue* CallFunction(NativeValue* thisVar,
         NativeValue* function,
         NativeValue* const* argv,
@@ -338,6 +343,9 @@ public:
     void NotifyApplicationState(bool inBackground) override
     {}
 
+    void NotifyIdleTime(int idleMicroSec) override
+    {}
+
     void NotifyMemoryPressure(bool inHighMemoryPressure = false) override
     {}
 
@@ -347,6 +355,14 @@ public:
     void HandleUncaughtException() override
     {}
 
+    void RegisterPermissionCheck(PermissionCheckCallback callback) override
+    {}
+
+    bool ExecutePermissionCheck() override
+    {
+        return true;
+    }
+    
     void DumpHeapSnapshot(bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON,
         bool isPrivate = false) override
     {}
