@@ -1145,7 +1145,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     HILOG_DEBUG("MainThread handle launch application, InitResourceManager End.");
     contextImpl->SetResourceManager(resourceManager);
-    AbilityBase::ExtractResourceManager::GetExtractResourceManager().AddGlobalObject(resourceManager);
+    AbilityBase::ExtractResourceManager::GetExtractResourceManager().SetGlobalObject(resourceManager);
 
     contextDeal->initResourceManager(resourceManager);
     contextDeal->SetApplicationContext(application_);
