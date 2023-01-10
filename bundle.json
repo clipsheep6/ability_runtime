@@ -258,8 +258,16 @@
               "header_files": [
                 "quick_fix_manager_client.h"
               ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix:quickfix_manager"
           },
-          "name": "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix:quickfix_manager"
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager:dataobs_manager"
           }
         ],
         "test": [
