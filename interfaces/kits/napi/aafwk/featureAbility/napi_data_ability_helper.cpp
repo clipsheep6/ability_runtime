@@ -1033,6 +1033,7 @@ void NAPIDataAbilityObserver::ReleaseJSCallback()
         return;
     }
     napi_delete_reference(env_, ref_);
+    ref_ = nullptr;
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
 }
 

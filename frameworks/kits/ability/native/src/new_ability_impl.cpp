@@ -59,7 +59,9 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     }
 #endif
     bool ret = false;
-    ret = AbilityTransaction(want, targetState);
+    if (ability_ != nullptr) {
+        ret = AbilityTransaction(want, targetState);
+    }
     if (ret) {
         HILOG_INFO("AbilityThread::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
