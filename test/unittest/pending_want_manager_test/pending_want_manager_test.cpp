@@ -510,7 +510,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_1400, TestSize.Level1)
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
-    sptr<PendingWantRecord> pendingWantRecord = new PendingWantRecord(pendingManager_, 1, nullptr, key);
+    sptr<PendingWantRecord> pendingWantRecord = new PendingWantRecord(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     info.finishedReceiver = new CancelReceiver();

@@ -129,7 +129,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     pendingWantManager->DeviceIdDetermine(*want, token, int32Param, int32Param);
     pendingWantManager->PendingWantStartAbility(*want, token, int32Param, int32Param);
     pendingWantManager->PendingWantStartAbilitys(allWantsInfos, token, int32Param, int32Param);
-    pendingWantManager->PendingWantPublishCommonEvent(*want, senderInfo, int32Param);
+    pendingWantManager->PendingWantPublishCommonEvent(*want, senderInfo, int32Param, int32Param);
     pendingWantManager->PendingRecordIdCreate();
     pendingWantManager->GetPendingWantRecordByCode(int32Param);
     pendingWantManager->GetPendingWantUid(wantSenderPtr);
