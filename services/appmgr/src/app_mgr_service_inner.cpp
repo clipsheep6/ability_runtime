@@ -1649,6 +1649,11 @@ void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId
         return;
     }
     auto appRecord = appRunningManager_->GetAppRunningRecord(eventId);
+    TerminateApplication(appRecord);
+}
+
+void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr");
         return;
