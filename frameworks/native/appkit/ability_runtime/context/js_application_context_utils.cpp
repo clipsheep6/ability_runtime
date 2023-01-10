@@ -767,7 +767,7 @@ NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbac
         return engine.CreateUndefined();
     }
 
-    if (type == "abilityLifeCycle") {
+    if (type == "abilityLifecycle") {
         return OnOnAbilityLifecycle(engine, info);
     }
     if (type == "environment") {
@@ -811,7 +811,7 @@ NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const Native
         return engine.CreateUndefined();
     }
 
-    if (type == "abilityLifeCycle") {
+    if (type == "abilityLifecycle") {
         return OnOffAbilityLifecycle(engine, info, callbackId);
     }
     if (type == "environment") {
