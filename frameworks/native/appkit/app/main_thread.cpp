@@ -1000,13 +1000,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
-    std::string BundleCodeDir = applicationContext->GetBundleCodeDir();
     if (isStageBased) {
         // Create runtime
+        auto hapPath = entryHapModuleInfo.hapPath;
         AbilityRuntime::Runtime::Options options;
         options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
-        options.hapPath = entryHapModuleInfo.hapPath;
+        options.hapPath = hapPath;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
         options.isBundle = (entryHapModuleInfo.compileMode != AppExecFwk::CompileMode::ES_MODULE);
@@ -1022,7 +1022,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode, BundleCodeDir](NativeValue* v) {
+        auto uncaughtTask = [weak, bundleName, versionCode, hapPath](NativeValue* v) {
             HILOG_INFO("Js uncaught exception callback come.");
             auto appThread = weak.promote();
             if (appThread == nullptr) {
@@ -1054,7 +1054,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 error = fuc->GetSourceCodeInfo(errorPos);
             }
             summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
-                bindSourceMaps, BundleCodeDir);
+                bindSourceMaps, hapPath);
             time_t timet;
             time(&timet);
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",

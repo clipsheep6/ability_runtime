@@ -22,7 +22,12 @@
 #include <vector>
 #include <unistd.h>
 
+#include "extractor.h"
 #include "hilog_wrapper.h"
+
+using namespace OHOS::AbilityBase;
+using Extractor = OHOS::AbilityBase::Extractor;
+
 namespace OHOS {
 namespace AbilityRuntime {
 
@@ -37,9 +42,8 @@ constexpr char DELIMITER_SEMICOLON = ';';
 constexpr char DOUBLE_SLASH = '\\';
 constexpr char WEBPACK[] = "webpack:///";
 const std::string REALPATH_FLAG = "/temprary/";
-const std::string ABILITYPATH_FLAG = "/entry/ets/";
+const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
-constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * (1 << 20);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_THREE = 3;
 constexpr int32_t INDEX_FOUR = 4;
@@ -48,32 +52,26 @@ constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
 
-bool ModSourceMap::ReadSourceMapData(const std::string& filePath, std::string& content)
+bool ModSourceMap::ReadSourceMapData(const std::string& hapPath, std::string& content)
 {
-    char path[PATH_MAX] ;
-    if (realpath(filePath.c_str(), path) == nullptr) {
-        HILOG_ERROR("ModSourceMap::ReadSourceMapData realpath(%{public}s) failed, errno = %{public}d",
-                    filePath.c_str(), errno);
+    if (hapPath.empty()) {
+        HILOG_ERROR("hapPath is empty");
         return false;
     }
-
-    std::ifstream stream(path, std::ios::binary | std::ios::ate);
-    if (!stream.is_open()) {
-        HILOG_ERROR("ModSourceMap::ReadSourceMapData failed to open file %{public}s", path);
+    bool newCreate = false;
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
+        ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("hapPath %{public}s GetExtractor failed", hapPath.c_str());
         return false;
     }
-
-    int64_t fileLen = stream.tellg();
-    if (fileLen > ASSET_FILE_MAX_SIZE) {
+    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+    size_t len = 0;
+    if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
+        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
         return false;
     }
-
-    char buffer[fileLen];
-    buffer[fileLen - 1] = '\0';
-    stream.seekg(0);
-    stream.read(buffer, fileLen);
-    content = buffer;
-
+    content = reinterpret_cast<char *>(dataPtr.get());
     return true;
 }
 
@@ -355,36 +353,8 @@ bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans
     return true;
 };
 
-bool ModSourceMap::GetSourceMapData(ModSourceMap& bindSourceMaps, const std::string& temp, SourceMapData& curMapData)
-{
-    // get the file path of the .map file
-    int32_t startPos = static_cast<int32_t>(temp.find(REALPATH_FLAG));
-    if (startPos == -1) {
-        HILOG_ERROR("ModSourceMap::TranslateBySourceMap Get /temprary/ pos error.");
-        return false;
-    }
-    int32_t endPos = static_cast<int32_t>(temp.size() - 1);
-    std::string mapFilePath = bindSourceMaps.bundleCodeDir_ + ABILITYPATH_FLAG +
-                              temp.substr(startPos + REALPATH_FLAG.size(), endPos - startPos) + ".map";
-
-    // parse file and cache
-    auto iter = bindSourceMaps.sourceMaps_.find(mapFilePath);
-    if (iter == bindSourceMaps.sourceMaps_.end()) {
-        std::string curSourceMap;
-        if (!ReadSourceMapData(mapFilePath, curSourceMap)) {
-            return false;
-        }
-
-        Init(curSourceMap, curMapData);
-        bindSourceMaps.sourceMaps_.insert(std::pair<std::string, SourceMapData>(mapFilePath, curMapData));
-    } else {
-        curMapData = iter->second;
-    }
-    return true;
-}
-
 std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps,
-    const std::string& BundleCodeDir)
+    const std::string& hapPath)
 {
     const std::string closeBrace = ")";
     const std::string openBrace = "(";
@@ -418,11 +388,10 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
             sourceCode = fristLine.substr(codeStartLen, fristLine.length() - codeStartLen - 1);
             i = 1;  // 1 means Convert from the second line
             needGetErrorPos = true;
-    }
+        }
     }
     std::string curSourceMap;
-    std::string filePath = BundleCodeDir + ABILITYPATH_FLAG + "sourceMaps.map";
-    if (!ReadSourceMapData(filePath, curSourceMap)) {
+    if (!ReadSourceMapData(hapPath, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
         return stackStr;
     }
@@ -570,11 +539,12 @@ std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> target
 
 ErrorPos ModSourceMap::GetErrorPos(const std::string& rawStack)
 {
-    uint32_t lineEnd = rawStack.find("\n") - 1;
-    if (lineEnd < 1) {
+    size_t findLineEnd = rawStack.find("\n");
+    if (findLineEnd == std::string::npos) {
         return std::make_pair(0, 0);
     }
-    if (rawStack[lineEnd - 1] == '?') {
+    uint32_t lineEnd = findLineEnd - 1;
+    if (lineEnd < 1 || rawStack[lineEnd - 1] == '?') {
         return std::make_pair(0, 0);
     }
 
