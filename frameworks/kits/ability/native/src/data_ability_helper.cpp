@@ -28,7 +28,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 std::string SchemeOhos = "dataability";
-std::mutex DataAbilityHelper::oplock_;
 using IAbilityScheduler = OHOS::AAFwk::IAbilityScheduler;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
