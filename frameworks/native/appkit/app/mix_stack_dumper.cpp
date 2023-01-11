@@ -299,6 +299,7 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
         nativeIdx++;
     }
     write(fd, mixStackStr.c_str(), mixStackStr.size());
+    write(fd, "\n", 1);
 }
 
 std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
@@ -321,6 +322,7 @@ void MixStackDumper::PrintNativeFrames(int fd, std::vector<NativeFrame>& nativeF
         std::string nativeFrameStr = PrintNativeFrame(frame);
         write(fd, nativeFrameStr.c_str(), nativeFrameStr.size());
     }
+    write(fd, "\n", 1);
 }
 
 void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
