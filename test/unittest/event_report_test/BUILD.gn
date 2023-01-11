@@ -21,10 +21,7 @@ ohos_unittest("event_report_test") {
 
   sources = [ "event_report_test.cpp" ]
 
-  deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_services_path}/common:event_report",
-  ]
+  deps = [ "${ability_runtime_services_path}/common:event_report" ]
 
   external_deps = [ "ipc:ipc_core" ]
 }
