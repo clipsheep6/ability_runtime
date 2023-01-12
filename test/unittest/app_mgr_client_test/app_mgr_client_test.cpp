@@ -315,10 +315,11 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_KillApplicationSelf_001, TestSize.Level0
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_AbilityAttachTimeOut_001, TestSize.Level0)
 {
-    sptr<IRemoteObject> token = nullptr;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     auto result = appMgrClient->ConnectAppMgrService();
-    EXPECT_EQ(result, AppMgrResultCode::ERROR_SERVICE_NOT_READY);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<IRemoteObject> token = nullptr;
     appMgrClient->AbilityAttachTimeOut(token);
 }
 
