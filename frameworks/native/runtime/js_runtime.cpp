@@ -170,6 +170,7 @@ public:
             }
             path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
             panda::JSNApi::SetAssetPath(vm_, path);
+            panda::JSNApi::SetModuleName(vm_, moduleName_);
         }
         return func(path, srcPath);
     }
@@ -351,6 +352,7 @@ private:
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
+        panda::JSNApi::SetBundleName(vm_, options.bundleName);
         return JsRuntime::Initialize(options);
     }
 
