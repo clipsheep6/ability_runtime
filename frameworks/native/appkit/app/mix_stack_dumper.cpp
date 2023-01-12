@@ -334,11 +334,11 @@ void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
     int ret = 1;
     if (LoadStringFromFile(PROC_SELF_CMDLINE_PATH, processName)) {
         ret = snprintf_s(headerBuf, HEADER_BUF_LEN, HEADER_BUF_LEN - 1,
-                         "Timestamp:%sPid:%d\nUid:%d\nProcess name:%s\n",
+                         "Timestamp:%sPid:%d\nUid:%u\nProcess name:%s\n",
                          GetCurrentTimeStr().c_str(), pid, uid, processName.c_str());
     } else {
         ret = snprintf_s(headerBuf, HEADER_BUF_LEN, HEADER_BUF_LEN - 1,
-                         "Timestamp:%sPid:%d\nUid:%d\nProcess name:unknown\n",
+                         "Timestamp:%sPid:%d\nUid:%u\nProcess name:unknown\n",
                          GetCurrentTimeStr().c_str(), pid, uid);
     }
     if (ret <= 0) {
