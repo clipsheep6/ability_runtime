@@ -545,7 +545,7 @@ public:
 
     int64_t GetAppStartTime() const;
 
-    void SetRestartTimeMillis(const int64_t restartTimeMills);
+    void SetRestartTimeMillis(const int64_t restartTimeMillis);
     void SetRequestProcCode(int32_t requestProcCode);
 
     int32_t GetRequestProcCode() const;

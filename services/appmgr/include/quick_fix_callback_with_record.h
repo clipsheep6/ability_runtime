@@ -30,7 +30,7 @@ public:
         : callback_(callback)
     {}
 
-    virtual ~QuickFixCallbackWithRecord();
+    ~QuickFixCallbackWithRecord() override;
 
     void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override;
     void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override;

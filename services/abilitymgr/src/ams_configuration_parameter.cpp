@@ -129,10 +129,12 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
         maxRootLauncherRestartNum_ =
             Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::ROOT_LAUNCHER_RESTART_MAX).get<int>();
         if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::RESIDENT_RESTART_MAX)) {
-            maxResidentRestartNum_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESIDENT_RESTART_MAX).get<int>();
+            maxResidentRestartNum_ =
+                Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESIDENT_RESTART_MAX).get<int>();
         }
         if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::RESTART_INTERVAL_TIME)) {
-            restartIntervalTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESTART_INTERVAL_TIME).get<int>();
+            restartIntervalTime_ =
+                Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESTART_INTERVAL_TIME).get<int>();
         }
         deviceType_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::DEVICE_TYPE).get<std::string>();
         bootAnimationTime_ =

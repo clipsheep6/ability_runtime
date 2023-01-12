@@ -40,20 +40,20 @@ public:
 
     /**
      * @brief ExtensionConfigMgr initialization
-     * 
+     *
      */
     void Init();
 
     /**
      * @brief Update bundle extension information
-     * 
+     *
      * @param engine JS NativeEngine
      */
     void UpdateBundleExtensionInfo(NativeEngine &engine, AppExecFwk::BundleInfo &bundleInfo);
 
     /**
      * @brief Add extension blacklist item
-     * 
+     *
      * @param name Extension name
      * @param type Extension type
      */
@@ -61,7 +61,7 @@ public:
 
     /**
      * @brief Update extension blacklist to native engine
-     * 
+     *
      * @param engine JS NativeEngine
      */
     void UpdateBlackListToEngine(NativeEngine &engine);
