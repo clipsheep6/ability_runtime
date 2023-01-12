@@ -129,9 +129,13 @@ struct AssetHelper final {
         std::string filePath = uri.substr(0, index) + ".abc";
         ami = codePath_ + filePath;
         HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
-        if (!ReadAssetData(filePath, content)) {
-            HILOG_ERROR("Get asset content failed.");
-            return;
+        std::string flag = "el2";
+        if (ami.find(flag) != std::string::npos) {
+            if (!ReadAmiData(ami, content)) {
+                HILOG_ERROR("Get asset content by ami failed.");
+            }
+        } else if (!ReadFilePathData(filePath, content)) {
+            HILOG_ERROR("Get asset content by filepath failed.");
         }
     }
 
@@ -154,7 +158,34 @@ struct AssetHelper final {
         return iface_cast<BundleMgrProxy>(remoteObject);
     }
 
-    bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content) const
+    bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const
+    {
+        char path[PATH_MAX];
+        if (realpath(ami.c_str(), path) == nullptr) {
+            HILOG_ERROR("ReadAmiData realpath(%{private}s) failed, errno = %{public}d", ami.c_str(), errno);
+            return false;
+        }
+
+        std::ifstream stream(path, std::ios::binary | std::ios::ate);
+        if (!stream.is_open()) {
+            HILOG_ERROR("ReadAmiData failed to open file %{private}s", ami.c_str());
+            return false;
+        }
+
+        auto fileLen = stream.tellg();
+        if (!isDebugVersion_ && fileLen > ASSET_FILE_MAX_SIZE) {
+            HILOG_ERROR("ReadAmiData failed, file is too large");
+            return false;
+        }
+
+        content.resize(fileLen);
+
+        stream.seekg(0);
+        stream.read(reinterpret_cast<char*>(content.data()), content.size());
+        return true;
+    }
+
+    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const
     {
         bool newCreate = false;
         size_t fileLen = 0;
@@ -203,7 +234,7 @@ struct AssetHelper final {
             return false;
         }
         if (!isDebugVersion_ && fileLen > ASSET_FILE_MAX_SIZE) {
-            HILOG_ERROR("ReadAssetData failed, file is too large");
+            HILOG_ERROR("ReadFilePathData failed, file is too large");
             return false;
         }
         content.assign(dataPtr.get(), dataPtr.get() + fileLen);
