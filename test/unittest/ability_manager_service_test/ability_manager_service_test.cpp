@@ -1734,7 +1734,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
     int max = 0;
-    abilityMs_->GetMaxRestartNum(max);
+    abilityMs_->GetMaxRestartNum(max, true);
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
 

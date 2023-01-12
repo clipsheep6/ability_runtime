@@ -149,7 +149,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityConnectManager->OnTimeOut(uint32Param, int64Param);
     std::shared_ptr<AbilityRecord> ability = GetFuzzAbilityRecord();
     abilityConnectManager->HandleInactiveTimeout(ability);
-    abilityConnectManager->IsAbilityNeedRestart(abilityRecord);
+    abilityConnectManager->IsAbilityNeedKeepAlive(abilityRecord);
     abilityConnectManager->HandleAbilityDiedTask(abilityRecord, int32Param);
     std::vector<std::string> info;
     abilityConnectManager->DumpState(info, boolParam, stringParam);

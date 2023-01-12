@@ -563,7 +563,8 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
-    void GetMaxRestartNum(int &max);
+    void GetMaxRestartNum(int &max, bool isRootLauncher);
+    void GetRestartIntervalTime(int &restartIntervalTime);
     void HandleLoadTimeOut(int64_t eventId);
     void HandleActiveTimeOut(int64_t eventId);
     void HandleInactiveTimeOut(int64_t eventId);

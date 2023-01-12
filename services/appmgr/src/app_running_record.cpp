@@ -23,6 +23,8 @@ namespace AppExecFwk {
 namespace {
 static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
 static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+constexpr int32_t MAX_RESTART_COUNT = 3;
+constexpr int32_t RESTART_INTERVAL_TIME = 120000;
 }
 
 int64_t AppRunningRecord::appEventId_ = 0;
@@ -230,7 +232,15 @@ void AppRunningRecord::SetState(const ApplicationState state)
         HILOG_ERROR("Invalid application state");
         return;
     }
+    if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
+        restartResidentProcCount_ = MAX_RESTART_COUNT;
+    }
     curState_ = state;
+}
+
+void AppRunningRecord::SetRestartTimeMillis(const int64_t restartTimeMillis)
+{
+    restartTimeMillis_ = restartTimeMillis;
 }
 
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()
@@ -1142,7 +1152,15 @@ int AppRunningRecord::GetRestartResidentProcCount() const
 
 bool AppRunningRecord::CanRestartResidentProc()
 {
-    return (restartResidentProcCount_ > 0);
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    int64_t systemTimeMillis = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
+    if ((restartResidentProcCount_ >= 0) || ((systemTimeMillis - restartTimeMillis_) > RESTART_INTERVAL_TIME)) {
+        return true;
+    }
+    return false;
 }
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)

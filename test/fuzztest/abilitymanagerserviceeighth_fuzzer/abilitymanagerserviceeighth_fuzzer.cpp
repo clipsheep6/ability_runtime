@@ -51,7 +51,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     auto abilityms = std::make_shared<AbilityManagerService>();
     std::shared_ptr<CallRecord> callRecord;
     abilityms->OnCallConnectDied(callRecord);
-    abilityms->GetMaxRestartNum(intParam);
+    abilityms->GetMaxRestartNum(intParam, true);
     abilityms->KillProcess(stringParam);
     abilityms->ClearUpApplicationData(stringParam);
     abilityms->UninstallApp(stringParam, int32Param);

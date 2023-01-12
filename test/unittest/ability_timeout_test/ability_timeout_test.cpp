@@ -205,7 +205,7 @@ HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
     EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart);
+    abilityMs_->GetMaxRestartNum(maxRestart, true);
 
     EXPECT_TRUE(maxRestart > -1);
 }

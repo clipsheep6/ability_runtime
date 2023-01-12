@@ -162,7 +162,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     amsConfigurationParameter->GetOrientation();
     amsConfigurationParameter->GetANRTimeOutTime();
     amsConfigurationParameter->GetAMSTimeOutTime();
-    amsConfigurationParameter->GetMaxRestartNum();
+    amsConfigurationParameter->GetMaxRestartNum(true);
     amsConfigurationParameter->GetDeviceType();
     amsConfigurationParameter->GetBootAnimationTimeoutTime();
     nlohmann::json Object;

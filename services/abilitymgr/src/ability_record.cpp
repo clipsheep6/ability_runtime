@@ -141,7 +141,8 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     recordId_ = abilityRecordId++;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
-        abilityMgr->GetMaxRestartNum(restartMax_);
+        bool isRootLauncher = (applicationInfo_.bundleName == LAUNCHER_BUNDLE_NAME);
+        abilityMgr->GetMaxRestartNum(restartMax_, isRootLauncher);
         bool flag = abilityMgr->GetStartUpNewRuleFlag();
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
@@ -233,6 +234,10 @@ int AbilityRecord::LoadAbility()
         return ERR_INVALID_VALUE;
     }
 
+    if (isRestarting_) {
+        restartTime_ = AbilityUtil::SystemTimeMillis();
+    }
+
     sptr<Token> callerToken_ = nullptr;
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
@@ -249,9 +254,30 @@ int AbilityRecord::LoadAbility()
 
 bool AbilityRecord::CanRestartRootLauncher()
 {
-    if (isLauncherRoot_ && isRestarting_ && IsLauncherAbility() && (restartCount_ <= 0)) {
+    if (isLauncherRoot_ && isRestarting_ && IsLauncherAbility() && (restartCount_ < 0)) {
         HILOG_ERROR("Root launcher restart is out of max count.");
         return false;
+    }
+    return true;
+}
+
+bool AbilityRecord::CanRestartResident()
+{
+    HILOG_DEBUG("isKeepAlive: %{public}d, isRestarting: %{public}d, restartCount: %{public}d",
+        isKeepAlive_, isRestarting_, restartCount_);
+    if (isKeepAlive_ && isRestarting_ && (restartCount_ < 0)) {
+        int restartIntervalTime = 0;
+        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMgr) {
+            abilityMgr->GetRestartIntervalTime(restartIntervalTime);
+        }
+        HILOG_DEBUG("restartTime: %{public}lld, now: %{public}lld, intervalTine:%{public}d",
+            static_cast<unsigned long long>(restartTime_),
+            static_cast<unsigned long long>(AbilityUtil::SystemTimeMillis()), restartIntervalTime);
+        if ((AbilityUtil::SystemTimeMillis() - restartTime_) < restartIntervalTime) {
+            HILOG_ERROR("Resident restart is out of max count");
+            return false;
+        }
     }
     return true;
 }
@@ -976,7 +1002,7 @@ bool AbilityRecord::IsForeground() const
 void AbilityRecord::SetAbilityState(AbilityState state)
 {
     currentState_ = state;
-    if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE) {
+    if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE || state == AbilityState::BACKGROUND) {
         SetRestarting(false);
     }
 }
@@ -1572,6 +1598,9 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     info.push_back(dumpInfo);
     dumpInfo = "        bundle name [" + GetAbilityInfo().bundleName + "]";
     info.push_back(dumpInfo);
+    std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
+    dumpInfo = "        isKeepAlive: " + isKeepAlive;
+    info.push_back(dumpInfo);
     // get ability type(unknown/page/service/provider)
     std::string typeStr;
     GetAbilityTypeString(typeStr);
@@ -1643,6 +1672,9 @@ void AbilityRecord::DumpAbilityState(
         callContainer_->Dump(info);
     }
 
+    std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
+    dumpInfo = "        isKeepAlive: " + isKeepAlive;
+    info.push_back(dumpInfo);
     if (isLauncherRoot_) {
         dumpInfo = "        can restart num #" + std::to_string(restartCount_);
         info.push_back(dumpInfo);
@@ -1680,6 +1712,8 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     info.emplace_back("      ability type [SERVICE]");
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
 
+    std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
+    info.emplace_back("        isKeepAlive: " + isKeepAlive);
     if (isLauncherRoot_) {
         info.emplace_back("      can restart num #" + std::to_string(restartCount_));
     }
@@ -1821,21 +1855,20 @@ void AbilityRecord::SetRestarting(const bool isRestart)
 {
     isRestarting_ = isRestart;
     HILOG_DEBUG("SetRestarting: %{public}d", isRestarting_);
-
-    if (isLauncherRoot_ && IsLauncherAbility()) {
+    if ((isLauncherRoot_ && IsLauncherAbility()) || isKeepAlive_) {
         restartCount_ = isRestart ? (--restartCount_) : restartMax_;
-        HILOG_INFO("root launcher restart count: %{public}d", restartCount_);
+        HILOG_INFO("root launcher or resident process's restart count: %{public}d", restartCount_);
     }
 }
 
-void AbilityRecord::SetRestarting(const bool isRestart, int32_t canReStartCount)
+void AbilityRecord::SetRestarting(const bool isRestart, int32_t canRestartCount)
 {
     isRestarting_ = isRestart;
-    HILOG_DEBUG("SetRestarting: %{public}d, restart count: %{public}d", isRestarting_, canReStartCount);
+    HILOG_DEBUG("SetRestarting: %{public}d, restart count: %{public}d", isRestarting_, canRestartCount);
 
-    if (isLauncherRoot_ && IsLauncherAbility()) {
-        restartCount_ = isRestart ? canReStartCount : restartMax_;
-        HILOG_INFO("root launcher restart count: %{public}d", restartCount_);
+    if ((isLauncherRoot_ && IsLauncherAbility()) || isKeepAlive_) {
+        restartCount_ = isRestart ? canRestartCount : restartMax_;
+        HILOG_INFO("root launcher or resident process's restart count: %{public}d", restartCount_);
     }
 }
 
@@ -1852,6 +1885,21 @@ void AbilityRecord::SetRestartCount(int32_t restartCount)
 bool AbilityRecord::IsRestarting() const
 {
     return isRestarting_;
+}
+
+void AbilityRecord::SetKeepAlive()
+{
+    isKeepAlive_ = true;
+}
+
+int64_t AbilityRecord::GetRestartTime()
+{
+    return restartTime_;
+}
+
+void AbilityRecord::SetRestartTime(const int64_t restartTime)
+{
+    restartTime_ = restartTime;
 }
 
 void AbilityRecord::SetAppState(const AppState &state)
@@ -2134,6 +2182,9 @@ void AbilityRecord::DumpSys(std::vector<std::string> &info, bool isClient)
                std::to_string(isWindowAttached_) + "  launcher #" + std::to_string(isLauncherAbility_);
     info.push_back(dumpInfo);
 
+    std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
+    dumpInfo = "        isKeepAlive: " + isKeepAlive;
+    info.push_back(dumpInfo);
     if (isLauncherRoot_ && abilityInfo_.isStageBasedModel) {
         dumpInfo = "        can restart num #" + std::to_string(restartCount_);
         info.push_back(dumpInfo);

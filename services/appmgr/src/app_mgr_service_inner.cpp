@@ -82,6 +82,9 @@ constexpr int32_t USER_SCALE = 200000;
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
+constexpr int32_t MAX_RESTART_COUNT = 3;
+constexpr int32_t RESTART_INTERVAL_TIME = 120000;
+
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
 const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "APP_LIFECYCLE_TIMEOUT";
@@ -325,7 +328,8 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
 
     appRecord->LaunchApplication(*configuration_);
     appRecord->SetState(ApplicationState::APP_STATE_READY);
-    appRecord->SetRestartResidentProcCount(RESTART_RESIDENT_PROCESS_MAX_TIMES);
+    int restartResidentProcCount = MAX_RESTART_COUNT;
+    appRecord->SetRestartResidentProcCount(restartResidentProcCount);
 
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
@@ -1529,17 +1533,28 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     }
 
     if (appRecord->IsKeepAliveApp()) {
-        appRecord->DecRestartResidentProcCount();
+        auto restartProcess = [appRecord, innerService = shared_from_this()]() {
+            innerService->RestartResidentProcess(appRecord);
+        };
         if (appRecord->CanRestartResidentProc()) {
-            auto restartProcess = [appRecord, innerService = shared_from_this()]() {
-                innerService->RestartResidentProcess(appRecord);
-            };
-
             if (!eventHandler_) {
                 HILOG_ERROR("eventHandler_ is nullptr");
                 return;
             }
             eventHandler_->PostTask(restartProcess, "RestartResidentProcess");
+        } else {
+            auto findRestartResidentTask = [appRecord](const std::shared_ptr<AppRunningRecord> &appRunningRecord) {
+                return (appRecord != nullptr && appRecord->GetBundleName() == appRunningRecord->GetBundleName());
+            };
+            auto findIter = find_if(restartResedentTaskList_.begin(), restartResedentTaskList_.end(),
+                findRestartResidentTask);
+            if (findIter != restartResedentTaskList_.end()) {
+                HILOG_WARN("The restart app task has been registered.");
+                return;
+            }
+            restartResedentTaskList_.emplace_back(appRecord);
+            HILOG_INFO("PostRestartResidentProcessDelayTask.");
+            eventHandler_->PostTask(restartProcess, "RestartResidentProcessDelayTask", RESTART_INTERVAL_TIME);
         }
     }
 }
@@ -1819,7 +1834,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
 
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModules(appInfo, info.hapModuleInfos);
-    HILOG_INFO("StartEmptyResidentProcess oK pid : [%{public}d], ", appRecord->GetPriorityObject()->GetPid());
+    HILOG_INFO("StartEmptyResidentProcess of pid : [%{public}d], ", appRecord->GetPriorityObject()->GetPid());
 }
 
 bool AppMgrServiceInner::CheckRemoteClient()
@@ -1843,6 +1858,25 @@ bool AppMgrServiceInner::CheckRemoteClient()
 
 void AppMgrServiceInner::RestartResidentProcess(std::shared_ptr<AppRunningRecord> appRecord)
 {
+    if (appRecord == nullptr) {
+        HILOG_ERROR("Restart resident process failed, the appRecord is nullptr.");
+        return;
+    }
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    appRecord->SetRestartTimeMillis(static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS));
+    appRecord->DecRestartResidentProcCount();
+
+    auto findRestartResidentTask = [appRecord](const std::shared_ptr<AppRunningRecord> &appRunningRecord) {
+        return (appRecord != nullptr && appRecord->GetBundleName() == appRunningRecord->GetBundleName());
+    };
+    auto findIter = find_if(restartResedentTaskList_.begin(), restartResedentTaskList_.end(), findRestartResidentTask);
+    if (findIter != restartResedentTaskList_.end()) {
+        restartResedentTaskList_.erase(findIter);
+    }
+    
     if (!CheckRemoteClient() || !appRecord || !appRunningManager_) {
         HILOG_ERROR("restart resident process failed!");
         return;

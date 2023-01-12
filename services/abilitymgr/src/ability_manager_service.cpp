@@ -3438,10 +3438,17 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
     }
 }
 
-void AbilityManagerService::GetMaxRestartNum(int &max)
+void AbilityManagerService::GetMaxRestartNum(int &max, bool isRootLauncher)
 {
     if (amsConfigResolver_) {
-        max = amsConfigResolver_->GetMaxRestartNum();
+        max = amsConfigResolver_->GetMaxRestartNum(isRootLauncher);
+    }
+}
+
+void AbilityManagerService::GetRestartIntervalTime(int &restartIntervalTime)
+{
+    if (amsConfigResolver_) {
+        restartIntervalTime = amsConfigResolver_->GetRestartIntervalTime();
     }
 }
 

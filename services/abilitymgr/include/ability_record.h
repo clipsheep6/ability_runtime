@@ -56,7 +56,7 @@ class CallContainer;
 const std::string ABILITY_TOKEN_NAME = "AbilityToken";
 const std::string LINE_SEPARATOR = "\n";
 
-const int32_t RESTART_RESIDENT_ABILITY_MAX_TIMES = 15;
+const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 
 /**
  * @class Token
@@ -198,6 +198,7 @@ struct AbilityRequest {
     int requestCode = -1;
     bool restart = false;
     int32_t restartCount = -1;
+    int64_t restartTime = 0;
 
     // call ability
     int callerUid = -1;
@@ -759,6 +760,9 @@ public:
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
     void SetRestartCount(int32_t restartCount);
+    void SetKeepAlive();
+    int64_t GetRestartTime();
+    void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
     bool IsRestarting() const;
@@ -811,6 +815,8 @@ public:
     #endif
 
     bool CanRestartRootLauncher();
+
+    bool CanRestartResident();
 
     std::string GetLabel();
 
@@ -896,9 +902,11 @@ private:
     std::weak_ptr<AbilityRecord> preAbilityRecord_ = {};   // who starts this ability record
     std::weak_ptr<AbilityRecord> nextAbilityRecord_ = {};  // ability that started by this ability
     int64_t startTime_ = 0;                           // records first time of ability start
+    int64_t restartTime_ = 0;                         // the time of last trying restart
     bool isReady_ = false;                            // is ability thread attached?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
+    bool isKeepAlive_ = false;                 // is keep alive or resident ability?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
     bool isTerminating_ = false;              // is terminating ?
