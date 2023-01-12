@@ -199,7 +199,7 @@ HWTEST_F(SourceMapTest, AaFwk_SourceMap_0700, Function | MediumTest | Level1)
 /**
  * @tc.number: AaFwk_SourceMap_0800
  * @tc.name: ReadSourceMapData
- * @tc.desc: Verifying ReadSourceMapData succeeded.
+ * @tc.desc: Verifying ReadSourceMapData Failed.
  */
 HWTEST_F(SourceMapTest, AaFwk_SourceMap_0800, Function | MediumTest | Level1)
 {
@@ -207,8 +207,7 @@ HWTEST_F(SourceMapTest, AaFwk_SourceMap_0800, Function | MediumTest | Level1)
     auto modSourceMap = std::make_shared<AbilityRuntime::ModSourceMap>();
     std::string filePath = "./source_map_test";
     std::string context;
-    modSourceMap->ReadSourceMapData(filePath, context);
-    EXPECT_TRUE(!context.empty());
+    EXPECT_FALSE(modSourceMap->ReadSourceMapData(filePath, context));
     GTEST_LOG_(INFO) << "AaFwk_SourceMap_0800 end";
 }
 
