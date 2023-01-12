@@ -81,14 +81,12 @@ ohos_shared_library("runtime") {
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",
-    "samgr:samgr_proxy",
   ]
 
   if (is_standard_system) {
