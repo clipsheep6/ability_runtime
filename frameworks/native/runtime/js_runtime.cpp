@@ -607,7 +607,7 @@ bool JsRuntime::Initialize(const Options& options)
     bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
     if (!options.preload) {
         InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName, options.uid);
     }
 
     nativeEngine_->RegisterPermissionCheck(PermissionCheckFunc);
