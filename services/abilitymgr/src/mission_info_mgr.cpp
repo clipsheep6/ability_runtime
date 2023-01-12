@@ -295,8 +295,6 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
         return false;
     }
 
-
-
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionName, &flag, &isFindRecentStandard](const InnerMissionInfo item) {
