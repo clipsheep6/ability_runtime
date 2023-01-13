@@ -49,6 +49,10 @@ ApplicationStateObserverStub::ApplicationStateObserverStub()
     memberFuncMap_[static_cast<uint32_t>(
         IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
         &ApplicationStateObserverStub::HandleOnAppStateChanged;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED)] =
+        &ApplicationStateObserverStub::HandleOnProcessReused;
+
 }
 
 ApplicationStateObserverStub::~ApplicationStateObserverStub()
@@ -100,6 +104,9 @@ void ApplicationStateObserverStub::OnApplicationStateChanged(const AppStateData 
 {}
 
 void ApplicationStateObserverStub::OnAppStateChanged(const AppStateData &appStateData)
+{}
+
+void ApplicationStateObserverStub::OnProcessReused(const ProcessData &processData)
 {}
 
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
@@ -220,6 +227,18 @@ void ApplicationStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &
     if (handler_) {
         handler_(remote);
     }
+}
+
+int32_t ApplicationStateObserverStub::HandleOnProcessReused(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<ProcessData> processData(data.ReadParcelable<ProcessData>());
+    if (!processData) {
+        HILOG_ERROR("ReadParcelable<ProcessData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnProcessReused(*processData);
+    return NO_ERROR;
 }
 
 ApplicationStateObserverRecipient::ApplicationStateObserverRecipient(RemoteDiedHandler handler) : handler_(handler)

@@ -79,6 +79,8 @@ public:
 
     virtual void OnAppStateChanged(const AppStateData &appStateData) override;
 
+    virtual void OnProcessReused(const ProcessData &processData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;

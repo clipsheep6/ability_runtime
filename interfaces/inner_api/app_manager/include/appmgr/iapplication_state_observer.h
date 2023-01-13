@@ -79,6 +79,8 @@ public:
 
     virtual void OnAppStateChanged(const AppStateData &appStateData) {}
 
+    virtual void OnProcessReused(const ProcessData &processData) {}
+
     enum class Message {
         TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED = 0,
         TRANSACT_ON_ABILITY_STATE_CHANGED,
@@ -88,6 +90,7 @@ public:
         TRANSACT_ON_PROCESS_DIED,
         TRANSACT_ON_APPLICATION_STATE_CHANGED,
         TRANSACT_ON_APP_STATE_CHANGED,
+        TRANSACT_ON_PROCESS_REUSED,
     };
 };
 }  // namespace AppExecFwk
