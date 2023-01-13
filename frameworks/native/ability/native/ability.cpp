@@ -334,6 +334,7 @@ void Ability::OnActive()
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
     eventInfo.abilityName = abilityInfo_->name;
+    eventInfo.abilityType = static_cast<int32_t>(abilityInfo_->type);
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s end.", __func__);

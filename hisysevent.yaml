@@ -139,6 +139,7 @@ ABILITY_ONACTIVE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+  ABILITY_TYPE: {type: INT32, desc: ability type}
 
 ABILITY_ONINACTIVE:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onInactive}
@@ -154,7 +155,7 @@ START_SERVICE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  EXTENSION_TYPE: {type: STRING, desc: extension type}
+  EXTENSION_TYPE: {type: INT32, desc: extension type}
 
 STOP_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: stop serviceExtensionAbility}
@@ -162,7 +163,7 @@ STOP_SERVICE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  EXTENSION_TYPE: {type: STRING, desc: extension type}
+  EXTENSION_TYPE: {type: INT32, desc: extension type}
 
 CONNECT_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: connect serviceAbility}
