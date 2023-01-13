@@ -757,13 +757,12 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     } else {
         g_serialNumber = 0;
     }
-    HILOG_INFO("%{public}s not find connection, make new one", __func__);
+
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            HILOG_INFO("OnConnectAbility begin");
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("Connect ability failed, context is released.");
+                HILOG_ERROR("Connect ability failed, context is released.");
                 task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
@@ -822,14 +821,12 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     } else {
         g_serialNumber = 0;
     }
-    HILOG_INFO("%{public}s not find connection, make new one", __func__);
     AsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId, connection, connectId](
             NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnConnectAbilityWithAccount begin");
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    HILOG_ERROR("context is released");
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }

@@ -57,7 +57,7 @@ struct ConnectionInfo {
         if (connectCaller == that.connectCaller &&
             connectReceiver.GetBundleName() == that.connectReceiver.GetBundleName() &&
             connectReceiver.GetModuleName() == that.connectReceiver.GetModuleName() &&
-            connectReceiver.GetAbilityName() == that.connectReceiver.GetAbilityName()) {
+            connectReceiver.GetAbilityName() < that.connectReceiver.GetAbilityName()) {
             return true;
         }
         return false;

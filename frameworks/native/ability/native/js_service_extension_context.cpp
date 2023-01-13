@@ -461,7 +461,6 @@ private:
 
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnConnectAbility is called");
         HILOG_INFO("Connect ability called.");
         // Check params count
         if (info.argc < ARGC_TWO) {
@@ -480,10 +479,9 @@ private:
         int64_t connectId = connection->GetConnectionId();
         AsyncTask::CompleteCallback complete =
             [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnConnectAbility begin");
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    HILOG_ERROR("context is released");
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
                     return;
                 }
@@ -524,10 +522,9 @@ private:
         AsyncTask::CompleteCallback complete =
             [weak = context_, want, accountId, connection, connectId](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
-                    HILOG_INFO("OnConnectAbilityWithAccount begin");
                     auto context = weak.lock();
                     if (!context) {
-                        HILOG_WARN("context is released");
+                        HILOG_ERROR("context is released");
                         task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
                         return;
                     }
