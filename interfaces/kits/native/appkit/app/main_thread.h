@@ -488,6 +488,8 @@ private:
 
     void LoadNativeLiabrary(std::string &nativeLibraryPath);
 
+    void LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath);
+
     void LoadAppLibrary();
 
     void ChangeToLocalPath(const std::string &bundleName,

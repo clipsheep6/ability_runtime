@@ -914,6 +914,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAbilityLibrary(localPaths);
         LoadNativeLiabrary(appInfo.nativeLibraryPath);
     }
+    if (appInfo.needAppDetail) {
+        HILOG_DEBUG("MainThread::handleLaunchApplication %{public}s need add app detail ability library path",
+            bundleName.c_str());
+        LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
+    }
     LoadAppLibrary();
 
     ProcessInfo processInfo = appLaunchData.GetProcessInfo();
@@ -1846,6 +1851,43 @@ void MainThread::LoadAppLibrary()
     }
     HILOG_DEBUG("end.");
 #endif  // APPLICATION_LIBRARY_LOADER
+}
+
+void MainThread::LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+#ifdef ABILITY_LIBRARY_LOADER
+    HILOG_DEBUG("LoadAppDetailAbilityLibrary try to scanDir %{public}s", nativeLibraryPath.c_str());
+    std::vector<std::string> fileEntries;
+    if (!ScanDir(nativeLibraryPath, fileEntries)) {
+        HILOG_WARN("scanDir %{public}s not exits", nativeLibraryPath.c_str());
+    }
+    if (fileEntries.empty()) {
+        HILOG_WARN("No ability library");
+        return;
+    }
+    char resolvedPath[PATH_MAX] = {0};
+    void *handleAbilityLib = nullptr;
+    for (const auto& fileEntry : fileEntries) {
+        if (fileEntry.empty() || fileEntry.size() >= PATH_MAX) {
+            continue;
+        }
+        if (realpath(fileEntry.c_str(), resolvedPath) == nullptr) {
+            HILOG_ERROR("Failed to get realpath, errno = %{public}d", errno);
+            continue;
+        }
+
+        handleAbilityLib = dlopen(resolvedPath, RTLD_NOW | RTLD_GLOBAL);
+        if (handleAbilityLib == nullptr) {
+            HILOG_ERROR("Fail to dlopen %{public}s, [%{public}s]",
+                resolvedPath, dlerror());
+            exit(-1);
+        }
+        HILOG_INFO("Success to dlopen %{public}s", fileEntry.c_str());
+        handleAbilityLib_.emplace_back(handleAbilityLib);
+    }
+    HILOG_DEBUG("LoadAppDetailAbilityLibrary end.");
+#endif // ABILITY_LIBRARY_LOADER
 }
 
 /**
