@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <stack>
 #include "ability_transaction_callback_info.h"
 
 namespace OHOS {
@@ -45,7 +46,7 @@ HWTEST_F(AbilityTransactionCallbackInfoTest, AaFwk_AbilityTransactionCallbackInf
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityTransactionCallbackInfoTest_Call_0100 start";
 
-    AbilityTransactionCallbackInfo *callbackInfo = AbilityTransactionCallbackInfo::Create();
+    auto* callbackInfo = AbilityTransactionCallbackInfo<>::Create();
     EXPECT_NE(callbackInfo, nullptr);
     g_count = 0;
     auto asyncCallback = []() {
@@ -60,8 +61,45 @@ HWTEST_F(AbilityTransactionCallbackInfoTest, AaFwk_AbilityTransactionCallbackInf
     EXPECT_EQ(g_count, 0);
     callbackInfo->Call();
     EXPECT_EQ(g_count, PUSH_COUNT);
-    AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     GTEST_LOG_(INFO) << "AaFwk_AbilityTransactionCallbackInfoTest_Call_0100 end";
+}
+
+/**
+ * @tc.name: AaFwk_AbilityTransactionCallbackInfoTest_Call_0100
+ * @tc.desc: Call all transaction callback.
+ * @tc.type: FUNC
+ * @tc.require: I65V83
+ */
+HWTEST_F(AbilityTransactionCallbackInfoTest, AaFwk_AbilityTransactionCallbackInfoTest_Call_0200, Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityTransactionCallbackInfoTest_Call_0200 start";
+
+    auto* callbackInfo = AbilityTransactionCallbackInfo<std::stack<int32_t>>::Create();
+    EXPECT_NE(callbackInfo, nullptr);
+    g_count = 0;
+
+    auto asyncCallback = [](std::stack<int32_t> &result) {
+        if (!result.empty()) {
+            g_count += result.top();
+            result.pop();
+        }
+    };
+
+    const int32_t PUSH_COUNT = 10;
+    std::stack<int32_t> result {};
+    int32_t sum = 0;
+    for (int32_t i = 0; i < PUSH_COUNT; i++) {
+        callbackInfo->Push(asyncCallback);
+        result.push(i);
+        sum += i;
+    }
+
+    EXPECT_EQ(g_count, 0);
+    callbackInfo->Call(result);
+    EXPECT_EQ(g_count, sum);
+    AbilityTransactionCallbackInfo<std::stack<int32_t>>::Destroy(callbackInfo);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityTransactionCallbackInfoTest_Call_0200 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

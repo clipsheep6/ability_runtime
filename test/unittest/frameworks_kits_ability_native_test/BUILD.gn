@@ -1378,10 +1378,7 @@ ohos_unittest("continuation_test") {
 
 ohos_unittest("ability_transaction_callback_info_test") {
   module_out_path = module_output_path
-  sources = [
-    "${ability_runtime_native_path}/ability/native/ability_transaction_callback_info.cpp",
-    "ability_transaction_callback_info_test.cpp",
-  ]
+  sources = [ "ability_transaction_callback_info_test.cpp" ]
 
   configs = [ ":module_private_config" ]
 
@@ -1487,6 +1484,7 @@ group("unittest") {
     ":ability_thread_call_request_test",
     ":ability_thread_dataability_test",
     ":ability_thread_test",
+    ":ability_transaction_callback_info_test",
     ":continuation_test",
     ":data_ability_helper_test",
     ":data_ability_impl_file_secondpart_test",

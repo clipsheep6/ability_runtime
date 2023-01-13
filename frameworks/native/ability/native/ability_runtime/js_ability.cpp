@@ -50,9 +50,9 @@ NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
         return nullptr;
     }
     void *data = info->functionInfo->data;
-    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo *>(data);
+    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<> *>(data);
     callbackInfo->Call();
-    AppExecFwk::AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     info->functionInfo->data = nullptr;
     return nullptr;
 }
@@ -232,7 +232,7 @@ void JsAbility::OnStop()
     HILOG_DEBUG("OnStop end.");
 }
 
-void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback)
+void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
@@ -868,7 +868,7 @@ bool JsAbility::CheckPromise(NativeValue *result)
     return true;
 }
 
-bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo)
+bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
 {
     auto *retObj = ConvertNativeValueTo<NativeObject>(result);
     if (retObj == nullptr) {

@@ -100,6 +100,19 @@ public:
     virtual sptr<IRemoteObject> OnConnect(const AAFwk::Want &want);
 
     /**
+     * @brief Called when this Service extension is connected for the first time.
+     *
+     * You can override this function to implement your own processing logic.
+     *
+     * @param want Indicates the {@link Want} structure containing connection information about the Service extension.
+     * @param callbackInfo Indicates the lifecycle transaction callback information
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     * @return Returns a pointer to the <b>sid</b> of the connected Service extension.
+     */
+    virtual sptr<IRemoteObject> OnConnect(const AAFwk::Want &want,
+        AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *callbackInfo, bool &isAsyncCallback);
+
+    /**
      * @brief Called when all abilities connected to this Service extension are disconnected.
      *
      * You can override this function to implement your own processing logic.
@@ -114,7 +127,7 @@ public:
      * @param callbackInfo Indicates the lifecycle transaction callback information
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
-    virtual void OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
+    virtual void OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo,
         bool &isAsyncCallback);
 
     /**
