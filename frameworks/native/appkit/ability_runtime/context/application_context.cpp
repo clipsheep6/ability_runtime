@@ -25,6 +25,17 @@ namespace AbilityRuntime {
 std::vector<std::shared_ptr<AbilityLifecycleCallback>> ApplicationContext::callbacks_;
 std::vector<std::shared_ptr<EnvironmentCallback>> ApplicationContext::envCallbacks_;
 
+std::shared_ptr<ApplicationContext> ApplicationContext::GetInstance()
+{
+    if (applicationContext_ == nullptr) {
+        std::lock_guard<std::mutex> lock_l(Context::contextMutex_);
+        if (applicationContext_ == nullptr) {
+            applicationContext_ = std::make_shared<ApplicationContext>();
+        }
+    }
+    return applicationContext_;
+}
+
 void ApplicationContext::InitApplicationContext()
 {
     std::lock_guard<std::mutex> lock(Context::contextMutex_);

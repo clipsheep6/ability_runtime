@@ -83,6 +83,8 @@ public:
     // unused
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
 
+    static std::shared_ptr<ApplicationContext> GetInstance();
+
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;

@@ -436,7 +436,8 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
-    NativeValue* value = CreateJsApplicationContext(engine, applicationContext, true);
+
+    NativeValue* value = JsApplicationContextUtils::CreateJsApplicationContext(engine, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
@@ -519,7 +520,7 @@ NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* h
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsApplicationContext(*engine, ptr, true);
+    NativeValue* object = JsApplicationContextUtils::CreateJsApplicationContext(*engine, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
