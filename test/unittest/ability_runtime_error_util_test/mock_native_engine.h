@@ -159,6 +159,11 @@ public:
         return nullptr;
     }
 
+    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
+    {
+        return false;
+    }
+
     NativeValue* CreatePromise(NativeDeferred** deferred) override
     {
         return nullptr;
