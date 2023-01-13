@@ -143,12 +143,12 @@ ErrCode PendingWant::GetCommonEvent(
     int requestCode, const std::shared_ptr<Want> &want, unsigned int flags,
     std::shared_ptr<PendingWant> &pendingWant)
 {
-    return GetCommonEventAsUser(context, requestCode, want, flags, 0, pendingWant);
+    return GetCommonEventAsUser(context, requestCode, want, flags, pendingWant);
 }
 
 ErrCode PendingWant::GetCommonEventAsUser(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
-    int requestCode, const std::shared_ptr<Want> &want, unsigned int flags, int uid,
+    int requestCode, const std::shared_ptr<Want> &want, unsigned int flags,
     std::shared_ptr<PendingWant> &pendingWant)
 {
     if (context == nullptr) {

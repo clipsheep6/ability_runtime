@@ -290,7 +290,7 @@ HWTEST_F(PendingWantTest, PendingWant_1000, Function | MediumTest | Level1)
     unsigned int flags = 1;
     flags |= FLAG_NO_CREATE;
     std::shared_ptr<PendingWant> pendingWant = nullptr;
-    PendingWant::GetCommonEventAsUser(nullptr, requestCode, want, flags, 0, pendingWant);
+    PendingWant::GetCommonEventAsUser(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(pendingWant, nullptr);
 }
 
@@ -308,7 +308,7 @@ HWTEST_F(PendingWantTest, PendingWant_1100, Function | MediumTest | Level1)
     unsigned int flags = 1;
     flags |= FLAG_ONE_SHOT;
     std::shared_ptr<PendingWant> pendingWant = nullptr;
-    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, 0, pendingWant);
+    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 
@@ -324,7 +324,7 @@ HWTEST_F(PendingWantTest, PendingWant_1200, Function | MediumTest | Level1)
     unsigned int flags = 1;
     flags |= FLAG_ONE_SHOT;
     std::shared_ptr<PendingWant> pendingWant = nullptr;
-    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, 0, pendingWant);
+    PendingWant::GetCommonEventAsUser(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_NE(pendingWant, nullptr);
 }
 

@@ -167,7 +167,7 @@ public:
             }
         }
 
-        auto func = [&](std::string modulePath, const std::string abcPath) {
+        auto func = [&extractor, this](std::string modulePath, const std::string abcPath) {
             std::ostringstream outStream;
             if (!extractor->GetFileBuffer(modulePath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
