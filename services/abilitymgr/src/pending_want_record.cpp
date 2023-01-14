@@ -25,8 +25,9 @@ PendingWantRecord::PendingWantRecord()
 {}
 
 PendingWantRecord::PendingWantRecord(const std::shared_ptr<PendingWantManager> &pendingWantManager, int32_t uid,
-    const sptr<IRemoteObject> &callerToken, std::shared_ptr<PendingWantKey> key)
-    : pendingWantManager_(pendingWantManager), uid_(uid), callerToken_(callerToken), key_(key)
+    int32_t callerTokenId, const sptr<IRemoteObject> &callerToken, std::shared_ptr<PendingWantKey> key)
+    : pendingWantManager_(pendingWantManager), uid_(uid), callerTokenId_(callerTokenId),
+    callerToken_(callerToken), key_(key)
 {}
 
 PendingWantRecord::~PendingWantRecord()
@@ -103,7 +104,7 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
             res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
             break;
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
-            res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_);
+            res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_, callerTokenId_);
             (res == ERR_OK) ? (sendFinish = false) : (sendFinish = (senderInfo.finishedReceiver != nullptr));
             break;
         default:

@@ -164,7 +164,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0100, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     EXPECT_EQ(pendingWantRecord->uid_, 1);
     EXPECT_EQ(pendingWantRecord->callerToken_, nullptr);
@@ -186,7 +186,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0200, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(cance);
     EXPECT_EQ(static_cast<int>(pendingWantRecord->mCancelCallbacks_.size()), 1);
@@ -208,7 +208,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0300, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(nullptr);
     EXPECT_EQ(static_cast<int>(pendingWantRecord->mCancelCallbacks_.size()), 0);
@@ -231,7 +231,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0400, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(cance);
     pendingWantRecord->RegisterCancelListener(cance1);
@@ -255,7 +255,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0500, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(cance);
     pendingWantRecord->RegisterCancelListener(cance1);
@@ -280,7 +280,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0600, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(cance);
     pendingWantRecord->RegisterCancelListener(cance1);
@@ -303,7 +303,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0700, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     pendingWantRecord->canceled_ = true;
@@ -326,7 +326,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0800, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     EXPECT_NE(pendingWantRecord->SenderInner(info), 0); // Assert SenderInner failed.
@@ -346,7 +346,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_0900, TestSize.Level1)
     WantSenderInfo wantSenderInfo = MakeWantSenderInfo(want, (int32_t)Flags::CONSTANT_FLAG, 0);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(nullptr, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(nullptr, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     EXPECT_EQ(pendingWantRecord->SenderInner(info), ERR_INVALID_VALUE);
@@ -366,7 +366,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1000, TestSize.Level1)
     WantSenderInfo wantSenderInfo = MakeWantSenderInfo(want, (int32_t)Flags::ONE_TIME_FLAG, 0);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(nullptr, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(nullptr, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     info.finishedReceiver = new CancelReceiver();
@@ -390,7 +390,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1100, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     EXPECT_NE(pendingWantRecord->SenderInner(info), NO_ERROR);
@@ -413,7 +413,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1200, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     EXPECT_NE(pendingWantRecord->SenderInner(info), NO_ERROR);
@@ -437,7 +437,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1300, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     EXPECT_NE(pendingWantRecord->SenderInner(info), NO_ERROR);
@@ -461,7 +461,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1400, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     pendingWantRecord->SenderInner(info);
@@ -485,7 +485,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1500, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     info.finishedReceiver = new CancelReceiver();
@@ -511,7 +511,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1600, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     EXPECT_EQ(pendingWantRecord->GetKey(), key);
 }
@@ -532,7 +532,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1700, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     EXPECT_EQ(pendingWantRecord->GetUid(), 1);
 }
@@ -553,7 +553,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1800, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     EXPECT_EQ(pendingWantRecord->GetCanceled(), false);
     pendingWantRecord->SetCanceled();
@@ -577,7 +577,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_1900, TestSize.Level1)
     EXPECT_NE(pendingManager_, nullptr);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     pendingWantRecord->RegisterCancelListener(cance);
     pendingWantRecord->RegisterCancelListener(cance1);
@@ -599,7 +599,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_2000, TestSize.Level1)
     WantSenderInfo wantSenderInfo = MakeWantSenderInfo(want, (int32_t)Flags::CONSTANT_FLAG, 0);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     pendingWantRecord->SenderInner(info);
@@ -621,7 +621,7 @@ HWTEST_F(PendingWantRecordTest, PendingWantRecordTest_2100, TestSize.Level1)
     WantSenderInfo wantSenderInfo = MakeWantSenderInfo(want, (int32_t)Flags::ONE_TIME_FLAG, 0);
     std::shared_ptr<PendingWantKey> key = MakeWantKey(wantSenderInfo);
     std::shared_ptr<PendingWantRecord> pendingWantRecord =
-        std::make_shared<PendingWantRecord>(pendingManager_, 1, nullptr, key);
+        std::make_shared<PendingWantRecord>(pendingManager_, 1, 0, nullptr, key);
     EXPECT_NE(pendingWantRecord, nullptr);
     SenderInfo info;
     info.finishedReceiver = new CancelReceiver();
