@@ -19,6 +19,7 @@
 #include <string>
 #include <mutex>
 #include "event_handler.h"
+#include "idle_time.h"
 #include "inner_event.h"
 #include "app_scheduler_host.h"
 #include "app_mgr_interface.h"
@@ -528,6 +529,7 @@ private:
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
+    std::shared_ptr<IdleTime> idleTime_ = nullptr;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.
