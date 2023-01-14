@@ -104,8 +104,8 @@ struct AssetHelper final {
     using Extractor = AbilityBase::Extractor;
     using ExtractorUtil = AbilityBase::ExtractorUtil;
     using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName)
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName, const int32_t& uid)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName), uid_(uid)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -128,6 +128,22 @@ struct AssetHelper final {
 
         std::string filePath = uri.substr(0, index) + ".abc";
         ami = codePath_ + filePath;
+
+        std::string res = ami;
+        char path111[PATH_MAX];
+        HILOG_INFO("HYQ  worker res first : %{public}s", res.c_str());
+        std::string path222 = "";
+        if (realpath(res.c_str(), path111) == nullptr) {
+            path222 = path111;
+            HILOG_INFO("HYQ  worker if");
+            HILOG_INFO("HYQ  worker path222 : %{public}s", path222.c_str());
+            HILOG_INFO("HYQ  worker second res : %{public}s", res.c_str());
+        }
+        path222 = path111;
+        HILOG_INFO("HYQ  worker else");
+        HILOG_INFO("HYQ  worker path222 : %{public}s", path222.c_str());
+        HILOG_INFO("HYQ  worker second res : %{public}s", res.c_str());
+        HILOG_INFO("HYQ  worker   UID %{public}d", uid_);
         HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
         std::string flag = "el2";
         if (ami.find(flag) != std::string::npos) {
@@ -244,6 +260,7 @@ struct AssetHelper final {
     std::string codePath_;
     bool isDebugVersion_ = false;
     std::string bundleName_;
+    int32_t uid_;
 };
 
 int32_t GetContainerId()
@@ -271,11 +288,11 @@ ContainerScope::UpdateCurrent(-1);
 }
 
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, const std::string& bundleName)
+    bool isDebugVersion, const std::string& bundleName, const int32_t& uid)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName, uid));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);
