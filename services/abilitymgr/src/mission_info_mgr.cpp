@@ -289,25 +289,32 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
 }
 
 bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
-    const std::string &flag, InnerMissionInfo &info)
+    const std::string &flag, bool isFindRecentStandard, InnerMissionInfo &info)
 {
     if (missionName.empty()) {
         return false;
     }
 
+
+
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionName, &flag](const InnerMissionInfo item) {
-            if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD)) {
+        [&missionName, &flag, &isFindRecentStandard](const InnerMissionInfo item) {
+            if (missionName != item.missionName) {
                 return false;
             }
 
+            // already sorted, return head of list
+            if (isFindRecentStandard && item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD)) {
+                return true;
+            }
+
             if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON)) {
-                return missionName == item.missionName;
+                return true;
             }
 
             if (item.launchMode == static_cast<int32_t>(AppExecFwk::LaunchMode::SPECIFIED)) {
-                return missionName == item.missionName && flag == item.specifiedFlag;
+                return flag == item.specifiedFlag;
             }
             return false;
         }

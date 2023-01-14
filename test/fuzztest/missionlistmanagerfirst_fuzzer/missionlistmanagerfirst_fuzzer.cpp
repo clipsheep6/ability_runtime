@@ -105,7 +105,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->StartAbilityLocked(abilityRecord, abilityRecord, abilityRequest);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(int32Param, abilityRecord);
     missionListManager->HandleReusedMissionAndAbility(abilityRequest, mission, abilityRecord);
-    missionListManager->GetMissionName(abilityRequest, boolParam);
+    missionListManager->GetMissionName(abilityRequest);
     InnerMissionInfo innerMissionInfo;
     missionListManager->CreateOrReusedMissionInfo(abilityRequest, innerMissionInfo);
     missionListManager->GetTargetMissionAndAbility(abilityRequest, mission, abilityRecord);
@@ -165,4 +165,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     ch = nullptr;
     return 0;
 }
-

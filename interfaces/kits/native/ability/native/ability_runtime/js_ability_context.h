@@ -39,6 +39,7 @@ public:
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
 
     static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
@@ -75,7 +76,7 @@ private:
 #endif
 
 private:
-    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);

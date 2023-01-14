@@ -384,30 +384,46 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
         HILOG_DEBUG("mission exists. No update required");
         return true;
     }
-    HILOG_DEBUG("mission exists. need to be updated");
-    return false;
+
+    auto missionId = targetMission->GetMissionId();
+    HILOG_INFO("mission exists. need to be updated, missionId:%{public}d", missionId);
+    InnerMissionInfo info;
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
+        targetMission->GetMissionId(), info) == 0) {
+        info.missionInfo.time = GetCurrentTime();
+        info.missionInfo.runningState = 0;
+        info.startMethod = CallType2StartMethod(abilityRequest.callType);
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
+        targetMission->UpdateMissionId(missionId, info.startMethod);
+        targetMission->UpdateMissionTime(info.missionInfo.time);
+    }
+
+    return true;
 }
 
-std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest, bool isStandard) const
+std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest) const
 {
     int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
-    std::string missionName = isStandard ? abilityRequest.abilityInfo.bundleName :
-        AbilityUtil::ConvertBundleNameSingleton(
-            abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name,
-            abilityRequest.abilityInfo.moduleName, appIndex);
-
-    return missionName;
+    return AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
+        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
 }
 
 bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &abilityRequest, InnerMissionInfo &info) const
 {
     // get mission name.
     bool reUsedMissionInfo = false;
-    bool isStandard = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD;
-    std::string missionName = GetMissionName(abilityRequest, isStandard);
+    bool needFind = false;
+    bool isFindRecentStandard = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD &&
+        abilityRequest.startRecent;
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD || isFindRecentStandard) {
+        needFind = true;
+    }
+
+    std::string missionName = GetMissionName(abilityRequest);
     auto mgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
-    if (!isStandard && !abilityRequest.abilityInfo.applicationInfo.isLauncherApp && mgr &&
-        mgr->FindReusedMissionInfo(missionName, abilityRequest.specifiedFlag, info) && info.missionInfo.id > 0) {
+    if (needFind && !abilityRequest.abilityInfo.applicationInfo.isLauncherApp && mgr &&
+        mgr->FindReusedMissionInfo(missionName, abilityRequest.specifiedFlag, isFindRecentStandard, info)
+        && info.missionInfo.id > 0) {
         reUsedMissionInfo = true;
     }
     HILOG_INFO("try find reused mission info. result:%{public}d", reUsedMissionInfo);
@@ -439,24 +455,18 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
         targetMission->SetLockedState(info.missionInfo.lockedState);
+        targetMission->UpdateMissionTime(info.missionInfo.time);
         targetRecord->SetMission(targetMission);
         targetRecord->SetOwnerMissionUserId(userId_);
-    } else {
-        HILOG_DEBUG("Update old mission data.");
-        auto state = targetMission->UpdateMissionId(info.missionInfo.id, info.startMethod);
-        if (!state) {
-            HILOG_INFO("targetMission UpdateMissionId(%{public}d, %{public}d) failed", info.missionInfo.id,
-                info.startMethod);
-        }
-        HILOG_DEBUG("Update MissionId (%{public}d, %{public}d) end", info.missionInfo.id, info.startMethod);
+        // handle specified
+        if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
+            targetMission->SetSpecifiedFlag(abilityRequest.specifiedFlag);
+            targetRecord->SetSpecifiedFlag(abilityRequest.specifiedFlag);
+         }
     }
 
     if (!findReusedMissionInfo && targetRecord) {
         info.missionInfo.label = targetRecord->GetLabel();
-    }
-
-    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED && targetRecord) {
-        targetRecord->SetSpecifiedFlag(abilityRequest.specifiedFlag);
     }
 
     if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp || abilityRequest.abilityInfo.excludeFromMissions) {
@@ -571,14 +581,16 @@ std::shared_ptr<Mission> MissionListManager::GetReusedMission(const AbilityReque
         return GetReusedSpecifiedMission(abilityRequest);
     }
 
+    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+        return GetReusedStandardMission(abilityRequest);
+    }
+
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
         return nullptr;
     }
 
     std::shared_ptr<Mission> reUsedMission = nullptr;
-    int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
-    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
+    std::string missionName = GetMissionName(abilityRequest);
 
     // find launcher first.
     if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
@@ -610,9 +622,7 @@ std::shared_ptr<Mission> MissionListManager::GetReusedSpecifiedMission(const Abi
 
     // specified mission name format is same as singleton.
     std::shared_ptr<Mission> reUsedMission = nullptr;
-    int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
-    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
+    std::string missionName = GetMissionName(abilityRequest);
     std::string flag = abilityRequest.specifiedFlag;
 
     // find launcher first.
@@ -635,6 +645,49 @@ std::shared_ptr<Mission> MissionListManager::GetReusedSpecifiedMission(const Abi
     }
 
     return nullptr;
+}
+
+std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const AbilityRequest &abilityRequest)
+{
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
+        return nullptr;
+    }
+
+    if (!abilityRequest.startRecent) {
+        return nullptr;
+    }
+
+    // all mission name format is same.
+    std::string missionName = GetMissionName(abilityRequest);
+    std::shared_ptr<Mission> reUsedMission = nullptr;
+
+    // find launcher first, if find it in launcher list, no need to find in other list.
+    if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+        if ((reUsedMission = launcherList_->GetRecentStandardMission(missionName)) != nullptr) {
+            return reUsedMission;
+        }
+    }
+
+    // try find it from current and default standard.
+    std::string missionTime = "0";
+    for (const auto &missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+
+        auto mission = missionList->GetRecentStandardMission(missionName);
+        if (mission && mission->GetMissionTime() >= missionTime) {
+            missionTime = mission->GetMissionTime();
+            reUsedMission = mission;
+        }
+    }
+
+    auto mission = defaultStandardList_->GetRecentStandardMission(missionName);
+    if (mission && mission->GetMissionTime() >= missionTime) {
+        reUsedMission = mission;
+    }
+
+    return reUsedMission;
 }
 
 void MissionListManager::MoveMissionToTargetList(bool isCallFromLauncher,
@@ -1018,10 +1071,12 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
 
     auto mission = abilityRecord->GetMission();
     if (mission) {
+        auto currentTime = GetCurrentTime();
+        mission->UpdateMissionTime(currentTime);
         InnerMissionInfo info;
         if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
             mission->GetMissionId(), info) == 0) {
-            info.missionInfo.time = GetCurrentTime();
+            info.missionInfo.time = currentTime;
             info.missionInfo.runningState = 0;
             DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
         }

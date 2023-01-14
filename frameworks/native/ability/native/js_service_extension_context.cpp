@@ -72,6 +72,12 @@ public:
         return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
     }
 
+    static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
+        return (me != nullptr) ? me->OnStartAbility(*engine, *info, true) : nullptr;
+    }
+
     static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
@@ -134,7 +140,7 @@ public:
 
 private:
     std::weak_ptr<ServiceExtensionContext> context_;
-    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         HILOG_INFO("OnStartAbility is called");
@@ -150,6 +156,11 @@ private:
         if (!CheckStartAbilityInputParam(engine, info, want, startOptions, unwrapArgc)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
+        }
+
+        if (isStartRecent) {
+            HILOG_INFO("OnStartRecentAbility is called");
+            want.SetParam(Want::PARAM_RESV_START_RECENT, true);
         }
 
         AsyncTask::CompleteCallback complete =
@@ -874,6 +885,8 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
         JsServiceExtensionContext::StopServiceExtensionAbility);
     BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsServiceExtensionContext::StopServiceExtensionAbilityWithAccount);
+    BindNativeFunction(engine, *object, "startRecentAbility", moduleName,
+        JsServiceExtensionContext::StartRecentAbility);
 
     return objValue;
 }

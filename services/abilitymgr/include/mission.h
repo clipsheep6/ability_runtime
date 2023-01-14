@@ -56,6 +56,13 @@ public:
     bool IsSpecifiedAbility() const;
 
     /**
+     * check whether ability contains by this mission is standard.
+     *
+     * @return is ability contains by this mission is standard.
+     */
+    bool IsStandardAbility() const;
+
+    /**
      * get owner mission list.
      *
      * @return mission list.
@@ -188,6 +195,16 @@ public:
         return needNotifyUpdateLabel_;
     }
 
+    inline void UpdateMissionTime(const std::string &missionTime)
+    {
+        missionTime_ = missionTime;
+    }
+
+    inline std::string GetMissionTime() const
+    {
+        return missionTime_;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -200,6 +217,7 @@ private:
     bool isANRState_ = false;
     bool needNotify_ = true;
     bool needNotifyUpdateLabel_ = false;
+    std::string missionTime_ = "0";
 };
 }  // namespace AAFwk
 }  // namespace OHOS

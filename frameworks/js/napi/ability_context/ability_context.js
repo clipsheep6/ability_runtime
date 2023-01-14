@@ -41,6 +41,10 @@ class AbilityContext extends Context {
         return this.__context_impl__.startAbility(want, options, callback)
     }
 
+    startRecentAbility(want, options, callback) {
+        return this.__context_impl__.startRecentAbility(want, options, callback)
+    }
+
     startAbilityWithAccount(want, accountId, options, callback) {
         return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback)
     }
