@@ -38,6 +38,7 @@ struct EventInfo {
     std::string moduleName;
     std::string abilityName;
     std::string processName;
+    int32_t abilityType = -1;
 };
 
 enum class EventName {

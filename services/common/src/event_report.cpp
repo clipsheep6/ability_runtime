@@ -30,6 +30,7 @@ const std::string EVENT_KEY_ERROR_CODE = "ERROR_CODE";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 const std::string EVENT_KEY_MODULE_NAME = "MODULE_NAME";
 const std::string EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
+const std::string EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
 const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
 const std::string EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
@@ -132,7 +133,6 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
             break;
         case EventName::ABILITY_ONFOREGROUND:
         case EventName::ABILITY_ONBACKGROUND:
-        case EventName::ABILITY_ONACTIVE:
         case EventName::ABILITY_ONINACTIVE:
             HiSysEvent::Write(
                 HiSysEvent::Domain::AAFWK,
@@ -141,6 +141,16 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::ABILITY_ONACTIVE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType);
             break;
         default:
             break;
