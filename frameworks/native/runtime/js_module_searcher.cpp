@@ -27,7 +27,7 @@ std::string JsModuleSearcher::GetBundleName() const
 
 std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
 {
-    return NormalizeUri(bundleName_, curJsModulePath, newJsModuleUri);
+    return AbilityBase::NormalizeUri(bundleName_, curJsModulePath, newJsModuleUri);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

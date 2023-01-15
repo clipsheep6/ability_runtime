@@ -32,6 +32,7 @@ config("module_private_config") {
     "${ability_runtime_services_path}/common/include",
     "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/app_distributeddata/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
   ]
   cflags = []
   if (target_cpu == "arm") {

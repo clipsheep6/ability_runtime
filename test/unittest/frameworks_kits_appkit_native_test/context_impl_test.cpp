@@ -20,7 +20,7 @@
 #include "context_impl.h"
 #undef private
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_local_record.h"
 #include "application_context.h"
 #include "context.h"
@@ -155,7 +155,7 @@ HWTEST_F(ContextImplTest, GetBundleCodeDir_0100, TestSize.Level1)
 
     // not create by system app
     codeDir = contextImpl->GetBundleCodeDir();
-    EXPECT_EQ(codeDir, AbilityRuntime::Constants::LOCAL_CODE_PATH);
+    EXPECT_EQ(codeDir, AbilityBase::Constants::LOCAL_CODE_PATH);
 
     // create by system app(flag is ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP)
     contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);

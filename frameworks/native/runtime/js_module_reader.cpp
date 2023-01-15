@@ -19,6 +19,8 @@
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
+using namespace OHOS::AbilityBase;
+
 namespace OHOS {
 namespace AbilityRuntime {
 std::vector<uint8_t> JsModuleReader::operator()(

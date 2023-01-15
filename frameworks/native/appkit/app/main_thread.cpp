@@ -19,7 +19,7 @@
 #include <regex>
 #include <unistd.h>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
 #include "ability_loader.h"
@@ -34,6 +34,7 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "extension_module_loader.h"
+#include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
@@ -70,7 +71,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 std::shared_ptr<OHOSApplication> MainThread::applicationForDump_ = nullptr;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
@@ -808,20 +809,18 @@ bool MainThread::CheckForHandleLaunchApplication(const AppLaunchData &appLaunchD
 }
 
 bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
-    BundleInfo& bundleInfo, const Configuration &config)
+    const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
+    bool multiProjects, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    bool isStageBased = bundleInfo.hapModuleInfos.empty() ? false : bundleInfo.hapModuleInfos.back().isStageBasedModel;
-    if (isStageBased && bundleInfo.applicationInfo.multiProjects) {
+    bool isStageBased = entryHapModuleInfo.isStageBasedModel;
+    if (isStageBased && multiProjects) {
         HILOG_INFO("MainThread::InitResourceManager for multiProjects.");
     } else {
-        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            std::string loadPath =  (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
-                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
-            if (loadPath.empty()) {
-                continue;
-            }
+        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName);
+        std::string loadPath =
+            (!entryHapModuleInfo.hapPath.empty()) ? entryHapModuleInfo.hapPath : entryHapModuleInfo.resourcePath;
+        if (!loadPath.empty()) {
             loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
             HILOG_DEBUG("ModuleResPath: %{public}s", loadPath.c_str());
             if (!resourceManager->AddResource(loadPath.c_str())) {
@@ -942,15 +941,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     mixStackDumper_ = std::make_shared<MixStackDumper>();
     mixStackDumper_->InstallDumpHandler(applicationForDump_, signalHandler_);
 
-    // init resourceManager.
-    HILOG_DEBUG("MainThread handle launch application, CreateResourceManager Start.");
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (resourceManager == nullptr) {
-        HILOG_ERROR("MainThread::handleLaunchApplication create resourceManager failed");
-        return;
-    }
-    HILOG_DEBUG("MainThread handle launch application, CreateResourceManager End.");
-
     sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("MainThread::handleLaunchApplication GetBundleManager is nullptr");
@@ -974,10 +964,22 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     bool moduelJson = false;
     bool isStageBased = false;
+    bool findEntryHapModuleInfo = false;
+    AppExecFwk::HapModuleInfo entryHapModuleInfo;
     if (!bundleInfo.hapModuleInfos.empty()) {
-        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
-        isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
-    }
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
+                findEntryHapModuleInfo = true;
+                entryHapModuleInfo = hapModuleInfo;
+                break;
+            }
+        }
+        if (!findEntryHapModuleInfo) {
+            HILOG_WARN("HandleLaunchApplication find entry hap module info failed!");
+            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
+        }
+        moduelJson = entryHapModuleInfo.isModuleJson;
+        isStageBased = entryHapModuleInfo.isStageBasedModel;    }
 
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
@@ -985,16 +987,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
         isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 
-    HILOG_DEBUG("MainThread handle launch application, InitResourceManager Start.");
-    if (!InitResourceManager(resourceManager, bundleInfo, config)) {
-        HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");
-        return;
-    }
-    HILOG_DEBUG("MainThread handle launch application, InitResourceManager End.");
-
     // create contextImpl
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    contextImpl->SetResourceManager(resourceManager);
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         std::make_shared<AbilityRuntime::ApplicationContext>();
@@ -1007,10 +1001,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityRuntime::Runtime::Options options;
         options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
-        options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
+        options.hapPath = entryHapModuleInfo.hapPath;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
-        options.isBundle = (bundleInfo.hapModuleInfos.back().compileMode != AppExecFwk::CompileMode::ES_MODULE);
+        options.isBundle = (entryHapModuleInfo.compileMode != AppExecFwk::CompileMode::ES_MODULE);
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         SetNativeLibPath(bundleInfo, options);
@@ -1080,11 +1074,30 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
     if (usertestInfo) {
-        if (!PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo)) {
+        if (!PrepareAbilityDelegator(usertestInfo, isStageBased, entryHapModuleInfo)) {
             HILOG_ERROR("Failed to prepare ability delegator");
             return;
         }
     }
+
+    // init resourceManager.
+    HILOG_DEBUG("MainThread handle launch application, CreateResourceManager Start.");
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("MainThread::handleLaunchApplication create resourceManager failed");
+        return;
+    }
+    HILOG_DEBUG("MainThread handle launch application, CreateResourceManager End.");
+
+    HILOG_DEBUG("MainThread handle launch application, InitResourceManager Start.");
+    if (!InitResourceManager(resourceManager, entryHapModuleInfo, bundleInfo.name,
+        bundleInfo.applicationInfo.multiProjects, config)) {
+        HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");
+        return;
+    }
+    HILOG_DEBUG("MainThread handle launch application, InitResourceManager End.");
+    contextImpl->SetResourceManager(resourceManager);
+    AbilityBase::ExtractResourceManager::GetExtractResourceManager().AddGlobalObject(resourceManager);
 
     contextDeal->initResourceManager(resourceManager);
     contextDeal->SetApplicationContext(application_);
@@ -1255,7 +1268,7 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
 }
 
 bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
-    BundleInfo& bundleInfo)
+    const AppExecFwk::HapModuleInfo &entryHapModuleInfo)
 {
     HILOG_DEBUG("enter, isStageBased = %{public}d", isStageBased);
     if (!record) {
@@ -1275,13 +1288,14 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         AbilityRuntime::Runtime::Options options;
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
-        options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
+        options.hapPath = entryHapModuleInfo.hapPath;
         options.loadAce = false;
-        if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
+        options.isStageModel = false;
+        if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
         }
-        bool isFaJsModel = bundleInfo.hapModuleInfos.front().abilityInfos.front().srcLanguage == "js" ? true : false;
+        bool isFaJsModel = entryHapModuleInfo.abilityInfos.front().srcLanguage == "js" ? true : false;
         static auto runtime = AbilityRuntime::Runtime::Create(options);
         auto testRunner = TestRunner::Create(runtime, args, isFaJsModel);
         if (testRunner == nullptr) {
@@ -2100,12 +2114,12 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
         if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
             (!hapInfo.hqfInfo.hqfFilePath.empty())) {
             std::string resolvedHapPath;
-            std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
+            std::string hapPath = AbilityBase::GetLoadPath(hapInfo.hapPath);
             auto position = hapPath.rfind('/');
             if (position != std::string::npos) {
                 resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
             }
-            std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
+            std::string resolvedHqfFile(AbilityBase::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
             HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
                 "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
                 hapInfo.process.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());

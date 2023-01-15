@@ -12,7 +12,6 @@
 # limitations under the License.
 
 bootevent.appfwk.ready=false
-compress=false
 component.startup.newRules=true
 component.startup.newRules.except.LauncherSystemUI=true
 component.startup.backgroundJudge.flag=true

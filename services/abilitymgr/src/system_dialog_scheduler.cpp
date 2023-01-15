@@ -16,7 +16,7 @@
 
 #include <regex>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "display_manager.h"
@@ -328,12 +328,11 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     resConfig->SetLocaleInfo(locale);
     resourceManager->UpdateResConfig(*resConfig);
 
-    std::regex pattern(std::string(AbilityRuntime::Constants::ABS_CODE_PATH) +
-        std::string(AbilityRuntime::Constants::FILE_SEPARATOR) + bundleInfo.name);
+    std::regex pattern(std::string(AbilityBase::Constants::ABS_CODE_PATH) +
+        std::string(AbilityBase::Constants::FILE_SEPARATOR) + bundleInfo.name);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
         std::string loadPath;
-        if (system::GetBoolParameter(AbilityRuntime::Constants::COMPRESS_PROPERTY, false) &&
-            !hapModuleInfo.hapPath.empty()) {
+        if (!hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {
             loadPath = hapModuleInfo.resourcePath;

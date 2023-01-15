@@ -26,7 +26,7 @@
 #include "js_runtime.h"
 #undef protected
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
 #include "event_runner.h"
@@ -40,7 +40,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 using namespace OHOS::RunnerRuntime;
 
 namespace {
