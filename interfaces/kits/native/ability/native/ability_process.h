@@ -28,6 +28,18 @@ namespace AppExecFwk {
  */
 class AbilityProcess {
 public:
+    struct RequestPermissionsParamInfo {
+        std::vector<std::string> permissionList;
+        std::vector<int> permissionsState;
+        int callbackKey;
+    };
+
+    struct RequestPermissionsResultCallback {
+        std::vector<std::string> permissions;
+        std::vector<int> grantResults;
+        int callbackKey;
+    };
+
     AbilityProcess();
     virtual ~AbilityProcess();
     static std::shared_ptr<AbilityProcess> GetInstance();
@@ -37,15 +49,20 @@ public:
     void AddAbilityResultCallback(Ability *ability, CallAbilityParam &param, int32_t errCode, CallbackInfo &callback);
 
     void RequestPermissionsFromUser(Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo);
-
+    void RequestPermissionsFromUser(NativeEngine &engine, Ability *ability, const RequestPermissionsParamInfo &param,
+        PermissionRequestTask &&task);
 private:
     bool CaullFunc(int requestCode, const std::vector<std::string> &permissions,
         const std::vector<int> &permissionsState, CallbackInfo &callbackInfo);
-
+    void StartGrantExtension(NativeEngine &engine, Ability *ability, const RequestPermissionsParamInfo &param,
+        PermissionRequestTask &&task);
+    static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityProcess> instance_;
     static std::map<Ability *, std::map<int, CallbackInfo>> abilityResultMap_;
+    static std::mutex permissionRequestMutex_;
+    static std::map<int, PermissionRequestTask> permissionRequestCallbackMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
