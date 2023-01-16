@@ -1724,6 +1724,13 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
 
     AbilityRequest abilityRequest;
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
+
+    Want requestWant = want;
+    requestWant.SetParam("abilityConnectionObj", connect->AsObject());
+    if (!IsComponentInterceptionStart(requestWant, callerToken, 0, result, abilityRequest)) {
+        return ERR_OK;
+    }
+
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
