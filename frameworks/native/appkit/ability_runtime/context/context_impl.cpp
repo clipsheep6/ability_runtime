@@ -19,6 +19,9 @@
 #include <regex>
 
 #include "ability_constants.h"
+#include "app_mgr_client.h"
+#include "bundle_mgr_proxy.h"
+#include "configuration_convertor.h"
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
@@ -29,12 +32,9 @@
 #endif
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
-#include "sys_mgr_client.h"
-#include "app_mgr_client.h"
-#include "system_ability_definition.h"
-#include "bundle_mgr_proxy.h"
-#include "configuration_convertor.h"
 #include "running_process_info.h"
+#include "sys_mgr_client.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
