@@ -129,6 +129,40 @@ ohos_unittest("shell_command_result_test") {
   ]
 }
 
+print("accessibility_enable = ", accessibility_enable)
+if (accessibility_enable) {
+  ohos_unittest("accessibility_ability_command_test") {
+    module_out_path = module_output_path
+
+    symlink_target_name = [ "ability_tool" ]
+
+    include_dirs = [ "//base/security/access_token/interfaces/innerkits/token_setproc/include/" ]
+
+    configs = [ ":tools_ability_delegator_config" ]
+
+    sources = [
+      "${ability_runtime_path}/tools/aa/src/accessibility_ability_command.cpp",
+      "${ability_runtime_path}/tools/aa/src/accessibility_ability_utils.cpp",
+      "accessibility_ability_command_test.cpp",
+    ]
+
+    deps = [
+      "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+      "//third_party/googletest:gtest_main",
+    ]
+
+    external_deps = [
+      "ability_base:configuration",
+      "access_token:libaccesstoken_sdk",
+      "access_token:libnativetoken",
+      "accessibility:accessibilityclient",
+      "accessibility:accessibilityconfig",
+      "bundle_framework:appexecfwk_base",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+    ]
+  }
+}
 group("unittest") {
   testonly = true
 
@@ -139,4 +173,7 @@ group("unittest") {
     ":test_observer_stub_test",
     ":test_observer_test",
   ]
+  if (accessibility_enable) {
+    deps += [ ":accessibility_ability_command_test" ]
+  }
 }
