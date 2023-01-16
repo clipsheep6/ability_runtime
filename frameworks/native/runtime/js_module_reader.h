@@ -20,14 +20,16 @@
 #include <string>
 
 #include "js_module_searcher.h"
-#include "runtime_extractor.h"
+#include "extractor.h"
+
+using Extractor = OHOS::AbilityBase::Extractor;
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsModuleReader final : private JsModuleSearcher {
 public:
     JsModuleReader(const std::string& bundleName, const std::string& hapPath,
-        const std::shared_ptr<RuntimeExtractor>& runtimeExtractor)
+        const std::shared_ptr<Extractor>& runtimeExtractor)
         : JsModuleSearcher(bundleName), hapPath_(hapPath), runtimeExtractor_(runtimeExtractor)
     {}
     ~JsModuleReader() = default;
@@ -41,7 +43,7 @@ public:
 
 private:
     std::string hapPath_;
-    std::shared_ptr<RuntimeExtractor> runtimeExtractor_;
+    std::shared_ptr<Extractor> runtimeExtractor_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

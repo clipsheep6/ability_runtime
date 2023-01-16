@@ -119,7 +119,6 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
-    "${ability_runtime_native_path}/runtime:string_utils",
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
   ]
 
@@ -127,6 +126,8 @@ ohos_shared_library("appkit_native") {
       [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractresourcemanager",
+    "ability_base:string_utils",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
@@ -174,6 +175,7 @@ ohos_shared_library("appkit_native") {
 # build so
 ohos_shared_library("app_context") {
   include_dirs = [
+    "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
   ]

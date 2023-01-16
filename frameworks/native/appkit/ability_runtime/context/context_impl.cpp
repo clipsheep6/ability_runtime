@@ -18,7 +18,7 @@
 #include <cerrno>
 #include <regex>
 
-#include "ability_constants.h"
+#include "constants.h"
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
@@ -38,7 +38,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-using namespace OHOS::AbilityRuntime::Constants;
+using namespace OHOS::AbilityBase::Constants;
 
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
@@ -363,8 +363,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
-            std::string loadPath =  (system::GetBoolParameter(COMPRESS_PROPERTY, false) &&
-                !hapModuleInfo.hapPath.empty()) ? hapModuleInfo.hapPath : hapModuleInfo.resourcePath;
+            std::string loadPath =  hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
             if (loadPath.empty()) {
                 continue;
             }

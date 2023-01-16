@@ -19,6 +19,7 @@
 
 using namespace testing;
 using namespace testing::ext;
+using namespace OHOS::AbilityBase;
 
 namespace OHOS {
 namespace AbilityRuntime {
