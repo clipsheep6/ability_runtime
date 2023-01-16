@@ -66,6 +66,7 @@ struct CallbackInfo {
     int errCode = 0;
     NativeEngine *engine = nullptr;
     std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = nullptr;
+    NativeReference *nativeRef = nullptr;
 };
 
 struct CallAbilityParamData {

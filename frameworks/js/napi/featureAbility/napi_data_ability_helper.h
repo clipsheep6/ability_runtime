@@ -15,16 +15,19 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H
 #define OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H
+#include <memory>
+
 #include "data_ability_observer_stub.h"
 #include "feature_ability_common.h"
+#include "js_napi_common_ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class NAPIDataAbilityObserver : public AAFwk::DataAbilityObserverStub {
 public:
     void OnChange() override;
-    void SetEnv(const napi_env &env);
-    void SetCallbackRef(const napi_ref &ref);
+    void SetEnv(NativeEngine *engine);
+    void SetCallbackRef(NativeReference *ref);
     void ReleaseJSCallback();
 
     void CallJsMethod();
@@ -32,439 +35,177 @@ public:
 private:
     void SafeReleaseJSCallback();
 
-    napi_env env_ = nullptr;
-    napi_ref ref_ = nullptr;
+    NativeEngine *engine_ = nullptr;
+    NativeReference *nativeRef_ = nullptr;
     bool isCallingback_ = false;
     bool needRelease_ = false;
     std::mutex mutex_;
 };
 
-/**
- * @brief DataAbilityHelper NAPI module registration.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param exports An empty object via the exports parameter as a convenience.
- *
- * @return The return value from Init is treated as the exports object for the module.
- */
-napi_value DataAbilityHelperInit(napi_env env, napi_value exports);
-napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info);
+class JsDataAbilityHelper {
+public:
+    explicit JsDataAbilityHelper(const std::shared_ptr<DataAbilityHelper> &dataAbilityHelper) :
+        dataAbilityHelper_(dataAbilityHelper) {}
+    ~JsDataAbilityHelper() = default;
 
-/**
- * @brief DataAbilityHelper NAPI method : insert.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_Insert(napi_env env, napi_callback_info info);
+    struct JsNormalizeUriData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::string result = "";
+    };
+    typedef JsNormalizeUriData JsDenormalizeUriData;
 
-/**
- * @brief Insert processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param insertCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value InsertWrap(napi_env env, napi_callback_info info, DAHelperInsertCB *insertCB);
+    struct JsReleaseData {
+        bool flag;
+    };
 
-/**
- * @brief Insert Async.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- * @param argcPromise Asynchronous data processing.
- * @param insertCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value InsertAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperInsertCB *insertCB);
+    struct JsExecuteBatchData {
+        int32_t errorVal = 0;
+        std::string uri;
+        std::vector<std::shared_ptr<DataAbilityOperation>> operations;
+        std::vector<std::shared_ptr<DataAbilityResult>> results;
+    };
 
-/**
- * @brief Insert Promise.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param insertCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value InsertPromise(napi_env env, DAHelperInsertCB *insertCB);
+    struct JsCallData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::string method;
+        std::string arg;
+        PacMap extras;
+        std::shared_ptr<PacMap> result;
+    };
 
-/**
- * @brief Insert asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void InsertExecuteCB(napi_env env, void *data);
+    struct JsGetFileTypesData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::string mimeTypeFilter = "";
+        std::vector<std::string> result;
+    };
 
-/**
- * @brief The callback at the end of the asynchronous callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void InsertAsyncCompleteCB(napi_env env, napi_status status, void *data);
+    struct JsGetTypeData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::string result;
+    };
 
-/**
- * @brief The callback at the end of the Promise callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void InsertPromiseCompleteCB(napi_env env, napi_status status, void *data);
+    struct JsOpenFileData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::string mode;
+        int result = 0;
+    };
 
-/**
- * @brief DataAbilityHelper NAPI method : notifyChange.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info);
+    struct JsBatchInsertData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        std::vector<NativeRdb::ValuesBucket> values;
+        int result = 0;
+    };
 
-/**
- * @brief NotifyChange processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param notifyChangeCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value NotifyChangeWrap(napi_env env, napi_callback_info info, DAHelperNotifyChangeCB *notifyChangeCB);
+    struct JsUpdateData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        NativeRdb::ValuesBucket valueBucket;
+        NativeRdb::DataAbilityPredicates predicates;
+        int result = 0;
+    };
 
-/**
- * @brief NotifyChange Async.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- * @param argcPromise Asynchronous data processing.
- * @param notifyChangeCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value NotifyChangeAsync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperNotifyChangeCB *notifyChangeCB);
+    struct JsQueryData {
+        int32_t errorVal = 0;
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> result = nullptr;
+        std::string uri = "";
+        std::vector<std::string> columns;
+        NativeRdb::DataAbilityPredicates predicates;
+    };
 
-/**
- * @brief NotifyChange Promise.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param notifyChangeCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value NotifyChangePromise(napi_env env, DAHelperNotifyChangeCB *notifyChangeCB);
+    struct JsDeleteData {
+        int32_t errorVal = 0;
+        std::string uri = "";
+        NativeRdb::DataAbilityPredicates predicates;
+        int result = 0;
+    };
 
-/**
- * @brief NotifyChange asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void NotifyChangeExecuteCB(napi_env env, void *data);
+    struct JsInsertData
+    {
+        int32_t errorVal = 0;
+        NativeRdb::ValuesBucket valueBucket;
+        std::string uri = "";
+        int result = 0;
+    };
 
-/**
- * @brief The callback at the end of the asynchronous callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void NotifyChangeAsyncCompleteCB(napi_env env, napi_status status, void *data);
+    struct JsNotifyChangeData
+    {
+        int32_t errorVal = 0;
+        std::string uri = "";
+    };
 
-/**
- * @brief The callback at the end of the Promise callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void NotifyChangePromiseCompleteCB(napi_env env, napi_status status, void *data);
+    static NativeValue* JsNormalizeUri(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsDenormalizeUri(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsRelease(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsExecuteBatch(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsCall(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsGetFileTypes(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsGetType(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsOpenFile(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsBatchInsert(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsUpdate(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsQuery(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsDelete(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsNotifyChange(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsInsert(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsRegister(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsUnRegister(NativeEngine *engine, NativeCallbackInfo *info);
+    static void Finalizer(NativeEngine *engine, void *data, void *hint);
+    std::shared_ptr<DataAbilityHelper> GetDataAbilityHelper()
+    {
+        return dataAbilityHelper_;
+    }
 
-/**
- * @brief DataAbilityHelper NAPI method : on.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_Register(napi_env env, napi_callback_info info);
+private:
+    NativeValue* OnNormalizeUri(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnDenormalizeUri(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnRelease(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnExecuteBatch(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnCall(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnGetFileTypes(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnGetType(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnOpenFile(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnBatchInsert(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnUpdate(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnQuery(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnDelete(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnNotifyChange(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnInsert(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnRegister(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* OnUnRegister(NativeEngine &engine, const NativeCallbackInfo &info);
+    NativeValue* CreateDataAbilityResult(NativeEngine &engine, const std::shared_ptr<DataAbilityResult> &data);
+    NativeValue* CreateExecuteBatchResult(NativeEngine &engine, const std::shared_ptr<JsExecuteBatchData> &data);
+    NativeValue* CreateCallResult(NativeEngine &engine, const std::shared_ptr<JsCallData> &data);
+    bool UnWarpExecuteBatchParams(NativeEngine &engine, const NativeCallbackInfo &info,
+        std::shared_ptr<JsExecuteBatchData> &data);
+    bool UnWarpCallParams(NativeEngine &engine, const NativeCallbackInfo &info, std::shared_ptr<JsCallData> &data);
+    void AnalysisPacMap(NativeEngine &engine, NativeValue *jsParam, AppExecFwk::PacMap &pacMap);
+    void SetPacMapObject(NativeEngine &engine, NativeValue *jsParam, const std::string strKey,
+        AppExecFwk::PacMap &pacMap);
 
-/**
- * @brief On processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param onCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *onCB);
+    std::shared_ptr<DataAbilityHelper> dataAbilityHelper_;
+};
 
-/**
- * @brief On Async.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- * @param argcPromise Asynchronous data processing.
- * @param onCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value RegisterAsync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *onCB);
+NativeValue* CreateJsDataAbilityHelper(NativeEngine &engine, const NativeCallbackInfo &info);
 
-/**
- * @brief On asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void RegisterExecuteCB(napi_env env, void *data);
-void RegisterCompleteCB(napi_env env, napi_status status, void *data);
-
-/**
- * @brief DataAbilityHelper NAPI method : off.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_UnRegister(napi_env env, napi_callback_info info);
-
-/**
- * @brief Off processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param offCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *offCB);
-
-/**
- * @brief Off Async.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param offCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB);
-
-/**
- * @brief Off asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void UnRegisterExecuteCB(napi_env env, void *data);
-void UnRegisterCompleteCB(napi_env env, napi_status status, void *data);
-void FindRegisterObs(napi_env env, DAHelperOnOffCB *data);
-/**
- * @brief Parse the ValuesBucket parameters.
- *
- * @param param Indicates the want parameters saved the parse result.
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args);
-
-napi_value NAPI_GetType(napi_env env, napi_callback_info info);
-napi_value NAPI_GetType(napi_env env, napi_callback_info info);
-napi_value GetTypeWrap(napi_env env, napi_callback_info info, DAHelperGetTypeCB *gettypeCB);
-napi_value GetTypeAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperGetTypeCB *gettypeCB);
-napi_value GetTypePromise(napi_env env, DAHelperGetTypeCB *gettypeCB);
-void GetTypeExecuteCB(napi_env env, void *data);
-void GetTypeAsyncCompleteCB(napi_env env, napi_status status, void *data);
-void GetTypePromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_GetFileTypes(napi_env env, napi_callback_info info);
-napi_value NAPI_GetFileTypes(napi_env env, napi_callback_info info);
-napi_value GetFileTypesWrap(napi_env env, napi_callback_info info, DAHelperGetFileTypesCB *getfiletypesCB);
-napi_value GetFileTypesAsync(
-    napi_env env, napi_value *args, const size_t argCallback, DAHelperGetFileTypesCB *getfiletypesCB);
-napi_value GetFileTypesPromise(napi_env env, DAHelperGetFileTypesCB *getfiletypesCB);
-void GetFileTypesExecuteCB(napi_env env, void *data);
-void GetFileTypesAsyncCompleteCB(napi_env env, napi_status status, void *data);
-void GetFileTypesPromiseCompleteCB(napi_env env, napi_status status, void *data);
-napi_value WrapGetFileTypesCB(napi_env env, const DAHelperGetFileTypesCB &getfiletypesCB);
-
-napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info);
-napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info);
-napi_value NormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperNormalizeUriCB *normalizeuriCB);
-napi_value NormalizeUriAsync(
-    napi_env env, napi_value *args, const size_t argCallback, DAHelperNormalizeUriCB *normalizeuriCB);
-napi_value NormalizeUriPromise(napi_env env, DAHelperNormalizeUriCB *normalizeuriCB);
-void NormalizeUriExecuteCB(napi_env env, void *data);
-void NormalizeUriAsyncCompleteCB(napi_env env, napi_status status, void *data);
-void NormalizeUriPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info);
-napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info);
-napi_value DenormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperDenormalizeUriCB *denormalizeuriCB);
-napi_value DenormalizeUriAsync(
-    napi_env env, napi_value *args, const size_t argCallback, DAHelperDenormalizeUriCB *denormalizeuriCB);
-napi_value DenormalizeUriPromise(napi_env env, DAHelperDenormalizeUriCB *denormalizeuriCB);
-void DenormalizeUriExecuteCB(napi_env env, void *data);
-void DenormalizeUriAsyncCompleteCB(napi_env env, napi_status status, void *data);
-void DenormalizeUriPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_Delete(napi_env env, napi_callback_info info);
-
-napi_value DeleteWrap(napi_env env, napi_callback_info info, DAHelperDeleteCB *deleteCB);
-napi_value DeleteAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperDeleteCB *deleteCB);
-
-napi_value DeletePromise(napi_env env, DAHelperDeleteCB *deleteCB);
-
-void DeleteExecuteCB(napi_env env, void *data);
-
-void DeleteAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_Update(napi_env env, napi_callback_info info);
-
-napi_value UpdateWrap(napi_env env, napi_callback_info info, DAHelperUpdateCB *updateCB);
-napi_value UpdateAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperUpdateCB *updateCB);
-
-napi_value UpdatePromise(napi_env env, DAHelperUpdateCB *updateCB);
-
-void UpdateExecuteCB(napi_env env, void *data);
-
-void UpdateAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-void UpdatePromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_Call(napi_env env, napi_callback_info info);
-
-napi_value NAPI_OpenFile(napi_env env, napi_callback_info info);
-
-napi_value OpenFileWrap(napi_env env, napi_callback_info info, DAHelperOpenFileCB *openFileCB);
-napi_value OpenFileAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperOpenFileCB *openFileCB);
-
-napi_value OpenFilePromise(napi_env env, DAHelperOpenFileCB *openFileCB);
-
-void OpenFileExecuteCB(napi_env env, void *data);
-
-void OpenFileAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-void OpenFilePromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-napi_value NAPI_BatchInsert(napi_env env, napi_callback_info info);
-
-napi_value BatchInsertWrap(napi_env env, napi_callback_info info, DAHelperBatchInsertCB *batchInsertCB);
-napi_value BatchInsertAsync(
-    napi_env env, napi_value *args, const size_t argCallback, DAHelperBatchInsertCB *batchInsertCB);
-
-napi_value BatchInsertPromise(napi_env env, DAHelperBatchInsertCB *batchInsertCB);
-
-void BatchInsertExecuteCB(napi_env env, void *data);
-
-void BatchInsertAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
+void FindRegisterObs(DAHelperOnOffCB *data);
 std::vector<NativeRdb::ValuesBucket> NapiValueObject(napi_env env, napi_value param);
-
 bool UnwrapArrayObjectFromJS(napi_env env, napi_value param, std::vector<NativeRdb::ValuesBucket> &value);
-
-napi_value NAPI_Query(napi_env env, napi_callback_info info);
-
-napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *queryCB);
-
-napi_value QuerySync(napi_env env, napi_value *args, const size_t argCallback, DAHelperQueryCB *queryCB);
-
-napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB);
-
-napi_value WrapResultSet(napi_env env, const std::shared_ptr<NativeRdb::AbsSharedResultSet> &resultSet);
-
 void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env &env, const napi_value &arg);
-void SetValuesBucketObject(
-    NativeRdb::ValuesBucket &valuesBucket, const napi_env &env, std::string keyStr, napi_value value);
-
+void SetValuesBucketObject(NativeRdb::ValuesBucket &valuesBucket, const napi_env &env,
+    std::string keyStr, napi_value value);
 void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, napi_env env, napi_value value);
-
-/**
- * @brief DataAbilityHelper NAPI method : executeBatch.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_ExecuteBatch(napi_env env, napi_callback_info info);
-
-/**
- * @brief ExecuteBatch processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param executeBatchCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecuteBatchCB *executeBatchCB);
-
-bool UnwrapArrayOperationFromJS(
-    napi_env env, napi_value param, std::vector<std::shared_ptr<DataAbilityOperation>> &result);
-/**
- * @brief ExecuteBatch Async.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- * @param argcPromise Asynchronous data processing.
- * @param executeBatchCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value ExecuteBatchAsync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperExecuteBatchCB *executeBatchCB);
-
-/**
- * @brief ExecuteBatch Promise.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param executeBatchCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value ExecuteBatchPromise(napi_env env, DAHelperExecuteBatchCB *executeBatchCB);
-
-/**
- * @brief ExecuteBatch asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void ExecuteBatchExecuteCB(napi_env env, void *data);
-
-/**
- * @brief The callback at the end of the asynchronous callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void ExecuteBatchAsyncCompleteCB(napi_env env, napi_status status, void *data);
-
-/**
- * @brief The callback at the end of the Promise callback.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void ExecuteBatchPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-void GetDataAbilityResultForResult(
-    napi_env env, const std::vector<std::shared_ptr<DataAbilityResult>> &dataAbilityResult, napi_value result);
-
 void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB);
-bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, const DataAbilityHelper* objectInfo);
+bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, const std::shared_ptr<DataAbilityHelper> &objectInfo);
 void EraseMemberProperties(DAHelperOnOffCB* onCB);
+void UnwrapDataAbilityPredicates(
+    NativeEngine& engine, NativeValue* jsParam, std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates);
+void AnalysisValuesBucket(NativeEngine& engine, NativeValue& jsParam, NativeRdb::ValuesBucket &valuesBucket);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H */

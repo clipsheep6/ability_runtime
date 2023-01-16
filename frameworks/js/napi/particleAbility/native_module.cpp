@@ -33,7 +33,6 @@ static napi_value ParticleInit(napi_env env, napi_value exports)
 {
     ParticleAbilityInit(env, exports);
     ContextPermissionInit(env, exports);
-    DataAbilityHelperInit(env, exports);
     return exports;
 }
 EXTERN_C_END

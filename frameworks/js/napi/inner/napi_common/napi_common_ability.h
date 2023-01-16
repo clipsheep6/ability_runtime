@@ -20,6 +20,7 @@
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "napi_common_ability_error.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -35,7 +36,6 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo);
 napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
     napi_value &result);
 napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result);
-int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
  * @brief Get Files Dir.

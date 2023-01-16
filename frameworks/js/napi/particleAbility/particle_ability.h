@@ -42,6 +42,7 @@ public:
     static NativeValue* PADisConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* PAStartAbility(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* PATerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* AcquireDataAbilityHelper(NativeEngine *engine, NativeCallbackInfo *info);
 };
 
 NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj);

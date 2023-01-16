@@ -103,6 +103,8 @@ public:
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
 #endif
     NativeValue* JsGetWant(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+    NativeValue* JsAcquireDataAbility(NativeEngine &engine, NativeCallbackInfo &info,
+        AbilityType abilityType);
     NativeValue* JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* JsStartAbility(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);
     NativeValue* JsGetExternalCacheDir(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);

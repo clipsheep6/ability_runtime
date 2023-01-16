@@ -133,8 +133,7 @@ ohos_shared_library("abilitykit_native") {
 
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
-    "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_ability.cpp",
+    "${ability_runtime_napi_path}/inner/napi_common/napi_common_ability error.cpp",
     "${ability_runtime_napi_path}/inner/napi_common/napi_common_configuration.cpp",
     "${ability_runtime_napi_path}/inner/napi_common/napi_common_start_options.cpp",
     "${ability_runtime_napi_path}/inner/napi_common/napi_common_util.cpp",

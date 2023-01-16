@@ -65,7 +65,6 @@ napi_value FeatureAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAbilityInfo", NAPI_GetAbilityInfo),
         DECLARE_NAPI_FUNCTION("getHapModuleInfo", NAPI_GetHapModuleInfo),
         DECLARE_NAPI_FUNCTION("getDataAbilityHelper", NAPI_GetDataAbilityHelper),
-        DECLARE_NAPI_FUNCTION("acquireDataAbilityHelper", NAPI_AcquireDataAbilityHelper),
         DECLARE_NAPI_FUNCTION("continueAbility", NAPI_FAContinueAbility),
         DECLARE_NAPI_FUNCTION("getWantSync", NAPI_GetWantSync),
     };
@@ -92,6 +91,7 @@ public:
     static NativeValue* FinishWithResult(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* TerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetWindow(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* AcquireDataAbilityHelper(NativeEngine* engine, NativeCallbackInfo* info);
 private:
     NativeValue* OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnFinishWithResult(NativeEngine &engine, NativeCallbackInfo &info);
@@ -131,6 +131,8 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
     BindNativeFunction(*engine, *object, "hasWindowFocus", moduleName, JsFeatureAbility::HasWindowFocus);
     BindNativeFunction(*engine, *object, "connectAbility", moduleName, JsFeatureAbility::ConnectAbility);
     BindNativeFunction(*engine, *object, "disconnectAbility", moduleName, JsFeatureAbility::DisconnectAbility);
+    BindNativeFunction(*engine, *object, "acquireDataAbilityHelper",
+        moduleName, JsFeatureAbility::AcquireDataAbilityHelper);
     BindNativeFunction(*engine, *object, "startAbilityForResult", moduleName, JsFeatureAbility::StartAbilityForResult);
     BindNativeFunction(*engine, *object, "getContext", moduleName, JsFeatureAbility::GetContext);
     BindNativeFunction(*engine, *object, "getWindow", moduleName, JsFeatureAbility::GetWindow);
@@ -177,6 +179,12 @@ NativeValue* JsFeatureAbility::StartAbilityForResult(NativeEngine *engine, Nativ
 {
     JsFeatureAbility *me = CheckParamsAndGetThis<JsFeatureAbility>(engine, info);
     return (me != nullptr) ? me->OnStartAbilityForResult(*engine, *info) : nullptr;
+}
+
+NativeValue* JsFeatureAbility::AcquireDataAbilityHelper(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    auto *me = CheckParamsAndGetThis<JsFeatureAbility>(engine, info);
+    return (me != nullptr) ? me->JsAcquireDataAbility(*engine, *info, AbilityType::PAGE) : nullptr;
 }
 
 NativeValue* JsFeatureAbility::GetContext(NativeEngine *engine, NativeCallbackInfo *info)

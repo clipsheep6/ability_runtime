@@ -26,6 +26,7 @@
 #include "napi_context.h"
 #include "napi_base_context.h"
 #include "napi_remote_object.h"
+#include "napi_data_ability_helper.h"
 #include "securec.h"
 
 using namespace OHOS::AbilityRuntime;
@@ -34,63 +35,6 @@ namespace OHOS {
 namespace AppExecFwk {
 napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
-const int32_t ERR_ABILITY_START_SUCCESS = 0;
-const int32_t ERR_ABILITY_QUERY_FAILED = 1;
-const int32_t ERR_NETWORK_UNAVAILABLE = 2;
-const int32_t ERR_SYSTEM_ERROR = 3;
-const int32_t ERR_LOADING_ERROR = 4;
-const int32_t ERR_CONCURRENT_TASKS_WAITING_FOR_RETRY = 5;
-const int32_t ERR_FREE_INSTALL_NOT_SUPPORTED = 6;
-const int32_t ERR_SERVICE_ERROR = 7;
-const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
-const int32_t ERR_PARAMETER_INVALID = 9;
-const int32_t ERR_REMOTE_INCOMPATIBLE = 10;
-const int32_t ERR_DEVICE_OFFLINE = 11;
-const int32_t ERR_FREE_INSTALL_TIMEOUT = 12;
-const int32_t ERR_NOT_TOP_ABILITY = 13;
-const int32_t ERR_TARGET_BUNDLE_NOT_EXIST = 14;
-const int32_t ERR_CONTINUE_FREE_INSTALL_FAILED = 15;
-const int32_t ERR_PARAM_INVALID = 202;
-const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
-    { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
-    { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
-    { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_PARAM_INVALID, ERR_PARAM_INVALID },
-    { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
-    { ERR_OK, ERR_ABILITY_START_SUCCESS },
-    { RESOLVE_ABILITY_ERR, ERR_ABILITY_QUERY_FAILED },
-    { CHECK_PERMISSION_FAILED, ERR_PERMISSION_VERIFY_FAILED },
-    { RESOLVE_CALL_NO_PERMISSIONS, ERR_PERMISSION_VERIFY_FAILED },
-    { FA_FREE_INSTALL_QUERY_ERROR, ERR_ABILITY_QUERY_FAILED },
-    { HAG_QUERY_TIMEOUT, ERR_ABILITY_QUERY_FAILED },
-    { FA_NETWORK_UNAVAILABLE, ERR_NETWORK_UNAVAILABLE },
-    { FA_FREE_INSTALL_SERVICE_ERROR, ERR_SYSTEM_ERROR },
-    { FA_CRASH, ERR_SYSTEM_ERROR },
-    { FA_TIMEOUT, ERR_SYSTEM_ERROR },
-    { UNKNOWN_EXCEPTION, ERR_SYSTEM_ERROR },
-    { NOT_SUPPORT_PA_ON_SAME_DEVICE, ERR_SYSTEM_ERROR },
-    { FA_INTERNET_ERROR, ERR_SYSTEM_ERROR },
-    { JUMP_TO_THE_APPLICATION_MARKET_UPGRADE, ERR_SYSTEM_ERROR },
-    { USER_GIVES_UP, ERR_LOADING_ERROR },
-    { INSTALLATION_ERROR_IN_FREE_INSTALL, ERR_LOADING_ERROR },
-    { HAP_PACKAGE_DOWNLOAD_TIMED_OUT, ERR_LOADING_ERROR },
-    { CONCURRENT_TASKS_WAITING_FOR_RETRY, ERR_CONCURRENT_TASKS_WAITING_FOR_RETRY },
-    { FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL, ERR_FREE_INSTALL_NOT_SUPPORTED },
-    { NOT_ALLOWED_TO_PULL_THIS_FA, ERR_SERVICE_ERROR },
-    { NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA, ERR_SERVICE_ERROR },
-    { DMS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { DMS_COMPONENT_ACCESS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { DMS_ACCOUNT_ACCESS_PERMISSION_DENIED, ERR_PERMISSION_VERIFY_FAILED },
-    { INVALID_PARAMETERS_ERR, ERR_PARAMETER_INVALID },
-    { INVALID_REMOTE_PARAMETERS_ERR, ERR_PARAMETER_INVALID },
-    { REMOTE_DEVICE_NOT_COMPATIBLE, ERR_REMOTE_INCOMPATIBLE },
-    { DEVICE_OFFLINE_ERR, ERR_DEVICE_OFFLINE },
-    { FREE_INSTALL_TIMEOUT, ERR_FREE_INSTALL_TIMEOUT },
-    { NOT_TOP_ABILITY, ERR_NOT_TOP_ABILITY },
-    { TARGET_BUNDLE_NOT_EXIST, ERR_TARGET_BUNDLE_NOT_EXIST },
-    { CONTINUE_FREE_INSTALL_FAILED, ERR_CONTINUE_FREE_INSTALL_FAILED }
-};
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
@@ -304,15 +248,6 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
-}
-
-int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
-{
-    auto iter = START_ABILITY_ERROR_CODE_MAP.find(innerErrorCode);
-    if (iter != START_ABILITY_ERROR_CODE_MAP.end()) {
-        return iter->second;
-    }
-    return ERR_ABILITY_QUERY_FAILED;
 }
 
 /**
@@ -4549,6 +4484,51 @@ NativeValue* JsNapiCommon::JsGetDisplayOrientation(
     return result;
 }
 #endif
+
+NativeValue* JsNapiCommon::JsAcquireDataAbility(NativeEngine &engine, NativeCallbackInfo &info,
+    AbilityType abilityType)
+{
+    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    if (info.argc > ARGS_TWO) {
+        HILOG_DEBUG("Wrong argument count");
+        return engine.CreateNull();
+    }
+    napi_env env = reinterpret_cast<napi_env>(&engine);
+    napi_value arg0 = reinterpret_cast<napi_value>(info.argv[0]);
+    size_t uriIndex = PARAM0;
+    bool stageMode = false;
+    napi_status status = OHOS::AbilityRuntime::IsStageContext(env, arg0, stageMode);
+    if (status != napi_ok) {
+        HILOG_DEBUG("argv[0] is not a context, FA Model");
+    } else {
+        uriIndex = PARAM1;
+        HILOG_DEBUG("argv[0] is a contxt, Stage Model: %{public}d", stageMode);
+    }
+    if (!stageMode) {
+        auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
+        if (ability == nullptr) {
+            HILOG_ERROR("Failed to get native context instance");
+            return engine.CreateNull();
+        }
+        ability_ = ability;
+        if (!CheckAbilityType(abilityType)) {
+            HILOG_ERROR("Ability type invalid.");
+            return engine.CreateNull();
+        }
+    }
+    if (info.argv[uriIndex]->TypeOf() != NATIVE_STRING) {
+        HILOG_ERROR("Wrong argument type.");
+        return engine.CreateNull();
+    }
+
+    auto ret = CreateJsDataAbilityHelper(engine, info);
+
+    if (ret == nullptr) {
+        HILOG_ERROR("CreateJsDataAbilityHelper wrong.");
+        return engine.CreateNull();
+    }
+    return ret;
+}
 
 NativeValue* JsNapiCommon::CreateProcessInfo(NativeEngine &engine, const std::shared_ptr<JsProcessInfo> &processInfo)
 {

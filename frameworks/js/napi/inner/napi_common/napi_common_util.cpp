@@ -16,10 +16,13 @@
 
 #include <cstring>
 
+#include "js_runtime_utils.h"
 #include "hilog_wrapper.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
 #include "securec.h"
+
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1213,6 +1216,86 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     if (retCode != 0) {
         return {};
     }
+    return result;
+}
+
+std::vector<uint8_t> ConvertU8Vector(NativeEngine& engine, NativeValue* jsParam)
+{
+    auto arrayBuffer = ConvertNativeValueTo<NativeTypedArray>(jsParam);
+    if (arrayBuffer == nullptr) {
+        HILOG_ERROR("%{public}s convert native value error.", __func__);
+        return {};
+    }
+
+    auto type = arrayBuffer->GetTypedArrayType();
+    if (type != NativeTypedArrayType::NATIVE_UINT8_ARRAY) {
+        HILOG_ERROR("%{public}s array type is %{public}d, error.", __func__, static_cast<int32_t>(type));
+        return {};
+    }
+
+    size_t length = arrayBuffer->GetLength();
+    size_t offset = arrayBuffer->GetOffset();
+    auto buffer = ConvertNativeValueTo<NativeArrayBuffer>(arrayBuffer->GetArrayBuffer());
+    if (buffer == nullptr) {
+        HILOG_ERROR("%{public}s convert native value error.", __func__);
+        return {};
+    }
+
+    size_t total = buffer->GetLength();
+    uint8_t* data = reinterpret_cast<uint8_t*>(buffer->GetBuffer());
+    if (data == nullptr) {
+        HILOG_ERROR("%{public}s buffer is nullptr.", __func__);
+        return {};
+    }
+
+    length = std::min<size_t>(length, total - offset);
+    std::vector<uint8_t> result(sizeof(uint8_t) + length);
+    int retCode = memcpy_s(result.data(), result.size(), &data[offset], length);
+    if (retCode != 0) {
+        HILOG_ERROR("%{public}s memory processing error.", __func__);
+        return {};
+    }
+
+    return result;
+}
+
+std::vector<std::string> ConvertStringVector(NativeEngine& engine, NativeValue* jsParam)
+{
+    auto arrayBuffer = ConvertNativeValueTo<NativeTypedArray>(jsParam);
+    if (arrayBuffer == nullptr) {
+        HILOG_ERROR("%{public}s convert native value error.", __func__);
+        return {};
+    }
+
+    auto type = arrayBuffer->GetTypedArrayType();
+    if (type != NativeTypedArrayType::NATIVE_UINT8_ARRAY) {
+        HILOG_ERROR("%{public}s array type is %{public}d, error.", __func__, static_cast<int32_t>(type));
+        return {};
+    }
+
+    size_t length = arrayBuffer->GetLength();
+    size_t offset = arrayBuffer->GetOffset();
+    auto buffer = ConvertNativeValueTo<NativeArrayBuffer>(arrayBuffer->GetArrayBuffer());
+    if (buffer == nullptr) {
+        HILOG_ERROR("%{public}s convert native value error.", __func__);
+        return {};
+    }
+
+    size_t total = buffer->GetLength();
+    std::string *data = reinterpret_cast<std::string*>(buffer->GetBuffer());
+    if (data == nullptr) {
+        HILOG_ERROR("%{public}s buffer is nullptr.", __func__);
+        return {};
+    }
+
+    length = std::min<size_t>(length, total - offset);
+    std::vector<std::string> result(sizeof(std::string) + length);
+    int retCode = memcpy_s(result.data(), result.size(), &data[offset], length);
+    if (retCode != 0) {
+        HILOG_ERROR("%{public}s memory processing error.", __func__);
+        return {};
+    }
+
     return result;
 }
 }  // namespace AppExecFwk

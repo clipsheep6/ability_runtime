@@ -19,9 +19,12 @@
 
 #include "data_ability_predicates.h"
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
 #include "napi_common_want.h"
 #include "napi_data_ability_helper.h"
 #include "values_bucket.h"
+
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -221,6 +224,171 @@ void SetNamedProperty(napi_env env, napi_value obj, const char *propName, int pr
     napi_value prop = nullptr;
     napi_create_int32(env, propValue, &prop);
     napi_set_named_property(env, obj, propName, prop);
+}
+
+void UnwrapValuesBucket(NativeEngine& engine, NativeValue* jsParam, std::shared_ptr<NativeRdb::ValuesBucket> &param)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (param == nullptr || jsParam == nullptr || jsParam->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("%{public}s input param is error.", __func__);
+        return;
+    }
+
+    AnalysisValuesBucket(engine, *jsParam, *param);
+}
+
+void UnwrapDataAbilityPredicatesBackReferences(
+    NativeEngine& engine, NativeValue* jsParam, std::shared_ptr<DataAbilityOperationBuilder> &param)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (param == nullptr || jsParam == nullptr || jsParam->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("%{public}s, input params is error.", __func__);
+        return;
+    }
+
+    auto object = ConvertNativeValueTo<NativeObject>(jsParam);
+    if (object == nullptr) {
+        HILOG_ERROR("{%{public}s Convert Native Value params error", __func__);
+        return;
+    }
+
+    auto array = ConvertNativeValueTo<NativeArray>(object->GetPropertyNames());
+    for (uint32_t i = 0; i < array->GetLength(); i++) {
+        auto itemName = array->GetElement(i);
+        std::string strName("");
+        ConvertFromJsValue(engine, itemName, strName);
+        auto itemValue = object->GetProperty(itemName);
+        int32_t value = 0;
+        if (ConvertFromJsValue(engine, itemValue, value)) {
+            param->WithPredicatesBackReference(std::stoi(strName), value);
+        }
+    }
+}
+
+NativeValue* BuildDataAbilityOperation(
+    NativeEngine &engine, NativeValue &jsParam, std::shared_ptr<DataAbilityOperation> &dataAbilityOperation)
+{
+    HILOG_DEBUG("called.");
+    auto object = ConvertNativeValueTo<NativeObject>(&jsParam);
+    // get uri
+    std::string uriStr("");
+    if (!object->HasProperty("uri")) {
+        HILOG_ERROR("param no uri.");
+        return nullptr;
+    }
+    NativeValue *jsUri = object->GetProperty("uri");
+    if (jsUri->TypeOf() != NativeValueType::NATIVE_STRING) {
+        HILOG_ERROR("uri type is error.");
+        return nullptr;
+    }
+    if (!ConvertFromJsValue(engine, jsUri, uriStr)) {
+        HILOG_ERROR("convert from JsValue failed.");
+        return nullptr;
+    }
+
+    // get type
+    int32_t type = 0;
+    if (!object->HasProperty("type")) {
+        HILOG_ERROR("param no type.");
+        return nullptr;
+    }
+    NativeValue *jsType = object->GetProperty("type");
+    if (jsType->TypeOf() != NativeValueType::NATIVE_NUMBER) {
+        HILOG_ERROR("param type is error.");
+        return nullptr;
+    }
+    if (!ConvertFromJsValue(engine, jsType, type)) {
+        HILOG_ERROR("convert from JsValue failed.");
+        return nullptr;
+    }
+
+    // carate builder
+    HILOG_DEBUG("GetDataAbilityOperationBuilder, type=%{public}d, uri=%{public}s", type, uriStr.c_str());
+    std::shared_ptr<DataAbilityOperationBuilder> builder = nullptr;
+    if (!GetDataAbilityOperationBuilder(builder, type, std::make_shared<Uri>(uriStr))) {
+        HILOG_ERROR("GetDataAbilityOperationBuilder failed.");
+        return nullptr;
+    }
+
+    // get expectedCount if it has
+    int32_t expectedCount = 0;
+    if (object->HasProperty("expectedCount")) {
+        NativeValue *jsExpectedCount = object->GetProperty("expectedCount");
+        if (jsExpectedCount->TypeOf() == NativeValueType::NATIVE_NUMBER) {
+            ConvertFromJsValue(engine, jsExpectedCount, expectedCount);
+        }
+    }
+    if (expectedCount > 0) {
+        builder->WithExpectedCount(expectedCount);
+    }
+
+    // get interrupted if it has
+    bool interrupted = false;
+    if (object->HasProperty("interrupted")) {
+        NativeValue *jsInterrupted = object->GetProperty("interrupted");
+        if (jsInterrupted->TypeOf() == NativeValueType::NATIVE_BOOLEAN) {
+            ConvertFromJsValue(engine, jsInterrupted, interrupted);
+        }
+    }
+    builder->WithInterruptionAllowed(interrupted);
+
+    // get valuesBucket if it has
+    auto valuesBucket = std::make_shared<NativeRdb::ValuesBucket>();
+    valuesBucket->Clear();
+    if (object->HasProperty("valuesBucket")) {
+        NativeValue *jsValuesBucket = object->GetProperty("valuesBucket");
+        if (jsValuesBucket->TypeOf() == NativeValueType::NATIVE_OBJECT) {
+            UnwrapValuesBucket(engine, jsValuesBucket, valuesBucket);
+        }
+    }
+    builder->WithValuesBucket(valuesBucket);
+
+    // get valueBackReferences if it has
+    auto backReferences = std::make_shared<NativeRdb::ValuesBucket>();
+    backReferences->Clear();
+    if (object->HasProperty("valueBackReferences")) {
+        NativeValue *jsBackReferences = object->GetProperty("valueBackReferences");
+        if (jsBackReferences->TypeOf() == NativeValueType::NATIVE_OBJECT) {
+            UnwrapValuesBucket(engine, jsBackReferences, backReferences);
+        }
+    }
+    builder->WithValueBackReferences(backReferences);
+
+    // get predicates if it has
+    auto predicates = std::make_shared<NativeRdb::DataAbilityPredicates>();
+    if (object->HasProperty("predicates")) {
+        NativeValue *jsPredicates = object->GetProperty("predicates");
+        if (jsPredicates->TypeOf() == NativeValueType::NATIVE_OBJECT) {
+            UnwrapDataAbilityPredicates(engine, jsPredicates, predicates);
+        }
+    }
+    builder->WithPredicates(predicates);
+
+    // get predicatesBackReferences if it has
+    if (object->HasProperty("PredicatesBackReferences")) {
+        NativeValue *jsPredicatesBackReferences = object->GetProperty("PredicatesBackReferences");
+        if (jsPredicatesBackReferences->TypeOf() == NativeValueType::NATIVE_OBJECT) {
+            UnwrapDataAbilityPredicatesBackReferences(engine, jsPredicatesBackReferences, builder);
+        }
+    }
+
+    if (builder != nullptr) {
+        HILOG_DEBUG("builder is not nullptr");
+        dataAbilityOperation = builder->Build();
+    }
+    return CreateJsValue(engine, 1);
+}
+
+NativeValue* UnwrapDataAbilityOperation(
+    NativeEngine &engine, NativeValue *jsParam, std::shared_ptr<DataAbilityOperation> &operation)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (jsParam == nullptr || jsParam->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("%{public}s, input params error.", __func__);
+        return nullptr;
+    }
+
+    return BuildDataAbilityOperation(engine, *jsParam, operation);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

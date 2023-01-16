@@ -201,7 +201,7 @@ struct DAHelperNotifyChangeCB {
 class NAPIDataAbilityObserver;
 struct DAHelperOnOffCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::shared_ptr<DataAbilityHelper> dataAbilityHelper = nullptr;
     sptr<NAPIDataAbilityObserver> observer;
     std::string uri;
     int result = 0;
