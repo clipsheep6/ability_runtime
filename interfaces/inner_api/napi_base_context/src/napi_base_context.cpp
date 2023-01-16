@@ -14,6 +14,7 @@
  */
 
 #include "napi_base_context.h"
+#include "hilog_wrapper.h"
 
 #define OHOS_CALL_NAPI_RETURN(call) \
     do {                            \
@@ -48,10 +49,17 @@ std::shared_ptr<Context> GetStageModeContext(napi_env env, napi_value object)
     void* wrapped = nullptr;
     napi_status ret = napi_unwrap(env, object, &wrapped);
     if (ret != napi_ok) {
+        HILOG_INFO("%{public}s napi_unwrap failed", __func__);
         return nullptr;
     }
-
+    HILOG_INFO("%{public}s napi_unwrap success", __func__);
     auto weakContext = static_cast<std::weak_ptr<Context>*>(wrapped);
+    if (wrapped == nullptr) {
+        HILOG_INFO("%{public}s Context == nullptr", __func__);
+    }
+    if (weakContext == nullptr) {
+        HILOG_INFO("%{public}s weakContext == nullptr", __func__);
+    }
     return weakContext != nullptr ? weakContext->lock() : nullptr;
 }
 

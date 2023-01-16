@@ -12,10 +12,14 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("napi_context_base_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "${ability_runtime_services_path}/common/include",
+  ]
 }
 
 ohos_shared_library("napi_base_context") {
@@ -25,7 +29,10 @@ ohos_shared_library("napi_base_context") {
 
   public_configs = [ ":napi_context_base_public_config" ]
 
-  external_deps = [ "napi:ace_napi" ]
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "napi:ace_napi",
+  ]
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
