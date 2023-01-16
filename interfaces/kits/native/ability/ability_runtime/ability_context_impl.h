@@ -168,6 +168,8 @@ public:
         isTerminating_ = state;
     }
 
+    ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) override;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.
@@ -207,6 +209,7 @@ private:
     bool isTerminating_ = false;
 
     static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
+    static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,
         const std::vector<int>& permissionsState, int requestCode, PermissionRequestTask &&task);
 

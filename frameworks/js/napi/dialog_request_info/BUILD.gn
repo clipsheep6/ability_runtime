@@ -14,49 +14,29 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("napi_common_public_config") {
-  include_dirs = [ "./" ]
+config("dialog_request_info_external_config") {
+  include_dirs = [ "include" ]
 }
 
-ohos_shared_library("napi_common") {
-  include_dirs = [
-    "${ability_runtime_napi_path}/featureAbility",
-    "//third_party/node/src",
-  ]
+ohos_shared_library("dialog_request_info") {
+  sources = [ "request_info.cpp" ]
 
-  public_configs = [ ":napi_common_public_config" ]
+  public_configs = [ ":dialog_request_info_external_config" ]
 
-  sources = [
-    "napi_common_ability.cpp",
-    "napi_common_configuration.cpp",
-    "napi_common_start_options.cpp",
-    "napi_common_util.cpp",
-    "napi_common_want.cpp",
-  ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [ "//third_party/libuv:uv" ]
+  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
 
   external_deps = [
     "ability_base:base",
-    "ability_base:configuration",
     "ability_base:want",
-    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
-    "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
-    "ability_runtime:wantagent_innerkits",
-    "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
   ]
-
-  if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
-  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

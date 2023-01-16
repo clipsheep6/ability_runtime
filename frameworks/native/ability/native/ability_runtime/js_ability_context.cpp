@@ -168,6 +168,12 @@ NativeValue* JsAbilityContext::RestoreWindowStage(NativeEngine* engine, NativeCa
     return (me != nullptr) ? me->OnRestoreWindowStage(*engine, *info) : nullptr;
 }
 
+NativeValue* JsAbilityContext::RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnRequestDialogService(*engine, *info) : nullptr;
+}
+
 NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
@@ -1007,6 +1013,51 @@ NativeValue* JsAbilityContext::OnRestoreWindowStage(NativeEngine& engine, Native
     return engine.CreateUndefined();
 }
 
+NativeValue* JsAbilityContext::OnRequestDialogService(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("OnRequestDialogService is called");
+
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]), want);
+    HILOG_INFO("requestdialogservice, target:%{public}s.%{public}s.", want.GetBundle().c_str(),
+        want.GetElement().GetAbilityName().c_str());
+
+    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
+    RequestDialogResultTask task =
+        [&engine, asyncTask](int32_t resultCode) {
+        HILOG_INFO("OnRequestDialogService async callback is called");
+        NativeValue* requestResult = JsAbilityContext::WrapRequestDialogResult(engine, resultCode);
+        if (requestResult == nullptr) {
+            HILOG_WARN("wrap requestResult failed");
+            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+        } else {
+            asyncTask->Resolve(engine, requestResult);
+        }
+        HILOG_INFO("OnRequestDialogService async callback is called end");
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released, can not requestDialogService");
+        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        auto errCode = context->RequestDialogService(engine, want, std::move(task));
+        if (errCode != ERR_OK) {
+            asyncTask->Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errCode)));
+        }
+    }
+    HILOG_INFO("OnRequestDialogService is called end");
+    return result;
+}
+
 NativeValue* JsAbilityContext::OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_INFO("OnIsTerminating is called");
@@ -1064,6 +1115,19 @@ bool JsAbilityContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue* ar
         return false;
     }
     return JsAbilityContext::UnWrapWant(engine, jWant, want);
+}
+
+NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode)
+{
+    NativeValue *objValue = engine.CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
+
+    object->SetProperty("result", CreateJsValue(engine, resultCode));
+    return objValue;
 }
 
 NativeValue* JsAbilityContext::WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want)
@@ -1186,6 +1250,8 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     BindNativeFunction(engine, *object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
     BindNativeFunction(engine, *object, "startRecentAbility", moduleName,
         JsAbilityContext::StartRecentAbility);
+    BindNativeFunction(engine, *object, "requestDialogService", moduleName,
+        JsAbilityContext::RequestDialogService);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(engine, *object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);

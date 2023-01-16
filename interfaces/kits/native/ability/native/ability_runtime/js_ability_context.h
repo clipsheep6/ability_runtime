@@ -55,6 +55,7 @@ public:
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
 
     static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
@@ -92,6 +93,7 @@ private:
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnRequestDialogService(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
 
     static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
@@ -101,6 +103,7 @@ private:
     static NativeValue* WrapPermissionRequestResult(NativeEngine& engine,
         const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
+    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
