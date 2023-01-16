@@ -92,7 +92,6 @@ const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can en
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 // Startup rule switch
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
@@ -5688,12 +5687,6 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
 
     if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
         isBackgroundCall = true;
-        return ERR_OK;
-    }
-
-    if (!abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
-        // The call is from AbilityDelegator, no need to check permission
-        isBackgroundCall = false;
         return ERR_OK;
     }
 

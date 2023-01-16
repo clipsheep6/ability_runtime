@@ -282,7 +282,6 @@ ErrCode AbilityDelegator::StartAbility(const AAFwk::Want &want)
         HILOG_INFO("Set Debug to the want which used for starting the ability");
         realWant.SetParam("debugApp", true);
     }
-    realWant.SetParam(IS_DELEGATOR_CALL, true);
 
     return AbilityManagerClient::GetInstance()->StartAbility(realWant);
 }
