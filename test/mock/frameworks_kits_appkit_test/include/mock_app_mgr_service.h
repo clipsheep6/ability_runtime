@@ -114,6 +114,11 @@ public:
         return 0;
     }
 
+    virtual int GetProcessRunningInformation(RunningProcessInfo &info)
+    {
+        return 0;
+    }
+
     int IsBackgroundRunningRestricted(const std::string &appName)
     {
         return 0;

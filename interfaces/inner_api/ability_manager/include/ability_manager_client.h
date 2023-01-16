@@ -340,7 +340,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode KillProcess(const std::string &bundleName);
-
+    
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Force ability timeout.

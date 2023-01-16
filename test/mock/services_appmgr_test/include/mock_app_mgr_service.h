@@ -83,6 +83,11 @@ public:
         return 0;
     }
 
+    virtual int GetProcessRunningInformation(RunningProcessInfo &info)
+    {
+        return 0;
+    }
+
     virtual void RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
     {
         callback_ = callback;

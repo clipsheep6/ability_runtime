@@ -257,6 +257,15 @@ public:
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
 
     /**
+     * GetProcessRunningInformation, Obtains information about current application process
+     * which is running on the device.
+     * @param info, app name in Application record.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
      * NotifyMemoryLevel, Notify applications background the current memory level.
      *
      * @param level, current memory level.
@@ -734,6 +743,7 @@ private:
     void InitGlobalConfiguration();
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
+    void GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord, RunningProcessInfo &info);
 
     int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
         const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
@@ -766,6 +776,8 @@ private:
     uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo);
 
     bool CheckGetRunningInfoPermission() const;
+
+    int32_t KillApplicationByBundleName(const std::string &bundleName);
 
 private:
     /**

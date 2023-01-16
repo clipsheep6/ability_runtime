@@ -25,11 +25,13 @@
 #include "js_hap_module_info_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
@@ -77,6 +79,8 @@ public:
     NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info);
 
     static NativeValue* GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
@@ -86,6 +90,8 @@ public:
     static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info);
 
     void KeepApplicationContext(std::shared_ptr<ApplicationContext> applicationContext)
     {
@@ -433,6 +439,90 @@ NativeValue *JsApplicationContextUtils::OnGetBundleCodeDir(NativeEngine &engine,
     }
     std::string path = applicationContext->GetBundleCodeDir();
     return engine.CreateString(path.c_str(), path.length());
+}
+
+NativeValue *JsApplicationContextUtils::KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnKillProcessBySelf(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    // only support 0 or 1 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    HILOG_DEBUG("kill self process");
+    AsyncTask::CompleteCallback complete =
+        [applicationContext = applicationContext_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            auto context = applicationContext.lock();
+            if (!context) {
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                    "applicationContext if already released."));
+                return;
+            }
+            context->KillProcessBySelf();
+            task.ResolveWithNoError(engine, engine.CreateUndefined());
+        };
+    NativeValue* lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JSAppManager::OnkillProcessBySelf",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue *JsApplicationContextUtils::GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetProcessRunningInformation(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    // only support 0 or 1 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+    HILOG_DEBUG("Get Process Info");
+    auto complete = [applicationContext = applicationContext_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        auto context = applicationContext.lock();
+        if (!context) {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                "applicationContext if already released."));
+            return;
+        }
+        AppExecFwk::RunningProcessInfo processInfo;
+        auto ret = context->GetProcessRunningInformation(processInfo);
+        if (ret == 0) {
+            NativeValue* objValue = engine.CreateObject();
+            NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+            object->SetProperty("processName", CreateJsValue(engine, processInfo.processName_));
+            object->SetProperty("pid", CreateJsValue(engine, processInfo.pid_));
+            object->SetProperty("uid", CreateJsValue(engine, processInfo.uid_));
+            object->SetProperty("bundleNames", CreateNativeArray(engine, processInfo.bundleNames));
+            object->SetProperty("state", CreateJsValue(engine, processInfo.state_));
+            object->SetProperty("isContinuousTask", CreateJsValue(engine, processInfo.isContinuousTask));
+            object->SetProperty("isKeepAlive", CreateJsValue(engine, processInfo.isKeepAlive));
+            object->SetProperty("isFocused", CreateJsValue(engine, processInfo.isFocused));
+            task.ResolveWithNoError(engine, objValue);
+        } else {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+                "Get process infos failed."));
+        }
+    };
+
+    NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInformation",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
 }
 
 void JsApplicationContextUtils::Finalizer(NativeEngine *engine, void *data, void *hint)
@@ -914,6 +1004,10 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
     BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
         JsApplicationContextUtils::GetApplicationContext);
+    BindNativeFunction(engine, *object, "killProcessesBySelf", MD_NAME,
+        JsApplicationContextUtils::KillProcessBySelf);
+    BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
+        JsApplicationContextUtils::GetProcessRunningInformation);
 
     return objValue;
 }

@@ -480,28 +480,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return errCode;
     }
 
-    int result = ERR_OK;
-    int64_t startTime = SystemTimeMillisecond();
-    std::list<pid_t> pids;
-
-    if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
-        HILOG_INFO("The process corresponding to the package name did not start");
-        return result;
-    }
-    if (WaitForRemoteProcessExit(pids, startTime)) {
-        HILOG_INFO("The remote process exited successfully ");
-        NotifyAppStatus(bundleName, EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
-        return result;
-    }
-    for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        result = KillProcessByPid(*iter);
-        if (result < 0) {
-            HILOG_ERROR("KillApplication failed for bundleName:%{public}s pid:%{public}d", bundleName.c_str(), *iter);
-            return result;
-        }
-    }
-    NotifyAppStatus(bundleName, EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
-    return result;
+    return KillApplicationByBundleName(bundleName);
 }
 
 int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, const int uid)
@@ -556,21 +535,35 @@ int32_t AppMgrServiceInner::KillApplicationSelf()
     }
 
     auto callerPid = IPCSkeleton::GetCallingPid();
-    if (!appRunningManager_->ProcessExitByPid(callerPid)) {
-        HILOG_INFO("The callerPid is invalid");
-        return ERR_OK;
-    }
-    std::list<pid_t> pids;
-    pids.push_back(callerPid);
+     auto appRecord = GetAppRunningRecordByPid(callerPid);
+    auto bundleName = appRecord->GetBundleName();
+    return KillApplicationByBundleName(bundleName);
+}
+
+int32_t AppMgrServiceInner::KillApplicationByBundleName(const std::string &bundleName)
+{
+    int result = ERR_OK;
     int64_t startTime = SystemTimeMillisecond();
+    std::list<pid_t> pids;
+
+    if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
+        HILOG_ERROR("The process corresponding to the package name did not start");
+        return result;
+    }
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        HILOG_INFO("The remote process exited successfully");
-        return ERR_OK;
+        HILOG_DEBUG("The remote process exited successfully ");
+        NotifyAppStatus(bundleName, EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
+        return result;
     }
-    int result = KillProcessByPid(callerPid);
-    if (result < 0) {
-        HILOG_ERROR("KillApplication is fail, pid: %{public}d", callerPid);
+    for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
+        result = KillProcessByPid(*iter);
+        if (result < 0) {
+            HILOG_ERROR("KillApplicationSelf is failed for bundleName:%{public}s, pid: %{public}d",
+                bundleName.c_str(), *iter);
+            return result;
+        }
     }
+    NotifyAppStatus(bundleName, EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
     return result;
 }
 
@@ -730,6 +723,22 @@ int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningPr
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetProcessRunningInformation(RunningProcessInfo &info)
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord, callerPid:%{public}d", callerPid);
+        return ERR_INVALID_VALUE;
+    }
+    GetRunningProcess(appRecord, info);
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 {
     HILOG_INFO("AppMgrServiceInner start");
@@ -757,16 +766,22 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
     std::vector<RunningProcessInfo> &info)
 {
     RunningProcessInfo runningProcessInfo;
-    runningProcessInfo.processName_ = appRecord->GetProcessName();
-    runningProcessInfo.pid_ = appRecord->GetPriorityObject()->GetPid();
-    runningProcessInfo.uid_ = appRecord->GetUid();
-    runningProcessInfo.state_ = static_cast<AppProcessState>(appRecord->GetState());
-    runningProcessInfo.isContinuousTask = appRecord->IsContinuousTask();
-    runningProcessInfo.isKeepAlive = appRecord->IsKeepAliveApp();
-    runningProcessInfo.isFocused = appRecord->GetFocusFlag();
-    runningProcessInfo.startTimeMillis_ = appRecord->GetAppStartTime();
-    appRecord->GetBundleNames(runningProcessInfo.bundleNames);
+    GetRunningProcess(appRecord, runningProcessInfo);
     info.emplace_back(runningProcessInfo);
+}
+
+void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord,
+    RunningProcessInfo &info)
+{
+    info.processName_ = appRecord->GetProcessName();
+    info.pid_ = appRecord->GetPriorityObject()->GetPid();
+    info.uid_ = appRecord->GetUid();
+    info.state_ = static_cast<AppProcessState>(appRecord->GetState());
+    info.isContinuousTask = appRecord->IsContinuousTask();
+    info.isKeepAlive = appRecord->IsKeepAliveApp();
+    info.isFocused = appRecord->GetFocusFlag();
+    info.startTimeMillis_ = appRecord->GetAppStartTime();
+    appRecord->GetBundleNames(info.bundleNames);
 }
 
 int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const

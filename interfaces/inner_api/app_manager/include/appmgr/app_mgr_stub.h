@@ -66,6 +66,7 @@ private:
     int32_t HandleClearUpApplicationData(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllRunningProcesses(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetProcessRunningInformation(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAddAbilityStageDone(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply);

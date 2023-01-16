@@ -127,6 +127,15 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
+     * GetProcessRunningInformation, call GetProcessRunningInformation() through proxy project.
+     * Obtains information about current application process which is running on the device.
+     *
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info) = 0;
+
+    /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
      * Notify abilities background the current memory level.
      *
@@ -300,6 +309,7 @@ public:
     };
 #endif
 
+    // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
@@ -335,6 +345,7 @@ public:
         SET_CONTINUOUSTASK_PROCESS,
         NOTIFY_UNLOAD_REPAIR_PATCH,
         PRE_START_NWEBSPAWN_PROCESS,
+        APP_GET_PROCESS_RUNNING_INFORMATION,
     };
 };
 }  // namespace AppExecFwk
