@@ -22,6 +22,7 @@
 #include "../inner/napi_common/js_napi_common_ability.h"
 #include "ability_process.h"
 #include "element_name.h"
+#include "feature_ability_constant.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_runtime_utils.h"
@@ -31,6 +32,7 @@
 #include "napi_common_util.h"
 #include "napi_context.h"
 #include "napi_data_ability_helper.h"
+#include "napi_data_ability_operation.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "securec.h"
@@ -124,6 +126,10 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
     std::unique_ptr<JsFeatureAbility> jsFeatureAbility = std::make_unique<JsFeatureAbility>();
     jsFeatureAbility->ability_ = jsFeatureAbility->GetAbility(*engine);
     object->SetNativePointer(jsFeatureAbility.release(), JsFeatureAbility::Finalizer, nullptr);
+    object->SetProperty("DataAbilityOperationType", DataAbilityOperationInit(engine));
+    object->SetProperty("AbilityStartSetting", FAConstantInitForAbilityStartSetting(engine));
+    object->SetProperty("AbilityWindowConfiguration", FAConstantInitForAbilityWindowConfiguration(engine));
+    object->SetProperty("ErrorCode", FAConstantInitForErrorCode(engine));
 
     const char *moduleName = "JsFeatureAbility";
     BindNativeFunction(*engine, *object, "startAbility", moduleName, JsFeatureAbility::StartAbility);

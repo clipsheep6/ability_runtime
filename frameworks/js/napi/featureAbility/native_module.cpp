@@ -34,9 +34,8 @@ EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports)
 {
     FeatureAbilityInit(env, exports);
-    DataAbilityOperationInit(env, exports);
+    ContextPermissionInit(env, exports);
     DataAbilityHelperInit(env, exports);
-    FAConstantInit(env, exports);
     return exports;
 }
 EXTERN_C_END

@@ -25,27 +25,30 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
+using namespace OHOS::AbilityRuntime;
+NativeValue* DataAbilityOperationInit(NativeEngine *engine)
 {
+    HILOG_DEBUG("enter");
     const int INSERT = 1;
     const int UPDATE = 2;
     const int DELETE = 3;
     const int ASSERT = 4;
-    HILOG_INFO("%{public}s called.", __func__);
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+    object->SetProperty("TYPE_INSERT", CreateJsValue(*engine, INSERT));
+    object->SetProperty("TYPE_UPDATE", CreateJsValue(*engine, UPDATE));
+    object->SetProperty("TYPE_DELETE", CreateJsValue(*engine, DELETE));
+    object->SetProperty("TYPE_ASSERT", CreateJsValue(*engine, ASSERT));
 
-    napi_value dataAbilityOperationType = nullptr;
-    napi_create_object(env, &dataAbilityOperationType);
-    SetNamedProperty(env, dataAbilityOperationType, "TYPE_INSERT", INSERT);
-    SetNamedProperty(env, dataAbilityOperationType, "TYPE_UPDATE", UPDATE);
-    SetNamedProperty(env, dataAbilityOperationType, "TYPE_DELETE", DELETE);
-    SetNamedProperty(env, dataAbilityOperationType, "TYPE_ASSERT", ASSERT);
-
-    napi_property_descriptor properties[] = {
-        DECLARE_NAPI_PROPERTY("DataAbilityOperationType", dataAbilityOperationType),
-    };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
-
-    return exports;
+    return objValue;
 }
 
 napi_value UnwrapDataAbilityOperation(
