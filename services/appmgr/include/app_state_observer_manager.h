@@ -47,6 +47,7 @@ public:
     void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
+    void OnProcessReused(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
@@ -66,6 +67,7 @@ private:
     void HandleOnProcessCreated(const ProcessData &data);
     void HandleOnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnProcessDied(const ProcessData &data);
+    void HandleOnProcessResued(const std::shared_ptr<AppRunningRecord> &appRecord);
 
 private:
     std::shared_ptr<AppExecFwk::EventHandler> handler_;

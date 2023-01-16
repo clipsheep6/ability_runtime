@@ -188,6 +188,25 @@ void AppStateObserverManager::OnProcessCreated(const std::shared_ptr<AppRunningR
     handler_->PostTask(task);
 }
 
+void AppStateObserverManager::OnProcessReused(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessReused failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnProcessReused failed.");
+            return;
+        }
+        HILOG_INFO("OnProcessReused come.");
+        self->HandleOnProcessResued(appRecord);
+    };
+    handler_->PostTask(task);
+}
+
 void AppStateObserverManager::OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &renderRecord)
 {
     if (handler_ == nullptr) {
@@ -297,6 +316,26 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
     HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
         data.bundleName.c_str(), data.pid, data.uid);
     HandleOnProcessCreated(data);
+}
+
+void AppStateObserverManager::HandleOnProcessResued(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+    ProcessData data = WrapProcessData(appRecord);
+    HILOG_DEBUG("Process Resued, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid);
+
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessReused(data);
+        }
+    }
 }
 
 void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &renderRecord)
