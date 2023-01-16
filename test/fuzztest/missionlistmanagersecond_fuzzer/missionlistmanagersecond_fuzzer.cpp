@@ -163,13 +163,14 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::list<std::shared_ptr<AbilityRecord>> foregroundList;
     missionListManager->GetAllForegroundAbilities(foregroundList);
     missionListManager->GetForegroundAbilities(missionList, foregroundList);
-    missionListManager->RemoveMissionLocked(int32Param, boolParam);
     missionListManager->IsExcludeFromMissions(mission);
 #ifdef ABILITY_COMMAND_FOR_TEST
     missionListManager->BlockAbility(int32Param);
 #endif
     std::vector<sptr<IRemoteObject>> tokens;
     missionListManager->SetMissionANRStateByTokens(tokens);
+    missionListManager->listenerController_ = nullptr;
+    missionListManager->RemoveMissionLocked(int32Param, boolParam);
 
     return true;
 }
