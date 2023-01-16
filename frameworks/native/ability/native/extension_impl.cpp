@@ -24,6 +24,11 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+ExtensionImpl::~ExtensionImpl()
+{
+    HILOG_ERROR("HXWTEST ExtensionImpl DestroyInstance");
+}
+
 void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     std::shared_ptr<Extension> &extension,

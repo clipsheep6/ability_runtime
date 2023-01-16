@@ -71,6 +71,7 @@ AbilityThread::AbilityThread()
 
 AbilityThread::~AbilityThread()
 {
+    HILOG_ERROR("HXWTEST AbilityThread DestroyInstance");
     DelayedSingleton<AbilityImplFactory>::DestroyInstance();
 }
 

@@ -152,6 +152,7 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
 
 AbilityRecord::~AbilityRecord()
 {
+    HILOG_ERROR("HXWTEST AbilityRecord DestroyInstance");
     if (scheduler_ != nullptr && schedulerDeathRecipient_ != nullptr) {
         auto object = scheduler_->AsObject();
         if (object != nullptr) {
