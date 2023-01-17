@@ -22,8 +22,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+const int32_t BASE_USER_RANGE = 200000;
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, const std::string& bundleName);
+    bool isDebugVersion, const std::string& bundleName, const int32_t& uid);
 void StartDebuggerInWorkerModule();
 } // namespace AbilityRuntime
 } // namespace OHOS

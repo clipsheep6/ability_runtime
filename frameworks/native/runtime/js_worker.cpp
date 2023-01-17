@@ -104,8 +104,9 @@ struct AssetHelper final {
     using Extractor = AbilityBase::Extractor;
     using ExtractorUtil = AbilityBase::ExtractorUtil;
     using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName)
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName,
+                         const int32_t& uid)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName), uid_(uid)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -189,8 +190,14 @@ struct AssetHelper final {
     {
         bool newCreate = false;
         size_t fileLen = 0;
-        size_t pos = filePath.find('/');
-
+        size_t pos = 0;
+        std::string fileSrc = filePath;
+        while (pos == 0) {
+            pos = fileSrc.find('/');
+            if (pos == 0) {
+                fileSrc = fileSrc.substr(1);
+            }
+        }
         if (bundleName_.empty()) {
             HILOG_ERROR("BundleName is nullptr.");
             return false;
@@ -202,8 +209,13 @@ struct AssetHelper final {
         }
 
         AppExecFwk::BundleInfo bundleInfo;
+        int32_t userId = uid_ / BASE_USER_RANGE;
+        if (userId < 0) {
+            HILOG_ERROR("get userId failed.");
+            return false;
+        }
         auto getInfoResult = bundleMgrProxy->GetBundleInfoV9(bundleName_,
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, 100);
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, userId);
         if (getInfoResult != 0) {
             HILOG_ERROR("GetBundleInfo failed through %{private}s.", bundleName_.c_str());
             return false;
@@ -214,7 +226,7 @@ struct AssetHelper final {
         }
         std::string newHapPath;
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
+            if (hapModuleInfo.moduleName == fileSrc.substr(0, pos)) {
                 newHapPath = hapModuleInfo.hapPath;
                 break;
             }
@@ -227,7 +239,7 @@ struct AssetHelper final {
             return false;
         }
         std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-        std::string realfilePath = filePath.substr(pos + 1);
+        std::string realfilePath = fileSrc.substr(pos + 1);
         HILOG_INFO("Get asset, realfilePath: %{private}s", realfilePath.c_str());
         if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
             HILOG_ERROR("get mergeAbc fileBuffer failed");
@@ -244,6 +256,7 @@ struct AssetHelper final {
     std::string codePath_;
     bool isDebugVersion_ = false;
     std::string bundleName_;
+    int32_t uid_;
 };
 
 int32_t GetContainerId()
@@ -271,11 +284,11 @@ ContainerScope::UpdateCurrent(-1);
 }
 
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, const std::string& bundleName)
+    bool isDebugVersion, const std::string& bundleName, const int32_t& uid)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName, uid));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);

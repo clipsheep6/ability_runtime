@@ -1013,6 +1013,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isBundle = (entryHapModuleInfo.compileMode != AppExecFwk::CompileMode::ES_MODULE);
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
+        options.uid = bundleInfo.applicationInfo.uid;
         SetNativeLibPath(bundleInfo, options);
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {

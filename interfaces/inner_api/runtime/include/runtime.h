@@ -52,6 +52,7 @@ public:
         bool isBundle = true;
         bool isDebugVersion = false;
         bool isStageModel = true;
+        int32_t uid = -1;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
