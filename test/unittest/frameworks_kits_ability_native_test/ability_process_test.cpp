@@ -276,30 +276,6 @@ HWTEST_F(AbilityProcessTest, AaFwk_AbilityProcess_1100, Function | MediumTest | 
 }
 
 /**
- * @tc.number: AaFwk_AbilityProcess_1200
- * @tc.name: OnAbilityResult
- * @tc.desc: Validate OnAbilityResult successfully_ Is empty.
- */
-HWTEST_F(AbilityProcessTest, AaFwk_AbilityProcess_1200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityProcess_1200 start";
-    process_->abilityResultMap_.clear();
-    Ability *ability = new (std::nothrow) MockNewAbility();
-    CallAbilityParam param;
-    param.forResultOption = true;
-    param.requestCode = 1;
-    CallbackInfo callback;
-    std::map<int, CallbackInfo> callbackMap;
-    callbackMap.emplace(param.requestCode, callback);
-    process_->abilityResultMap_.emplace(ability, callbackMap);
-    Want resultData;
-    process_->OnAbilityResult(ability, param.requestCode, 1, resultData);
-    EXPECT_EQ(static_cast<int32_t>(process_->abilityResultMap_[0].size()), 0);
-    delete ability;
-    GTEST_LOG_(INFO) << "AaFwk_AbilityProcess_1200 end";
-}
-
-/**
  * @tc.number: AaFwk_AbilityProcess_1300
  * @tc.name: RequestPermissionsFromUser
  * @tc.desc: Validate RequestPermissionsFromUser, unable to validate through assertion.

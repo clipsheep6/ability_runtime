@@ -131,6 +131,29 @@ ohos_unittest("shell_command_result_test") {
 
 print("accessibility_enable = ", accessibility_enable)
 if (accessibility_enable) {
+  ohos_unittest("shell_command_executor_test") {
+    module_out_path = module_output_path
+
+    sources = [ "shell_command_executor_test.cpp" ]
+
+    configs = [ ":tools_ability_delegator_config" ]
+
+    deps = [
+      "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+      "//third_party/googletest:gmock_main",
+      "//third_party/googletest:gtest_main",
+    ]
+
+    external_deps = [
+      "ability_base:configuration",
+      "accessibility:accessibility_common",
+      "accessibility:accessibilityclient",
+      "accessibility:accessibilityconfig",
+      "bundle_framework:appexecfwk_base",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+    ]
+  }
   ohos_unittest("accessibility_ability_command_test") {
     module_out_path = module_output_path
 
@@ -174,6 +197,9 @@ group("unittest") {
     ":test_observer_test",
   ]
   if (accessibility_enable) {
-    deps += [ ":accessibility_ability_command_test" ]
+    deps += [
+      ":accessibility_ability_command_test",
+      ":shell_command_executor_test",
+    ]
   }
 }
