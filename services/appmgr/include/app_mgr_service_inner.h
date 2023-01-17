@@ -759,6 +759,8 @@ private:
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
+    void ClearUriPermission(const std::shared_ptr<AppRunningRecord> &appRecord);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.

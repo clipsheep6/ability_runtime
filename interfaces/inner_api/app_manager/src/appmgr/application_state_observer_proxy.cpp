@@ -122,7 +122,8 @@ void ApplicationStateObserverProxy::OnProcessCreated(const ProcessData &processD
     }
 }
 
-void ApplicationStateObserverProxy::OnProcessReused(const ProcessData &processData) {
+void ApplicationStateObserverProxy::OnProcessReused(const ProcessData &processData)
+{
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);

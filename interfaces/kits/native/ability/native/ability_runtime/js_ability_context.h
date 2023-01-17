@@ -110,6 +110,7 @@ private:
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
+void BindNative(NativeEngine& engine, NativeObject* object);
 
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

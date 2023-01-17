@@ -73,7 +73,8 @@ void IdleTime::OnVSync(int64_t timestamp, void* client)
         };
         eventHandler_->PostTask(task, timeOut);
         if (successCount_ > TRY_COUNT_MAX) {
-            period_ = (period & lastPeriod) + ((period ^ lastPeriod) >> 1); // average
+            period_ = (static_cast<uint64_t>(period) & static_cast<uint64_t>(lastPeriod)) +
+                ((static_cast<uint64_t>(period) ^ static_cast<uint64_t>(lastPeriod)) >> 1); // average
         } else {
             period_ = PERIOD;
             successCount_++;

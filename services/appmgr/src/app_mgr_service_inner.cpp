@@ -1539,11 +1539,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     FinishUserTestLocked("App died", -1, appRecord);
 
     // clear uri permission
-    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    auto appInfo = appRecord->GetApplicationInfo();
-    if (appInfo && upmClient) {
-        upmClient->RemoveUriPermission(appInfo->accessTokenId);
-    }
+    ClearUriPermission(appRecord);
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_REMOTE_DIED);
 
     for (const auto &item : appRecord->GetAbilities()) {
@@ -1586,6 +1582,15 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
             HILOG_INFO("PostRestartResidentProcessDelayTask.");
             eventHandler_->PostTask(restartProcess, "RestartResidentProcessDelayTask", RESTART_INTERVAL_TIME);
         }
+    }
+}
+
+void AppMgrServiceInner::ClearUriPermission(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo && upmClient) {
+        upmClient->RemoveUriPermission(appInfo->accessTokenId);
     }
 }
 

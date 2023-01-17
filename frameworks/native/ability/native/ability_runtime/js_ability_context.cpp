@@ -1216,6 +1216,13 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
     }
 
+    BindNative(engine, object);
+
+    return objValue;
+}
+
+void BindNative(NativeEngine& engine, NativeObject* object)
+{
     const char *moduleName = "JsAbilityContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsAbilityContext::StartAbility);
     BindNativeFunction(engine, *object, "startAbilityWithAccount", moduleName,
@@ -1233,14 +1240,15 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StopServiceExtensionAbilityWithAccount);
     BindNativeFunction(engine, *object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
-    BindNativeFunction(engine, *object, "connectServiceExtensionAbility", moduleName, JsAbilityContext::ConnectAbility);
+    BindNativeFunction(engine, *object, "connectServiceExtensionAbility", moduleName,
+        JsAbilityContext::ConnectAbility);
     BindNativeFunction(engine, *object, "connectAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
     BindNativeFunction(engine, *object, "connectServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
     BindNativeFunction(engine, *object, "disconnectAbility", moduleName, JsAbilityContext::DisconnectAbility);
-    BindNativeFunction(
-        engine, *object, "disconnectServiceExtensionAbility", moduleName, JsAbilityContext::DisconnectAbility);
+    BindNativeFunction(engine, *object, "disconnectServiceExtensionAbility", moduleName,
+        JsAbilityContext::DisconnectAbility);
     BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
     BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName,
         JsAbilityContext::TerminateSelfWithResult);
@@ -1252,12 +1260,10 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         JsAbilityContext::StartRecentAbility);
     BindNativeFunction(engine, *object, "requestDialogService", moduleName,
         JsAbilityContext::RequestDialogService);
-
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(engine, *object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
     BindNativeFunction(engine, *object, "setMissionIcon", moduleName, JsAbilityContext::SetMissionIcon);
 #endif
-    return objValue;
 }
 
 JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine) {}
