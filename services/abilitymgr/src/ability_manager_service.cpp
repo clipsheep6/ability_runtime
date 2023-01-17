@@ -737,6 +737,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
+            return ERR_OK;
+        }
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -746,6 +749,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
+        return ERR_OK;
+    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -883,6 +889,9 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
+            return ERR_OK;
+        }
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -892,6 +901,9 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
+        return ERR_OK;
+    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -4042,6 +4054,9 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.want = want;
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
+    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
+        return ERR_OK;
+    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
