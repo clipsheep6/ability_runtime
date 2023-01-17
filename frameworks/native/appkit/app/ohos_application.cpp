@@ -537,7 +537,8 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         }
 
         if (abilityInfo->applicationInfo.multiProjects) {
-            auto rm = stageContext->CreateModuleContext(hapModuleInfo->moduleName)->GetResourceManager();
+            auto moduleContext = stageContext->CreateModuleContext(hapModuleInfo->moduleName);
+            auto rm = moduleContext != nullptr ? moduleContext->GetResourceManager() : nullptr;
             stageContext->SetResourceManager(rm);
         }
 

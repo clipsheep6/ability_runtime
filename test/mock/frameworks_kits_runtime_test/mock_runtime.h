@@ -27,39 +27,45 @@ public:
     MockRuntime() = default;
     ~MockRuntime() = default;
 
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
+    Language GetLanguage() const override
+    {
+        return static_cast<Runtime::Language>(100);
+    }
+
+    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override
     {
         GTEST_LOG_(INFO) << "MockRuntime::BuildJsStackInfoList called";
         return true;
     }
-    void StartDebugMode(bool needBreakPoint) {}
-    void FinishPreload() {}
-    bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile)
+    void StartDebugMode(bool needBreakPoint) override {}
+    void FinishPreload() override {}
+    bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override
     {
         return true;
     }
-    bool NotifyHotReloadPage()
+    bool NotifyHotReloadPage() override
     {
         return true;
     }
-    bool UnLoadRepairPatch(const std::string& patchFile)
+    bool UnLoadRepairPatch(const std::string& patchFile) override
     {
         return true;
     }
-    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
+    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false) override
     {
         return true;
     }
-    bool Initialize(const Options& options)
+    bool Initialize(const Options& options) override
     {
         return true;
     }
     void Deinitialize() {}
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
+    NativeValue* LoadJsBundle(
+        const std::string& path, const std::string& hapPath, bool useCommonChunk = false) override
     {
         return nullptr;
     }
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath)
+    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
     {
         return nullptr;
     }
