@@ -34,11 +34,13 @@ ohos_shared_library("quickfixms") {
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":quickfixms_config" ]
 
-  sources = [
-    "src/quick_fix_manager_apply_task.cpp",
-    "src/quick_fix_manager_service.cpp",
-    "src/quick_fix_manager_service_ability.cpp",
-  ]
+  if (ability_runtime_quick_fix) {
+    sources = [
+      "src/quick_fix_manager_apply_task.cpp",
+      "src/quick_fix_manager_service.cpp",
+      "src/quick_fix_manager_service_ability.cpp",
+    ]
+  }
 
   defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
 
