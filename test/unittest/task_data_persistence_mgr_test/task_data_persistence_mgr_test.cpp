@@ -136,7 +136,7 @@ HWTEST_F(TaskDataPersistenceMgrTest, DeleteMissionInfo_002, TestSize.Level1)
 HWTEST_F(TaskDataPersistenceMgrTest, RemoveUserDir_001, TestSize.Level1)
 {
     auto taskDataPersistenceMgr = std::make_shared<TaskDataPersistenceMgr>();
-    int32_t userId = 0;
+    int32_t userId = 10;
     const std::string TASK_DATA_FILE_BASE_PATH = "/data/service/el1/public/AbilityManagerService";
     const std::string path = TASK_DATA_FILE_BASE_PATH + "/" + std::to_string(userId);
     int err = mkdir(path.c_str(), 0777);
