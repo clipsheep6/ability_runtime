@@ -22,11 +22,13 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ServiceExtensionContext;
 class Runtime;
+class ServiceExtension;
+using CreatorFunc = std::function<ServiceExtension* (const std::unique_ptr<Runtime>& runtime)>;
 /**
  * @brief Basic service components.
  */
 class ServiceExtension : public ExtensionBase<ServiceExtensionContext>,
-                       public std::enable_shared_from_this<ServiceExtension> {
+                         public std::enable_shared_from_this<ServiceExtension> {
 public:
     ServiceExtension() = default;
     virtual ~ServiceExtension() = default;
@@ -66,6 +68,15 @@ public:
      * @return The ServiceExtension instance.
      */
     static ServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
+
+    /**
+     * @brief Set a creator function.
+     *
+     * @param creator The function for create a service-extension ability.
+     */
+    static void SetCreator(const CreatorFunc& creator);
+private:
+    static CreatorFunc creator_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

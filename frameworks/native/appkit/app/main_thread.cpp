@@ -908,10 +908,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
     std::string telephonyDataAbility("com.ohos.telephonydataability");
     std::string fusionSearchAbility("com.ohos.FusionSearch");
+    std::string formRenderExtensionAbility("com.ohos.formrenderservice");
     auto appInfo = appLaunchData.GetApplicationInfo();
     auto bundleName = appInfo.bundleName;
     if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility
-        || bundleName == fusionSearchAbility) {
+        || bundleName == fusionSearchAbility || bundleName == formRenderExtensionAbility) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
