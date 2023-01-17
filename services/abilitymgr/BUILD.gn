@@ -107,7 +107,7 @@ config("abilityms_config") {
 ohos_shared_library("abilityms") {
   sources = abilityms_files
   sources += [ "src/sa_mgr_client.cpp" ]
-  version_script = "libms.map"
+  version_script = "libams.map"
   cflags_cc = []
   configs = [
     ":abilityms_config",
