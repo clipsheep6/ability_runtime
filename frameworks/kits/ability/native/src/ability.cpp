@@ -342,6 +342,12 @@ void Ability::OnStop()
     HILOG_INFO("%{public}s begin.", __func__);
 #ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    // Call JS Func(onWindowStageDestroy) and Release the scene.
+    if (scene_ != nullptr) {
+        scene_->GoDestroy();
+        scene_ = nullptr;
+        onSceneDestroyed();
+    }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
@@ -358,22 +364,15 @@ void Ability::OnStop()
 }
 
 /**
- * @brief Release the window and ability.
+ * @brief Release the ability instance.
  */
-void Ability::Destroy()
+void Ability::DestroyInstance()
 {
     HILOG_INFO("%{public}s begin.", __func__);
 #ifdef SUPPORT_GRAPHICS
-    // Release the scene.
-    if (scene_ != nullptr) {
-        scene_->GoDestroy();
-        scene_ = nullptr;
-        onSceneDestroyed();
-    }
-
     // Release the window.
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        abilityWindow_->OnPostAbilityStop(); // Ability will been released when window destroy.
+        abilityWindow_->OnPostAbilityStop(); // Ability instance will been released when window destroy.
     }
 #endif
     HILOG_INFO("%{public}s end.", __func__);
