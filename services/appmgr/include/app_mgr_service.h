@@ -334,6 +334,8 @@ private:
     void Dump(const std::vector<std::u16string>& args, std::string& result) const;
     void ShowHelp(std::string& result) const;
 
+    bool JudgeSelfCalledByRecordId(int32_t recordId);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;

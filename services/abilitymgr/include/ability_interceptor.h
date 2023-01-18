@@ -29,7 +29,6 @@ public:
      * Excute interception processing.
      */
     virtual ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) = 0;
-private:
 };
 
 // start ability interceptor

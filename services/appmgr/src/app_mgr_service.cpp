@@ -186,6 +186,9 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
     std::function<void()> applicationForegroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationForegrounded, appMgrServiceInner_, recordId);
     handler_->PostTask(applicationForegroundedFunc, TASK_APPLICATION_FOREGROUNDED);
@@ -196,6 +199,9 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
     handler_->PostTask(applicationBackgroundedFunc, TASK_APPLICATION_BACKGROUNDED);
@@ -204,6 +210,9 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
 void AppMgrService::ApplicationTerminated(const int32_t recordId)
 {
     if (!IsReady()) {
+        return;
+    }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
         return;
     }
     std::function<void()> applicationTerminatedFunc =
@@ -250,6 +259,12 @@ void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
 void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {
     if (!IsReady()) {
+        return;
+    }
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getpid();
+    if (callingPid != pid) {
+        HILOG_ERROR("Not this process call.");
         return;
     }
     HILOG_INFO("Notify start resident process");
@@ -323,6 +338,9 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
     std::function <void()> addAbilityStageDone =
         std::bind(&AppMgrServiceInner::AddAbilityStageDone, appMgrServiceInner_, recordId);
     handler_->PostTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
@@ -378,7 +396,6 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
-
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     std::function<void()> finishUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::FinishUserTest, appMgrServiceInner_, msg, resultCode, bundleName, callingPid);
@@ -431,6 +448,9 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return;
     }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
     handler_->PostTask(task);
 }
@@ -439,6 +459,11 @@ int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<
 {
     if (!IsReady()) {
         HILOG_ERROR("%{public}s begin, not ready", __func__);
+        return ERR_INVALID_OPERATION;
+    }
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("Not SA call.");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
@@ -562,7 +587,10 @@ int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, cons
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        return ERR_INVALID_OPERATION;
+    }
     return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
@@ -572,7 +600,10 @@ int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const 
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        return ERR_INVALID_OPERATION;
+    }
     return appMgrServiceInner_->NotifyHotReloadPage(bundleName, callback);
 }
 
@@ -594,8 +625,32 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        return ERR_INVALID_OPERATION;
+    }
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
+}
+
+bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return true;
+    }
+
+    if (appMgrServiceInner_ == nullptr) {
+        return false;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner_->GetAppRunningRecordByAppRecordId(recordId);
+    if (appRecord == nullptr || ((appRecord->GetApplicationInfo())->accessTokenId) != callingTokenId) {
+        HILOG_ERROR("Is not self, not enabled");
+        return false;
+    }
+
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
