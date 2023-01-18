@@ -97,7 +97,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int32_t level = static_cast<int32_t>(GetU32Data(data));
     appRecord->ScheduleMemoryLevel(level);
     appRecord->LowMemoryWarning();
-    AppExecFwk::AbilityState abilityState = AppExecFwk::AbilityState::ABILITY_STATE_BEGIN;
+    AppExecFwk::AbilityState abilityState = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
     bool isAbility = *data % ENABLE;
     appRecord->StateChangedNotifyObserver(ability, static_cast<int32_t>(abilityState), isAbility);
     bool isFocus = *data % ENABLE;

@@ -1560,8 +1560,6 @@ HWTEST_F(AmsAppLifeCycleTest, AbilityStateChanged001, TestSize.Level1)
     EXPECT_NE(ability, nullptr);
     serviceInner_->RegisterAppStateCallback(callback);
     EXPECT_CALL(*mockCallback, OnAbilityRequestDone(_, _)).Times(1);
-    serviceInner_->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BEGIN);
-    EXPECT_CALL(*mockCallback, OnAbilityRequestDone(_, _)).Times(1);
     serviceInner_->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_CREATE);
     EXPECT_CALL(*mockCallback, OnAbilityRequestDone(_, _)).Times(1);
     serviceInner_->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_READY);
@@ -1593,8 +1591,6 @@ HWTEST_F(AmsAppLifeCycleTest, AppStateChanged001, TestSize.Level1)
     auto appRecord = StartProcessAndLoadAbility(token, nullptr, abilityInfo, appInfo, NEW_PID);
     EXPECT_NE(appRecord, nullptr);
     serviceInner_->RegisterAppStateCallback(callback);
-    EXPECT_CALL(*mockCallback, OnAppStateChanged(_)).Times(1);
-    serviceInner_->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BEGIN);
     EXPECT_CALL(*mockCallback, OnAppStateChanged(_)).Times(1);
     serviceInner_->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
     EXPECT_CALL(*mockCallback, OnAppStateChanged(_)).Times(1);

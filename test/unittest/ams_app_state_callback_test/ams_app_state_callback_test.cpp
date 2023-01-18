@@ -101,7 +101,7 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_002, TestSize.Level1)
 HWTEST_F(AmsAppStateCallBackTest, OnAbilityRequestDone_001, TestSize.Level1)
 {
     sptr<IRemoteObject> token = nullptr;
-    AbilityState state = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
     host->OnAbilityRequestDone(token, state);
 

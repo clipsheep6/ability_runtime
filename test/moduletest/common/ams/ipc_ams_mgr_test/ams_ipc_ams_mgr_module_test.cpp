@@ -199,7 +199,7 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_003, TestSize.Level3)
     mockMockAppMgr->Wait();
 
     sptr<OHOS::IRemoteObject> token = new MockAbilityToken();
-    AbilityState abilityState = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState abilityState = AbilityState::ABILITY_STATE_CREATE;
 
     for (int i = 0; i < COUNT; i++) {
         EXPECT_CALL(*mockAppMgrServiceInner, UpdateAbilityState(_, _))

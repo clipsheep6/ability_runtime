@@ -183,7 +183,7 @@ private:
     int32_t connectionState_ = 0;
     int64_t eventId_ = 0;
     bool isTerminating_ = false;
-    AbilityState state_ = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState state_ = AbilityState::ABILITY_STATE_CREATE;
     bool isFocused_ = false;
     std::shared_ptr<AbilityInfo> info_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;

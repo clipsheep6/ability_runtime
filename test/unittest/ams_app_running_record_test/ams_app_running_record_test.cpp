@@ -607,7 +607,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddModules_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, UpdateAppRunningRecord_001, TestSize.Level1)
 {
     auto record = GetTestAppRunningRecord();
-    for (ApplicationState state = ApplicationState::APP_STATE_BEGIN; state < ApplicationState::APP_STATE_END;
+    for (ApplicationState state = ApplicationState::APP_STATE_CREATE; state < ApplicationState::APP_STATE_END;
         state = (ApplicationState)(static_cast<std::underlying_type<ApplicationState>::type>(state) + 1)) {
         record->SetState(state);
         EXPECT_EQ(record->GetState(), state);

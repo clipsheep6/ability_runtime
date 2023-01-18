@@ -96,7 +96,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->SetJointUserId(jointUserId);
     int32_t uid = static_cast<int32_t>(GetU32Data(data));
     appRecord->SetUid(uid);
-    ApplicationState state = ApplicationState::APP_STATE_BEGIN;
+    ApplicationState state = ApplicationState::APP_STATE_CREATE;
     appRecord->SetState(state);
     std::weak_ptr<AppMgrServiceInner> inner;
     appRecord->SetAppMgrServiceInner(inner);

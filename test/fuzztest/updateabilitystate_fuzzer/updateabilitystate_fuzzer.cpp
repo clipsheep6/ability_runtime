@@ -58,7 +58,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         std::cout << "Get ability token failed." << std::endl;
         return false;
     }
-    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_BEGIN;
+    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
 
     if (appMgrClient->UpdateAbilityState(token, state) != AppMgrResultCode::RESULT_OK) {
         return false;

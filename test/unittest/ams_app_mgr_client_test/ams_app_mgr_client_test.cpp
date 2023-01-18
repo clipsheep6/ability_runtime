@@ -211,7 +211,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_005, TestSize.Level1)
         .Times(1)
         .WillOnce(Return(amsMgrScheduler));
 
-    AbilityState state = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->UpdateAbilityState(token_, state));
     HILOG_INFO("ams_app_mgr_client_test_005 end");
 }
@@ -227,7 +227,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_005, TestSize.Level1)
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_006, TestSize.Level1)
 {
     HILOG_INFO("ams_app_mgr_client_test_006 start");
-    AbilityState state = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->UpdateAbilityState(token_, state));
     HILOG_INFO("ams_app_mgr_client_test_006 end");
 }

@@ -90,11 +90,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrServiceInner->GetAppRunningRecordByAbilityToken(token);
     appMgrServiceInner->AbilityTerminated(token);
     appMgrServiceInner->GetAppRunningRecordByAppRecordId(recordId);
-    ApplicationState state = ApplicationState::APP_STATE_BEGIN;
+    ApplicationState state = ApplicationState::APP_STATE_CREATE;
     bool needNotifyApp = *data % ENABLE;
     appMgrServiceInner->OnAppStateChanged(appRecord, state, needNotifyApp);
     std::shared_ptr<AbilityRunningRecord> ability;
-    AppExecFwk::AbilityState abilityState = AppExecFwk::AbilityState::ABILITY_STATE_BEGIN;
+    AppExecFwk::AbilityState abilityState = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
     appMgrServiceInner->OnAbilityStateChanged(ability, abilityState);
     std::string appName(data, size);
     uint32_t startFlags = GetU32Data(data);

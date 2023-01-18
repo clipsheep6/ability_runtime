@@ -431,7 +431,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_012, TestSize.Level1)
 
     EXPECT_EQ(AppAbilityState::ABILITY_STATE_UNDEFINED,
         DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(
-            static_cast<int>(AppExecFwk::AbilityState::ABILITY_STATE_BEGIN)));
+            static_cast<int>(AppExecFwk::AbilityState::ABILITY_STATE_CREATE)));
 }
 
 /*
@@ -576,7 +576,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_UpdateAbilityState_001, TestSize.Level1)
 {
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
     sptr<IRemoteObject> token = nullptr;
-    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_BEGIN;
+    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
     DelayedSingleton<AppScheduler>::GetInstance()->UpdateAbilityState(token, state);
 }
 
@@ -624,7 +624,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_KillProcessesByUserId_001, TestSize.Leve
 HWTEST_F(AppSchedulerTest, AppScheduler_OnAbilityRequestDone_001, TestSize.Level1)
 {
     sptr<IRemoteObject> token = nullptr;
-    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_BEGIN;
+    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
     DelayedSingleton<AppScheduler>::GetInstance()->callback_ = appStateMock_;
     DelayedSingleton<AppScheduler>::GetInstance()->OnAbilityRequestDone(token, state);
 }

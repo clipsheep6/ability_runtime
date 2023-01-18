@@ -23,8 +23,7 @@ const std::string APP_MGR_SERVICE_NAME = "AppMgrService";
 }  // namespace Constants
 
 enum class ApplicationState {
-    APP_STATE_BEGIN = 0,
-    APP_STATE_CREATE = APP_STATE_BEGIN,
+    APP_STATE_CREATE = 0,
     APP_STATE_READY,
     APP_STATE_FOREGROUND,
     APP_STATE_FOCUS,
@@ -34,8 +33,7 @@ enum class ApplicationState {
 };
 
 enum class AbilityState {
-    ABILITY_STATE_BEGIN = 0,
-    ABILITY_STATE_CREATE = ABILITY_STATE_BEGIN,
+    ABILITY_STATE_CREATE = 0,
     ABILITY_STATE_READY,
     ABILITY_STATE_FOREGROUND,
     ABILITY_STATE_FOCUS,
