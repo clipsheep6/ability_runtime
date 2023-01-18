@@ -4391,6 +4391,7 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
 
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
 {
+    HILOG_INFO("%{public}s", __func__);
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
     int32_t ret = StartAbility(want, userId, 0);
@@ -4402,6 +4403,7 @@ void AbilityManagerService::RecoverAbilityRestart(const Want& want)
 
 void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
 {
+    HILOG_INFO("%{public}s", __func__);
     if (token == nullptr) {
         return;
     }
@@ -4430,16 +4432,24 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         constexpr int64_t MIN_RECOVERY_TIME = 60;
         int64_t now = time(nullptr);
         auto it = appRecoveryHistory_.find(record->GetUid());
+        auto appInfo = record->GetApplicationInfo();
+        auto abilityInfo = record->GetAbilityInfo();
         if ((it != appRecoveryHistory_.end()) &&
             (it->second + MIN_RECOVERY_TIME > now)) {
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
+
+            HiSysEventWrite(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
+                "APP_UID", record->GetUid(),
+                "VERSION_CODE", std::to_string(appInfo.versionCode),
+                "VERSION_NAME", appInfo.versionName,
+                "BUNDLE_NAME", appInfo.bundleName,
+                "ABILITY_NAME", abilityInfo.name,
+                "RECOVERY_RESULT", "FAIL_WITHIN_ONE_MINUTE");
             kill(record->GetPid(), SIGKILL);
             return;
         }
 
-        auto appInfo = record->GetApplicationInfo();
-        auto abilityInfo = record->GetAbilityInfo();
         appRecoveryHistory_[record->GetUid()] = now;
         want = record->GetWant();
         want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
@@ -4449,13 +4459,15 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
             "VERSION_CODE", std::to_string(appInfo.versionCode),
             "VERSION_NAME", appInfo.versionName,
             "BUNDLE_NAME", appInfo.bundleName,
-            "ABILITY_NAME", abilityInfo.name);
+            "ABILITY_NAME", abilityInfo.name,
+            "RECOVERY_RESULT", "SUCCESS");
         kill(record->GetPid(), SIGKILL);
     }
 
     constexpr int delaytime = 2000;
     std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
     auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, want);
+    HILOG_INFO("AppRecovery RecoverAbilityRestart task begin");
     handler_->PostTask(task, taskName, delaytime);
 }
 

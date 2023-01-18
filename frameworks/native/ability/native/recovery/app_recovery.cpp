@@ -80,6 +80,7 @@ bool AppRecovery::AddAbility(const std::shared_ptr<Ability>& ability,
 
 bool AppRecovery::ScheduleSaveAppState(StateReason reason)
 {
+    HILOG_INFO("%{public}s, reason:%{public}d", __func__, reason);
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery ScheduleSaveAppState. is not enabled");
         return false;
@@ -149,14 +150,15 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
         AppRecovery::GetInstance().DoRecoverApp(reason);
     };
     if (!handler->PostTask(task)) {
-        HILOG_ERROR("Failed to schedule save app state.");
+        HILOG_ERROR("Failed to schedule recover app");
     }
-
+    HILOG_INFO("AppRecovery ScheduleRecoverApp done");
     return true;
 }
 
 bool AppRecovery::TryRecoverApp(StateReason reason)
 {
+    HILOG_INFO("%{public}s, reason:%{public}d, isEnable_:%{public}d", __func__, reason, isEnable_);
     if (!isEnable_) {
         return false;
     }
@@ -168,6 +170,7 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
+    HILOG_INFO("AppRecovery DoRecoverApp begin");
     for (auto& i : abilityRecoverys_) {
         if (i->ScheduleRecoverAbility(reason)) {
             break;
