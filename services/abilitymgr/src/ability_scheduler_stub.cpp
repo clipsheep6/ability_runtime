@@ -66,11 +66,19 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
+
+    timer_ = std::make_shared<Utils::Timer>("ResultCloser");
+    timer_->Setup();
 }
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
 {
     requestFuncMap_.clear();
+
+    if (timer_ != nullptr) {
+        timer_->Shutdown(true);
+        timer_ = nullptr;
+    }
 }
 
 int AbilitySchedulerStub::OnRemoteRequest(
@@ -369,6 +377,9 @@ int AbilitySchedulerStub::QueryInner(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("!resultSet->Marshalling(reply)");
         return ERR_INVALID_VALUE;
     }
+
+    RestartTimer(result);
+
     HILOG_INFO("AbilitySchedulerStub::QueryInner end");
     return NO_ERROR;
 }
@@ -656,6 +667,40 @@ int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &r
     HILOG_INFO("AbilitySchedulerStub::CallRequestInner end");
 
     return NO_ERROR;
+}
+
+void  AbilitySchedulerStub::RestartTimer(sptr<OHOS::NativeRdb::ISharedResultSet> result)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    id_++;
+    HILOG_INFO("Restart timer, id[%{public}d].", id_);
+    if (timerClearMap_.find(id_) != timerClearMap_.end()) {
+        HILOG_WARN("id[%{public}d] has not been cleared.", id_);
+        if (timer_ != nullptr) {
+            timer_->Unregister(timerClearMap_[id_].timerId);
+        }
+        timerClearMap_[id_].resultPtr = nullptr;
+        timerClearMap_.erase(id_);
+    }
+
+    uint32_t timerId = timer_->Register(std::bind(AbilitySchedulerStub::AutoClose, id_, this), 300000, true);
+    timerClearMap_[id_].timerId = timerId;
+    timerClearMap_[id_].resultPtr = result;
+}
+
+void AbilitySchedulerStub::AutoClose(uint32_t id, AbilitySchedulerStub *stub)
+{
+    std::lock_guard<std::mutex> lock(stub->mutex_);
+    if (stub->timerClearMap_.find(id) == stub->timerClearMap_.end()) {
+        HILOG_WARN("id[%{public}d] dosn't exist.", id);
+        return;
+    }
+    HILOG_INFO("Auto close, id[%{public}d].", id);
+    if (stub->timer_ != nullptr) {
+        stub->timer_->Unregister(stub->timerClearMap_[id].timerId);
+    }
+    stub->timerClearMap_[id].resultPtr = nullptr;
+    stub->timerClearMap_.erase(id);
 }
 
 void AbilitySchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
