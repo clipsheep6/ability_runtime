@@ -365,7 +365,6 @@ private:
 
         if (!options.preload) {
             bundleName_ = options.bundleName;
-            panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
             bool newCreate = false;
             std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
             std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
