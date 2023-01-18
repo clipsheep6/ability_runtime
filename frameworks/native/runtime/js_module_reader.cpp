@@ -23,14 +23,19 @@ using namespace OHOS::AbilityBase;
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::vector<uint8_t> JsModuleReader::operator()(const std::string& hapPath) const
+std::vector<uint8_t> JsModuleReader::operator()(const std::string& splicePath) const
 {
     std::vector<uint8_t> buffer;
-    if (hapPath.empty()) {
-        HILOG_ERROR("hapPath is empty");
+    if (splicePath.empty()) {
+        HILOG_ERROR("splicePath is empty");
         return buffer;
     }
-    std::string realHapPath = std::string(ABS_CODE_PATH) + hapPath + std::string(SHARED_FILE_SUFFIX);
+    std::string relativePath = std::string(ABS_CODE_PATH) + splicePath;
+    std::string realHapPath = relativePath + std::string(SHARED_FILE_SUFFIX);
+    char realPath[PATH_MAX] = {0};
+    if (realpath(realHapPath.c_str(), realPath) == nullptr) {
+        realHapPath = relativePath + std::string(HAP_SUFFIX);
+    }
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(realHapPath, newCreate);
     if (extractor == nullptr) {
