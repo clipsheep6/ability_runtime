@@ -667,10 +667,13 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
                 return std::unique_ptr<NativeReference>();
             }
         }
-        HILOG_ERROR("Failed to make module file path: %{public}s", fileName.c_str());
+        HILOG_ERROR("LoadModule file name: %{public}s", fileName.c_str());
         classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath, useCommonChunk);
         if (classValue == nullptr) {
+            HILOG_ERROR("LoadModule classValue is nullptr");
             return std::unique_ptr<NativeReference>();
+        } else {
+            HILOG_ERROR("LoadModule classValue is not nullptr");
         }
 
         modules_.emplace(modulePath, nativeEngine_->CreateReference(classValue, 1));
@@ -680,6 +683,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
+    } else {
+        HILOG_ERROR("LoadModule instanceValue is not nullptr");
     }
 
     return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));

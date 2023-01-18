@@ -121,16 +121,27 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_DEBUG("JsStaticSubscriberExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
+    HILOG_DEBUG("JsServiceExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
     auto& engine = jsRuntime_.GetNativeEngine();
 
+    HILOG_ERROR("JsServiceExtension::Init moduleName:%{public}s,abilityName:%{public}s,compileMode:%{public}d. 0 is JS_BUNDLE",
+        abilityInfo_->moduleName.c_str(), abilityInfo_->name.c_str(), abilityInfo_->compileMode);
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
         HILOG_ERROR("Failed to get jsObj_");
         return;
+    } else {
+        HILOG_ERROR("JsServiceExtension::Init jsObj_ is not nullptr");
+    }
+
+    if (jsObj_->Get() == nullptr) {
+        HILOG_ERROR("JsServiceExtension::Init jsObj_->Get() is nullptr");
+        return;
+    } else {
+        HILOG_ERROR("JsServiceExtension::Init jsObj_->Get() is not nullptr");
     }
 
     HILOG_INFO("JsServiceExtension::Init ConvertNativeValueTo.");
