@@ -1780,12 +1780,6 @@ bool AppMgrServiceInner::CheckGetRunningInfoPermission() const
 void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::BundleInfo> &infos)
 {
     HILOG_INFO("%{public}s called", __func__);
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t pid = getpid();
-    if (callingPid != pid) {
-        HILOG_ERROR("%{public}s: Not SA call.", __func__);
-        return;
-    }
 
     HILOG_INFO("bundle info size: [%{public}zu]", infos.size());
     StartResidentProcess(infos, -1, true);
@@ -2609,6 +2603,12 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
     auto nwebSpawnClient = remoteClientManager_->GetNWebSpawnClient();
     if (!nwebSpawnClient) {
         HILOG_ERROR("nwebSpawnClient is null");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecordByRenderPid(hostPid);
+    if (!appRecord) {
+        HILOG_ERROR("no such app Record, pid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 
