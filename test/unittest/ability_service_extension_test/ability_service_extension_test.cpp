@@ -79,9 +79,8 @@ HWTEST_F(AbilityServiceExtensionTest, CreateAndInitContext_0100, TestSize.Level1
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
@@ -113,9 +112,8 @@ HWTEST_F(AbilityServiceExtensionTest, Init_0100, TestSize.Level1)
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);

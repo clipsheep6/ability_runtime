@@ -613,7 +613,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_RegisterAbilityLifecycleCallback
 {
     GTEST_LOG_(INFO) << "AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001 start";
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->RegisterAbilityLifecycleCallback(nullptr);
     EXPECT_NE(applicationContext, nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001 end";
@@ -630,7 +630,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_UnregisterAbilityLifecycleCallba
 {
     GTEST_LOG_(INFO) << "AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001 start";
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->UnregisterAbilityLifecycleCallback(nullptr);
     EXPECT_NE(applicationContext, nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001 end";

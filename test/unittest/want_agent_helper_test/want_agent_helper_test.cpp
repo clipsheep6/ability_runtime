@@ -272,7 +272,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1200, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -298,7 +298,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1300, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -324,7 +324,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1400, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -350,7 +350,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1500, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -376,7 +376,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1600, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -402,7 +402,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_1700, Function | MediumTest | Leve
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
     want->SetElement(element);
@@ -604,7 +604,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2700, Function | MediumTest | Leve
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -639,7 +639,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2800, Function | MediumTest | Leve
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -666,7 +666,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_2900, Function | MediumTest | Leve
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -937,7 +937,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4600, Function | MediumTest | Leve
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
@@ -985,7 +985,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_4800, Function | MediumTest | Leve
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);

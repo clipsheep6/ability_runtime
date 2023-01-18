@@ -104,7 +104,7 @@ Want PendingWantTest::MakeWant(std::string deviceId, std::string abilityName, st
 std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> GetAppContext()
 {
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     return context;
 }
 
@@ -447,7 +447,7 @@ HWTEST_F(PendingWantTest, PendingWant_1900, Function | MediumTest | Level1)
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -1263,7 +1263,7 @@ HWTEST_F(PendingWantTest, PendingWant_6800, Function | MediumTest | Level1)
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -1289,7 +1289,7 @@ HWTEST_F(PendingWantTest, PendingWant_6900, Function | MediumTest | Level1)
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant);
 
@@ -1315,7 +1315,7 @@ HWTEST_F(PendingWantTest, PendingWant_7000, Function | MediumTest | Level1)
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want1, flags, type, pendingWant);
 
@@ -1359,7 +1359,7 @@ HWTEST_F(PendingWantTest, PendingWant_7200, Function | MediumTest | Level1)
     flags |= FLAG_ONE_SHOT;
     WantAgentConstant::OperationType type = WantAgentConstant::OperationType::START_FOREGROUND_SERVICE;
     std::shared_ptr<AbilityRuntime::ApplicationContext> context =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     std::shared_ptr<PendingWant> pendingWant = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want1, flags, type, pendingWant);
 
