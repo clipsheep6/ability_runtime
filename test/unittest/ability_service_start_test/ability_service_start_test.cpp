@@ -28,6 +28,8 @@ namespace AAFwk {
 namespace {
 const std::string TASK_NAME_START_SYSTEM_APP = "StartSystemApplication";
 const std::string TASK_NAME_SUBSCRIBE_BACKGROUND_TASK = "SubscribeBackgroundTask";
+const std::string TASK_NAME_START_RESIDENT_APPS = "StartResidentApps";
+const std::string TASK_NAME_INIT_STARTUP_FLAG = "InitStartupFlag";
 }
 
 class AbilityServiceStartTest : public testing::Test {
@@ -78,6 +80,8 @@ HWTEST_F(AbilityServiceStartTest, StartUp_001, TestSize.Level1)
     ASSERT_NE(handler, nullptr);
     handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
     handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
+    handler->RemoveTask(TASK_NAME_START_RESIDENT_APPS);
+    handler->RemoveTask(TASK_NAME_INIT_STARTUP_FLAG);
 
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, aams_->QueryServiceState());
     aams_->OnStop();
@@ -101,12 +105,16 @@ HWTEST_F(AbilityServiceStartTest, StartUp_002, TestSize.Level1)
     ASSERT_NE(handler, nullptr);
     handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
     handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
+    handler->RemoveTask(TASK_NAME_START_RESIDENT_APPS);
+    handler->RemoveTask(TASK_NAME_INIT_STARTUP_FLAG);
 
     aams_->OnStart();
     handler = aams_->GetEventHandler();
     ASSERT_NE(handler, nullptr);
     handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
     handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
+    handler->RemoveTask(TASK_NAME_START_RESIDENT_APPS);
+    handler->RemoveTask(TASK_NAME_INIT_STARTUP_FLAG);
 
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, aams_->QueryServiceState());
     aams_->OnStop();
@@ -146,6 +154,8 @@ HWTEST_F(AbilityServiceStartTest, StartUp_004, TestSize.Level1)
     ASSERT_NE(handler, nullptr);
     handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
     handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
+    handler->RemoveTask(TASK_NAME_START_RESIDENT_APPS);
+    handler->RemoveTask(TASK_NAME_INIT_STARTUP_FLAG);
 
     aams_->OnStop();
     aams_->OnStop();
@@ -170,6 +180,8 @@ HWTEST_F(AbilityServiceStartTest, StartUp_005, TestSize.Level1)
         ASSERT_NE(handler, nullptr);
         handler->RemoveTask(TASK_NAME_START_SYSTEM_APP);
         handler->RemoveTask(TASK_NAME_SUBSCRIBE_BACKGROUND_TASK);
+        handler->RemoveTask(TASK_NAME_START_RESIDENT_APPS);
+        handler->RemoveTask(TASK_NAME_INIT_STARTUP_FLAG);
         GTEST_LOG_(INFO) << "start " << i << "times";
         EXPECT_EQ(ServiceRunningState::STATE_RUNNING, aams_->QueryServiceState());
         aams_->OnStop();

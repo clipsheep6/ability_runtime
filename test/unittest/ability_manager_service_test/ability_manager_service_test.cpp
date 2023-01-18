@@ -789,7 +789,7 @@ HWTEST_F(AbilityManagerServiceTest, ConnectLocalAbility_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest ConnectLocalAbility_001 start");
     Want want;
     ExtensionAbilityType extensionType = ExtensionAbilityType::SERVICE;
-    EXPECT_EQ(abilityMs_->ConnectLocalAbility(want, 0, nullptr, nullptr, extensionType), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(abilityMs_->ConnectLocalAbility(want, 100, nullptr, nullptr, extensionType), ERR_CROSS_USER);
     HILOG_INFO("AbilityManagerServiceTest ConnectLocalAbility_001 end");
 }
 
