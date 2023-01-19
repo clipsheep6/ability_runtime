@@ -4109,6 +4109,10 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
             return false;
         }
 
+        if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
+            return true;
+        }
+
         std::string bundleName;
         bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
         if (!result) {
@@ -5871,9 +5875,13 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const
     int requestCode, int componentStatus, AbilityRequest &request)
 {
     if (componentInterception_ != nullptr) {
+        Want newWant = want;
+        int32_t type = static_cast<int32_t>(request.abilityInfo.type);
+        newWant.SetParam("abilityType", type);
+
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();
-        bool isStart = componentInterception_->AllowComponentStart(want, callerToken,
+        bool isStart = componentInterception_->AllowComponentStart(newWant, callerToken,
             requestCode, componentStatus, extraParam);
         UpdateAbilityRequestInfo(extraParam, request);
         if (!isStart) {
