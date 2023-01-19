@@ -651,7 +651,7 @@ private:
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
-    int32_t requestProcCode_;
+    int32_t requestProcCode_ = 0;
     ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
 };
 }  // namespace AppExecFwk
