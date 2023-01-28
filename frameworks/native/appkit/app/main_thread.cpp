@@ -61,6 +61,7 @@
 #include <thread>
 #include "app_mgr_client.h"
 #include "nweb_pre_dns_adapter.h"
+#include "nweb_helper.h"
 #endif
 
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
@@ -1120,9 +1121,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
         std::string nwebPath = nwebApp->GetAppContext()->GetCacheDir() + "/web";
-        if (access(nwebPath.c_str(), F_OK) != -1) {
+        bool isFirstStartUpWeb = (access(nwebPath.c_str(), F_OK) != 0);
+        if (!isFirstStartUpWeb) {
             nwebMgr->PreStartNWebSpawnProcess();
         }
+        OHOS::NWeb::NWebHelper::TryPreReadLib(isFirstStartUpWeb, nwebApp->GetAppContext()->GetBundleCodeDir());
     }).detach();
 #endif
 
