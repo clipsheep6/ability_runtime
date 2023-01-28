@@ -72,9 +72,8 @@ HWTEST_F(AbilityExtensionBaseTest, Init_0100, TestSize.Level1)
 
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     ExtensionBase<ExtensionContext> extensionBase;
@@ -103,9 +102,8 @@ HWTEST_F(AbilityExtensionBaseTest, CreateAndInitContext_0100, TestSize.Level1)
 
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     ExtensionBase<ExtensionContext> extensionBase;
@@ -136,9 +134,8 @@ HWTEST_F(AbilityExtensionBaseTest, GetContext_0100, TestSize.Level1)
 
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     ExtensionBase<ExtensionContext> extensionBase;
@@ -168,9 +165,8 @@ HWTEST_F(AbilityExtensionBaseTest, OnConfigurationUpdated_0100, TestSize.Level1)
 
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     AppExecFwk::Configuration configuration;
@@ -202,9 +198,8 @@ HWTEST_F(AbilityExtensionBaseTest, OnMemoryLevel_0100, TestSize.Level1)
 
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
 
     ExtensionBase<ExtensionContext> extensionBase;

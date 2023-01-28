@@ -57,11 +57,6 @@ public:
     static NativeValue* GetPreferencesDir(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetBundleCodeDir(NativeEngine* engine, NativeCallbackInfo* info);
 
-    void KeepContext(std::shared_ptr<Context> context)
-    {
-        keepContext_ = context;
-    }
-
 protected:
     std::weak_ptr<Context> context_;
 
@@ -71,8 +66,6 @@ private:
     NativeValue* OnSwitchArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
-
-    std::shared_ptr<Context> keepContext_;
 };
 
 void JsBaseContext::Finalizer(NativeEngine* engine, void* data, void* hint)
@@ -422,7 +415,8 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
-    NativeValue* value = CreateJsApplicationContext(engine, applicationContext, nullptr, nullptr, true);
+
+    NativeValue* value = JsApplicationContextUtils::CreateJsApplicationContext(engine);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
@@ -496,7 +490,7 @@ NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* h
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsApplicationContext(*engine, ptr, nullptr, nullptr, true);
+    NativeValue* object = JsApplicationContextUtils::CreateJsApplicationContext(*engine);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
@@ -534,9 +528,6 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
         return objValue;
     }
     auto jsContext = std::make_unique<JsBaseContext>(context);
-    if (keepContext) {
-        jsContext->KeepContext(context);
-    }
     SetNamedNativePointer(engine, *object, BASE_CONTEXT_NAME, jsContext.release(), JsBaseContext::Finalizer);
 
     auto appInfo = context->GetApplicationInfo();

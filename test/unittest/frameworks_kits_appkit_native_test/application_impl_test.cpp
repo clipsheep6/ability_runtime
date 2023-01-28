@@ -370,9 +370,8 @@ HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_020
     GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0200 start";
     auto application = std::make_shared<MockApplication>();
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    auto applicationContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
     applicationImpl_->SetApplication(application);
     applicationImpl_->SetState(MockApplication::APP_STATE_CREATE);
@@ -392,9 +391,8 @@ HWTEST_F(ApplicationImplTest, AppExecFwk_ApplicationImpl_RemoveUriPermission_030
     GTEST_LOG_(INFO) << "AppExecFwk_ApplicationImpl_RemoveUriPermission_0300 start";
     auto application = std::make_shared<MockApplication>();
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    auto applicationContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    auto applicationContext = AbilityRuntime::ApplicationContext::GetInstance();;
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
     auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
     contextImpl->SetApplicationInfo(applicationInfo);

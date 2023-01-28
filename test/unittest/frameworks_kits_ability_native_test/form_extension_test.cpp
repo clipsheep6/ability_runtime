@@ -97,9 +97,8 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_0300, Function | MediumTest | L
     sptr<IRemoteObject> token = nullptr;
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application->SetApplicationContext(applicationContext);
     std::shared_ptr<AbilityHandler> handler;
 

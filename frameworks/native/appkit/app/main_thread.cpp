@@ -998,9 +998,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextImpl->SetResourceManager(resourceManager);
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-        std::make_shared<AbilityRuntime::ApplicationContext>();
+        AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
 
     if (isStageBased) {
