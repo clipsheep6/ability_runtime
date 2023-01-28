@@ -21,7 +21,10 @@ ohos_unittest("app_mgr_service_test") {
 
   include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
 
-  sources = [ "app_mgr_service_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "app_mgr_service_test.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 

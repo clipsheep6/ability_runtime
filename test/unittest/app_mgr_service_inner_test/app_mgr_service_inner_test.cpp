@@ -23,6 +23,7 @@
 #include "app_scheduler.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_bundle_manager.h"
@@ -236,7 +237,7 @@ HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    int callingPid = 1;
+    int callingPid = IPCSkeleton::GetCallingPid();
     int ret = appMgrServiceInner->PreStartNWebSpawnProcess(callingPid);
     EXPECT_EQ(ret, ERR_OK);
 }

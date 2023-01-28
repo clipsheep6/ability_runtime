@@ -24,6 +24,8 @@ namespace AppExecFwk {
 class MockNativeToken {
 public:
     static void SetNativeToken();
+
+    static void SetSAToken();
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
