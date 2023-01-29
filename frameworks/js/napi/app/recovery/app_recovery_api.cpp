@@ -105,7 +105,7 @@ private:
     bool CheckParamsValid(const uint16_t params[])
     {
         uint16_t restartFlag = params[0];
-        constexpr uint16_t restartMaxVal = 0x0007;
+        constexpr uint16_t restartMaxVal = 0x0003;
         if ((restartFlag < 0 || restartFlag > restartMaxVal) && (restartFlag != RestartFlag::NO_RESTART)) {
             HILOG_ERROR("AppRecoveryApi CheckParamsValid restartFlag: %{public}d is Invalid", restartFlag);
             return false;
@@ -128,7 +128,7 @@ private:
     {
         if (info.argc != 0) {
             HILOG_ERROR("AppRecoveryApi SaveAppState Incorrect number of parameters");
-            return engine.CreateUndefined();
+            return engine.CreateBoolean(false);
         }
 
         if (AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST)) {
@@ -166,9 +166,8 @@ NativeValue *AppRecoveryRestartFlagInit(NativeEngine *engine)
     }
 
     object->SetProperty("ALWAYS_RESTART", CreateJsValue(*engine, RestartFlag::ALWAYS_RESTART));
-    object->SetProperty("CPP_CRASH_NO_RESTART", CreateJsValue(*engine, RestartFlag::CPP_CRASH_NO_RESTART));
-    object->SetProperty("JS_CRASH_NO_RESTART", CreateJsValue(*engine, RestartFlag::JS_CRASH_NO_RESTART));
-    object->SetProperty("APP_FREEZE_NO_RESTART", CreateJsValue(*engine, RestartFlag::APP_FREEZE_NO_RESTART));
+    object->SetProperty("RESTART_WHEN_JS_CRASH", CreateJsValue(*engine, RestartFlag::RESTART_WHEN_JS_CRASH));
+    object->SetProperty("RESTART_WHEN_APP_FREEZE", CreateJsValue(*engine, RestartFlag::RESTART_WHEN_APP_FREEZE));
     object->SetProperty("NO_RESTART", CreateJsValue(*engine, RestartFlag::NO_RESTART));
     return objValue;
 }

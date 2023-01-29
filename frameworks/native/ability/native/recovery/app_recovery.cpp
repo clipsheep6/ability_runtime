@@ -221,7 +221,11 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
         return false;
     }
 
-    bool ret = true;
+    bool ret = false;
+    bool isAlwaysStart = false;
+    if (restartFlag_ == RestartFlag::ALWAYS_RESTART) {
+        isAlwaysStart = true;
+    }
     switch (reason) {
         case StateReason::DEVELOPER_REQUEST:
             ret = true;
@@ -232,20 +236,18 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
             break;
 
         case StateReason::CPP_CRASH:
-            if ((restartFlag_ & RestartFlag::CPP_CRASH_NO_RESTART) != 0) {
-                ret = false;
-            }
+            ret = false;
             break;
 
         case StateReason::JS_ERROR:
-            if ((restartFlag_ & RestartFlag::JS_CRASH_NO_RESTART) != 0) {
-                ret = false;
+            if (isAlwaysStart || (restartFlag_ & RestartFlag::RESTART_WHEN_JS_CRASH) != 0) {
+                ret = true;
             }
             break;
 
         case StateReason::APP_FREEZE:
-            if ((restartFlag_ & RestartFlag::APP_FREEZE_NO_RESTART) != 0) {
-                ret = false;
+            if (isAlwaysStart || (restartFlag_ & RestartFlag::RESTART_WHEN_APP_FREEZE) != 0) {
+                ret = true;
             }
             break;
     }
