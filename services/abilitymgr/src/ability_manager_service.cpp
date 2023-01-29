@@ -5879,6 +5879,8 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const
         Want newWant = want;
         int32_t type = static_cast<int32_t>(request.abilityInfo.type);
         newWant.SetParam("abilityType", type);
+        int32_t launchMode = static_cast<int32_t>(request.abilityInfo.launchMode);
+        newWant.SetParam("launchMode", launchMode);
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();

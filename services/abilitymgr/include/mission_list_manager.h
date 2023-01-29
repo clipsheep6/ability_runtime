@@ -458,6 +458,7 @@ private:
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
         const AbilityRequest &abilityRequest) const;
+    void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
