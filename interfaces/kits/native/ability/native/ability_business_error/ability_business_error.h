@@ -57,6 +57,9 @@ enum class AbilityErrorCode {
     // no permission to cross user.
     ERROR_CODE_CROSS_USER = 16000006,
 
+    // Service busy.Try again later.
+    ERROR_CODE_SERVICE_BUSY = 16000007,
+
     // crowdtest app expiration.
     ERROR_CODE_CROWDTEST_EXPIRED = 16000008,
 
@@ -86,6 +89,9 @@ enum class AbilityErrorCode {
 
     // free install other ability.
     ERROR_CODE_FREE_INSTALL_OTHERS = 16000056,
+
+    // Cross-device installation-free is not supported.
+    ERROR_CODE_FREE_INSTALL_CROSS_DEVICE = 16000057,
 
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
