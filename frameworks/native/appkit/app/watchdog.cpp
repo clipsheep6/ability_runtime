@@ -31,7 +31,6 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-constexpr uint32_t MAIN_THREAD_IS_ALIVE = 0;
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 #ifdef SUPPORT_ASAN
