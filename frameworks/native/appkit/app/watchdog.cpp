@@ -37,6 +37,14 @@ std::shared_ptr<EventHandler> Watchdog::appMainHandler_ = nullptr;
 Watchdog::Watchdog()
 {}
 
+Watchdog::~Watchdog()
+{
+    if (!stopWatchdog_) {
+        HILOG_DEBUG("Stop watchdog when deconstruct.");
+        OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
+    }
+}
+
 void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
     Watchdog::appMainHandler_ = mainHandler;
@@ -52,10 +60,10 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 
 void Watchdog::Stop()
 {
-    HILOG_DEBUG("Watchdog is stop !");
+    HILOG_DEBUG("Watchdog is stop!");
     std::unique_lock<std::mutex> lock(cvMutex_);
     if (stopWatchdog_) {
-        HILOG_ERROR("Watchdog has stoped.");
+        HILOG_DEBUG("Watchdog has stoped.");
         return;
     }
     stopWatchdog_.store(true);
@@ -107,6 +115,10 @@ bool Watchdog::IsStopWatchdog()
 void Watchdog::Timer()
 {
     std::unique_lock<std::mutex> lock(cvMutex_);
+    if (stopWatchdog_) {
+        HILOG_DEBUG("Watchdog has stoped.");
+        return;
+    }
     if (!needReport_) {
         HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
         return;
