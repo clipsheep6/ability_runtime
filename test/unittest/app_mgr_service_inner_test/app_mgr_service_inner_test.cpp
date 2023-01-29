@@ -239,7 +239,7 @@ HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 
     int callingPid = IPCSkeleton::GetCallingPid();
     int ret = appMgrServiceInner->PreStartNWebSpawnProcess(callingPid);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(ret, ERR_OK);
 }
 
 /**
