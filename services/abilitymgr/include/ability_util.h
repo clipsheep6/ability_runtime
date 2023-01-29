@@ -40,8 +40,8 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
-const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
-const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
+const char* MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
+const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
 // dlp White list
 const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
 

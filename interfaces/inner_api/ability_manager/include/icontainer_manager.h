@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string CONTAINER_MANAGER_ABILITY_NAME = "ContainerManagerAbility";
+const char* CONTAINER_MANAGER_ABILITY_NAME = "ContainerManagerAbility";
 /**
  * @class IContainerManager
  * IContainerManager interface is used to access container manager services.
