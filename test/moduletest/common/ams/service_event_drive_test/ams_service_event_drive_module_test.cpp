@@ -20,6 +20,7 @@
 #undef private
 #undef protected
 #include "hilog_wrapper.h"
+#include "mock_native_token.h"
 #include "semaphore_ex.h"
 
 #include <gtest/gtest.h>
@@ -171,6 +172,7 @@ void AmsServiceEventDriveModuleTest::TearDownTestCase()
 void AmsServiceEventDriveModuleTest::SetUp()
 {
     appMgrService_ = std::make_shared<AppMgrService>();
+    OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
 }
 
 void AmsServiceEventDriveModuleTest::TearDown()

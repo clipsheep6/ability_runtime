@@ -18,7 +18,7 @@
 #define private public
 #include "app_mgr_service.h"
 #undef private
-
+#include "mock_native_token.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -652,6 +652,7 @@ HWTEST_F(AppMgrServiceTest, GetAbilityRecordsByProcessID_002, TestSize.Level0)
     std::vector<sptr<IRemoteObject>> tokens;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
+    OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int res = appMgrService->GetAbilityRecordsByProcessID(pid, tokens);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
 }
@@ -1039,6 +1040,7 @@ HWTEST_F(AppMgrServiceTest, NotifyLoadRepairPatch_002, TestSize.Level0)
     sptr<IQuickFixCallback> callback = nullptr;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
+    OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyLoadRepairPatch(bundleName, callback);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
 }
@@ -1076,6 +1078,7 @@ HWTEST_F(AppMgrServiceTest, NotifyHotReloadPage_002, TestSize.Level0)
     sptr<IQuickFixCallback> callback = nullptr;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
+    OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyHotReloadPage(bundleName, callback);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
 }
@@ -1152,6 +1155,7 @@ HWTEST_F(AppMgrServiceTest, NotifyUnLoadRepairPatch_002, TestSize.Level0)
     sptr<IQuickFixCallback> callback = nullptr;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
+    OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
 }

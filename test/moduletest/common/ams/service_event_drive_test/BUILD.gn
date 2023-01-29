@@ -19,10 +19,15 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsServiceEventDriveModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
 
-  sources = [ "ams_service_event_drive_module_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "ams_service_event_drive_module_test.cpp",
+  ]
 
   deps = [
     "${ability_runtime_services_path}/common:perm_verification",
@@ -34,6 +39,8 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
   }
 
   external_deps = [
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "hicollie_native:libhicollie",
     "hiviewdfx_hilog_native:libhilog",
