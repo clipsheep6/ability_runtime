@@ -2777,7 +2777,30 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
     }
 
     abilityRequest.specifiedFlag = flag;
+    NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest);
+}
+
+void MissionListManager::NotifyStartSpecifiedAbility(AbilityRequest &abilityRequest, const AAFwk::Want &want)
+{
+    if (abilityRequest.abilityInfoCallback == nullptr) {
+        return;
+    }
+
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        Want newWant = want;
+        int32_t type = static_cast<int32_t>(abilityRequest.abilityInfo.type);
+        newWant.SetParam("abilityType", type);
+        sptr<Want> extraParam = new (std::nothrow) Want();
+        abilityInfoCallback->NotifyStartSpecifiedAbility(abilityRequest.callerToken, newWant,
+            abilityRequest.requestCode, extraParam);
+        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE,
+            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
+        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
+            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
+    }
 }
 
 void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
