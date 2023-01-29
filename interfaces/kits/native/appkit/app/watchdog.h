@@ -39,7 +39,7 @@ constexpr const char* MAIN_THREAD_TIMEOUT_TASK = "MAIN_THREAD_TIMEOUT_TASK";
 class Watchdog {
 public:
     Watchdog();
-    virtual ~Watchdog() = default;
+    ~Watchdog();
 
     /**
      *
