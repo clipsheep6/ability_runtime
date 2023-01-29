@@ -231,8 +231,13 @@ struct AssetHelper final {
                 break;
             }
         }
+        if (newHapPath.length() == 0) {
+            HILOG_ERROR("get newHapPath from hapModuleInfo failed");
+            return false;
+        }
 
         std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
+        HILOG_INFO("loadPath is %{public}s", loadPath.c_str());
         std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
         if (extractor == nullptr) {
             HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
