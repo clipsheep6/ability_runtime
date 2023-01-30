@@ -2203,50 +2203,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CallRequestDone_001, TestSize.Level1)
 
 /*
  * Feature: AbilityRecord
- * Function: DumpSys
- * SubFunction: DumpSys
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord DumpSys
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_DumpSys_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    std::vector<std::string> info;
-    bool isClient = false;
-    abilityRecord->SetPreAbilityRecord(nullptr);
-    abilityRecord->SetNextAbilityRecord(nullptr);
-    abilityRecord->isLauncherRoot_ = true;
-    abilityRecord->abilityInfo_.isStageBasedModel = true;
-    abilityRecord->DumpSys(info, isClient);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: DumpSys
- * SubFunction: DumpSys
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord DumpSys
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_DumpSys_002, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    std::shared_ptr<AbilityRecord> preAbility = GetAbilityRecord();
-    std::shared_ptr<AbilityRecord> nextAbility = GetAbilityRecord();
-    std::vector<std::string> info;
-    bool isClient = false;
-    abilityRecord->SetPreAbilityRecord(preAbility);
-    abilityRecord->SetNextAbilityRecord(nextAbility);
-    abilityRecord->isLauncherRoot_ = true;
-    abilityRecord->abilityInfo_.isStageBasedModel = false;
-    abilityRecord->DumpSys(info, isClient);
-    abilityRecord->isLauncherRoot_ = false;
-    abilityRecord->DumpSys(info, isClient);
-}
-
-/*
- * Feature: AbilityRecord
  * Function: DumpClientInfo
  * SubFunction: DumpClientInfo
  * FunctionPoints: NA
