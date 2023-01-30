@@ -38,6 +38,17 @@ namespace AbilityRuntime {
 #ifdef SUPPORT_GRAPHICS
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 #endif
+
+JsAbilityDeleterObject::~JsAbilityDeleterObject() {
+    HILOG_INFO("call destructor for JsAbilityDeleterObject");
+    shellContextRef_.reset();
+    HILOG_INFO("call destructor for shellContextRef_");
+    jsAbilityObj_.reset();
+    HILOG_INFO("call destructor for jsAbilityObj_");
+    abilityContext_.reset();
+    HILOG_INFO("call destructor for abilityContext_");
+}
+
 Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
     return new JsAbility(static_cast<JsRuntime &>(*runtime));
@@ -47,6 +58,7 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {}
 
 JsAbility::~JsAbility() {
+        HILOG_INFO("call destructor for JsAbility");
     auto &engine = jsRuntime_.GetNativeEngine();
     uv_loop_t *loop = engine.GetUVLoop();
     if (loop == nullptr) {
@@ -65,15 +77,15 @@ JsAbility::~JsAbility() {
         return;
     }
 
-    if (jsAbilityObj_) {
-        cb->jsAbilityObj_ = std::move(jsAbilityObj_);
-    }
-    if (shellContextRef_) {
-        cb->shellContextRef_ = std::move(shellContextRef_);
-    }
-    if (abilityContext_) {
-        cb->abilityContext_ = std::move(abilityContext_);
-    }
+    // if (jsAbilityObj_) {
+    //     cb->jsAbilityObj_ = std::move(jsAbilityObj_);
+    // }
+    // if (shellContextRef_) {
+    //     cb->shellContextRef_ = std::move(shellContextRef_);
+    // }
+    // if (abilityContext_) {
+    //     cb->abilityContext_ = std::move(abilityContext_);
+    // }
     work->data = reinterpret_cast<void *>(cb);
 
     int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
@@ -86,6 +98,7 @@ JsAbility::~JsAbility() {
             work = nullptr;
             return;
         }
+        HILOG_INFO("call destructor for shellContextRef_");
         delete reinterpret_cast<JsAbilityDeleterObject *>(work->data);
         work->data = nullptr;
         delete work;
@@ -93,6 +106,7 @@ JsAbility::~JsAbility() {
     });
 
     if (ret != 0) {
+        HILOG_INFO("call destructor for shellContextRef_");
         delete reinterpret_cast<JsAbilityDeleterObject *>(work->data);
         work->data = nullptr;
         delete work;
