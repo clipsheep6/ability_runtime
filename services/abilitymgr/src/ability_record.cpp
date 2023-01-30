@@ -1606,21 +1606,21 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
     if (preAbility == nullptr) {
-        dumpInfo = "        previous ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        previous ability app name [NULL]" + "\n";
         dumpInfo += "        previous ability file name [NULL]";
     } else {
         dumpInfo =
-            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]" + "\n";
         dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
     if (nextAbility == nullptr) {
-        dumpInfo = "        next ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        next ability app name [NULL]" + "\n";
         dumpInfo += "        next ability file name [NULL]";
     } else {
         dumpInfo =
-            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]" + "\n";
         dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
@@ -2153,21 +2153,21 @@ void AbilityRecord::DumpSys(std::vector<std::string> &info, bool isClient)
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
     if (preAbility == nullptr) {
-        dumpInfo = "        previous ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        previous ability app name [NULL]" + "\n";
         dumpInfo += "        previous ability file name [NULL]";
     } else {
         dumpInfo =
-            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]" + "\n";
         dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
     if (nextAbility == nullptr) {
-        dumpInfo = "        next ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        next ability app name [NULL]" + "\n";
         dumpInfo += "        next ability file name [NULL]";
     } else {
         dumpInfo =
-            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]" + "\n";
         dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);

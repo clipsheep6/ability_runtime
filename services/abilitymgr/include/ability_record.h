@@ -54,8 +54,6 @@ class MissionList;
 class CallContainer;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
-const std::string LINE_SEPARATOR = "\n";
-
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 
 /**
