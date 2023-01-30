@@ -4245,7 +4245,7 @@ void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &in
 
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
         return;
     }
@@ -4858,13 +4858,8 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
-    return GetTopAbility(token, true);
-}
-
-int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool needVerify)
-{
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (needVerify && !isSaCall) {
+    if (!isSaCall) {
         HILOG_ERROR("Permission verification failed");
         return CHECK_PERMISSION_FAILED;
     }
@@ -5227,7 +5222,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token, false);
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret) {
         return elementName;
     }
