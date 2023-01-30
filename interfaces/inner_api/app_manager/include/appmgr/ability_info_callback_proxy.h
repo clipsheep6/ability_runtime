@@ -48,6 +48,8 @@ public:
     virtual void NotifyStartSpecifiedAbility(const sptr<IRemoteObject> &callerToken, const Want &want, int requestCode,
         sptr<Want> &extraParam) override;
 
+    virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam);

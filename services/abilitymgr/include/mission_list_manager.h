@@ -459,6 +459,7 @@ private:
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
         const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
+    void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

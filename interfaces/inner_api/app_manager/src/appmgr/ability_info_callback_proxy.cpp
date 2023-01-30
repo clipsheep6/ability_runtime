@@ -56,6 +56,27 @@ void AbilityInfoCallbackProxy::NotifyAbilityToken(const sptr<IRemoteObject> toke
     }
 }
 
+void AbilityInfoCallbackProxy::NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+
+    data.WriteRemoteObject(token);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_RESTART_SPECIFIED_ABILITY, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 void AbilityInfoCallbackProxy::NotifyStartSpecifiedAbility(const sptr<IRemoteObject> &callerToken,
     const Want &want, int requestCode, sptr<Want> &extraParam)
 {
