@@ -49,9 +49,12 @@ public:
     virtual void NotifyStartSpecifiedAbility(const sptr<IRemoteObject> &callerToken, const Want &want, int requestCode,
         sptr<Want> &extraParam) = 0;
 
+    virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) = 0;
+
     enum {
         Notify_ABILITY_TOKEN = 1,
         Notify_START_SPECIFIED_ABILITY,
+        Notify_RESTART_SPECIFIED_ABILITY,
     };
 };
 }  // namespace AppExecFwk
