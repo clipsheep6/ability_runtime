@@ -4230,8 +4230,6 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
     }
 
     currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
-    connectManager_->GetAbilityRunningInfos(info, isPerm);
-    dataAbilityManager_->GetAbilityRunningInfos(info, isPerm);
     UpdateFocusState(info);
 
     return ERR_OK;
