@@ -106,6 +106,7 @@ ohos_shared_library("libappms") {
     defines += [ "SUPPORT_ASAN" ]
   }
 
+  version_script = "libappms.map"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

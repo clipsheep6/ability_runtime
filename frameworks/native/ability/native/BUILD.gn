@@ -271,6 +271,8 @@ ohos_shared_library("abilitykit_native") {
       "${windowmanager_path}/wm:libwm",
     ]
   }
+
+  version_script = "libabilitykit_native.map"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
