@@ -58,6 +58,10 @@ void InnerInitWantOptionsData(std::map<std::string, unsigned int> &flagMap)
     flagMap.emplace("installOnDemand", Want::FLAG_INSTALL_ON_DEMAND);
     flagMap.emplace("abilitySliceForwardResult", Want::FLAG_ABILITYSLICE_FORWARD_RESULT);
     flagMap.emplace("installWithBackgroundMode", Want::FLAG_INSTALL_WITH_BACKGROUND_MODE);
+    flagMap.emplace("abilityContinuationReversible", Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE);
+    flagMap.emplace("abilityClearMission", Want::FLAG_ABILITY_CLEAR_MISSION);
+    flagMap.emplace("abilityNewMission", Want::FLAG_ABILITY_NEW_MISSION);
+    flagMap.emplace("abilityMissionTop", Want::FLAG_ABILITY_MISSION_TOP);
 }
 
 napi_value WrapElementName(napi_env env, const ElementName &elementName)

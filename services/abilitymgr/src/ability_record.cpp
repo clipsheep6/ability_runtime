@@ -2276,5 +2276,25 @@ int AbilityRecord::BlockAbility()
     return ERR_NO_INIT;
 }
 #endif
+
+bool AbilityRecord::IsNeedBackToOtherMissionStack()
+{
+    return isNeedBackToOtherMissionStack_;
+}
+
+void AbilityRecord::SetNeedBackToOtherMissionStack(bool isNeedBackToOtherMissionStack)
+{
+    isNeedBackToOtherMissionStack_ = isNeedBackToOtherMissionStack;
+}
+
+std::shared_ptr<AbilityRecord> AbilityRecord::GetOtherMissionStackAbilityRecord() const
+{
+    return otherMissionStackAbilityRecord_.lock();
+}
+
+void AbilityRecord::SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    otherMissionStackAbilityRecord_ = abilityRecord;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

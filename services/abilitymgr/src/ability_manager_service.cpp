@@ -5963,5 +5963,30 @@ int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, cons
     abilityRecord->SendResult();
     return ERR_OK;
 }
+
+std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
+{
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> token;
+    if (!wmsHandler_) {
+        HILOG_ERROR("wmsHandler_ is nullptr.");
+        return nullptr;
+    }
+
+    wmsHandler_->GetFocusWindow(token);
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return nullptr;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is nullptr.");
+    }
+    return abilityRecord;
+#endif
+
+    return nullptr;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -313,6 +313,22 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         if (targetAbilityRecord->GetAbilityInfo().applicationInfo.isLauncherApp) {
             targetAbilityRecord->SetLauncherRoot();
         }
+    } else {
+        // only SA or no Page Ability support back to other mission stack
+        auto supportBackToOtherMissionStack =
+            (!callerAbility) || (callerAbility->GetAbilityInfo().type != AppExecFwk::AbilityType::PAGE);
+        auto needBackToOtherMissionStack =
+            abilityRequest.want.GetBoolParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, false);
+        if (supportBackToOtherMissionStack && needBackToOtherMissionStack) {
+            // mark if need back to other mission stack
+            targetAbilityRecord->SetNeedBackToOtherMissionStack(true);
+            auto focusAbility = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetFocusAbility();
+            if (focusAbility) {
+                targetAbilityRecord->SetOtherMissionStackAbilityRecord(focusAbility);
+            } else {
+                targetAbilityRecord->SetOtherMissionStackAbilityRecord(currentTopAbility);
+            }
+        }
     }
 
     sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
@@ -1361,7 +1377,16 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
 
     if (!needTopAbility) {
         HILOG_DEBUG("The ability need to top is null.");
-        return;
+        if (!abilityRecord->IsNeedBackToOtherMissionStack()) {
+            HILOG_INFO("This ability doesn't need back to other mission stack.");
+            return;
+        }
+        needTopAbility = abilityRecord->GetOtherMissionStackAbilityRecord();
+        if (!needTopAbility) {
+            HILOG_ERROR("This ability needs back to other mission stack, but needTopAbility is null.");
+            return;
+        }
+        abilityRecord->SetNeedBackToOtherMissionStack(false);
     }
     AppExecFwk::ElementName elementName = needTopAbility->GetWant().GetElement();
     HILOG_DEBUG("Next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d.",
