@@ -160,7 +160,7 @@ ohos_shared_library("appkit_native") {
     defines += [ "SUPPORT_ASAN" ]
   }
 
-  if ("${product_name}" == "rk3568" || "${product_name}" == "m40") {
+  if (defined(global_parts_info.web_webview)) {
     public_deps += [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
 
     include_dirs += [ "//base/web/webview/ohos_adapter/interfaces" ]
