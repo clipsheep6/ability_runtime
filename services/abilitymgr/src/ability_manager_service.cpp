@@ -111,19 +111,14 @@ const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
 const std::string BUNDLE_NAME_PHOTO = "com.ohos.photos";
 const std::string BUNDLE_NAME_SCREENSHOT = "com.huawei.ohos.screenshot";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
-const std::string BUNDLE_NAME_SINGLE_TEST = "com.singleusermodel.actssingleusertest";
 const std::string BUNDLE_NAME_FREEINSTALL_TEST = "com.example.qianyiyingyong.hmservice";
 const std::string BUNDLE_NAME_FREEINSTALL_SEC_TEST = "com.open.harmony.startAbility";
-const std::string BUNDLE_NAME_APP_SELECT_TEST = "com.example.appselectortest";
-const std::string BUNDLE_NAME_APP_SELECTPC_TEST = "com.example.appselectorpctest";
 const std::string BUNDLE_NAME_USERS_SYSTEM_TEST = "com.acts.actsinterfacemultiuserstest";
 const std::string BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST = "com.acts.actsinterfacemultiusersthirdtest";
-const std::string BUNDLE_NAME_SINGLE_USER_TEST = "com.singleusermodel.actssingleusertest";
 const std::string BUNDLE_NAME_MUTIUSER_TEST = "com.acts.actsinterfacemultiusersextensiontest";
 const std::string BUNDLE_NAME_PER_THRID_TEST = "com.example.actsabilitypermissionthirdtest";
 const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
 const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
-const std::string BUNDLE_NAME_APPSELECT_SERVER_TEST = "bserviceabilityrelyhap";
 // New XTS white list
 const std::string BUNDLE_NAME_ABILITY_USER_TEST = "com.example.actsabilityusertest";
 const std::string BUNDLE_NAME_FORM_STATE_NOTIFY_INVISIBLE_TEST = "com.ohos.st.formstatenotifyinvisibletest";
@@ -185,18 +180,13 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_PHOTO,
                                                                 BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
-                                                                BUNDLE_NAME_SINGLE_TEST,
                                                                 BUNDLE_NAME_FREEINSTALL_TEST,
                                                                 BUNDLE_NAME_FREEINSTALL_SEC_TEST,
-                                                                BUNDLE_NAME_APP_SELECT_TEST,
-                                                                BUNDLE_NAME_APP_SELECTPC_TEST,
                                                                 BUNDLE_NAME_USERS_SYSTEM_TEST,
                                                                 BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST,
-                                                                BUNDLE_NAME_SINGLE_USER_TEST,
                                                                 BUNDLE_NAME_MUTIUSER_TEST,
                                                                 BUNDLE_NAME_PER_THRID_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER_TEST,
-                                                                BUNDLE_NAME_APPSELECT_SERVER_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER2_TEST,
                                                                 BUNDLE_NAME_ABILITY_USER_TEST,
                                                                 BUNDLE_NAME_FORM_STATE_NOTIFY_INVISIBLE_TEST,
