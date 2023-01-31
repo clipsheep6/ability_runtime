@@ -1606,21 +1606,25 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
     if (preAbility == nullptr) {
-        dumpInfo = "        previous ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        previous ability app name [NULL]";
+        dumpInfo.append("\n");
         dumpInfo += "        previous ability file name [NULL]";
     } else {
         dumpInfo =
-            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]";
+        dumpInfo.append("\n");
         dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
     if (nextAbility == nullptr) {
-        dumpInfo = "        next ability app name [NULL]" + LINE_SEPARATOR;
+        dumpInfo = "        next ability app name [NULL]";
+        dumpInfo.append("\n");
         dumpInfo += "        next ability file name [NULL]";
     } else {
         dumpInfo =
-            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]" + LINE_SEPARATOR;
+            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]";
+        dumpInfo.append("\n");
         dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
@@ -2135,6 +2139,64 @@ void AbilityRecord::SetOwnerMissionUserId(int32_t userId)
 int32_t AbilityRecord::GetOwnerMissionUserId()
 {
     return ownerMissionUserId_;
+}
+
+void AbilityRecord::DumpSys(std::vector<std::string> &info, bool isClient)
+{
+    std::string dumpInfo = "      AbilityRecord ID #" + std::to_string(recordId_);
+    info.push_back(dumpInfo);
+    dumpInfo = "        app name [" + GetAbilityInfo().applicationName + "]";
+    info.push_back(dumpInfo);
+    dumpInfo = "        main name [" + GetAbilityInfo().name + "]";
+    info.push_back(dumpInfo);
+    dumpInfo = "        bundle name [" + GetAbilityInfo().bundleName + "]";
+    info.push_back(dumpInfo);
+    std::string typeStr;
+    GetAbilityTypeString(typeStr);
+    dumpInfo = "        ability type [" + typeStr + "]";
+    info.push_back(dumpInfo);
+    std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
+    if (preAbility == nullptr) {
+        dumpInfo = "        previous ability app name [NULL]";
+        dumpInfo.append("\n");
+        dumpInfo += "        previous ability file name [NULL]";
+    } else {
+        dumpInfo =
+            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]";
+        dumpInfo.append("\n");
+        dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
+    }
+    info.push_back(dumpInfo);
+    std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
+    if (nextAbility == nullptr) {
+        dumpInfo = "        next ability app name [NULL]";
+        dumpInfo.append("\n");
+        dumpInfo += "        next ability file name [NULL]";
+    } else {
+        dumpInfo =
+            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]";
+        dumpInfo.append("\n");
+        dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
+    }
+    info.push_back(dumpInfo);
+    dumpInfo = "        state #" + AbilityRecord::ConvertAbilityState(GetAbilityState()) + "  start time [" +
+               std::to_string(startTime_) + "]";
+    info.push_back(dumpInfo);
+    dumpInfo = "        app state #" + AbilityRecord::ConvertAppState(appState_);
+    info.push_back(dumpInfo);
+    dumpInfo = "        ready #" + std::to_string(isReady_) + "  window attached #" +
+               std::to_string(isWindowAttached_) + "  launcher #" + std::to_string(isLauncherAbility_);
+    info.push_back(dumpInfo);
+
+    std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
+    dumpInfo = "        isKeepAlive: " + isKeepAlive;
+    info.push_back(dumpInfo);
+    if (isLauncherRoot_ && abilityInfo_.isStageBasedModel) {
+        dumpInfo = "        can restart num #" + std::to_string(restartCount_);
+        info.push_back(dumpInfo);
+    }
+    const std::vector<std::string> params;
+    DumpClientInfo(info, params, isClient);
 }
 
 void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::vector<std::string> &params,
