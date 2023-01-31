@@ -31,6 +31,13 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
+
+#ifdef SUPPORT_ASAN
+constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
+#else
+constexpr uint32_t CHECK_INTERVAL_TIME = 3000;
+#endif
 }
 std::shared_ptr<EventHandler> Watchdog::appMainHandler_ = nullptr;
 

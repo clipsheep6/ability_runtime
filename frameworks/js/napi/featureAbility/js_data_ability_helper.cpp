@@ -45,6 +45,13 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AbilityRuntime {
+const int32_t JS_ERR_PARAM_INVALID = 401;        // Invalid input parameter
+const int32_t JS_ERR_INTERNAL_ERROR = 16500001;  // System internal error
+
+const std::unordered_map<int32_t, std::string> ERR_CODE_MSG = {
+    {JS_ERR_PARAM_INVALID, "Invalid input parameter"},
+    {JS_ERR_INTERNAL_ERROR, "System internal error"}
+};
 std::list<std::shared_ptr<DataAbilityHelper>> g_dataAbilityHelperList;
 std::vector<DAHelperOnOffCB *> g_registerInstances;
 
