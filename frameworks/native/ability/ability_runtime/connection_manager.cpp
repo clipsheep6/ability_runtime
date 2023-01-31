@@ -47,7 +47,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
 {
     if (connectCaller == nullptr || connectCallback == nullptr) {
         HILOG_ERROR("connectCaller or connectCallback is nullptr.");
-        return ERR_INVALID_VALUE;
+        return AAFwk::ERR_INVALID_CALLER;
     }
 
     AppExecFwk::ElementName connectReceiver = want.GetElement();
@@ -78,7 +78,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
         } else {
             HILOG_ERROR("AbilityConnection has disconnected, erase it.");
             abilityConnections_.erase(item);
-            return ERR_INVALID_VALUE;
+            return AAFwk::INVALID_CONNECTION_STATE;
         }
     } else {
         return CreateConnection(connectCaller, want, accountId, connectCallback, connectReceiver);
@@ -93,7 +93,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
     if (abilityConnection == nullptr) {
         HILOG_ERROR("create connedction failed.");
-        return ERR_INVALID_VALUE;
+        return AAFwk::ERR_INVALID_CALLER;
     }
     abilityConnection->AddConnectCallback(connectCallback);
     abilityConnection->SetConnectionState(CONNECTION_STATE_CONNECTING);
@@ -115,7 +115,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
 {
     if (connectCaller == nullptr || connectCallback == nullptr) {
         HILOG_ERROR("connectCaller or connectCallback is nullptr.");
-        return ERR_INVALID_VALUE;
+        return AAFwk::ERR_INVALID_CALLER;
     }
 
     HILOG_DEBUG("connectReceiver: %{public}s.",
@@ -155,7 +155,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
         }
     } else {
         HILOG_ERROR("not find conn exist.");
-        return ERR_INVALID_VALUE;
+        return AAFwk::CONNECTION_NOT_EXIST;
     }
 }
 

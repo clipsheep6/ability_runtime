@@ -37,6 +37,7 @@ enum MissionListType {
 class MissionList : public std::enable_shared_from_this<MissionList> {
 public:
     explicit MissionList(MissionListType type = MissionListType::CURRENT);
+    explicit MissionList(const MissionList& missionList) : type_(missionList.type_), missions_(missionList.missions_) {}
     virtual ~MissionList();
 
     /**

@@ -37,8 +37,22 @@ public:
      */
     virtual void NotifyAbilityToken(const sptr<IRemoteObject> token, const Want &want) override;
 
+    /**
+     * Notify to start specified ability.
+     *
+     * @param callerToken The token of caller.
+     * @param want The want of ability to start.
+     * @param requestCode The request code of start ability.
+     * @param extraParam The extra param of ability to start.
+     */
+    virtual void NotifyStartSpecifiedAbility(const sptr<IRemoteObject> &callerToken, const Want &want, int requestCode,
+        sptr<Want> &extraParam) override;
+
+    virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
+    void SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam);
     static inline BrokerDelegator<AbilityInfoCallbackProxy> delegator_;
 };
 }  // namespace AppExecFwk

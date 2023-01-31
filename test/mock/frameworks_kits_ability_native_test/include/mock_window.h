@@ -153,6 +153,7 @@ public:
     virtual std::shared_ptr<Media::PixelMap> Snapshot() {return nullptr;}
     virtual WMError NotifyMemoryLevel(int32_t level) const {return WMError::WM_OK;}
     virtual bool IsAllowHaveSystemSubWindow() {return false;}
+    virtual WmErrorCode RaiseToAppTop() {return WmErrorCode::WM_OK;}
 };
 }
 }

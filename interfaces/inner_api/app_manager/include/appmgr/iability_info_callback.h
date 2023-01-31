@@ -38,8 +38,23 @@ public:
      */
     virtual void NotifyAbilityToken(const sptr<IRemoteObject> token, const Want &want) = 0;
 
+    /**
+     * Notify to start specified ability.
+     *
+     * @param callerToken The token of caller.
+     * @param want The want of ability to start.
+     * @param requestCode The request code of start ability.
+     * @param extraParam The extra param of ability to start.
+     */
+    virtual void NotifyStartSpecifiedAbility(const sptr<IRemoteObject> &callerToken, const Want &want, int requestCode,
+        sptr<Want> &extraParam) = 0;
+
+    virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) = 0;
+
     enum {
         Notify_ABILITY_TOKEN = 1,
+        Notify_START_SPECIFIED_ABILITY,
+        Notify_RESTART_SPECIFIED_ABILITY,
     };
 };
 }  // namespace AppExecFwk

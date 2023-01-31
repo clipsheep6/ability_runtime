@@ -42,10 +42,9 @@ enum StateType {
 
 enum RestartFlag {
     ALWAYS_RESTART = 0,
-    CPP_CRASH_NO_RESTART = 1,
-    JS_CRASH_NO_RESTART = 2,
-    APP_FREEZE_NO_RESTART = 4,
-    NO_RESTART = 0xFF,
+    RESTART_WHEN_JS_CRASH = 0x0001,
+    RESTART_WHEN_APP_FREEZE = 0x0002,
+    NO_RESTART = 0xFFFF,
 };
 
 enum SaveOccasionFlag {

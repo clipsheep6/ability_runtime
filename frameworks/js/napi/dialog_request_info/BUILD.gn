@@ -25,14 +25,10 @@ ohos_shared_library("dialog_request_info") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
-
   external_deps = [
     "ability_base:base",
     "ability_base:want",
-    "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",

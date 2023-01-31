@@ -4230,8 +4230,6 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
     }
 
     currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
-    connectManager_->GetAbilityRunningInfos(info, isPerm);
-    dataAbilityManager_->GetAbilityRunningInfos(info, isPerm);
     UpdateFocusState(info);
 
     return ERR_OK;
@@ -4245,7 +4243,7 @@ void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &in
 
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
         return;
     }
@@ -4858,13 +4856,8 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
-    return GetTopAbility(token, true);
-}
-
-int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token, bool needVerify)
-{
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (needVerify && !isSaCall) {
+    if (!isSaCall) {
         HILOG_ERROR("Permission verification failed");
         return CHECK_PERMISSION_FAILED;
     }
@@ -5227,7 +5220,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token, false);
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret) {
         return elementName;
     }
@@ -5920,6 +5913,8 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const
         Want newWant = want;
         int32_t type = static_cast<int32_t>(request.abilityInfo.type);
         newWant.SetParam("abilityType", type);
+        int32_t launchMode = static_cast<int32_t>(request.abilityInfo.launchMode);
+        newWant.SetParam("launchMode", launchMode);
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();

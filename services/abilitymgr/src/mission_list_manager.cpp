@@ -2424,23 +2424,12 @@ void MissionListManager::PostCancelStartingWindowTask(const std::shared_ptr<Abil
 
 void MissionListManager::Dump(std::vector<std::string> &info)
 {
-    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
-    std::shared_ptr<MissionList> defaultStandardListBackup;
-    std::shared_ptr<MissionList> defaultSingleListBackup;
-    std::shared_ptr<MissionList> launcherListBackup;
-    {
-        std::lock_guard<std::recursive_mutex> guard(managerLock_);
-        currentMissionListsBackup = currentMissionLists_;
-        defaultStandardListBackup = defaultStandardList_;
-        defaultSingleListBackup = defaultSingleList_;
-        launcherListBackup = launcherList_;
-    }
-
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
     info.push_back(dumpInfo);
     dumpInfo = " current mission lists:{";
     info.push_back(dumpInfo);
-    for (const auto& missionList : currentMissionListsBackup) {
+    for (const auto& missionList : currentMissionLists_) {
         if (missionList) {
             missionList->Dump(info);
         }
@@ -2450,24 +2439,24 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 
     dumpInfo = " default stand mission list:{";
     info.push_back(dumpInfo);
-    if (defaultStandardListBackup) {
-        defaultStandardListBackup->Dump(info);
+    if (defaultStandardList_) {
+        defaultStandardList_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " default single mission list:{";
     info.push_back(dumpInfo);
-    if (defaultSingleListBackup) {
-        defaultSingleListBackup->Dump(info);
+    if (defaultSingleList_) {
+        defaultSingleList_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " launcher mission list:{";
     info.push_back(dumpInfo);
-    if (launcherListBackup) {
-        launcherListBackup->Dump(info);
+    if (launcherList_) {
+        launcherList_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
@@ -2476,16 +2465,20 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 void MissionListManager::DumpMissionListByRecordId(
     std::vector<std::string> &info, bool isClient, int32_t abilityRecordId, const std::vector<std::string> &params)
 {
-    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
-    std::shared_ptr<MissionList> defaultStandardListBackup;
-    std::shared_ptr<MissionList> defaultSingleListBackup;
-    std::shared_ptr<MissionList> launcherListBackup;
+    std::list<std::unique_ptr<MissionList>> currentMissionListsBackup;
+    std::unique_ptr<MissionList> defaultStandardListBackup;
+    std::unique_ptr<MissionList> defaultSingleListBackup;
+    std::unique_ptr<MissionList> launcherListBackup;
     {
         std::lock_guard<std::recursive_mutex> guard(managerLock_);
-        currentMissionListsBackup = currentMissionLists_;
-        defaultStandardListBackup = defaultStandardList_;
-        defaultSingleListBackup = defaultSingleList_;
-        launcherListBackup = launcherList_;
+        for (const auto& missionList : currentMissionLists_) {
+            if (missionList != nullptr) {
+                currentMissionListsBackup.emplace_back(std::make_unique<MissionList>(*missionList));
+            }
+        }
+        defaultStandardListBackup = std::make_unique<MissionList>(*defaultStandardList_);
+        defaultSingleListBackup = std::make_unique<MissionList>(*defaultSingleList_);
+        launcherListBackup = std::make_unique<MissionList>(*launcherList_);
     }
 
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
@@ -2512,18 +2505,23 @@ void MissionListManager::DumpMissionListByRecordId(
         launcherListBackup->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 }
+
 void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args)
 {
-    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup;
-    std::shared_ptr<MissionList> defaultStandardListBackup;
-    std::shared_ptr<MissionList> defaultSingleListBackup;
-    std::shared_ptr<MissionList> launcherListBackup;
+    std::list<std::unique_ptr<MissionList>> currentMissionListsBackup;
+    std::unique_ptr<MissionList> defaultStandardListBackup;
+    std::unique_ptr<MissionList> defaultSingleListBackup;
+    std::unique_ptr<MissionList> launcherListBackup;
     {
         std::lock_guard<std::recursive_mutex> guard(managerLock_);
-        currentMissionListsBackup = currentMissionLists_;
-        defaultStandardListBackup = defaultStandardList_;
-        defaultSingleListBackup = defaultSingleList_;
-        launcherListBackup = launcherList_;
+        for (const auto& missionList : currentMissionLists_) {
+            if (missionList != nullptr) {
+                currentMissionListsBackup.emplace_back(std::make_unique<MissionList>(*missionList));
+            }
+        }
+        defaultStandardListBackup = std::make_unique<MissionList>(*defaultStandardList_);
+        defaultSingleListBackup = std::make_unique<MissionList>(*defaultSingleList_);
+        launcherListBackup = std::make_unique<MissionList>(*launcherList_);
     }
 
     if (args.size() != 0 &&
@@ -2772,12 +2770,49 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
 
             auto isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
             MoveMissionToFront(mission->GetMissionId(), isCallerFromLauncher);
+            NotifyRestartSpecifiedAbility(abilityRequest, ability->GetToken());
             return;
         }
     }
 
     abilityRequest.specifiedFlag = flag;
+    NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest);
+}
+
+void MissionListManager::NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token)
+{
+    if (request.abilityInfoCallback == nullptr) {
+        return;
+    }
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (request.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        HILOG_DEBUG("%{public}s called.", __func__);
+        abilityInfoCallback->NotifyRestartSpecifiedAbility(token);
+    }
+}
+
+void MissionListManager::NotifyStartSpecifiedAbility(AbilityRequest &abilityRequest, const AAFwk::Want &want)
+{
+    if (abilityRequest.abilityInfoCallback == nullptr) {
+        return;
+    }
+
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        Want newWant = want;
+        int32_t type = static_cast<int32_t>(abilityRequest.abilityInfo.type);
+        newWant.SetParam("abilityType", type);
+        sptr<Want> extraParam = new (std::nothrow) Want();
+        abilityInfoCallback->NotifyStartSpecifiedAbility(abilityRequest.callerToken, newWant,
+            abilityRequest.requestCode, extraParam);
+        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE,
+            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
+        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
+            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
+    }
 }
 
 void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)

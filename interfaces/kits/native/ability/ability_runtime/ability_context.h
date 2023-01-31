@@ -234,6 +234,8 @@ public:
      */
     virtual ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
+    virtual ErrCode GetMissionId(int32_t &missionId) = 0;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.

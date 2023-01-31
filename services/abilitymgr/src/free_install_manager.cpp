@@ -310,7 +310,7 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
     std::string wantDeviceId = want.GetElement().GetDeviceID();
     if (!(localDeviceId == wantDeviceId || wantDeviceId.empty())) {
         HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantDeviceId error");
-        return ERR_INVALID_VALUE;
+        return INVALID_PARAMETERS_ERR;
     }
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -319,14 +319,14 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
         std::string wantBundleName = want.GetElement().GetBundleName();
         if (wantBundleName.empty() || wantAbilityName.empty()) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName or wantAbilityName is empty");
-            return ERR_INVALID_VALUE;
+            return INVALID_PARAMETERS_ERR;
         }
         int callerUid = IPCSkeleton::GetCallingUid();
         std::string localBundleName;
         bms->GetBundleNameForUid(callerUid, localBundleName);
         if (localBundleName != wantBundleName) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName is not local BundleName");
-            return ERR_INVALID_VALUE;
+            return INVALID_PARAMETERS_ERR;
         }
     }
 
