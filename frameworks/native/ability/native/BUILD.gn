@@ -192,7 +192,7 @@ ohos_shared_library("abilitykit_native") {
 
   deps = [
     ":continuation_ipc",
-    ":extension_blacklist_config",
+    ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -557,12 +557,12 @@ ohos_shared_library("dialog_request_callback") {
   part_name = "ability_runtime"
 }
 
-ohos_prebuilt_etc("extension_blacklist_config.json") {
-  source = "etc/extension_blacklist_config.json"
+ohos_prebuilt_etc("extension_blocklist_config.json") {
+  source = "etc/extension_blocklist_config.json"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 
-group("extension_blacklist_config") {
-  deps = [ ":extension_blacklist_config.json" ]
+group("extension_blocklist_config") {
+  deps = [ ":extension_blocklist_config.json" ]
 }

@@ -27,7 +27,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    constexpr int32_t DEFAULT_BLACKLIST_EXTENSION_NUM = 12;
+    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 12;
     constexpr int32_t EXTENSION_TYPE_FORM = 0;
     constexpr int32_t EXTENSION_TYPE_WORK_SCHEDULER = 1;
     constexpr int32_t EXTENSION_TYPE_INPUTMETHOD = 2;
@@ -40,19 +40,19 @@ namespace {
     constexpr int32_t EXTENSION_TYPE_WINDOW = 10;
     constexpr int32_t EXTENSION_TYPE_ENTERPRISE_ADMIN = 11;
     constexpr int32_t EXTENSION_TYPE_FILE_ACCESS = 12;
-    constexpr char BLACK_LIST_ITEM_SERVICE_EXTENSION[] = "ServiceExtension";
-    constexpr char BLACK_LIST_ITEM_FORM_EXTENSION[] = "FormExtension";
-    constexpr char BLACK_LIST_ITEM_FILE_ACCESS_EXTENSION[] = "FileAccessExtension";
-    constexpr char BLACK_LIST_ITEM_BACKUP_EXTENSION[] = "BackupExtension";
-    constexpr char BLACK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
-    constexpr char BLACK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION[] = "WindowExtensionExtension";
-    constexpr char BLACK_LIST_ITEM_WALLPAPER_EXTENSION[] = "WallpaperExtension";
-    constexpr char BLACK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
-    constexpr char BLACK_LIST_ITEM_ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
-    constexpr char BLACK_LIST_ITEM_INPUT_METHOD_EXTENSION[] = "InputMethodExtension";
-    constexpr char BLACK_LIST_ITEM_WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
-    constexpr char BLACK_LIST_ITEM_DATA_SHARE_EXTENSION[] = "DataShareExtension";
-    constexpr char INVAILD_BLACK_LIST_ITEM[] = "InvaildExtension";
+    constexpr char BLOCK_LIST_ITEM_SERVICE_EXTENSION[] = "ServiceExtension";
+    constexpr char BLOCK_LIST_ITEM_FORM_EXTENSION[] = "FormExtension";
+    constexpr char BLOCK_LIST_ITEM_FILE_ACCESS_EXTENSION[] = "FileAccessExtension";
+    constexpr char BLOCK_LIST_ITEM_BACKUP_EXTENSION[] = "BackupExtension";
+    constexpr char BLOCK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
+    constexpr char BLOCK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION[] = "WindowExtensionExtension";
+    constexpr char BLOCK_LIST_ITEM_WALLPAPER_EXTENSION[] = "WallpaperExtension";
+    constexpr char BLOCK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
+    constexpr char BLOCK_LIST_ITEM_ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
+    constexpr char BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION[] = "InputMethodExtension";
+    constexpr char BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
+    constexpr char BLOCK_LIST_ITEM_DATA_SHARE_EXTENSION[] = "DataShareExtension";
+    constexpr char INVAILD_BLOCK_LIST_ITEM[] = "InvaildExtension";
 }
 
 class ExtensionConfigMgrTest : public testing::Test {
@@ -85,95 +85,95 @@ HWTEST_F(ExtensionConfigMgrTest, Init_0100, TestSize.Level0)
 {
     ExtensionConfigMgr mgr;
     mgr.Init();
-    EXPECT_EQ(static_cast<int32_t>(mgr.blacklistConfig_.size()), DEFAULT_BLACKLIST_EXTENSION_NUM);
+    EXPECT_EQ(static_cast<int32_t>(mgr.blocklistConfig_.size()), DEFAULT_BLOCKLIST_EXTENSION_NUM);
     bool result = false;
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_SERVICE_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_SERVICE_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_FORM_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_FORM_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_FILE_ACCESS_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_FILE_ACCESS_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_BACKUP_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_BACKUP_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_WALLPAPER_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_WALLPAPER_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_ACCESSIBILITY_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_ACCESSIBILITY_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_INPUT_METHOD_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_WORK_SCHEDULER_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blacklistConfig_.find(BLACK_LIST_ITEM_DATA_SHARE_EXTENSION) != mgr.blacklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_DATA_SHARE_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
 }
 
 /**
- * @tc.name: AddBlackListItem_0100
- * @tc.desc: AddBlackListItem Test
+ * @tc.name: AddBlockListItem_0100
+ * @tc.desc: AddBlockListItem Test
  * @tc.type: FUNC
  * @tc.require: issueI581T3
  */
-HWTEST_F(ExtensionConfigMgrTest, AddBlackListItem_0100, TestSize.Level0)
+HWTEST_F(ExtensionConfigMgrTest, AddBlockListItem_0100, TestSize.Level0)
 {
     ExtensionConfigMgr mgr;
     mgr.Init();
     bool result = false;
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_FORM_EXTENSION, EXTENSION_TYPE_FORM);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_FORM) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_FORM_EXTENSION, EXTENSION_TYPE_FORM);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_FORM) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_WORK_SCHEDULER_EXTENSION, EXTENSION_TYPE_WORK_SCHEDULER);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_WORK_SCHEDULER) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION, EXTENSION_TYPE_WORK_SCHEDULER);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_WORK_SCHEDULER) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_INPUT_METHOD_EXTENSION, EXTENSION_TYPE_INPUTMETHOD);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_INPUTMETHOD) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION, EXTENSION_TYPE_INPUTMETHOD);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_INPUTMETHOD) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_SERVICE_EXTENSION, EXTENSION_TYPE_SERVICE);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_SERVICE) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_SERVICE_EXTENSION, EXTENSION_TYPE_SERVICE);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_SERVICE) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_ACCESSIBILITY_EXTENSION, EXTENSION_TYPE_ACCESSIBILITY);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_ACCESSIBILITY) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_ACCESSIBILITY_EXTENSION, EXTENSION_TYPE_ACCESSIBILITY);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_ACCESSIBILITY) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_DATA_SHARE_EXTENSION, EXTENSION_TYPE_DATASHARE);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_DATASHARE) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_DATA_SHARE_EXTENSION, EXTENSION_TYPE_DATASHARE);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_DATASHARE) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION, EXTENSION_TYPE_STATICSUBSCRIBER);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_STATICSUBSCRIBER) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION, EXTENSION_TYPE_STATICSUBSCRIBER);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_STATICSUBSCRIBER) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_WALLPAPER_EXTENSION, EXTENSION_TYPE_WALLPAPER);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_WALLPAPER) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_WALLPAPER_EXTENSION, EXTENSION_TYPE_WALLPAPER);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_WALLPAPER) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_BACKUP_EXTENSION, EXTENSION_TYPE_BACKUP);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_BACKUP) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_BACKUP_EXTENSION, EXTENSION_TYPE_BACKUP);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_BACKUP) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION, EXTENSION_TYPE_WINDOW);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_WINDOW) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_WINDOW_EXTENSION_EXTENSION, EXTENSION_TYPE_WINDOW);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_WINDOW) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION, EXTENSION_TYPE_ENTERPRISE_ADMIN);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_ENTERPRISE_ADMIN) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_ENTERPRISE_ADMIN_EXTENSION, EXTENSION_TYPE_ENTERPRISE_ADMIN);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_ENTERPRISE_ADMIN) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlackListItem(BLACK_LIST_ITEM_FILE_ACCESS_EXTENSION, EXTENSION_TYPE_FILE_ACCESS);
-    result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_FILE_ACCESS) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_FILE_ACCESS_EXTENSION, EXTENSION_TYPE_FILE_ACCESS);
+    result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_FILE_ACCESS) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);   
 }
 
 /**
- * @tc.name: AddBlackListItem_0200
- * @tc.desc: AddBlackListItem Test
+ * @tc.name: AddBlockListItem_0200
+ * @tc.desc: AddBlockListItem Test
  * @tc.type: FUNC
  * @tc.require: issueI5825N
  */
-HWTEST_F(ExtensionConfigMgrTest, AddBlackListItem_0200, TestSize.Level0)
+HWTEST_F(ExtensionConfigMgrTest, AddBlockListItem_0200, TestSize.Level0)
 {
     ExtensionConfigMgr mgr;
     mgr.Init();
-    mgr.AddBlackListItem(INVAILD_BLACK_LIST_ITEM, EXTENSION_TYPE_FORM);
-    bool result = (mgr.extensionBlacklist_.find(EXTENSION_TYPE_FORM) != mgr.extensionBlacklist_.end());
+    mgr.AddBlockListItem(INVAILD_BLOCK_LIST_ITEM, EXTENSION_TYPE_FORM);
+    bool result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_FORM) != mgr.extensionBlocklist_.end());
     EXPECT_FALSE(result);
 }
 }  // namespace AbilityRuntime

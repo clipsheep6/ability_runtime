@@ -22,19 +22,19 @@
 
 namespace OHOS::AbilityRuntime {
 namespace {
-    constexpr char EXTENSION_BLACKLIST_FILE_PATH[] = "/system/etc/extension_blacklist_config.json";
+    constexpr char EXTENSION_BLOCKLIST_FILE_PATH[] = "/system/etc/extension_blocklist_config.json";
     constexpr char BACK_SLASH[] = "/";
 }
 
 void ExtensionConfigMgr::Init()
 {
     // clear cached data
-    blacklistConfig_.clear();
-    extensionBlacklist_.clear();
+    blocklistConfig_.clear();
+    extensionBlocklist_.clear();
 
-    // read blacklist from extension_blacklist_config.json
+    // read blocklist from extension_blocklist_config.json
     std::ifstream inFile;
-    inFile.open(EXTENSION_BLACKLIST_FILE_PATH, std::ios::in);
+    inFile.open(EXTENSION_BLOCKLIST_FILE_PATH, std::ios::in);
     if (!inFile.is_open()) {
         HILOG_ERROR("read extension config error");
         return;
@@ -46,22 +46,22 @@ void ExtensionConfigMgr::Init()
         inFile.close();
         return;
     }
-    if (!extensionConfig.contains(ExtensionConfigItem::ITEM_NAME_BLACKLIST)) {
-        HILOG_ERROR("extension config file have no blacklist node");
+    if (!extensionConfig.contains(ExtensionConfigItem::ITEM_NAME_BLOCKLIST)) {
+        HILOG_ERROR("extension config file have no blocklist node");
         inFile.close();
         return;
     }
-    auto blackList = extensionConfig.at(ExtensionConfigItem::ITEM_NAME_BLACKLIST);
-    std::unordered_set<std::string> currentBlackList;
+    auto blackList = extensionConfig.at(ExtensionConfigItem::ITEM_NAME_BLOCKLIST);
+    std::unordered_set<std::string> currentBlockList;
     for (const auto& item : blackList.items()) {
         if (!blackList[item.key()].is_array()) {
             continue;
         }
         for (const auto& value : blackList[item.key()]) {
-            currentBlackList.emplace(value.get<std::string>());
+            currentBlockList.emplace(value.get<std::string>());
         }
-        blacklistConfig_.emplace(item.key(), std::move(currentBlackList));
-        currentBlackList.clear();
+        blocklistConfig_.emplace(item.key(), std::move(currentBlockList));
+        currentBlockList.clear();
     }
     inFile.close();
 }
@@ -76,19 +76,19 @@ void ExtensionConfigMgr::UpdateBundleExtensionInfo(NativeEngine& engine, AppExec
     engine.SetExtensionInfos(std::move(extensionInfo));
 }
 
-void ExtensionConfigMgr::AddBlackListItem(const std::string& name, int32_t type)
+void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 {
-    HILOG_INFO("AddBlackListItem name = %{public}s, type = %{public}d", name.c_str(), type);
-    auto iter = blacklistConfig_.find(name);
-    if (iter == blacklistConfig_.end()) {
-        HILOG_ERROR("Extension name = %{public}s, not exist in blacklist config", name.c_str());
+    HILOG_INFO("AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
+    auto iter = blocklistConfig_.find(name);
+    if (iter == blocklistConfig_.end()) {
+        HILOG_ERROR("Extension name = %{public}s, not exist in blocklist config", name.c_str());
         return;
     }
-    extensionBlacklist_.emplace(type, iter->second);
+    extensionBlocklist_.emplace(type, iter->second);
 }
 
-void ExtensionConfigMgr::UpdateBlackListToEngine(NativeEngine& engine)
+void ExtensionConfigMgr::UpdateBlockListToEngine(NativeEngine& engine)
 {
-    engine.SetModuleBlacklist(std::forward<decltype(extensionBlacklist_)>(extensionBlacklist_));
+    engine.SetModuleBlocklist(std::forward<decltype(extensionBlocklist_)>(extensionBlocklist_));
 }
 }
