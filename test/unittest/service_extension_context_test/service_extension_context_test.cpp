@@ -136,7 +136,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbility_0
     Want want;  
     sptr<AbilityConnectCallback> connectCallback;
     ErrCode result = serviceExtensionContextTest.ConnectAbility(want, connectCallback);
-    EXPECT_EQ(ERR_INVALID_VALUE, result);
+    EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
 }
 
 /*
@@ -225,7 +225,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbilityWi
     int32_t accountId = 1;
     sptr<AbilityConnectCallback> connectCallback;
     ErrCode result = serviceExtensionContextTest.ConnectAbilityWithAccount(want, accountId, connectCallback);
-    EXPECT_EQ(ERR_INVALID_VALUE, result);
+    EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
 }
 
 /*

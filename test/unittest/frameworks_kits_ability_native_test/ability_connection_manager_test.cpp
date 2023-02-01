@@ -96,7 +96,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbility_0100, TestSize.Level0)
 /**
  * @tc.number: ConnectAbilityInner_0100
  * @tc.name: ConnectAbilityInner
- * @tc.desc: ConnectAbilityInner Test, connectCaller is nullptr, return ERR_INVALID_VALUE.
+ * @tc.desc: ConnectAbilityInner Test, connectCaller is nullptr, return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0100, TestSize.Level0)
 {
@@ -107,14 +107,14 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0100, TestSize.Level0)
     int32_t accountId = -1;
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
     auto result = mgr->ConnectAbilityInner(nullptr, want, accountId, connectCallback);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest ConnectAbilityInner_0100 end";
 }
 
 /**
  * @tc.number: ConnectAbilityInner_0200
  * @tc.name: ConnectAbilityInner
- * @tc.desc: ConnectAbilityInner Test, connectCallback is nullptr, return ERR_INVALID_VALUE.
+ * @tc.desc: ConnectAbilityInner Test, connectCallback is nullptr, return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0200, TestSize.Level0)
 {
@@ -125,14 +125,14 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0200, TestSize.Level0)
     AAFwk::Want want;
     int32_t accountId = -1;
     auto result = mgr->ConnectAbilityInner(connectCaller, want, accountId, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest ConnectAbilityInner_0200 end";
 }
 
 /**
  * @tc.number: ConnectAbilityInner_0300
  * @tc.name: ConnectAbilityInner
- * @tc.desc: ConnectAbilityInner Test, connectCallback is nullptr, connectCaller is nullptr, return ERR_INVALID_VALUE.
+ * @tc.desc: ConnectAbilityInner Test, connectCallback is nullptr, connectCaller is nullptr, return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0300, TestSize.Level0)
 {
@@ -142,7 +142,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0300, TestSize.Level0)
     AAFwk::Want want;
     int32_t accountId = -1;
     auto result = mgr->ConnectAbilityInner(nullptr, want, accountId, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest ConnectAbilityInner_0300 end";
 }
 
@@ -169,7 +169,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0400, TestSize.Level0)
 /**
  * @tc.number: ConnectAbilityInner_0500
  * @tc.name: ConnectAbilityInner
- * @tc.desc: ConnectAbilityInner Test, return ERR_INVALID_VALUE.
+ * @tc.desc: ConnectAbilityInner Test, return INVALID_CONNECTION_STATE.
  */
 HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0500, TestSize.Level0)
 {
@@ -193,7 +193,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0500, TestSize.Level0)
     connectionInfo.connectCaller = connectCaller;
     mgr->abilityConnections_.emplace(connectionInfo, callbacks);
     auto result = mgr->ConnectAbilityInner(connectCaller, want, accountId, connectCallback);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::INVALID_CONNECTION_STATE);
     GTEST_LOG_(INFO) << "ConnectionManagerTest ConnectAbilityInner_0500 end";
 }
 
@@ -289,7 +289,7 @@ HWTEST_F(ConnectionManagerTest, CreateConnection_0100, TestSize.Level0)
  * @tc.number: DisconnectAbility_0100
  * @tc.name: DisconnectAbility
  * @tc.desc: DisconnectAbility Test, connectCaller is not nullptr, connectCallback is not nullptr,
- * return ERR_INVALID_VALUE.
+ * return CONNECTION_NOT_EXIST.
  */
 HWTEST_F(ConnectionManagerTest, DisconnectAbility_0100, TestSize.Level0)
 {
@@ -300,14 +300,14 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0100, TestSize.Level0)
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
     AppExecFwk::ElementName connectReceiver;
     auto result = mgr->DisconnectAbility(connectCaller, connectReceiver, connectCallback);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::CONNECTION_NOT_EXIST);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectAbility_0100 end";
 }
 
 /**
  * @tc.number: DisconnectAbility_0200
  * @tc.name: DisconnectAbility
- * @tc.desc: DisconnectAbility Test, connectCallback is nullptr, return ERR_INVALID_VALUE.
+ * @tc.desc: DisconnectAbility Test, connectCallback is nullptr, return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, DisconnectAbility_0200, TestSize.Level0)
 {
@@ -317,14 +317,14 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0200, TestSize.Level0)
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     AppExecFwk::ElementName connectReceiver;
     auto result = mgr->DisconnectAbility(connectCaller, connectReceiver, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectAbility_0200 end";
 }
 
 /**
  * @tc.number: DisconnectAbility_0300
  * @tc.name: DisconnectAbility
- * @tc.desc: DisconnectAbility Test, connectCaller is nullptr, return ERR_INVALID_VALUE.
+ * @tc.desc: DisconnectAbility Test, connectCaller is nullptr, return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, DisconnectAbility_0300, TestSize.Level0)
 {
@@ -334,7 +334,7 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0300, TestSize.Level0)
     AppExecFwk::ElementName connectReceiver;
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
     auto result = mgr->DisconnectAbility(nullptr, connectReceiver, connectCallback);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectAbility_0300 end";
 }
 
@@ -342,7 +342,7 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0300, TestSize.Level0)
  * @tc.number: DisconnectAbility_0400
  * @tc.name: DisconnectAbility
  * @tc.desc: DisconnectAbility Test, connectCallback is nullptr, connectCaller is nullptr,
- * return ERR_INVALID_VALUE.
+ * return ERR_INVALID_CALLER.
  */
 HWTEST_F(ConnectionManagerTest, DisconnectAbility_0400, TestSize.Level0)
 {
@@ -351,7 +351,7 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0400, TestSize.Level0)
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     AppExecFwk::ElementName connectReceiver;
     auto result = mgr->DisconnectAbility(nullptr, connectReceiver, nullptr);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, AAFwk::ERR_INVALID_CALLER);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectAbility_0400 end";
 }
 
