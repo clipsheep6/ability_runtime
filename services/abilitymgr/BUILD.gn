@@ -183,6 +183,7 @@ ohos_shared_library("abilityms") {
     ]
   }
 
+  version_script = "libabilityms.map"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

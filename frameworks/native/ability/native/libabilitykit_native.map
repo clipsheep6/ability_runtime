@@ -1,0 +1,88 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+1.0 {
+  global:
+    extern "C++" {
+      *OHOS::AbilityRuntime::CreateJsCallerComplex*;
+      *OHOS::AppExecFwk::AbilityTransactionCallbackInfo*;
+      "OHOS::AppExecFwk::CompleteAsyncCallbackWork(napi_env__*, napi_status, void*)";
+      "OHOS::AppExecFwk::CompletePromiseCallbackWork(napi_env__*, napi_status, void*)";
+      "OHOS::AppExecFwk::ConvertStringVector(napi_env__*, napi_value__*)";
+      "OHOS::AppExecFwk::ConvertU8Vector(napi_env__*, napi_value__*)";
+      "OHOS::AppExecFwk::CreateAsyncCallback(napi_env__*, napi_value__*, OHOS::AppExecFwk::__AsyncJSCallbackInfo*)";
+      "OHOS::AppExecFwk::CreateAsyncCallbackInfo(napi_env__*)";
+      "OHOS::AppExecFwk::CreateAsyncJSCallbackInfo(napi_env__*)";
+      "OHOS::AppExecFwk::CreateNapiJSContext(NativeEngine&)";
+      "OHOS::AppExecFwk::ExecuteAsyncCallbackWork(napi_env__*, OHOS::AppExecFwk::__AsyncJSCallbackInfo*, OHOS::AppExecFwk::__AsyncParamEx const*)";
+      "OHOS::AppExecFwk::ExecutePromiseCallbackWork(napi_env__*, OHOS::AppExecFwk::__AsyncJSCallbackInfo*, OHOS::AppExecFwk::__AsyncParamEx const*)";
+      "OHOS::AppExecFwk::FreeAsyncJSCallbackInfo(OHOS::AppExecFwk::__AsyncJSCallbackInfo**)";
+      "OHOS::AppExecFwk::GetCallbackErrorValue(napi_env__*, int)";
+      "OHOS::AppExecFwk::GetContinueAbilityOptionsInfoCommon(napi_env__* const&, napi_value__* const&, OHOS::AppExecFwk::ContinueAbilityOptionsInfo&)";
+      "OHOS::AppExecFwk::GetDataAbilityHelperStatus()";
+      "OHOS::AppExecFwk::GetGlobalClassContext()";
+      "OHOS::AppExecFwk::GetGlobalDataAbilityHelper(napi_env__*)";
+      "OHOS::AppExecFwk::GetPropertyValueByPropertyName(napi_env__*, napi_value__*, char const*, napi_valuetype)";
+      "OHOS::AppExecFwk::GetStartAbilityErrorCode(int)";
+      "OHOS::AppExecFwk::IsArrayForNapiValue(napi_env__*, napi_value__*, unsigned int&)";
+      "OHOS::AppExecFwk::IsTypeForNapiValue(napi_env__*, napi_value__*, napi_valuetype)";
+      *OHOS::AppExecFwk::NAPI*;
+      "OHOS::AppExecFwk::SaveGlobalDataAbilityHelper(napi_env__*, napi_value__*)";
+      "OHOS::AppExecFwk::SetPropertyValueByPropertyName(napi_env__*, napi_value__*, char const*, napi_value__*)";
+      *OHOS::AppExecFwk::Unwrap*;
+      *OHOS::AppExecFwk::Wrap*;
+      "UnwrapStartOptions";
+      "UnwrapWant";
+      "UnwrapWantParams";
+      "vtable for OHOS::AAFwk::LaunchParam";
+      "VTT for OHOS::AAFwk::LaunchParam";
+      "WrapConfiguration";
+      "WrapElementName";
+      "WrapWant";
+      "WrapWantParams";
+      *Ability*;
+      *AbilityContext*;
+      *AbilityLoader*;
+      *AbilityLocalRecord*;
+      *AbilityPostEventTimeout*;
+      *AbilityProcess*;
+      *AbilityRecovery*;
+      *AbilityStartSetting*;
+      *AbilityThread*;
+      *AppContext*;
+      *AppRecovery*;
+      *ContextContainer*;
+      *ContextDeal*;
+      *ContinuationHandler*;
+      *ContinuationManager*;
+      *DataAbilityHelperImpl*;
+      *DataAbilityOperation*;
+      *DataAbilityOperationBuilder*;
+      *DataAbilityResult*;
+      *DistributedClient*;
+      *Extension*;
+      *ExtensionContext*;
+      *InputEvent*;
+      *KeyEvent*;
+      *PointerEvent*;
+      *SysMgrClient*;
+      *MissionInformation*;
+      *LifeCycle*;
+      *ProcessInfo*;
+      *ExtensionModuleLoader*;
+      *SysMrgClient*;
+      *FormProviderClient*;
+    };
+  local:
+    *;
+};
