@@ -337,17 +337,9 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_002, TestSize.Level1)
                                   SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::LIFECYCLE);
     EXPECT_FALSE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::CPP_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+        SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::CPP_CRASH);
-    EXPECT_FALSE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::JS_CRASH_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
-    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
-    EXPECT_FALSE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::APP_FREEZE_NO_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
-                                  SaveModeFlag::SAVE_WITH_FILE);
-    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_FALSE(ret);
 }
 
@@ -363,6 +355,14 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
                                   SaveModeFlag::SAVE_WITH_FILE);
     bool ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::DEVELOPER_REQUEST);
     EXPECT_TRUE(ret);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
+    EXPECT_TRUE(ret);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_JS_CRASH, SaveOccasionFlag::SAVE_WHEN_ERROR,
+        SaveModeFlag::SAVE_WITH_FILE);
+    ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
+    EXPECT_TRUE(ret);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE, SaveOccasionFlag::SAVE_WHEN_ERROR,
+        SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }
