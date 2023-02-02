@@ -23,6 +23,7 @@
 #undef private
 
 #include "ability_record.h"
+#include "mission_info_mgr.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -93,7 +94,15 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     auto missionListManager = std::make_shared<MissionListManager>(intParam);
-    missionListManager->Init();
+    auto launcherList = std::make_shared<MissionList>(MissionListType::LAUNCHER);
+    missionListManager->launcherList_ = launcherList;
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
+    missionListManager->currentMissionLists_.push_front(launcherList);
+    if (!missionListManager->listenerController_) {
+        missionListManager->listenerController_ = std::make_shared<MissionListenerController>();
+    }
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(intParam);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     missionListManager->TerminateAbilityLocked(abilityRecord, boolParam);
     missionListManager->RemoveTerminatingAbility(abilityRecord, boolParam);
