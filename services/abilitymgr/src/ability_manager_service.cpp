@@ -4877,12 +4877,14 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         return ERR_INVALID_VALUE;
     }
 
+    NotifyHandleMoveAbility(token, 0);
     return DelegatorMoveMissionToFront(missionId);
 }
 
 int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("enter");
+    NotifyHandleMoveAbility(token, 1);
     return MinimizeAbility(token, true);
 }
 
@@ -5917,6 +5919,13 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const
         }
     }
     return true;
+}
+
+void AbilityManagerService::NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code)
+{
+    if (componentInterception_ != nullptr) {
+        componentInterception_->NotifyHandleMoveAbility(abilityToken, code);
+    }
 }
 
 void AbilityManagerService::UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request)

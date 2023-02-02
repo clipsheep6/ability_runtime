@@ -738,6 +738,8 @@ public:
     bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int componentStatus, AbilityRequest &request);
 
+    void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code);
+
     /**
      * Send not response process ID to ability manager service.
      * @param pid The not response process ID.
