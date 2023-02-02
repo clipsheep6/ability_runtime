@@ -575,7 +575,13 @@ bool JsRuntime::Initialize(const Options& options)
         }
 #ifdef SUPPORT_GRAPHICS
         if (options.loadAce) {
-            OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+            // ArkTsCard start
+            if (options.isUnique) {
+                OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine_);
+            } else {
+                OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+            }
+            // ArkTsCard end
         }
 #endif
     }

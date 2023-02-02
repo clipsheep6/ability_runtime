@@ -53,6 +53,9 @@ public:
         bool isDebugVersion = false;
         bool isStageModel = true;
         int32_t uid = -1;
+        // ArkTsCard start
+        bool isUnique = false;
+        // ArkTsCard end
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
