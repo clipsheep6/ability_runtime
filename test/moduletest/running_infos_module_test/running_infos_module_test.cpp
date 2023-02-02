@@ -229,8 +229,8 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_002, TestSize.Level1)
 {
-    std::string abilityName = "ServiceAbility";
-    std::string bundleName = "com.ix.hiService";
+    std::string abilityName = "EnterAbility";
+    std::string bundleName = "com.ohos.camera";
     EXPECT_CALL(*mockAppMgrClient_, LoadAbility(_, _, _, _, _)).Times(1);
     Want want = CreateWant(abilityName, bundleName);
     auto result = abilityMgrServ_->StartAbility(want);
@@ -325,15 +325,15 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_004, TestSize.Level1)
  */
 HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_005, TestSize.Level1)
 {
-    std::string abilityName = "ServiceAbility";
-    std::string bundleName = "com.ix.hiService";
+    std::string abilityName = "EnterAbility";
+    std::string bundleName = "com.ohos.photos";
     EXPECT_CALL(*mockAppMgrClient_, LoadAbility(_, _, _, _, _)).Times(2);
     Want want = CreateWant(abilityName, bundleName);
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    std::string abilityName2 = "ServiceAbilityOther";
-    std::string bundleName2 = "com.ix.hiServiceOther";
+    std::string abilityName2 = "EnterAbility";
+    std::string bundleName2 = "com.ohos.camera";
     want = CreateWant(abilityName2, bundleName2);
     auto result2 = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result2);
