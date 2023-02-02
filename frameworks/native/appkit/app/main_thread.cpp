@@ -1279,7 +1279,8 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
 void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath,
     const BundleInfo &bundleInfo)
 {
-    HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s, extensionInfo size = %{public}d", filePath.c_str(), static_cast<int32_t>(bundleInfo.extensionInfos.size()));
+    HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s, extensionInfo size = %{public}d", filePath.c_str(),
+        static_cast<int32_t>(bundleInfo.extensionInfos.size()));
     if (!extensionConfigMgr_) {
         return;
     }
@@ -1422,6 +1423,11 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto& runtime = application_->GetRuntime();
     auto appInfo = application_->GetApplicationInfo();
     auto want = abilityRecord->GetWant();
+    if (appInfo == nullptr) {
+        HILOG_ERROR("appInfo is nullptr");
+        return;
+    }
+    
     if (runtime && appInfo && want && appInfo->debug) {
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }

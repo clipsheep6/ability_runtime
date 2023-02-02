@@ -2573,24 +2573,18 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
     if (args.size() == 0 || args == "DEFAULT_STANDARD") {
         dumpInfo = "  default stand mission list:";
         info.push_back(dumpInfo);
-        if (defaultStandardListBackup) {
-            defaultStandardListBackup->DumpList(info, isClient);
-        }
+        defaultStandardListBackup->DumpList(info, isClient);
     }
 
     if (args.size() == 0 || args == "DEFAULT_SINGLE") {
         dumpInfo = "  default single mission list:";
         info.push_back(dumpInfo);
-        if (defaultSingleListBackup) {
-            defaultSingleListBackup->DumpList(info, isClient);
-        }
+        defaultSingleListBackup->DumpList(info, isClient);
     }
     if (args.size() == 0 || args == "LAUNCHER") {
         dumpInfo = "  launcher mission list:";
         info.push_back(dumpInfo);
-        if (launcherListBackup) {
-            launcherListBackup->DumpList(info, isClient);
-        }
+        launcherListBackup->DumpList(info, isClient);
     }
 }
 
