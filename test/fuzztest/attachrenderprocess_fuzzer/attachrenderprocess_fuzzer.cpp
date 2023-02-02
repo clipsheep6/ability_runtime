@@ -34,7 +34,7 @@ constexpr size_t U32_AT_SIZE = 4;
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    AppMgrClient* appMgrClient = new AppMgrClient();
+    auto appMgrClient = std::make_shared<AppMgrClient>();
     if (!appMgrClient) {
         return false;
     }

@@ -33,7 +33,6 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-constexpr uint8_t ENABLE = 2;
 }
 
 uint32_t GetU32Data(const char* ptr)
@@ -58,7 +57,6 @@ sptr<Token> GetFuzzAbilityToken()
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    bool boolParam = *data % ENABLE;
     int intParam = static_cast<int>(GetU32Data(data));
     int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     Parcel wantParcel;
@@ -74,7 +72,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->GetEventHandler();
-    abilityms->InitMissionListManager(intParam, boolParam);
     abilityms->GetUserId();
     AbilityRequest request;
     abilityms->GenerateAbilityRequest(*want, intParam, request, token, int32Param);
