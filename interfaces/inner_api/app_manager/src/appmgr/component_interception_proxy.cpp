@@ -89,5 +89,34 @@ void ComponentInterceptionProxy::SetExtraParam(const sptr<Want> &want, sptr<Want
         want->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
     extraParam->SetParam(Want::PARAM_RESV_ABILITY_INFO_CALLBACK, tempCallBack);
 }
+
+void ComponentInterceptionProxy::NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+
+    if (abilityToken == nullptr) {
+        data.WriteBool(false);
+    } else {
+        data.WriteBool(true);
+        data.WriteRemoteObject(abilityToken);
+    }
+    data.WriteInt32(code);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IComponentInterception::Message::TRANSACT_ON_HANDLE_MOVE_ABILITY),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

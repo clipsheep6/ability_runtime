@@ -44,8 +44,17 @@ public:
     virtual bool AllowComponentStart(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int componentStatus, sptr<Want> &extraParam) = 0;
 
+    /**
+     * The system is trying to move ability to foreground/background.
+     *
+     * @param abilityToken Ability token.
+     * @param code the code of the ability to move.
+     */
+    virtual void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code) = 0;
+
     enum class Message {
         TRANSACT_ON_ALLOW_COMPONENT_START = 1,
+        TRANSACT_ON_HANDLE_MOVE_ABILITY,
     };
 };
 }  // namespace AppExecFwk
