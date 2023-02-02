@@ -2618,7 +2618,7 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
         return ERR_INVALID_VALUE;
     }
 
-    auto appRecord = appRunningManager_->GetAppRunningRecordByRenderPid(hostPid);
+    auto appRecord = appRunningManager_->GetAppRunningRecordByPid(hostPid);
     if (!appRecord) {
         HILOG_ERROR("no such app Record, pid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
