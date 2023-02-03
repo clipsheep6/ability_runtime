@@ -5013,9 +5013,7 @@ HWTEST_F(MissionListManagerTest, DumpMissionListByRecordId_001, TestSize.Level1)
     int32_t abilityRecordId = 0;
     std::vector<std::string> params;
     missionListManager->currentMissionLists_.clear();
-    missionListManager->defaultStandardList_ = nullptr;
-    missionListManager->defaultSingleList_ = nullptr;
-    missionListManager->launcherList_ = nullptr;
+    missionListManager->Init();
     missionListManager->DumpMissionListByRecordId(info, isClient, abilityRecordId, params);
     missionListManager->currentMissionLists_.push_back(nullptr);
     missionListManager->DumpMissionListByRecordId(info, isClient, abilityRecordId, params);
@@ -5034,6 +5032,7 @@ HWTEST_F(MissionListManagerTest, DumpMissionList_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -5053,6 +5052,7 @@ HWTEST_F(MissionListManagerTest, DumpMissionList_002, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";

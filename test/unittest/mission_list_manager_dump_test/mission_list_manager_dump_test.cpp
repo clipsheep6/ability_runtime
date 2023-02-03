@@ -66,6 +66,7 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionList_0100, Te
 
     auto missionListManager = std::make_shared<MissionListManager>(USER_ID);
     EXPECT_NE(missionListManager, nullptr);
+    missionListManager->Init();
 
     std::vector<std::string> info;
     bool isClient = false;
@@ -107,6 +108,7 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionListByRecordI
 
     auto missionListManager = std::make_shared<MissionListManager>(USER_ID);
     EXPECT_NE(missionListManager, nullptr);
+    missionListManager->Init();
     missionListManager->defaultStandardList_ = missionList;
 
     std::vector<std::string> info;
