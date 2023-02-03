@@ -30,15 +30,49 @@ config("quickfixms_config") {
   }
 }
 
+quickfixms_sources = [
+  "src/quick_fix_manager_apply_task.cpp",
+  "src/quick_fix_manager_service.cpp",
+  "src/quick_fix_manager_service_ability.cpp",
+]
+
 ohos_shared_library("quickfixms") {
+  shlib_type = "sa"
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":quickfixms_config" ]
 
-  sources = [
-    "src/quick_fix_manager_apply_task.cpp",
-    "src/quick_fix_manager_service.cpp",
-    "src/quick_fix_manager_service_ability.cpp",
+  sources = quickfixms_sources
+
+  defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
+
+  deps = [ "${ability_runtime_services_path}/common:perm_verification" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "ability_runtime:quickfix_manager",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+# Note: Just for test
+ohos_static_library("quickfixms_static") {
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  public_configs = [ ":quickfixms_config" ]
+
+  sources = quickfixms_sources
 
   defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
 

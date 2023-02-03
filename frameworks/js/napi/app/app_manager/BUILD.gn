@@ -30,10 +30,7 @@ ohos_shared_library("appmanager_napi") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
-  ]
+  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
 
   external_deps = [
     "ability_runtime:ability_manager",

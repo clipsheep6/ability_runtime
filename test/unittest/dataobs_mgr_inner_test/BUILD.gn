@@ -30,7 +30,7 @@ ohos_unittest("dataobs_mgr_inner_test") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
-    "${ability_runtime_services_path}/dataobsmgr:dataobsms",
+    "${ability_runtime_services_path}/dataobsmgr:dataobsms_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

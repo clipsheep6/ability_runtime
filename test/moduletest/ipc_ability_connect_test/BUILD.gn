@@ -36,6 +36,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "c_utils:utilsbase",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

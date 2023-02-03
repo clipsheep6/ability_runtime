@@ -50,11 +50,11 @@ ohos_fuzztest("ConnectAbilityFuzzTest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "appspawn:appspawn_socket_client",
     "c_utils:utils",
     "ipc:ipc_core",

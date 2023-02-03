@@ -23,15 +23,46 @@ config("upms_config") {
   }
 }
 
+libupms_sources = [
+  "src/uri_permission_manager_service.cpp",
+  "src/uri_permission_manager_stub_impl.cpp",
+]
+
 #build so
 ohos_shared_library("libupms") {
+  shlib_type = "sa"
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":upms_config" ]
 
-  sources = [
-    "src/uri_permission_manager_service.cpp",
-    "src/uri_permission_manager_stub_impl.cpp",
+  sources = libupms_sources
+
+  deps =
+      [ "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+# Note: Just for test
+ohos_shared_library("libupms_static") {
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  public_configs = [ ":upms_config" ]
+
+  sources = libupms_sources
 
   deps =
       [ "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr" ]

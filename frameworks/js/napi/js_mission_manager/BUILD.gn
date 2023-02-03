@@ -29,7 +29,6 @@ ohos_shared_library("missionmanager") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [

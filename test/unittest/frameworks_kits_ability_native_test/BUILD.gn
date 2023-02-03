@@ -616,7 +616,6 @@ ohos_unittest("ability_thread_test") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "${ability_runtime_services_path}/dataobsmgr:dataobsms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -1951,7 +1950,7 @@ ohos_unittest("ability_connection_manager_test") {
   ]
 }
 
-ohos_unittest("ability_runtime_test") {
+ohos_unittest("abilityruntime_test") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -1997,13 +1996,13 @@ group("unittest") {
     ":ability_local_record_test",
     ":ability_permission_test",
     ":ability_process_test",
-    ":ability_runtime_test",
     ":ability_test",
     ":ability_thread_call_request_test",
     ":ability_thread_dataability_test",
     ":ability_thread_test",
     ":ability_transaction_callback_info_test",
     ":ability_window_test",
+    ":abilityruntime_test",
     ":continuation_test",
     ":data_ability_helper_impl_test",
     ":data_ability_helper_test",

@@ -28,6 +28,7 @@ group("appms_target") {
 }
 
 ohos_shared_library("libappms") {
+  shlib_type = "sa"
   sources = [
     "src/ability_running_record.cpp",
     "src/ams_mgr_scheduler.cpp",

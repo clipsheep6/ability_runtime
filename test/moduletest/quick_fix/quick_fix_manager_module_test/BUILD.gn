@@ -38,7 +38,7 @@ ohos_moduletest("quick_fix_manager_module_test") {
   }
 
   deps = [
-    "${ability_runtime_services_path}/quickfixmgr:quickfixms",
+    "${ability_runtime_services_path}/quickfixmgr:quickfixms_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

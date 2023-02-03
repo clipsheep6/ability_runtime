@@ -105,6 +105,7 @@ config("abilityms_config") {
 }
 
 ohos_shared_library("abilityms") {
+  shlib_type = "sa"
   sources = abilityms_files
   sources += [ "src/sa_mgr_client.cpp" ]
   cflags_cc = []

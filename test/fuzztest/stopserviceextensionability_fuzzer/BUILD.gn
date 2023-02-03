@@ -45,11 +45,11 @@ ohos_fuzztest("StopServiceExtensionAbilityFuzzTest") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "ipc:ipc_core",

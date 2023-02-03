@@ -54,6 +54,7 @@ ohos_unittest("ability_manager_proxy_test") {
   external_deps = [
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",

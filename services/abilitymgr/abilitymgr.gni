@@ -15,7 +15,6 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 abilityms_files = [
   "src/ability_connect_manager.cpp",
-  "src/ability_connect_callback_stub.cpp",
   "src/ability_event_handler.cpp",
   "src/ability_interceptor.cpp",
   "src/ability_interceptor_executer.cpp",
