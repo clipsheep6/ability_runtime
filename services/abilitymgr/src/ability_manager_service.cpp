@@ -528,6 +528,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
+        if (want.GetElement().GetBundleName() == "com.example.myapplication") {
+            usleep(10000);
+        }
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "CHECK_DLP");
         if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
             VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
