@@ -29,10 +29,10 @@ namespace OHOS {
 namespace AppExecFwk {
 static void *g_handle = nullptr;
 #ifdef SUPPORT_GRAPHICS
-#ifdef _ARM64_
-constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib64/module/ability/libfeatureability.z.so";
-#else
+#ifdef APP_USE_ARM
 constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib/module/ability/libfeatureability.z.so";
+#else
+constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib64/module/ability/libfeatureability.z.so";
 #endif
 #endif
 constexpr char FUNC_CALL_ON_ABILITY_RESULT[] = "CallOnAbilityResult";

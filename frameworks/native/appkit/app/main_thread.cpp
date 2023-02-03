@@ -1116,10 +1116,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             static_cast<int32_t>(ExtensionAbilityType::STATICSUBSCRIBER));
 
         if (application_ != nullptr) {
-#ifdef __aarch64__
-        LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
+#ifdef APP_USE_ARM
+            LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
 #else
-        LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
+            LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
 #endif
         }
         std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);

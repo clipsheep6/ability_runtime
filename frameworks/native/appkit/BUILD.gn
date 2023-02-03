@@ -45,6 +45,11 @@ config("appkit_config") {
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }
+  if (target_cpu == "arm64") {
+    defines += [ "APP_USE_ARM64" ]
+  } else if (target_cpu == "arm") {
+    defines += [ "APP_USE_ARM" ]
+  }
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
