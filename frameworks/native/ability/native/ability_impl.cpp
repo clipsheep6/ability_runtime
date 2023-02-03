@@ -608,13 +608,13 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
             owner->notifyForegroundByAbility_ = false;
             needNotifyAMS = true;
         } else {
-            HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
+            HILOG_DEBUG("Notify foreground by window, but client's foreground is running.");
             owner->notifyForegroundByWindow_ = true;
         }
     }
 
     if (needNotifyAMS) {
-        HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service.");
+        HILOG_INFO("Stage mode ability, window after foreground, notify ability manager service.");
         PacMap restoreData;
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
@@ -630,7 +630,7 @@ void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
         return;
     }
 
-    HILOG_DEBUG("new version ability, window after background.");
+    HILOG_INFO("UIAbility, window after background.");
     PacMap restoreData;
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
@@ -700,7 +700,7 @@ void AbilityImpl::Foreground(const Want &want)
         notifyForegroundByAbility_ = true;
     }
     abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void AbilityImpl::Background()
@@ -719,7 +719,7 @@ void AbilityImpl::Background()
         lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
     }
     abilityLifecycleCallbacks_->OnAbilityBackground(ability_);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
