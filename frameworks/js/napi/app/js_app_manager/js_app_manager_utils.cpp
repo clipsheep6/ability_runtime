@@ -113,18 +113,18 @@ NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, const std::vector<A
     return arrayValue;
 }
 
-NativeValue* CreateJsProcessRunningInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos)
+NativeValue* CreateJsRunningProcessInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos)
 {
     NativeValue* arrayValue = engine.CreateArray(infos.size());
     NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
     uint32_t index = 0;
     for (const auto &runningInfo : infos) {
-        array->SetElement(index++, CreateJsProcessRunningInfo(engine, runningInfo));
+        array->SetElement(index++, CreateJsRunningProcessInfo(engine, runningInfo));
     }
     return arrayValue;
 }
 
-NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProcessInfo &info)
+NativeValue* CreateJsRunningProcessInfo(NativeEngine &engine, const RunningProcessInfo &info)
 {
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
