@@ -102,7 +102,7 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, const sptr<IDataAb
     }
 
     if (!ObsExistInMap(removeObs)) {
-        RemoveObsDeathRecipient(removeObs);
+        RemoveObsDeathRecipient(removeObs->AsObject());
     }
 
     AtomicSubTaskCount();
@@ -197,13 +197,13 @@ void DataObsMgrInner::AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dat
     }
 }
 
-void DataObsMgrInner::RemoveObsDeathRecipient(const sptr<IDataAbilityObserver> &dataObserver)
+void DataObsMgrInner::RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver)
 {
-    if ((dataObserver == nullptr) || dataObserver->AsObject() == nullptr) {
+    if (dataObserver == nullptr) {
         return;
     }
 
-    auto it = recipientMap_.find(dataObserver->AsObject());
+    auto it = recipientMap_.find(dataObserver);
     if (it != recipientMap_.end()) {
         it->first->RemoveDeathRecipient(it->second);
         recipientMap_.erase(it);
@@ -232,25 +232,28 @@ void DataObsMgrInner::HandleCallBackDiedTask(const sptr<IRemoteObject> &dataObse
     std::lock_guard<std::mutex> lock_l(innerMutex_);
 
     if (dataObserver == nullptr) {
+        HILOG_WARN("dataObserver is nullptr.");
         return;
     }
 
-    sptr<IDataAbilityObserver> object = iface_cast<IDataAbilityObserver>(dataObserver);
-
-    RemoveObsFromMap(object);
+    RemoveObsFromMap(dataObserver);
 }
 
-void DataObsMgrInner::RemoveObsFromMap(const sptr<IDataAbilityObserver> &dataObserver)
+void DataObsMgrInner::RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver)
 {
-    for (auto &obsCallback : obsmap_) {
-        auto &obsList = obsCallback.second;
-        auto obs = std::find(obsList.begin(), obsList.end(), dataObserver);
-        if (obs != obsList.end()) {
-            obsList.remove(dataObserver);
-            if (obsList.empty()) {
-                HILOG_INFO("%{public}s: remove obsList from map ", __func__);
-                obsmap_.erase(obsCallback.first);
+    for (auto iter = obsmap_.begin(); iter != obsmap_.end();) {
+        auto &obsList = iter->second;
+        for (auto it = obsList.begin(); it != obsList.end(); it++) {
+            if ((*it)->AsObject() == dataObserver) {
+                HILOG_DEBUG("Erase an observer form list.");
+                obsList.erase(it);
+                break;
             }
+        }
+        if (obsList.size() == 0) {
+            obsmap_.erase(iter++);
+        } else {
+            iter++;
         }
     }
     RemoveObsDeathRecipient(dataObserver);

@@ -55,9 +55,9 @@ public:
 private:
     bool GetObsListFromMap(const Uri &uri, ObsListType &obslist);
     void AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dataObserver);
-    void RemoveObsDeathRecipient(const sptr<IDataAbilityObserver> &dataObserver);
+    void RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver);
     void HandleCallBackDiedTask(const sptr<IRemoteObject> &dataObserver);
-    void RemoveObsFromMap(const sptr<IDataAbilityObserver> &dataObserver);
+    void RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver);
     bool ObsExistInMap(const sptr<IDataAbilityObserver> &dataObserver);
 
     std::atomic_int taskCount_;
