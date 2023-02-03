@@ -1070,10 +1070,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension", [application = application_]() {
             return AbilityRuntime::StaticSubscriberExtension::Create(application->GetRuntime());
         });
-#ifdef __aarch64__
-        LoadAllExtensions("system/lib64/extensionability");
-#else
+
+#ifdef APP_USE_ARM
         LoadAllExtensions("system/lib/extensionability");
+#else
+        LoadAllExtensions("system/lib64/extensionability");
 #endif
         std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);
         idleTime_ = std::make_shared<IdleTime>(mainHandler_, nativeEngine);
