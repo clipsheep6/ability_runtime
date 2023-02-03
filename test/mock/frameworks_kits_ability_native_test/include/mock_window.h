@@ -154,6 +154,8 @@ public:
     virtual WMError NotifyMemoryLevel(int32_t level) const {return WMError::WM_OK;}
     virtual bool IsAllowHaveSystemSubWindow() {return false;}
     virtual WmErrorCode RaiseToAppTop() {return WmErrorCode::WM_OK;}
+    virtual WMError SetAspectRatio(float ratio) {return WMError::WM_OK;}
+    virtual WMError UnsetAspectRatio() {return WMError::WM_OK;}
 };
 }
 }
