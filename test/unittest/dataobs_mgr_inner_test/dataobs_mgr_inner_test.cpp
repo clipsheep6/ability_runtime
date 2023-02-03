@@ -314,14 +314,14 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_GetRemoveObsListFromMap_ObsExistIn
     EXPECT_EQ(true, dataObsMgrInner_->ObsExistInMap(callback));
     EXPECT_EQ(true, dataObsMgrInner_->ObsExistInMap(callback2));
 
-    dataObsMgrInner_->RemoveObsFromMap(callback);
+    dataObsMgrInner_->RemoveObsFromMap(callback->AsObject());
     EXPECT_EQ(false, dataObsMgrInner_->ObsExistInMap(callback));
     obslist.clear();
     dataObsMgrInner_->GetObsListFromMap(uri, obslist);
     EXPECT_EQ((std::size_t)1, obslist.size());
     EXPECT_EQ(false, dataObsMgrInner_->ObsExistInMap(callback));
 
-    dataObsMgrInner_->RemoveObsFromMap(callback2);
+    dataObsMgrInner_->RemoveObsFromMap(callback2->AsObject());
     EXPECT_EQ(false, dataObsMgrInner_->ObsExistInMap(callback2));
     obslist.clear();
     dataObsMgrInner_->GetObsListFromMap(uri, obslist);
@@ -352,13 +352,13 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_AddRemove_ObsDeathRecipient_0100, 
     it = dataObsMgrInner_->recipientMap_.find(observer);
     EXPECT_EQ(true, it != dataObsMgrInner_->recipientMap_.end());
 
-    dataObsMgrInner_->RemoveObsDeathRecipient(callback);
+    dataObsMgrInner_->RemoveObsDeathRecipient(callback->AsObject());
     dataObsMgrInner_->RemoveObsDeathRecipient(nullptr);
     it = dataObsMgrInner_->recipientMap_.find(observer);
     EXPECT_EQ(false, it != dataObsMgrInner_->recipientMap_.end());
 
     dataObsMgrInner_->recipientMap_.clear();
-    dataObsMgrInner_->RemoveObsDeathRecipient(callback);
+    dataObsMgrInner_->RemoveObsDeathRecipient(callback->AsObject());
 }
 
 /*
@@ -425,7 +425,7 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_RemoveObsFromMap_0100, TestSize.Le
     obsList2.push_back(callback2);
     dataObsMgrInner->obsmap_.emplace(uri1, obsList1);
     dataObsMgrInner->obsmap_.emplace(uri2, obsList2);
-    dataObsMgrInner->RemoveObsFromMap(callback2);
+    dataObsMgrInner->RemoveObsFromMap(callback2->AsObject());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

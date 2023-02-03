@@ -76,6 +76,7 @@ bool DataObsMgrService::Init()
     }
 
     handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
+    dataObsMgrInner_->SetHandler(handler_);
 
     HILOG_INFO("init success");
     return true;
@@ -117,6 +118,7 @@ int DataObsMgrService::RegisterObserver(const Uri &uri, const sptr<IDataAbilityO
     }
 
     if (dataObsMgrInner_->CheckRegisteFull(uri)) {
+        HILOG_ERROR("The number of subscribers for this uri has reached the upper limit.");
         return DATAOBS_SERVICE_OBS_LIMMIT;
     }
 
