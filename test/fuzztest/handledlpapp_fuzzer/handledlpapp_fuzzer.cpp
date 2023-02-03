@@ -45,6 +45,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         want = Want::Unmarshalling(wantParcel);
         if (want) {
             abilitymgr->HandleDlpApp(*want);
+            delete want;
+            want = nullptr;
         }
     }
 
