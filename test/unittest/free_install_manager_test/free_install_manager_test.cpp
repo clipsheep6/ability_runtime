@@ -64,10 +64,8 @@ void FreeInstallTest::TearDownTestCase(void)
 void FreeInstallTest::SetUp(void)
 {
     freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
-    // runner_ = EventRunner::Create("AppkitNativeModuleTestMockHandlerFirst");
     abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
     abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
-    // abilityMs_->handler_ = std::make_shared<MockHandler>(runner_);
 }
 
 void FreeInstallTest::TearDown(void)
