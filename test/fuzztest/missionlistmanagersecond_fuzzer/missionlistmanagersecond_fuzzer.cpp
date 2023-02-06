@@ -116,9 +116,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AbilityRequest abilityRequest;
     missionListManager->OnTimeOut(uint32Param, int64Param);
     missionListManager->HandleLoadTimeout(abilityRecord);
-    missionListManager->HandleForegroundTimeout(abilityRecord, boolParam);
-    missionListManager->CompleteForegroundFailed(abilityRecord, boolParam);
-    missionListManager->HandleTimeoutAndResumeAbility(abilityRecord, boolParam);
+    missionListManager->HandleForegroundTimeout(abilityRecord);
+    missionListManager->CompleteForegroundFailed(abilityRecord, OHOS::AAFwk::AbilityState::INITIAL);
+    missionListManager->HandleTimeoutAndResumeAbility(abilityRecord);
     missionListManager->DelayedResumeTimeout(abilityRecord);
     missionListManager->BackToCaller(abilityRecord);
     missionListManager->MoveToTerminateList(abilityRecord);

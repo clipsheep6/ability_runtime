@@ -3059,46 +3059,49 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0100, TestSize.Leve
     auto abilityImpl = std::make_shared<AbilityImpl>();
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
-    impl->ForegroundFailed();
+    auto wmErrNoMem = 2;
+    impl->ForegroundFailed(wmErrNoMem);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_AbilityImpl_ForegroundInvalidMode_0100
- * @tc.name: ForegroundInvalidMode
+ * @tc.number: AaFwk_AbilityImpl_ForegroundFailed_0200
+ * @tc.name: ForegroundFailed
  * @tc.desc: Verify ForegroundFailed failed.
  */
-HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundInvalidMode_0100, TestSize.Level1)
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0200, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0100 start";
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0200 start";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
-    impl->ForegroundInvalidMode();
+    auto wmErrInvalidWindowModeOrSize = 5;
+    impl->ForegroundFailed(wmErrInvalidWindowModeOrSize);
 
     auto abilityImpl = std::make_shared<AbilityImpl>();
     abilityImpl->isStageBasedModel_ = false;
     sptr<AbilityImpl::WindowLifeCycleImpl> impl1 =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
-    impl1->ForegroundInvalidMode();
-    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0100 end";
+    impl1->ForegroundFailed(wmErrInvalidWindowModeOrSize);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0200 end";
 }
 
 /**
- * @tc.number: AaFwk_AbilityImpl_ForegroundInvalidMode_0200
- * @tc.name: ForegroundInvalidMode
+ * @tc.number: AaFwk_AbilityImpl_ForegroundFailed_0300
+ * @tc.name: ForegroundFailed
  * @tc.desc: Verify ForegroundFailed succeeded.
  */
-HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundInvalidMode_0200, TestSize.Level1)
+HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0300, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0200 start";
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0300 start";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto abilityImpl = std::make_shared<AbilityImpl>();
     abilityImpl->isStageBasedModel_ = true;
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
-    impl->ForegroundInvalidMode();
-    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundInvalidMode_0200 end";
+    auto wmErrInvalidWindowModeOrSize = 5;
+    impl->ForegroundFailed(wmErrInvalidWindowModeOrSize);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0300 end";
 }
 
 /**

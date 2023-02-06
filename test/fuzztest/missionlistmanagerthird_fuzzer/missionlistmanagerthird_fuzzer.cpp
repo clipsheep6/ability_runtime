@@ -107,7 +107,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     PacMap pacMap;
     missionListManager->AbilityTransactionDone(token, intParam, pacMap);
     missionListManager->DispatchState(abilityRecord, intParam);
-    missionListManager->DispatchForeground(abilityRecord, boolParam, boolParam);
+    missionListManager->DispatchForeground(abilityRecord, boolParam);
     missionListManager->CompleteForegroundSuccess(abilityRecord);
     missionListManager->TerminatePreviousAbility(abilityRecord);
     missionListManager->DispatchBackground(abilityRecord);
