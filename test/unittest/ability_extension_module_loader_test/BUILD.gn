@@ -49,7 +49,6 @@ ohos_unittest("ability_extension_module_loader_test") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
   ]
 }
 

@@ -226,6 +226,7 @@ ohos_shared_library("abilitykit_native") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_napi_common",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
@@ -314,7 +315,6 @@ ohos_shared_library("form_extension") {
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "hiviewdfx_hilog_native:libhilog",
-      "ipc_js:rpc",
       "relational_store:native_dataability",
       "relational_store:native_rdb",
     ]
@@ -352,7 +352,7 @@ ohos_shared_library("service_extension") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
+    "ipc:ipc_napi_common",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
@@ -390,7 +390,6 @@ ohos_shared_library("static_subscriber_extension") {
     "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
   ]
 
   subsystem_name = "ability"
@@ -495,7 +494,6 @@ ohos_shared_library("service_extension_module") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]

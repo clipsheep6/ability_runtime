@@ -66,7 +66,6 @@ ohos_unittest("form_extension_context_test") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]

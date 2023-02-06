@@ -40,7 +40,6 @@ ohos_shared_library("missionmanager") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
   ]
 
   if (ability_runtime_graphics) {
