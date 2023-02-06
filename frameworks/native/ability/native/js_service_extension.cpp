@@ -479,7 +479,7 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    Extension::OnConfigurationUpdated(configuration);
+    ServiceExtension::OnConfigurationUpdated(configuration);
     HILOG_INFO("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);

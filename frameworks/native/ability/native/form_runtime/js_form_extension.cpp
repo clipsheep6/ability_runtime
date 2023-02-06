@@ -334,7 +334,7 @@ void JsFormExtension::GetSrcPath(std::string &srcPath)
 
 void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    Extension::OnConfigurationUpdated(configuration);
+    FormExtension::OnConfigurationUpdated(configuration);
     HILOG_INFO("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
