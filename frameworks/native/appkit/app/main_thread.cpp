@@ -845,7 +845,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     } else {
         HILOG_INFO("LocaleInfo is nullptr.");
     }
-
+#endif
     std::string colormode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     HILOG_DEBUG("Colormode is %{public}s.", colormode.c_str());
     resConfig->SetColorMode(ConvertColorMode(colormode));
@@ -853,7 +853,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::string hasPointerDevice = config.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
     HILOG_DEBUG("HasPointerDevice is %{public}s.", hasPointerDevice.c_str());
     resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
-#endif
+
     std::string deviceType = config.GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
     HILOG_DEBUG("deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(), ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
@@ -1339,6 +1339,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto& runtime = application_->GetRuntime();
     auto appInfo = application_->GetApplicationInfo();
     auto want = abilityRecord->GetWant();
+
     if (runtime && appInfo && want && appInfo->debug) {
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }

@@ -18,6 +18,11 @@
 #define protected public
 #include "ability_manager_service.h"
 #include "configuration.h"
+#include "configuration_convertor.h"
+#include "configuration_utils.h"
+#ifdef SUPPORT_GRAPHICS
+#include "locale_config.h"
+#endif
 #undef private
 #undef protected
 
@@ -439,6 +444,64 @@ HWTEST_F(ConfigurationTest, structure_001, TestSize.Level1)
     AppExecFwk::Configuration configFourth = configThird;
     auto item3 = configFourth.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     EXPECT_TRUE(item3 == chinese);
+}
+
+/**
+ * @tc.name: UpdateConfigToResMgr_001
+ * @tc.desc: Update configuration to resource manager.
+ * @tc.type: FUNC
+ * @tc.require: issueI6CWJD
+ */
+HWTEST_F(ConfigurationTest, UpdateConfigToResMgr_001, TestSize.Level1)
+{
+    // init configuration, "en", "dark", "false"
+    AppExecFwk::Configuration configuration;
+    bool addItemRet;
+    addItemRet = configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en");
+    EXPECT_EQ(addItemRet, true);
+    addItemRet = configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
+    EXPECT_EQ(addItemRet, true);
+    addItemRet = configuration.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
+    EXPECT_EQ(addItemRet, true);
+
+    // init resource manager, "zh", "light", "true"
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    ASSERT_NE(resourceManager, nullptr);
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    ASSERT_NE(resConfig, nullptr);
+
+#ifdef SUPPORT_GRAPHICS
+    UErrorCode status = U_ZERO_ERROR;
+    icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
+    EXPECT_EQ(status, U_ZERO_ERROR);
+    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
+        locale.getScript(), locale.getCountry());
+    resConfig->SetLocaleInfo(locale);
+#endif
+    resConfig->SetColorMode(ConvertColorMode("light"));
+    resConfig->SetInputDevice(ConvertHasPointerDevice("true"));
+    Global::Resource::RState updateRet = resourceManager->UpdateResConfig(*resConfig);
+    EXPECT_EQ(updateRet, Global::Resource::RState::SUCCESS);
+
+    // update configuration to resource manager
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    ASSERT_NE(configUtils, nullptr);
+    configUtils->UpdateConfigToResourceManager(configuration, nullptr);
+    configUtils->UpdateConfigToResourceManager(configuration, resourceManager);
+
+    // check resource manager has updated to "en", "dark", "false"
+    std::unique_ptr<Global::Resource::ResConfig> updatedResConfig(Global::Resource::CreateResConfig());
+    ASSERT_NE(updatedResConfig, nullptr);
+    resourceManager->GetResConfig(*updatedResConfig);
+#ifdef SUPPORT_GRAPHICS
+    const icu::Locale *localeInfo = updatedResConfig->GetLocaleInfo();
+    ASSERT_NE(localeInfo, nullptr);
+    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", localeInfo->getLanguage(),
+        localeInfo->getScript(), localeInfo->getCountry());
+    EXPECT_EQ(strcmp(localeInfo->getLanguage(), "en"), 0);
+#endif
+    EXPECT_EQ(updatedResConfig->GetColorMode(), ConvertColorMode("dark"));
+    EXPECT_EQ(updatedResConfig->GetInputDevice(), ConvertHasPointerDevice("false"));
 }
 }  // namespace AAFwk
 }  // namespace OHOS

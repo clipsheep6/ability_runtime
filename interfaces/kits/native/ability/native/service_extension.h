@@ -66,6 +66,13 @@ public:
      * @return The ServiceExtension instance.
      */
     static ServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
+
+    /**
+     * @brief Called when the system configuration is updated.
+     *
+     * @param configuration Indicates the updated configuration information.
+     */
+    void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -16,6 +16,7 @@
 #include "form_extension.h"
 
 #include "ability_loader.h"
+#include "configuration_utils.h"
 #include "form_extension_context.h"
 #include "form_runtime/js_form_extension.h"
 #include "hilog_wrapper.h"
@@ -106,5 +107,21 @@ bool FormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     HILOG_DEBUG("%{public}s called.", __func__);
     return false;
 }
+
+void FormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
+{
+    Extension::OnConfigurationUpdated(configuration);
+
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Context is invalid.");
+        return;
+    }
+
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    if (configUtils) {
+        configUtils->UpdateConfigToResourceManager(configuration, context->GetResourceManager());
+    }
 }
-}
+} // namespace AbilityRuntime
+} // namespace OHOS
