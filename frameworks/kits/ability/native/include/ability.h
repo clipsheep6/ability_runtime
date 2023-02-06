@@ -1635,40 +1635,6 @@ protected:
     void NotityContinuationResult(const Want& want, bool success);
 
 #ifdef SUPPORT_GRAPHICS
-    class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
-    public:
-        AbilityDisplayListener(const std::weak_ptr<Ability>& ability)
-        {
-            ability_ = ability;
-        }
-
-        void OnCreate(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnCreate(displayId);
-            }
-        }
-
-        void OnDestroy(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnDestroy(displayId);
-            }
-        }
-
-        void OnChange(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnChange(displayId);
-            }
-        }
-    private:
-        std::weak_ptr<Ability> ability_;
-    };
-
     /**
      * @brief override Rosen::DisplayManager::IDisplayListener virtual callback function
      *
@@ -1693,7 +1659,6 @@ protected:
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
-    sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;
 #endif
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(

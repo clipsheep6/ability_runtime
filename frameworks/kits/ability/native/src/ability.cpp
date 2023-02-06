@@ -150,8 +150,8 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_INFO("Ability::Init call RegisterDisplayListener");
-        abilityDisplayListener_ = new AbilityDisplayListener(ability);
-        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
+        OHOS::sptr<OHOS::Rosen::DisplayManager::IDisplayListener> thisAbility(this);
+        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(thisAbility);
     }
 #endif
     lifecycle_ = std::make_shared<LifeCycle>();
@@ -341,7 +341,6 @@ void Ability::OnStop()
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin.", __func__);
 #ifdef SUPPORT_GRAPHICS
-    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();
