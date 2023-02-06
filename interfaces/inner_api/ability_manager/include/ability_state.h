@@ -43,6 +43,7 @@ enum AbilityState {
     BACKGROUNDING,
     FOREGROUND_FAILED,
     FOREGROUND_INVALID_MODE,
+    FOREGROUND_WINDOW_FREEZED,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

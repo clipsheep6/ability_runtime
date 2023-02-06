@@ -656,27 +656,28 @@ void AbilityImpl::WindowLifeCycleImpl::AfterUnfocused()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed()
+void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
-}
+    if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION)) {
+        HILOG_DEBUG("window was freezed.");
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+            AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
+    } else if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE)) {
+        auto owner = owner_.lock();
+        if (owner == nullptr || !owner->IsStageBasedModel()) {
+            HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
+            return;
+        }
 
-void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    auto owner = owner_.lock();
-    if (owner == nullptr || !owner->IsStageBasedModel()) {
-        HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
-        return;
+        HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+            AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
+    } else {
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
     }
-
-    HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
-    PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
 }
 
 void AbilityImpl::Foreground(const Want &want)

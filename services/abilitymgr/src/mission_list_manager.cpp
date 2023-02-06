@@ -1013,11 +1013,10 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
         case AbilityState::FOREGROUND: {
             return DispatchForeground(abilityRecord, true);
         }
-        case AbilityState::FOREGROUND_FAILED: {
-            return DispatchForeground(abilityRecord, false);
-        }
-        case AbilityState::FOREGROUND_INVALID_MODE: {
-            return DispatchForeground(abilityRecord, false, true);
+        case AbilityState::FOREGROUND_FAILED:
+        case AbilityState::FOREGROUND_INVALID_MODE:
+        case AbilityState::FOREGROUND_WINDOW_FREEZED: {
+            return DispatchForeground(abilityRecord, false, static_cast<AbilityState>(state));
         }
         default: {
             HILOG_WARN("Don't support transiting state: %{public}d", state);
@@ -1027,7 +1026,7 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
 }
 
 int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
-    bool isInvalidMode)
+    AbilityState state)
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
@@ -1060,13 +1059,20 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         };
         handler->PostTask(task);
     } else {
-        auto task = [self, abilityRecord, isInvalidMode]() {
+        auto task = [self, abilityRecord, state]() {
+            if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
+                HILOG_INFO("Window was freezed.");
+                if (abilityRecord != nullptr) {
+                    DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+                }
+                return;
+            }
             auto selfObj = self.lock();
             if (!selfObj) {
                 HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
-            selfObj->CompleteForegroundFailed(abilityRecord, isInvalidMode);
+            selfObj->CompleteForegroundFailed(abilityRecord, state);
         };
         handler->PostTask(task);
     }
@@ -1842,7 +1848,7 @@ void MissionListManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> 
     HandleTimeoutAndResumeAbility(ability);
 }
 
-void MissionListManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability, bool isInvalidMode)
+void MissionListManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability, AbilityState state)
 {
     if (ability == nullptr) {
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
@@ -1867,13 +1873,13 @@ void MissionListManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRe
     }
 
     // other
-    HandleTimeoutAndResumeAbility(ability, isInvalidMode);
+    HandleTimeoutAndResumeAbility(ability, state);
 }
 
 void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    bool isInvalidMode)
+    AbilityState state)
 {
-    HILOG_DEBUG("CompleteForegroundFailed come, isInvalidMode: %{public}d.", isInvalidMode);
+    HILOG_DEBUG("CompleteForegroundFailed come, state: %{public}d.", static_cast<int32_t>(state));
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("CompleteForegroundFailed, ability is nullptr.");
@@ -1881,7 +1887,7 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
     }
 
 #ifdef SUPPORT_GRAPHICS
-    if (isInvalidMode) {
+    if (state == AbilityState::FOREGROUND_INVALID_MODE) {
         abilityRecord->SetStartingWindow(false);
     }
     if (abilityRecord->IsStartingWindow()) {
@@ -1889,13 +1895,13 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
     }
 #endif
 
-    HandleForegroundTimeout(abilityRecord, isInvalidMode);
+    HandleForegroundTimeout(abilityRecord, state);
     TerminatePreviousAbility(abilityRecord);
     PostStartWaitingAbility();
 }
 
 void MissionListManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &timeOutAbilityRecord,
-    bool isInvalidMode)
+    AbilityState state)
 {
     HILOG_DEBUG("HandleTimeoutAndResumeTopAbility start");
     if (timeOutAbilityRecord == nullptr) {
@@ -1921,7 +1927,7 @@ void MissionListManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<Abi
         return;
     }
 
-    if (!isInvalidMode) {
+    if (state != AbilityState::FOREGROUND_INVALID_MODE) {
         DelayedResumeTimeout(callerAbility);
     }
 
