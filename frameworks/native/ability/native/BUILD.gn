@@ -385,12 +385,14 @@ ohos_shared_library("static_subscriber_extension") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
+    "relational_store:native_rdb",
   ]
 
   subsystem_name = "ability"
