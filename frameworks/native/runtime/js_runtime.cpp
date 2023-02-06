@@ -308,12 +308,15 @@ private:
         } else {
             panda::RuntimeOption pandaOption;
             int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
+            std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
             size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
             size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
             pandaOption.SetArkProperties(arkProperties);
+            pandaOption.SetArkBundleName(bundleName);
             pandaOption.SetGcThreadNum(gcThreadNum);
             pandaOption.SetLongPauseTime(longPauseTime);
-            HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d", arkProperties);
+            HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
+	        arkProperties, bundleName.c_str());
             pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
             pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
