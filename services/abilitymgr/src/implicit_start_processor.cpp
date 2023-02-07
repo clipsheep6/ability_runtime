@@ -70,7 +70,6 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     auto startAbilityTask = [imp = shared_from_this(), request, userId]
         (const std::string& bundle, const std::string& abilityName) {
         HILOG_INFO("implicit start ability call back.");
-        auto oldIdentity = identity;
 
         AAFwk::Want targetWant = request.want;
         targetWant.SetElementName(bundle, abilityName);
