@@ -120,8 +120,6 @@ const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceability
 
 const std::string BUNDLE_NAME_ABILITY_USER_TEST = "com.example.actsabilityusertest";
 const std::string BUNDLE_NAME_ACTS_MULTIUSER_EXTENSION_TEST = "com.acts.actsinterfacemultiusersextensionthirdtest";
-const std::string BUNDLE_NAME_KILL_PROCESS_WITH_ACCOUNT_TEST = "com.acts.killprocesswithaccount";
-const std::string BUNDLE_NAME_SUPPORT_FUNC_HAP_TEST = "com.example.supportfunctionhaptest";
 
 // White list
 const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
@@ -140,8 +138,6 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_PER_THRID_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER2_TEST,
-                                                                BUNDLE_NAME_KILL_PROCESS_WITH_ACCOUNT_TEST,
-                                                                BUNDLE_NAME_SUPPORT_FUNC_HAP_TEST,
                                                                 BUNDLE_NAME_ABILITY_USER_TEST,
                                                                 BUNDLE_NAME_ACTS_MULTIUSER_EXTENSION_TEST };
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA,
