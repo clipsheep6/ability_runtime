@@ -86,8 +86,8 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_DEBUG("JsFormExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
-        moduleName.c_str(), srcPath.c_str());
+    HILOG_DEBUG("JsFormExtension::Init moduleName:%{public}s,srcPath:%{public}s, compileMode :%{public}d.",
+        moduleName.c_str(), srcPath.c_str(), abilityInfo_->compileMode);
     HandleScope handleScope(jsRuntime_);
     auto& engine = jsRuntime_.GetNativeEngine();
 
