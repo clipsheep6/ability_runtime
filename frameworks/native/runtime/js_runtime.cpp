@@ -302,6 +302,8 @@ private:
                 std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
                 postOption.SetAnDir(sandBoxAnFilePath);
             }
+            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            postOption.SetEnableProfile(profileEnabled);
             panda::JSNApi::PostFork(vm_, postOption);
             nativeEngine_->ReinitUVLoop();
             panda::JSNApi::SetLoop(vm_, nativeEngine_->GetUVLoop());
@@ -330,8 +332,6 @@ private:
             // aot related
             bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
             pandaOption.SetEnableAOT(aotEnabled);
-            bool profileEnabled = OHOS::system::GetBoolParameter("persist.ark.profile", false);
-            pandaOption.SetEnableProfile(profileEnabled);
             pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
             HILOG_DEBUG("JSRuntime::Initialize ArkNative file path = %{public}s", options.arkNativeFilePath.c_str());
             vm_ = panda::JSNApi::CreateJSVM(pandaOption);
