@@ -3958,6 +3958,7 @@ int AbilityManagerService::StartAbilityByCall(
         HILOG_ERROR("currentMissionListManager_ is Null. curentUserId=%{public}d", GetUserId());
         return ERR_INVALID_VALUE;
     }
+    UpdateCallerInfo(abilityRequest.want);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
