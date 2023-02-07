@@ -691,6 +691,11 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_WRONG_INTERFACE_CALL;
     }
+
+    if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        HILOG_ERROR("Failed to verify the windowMode.");
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
 #endif
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         eventInfo.errCode = ERR_WOULD_BLOCK;
@@ -855,6 +860,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        HILOG_ERROR("Failed to verify the windowMode.");
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
@@ -5366,7 +5372,7 @@ int32_t AbilityManagerService::ShowPickerDialog(
 bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
 {
-    HILOG_INFO("Window mode is %{public}d.", windowMode);
+    HILOG_DEBUG("Window mode is %{public}d.", windowMode);
     if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
         return true;
     }
