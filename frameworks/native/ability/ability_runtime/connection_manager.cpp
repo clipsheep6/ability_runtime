@@ -55,6 +55,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
         (connectReceiver.GetBundleName() + ":" + connectReceiver.GetAbilityName()).c_str());
 
     sptr<AbilityConnection> abilityConnection;
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
         [&connectCaller, &connectReceiver](const std::map<ConnectionInfo,
             std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
@@ -99,6 +100,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
     abilityConnection->SetConnectionState(CONNECTION_STATE_CONNECTING);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(
         want, abilityConnection, connectCaller, accountId);
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     if (ret == ERR_OK) {
         ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
         std::vector<sptr<AbilityConnectCallback>> callbacks;
@@ -120,7 +122,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
 
     HILOG_DEBUG("connectReceiver: %{public}s.",
         (connectReceiver.GetBundleName() + ":" + connectReceiver.GetAbilityName()).c_str());
-
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
         [&connectCaller, &connectReceiver](
             const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
@@ -166,7 +168,7 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject>& connectCalle
         HILOG_ERROR("connectCaller is nullptr.");
         return false;
     }
-
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     HILOG_DEBUG("abilityConnectionsSize:%{public}zu.", abilityConnections_.size());
 
     bool isDisconnect = false;
@@ -193,6 +195,7 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject>& connectCalle
 
 bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName& connectReceiver)
 {
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     HILOG_DEBUG("abilityConnectionsSize:%{public}zu, bundleName:%{public}s, abilityName:%{public}s.",
         abilityConnections_.size(), connectReceiver.GetBundleName().c_str(),
         connectReceiver.GetAbilityName().c_str());

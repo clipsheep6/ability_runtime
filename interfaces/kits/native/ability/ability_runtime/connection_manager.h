@@ -140,6 +140,7 @@ private:
     bool IsConnectCallerEqual(const sptr<IRemoteObject> &connectCaller, const sptr<IRemoteObject> &connectCallerOther);
     bool IsConnectReceiverEqual(const AppExecFwk::ElementName &connectReceiver,
         const AppExecFwk::ElementName &connectReceiverOther);
+    std::recursive_mutex connectionsLock_;
     std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections_;
     ErrCode ConnectAbilityInner(const sptr<IRemoteObject> &connectCaller,
         const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback);

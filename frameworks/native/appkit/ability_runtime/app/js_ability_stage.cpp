@@ -61,7 +61,7 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
     return contextObj;
 }
 
-bool JsAbilityStage::useCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo)
+bool JsAbilityStage::UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
     for (auto &md: hapModuleInfo.metadata) {
         if (md.name == "USE_COMMON_CHUNK") {
@@ -86,7 +86,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     std::string srcPath(hapModuleInfo.name);
     std::string moduleName(hapModuleInfo.moduleName);
     moduleName.append("::").append("AbilityStage");
-    bool commonChunkFlag = useCommonChunk(hapModuleInfo);
+    bool commonChunkFlag = UseCommonChunk(hapModuleInfo);
     /* temporary compatibility api8 + config.json */
     if (!hapModuleInfo.isModuleJson) {
         srcPath.append("/assets/js/");
