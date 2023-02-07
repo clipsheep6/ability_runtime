@@ -56,8 +56,8 @@ public:
     virtual bool IsLayoutFullScreen() const {return false;}
     virtual WMError SetWindowType(WindowType type) {return WMError::WM_OK;}
     virtual WMError SetWindowMode(WindowMode mode) {return WMError::WM_OK;}
-    virtual void SetAlpha(float alpha) {}
-    virtual void SetTransform(const Transform& trans) {}
+    virtual WMError SetAlpha(float alpha) {return WMError::WM_OK;}
+    virtual WMError SetTransform(const Transform& trans) {return WMError::WM_OK;}
     virtual const Transform& GetTransform() const {return g_Transform;}
     virtual WMError AddWindowFlag(WindowFlag flag) {return WMError::WM_OK;}
     virtual WMError RemoveWindowFlag(WindowFlag flag) {return WMError::WM_OK;}
@@ -81,16 +81,16 @@ public:
     virtual WMError SetBrightness(float brightness) {return WMError::WM_OK;}
     virtual float GetBrightness() const {return 0;}
     virtual WMError SetCallingWindow(uint32_t windowId) {return WMError::WM_OK;}
-    virtual void SetPrivacyMode(bool isPrivacyMode) {}
+    virtual WMError SetPrivacyMode(bool isPrivacyMode) {return WMError::WM_OK;}
     virtual bool IsPrivacyMode() const {return false;}
     virtual void SetSystemPrivacyMode(bool isSystemPrivacyMode) {}
     virtual WMError BindDialogTarget(sptr<IRemoteObject> targetToken) {return WMError::WM_OK;}
-    virtual void SetSnapshotSkip(bool isSkip) {}
+    virtual WMError SetSnapshotSkip(bool isSkip) {return WMError::WM_OK;}
     virtual WMError SetCornerRadius(float cornerRadius) {return WMError::WM_OK;}
     virtual WMError SetShadowRadius(float radius) {return WMError::WM_OK;}
     virtual WMError SetShadowColor(std::string color) {return WMError::WM_OK;}
-    virtual void SetShadowOffsetX(float offsetX) {}
-    virtual void SetShadowOffsetY(float offsetY) {}
+    virtual WMError SetShadowOffsetX(float offsetX) {return WMError::WM_OK;}
+    virtual WMError SetShadowOffsetY(float offsetY) {return WMError::WM_OK;}
     virtual WMError SetBlur(float radius) {return WMError::WM_OK;}
     virtual WMError SetBackdropBlur(float radius) {return WMError::WM_OK;}
     virtual WMError SetBackdropBlurStyle(WindowBlurStyle blurStyle) {return WMError::WM_OK;}
@@ -102,26 +102,26 @@ public:
     virtual void ConsumePointerEvent(const std::shared_ptr<MMI::PointerEvent>& inputEvent) {}
     virtual void RequestVsync(const std::shared_ptr<VsyncCallback>& vsyncCallback) {}
     virtual void UpdateConfiguration(const std::shared_ptr<AppExecFwk::Configuration>& configuration) {}
-    virtual bool RegisterLifeCycleListener(const sptr<IWindowLifeCycle>& listener) {return false;}
-    virtual bool RegisterWindowChangeListener(const sptr<IWindowChangeListener>& listener) {return false;}
-    virtual bool UnregisterLifeCycleListener(const sptr<IWindowLifeCycle>& listener) {return false;}
-    virtual bool UnregisterWindowChangeListener(const sptr<IWindowChangeListener>& listener) {return false;}
-    virtual bool RegisterAvoidAreaChangeListener(sptr<IAvoidAreaChangedListener>& listener) {return false;}
-    virtual bool UnregisterAvoidAreaChangeListener(sptr<IAvoidAreaChangedListener>& listener) {return false;}
-    virtual bool RegisterDragListener(const sptr<IWindowDragListener>& listener) {return false;}
-    virtual bool UnregisterDragListener(const sptr<IWindowDragListener>& listener) {return false;}
-    virtual bool RegisterDisplayMoveListener(sptr<IDisplayMoveListener>& listener) {return false;}
-    virtual bool UnregisterDisplayMoveListener(sptr<IDisplayMoveListener>& listener) {return false;}
+    virtual WMError RegisterLifeCycleListener(const sptr<IWindowLifeCycle>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterWindowChangeListener(const sptr<IWindowChangeListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterLifeCycleListener(const sptr<IWindowLifeCycle>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterWindowChangeListener(const sptr<IWindowChangeListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterAvoidAreaChangeListener(sptr<IAvoidAreaChangedListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterAvoidAreaChangeListener(sptr<IAvoidAreaChangedListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterDragListener(const sptr<IWindowDragListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterDragListener(const sptr<IWindowDragListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterDisplayMoveListener(sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterDisplayMoveListener(sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual void RegisterWindowDestroyedListener(const NotifyNativeWinDestroyFunc& func) {}
-    virtual bool RegisterOccupiedAreaChangeListener(const sptr<IOccupiedAreaChangeListener>& listener) {return false;}
-    virtual bool UnregisterOccupiedAreaChangeListener(const sptr<IOccupiedAreaChangeListener>& listener) {return false;}
-    virtual bool RegisterTouchOutsideListener(const sptr<ITouchOutsideListener>& listener) {return false;}
-    virtual bool UnregisterTouchOutsideListener(const sptr<ITouchOutsideListener>& listener) {return false;}
-    virtual bool RegisterAnimationTransitionController(const sptr<IAnimationTransitionController>& listener) {return false;}
-    virtual bool RegisterScreenshotListener(const sptr<IScreenshotListener>& listener) {return false;}
-    virtual bool UnregisterScreenshotListener(const sptr<IScreenshotListener>& listener) {return false;}
-    virtual bool RegisterDialogTargetTouchListener(const sptr<IDialogTargetTouchListener>& listener) {return false;}
-    virtual bool UnregisterDialogTargetTouchListener(const sptr<IDialogTargetTouchListener>& listener) {return false;}
+    virtual WMError RegisterOccupiedAreaChangeListener(const sptr<IOccupiedAreaChangeListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterOccupiedAreaChangeListener(const sptr<IOccupiedAreaChangeListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterTouchOutsideListener(const sptr<ITouchOutsideListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterTouchOutsideListener(const sptr<ITouchOutsideListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterAnimationTransitionController(const sptr<IAnimationTransitionController>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterScreenshotListener(const sptr<IScreenshotListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterScreenshotListener(const sptr<IScreenshotListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError RegisterDialogTargetTouchListener(const sptr<IDialogTargetTouchListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+    virtual WMError UnregisterDialogTargetTouchListener(const sptr<IDialogTargetTouchListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual void RegisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
     virtual void UnregisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
     virtual void NotifyTouchDialogTarget() {}
@@ -138,7 +138,7 @@ public:
     virtual WMError SetTouchHotAreas(const std::vector<Rect>& rects) {return WMError::WM_OK;}
     virtual void GetRequestedTouchHotAreas(std::vector<Rect>& rects) const {}
     virtual bool IsMainHandlerAvailable() const {return false;}
-    virtual void DisableAppWindowDecor() {}
+    virtual WMError DisableAppWindowDecor() {return WMError::WM_OK;}
     virtual bool IsDecorEnable() const {return false;}
     virtual WMError Maximize() {return WMError::WM_OK;}
     virtual WMError Minimize() {return WMError::WM_OK;}
