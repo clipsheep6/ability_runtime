@@ -41,10 +41,14 @@ public:
     void InitMockMission(std::shared_ptr<MissionListManager>& missionListManager,
         AbilityRequest& abilityRequest, Want& want, std::shared_ptr<AbilityRecord>& ability);
     std::shared_ptr<AbilityRecord> InitAbilityRecord();
+    inline static std::shared_ptr<AbilityEventHandler> handler_{ nullptr };
 };
 
 void MissionListManagerTest::SetUpTestCase(void)
-{}
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    handler_ = DelayedSingleton<AbilityManagerService>::GetInstance()->handler_;
+}
 void MissionListManagerTest::TearDownTestCase(void)
 {}
 void MissionListManagerTest::SetUp(void)
@@ -1514,7 +1518,6 @@ HWTEST_F(MissionListManagerTest, AttachAbilityThread_001, TestSize.Level1)
 {
     int userId = 0;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     sptr<IAbilityScheduler> scheduler = nullptr;
     sptr<IRemoteObject> token = abilityRecord->GetToken();
@@ -3086,7 +3089,6 @@ HWTEST_F(MissionListManagerTest, ClearAllMissionsLocked_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     std::list<std::shared_ptr<Mission>> missionList;
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
     bool searchActive = true;
@@ -3121,7 +3123,6 @@ HWTEST_F(MissionListManagerTest, ClearAllMissionsLocked_002, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     std::list<std::shared_ptr<Mission>> missionList;
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
     bool searchActive = false;
@@ -4205,7 +4206,6 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_009, TestSize.Level1)
     InnerMissionInfo info;
     info.missionInfo.id = 1;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(info);
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     auto res = missionListManager->GetTargetMissionList(missionId, mission);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
@@ -4905,7 +4905,7 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_004, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
     missionListManager->terminateAbilityList_.push_back(abilityRecord);
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
     missionListManager.reset();
@@ -4960,7 +4960,7 @@ HWTEST_F(MissionListManagerTest, PostCancelStartingWindowTask_002, TestSize.Leve
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
     missionListManager->PostCancelStartingWindowTask(abilityRecord);
     missionListManager.reset();
 }
