@@ -546,6 +546,24 @@ void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbil
     abilityCallback_ = abilityCallback;
 }
 
+ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (missionId_ != -1) {
+        missionId = missionId_;
+        return ERR_OK;
+    }
+
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->GetMissionIdByToken(token_, missionId);
+    if (err != ERR_OK) {
+        HILOG_ERROR("AbilityContextImpl::GetMissionId is failed %{public}d", err);
+    } else {
+        missionId_ = missionId;
+        HILOG_DEBUG("%{public}s success, missionId is %{public}d.", __func__, missionId_);
+    }
+    return err;
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 {

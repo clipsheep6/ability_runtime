@@ -168,6 +168,8 @@ public:
         isTerminating_ = state;
     }
 
+    ErrCode GetMissionId(int32_t &missionId) override;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.
@@ -205,6 +207,7 @@ private:
     sptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
+    int32_t missionId_ = -1;
 
     static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
     void StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,

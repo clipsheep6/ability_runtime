@@ -221,6 +221,8 @@ public:
 
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
+    virtual ErrCode GetMissionId(int32_t &missionId) = 0;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.
