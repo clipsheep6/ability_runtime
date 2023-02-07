@@ -53,7 +53,6 @@ public:
     static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
 
@@ -90,7 +89,6 @@ private:
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
 
@@ -98,8 +96,6 @@ private:
     static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
     static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
-    static NativeValue* WrapPermissionRequestResult(NativeEngine& engine,
-        const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
 
     std::weak_ptr<AbilityContext> context_;

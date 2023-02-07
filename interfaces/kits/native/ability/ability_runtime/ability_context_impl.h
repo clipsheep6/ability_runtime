@@ -84,9 +84,6 @@ public:
 
     sptr<IRemoteObject> GetToken() override;
 
-    void RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions, int requestCode,
-        PermissionRequestTask &&task) override;
-
     ErrCode RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage) override;
 
     void SetStageContext(const std::shared_ptr<AbilityRuntime::Context> &stageContext);
@@ -194,8 +191,6 @@ public:
 #endif
 
 private:
-    static std::mutex mutex_;
-    static std::map<int, PermissionRequestTask> permissionRequestCallbacks;
     sptr<IRemoteObject> token_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     std::shared_ptr<AbilityRuntime::Context> stageContext_ = nullptr;
@@ -205,16 +200,6 @@ private:
     sptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
-
-    static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
-    void StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,
-        const std::vector<int>& permissionsState, int requestCode, PermissionRequestTask &&task);
-
-    struct ResultCallback {
-        std::vector<std::string> permissions_;
-        std::vector<int> grantResults_;
-        int requestCode_;
-    };
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

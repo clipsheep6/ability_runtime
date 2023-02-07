@@ -155,12 +155,6 @@ NativeValue* JsAbilityContext::TerminateSelfWithResult(NativeEngine* engine, Nat
     return (me != nullptr) ? me->OnTerminateSelfWithResult(*engine, *info) : nullptr;
 }
 
-NativeValue* JsAbilityContext::RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnRequestPermissionsFromUser(*engine, *info) : nullptr;
-}
-
 NativeValue* JsAbilityContext::RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
@@ -923,56 +917,6 @@ NativeValue* JsAbilityContext::OnTerminateSelf(NativeEngine& engine, NativeCallb
     return result;
 }
 
-NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    HILOG_INFO("OnRequestPermissionsFromUser is called");
-
-    if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
-    }
-
-    std::vector<std::string> permissionList;
-    if (!OHOS::AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(info.argv[0]), permissionList)) {
-        HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
-    }
-
-    if (permissionList.size() == 0) {
-        HILOG_ERROR("%{public}s called, params do not meet specification.", __func__);
-    }
-
-    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
-    NativeValue* result = nullptr;
-    auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
-    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
-    PermissionRequestTask task =
-        [&engine, asyncTask](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
-        HILOG_INFO("OnRequestPermissionsFromUser async callback is called");
-        NativeValue* requestResult = JsAbilityContext::WrapPermissionRequestResult(engine, permissions, grantResults);
-        if (requestResult == nullptr) {
-            HILOG_WARN("wrap requestResult failed");
-            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-        } else {
-            asyncTask->Resolve(engine, requestResult);
-        }
-        HILOG_INFO("OnRequestPermissionsFromUser async callback is called end");
-    };
-    auto context = context_.lock();
-    if (context == nullptr) {
-        HILOG_WARN("context is released");
-        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-    } else {
-        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        context->RequestPermissionsFromUser(engine, permissionList, curRequestCode_, std::move(task));
-    }
-    HILOG_INFO("OnRequestPermissionsFromUser is called end");
-    return result;
-}
-
 NativeValue* JsAbilityContext::OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_INFO("OnRestoreWindowStage is called, argc = %{public}d", static_cast<int>(info.argc));
@@ -1061,16 +1005,6 @@ NativeValue* JsAbilityContext::WrapAbilityResult(NativeEngine& engine, const int
     abilityResult->SetProperty("resultCode", engine.CreateNumber(resultCode));
     abilityResult->SetProperty("want", JsAbilityContext::WrapWant(engine, want));
     return jAbilityResult;
-}
-
-NativeValue* JsAbilityContext::WrapPermissionRequestResult(NativeEngine& engine,
-    const std::vector<std::string> &permissions, const std::vector<int> &grantResults)
-{
-    NativeValue* jsPermissionRequestResult = engine.CreateObject();
-    NativeObject* permissionRequestResult = ConvertNativeValueTo<NativeObject>(jsPermissionRequestResult);
-    permissionRequestResult->SetProperty("permissions", CreateNativeArray(engine, permissions));
-    permissionRequestResult->SetProperty("authResults", CreateNativeArray(engine, grantResults));
-    return jsPermissionRequestResult;
 }
 
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
@@ -1169,8 +1103,6 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
     BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName,
         JsAbilityContext::TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "requestPermissionsFromUser", moduleName,
-        JsAbilityContext::RequestPermissionsFromUser);
     BindNativeFunction(engine, *object, "restoreWindowStage", moduleName, JsAbilityContext::RestoreWindowStage);
     BindNativeFunction(engine, *object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
     BindNativeFunction(engine, *object, "startRecentAbility", moduleName,
