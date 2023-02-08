@@ -920,6 +920,9 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    if (bgtaskObserver_) {
+        return ;
+    }
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     auto subscribeBackgroundTask = [aams = shared_from_this()]() {
         int attemptNums = 0;
