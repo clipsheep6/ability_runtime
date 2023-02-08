@@ -1485,7 +1485,6 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
     HILOG_INFO("ability name: %{public}s", abilityInfo->name.c_str());
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1494,7 +1493,6 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
             HILOG_ERROR("MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
     } else {
         HILOG_WARN("runner not found");
     }
@@ -1535,7 +1533,6 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
     }
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1544,7 +1541,6 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
             HILOG_ERROR("MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
     } else {
         HILOG_WARN("runner not found");
     }
