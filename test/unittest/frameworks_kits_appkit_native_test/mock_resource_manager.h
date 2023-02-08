@@ -304,11 +304,6 @@ RState GetRawFileList(const std::string rawDirPath, std::vector<std::string>& ra
 {
     return SUCCESS;
 }
-
-RState IsLoadHap()
-{
-    return SUCCESS;
-}
 };
 }  // namespace Resource
 }  // namespace Global
