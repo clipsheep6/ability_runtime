@@ -291,6 +291,8 @@ private:
      */
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
 
+    bool JudgeSelfCalledByRecordId(int32_t recordId);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
