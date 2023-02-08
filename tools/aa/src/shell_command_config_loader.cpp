@@ -33,7 +33,7 @@ std::set<std::string> ShellCommandConfigLoder::commands_ = {};
 bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
 {
     HILOG_INFO("%{public}s", __func__);
-    if(configState_) {
+    if (configState_) {
         HILOG_INFO("config has been read");
         return true;
     }
@@ -58,25 +58,25 @@ bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
         return false;
     }
 
-    if(!aaJson.contains(AA_TOOL_COMMAND_LIST)) {
+    if (!aaJson.contains(AA_TOOL_COMMAND_LIST)) {
         HILOG_INFO("json config not contains the key");
         return false;
     }
 
-    if (aaJson[AA_TOOL_COMMAND_LIST].is_null() || !aaJson[AA_TOOL_COMMAND_LIST].is_array()
-        || aaJson[AA_TOOL_COMMAND_LIST].empty()) {
+    if (aaJson[AA_TOOL_COMMAND_LIST].is_null() || !aaJson[AA_TOOL_COMMAND_LIST].is_array() ||
+        aaJson[AA_TOOL_COMMAND_LIST].empty()) {
         HILOG_INFO("invalid command obj size");
         return false;
     }
 
-    if(aaJson[AA_TOOL_COMMAND_LIST].size() > COMMANDS_MAX_SIZE) {
+    if (aaJson[AA_TOOL_COMMAND_LIST].size() > COMMANDS_MAX_SIZE) {
         HILOG_INFO("command obj size overflow");
         return false;
     }
     
     std::lock_guard<std::mutex> lock(mtxRead_);
-    for(int i = 0; i < aaJson[AA_TOOL_COMMAND_LIST].size(); i++) {
-        if(aaJson[AA_TOOL_COMMAND_LIST][i].is_null() || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
+    for (size_t i = 0; i < aaJson[AA_TOOL_COMMAND_LIST].size(); i++) {
+        if (aaJson[AA_TOOL_COMMAND_LIST][i].is_null() || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
             continue;
         }
         commands_.emplace(aaJson[AA_TOOL_COMMAND_LIST][i]);

@@ -453,7 +453,7 @@ private:
     
     /**
      * @brief Add Extension block item
-     * 
+     *
      * @param extensionName extension name
      * @param type extension type
      */
@@ -461,7 +461,7 @@ private:
     
     /**
      * @brief Update extension block list to nativeEngine
-     * 
+     *
      * @param nativeEngine nativeEngine instance
      */
     void UpdateEngineExtensionBlockList(NativeEngine &nativeEngine);

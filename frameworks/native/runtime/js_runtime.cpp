@@ -344,7 +344,7 @@ private:
             pandaOption.SetGcThreadNum(gcThreadNum);
             pandaOption.SetLongPauseTime(longPauseTime);
             HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
-	        arkProperties, bundleName.c_str());
+	            arkProperties, bundleName.c_str());
             pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
             pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
