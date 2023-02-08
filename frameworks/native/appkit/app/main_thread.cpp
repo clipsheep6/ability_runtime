@@ -962,8 +962,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
         HILOG_INFO("GetBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
-        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO,
-            bundleInfo, UNSPECIFIED_USERID);
+        auto ret = bundleMgr->GetBundleInfoForSelf(
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY), bundleInfo);
+        queryResult = (ret == ERR_OK);
     }
 
     if (!queryResult) {
@@ -2194,7 +2195,7 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo)) {
+    if (bundleMgr->GetBundleInfoForSelf(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo) != ERR_OK) {
         HILOG_ERROR("Get bundle info of %{public}s failed.", bundleName.c_str());
         return false;
     }
