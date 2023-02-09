@@ -125,6 +125,7 @@ NativeValue *AbilityStateInit(NativeEngine *engine)
     }
 
     object->SetProperty("INITIAL", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::INITIAL)));
+    object->SetProperty("FOCUS", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::ACTIVE)));
     object->SetProperty("FOREGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::FOREGROUND)));
     object->SetProperty("BACKGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::BACKGROUND)));
     object->SetProperty("FOREGROUNDING", CreateJsValue(*engine,

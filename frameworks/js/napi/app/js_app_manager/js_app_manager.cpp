@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -85,10 +85,10 @@ public:
         return (me != nullptr) ? me->OnGetForegroundApplications(*engine, *info) : nullptr;
     }
 
-    static NativeValue* GetProcessRunningInfos(NativeEngine* engine, NativeCallbackInfo* info)
+    static NativeValue* GetRunningProcessInformation(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-        return (me != nullptr) ? me->OnGetProcessRunningInfos(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnGetRunningProcessInformation(*engine, *info) : nullptr;
     }
 
     static NativeValue* IsRunningInStabilityTest(NativeEngine* engine, NativeCallbackInfo* info)
@@ -260,7 +260,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetProcessRunningInfos(NativeEngine &engine, const NativeCallbackInfo &info)
+    NativeValue* OnGetRunningProcessInformation(NativeEngine &engine, const NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         AsyncTask::CompleteCallback complete =
@@ -273,7 +273,7 @@ private:
                 std::vector<AppExecFwk::RunningProcessInfo> infos;
                 auto ret = appManager->GetAllRunningProcesses(infos);
                 if (ret == 0) {
-                    task.ResolveWithNoError(engine, CreateJsProcessRunningInfoArray(engine, infos));
+                    task.ResolveWithNoError(engine, CreateJsRunningProcessInfoArray(engine, infos));
                 } else {
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED));
                 }
@@ -281,7 +281,7 @@ private:
 
         NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInfos",
+        AsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformation",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -539,9 +539,11 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "getForegroundApplications", moduleName,
         JsAppManager::GetForegroundApplications);
     BindNativeFunction(*engine, *object, "getProcessRunningInfos", moduleName,
-        JsAppManager::GetProcessRunningInfos);
+        JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(*engine, *object, "getProcessRunningInformation", moduleName,
-        JsAppManager::GetProcessRunningInfos);
+        JsAppManager::GetRunningProcessInformation);
+    BindNativeFunction(*engine, *object, "getRunningProcessInformation", moduleName,
+        JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(*engine, *object, "isRunningInStabilityTest", moduleName,
         JsAppManager::IsRunningInStabilityTest);
     BindNativeFunction(*engine, *object, "killProcessWithAccount", moduleName,

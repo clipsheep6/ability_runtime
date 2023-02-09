@@ -400,19 +400,19 @@ NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine
         };
     NativeValue* lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSAppManager::OnkillProcessBySelf",
+    AsyncTask::Schedule("JsApplicationContextUtils::OnkillProcessBySelf",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsApplicationContextUtils::GetProcessRunningInformation(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue *JsApplicationContextUtils::GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetProcessRunningInformation(*engine, *info) : nullptr;
+    return me != nullptr ? me->OnGetRunningProcessInformation(*engine, *info) : nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JsApplicationContextUtils::OnGetRunningProcessInformation(NativeEngine &engine, NativeCallbackInfo &info)
 {
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
@@ -450,7 +450,7 @@ NativeValue *JsApplicationContextUtils::OnGetProcessRunningInformation(NativeEng
 
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInformation",
+    AsyncTask::Schedule("JsApplicationContextUtils::OnGetRunningProcessInformation",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -969,7 +969,9 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
     BindNativeFunction(engine, *object, "killProcessesBySelf", MD_NAME,
         JsApplicationContextUtils::KillProcessBySelf);
     BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
-        JsApplicationContextUtils::GetProcessRunningInformation);
+        JsApplicationContextUtils::GetRunningProcessInformation);
+    BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
+        JsApplicationContextUtils::GetRunningProcessInformation);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

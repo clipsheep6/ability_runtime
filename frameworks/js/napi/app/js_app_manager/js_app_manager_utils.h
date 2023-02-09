@@ -30,8 +30,8 @@ NativeValue* CreateJsAppStateData(NativeEngine &engine, const AppStateData &appS
 NativeValue* CreateJsAbilityStateData(NativeEngine &engine, const AbilityStateData &abilityStateData);
 NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &processData);
 NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, const std::vector<AppStateData> &appStateDatas);
-NativeValue* CreateJsProcessRunningInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos);
-NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProcessInfo &info);
+NativeValue* CreateJsRunningProcessInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos);
+NativeValue* CreateJsRunningProcessInfo(NativeEngine &engine, const RunningProcessInfo &info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H

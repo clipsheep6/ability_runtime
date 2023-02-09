@@ -127,6 +127,10 @@ class ApplicationContext {
         return this.__context_impl__.getProcessRunningInformation(callback)
     }
 
+    getRunningProcessInformation(callback) {
+        return this.__context_impl__.getProcessRunningInformation(callback)
+    }
+
     set area(mode) {
         return this.__context_impl__.switchArea(mode)
     }
