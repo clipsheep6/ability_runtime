@@ -75,6 +75,7 @@ ohos_shared_library("runtime") {
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${third_party_path}/zlib:shared_libz",
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]

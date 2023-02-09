@@ -42,6 +42,7 @@ ability_base_native_path = "${ability_base_path}/frameworks/native"
 appspawn_path = "//base/startup/appspawn"
 init_path = "//base/startup/init"
 ipc_native_path = "//foundation/communication/ipc/ipc/native"
+third_party_path = "//third_party"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
