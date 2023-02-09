@@ -192,6 +192,7 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
         HILOG_ERROR("get target ability record failed, missionId: %{public}d", missionId);
         return MOVE_MISSION_FAILED;
     }
+    targetAbilityRecord->SetIsNewWant(false);
     targetAbilityRecord->RemoveWindowMode();
     if (startOptions != nullptr) {
         targetAbilityRecord->SetWindowMode(startOptions->GetWindowMode());
