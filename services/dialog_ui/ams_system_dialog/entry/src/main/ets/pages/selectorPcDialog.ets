@@ -27,8 +27,9 @@ struct SelectorPcDialog {
   }
 
   onSelectApp(item) {
-    globalThis.abilityWant.bundleName = item.split("-")[0];
-    globalThis.abilityWant.abilityName = item.split("-")[1];
+    globalThis.abilityWant.bundleName = item.split("#")[0];
+    globalThis.abilityWant.abilityName = item.split("#")[1];
+    globalThis.abilityWant.moduleName = item.split("#")[4];
     globalThis.selectExtensionContext.startAbility(globalThis.abilityWant, (data, error) => {
       if (error) {
         console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
@@ -76,8 +77,8 @@ struct SelectorPcDialog {
           ForEach(globalThis.pcShowHapList, (item: any) => {
             ListItem() {
               Flex({ direction: FlexDirection.Row }) {
-                if (item.split("-")[3] != "") {
-                  Image(item.split("-")[3])
+                if (item.split("#")[3] != "") {
+                  Image(item.split("#")[3])
                     .height(70)
                     .width(70)
                     .alignSelf(ItemAlign.Center)
@@ -89,8 +90,8 @@ struct SelectorPcDialog {
                     .alignSelf(ItemAlign.Center)
                     .margin({ left: 16 })
                 }
-                if (item.split("-")[2] != "") {
-                  Text(item.split("-")[2])
+                if (item.split("#")[2] != "") {
+                  Text(item.split("#")[2])
                     .fontSize(16)
                     .width("80%")
                     .height(60)
@@ -98,7 +99,7 @@ struct SelectorPcDialog {
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                     .margin({ left: 16 })
                 } else {
-                  Text(item.split("-")[0])
+                  Text(item.split("#")[0])
                     .fontSize(16)
                     .width("80%")
                     .height(60)

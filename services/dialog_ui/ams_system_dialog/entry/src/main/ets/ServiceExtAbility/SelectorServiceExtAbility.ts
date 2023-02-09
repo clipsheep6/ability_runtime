@@ -75,13 +75,14 @@ export default class SelectorServiceExtensionAbility extends extension {
         }).catch(error => {
             console.error(TAG, "getMediaBase64 error:" + JSON.stringify(error));
         });
-        showHapList.push(bundleName + "-" + abilityName + "-" + appName + "-" + appIcon);
+        showHapList.push(bundleName + "#" + abilityName + "#" + appName + "#" + appIcon + "#" + moduleName);
     }
 
     async onRequest(want, startId) {
         globalThis.abilityWant = want;
         globalThis.params = JSON.parse(want["parameters"]["params"]);
         globalThis.position = JSON.parse(want["parameters"]["position"]);
+        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
         console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
         console.debug(TAG, "onRequest, position: " + JSON.stringify(globalThis.position));
 
