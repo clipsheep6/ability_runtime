@@ -968,6 +968,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
         JsApplicationContextUtils::GetApplicationContext);
     BindNativeFunction(engine, *object, "killProcessesBySelf", MD_NAME,
         JsApplicationContextUtils::KillProcessBySelf);
+    BindNativeFunction(engine, *object, "killAllProcesses", MD_NAME, JsApplicationContextUtils::KillProcessBySelf);
     BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
