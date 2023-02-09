@@ -62,6 +62,7 @@ public:
     std::shared_ptr<AbilityResult> abilityResult_ {nullptr};
     std::shared_ptr<AbilityRequest> abilityRequest_ {nullptr};
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
+    inline static std::shared_ptr<AbilityEventHandler> handler_{ nullptr };
 };
 
 void AbilityRecordTest::SetUpTestCase(void)
@@ -69,6 +70,7 @@ void AbilityRecordTest::SetUpTestCase(void)
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
     OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStart();
+    handler_ = DelayedSingleton<AbilityManagerService>::GetInstance()->handler_;
 }
 void AbilityRecordTest::TearDownTestCase(void)
 {
@@ -1094,7 +1096,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ProcessForegroundAbility_007, TestSi
     std::shared_ptr<StartOptions> startOptions = nullptr ;
     std::shared_ptr<AbilityRecord> callerAbility;
     uint32_t sceneFlag = 1;
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
     abilityRecord->isReady_ = true;
     abilityRecord->currentState_ = AbilityState::FOREGROUND;
     abilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility, sceneFlag);
@@ -1232,7 +1234,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_0
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     std::shared_ptr<AbilityRecord> callerAbility = GetAbilityRecord();
     AbilityRequest abilityRequest;
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
+    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
     abilityRecord->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
 }
 
@@ -1249,7 +1251,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_0
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     std::shared_ptr<AbilityRecord> callerAbility = nullptr;
     AbilityRequest abilityRequest;
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     abilityRecord->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
 }
 
@@ -1267,7 +1268,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_StartingWindowTask_001, TestSize.Lev
     bool isRecent = true;
     AbilityRequest abilityRequest;
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     abilityRecord->StartingWindowTask(isRecent, true, abilityRequest, startOptions);
     abilityRecord->StartingWindowTask(isRecent, false, abilityRequest, startOptions);
 }
@@ -1495,7 +1495,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_StartingWindowHot_001, TestSize.Level1
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     AbilityRequest abilityRequest;
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     abilityRecord->StartingWindowHot(startOptions, want, abilityRequest);
 }
 
@@ -1654,7 +1653,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_BackgroundAbility_002, TestSize.Level1
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     Closure task = []() {};
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
     abilityRecord->want_.SetParam(DEBUG_APP, false);
     abilityRecord->SetTerminatingState();
@@ -1674,7 +1672,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_BackgroundAbility_003, TestSize.Level1
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     Closure task = []() {};
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
     abilityRecord->want_.SetParam(DEBUG_APP, true);
     abilityRecord->SetTerminatingState();
