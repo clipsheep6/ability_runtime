@@ -43,6 +43,12 @@
         "type": "service"
       }
     ],
+    "metadata": [
+      {
+        "name": "ArkTSPartialUpdate",
+        "value": "false" 
+      }
+    ],
     "requestPermissions": [
       {
         "name": "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"

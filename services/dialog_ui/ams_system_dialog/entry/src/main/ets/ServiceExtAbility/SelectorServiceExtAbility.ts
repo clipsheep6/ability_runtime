@@ -16,6 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = "SelectorDialog_Service";
 
@@ -103,7 +104,11 @@ export default class SelectorServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+            if (deviceInfo.deviceType == "phone") {
+                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+            } else {
+                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+            }
             winNum++;
         })
     }
