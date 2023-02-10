@@ -29,11 +29,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-const bool REGISTER_RESULT =
-    SystemAbility::MakeAndRegisterAbility(DelayedSingleton<DataObsMgrService>::GetInstance().get());
-
 DataObsMgrService::DataObsMgrService()
-    : SystemAbility(DATAOBS_MGR_SERVICE_SA_ID, true),
+    : SystemAbility(1000, true),
       eventLoop_(nullptr),
       handler_(nullptr),
       state_(DataObsServiceRunningState::STATE_NOT_START)
