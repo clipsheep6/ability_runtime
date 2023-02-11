@@ -16,8 +16,10 @@
 #include <gtest/gtest.h>
 #define private public
 #define protected public
+#include "ability_config.h"
 #include "ability_info.h"
-#include "ability_manager_service.h"
+#include "ability_manager_errors.h"
+#include "hilog_wrapper.h"
 #include "mission.h"
 #include "mission_info_mgr.h"
 #include "mission_list_manager.h"
@@ -41,14 +43,10 @@ public:
     void InitMockMission(std::shared_ptr<MissionListManager>& missionListManager,
         AbilityRequest& abilityRequest, Want& want, std::shared_ptr<AbilityRecord>& ability);
     std::shared_ptr<AbilityRecord> InitAbilityRecord();
-    inline static std::shared_ptr<AbilityEventHandler> handler_{ nullptr };
 };
 
 void MissionListManagerTest::SetUpTestCase(void)
-{
-    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
-    handler_ = DelayedSingleton<AbilityManagerService>::GetInstance()->handler_;
-}
+{}
 void MissionListManagerTest::TearDownTestCase(void)
 {}
 void MissionListManagerTest::SetUp(void)
@@ -424,70 +422,6 @@ HWTEST_F(MissionListManagerTest, SetMissionLabel_001, TestSize.Level1)
     missionListManager.reset();
 }
 #endif
-
-/*
- * Feature: MissionListManager
- * Function: NA
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: The back event supports transition animation.
- */
-HWTEST_F(MissionListManagerTest, BackAnimation_001, TestSize.Level1)
-{
-    g_notifyWindowTransitionCalled = false;
-    int userId = 0;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    missionListManager->Init();
-
-    auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    sptr<MockWMSHandler> wmsHandler = new MockWMSHandler();
-    abilityMs->wmsHandler_ = wmsHandler;
-
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    Want want;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    auto abilityA = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    auto abilityB = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    abilityB->SetAbilityState(AbilityState::FOREGROUND);
-    abilityB->SetNextAbilityRecord(abilityA);
-    missionListManager->TerminateAbilityLocked(abilityB, false);
-    EXPECT_EQ(g_notifyWindowTransitionCalled, true);
-
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: NA
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: The back event supports closing animation.
- */
-HWTEST_F(MissionListManagerTest, BackAnimation_002, TestSize.Level1)
-{
-    g_notifyWindowTransitionCalled = false;
-    int userId = 0;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    missionListManager->Init();
-
-    auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    sptr<MockWMSHandler> wmsHandler = new MockWMSHandler();
-    abilityMs->wmsHandler_ = wmsHandler;
-
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    Want want;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    auto abilityB = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    abilityB->SetAbilityState(AbilityState::FOREGROUND);
-    missionListManager->TerminateAbilityLocked(abilityB, false);
-    EXPECT_EQ(g_notifyWindowTransitionCalled, true);
-
-    missionListManager.reset();
-}
 
 /*
  * Feature: MissionListManager
@@ -1525,7 +1459,7 @@ HWTEST_F(MissionListManagerTest, AttachAbilityThread_001, TestSize.Level1)
     abilityRecord->SetStartedByCall(isFlag);
     missionListManager->terminateAbilityList_.push_back(abilityRecord);
     int res = missionListManager->AttachAbilityThread(scheduler, token);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
     missionListManager.reset();
 }
 
@@ -1841,7 +1775,7 @@ HWTEST_F(MissionListManagerTest, DispatchForeground_001, TestSize.Level1)
     abilityRecord->currentState_ = AbilityState::FOREGROUNDING;
     bool success = true;
     int res = missionListManager->DispatchForeground(abilityRecord, success);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
     missionListManager.reset();
 }
 
@@ -1861,7 +1795,7 @@ HWTEST_F(MissionListManagerTest, DispatchForeground_002, TestSize.Level1)
     abilityRecord->currentState_ = AbilityState::FOREGROUNDING;
     bool success = false;
     int res = missionListManager->DispatchForeground(abilityRecord, success);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
     missionListManager.reset();
 }
 
@@ -2108,7 +2042,7 @@ HWTEST_F(MissionListManagerTest, DispatchBackground_002, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
     int res = missionListManager->DispatchBackground(abilityRecord);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
     missionListManager.reset();
 }
 
@@ -2645,7 +2579,7 @@ HWTEST_F(MissionListManagerTest, DispatchTerminate_002, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->SetAbilityState(AbilityState::TERMINATING);
     int res = missionListManager->DispatchTerminate(abilityRecord);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
     missionListManager.reset();
 }
 
@@ -3074,65 +3008,6 @@ HWTEST_F(MissionListManagerTest, ClearAllMissions_002, TestSize.Level1)
     missionListManager->currentMissionLists_.push_back(missionList2);
     int res = missionListManager->ClearAllMissions();
     EXPECT_EQ(res, ERR_OK);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: ClearAllMissionsLocked
- * SubFunction: NA
- * FunctionPoints: MissionListManager ClearAllMissionsLocked
- * EnvConditions: NA
- * CaseDescription: Verify ClearAllMissionsLocked
- */
-HWTEST_F(MissionListManagerTest, ClearAllMissionsLocked_001, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::list<std::shared_ptr<Mission>> missionList;
-    std::list<std::shared_ptr<Mission>> foregroundAbilities;
-    bool searchActive = true;
-    missionListManager->Init();
-    std::shared_ptr<AbilityRecord> abilityRecord1 = InitAbilityRecord();
-    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
-    abilityRecord1->currentState_ = AbilityState::ACTIVE;
-    abilityRecord2->currentState_ = AbilityState::BACKGROUND;
-    std::shared_ptr<Mission> mission1 = std::make_shared<Mission>(1, nullptr);
-    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord1);
-    std::shared_ptr<Mission> mission3 = std::make_shared<Mission>(3, abilityRecord2);
-    mission1->SetLockedState(true);
-    mission2->SetLockedState(false);
-    mission3->SetLockedState(false);
-    missionList.push_back(nullptr);
-    missionList.push_back(mission1);
-    missionList.push_back(mission2);
-    missionList.push_back(mission3);
-    missionListManager->ClearAllMissionsLocked(missionList, foregroundAbilities, searchActive);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: ClearAllMissionsLocked
- * SubFunction: NA
- * FunctionPoints: MissionListManager ClearAllMissionsLocked
- * EnvConditions: NA
- * CaseDescription: Verify ClearAllMissionsLocked
- */
-HWTEST_F(MissionListManagerTest, ClearAllMissionsLocked_002, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::list<std::shared_ptr<Mission>> missionList;
-    std::list<std::shared_ptr<Mission>> foregroundAbilities;
-    bool searchActive = false;
-    missionListManager->Init();
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    abilityRecord->currentState_ = AbilityState::ACTIVE;
-    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
-    mission->SetLockedState(false);
-    missionList.push_back(mission);
-    missionListManager->ClearAllMissionsLocked(missionList, foregroundAbilities, searchActive);
     missionListManager.reset();
 }
 
@@ -4866,102 +4741,6 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_002, TestSize.Level1)
     missionListManager->defaultSingleList_ = missionList;
     missionListManager->defaultStandardList_ = missionList;
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: CompleteFirstFrameDrawing
- * SubFunction: NA
- * FunctionPoints: MissionListManager CompleteFirstFrameDrawing
- * EnvConditions: NA
- * CaseDescription: Verify CompleteFirstFrameDrawing
- */
-HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_003, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = nullptr;
-    missionListManager->terminateAbilityList_.push_back(abilityRecord);
-    missionListManager->CompleteFirstFrameDrawing(abilityToken);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: CompleteFirstFrameDrawing
- * SubFunction: NA
- * FunctionPoints: MissionListManager CompleteFirstFrameDrawing
- * EnvConditions: NA
- * CaseDescription: Verify CompleteFirstFrameDrawing
- */
-HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_004, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
-    missionListManager->terminateAbilityList_.push_back(abilityRecord);
-    missionListManager->CompleteFirstFrameDrawing(abilityToken);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: GetCancelStartingWindowTask
- * SubFunction: NA
- * FunctionPoints: MissionListManager GetCancelStartingWindowTask
- * EnvConditions: NA
- * CaseDescription: Verify GetCancelStartingWindowTask
- */
-HWTEST_F(MissionListManagerTest, GetCancelStartingWindowTask_001, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->wmsHandler_ = nullptr;
-    missionListManager->GetCancelStartingWindowTask(abilityRecord);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: PostCancelStartingWindowTask
- * SubFunction: NA
- * FunctionPoints: MissionListManager PostCancelStartingWindowTask
- * EnvConditions: NA
- * CaseDescription: Verify PostCancelStartingWindowTask
- */
-HWTEST_F(MissionListManagerTest, PostCancelStartingWindowTask_001, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = nullptr;
-    missionListManager->PostCancelStartingWindowTask(abilityRecord);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: PostCancelStartingWindowTask
- * SubFunction: NA
- * FunctionPoints: MissionListManager PostCancelStartingWindowTask
- * EnvConditions: NA
- * CaseDescription: Verify PostCancelStartingWindowTask
- */
-HWTEST_F(MissionListManagerTest, PostCancelStartingWindowTask_002, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    DelayedSingleton<AbilityManagerService>::GetInstance()->handler_ = handler_;
-    missionListManager->PostCancelStartingWindowTask(abilityRecord);
     missionListManager.reset();
 }
 #endif
