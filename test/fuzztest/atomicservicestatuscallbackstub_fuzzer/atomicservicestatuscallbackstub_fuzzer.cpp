@@ -28,7 +28,7 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.IAtomicServiceStatusCallback";
+const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.IAtomicServiceStatusCallback";
 }
 
 class AtomicServiceStatusCallbackStubFuzzTest : public AtomicServiceStatusCallbackStub {
