@@ -35,10 +35,12 @@ constexpr int32_t INVALID_PARAM = -2;
 #endif
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 #ifdef ENABLE_ERRCODE
+constexpr int32_t INDEX_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+#else
+constexpr size_t ARGC_ONE = 1;
 #endif
 
 class JsErrorManager final {
@@ -100,7 +102,11 @@ private:
             observer_ = std::make_shared<JsErrorObserver>(engine);
             AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);
         }
+#ifdef ENABLE_ERRCODE
+        observer_->AddJsObserverObject(observerId, info.argv[INDEX_ONE]);
+#else
         observer_->AddJsObserverObject(observerId, info.argv[INDEX_ZERO]);
+#endif
         return engine.CreateNumber(observerId);
     }
 
@@ -167,7 +173,11 @@ private:
                 }
             };
 
+#ifdef ENABLE_ERRCODE
+        NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
+#else
         NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
+#endif
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSErrorManager::OnUnregisterErrorObserver",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
