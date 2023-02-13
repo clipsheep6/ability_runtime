@@ -42,10 +42,10 @@ public:
     virtual Rect GetRequestRect() const {return g_Rect;}
     virtual WindowType GetType() const {return WindowType::APP_WINDOW_BASE;}
     virtual WindowMode GetMode() const {return WindowMode::WINDOW_MODE_UNDEFINED;}
-    virtual float GetAlpha() const {return NULL;}
+    virtual float GetAlpha() const {return 0;}
     virtual const std::string& GetWindowName() const {return "";}
-    virtual uint32_t GetWindowId() const {return NULL;}
-    virtual uint32_t GetWindowFlags() const {return NULL;}
+    virtual uint32_t GetWindowId() const {return 0;}
+    virtual uint32_t GetWindowFlags() const {return 0;}
     virtual WindowState GetWindowState() const {return WindowState::STATE_INITIAL;}
     virtual WMError SetFocusable(bool isFocusable) {return WMError::WM_OK;}
     virtual bool GetFocusable() const {return false;}
