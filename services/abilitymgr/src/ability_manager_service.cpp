@@ -111,12 +111,6 @@ const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
 const std::string BUNDLE_NAME_PHOTO = "com.ohos.photos";
 const std::string BUNDLE_NAME_SCREENSHOT = "com.huawei.ohos.screenshot";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
-const std::string BUNDLE_NAME_FREEINSTALL_TEST = "com.example.qianyiyingyong.hmservice";
-const std::string BUNDLE_NAME_FREEINSTALL_SEC_TEST = "com.open.harmony.startAbility";
-const std::string BUNDLE_NAME_USERS_SYSTEM_TEST = "com.acts.actsinterfacemultiuserstest";
-const std::string BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST = "com.acts.actsinterfacemultiusersthirdtest";
-const std::string BUNDLE_NAME_MUTIUSER_TEST = "com.acts.actsinterfacemultiusersextensiontest";
-const std::string BUNDLE_NAME_PER_THRID_TEST = "com.example.actsabilitypermissionthirdtest";
 const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
 const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
 
@@ -127,12 +121,6 @@ const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVI
                                                                 BUNDLE_NAME_PHOTO,
                                                                 BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
-                                                                BUNDLE_NAME_FREEINSTALL_TEST,
-                                                                BUNDLE_NAME_FREEINSTALL_SEC_TEST,
-                                                                BUNDLE_NAME_USERS_SYSTEM_TEST,
-                                                                BUNDLE_NAME_USERS_THIRD_SYSTEM_TEST,
-                                                                BUNDLE_NAME_MUTIUSER_TEST,
-                                                                BUNDLE_NAME_PER_THRID_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER2_TEST };
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_TELE_DATA,
