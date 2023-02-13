@@ -923,13 +923,6 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
 {
     HILOG_DEBUG("CreateJsApplicationContext start");
 
-    std::shared_ptr<NativeReference> applicationContextObj =
-        ApplicationContextManager::GetApplicationContextManager().GetGlobalObject();
-    if (applicationContextObj != nullptr) {
-        NativeValue* objValue = applicationContextObj->Get();
-        return objValue;
-    }
-
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {

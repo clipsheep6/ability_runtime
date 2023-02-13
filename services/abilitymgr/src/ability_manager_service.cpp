@@ -74,6 +74,8 @@
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
 #include "container_manager_client.h"
 
+#include "ability_bundle_event_callback.h"
+
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
@@ -324,6 +326,18 @@ bool AbilityManagerService::Init()
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
+
+    // Register abilityBundleEventCallback to receive hap updates
+    HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
+    sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
+        new (std::nothrow) AbilityBundleEventCallback(handler_);
+    CHECK_POINTER_RETURN_BOOL(abilityBundleEventCallback_);
+    auto bms = GetBundleManager();
+    CHECK_POINTER_RETURN_BOOL(bms);
+    bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
+    if (!re) {
+        HILOG_ERROR("RegisterBundleEventCallback failed!");
+    }
 
     HILOG_INFO("Init success.");
     return true;

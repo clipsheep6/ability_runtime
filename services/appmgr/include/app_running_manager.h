@@ -146,6 +146,16 @@ public:
     std::shared_ptr<AppRunningRecord> GetAppRunningRecord(const int64_t eventId);
     void TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag,
         std::shared_ptr<AppMgrServiceInner> appMgrServiceInner);
+
+    /**
+     *
+     * @brief update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     */
+    int32_t ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
+
     bool ProcessExitByBundleNameAndUid(const std::string &bundleName, const int uid, std::list<pid_t> &pids);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 

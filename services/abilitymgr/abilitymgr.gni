@@ -92,6 +92,9 @@ abilityms_files = [
 
   "src/background_task_observer.cpp",
   "src/resident_process_manager.cpp",
+
+  "src/ability_bundle_event_callback.cpp",
+  "src/ability_event_util.cpp",
 ]
 
 if (ability_runtime_graphics) {

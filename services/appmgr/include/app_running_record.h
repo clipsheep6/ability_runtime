@@ -302,6 +302,15 @@ public:
     void AddAbilityStageDone();
 
     /**
+     * update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     * @return
+     */
+    void UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
+
+    /**
      * LaunchAbility, Notify application to launch ability.
      *
      * @param ability, the ability record.

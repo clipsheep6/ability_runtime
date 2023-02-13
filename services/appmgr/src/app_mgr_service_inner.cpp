@@ -477,6 +477,48 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     HILOG_INFO("application is terminated");
 }
 
+int32_t AppMgrServiceInner::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+
+    int32_t result = VerifyProcessPermission();
+    if (result != ERR_OK) {
+        HILOG_ERROR("Permission verification failed");
+        return result;
+    }
+
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ fail");
+        return ERR_NO_INIT;
+    }
+
+    auto bundleMgr_ = remoteClientManager_->GetBundleManager();
+    if (bundleMgr_ == nullptr) {
+        HILOG_ERROR("GetBundleManager fail");
+        return ERR_NO_INIT;
+    }
+    auto userId = GetUserIdByUid(uid);
+    ApplicationInfo appInfo;
+    HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetApplicationInfo");
+    bool bundleMgrResult = bundleMgr_->GetApplicationInfo(bundleName,
+        ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo);
+    if (!bundleMgrResult) {
+        HILOG_ERROR("GetApplicationInfo is fail");
+        return ERR_INVALID_OPERATION;
+    }
+
+    HILOG_DEBUG("uid value is %{public}d", uid);
+    result = appRunningManager_->ProcessUpdateApplicationInfoInstalled(appInfo);
+    if (result != ERR_OK) {
+        HILOG_INFO("The process corresponding to the package name did not start");
+    }
+
+    return result;
+}
+
 int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
 {
     if (!appRunningManager_) {
