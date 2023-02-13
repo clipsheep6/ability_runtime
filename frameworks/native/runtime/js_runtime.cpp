@@ -614,7 +614,12 @@ bool JsRuntime::Initialize(const Options& options)
     }
     bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
     if (!options.preload) {
-        InitTimerModule(*nativeEngine_, *globalObj);
+        if (options.isUnique) {
+            HILOG_INFO("Not supported TimerModule when form render");
+        } else {
+            InitTimerModule(*nativeEngine_, *globalObj);
+        }
+
         InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName, options.uid);
     }
 
