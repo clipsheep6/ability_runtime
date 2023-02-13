@@ -82,6 +82,7 @@ JsTestRunner::JsTestRunner(
         hapPath_ = bundleInfo.hapModuleInfos.back().hapPath;
     }
     HILOG_DEBUG("JsTestRunner hapPath is %{public}s", hapPath_.c_str());
+    moduleName.append("::").append("TestRunner");
     jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
         bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
 }
