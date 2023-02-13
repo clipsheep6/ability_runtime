@@ -50,7 +50,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(const AbilityRequest &abilityRequest);
+    int StartAbility(AbilityRequest &abilityRequest);
 
     /**
      * MinimizeAbility, minimize the special ability.

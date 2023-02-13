@@ -549,42 +549,6 @@ HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: GrantUriPermission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GrantUriPermission
- */
-HWTEST_F(AbilityManagerServiceTest, GrantUriPermission_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest GrantUriPermission_001 start");
-    Want want;
-    want.SetFlags(4);
-    abilityMs_->GrantUriPermission(want, 100);
-
-    want.SetFlags(1);
-    abilityMs_->GrantUriPermission(want, 100);
-    HILOG_INFO("AbilityManagerServiceTest GrantUriPermission_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GrantUriPermission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GrantUriPermission
- */
-HWTEST_F(AbilityManagerServiceTest, GrantUriPermission_002, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest GrantUriPermission_002 start");
-    Want want;
-    want.SetFlags(4);
-    abilityMs_->GrantUriPermission(want, 100, 1);
-
-    want.SetFlags(1);
-    abilityMs_->GrantUriPermission(want, 100, 1);
-    HILOG_INFO("AbilityManagerServiceTest GrantUriPermission_002 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService TerminateAbility
@@ -2780,25 +2744,6 @@ HWTEST_F(AbilityManagerServiceTest, IsNeedTimeoutForTest_001, TestSize.Level1)
     EXPECT_TRUE(abilityMs_->IsNeedTimeoutForTest("abilityName", "state"));
     abilityMs_->timeoutMap_.clear();
     HILOG_INFO("AbilityManagerServiceTest IsNeedTimeoutForTest_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: VerifyUriPermission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService VerifyUriPermission
- */
-HWTEST_F(AbilityManagerServiceTest, VerifyUriPermission_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest VerifyUriPermission_001 start");
-    AbilityRequest abilityRequest;
-    Want want;
-    abilityRequest.abilityInfo.extensionAbilityType = ExtensionAbilityType::SERVICE;
-    EXPECT_TRUE(abilityMs_->VerifyUriPermission(abilityRequest, want));
-
-    abilityRequest.abilityInfo.extensionAbilityType = ExtensionAbilityType::FILESHARE;
-    EXPECT_FALSE(abilityMs_->VerifyUriPermission(abilityRequest, want));
-    HILOG_INFO("AbilityManagerServiceTest VerifyUriPermission_001 end");
 }
 
 /*

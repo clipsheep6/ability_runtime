@@ -203,6 +203,7 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
+    uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
@@ -824,6 +825,7 @@ public:
     void SetNeedBackToOtherMissionStack(bool isNeedBackToOtherMissionStack);
     std::shared_ptr<AbilityRecord> GetOtherMissionStackAbilityRecord() const;
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void RemoveUriPermission() const;
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
@@ -842,8 +844,8 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(const Want &want);
-    int GetCurrentAccountId();
+    void GrantUriPermission(const Want &want, int32_t userId, uint32_t targetTokenId) const;
+    int32_t GetCurrentAccountId() const;
 
     /**
      * add system ability caller record
@@ -856,6 +858,10 @@ private:
 
     void HandleDlpAttached();
     void HandleDlpClosed();
+    inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)
+    {
+        callerAccessTokenId_ = callerAccessTokenId;
+    }
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -979,6 +985,7 @@ private:
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 #endif
 
+    uint32_t callerAccessTokenId_ = -1;
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
 };

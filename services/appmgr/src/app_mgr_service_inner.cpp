@@ -1537,13 +1537,6 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     }
 
     FinishUserTestLocked("App died", -1, appRecord);
-
-    // clear uri permission
-    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    auto appInfo = appRecord->GetApplicationInfo();
-    if (appInfo && upmClient) {
-        upmClient->RemoveUriPermission(appInfo->accessTokenId);
-    }
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_REMOTE_DIED);
 
     for (const auto &item : appRecord->GetAbilities()) {

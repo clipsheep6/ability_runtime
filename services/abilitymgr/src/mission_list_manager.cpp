@@ -71,7 +71,7 @@ void MissionListManager::Init()
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
-int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
+int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (IsReachToLimitLocked(abilityRequest)) {
@@ -100,6 +100,7 @@ int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
     }
 
+    abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
     return StartAbility(currentTopAbility, callerAbility, abilityRequest);
 }
 
@@ -1293,6 +1294,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     // remove AbilityRecord out of stack
     RemoveTerminatingAbility(abilityRecord, flag);
     abilityRecord->SendResultToCallers();
+    abilityRecord->RemoveUriPermission();
 
     // 1. if the ability was foreground, first should find wether there is other ability foreground
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
@@ -1807,6 +1809,7 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         return;
     }
     HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    abilityRecord->RemoveUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
     if (abilityRecord->IsStartingWindow()) {

@@ -51,6 +51,7 @@ ohos_shared_library("libupms") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "storage_service:storage_manager_sa_proxy",
   ]
 
   subsystem_name = "ability"
@@ -79,6 +80,7 @@ ohos_shared_library("libupms_static") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "storage_service:storage_manager_sa_proxy",
   ]
 
   subsystem_name = "ability"

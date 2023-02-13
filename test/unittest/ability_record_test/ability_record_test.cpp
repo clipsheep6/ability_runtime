@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2101,8 +2101,100 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     Want want;
+    int32_t userId = 100;
+    uint32_t targetTokenId = 1;
+    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
     want.SetFlags(1);
-    abilityRecord->GrantUriPermission(want);
+    want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
+    int32_t userId = 100;
+    uint32_t targetTokenId = 1;
+    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
+    want.SetFlags(1);
+    want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
+    int32_t userId = 100;
+    uint32_t targetTokenId = 1;
+    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
+    want.SetFlags(1);
+    want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
+    int32_t userId = 100;
+    uint32_t targetTokenId = 1;
+    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t targetTokenId = 56;
+    abilityRecord->SetCallerAccessTokenId(targetTokenId);
+    Want want;
+    want.SetFlags(1);
+    want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
+    int32_t userId = 100;
+    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveUriPermission
+ * SubFunction: RemoveUriPermission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveUriPermission_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->RemoveUriPermission();
 }
 
 /*
