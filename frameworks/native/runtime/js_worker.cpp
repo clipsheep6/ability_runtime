@@ -106,9 +106,8 @@ struct AssetHelper final {
     using Extractor = AbilityBase::Extractor;
     using ExtractorUtil = AbilityBase::ExtractorUtil;
     using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, const std::string& bundleName,
-                         const int32_t& uid)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion), bundleName_(bundleName), uid_(uid)
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");
@@ -211,10 +210,6 @@ struct AssetHelper final {
 
     bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const
     {
-        if (bundleName_.empty()) {
-            HILOG_ERROR("BundleName is nullptr.");
-            return false;
-        }
         auto bundleMgrProxy = GetBundleMgrProxy();
         if (!bundleMgrProxy) {
             HILOG_ERROR("bundle mgr proxy is nullptr.");
@@ -222,15 +217,10 @@ struct AssetHelper final {
         }
 
         AppExecFwk::BundleInfo bundleInfo;
-        int32_t userId = uid_ / BASE_USER_RANGE;
-        if (userId < 0) {
-            HILOG_ERROR("get userId failed.");
-            return false;
-        }
-        auto getInfoResult = bundleMgrProxy->GetBundleInfoV9(bundleName_,
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, userId);
+        auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(
+                     static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
         if (getInfoResult != 0) {
-            HILOG_ERROR("GetBundleInfo failed through %{private}s.", bundleName_.c_str());
+            HILOG_ERROR("GetBundleInfoForSelf failed.");
             return false;
         }
         if (bundleInfo.hapModuleInfos.size() == 0) {
@@ -271,8 +261,6 @@ struct AssetHelper final {
 
     std::string codePath_;
     bool isDebugVersion_ = false;
-    std::string bundleName_;
-    int32_t uid_;
 };
 
 int32_t GetContainerId()
@@ -299,12 +287,11 @@ ContainerScope::UpdateCurrent(-1);
 }
 }
 
-void InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, const std::string& bundleName, const int32_t& uid)
+void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, bundleName, uid));
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);
