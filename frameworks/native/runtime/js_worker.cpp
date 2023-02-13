@@ -46,6 +46,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
+const std::string MODULE_NAME = "@module:";
+const std::string CACHE_DIRECTORY = "el2";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #else
@@ -121,17 +123,38 @@ struct AssetHelper final {
         }
 
         HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
-        size_t index = uri.find_last_of(".");
-        if (index == std::string::npos) {
-            HILOG_ERROR("Invalid uri");
-            return;
+        std::string realPath;
+        size_t index = 0;
+        // 1. start with @module:modulename
+        // 2. start with /modulename
+        // 3. start with modulename
+        if (uri.find(MODULE_NAME) == 0) {
+            HILOG_DEBUG("uri start with @module:");
+            index = uri.find_first_of(":");
+            realPath = uri.substr(index + 1);
+        } else if (uri.find_first_of("/") == 0) {
+            HILOG_DEBUG("uri start with /modulename");
+            realPath = uri.substr(1);
+        } else {
+            HILOG_DEBUG("uri start with modulename");
+            realPath = uri;
         }
 
-        std::string filePath = uri.substr(0, index) + ".abc";
+        index = realPath.find_last_of(".");
+        std::string filePath;
+        // 1. end with file name
+        // 2. end with file name and file type
+        if (index == std::string::npos) {
+            HILOG_DEBUG("uri end without file type");
+            filePath = realPath + ".abc";
+        } else {
+            HILOG_DEBUG("uri end with file type");
+            filePath = realPath.substr(0, index) + ".abc";
+        }
+
         ami = codePath_ + filePath;
-        HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
-        std::string flag = "el2";
-        if (ami.find(flag) != std::string::npos) {
+        HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
+        if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
             if (!ReadAmiData(ami, content)) {
                 HILOG_ERROR("Get asset content by ami failed.");
             }
@@ -155,7 +178,7 @@ struct AssetHelper final {
             return nullptr;
         }
 
-        HILOG_INFO("get bundle manager proxy success.");
+        HILOG_DEBUG("get bundle manager proxy success.");
         return iface_cast<BundleMgrProxy>(remoteObject);
     }
 
@@ -188,16 +211,6 @@ struct AssetHelper final {
 
     bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const
     {
-        bool newCreate = false;
-        size_t fileLen = 0;
-        size_t pos = 0;
-        std::string fileSrc = filePath;
-        while (pos == 0) {
-            pos = fileSrc.find('/');
-            if (pos == 0) {
-                fileSrc = fileSrc.substr(1);
-            }
-        }
         if (bundleName_.empty()) {
             HILOG_ERROR("BundleName is nullptr.");
             return false;
@@ -225,13 +238,15 @@ struct AssetHelper final {
             return false;
         }
         std::string newHapPath;
+        size_t pos = filePath.find('/');
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.moduleName == fileSrc.substr(0, pos)) {
+            if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
                 newHapPath = hapModuleInfo.hapPath;
                 break;
             }
         }
 
+        bool newCreate = false;
         std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
         std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
         if (extractor == nullptr) {
@@ -239,8 +254,9 @@ struct AssetHelper final {
             return false;
         }
         std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-        std::string realfilePath = fileSrc.substr(pos + 1);
-        HILOG_INFO("Get asset, realfilePath: %{private}s", realfilePath.c_str());
+        std::string realfilePath = filePath.substr(pos + 1);
+        size_t fileLen = 0;
+        HILOG_DEBUG("Get asset, realfilePath: %{private}s", realfilePath.c_str());
         if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
             HILOG_ERROR("get mergeAbc fileBuffer failed");
             return false;
