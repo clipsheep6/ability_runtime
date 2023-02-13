@@ -426,6 +426,8 @@ private:
 
     bool IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
+    void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
+
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
 
