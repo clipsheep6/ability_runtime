@@ -2212,7 +2212,7 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, uint32_
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
     auto&& uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
-    HILOG_DEBUG("GrantUriPermission uriVec size: %{public}u", uriVec.size());
+    HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     auto fromTokenId = IPCSkeleton::GetCallingTokenID();
