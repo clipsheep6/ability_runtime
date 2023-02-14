@@ -66,8 +66,8 @@ class Callee extends rpc.RemoteObject {
         this.startUpNewRule = flag;
     }
 
-    onRemoteRequest(code, data, reply, option) {
-        console.log("Callee onRemoteRequest code [" + typeof code + " " + code + "]");
+    onRemoteMessageRequest(code, data, reply, option) {
+        console.log("Callee onRemoteMessageRequest code [" + typeof code + " " + code + "]");
         if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
             console.log("Use new start up rule, check caller permission.");
             let accessManger = accessControl.createAtManager();
@@ -76,31 +76,31 @@ class Callee extends rpc.RemoteObject {
                 accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
             if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
                 console.log(
-                    "Callee onRemoteRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION");
+                    "Callee onRemoteMessageRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION");
                 return false;
             }
         }
 
         if (typeof code !== 'number' || typeof data !== 'object' ||
             typeof reply !== 'object' || typeof option !== 'object') {
-            console.log("Callee onRemoteRequest error, code is [" +
+            console.log("Callee onRemoteMessageRequest error, code is [" +
                 typeof code + "], data is [" + typeof data + "], reply is [" +
                 typeof reply + "], option is [" + typeof option + "]");
             return false;
         }
 
-        console.log("Callee onRemoteRequest code proc");
+        console.log("Callee onRemoteMessageRequest code proc");
         if (code == EVENT_CALL_NOTIFY) {
             if (this.callList == null) {
-                console.log("Callee onRemoteRequest error, this.callList is nullptr");
+                console.log("Callee onRemoteMessageRequest error, this.callList is nullptr");
                 return false;
             }
 
             let method = data.readString();
-            console.log("Callee onRemoteRequest method [" + method + "]");
+            console.log("Callee onRemoteMessageRequest method [" + method + "]");
             let func = this.callList.get(method);
             if (typeof func !== 'function') {
-                console.log("Callee onRemoteRequest error, get func is " + typeof func);
+                console.log("Callee onRemoteMessageRequest error, get func is " + typeof func);
                 return false;
             }
 
@@ -108,18 +108,18 @@ class Callee extends rpc.RemoteObject {
             if (typeof result === 'object' && result != null) {
                 reply.writeInt(REQUEST_SUCCESS);
                 reply.writeString(typeof result);
-                reply.writeSequenceable(result);
-                console.log("Callee onRemoteRequest code proc Packed data");
+                reply.writeParcelable(result);
+                console.log("Callee onRemoteMessageRequest code proc Packed data");
             } else {
                 reply.writeInt(REQUEST_FAILED);
                 reply.writeString(typeof result);
-                console.log("Callee onRemoteRequest error, retval is " + REQUEST_FAILED + ", type is " + typeof result);
+                console.log("Callee onRemoteMessageRequest error, retval is " + REQUEST_FAILED + ", type is " + typeof result);
             }
         } else {
-            console.log("Callee onRemoteRequest error, code is " + code);
+            console.log("Callee onRemoteMessageRequest error, code is " + code);
             return false;
         }
-        console.log("Callee onRemoteRequest code proc success");
+        console.log("Callee onRemoteMessageRequest code proc success");
         return true;
     }
 
