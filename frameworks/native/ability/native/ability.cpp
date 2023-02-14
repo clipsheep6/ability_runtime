@@ -877,22 +877,6 @@ void Ability::PostTask(std::function<void()> task, long delayTime)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterManager()
-{
-    if (abilityInfo_ != nullptr) {
-        if ((abilityInfo_->type == AbilityType::PAGE) && (continuationRegisterManager_ == nullptr)) {
-            std::weak_ptr<Context> context = shared_from_this();
-            std::shared_ptr<ContinuationRegisterManagerProxy> continuationRegisterManagerProxy =
-                std::make_shared<ContinuationRegisterManagerProxy>(context);
-            continuationRegisterManager_ = std::make_shared<ContinuationRegisterManager>();
-            continuationRegisterManager_->Init(continuationRegisterManagerProxy);
-        }
-    }
-    std::weak_ptr<IContinuationRegisterManager> continuationRegisterManager =
-        std::weak_ptr<IContinuationRegisterManager>(continuationRegisterManager_);
-    return continuationRegisterManager;
-}
-
 int32_t Ability::OnContinue(WantParams &wantParams)
 {
     return ContinuationManager::OnContinueResult::REJECT;
@@ -1617,19 +1601,6 @@ void Ability::OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
     HILOG_DEBUG("Ability::OnTouchEvent called");
 }
 
-void Ability::SetUIContent(const ComponentContainer &componentContainer)
-{}
-
-void Ability::SetUIContent(int layoutRes)
-{}
-
-void Ability::SetUIContent(
-    const ComponentContainer &componentContainer, std::shared_ptr<Context> &context, int typeFlag)
-{}
-
-void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag)
-{}
-
 void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
@@ -1652,11 +1623,6 @@ const sptr<Rosen::Window> Ability::GetWindow()
 std::shared_ptr<Rosen::WindowScene> Ability::GetScene()
 {
     return scene_;
-}
-
-int Ability::GetVolumeTypeAdjustedByKey()
-{
-    return 0;
 }
 
 bool Ability::HasWindowFocus()
@@ -1688,11 +1654,6 @@ void Ability::SetShowOnLockScreen(bool showOnLockScreen)
     } else {
         window->RemoveWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }
-}
-
-bool Ability::OnKeyPressAndHold(int keyCode, const std::shared_ptr<KeyEvent> &keyEvent)
-{
-    return false;
 }
 
 void Ability::OnLeaveForeground()
