@@ -85,6 +85,7 @@ JsTestRunner::JsTestRunner(
         return;
     }
 
+    moduleName.append("::").append("TestRunner");
     jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
         bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
 }
