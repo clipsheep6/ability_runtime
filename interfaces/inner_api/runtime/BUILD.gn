@@ -83,10 +83,12 @@ ohos_shared_library("runtime") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
