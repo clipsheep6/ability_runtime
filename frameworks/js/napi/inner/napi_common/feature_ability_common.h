@@ -166,7 +166,7 @@ struct DataAbilityHelperCB {
 
 struct DAHelperInsertCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     NativeRdb::ValuesBucket valueBucket;
     int result = 0;
@@ -193,7 +193,7 @@ struct ConnectAbilityCB {
 
 struct DAHelperNotifyChangeCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     int execResult;
 };
@@ -201,7 +201,7 @@ struct DAHelperNotifyChangeCB {
 class NAPIDataAbilityObserver;
 struct DAHelperOnOffCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     sptr<NAPIDataAbilityObserver> observer;
     std::string uri;
     int result = 0;
@@ -232,7 +232,7 @@ static inline bool NapiValueToArrayStringUtf8(napi_env env, napi_value param, st
 
 struct DAHelperGetTypeCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string result = "";
     int execResult;
@@ -240,7 +240,7 @@ struct DAHelperGetTypeCB {
 
 struct DAHelperGetFileTypesCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string mimeTypeFilter;
     std::vector<std::string> result;
@@ -249,14 +249,14 @@ struct DAHelperGetFileTypesCB {
 
 struct DAHelperNormalizeUriCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string result = "";
     int execResult;
 };
 struct DAHelperDenormalizeUriCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string result = "";
     int execResult;
@@ -264,7 +264,7 @@ struct DAHelperDenormalizeUriCB {
 
 struct DAHelperDeleteCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     NativeRdb::DataAbilityPredicates predicates;
     int result = 0;
@@ -273,7 +273,7 @@ struct DAHelperDeleteCB {
 
 struct DAHelperQueryCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::vector<std::string> columns;
     NativeRdb::DataAbilityPredicates predicates;
@@ -283,7 +283,7 @@ struct DAHelperQueryCB {
 
 struct DAHelperUpdateCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     NativeRdb::ValuesBucket valueBucket;
     NativeRdb::DataAbilityPredicates predicates;
@@ -293,7 +293,7 @@ struct DAHelperUpdateCB {
 
 struct DAHelperCallCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string method;
     std::string arg;
@@ -308,7 +308,7 @@ struct DAHelperErrorCB {
 };
 struct DAHelperBatchInsertCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::vector<NativeRdb::ValuesBucket> values;
     int result = 0;
@@ -316,24 +316,18 @@ struct DAHelperBatchInsertCB {
 };
 struct DAHelperOpenFileCB {
     CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::string uri;
     std::string mode;
     int result = 0;
     int execResult;
 };
 
-struct DAHelperReleaseCB {
-    CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
-    bool result = false;
-};
-
 struct DAHelperExecuteBatchCB {
     CBBase cbBase;
     std::string uri;
     std::vector<std::shared_ptr<DataAbilityOperation>> operations;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper;
     std::vector<std::shared_ptr<DataAbilityResult>> result;
 };
 }  // namespace AppExecFwk

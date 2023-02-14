@@ -145,25 +145,32 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
     dataAbilityHelper->SetCallFromJs();
     g_dataAbilityHelperList.emplace_back(dataAbilityHelper);
     HILOG_INFO("dataAbilityHelperList.size = %{public}zu", g_dataAbilityHelperList.size());
+    auto wrapper = new NAPIDataAbilityHelperWrapper(dataAbilityHelper);
 
     napi_wrap(
         env,
         thisVar,
-        dataAbilityHelper.get(),
+        wrapper,
         [](napi_env env, void *data, void *hint) {
-            DataAbilityHelper *objectInfo = static_cast<DataAbilityHelper *>(data);
+            auto objectInfo = static_cast<NAPIDataAbilityHelperWrapper *>(data);
+            if (objectInfo == nullptr) {
+                HILOG_WARN("DAHelper finalize_cb objectInfo is nullptr.");
+                return;
+            }
             HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
             for (auto iter = g_registerInstances.begin(); iter != g_registerInstances.end();) {
-                if (!NeedErase(iter, objectInfo)) {
+                if (!NeedErase(iter, objectInfo->GetDataAbilityHelper().lock())) {
                     iter = g_registerInstances.erase(iter);
                 }
             }
             HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
             g_dataAbilityHelperList.remove_if(
                 [objectInfo](const std::shared_ptr<DataAbilityHelper> &dataAbilityHelper) {
-                    return objectInfo == dataAbilityHelper.get();
+                    return objectInfo->GetDataAbilityHelper().lock() == dataAbilityHelper;
                 });
             HILOG_INFO("DAHelper finalize_cb dataAbilityHelperList.size = %{public}zu", g_dataAbilityHelperList.size());
+            delete objectInfo;
+            objectInfo = nullptr;
         },
         nullptr,
         nullptr);
@@ -240,11 +247,7 @@ napi_value InsertWrap(napi_env env, napi_callback_info info, DAHelperInsertCB *i
 
     insertCB->valueBucket.Clear();
     AnalysisValuesBucket(insertCB->valueBucket, env, args[PARAM1]);
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper", __func__);
-    insertCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, insertCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = InsertAsync(env, args, ARGS_TWO, insertCB);
@@ -373,11 +376,12 @@ void InsertExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_Insert, worker pool thread execute.");
     DAHelperInsertCB *insertCB = static_cast<DAHelperInsertCB *>(data);
-    if (insertCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = insertCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         insertCB->execResult = INVALID_PARAMETER;
         if (!insertCB->uri.empty()) {
             OHOS::Uri uri(insertCB->uri);
-            insertCB->result = insertCB->dataAbilityHelper->Insert(uri, insertCB->valueBucket);
+            insertCB->result = dataAbilityHelper->Insert(uri, insertCB->valueBucket);
             insertCB->execResult = NO_ERROR;
         }
     } else {
@@ -514,13 +518,8 @@ napi_value NotifyChangeWrap(napi_env env, napi_callback_info info, DAHelperNotif
     if (valuetype == napi_string) {
         notifyChangeCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
         HILOG_INFO("%{public}s,uri=%{public}s", __func__, notifyChangeCB->uri.c_str());
-    } else {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    notifyChangeCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, notifyChangeCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = NotifyChangeAsync(env, args, argcAsync, argcPromise, notifyChangeCB);
@@ -591,11 +590,12 @@ void NotifyChangeExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_NotifyChange, worker pool thread execute.");
     DAHelperNotifyChangeCB *notifyChangeCB = static_cast<DAHelperNotifyChangeCB *>(data);
-    if (notifyChangeCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = notifyChangeCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         notifyChangeCB->execResult = INVALID_PARAMETER;
         if (!notifyChangeCB->uri.empty()) {
             OHOS::Uri uri(notifyChangeCB->uri);
-            notifyChangeCB->dataAbilityHelper->NotifyChange(uri);
+            dataAbilityHelper->NotifyChange(uri);
             notifyChangeCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("%{public}s, notifyChangeCB uri is empty.", __func__);
@@ -721,11 +721,7 @@ napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *
         HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
         onCB->result = INVALID_PARAMETER;
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("Set DataAbilityHelper objectInfo");
-    onCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, onCB->dataAbilityHelper);
 
     ret = RegisterAsync(env, args, argcAsync, argcPromise, onCB);
     return ret;
@@ -787,10 +783,11 @@ void RegisterExecuteCB(napi_env env, void *data)
         return;
     }
 
-    if (onCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = onCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         if (onCB->result != INVALID_PARAMETER && !onCB->uri.empty() && onCB->cbBase.cbInfo.callback != nullptr) {
             OHOS::Uri uri(onCB->uri);
-            onCB->dataAbilityHelper->RegisterObserver(uri, onCB->observer);
+            dataAbilityHelper->RegisterObserver(uri, onCB->observer);
         } else {
             HILOG_ERROR("%{public}s, dataAbilityHelper uri is empty or callback is nullptr.", __func__);
         }
@@ -919,11 +916,7 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
             offCB->result = INVALID_PARAMETER;
         }
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("DataAbilityHelper objectInfo");
-    offCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, offCB->dataAbilityHelper);
 
     ret = UnRegisterSync(env, offCB);
     return ret;
@@ -947,7 +940,10 @@ napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
     for (auto &iter : offCB->NotifyList) {
         if (iter != nullptr && iter->observer != nullptr) {
             OHOS::Uri uri(iter->uri);
-            iter->dataAbilityHelper->UnregisterObserver(uri, iter->observer);
+            auto dataAbilityHelper = iter->dataAbilityHelper.lock();
+            if (dataAbilityHelper != nullptr) {
+                dataAbilityHelper->UnregisterObserver(uri, iter->observer);
+            }
             offCB->DestroyList.emplace_back(iter);
         }
     }
@@ -975,7 +971,7 @@ napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
 void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
 {
     HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.");
-    if (data == nullptr || data->dataAbilityHelper == nullptr) {
+    if (data == nullptr || data->dataAbilityHelper.lock() == nullptr) {
         HILOG_ERROR("NAPI_UnRegister, param is null.");
         return;
     }
@@ -1227,11 +1223,7 @@ napi_value GetTypeWrap(napi_env env, napi_callback_info info, DAHelperGetTypeCB 
     } else {
         HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper", __func__);
-    gettypeCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, gettypeCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = GetTypeAsync(env, args, ARGS_ONE, gettypeCB);
@@ -1304,11 +1296,12 @@ void GetTypeExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_GetType, worker pool thread execute.");
     DAHelperGetTypeCB *gettypeCB = static_cast<DAHelperGetTypeCB *>(data);
-    if (gettypeCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = gettypeCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         gettypeCB->execResult = INVALID_PARAMETER;
         if (!gettypeCB->uri.empty()) {
             OHOS::Uri uri(gettypeCB->uri);
-            gettypeCB->result = gettypeCB->dataAbilityHelper->GetType(uri);
+            gettypeCB->result = dataAbilityHelper->GetType(uri);
             gettypeCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("NAPI_GetType, dataAbilityHelper uri is empty.");
@@ -1409,11 +1402,7 @@ napi_value GetFileTypesWrap(napi_env env, napi_callback_info info, DAHelperGetFi
         getfiletypesCB->mimeTypeFilter = NapiValueToStringUtf8(env, args[PARAM1]);
         HILOG_INFO("%{public}s,mimeTypeFilter=%{public}s", __func__, getfiletypesCB->mimeTypeFilter.c_str());
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    getfiletypesCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, getfiletypesCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = GetFileTypesAsync(env, args, ARGS_TWO, getfiletypesCB);
@@ -1486,15 +1475,14 @@ void GetFileTypesExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_GetFileTypes, worker pool thread execute.");
     DAHelperGetFileTypesCB *getfiletypesCB = static_cast<DAHelperGetFileTypesCB *>(data);
-    if (getfiletypesCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = getfiletypesCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         getfiletypesCB->execResult = INVALID_PARAMETER;
         if (!getfiletypesCB->uri.empty()) {
             OHOS::Uri uri(getfiletypesCB->uri);
             HILOG_INFO("NAPI_GetFileTypes, uri:%{public}s", uri.ToString().c_str());
             HILOG_INFO("NAPI_GetFileTypes, mimeTypeFilter:%{public}s", getfiletypesCB->mimeTypeFilter.c_str());
-            getfiletypesCB->result = getfiletypesCB->dataAbilityHelper->GetFileTypes(
-                uri,
-                getfiletypesCB->mimeTypeFilter);
+            getfiletypesCB->result = dataAbilityHelper->GetFileTypes(uri, getfiletypesCB->mimeTypeFilter);
             getfiletypesCB->execResult = NO_ERROR;
         } else {
             HILOG_INFO("NAPI_GetFileTypes, dataAbilityHelper uri is empty.");
@@ -1611,11 +1599,7 @@ napi_value NormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperNorma
         normalizeuriCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
         HILOG_INFO("%{public}s,uri=%{public}s", __func__, normalizeuriCB->uri.c_str());
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    normalizeuriCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, normalizeuriCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = NormalizeUriAsync(env, args, ARGS_ONE, normalizeuriCB);
@@ -1689,11 +1673,12 @@ void NormalizeUriExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_NormalizeUri, worker pool thread execute.");
     DAHelperNormalizeUriCB *normalizeuriCB = static_cast<DAHelperNormalizeUriCB *>(data);
     Uri uriValue(normalizeuriCB->uri);
-    if (normalizeuriCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = normalizeuriCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         normalizeuriCB->execResult = INVALID_PARAMETER;
         if (!normalizeuriCB->uri.empty()) {
         OHOS::Uri uri(normalizeuriCB->uri);
-            uriValue = normalizeuriCB->dataAbilityHelper->NormalizeUri(uri);
+            uriValue = dataAbilityHelper->NormalizeUri(uri);
             normalizeuriCB->result = uriValue.ToString();
             normalizeuriCB->execResult = NO_ERROR;
         }
@@ -1788,11 +1773,7 @@ napi_value DenormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperDen
         denormalizeuriCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
         HILOG_INFO("%{public}s,uri=%{public}s", __func__, denormalizeuriCB->uri.c_str());
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    denormalizeuriCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, denormalizeuriCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = DenormalizeUriAsync(env, args, ARGS_ONE, denormalizeuriCB);
@@ -1866,11 +1847,12 @@ void DenormalizeUriExecuteCB(napi_env env, void *data)
     HILOG_INFO("NAPI_DenormalizeUri, worker pool thread execute.");
     DAHelperDenormalizeUriCB *denormalizeuriCB = static_cast<DAHelperDenormalizeUriCB *>(data);
     Uri uriValue(denormalizeuriCB->uri);
-    if (denormalizeuriCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = denormalizeuriCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         denormalizeuriCB->execResult = INVALID_PARAMETER;
         if (!denormalizeuriCB->uri.empty()) {
             OHOS::Uri uri(denormalizeuriCB->uri);
-            uriValue = denormalizeuriCB->dataAbilityHelper->DenormalizeUri(uri);
+            uriValue = dataAbilityHelper->DenormalizeUri(uri);
             denormalizeuriCB->result = uriValue.ToString();
             denormalizeuriCB->execResult = NO_ERROR;
         } else {
@@ -1992,10 +1974,7 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, DAHelperDeleteCB *d
     }
 
     UnwrapDataAbilityPredicates(deleteCB->predicates, env, args[PARAM1]);
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    deleteCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, deleteCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = DeleteAsync(env, args, ARGS_TWO, deleteCB);
@@ -2068,11 +2047,12 @@ void DeleteExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_Delete, worker pool thread execute.");
     DAHelperDeleteCB *deleteCB = static_cast<DAHelperDeleteCB *>(data);
-    if (deleteCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = deleteCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         deleteCB->execResult = INVALID_PARAMETER;
         if (!deleteCB->uri.empty()) {
             OHOS::Uri uri(deleteCB->uri);
-            deleteCB->result = deleteCB->dataAbilityHelper->Delete(uri, deleteCB->predicates);
+            deleteCB->result = dataAbilityHelper->Delete(uri, deleteCB->predicates);
             deleteCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("NAPI_Delete, dataAbilityHelper uri is empty");
@@ -2182,10 +2162,7 @@ napi_value UpdateWrap(napi_env env, napi_callback_info info, DAHelperUpdateCB *u
     updateCB->valueBucket.Clear();
     AnalysisValuesBucket(updateCB->valueBucket, env, args[PARAM1]);
     UnwrapDataAbilityPredicates(updateCB->predicates, env, args[PARAM2]);
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    updateCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, updateCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = UpdateAsync(env, args, ARGS_THREE, updateCB);
@@ -2258,11 +2235,12 @@ void UpdateExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_Update, worker pool thread execute.");
     DAHelperUpdateCB *updateCB = static_cast<DAHelperUpdateCB *>(data);
-    if (updateCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = updateCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         updateCB->execResult = INVALID_PARAMETER;
         if (!updateCB->uri.empty()) {
             OHOS::Uri uri(updateCB->uri);
-            updateCB->result = updateCB->dataAbilityHelper->Update(uri, updateCB->valueBucket, updateCB->predicates);
+            updateCB->result = dataAbilityHelper->Update(uri, updateCB->valueBucket, updateCB->predicates);
             updateCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("NAPI_Update, dataAbilityHelper uri is empty");
@@ -2436,11 +2414,12 @@ void CallExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("CallExecuteCB, worker pool thread execute.");
     DAHelperCallCB *callCB = static_cast<DAHelperCallCB *>(data);
-    if (callCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = callCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         callCB->execResult = INVALID_PARAMETER;
         if (!callCB->uri.empty()) {
             OHOS::Uri uri(callCB->uri);
-            callCB->result = callCB->dataAbilityHelper->Call(uri, callCB->method, callCB->arg, callCB->pacMap);
+            callCB->result = dataAbilityHelper->Call(uri, callCB->method, callCB->arg, callCB->pacMap);
             callCB->execResult = NO_ERROR;
         }
     } else {
@@ -2677,9 +2656,7 @@ napi_value CallWrap(napi_env env, napi_callback_info info, DAHelperCallCB *callC
     if (valuetype == napi_object) {
         AnalysisPacMap(callCB->pacMap, env, args[PARAM3]);
     }
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    callCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, callCB->dataAbilityHelper);
     if (!isPromise) {
         ret = CallAsync(env, args, ARGS_TWO, callCB);
     } else {
@@ -2788,11 +2765,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, DAHelperOpenFileC
         openFileCB->mode = NapiValueToStringUtf8(env, args[PARAM1]);
         HILOG_INFO("%{public}s,mode=%{public}s", __func__, openFileCB->mode.c_str());
     }
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    openFileCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, openFileCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = OpenFileAsync(env, args, ARGS_TWO, openFileCB);
@@ -2865,11 +2838,12 @@ void OpenFileExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_OpenFile, worker pool thread execute.");
     DAHelperOpenFileCB *OpenFileCB = static_cast<DAHelperOpenFileCB *>(data);
-    if (OpenFileCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = OpenFileCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         OpenFileCB->execResult = INVALID_PARAMETER;
         if (!OpenFileCB->uri.empty()) {
             OHOS::Uri uri(OpenFileCB->uri);
-            OpenFileCB->result = OpenFileCB->dataAbilityHelper->OpenFile(uri, OpenFileCB->mode);
+            OpenFileCB->result = dataAbilityHelper->OpenFile(uri, OpenFileCB->mode);
             OpenFileCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("NAPI_OpenFile, dataAbilityHelper uri is empty");
@@ -3019,11 +2993,7 @@ napi_value BatchInsertWrap(napi_env env, napi_callback_info info, DAHelperBatchI
     }
 
     batchInsertCB->values = NapiValueObject(env, args[PARAM1]);
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    batchInsertCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, batchInsertCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = BatchInsertAsync(env, args, ARGS_TWO, batchInsertCB);
@@ -3097,11 +3067,12 @@ void BatchInsertExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_BatchInsert, worker pool thread execute.");
     DAHelperBatchInsertCB *batchInsertCB = static_cast<DAHelperBatchInsertCB *>(data);
-    if (batchInsertCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = batchInsertCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         batchInsertCB->execResult = INVALID_PARAMETER;
         if (!batchInsertCB->uri.empty()) {
             OHOS::Uri uri(batchInsertCB->uri);
-            batchInsertCB->result = batchInsertCB->dataAbilityHelper->BatchInsert(uri, batchInsertCB->values);
+            batchInsertCB->result = dataAbilityHelper->BatchInsert(uri, batchInsertCB->values);
             batchInsertCB->execResult = NO_ERROR;
         } else {
             HILOG_ERROR("NAPI_BatchInsert, dataAbilityHelper uri is empyt");
@@ -3219,10 +3190,7 @@ napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *que
     }
 
     UnwrapDataAbilityPredicates(queryCB->predicates, env, args[PARAM2]);
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    queryCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, queryCB->dataAbilityHelper);
 
     if (argcAsync > argcPromise) {
         ret = QuerySync(env, args, ARGS_THREE, queryCB);
@@ -3247,11 +3215,12 @@ napi_value QuerySync(napi_env env, napi_value *args, const size_t argCallback, D
         NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &queryCB->cbBase.cbInfo.callback));
     }
 
-    if (queryCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = queryCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         queryCB->execResult = INVALID_PARAMETER;
         if (!queryCB->uri.empty()) {
             OHOS::Uri uri(queryCB->uri);
-            auto resultset = queryCB->dataAbilityHelper->Query(uri, queryCB->columns, queryCB->predicates);
+            auto resultset = dataAbilityHelper->Query(uri, queryCB->columns, queryCB->predicates);
             if (resultset != nullptr) {
                 queryCB->result = resultset;
                 queryCB->execResult = NO_ERROR;
@@ -3289,10 +3258,11 @@ napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB)
         return nullptr;
     }
 
-    if (queryCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = queryCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         if (!queryCB->uri.empty()) {
             OHOS::Uri uri(queryCB->uri);
-            auto resultset = queryCB->dataAbilityHelper->Query(uri, queryCB->columns, queryCB->predicates);
+            auto resultset = dataAbilityHelper->Query(uri, queryCB->columns, queryCB->predicates);
             if (resultset != nullptr) {
                 queryCB->result = resultset;
             }
@@ -3403,11 +3373,8 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
     UnwrapArrayOperationFromJS(env, info, args[PARAM1], operations);
     HILOG_INFO("%{public}s,operations size=%{public}zu", __func__, operations.size());
     executeBatchCB->operations = operations;
-
-    DataAbilityHelper *objectInfo = nullptr;
-    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    HILOG_INFO("%{public}s,DataAbilityHelper objectInfo", __func__);
-    executeBatchCB->dataAbilityHelper = objectInfo;
+    GetDataAbilityHelper(env, thisVar, executeBatchCB->dataAbilityHelper);
+    
 
     if (argcAsync > argcPromise) {
         ret = ExecuteBatchAsync(env, args, argcAsync, argcPromise, executeBatchCB);
@@ -3481,9 +3448,10 @@ void ExecuteBatchExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s,NAPI_ExecuteBatch, worker pool thread execute start.", __func__);
     DAHelperExecuteBatchCB *executeBatchCB = static_cast<DAHelperExecuteBatchCB *>(data);
-    if (executeBatchCB->dataAbilityHelper != nullptr) {
+    auto dataAbilityHelper = executeBatchCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         OHOS::Uri uri(executeBatchCB->uri);
-        executeBatchCB->result = executeBatchCB->dataAbilityHelper->ExecuteBatch(uri, executeBatchCB->operations);
+        executeBatchCB->result = dataAbilityHelper->ExecuteBatch(uri, executeBatchCB->operations);
         HILOG_INFO("%{public}s, dataAbilityHelper is not nullptr. %{public}zu",
             __func__, executeBatchCB->result.size());
     }
@@ -3557,26 +3525,36 @@ void GetDataAbilityResultForResult(
     HILOG_INFO("%{public}s, NAPI_ExecuteBatch, getDataAbilityResultForResult end.", __func__);
 }
 
+void GetDataAbilityHelper(napi_env env, napi_value thisVar, std::weak_ptr<DataAbilityHelper>& dataAbilityHelper)
+{
+    NAPIDataAbilityHelperWrapper* wrapper = nullptr;
+    napi_unwrap(env, thisVar, reinterpret_cast<void **>(&wrapper));
+    if (wrapper != nullptr) {
+        HILOG_INFO("%{public}s, wrapper is valid.", __func__);
+        dataAbilityHelper = wrapper->GetDataAbilityHelper();
+    }
+}
+
 void EraseMemberProperties(DAHelperOnOffCB* onCB)
 {
     if (onCB->observer) {
         HILOG_DEBUG("EraseMemberProperties, call ReleaseJSCallback");
         onCB->observer->ReleaseJSCallback();
-        onCB->observer = nullptr;
     }
-    if (onCB->dataAbilityHelper) {
+    auto dataAbilityHelper = onCB->dataAbilityHelper.lock();
+    if (dataAbilityHelper != nullptr) {
         HILOG_DEBUG("EraseMemberProperties, call Release");
-        onCB->dataAbilityHelper->Release();
-        onCB->dataAbilityHelper = nullptr;
+        dataAbilityHelper->Release();
     }
 }
 
-bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, const DataAbilityHelper* objectInfo)
+bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter,
+    const std::shared_ptr<DataAbilityHelper>&& dataAbilityHelper)
 {
     if ((*iter) == nullptr) {
         return false;
     }
-    if ((*iter)->dataAbilityHelper == objectInfo) {
+    if ((*iter)->dataAbilityHelper.lock() == dataAbilityHelper) {
         EraseMemberProperties(*iter);
         delete (*iter);
         (*iter) = nullptr;
