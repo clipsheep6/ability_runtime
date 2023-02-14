@@ -159,7 +159,11 @@ public:
 
     MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
-    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
+    bool InitTaskPoolThread(NativeEngine* engine, NapiConcurrentCallback callback) override
+    {
+        return false;
+    }
+    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
     {
         return false;
     }
