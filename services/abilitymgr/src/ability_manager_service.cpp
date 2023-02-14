@@ -331,14 +331,15 @@ bool AbilityManagerService::Init()
     HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
     sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
         new (std::nothrow) AbilityBundleEventCallback(handler_);
-    CHECK_POINTER_RETURN_BOOL(abilityBundleEventCallback_);
     auto bms = GetBundleManager();
-    CHECK_POINTER_RETURN_BOOL(bms);
-    bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
-    if (!re) {
-        HILOG_ERROR("RegisterBundleEventCallback failed!");
+    if (bms && abilityBundleEventCallback_) {
+        bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
+        if (!re) {
+            HILOG_ERROR("RegisterBundleEventCallback failed!");
+        }
+    } else {
+        HILOG_ERROR("Get BundleManager or abilieyBundleEventCallback failed!");
     }
-
     HILOG_INFO("Init success.");
     return true;
 }
