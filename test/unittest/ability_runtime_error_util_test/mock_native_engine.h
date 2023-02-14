@@ -159,11 +159,6 @@ public:
         return nullptr;
     }
 
-    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
-    {
-        return false;
-    }
-
     NativeValue* CreatePromise(NativeDeferred** deferred) override
     {
         return nullptr;
@@ -172,7 +167,16 @@ public:
     void SetPromiseRejectCallback(NativeReference* rejectCallbackRef, NativeReference* checkCallbackRef) override
     {}
 
-    MOCK_METHOD2(CreateError, NativeValue*(NativeValue*, NativeValue*));
+    MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
+
+    bool InitTaskPoolThread(NativeEngine* engine, NapiConcurrentCallback callback) override
+    {
+        return false;
+    }
+    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
+    {
+        return false;
+    }
 
     NativeValue* CallFunction(NativeValue* thisVar,
                                       NativeValue* function,
