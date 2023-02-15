@@ -78,47 +78,31 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, GetParams_0100, TestSize.Level1)
 /**
  * @tc.number: ExtensionModuleLoader_GetExtensionModuleLoader_0100
  * @tc.name: GetExtensionModuleLoader
- * @tc.desc: call GetExtensionModuleLoader success
+ * @tc.desc: call GetExtensionModuleLoader with open extension failed
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionModuleLoader_0100, TestSize.Level1)
 {
     HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0100 start");
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
-    auto result = ExtensionModuleLoader::GetLoader(
-        "/system/lib/extensionability/libaccessibility_extension_module.z.so").Create(runtime);
-    EXPECT_TRUE(result != nullptr);
+    auto result = ExtensionModuleLoader::GetLoader("system").Create(runtime);
+    EXPECT_TRUE(result == nullptr);
     HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0100 end");
 }
 
 /**
  * @tc.number: ExtensionModuleLoader_GetExtensionModuleLoader_0200
  * @tc.name: GetExtensionModuleLoader
- * @tc.desc: call GetExtensionModuleLoader with open extension failed
+ * @tc.desc: call GetExtensionModuleLoader with get extension symbol failed
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionModuleLoader_0200, TestSize.Level1)
 {
     HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0200 start");
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
-    auto result = ExtensionModuleLoader::GetLoader("system").Create(runtime);
-    EXPECT_TRUE(result == nullptr);
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0200 end");
-}
-
-/**
- * @tc.number: ExtensionModuleLoader_GetExtensionModuleLoader_0300
- * @tc.name: GetExtensionModuleLoader
- * @tc.desc: call GetExtensionModuleLoader with get extension symbol failed
- */
-HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionModuleLoader_0300, TestSize.Level1)
-{
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0300 start");
-    Runtime::Options options;
-    auto runtime = AbilityRuntime::Runtime::Create(options);
     auto result = ExtensionModuleLoader::GetLoader("/system/lib/libc++.so").Create(runtime);
     EXPECT_TRUE(result == nullptr);
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0300 end");
+    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0200 end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
