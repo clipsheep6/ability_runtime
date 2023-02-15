@@ -80,17 +80,17 @@ class Caller {
                 return;
             }
 
-            console.log("Caller call msgData rpc.MessageParcel create");
-            let msgData = rpc.MessageParcel.create();
+            console.log("Caller call msgData rpc.MessageSequence create");
+            let msgData = rpc.MessageSequence.create();
             msgData.writeString(method);
-            let msgReply = rpc.MessageParcel.create();
+            let msgReply = rpc.MessageSequence.create();
             let option = rpc.MessageOption();
-            msgData.writeSequenceable(data);
+            msgData.writeParcelable(data);
 
             let retData = undefined;
             try {
-                retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
-                console.log("Caller call msgData rpc.SendRequest called");
+                retData = await this.__call_obj__.callee.sendMessageRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
+                console.log("Caller call msgData rpc.sendMessageRequest called");
                 if (retData.errCode != 0) {
                     msgData.reclaim();
                     msgReply.reclaim();
@@ -99,7 +99,7 @@ class Caller {
                     return;
                 }
             } catch (e) {
-                console.log("Caller call msgData rpc.sendRequest error " + e);
+                console.log("Caller call msgData rpc.sendMessageRequest error " + e);
             }
 
             try {
@@ -117,12 +117,12 @@ class Caller {
                     return;
                 }
             } catch (e) {
-                console.log("Caller call msgData SendRequest retval error");
+                console.log("Caller call msgData sendMessageRequest retval error");
                 reject(new BusinessError(ERROR_CODE_INNER_ERROR));
                 return;
             }
 
-            console.log("Caller call msgData SendRequest end");
+            console.log("Caller call msgData sendMessageRequest end");
             resolve(undefined);
             return;
         });
@@ -155,18 +155,18 @@ class Caller {
                 return;
             }
 
-            console.log("Caller callWithResult msgData rpc.MessageParcel create");
-            let msgData = rpc.MessageParcel.create();
+            console.log("Caller callWithResult msgData rpc.MessageSequence create");
+            let msgData = rpc.MessageSequence.create();
             msgData.writeString(method);
-            let msgReply = rpc.MessageParcel.create();
+            let msgReply = rpc.MessageSequence.create();
             let option = rpc.MessageOption();
-            msgData.writeSequenceable(data);
+            msgData.writeParcelable(data);
 
             let reply = undefined;
             let retData = undefined;
             try {
-                retData = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
-                console.log("Caller callWithResult msgData rpc.SendRequest called");
+                retData = await this.__call_obj__.callee.sendMessageRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
+                console.log("Caller callWithResult msgData rpc.sendMessageRequest called");
                 if (retData.errCode != 0) {
                     msgData.reclaim();
                     msgReply.reclaim();
@@ -175,7 +175,7 @@ class Caller {
                     return;
                 }
             } catch (e) {
-                console.log("Caller call msgData rpc.MessageParcel error " + e);
+                console.log("Caller call msgData rpc.MessageSequence error " + e);
             }
 
             try {
@@ -193,12 +193,12 @@ class Caller {
                     return;
                 }
             } catch (e) {
-                console.log("Caller callWithResult msgData SendRequest retval error");
+                console.log("Caller callWithResult msgData sendMessageRequest retval error");
                 reject(new BusinessError(ERROR_CODE_INNER_ERROR));
                 return;
             }
 
-            console.log("Caller callWithResult msgData SendRequest end");
+            console.log("Caller callWithResult msgData sendMessageRequest end");
             resolve(reply);
             return;
         });
