@@ -59,7 +59,7 @@ ohos_shared_library("libupms") {
 }
 
 # Note: Just for test
-ohos_shared_library("libupms_static") {
+ohos_static_library("libupms_static") {
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":upms_config" ]
 
