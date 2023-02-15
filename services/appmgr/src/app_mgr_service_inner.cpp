@@ -2782,6 +2782,11 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     if (abilityInfo.extensionAbilityType == ExtensionAbilityType::BACKUP) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::BACKUP_EXTENSION);
     }
+
+    if (abilityInfo.applicationInfo.debug) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
+    }
+
     return startFlags;
 }
 
