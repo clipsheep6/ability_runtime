@@ -532,6 +532,16 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return errCode;
     }
 
+    // PERMISSION_CLEAN_BACKGROUND_PROCESSES is normal now, need be controlled.
+    // verify self before kill process
+    auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!isSACall && (!appRecord || appRecord->GetBundleName() != bundleName)) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     return KillApplicationByBundleName(bundleName);
 }
 
@@ -546,6 +556,16 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
     if (errCode != ERR_OK) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return errCode;
+    }
+
+    // PERMISSION_CLEAN_BACKGROUND_PROCESSES is normal now, need be controlled.
+    // verify self before kill process
+    auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!isSACall && (!appRecord || appRecord->GetBundleName() != bundleName)) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
     }
 
     int result = ERR_OK;
