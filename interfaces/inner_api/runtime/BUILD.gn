@@ -76,6 +76,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/runtime:runtime_extractor",
     "${ability_runtime_native_path}/runtime:string_utils",
+    "${third_party_path}/zlib:shared_libz",
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
