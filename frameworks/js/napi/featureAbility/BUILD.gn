@@ -21,6 +21,7 @@ ohos_shared_library("featureability") {
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
     "${relational_store_napi_path}/dataability/include",
+    "//foundation/distributeddatamgr/data_share/interfaces/inner_api/provider/include",
   ]
 
   sources = [
@@ -53,7 +54,6 @@ ohos_shared_library("featureability") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "data_share:datashare_provider",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
