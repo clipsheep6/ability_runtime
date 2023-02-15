@@ -91,7 +91,7 @@ NativeValue* JsBaseContext::GetApplicationContext(NativeEngine* engine, NativeCa
 
 NativeValue* JsBaseContext::SwitchArea(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::SwitchArea is called");
+    HILOG_DEBUG("JsBaseContext::SwitchArea is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnSwitchArea(*engine, *info) : nullptr;
 }
@@ -135,7 +135,7 @@ NativeValue* JsBaseContext::OnSwitchArea(NativeEngine& engine, NativeCallbackInf
 
 NativeValue* JsBaseContext::CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::CreateModuleContext is called");
+    HILOG_DEBUG("JsBaseContext::CreateModuleContext is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnCreateModuleContext(*engine, *info) : nullptr;
 }
@@ -172,7 +172,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
             AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
             return engine.CreateUndefined();
         }
-        HILOG_INFO("Parse outer module name.");
+        HILOG_DEBUG("Parse outer module name.");
         moduleContext = context->CreateModuleContext(bundleName, moduleName);
     }
 
@@ -246,7 +246,7 @@ NativeValue* JsBaseContext::OnGetCacheDir(NativeEngine& engine, NativeCallbackIn
 
 NativeValue* JsBaseContext::GetTempDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetTempDir is called");
+    HILOG_DEBUG("JsBaseContext::GetTempDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetTempDir(*engine, *info) : nullptr;
 }
@@ -264,7 +264,7 @@ NativeValue* JsBaseContext::OnGetTempDir(NativeEngine& engine, NativeCallbackInf
 
 NativeValue* JsBaseContext::GetFilesDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetFilesDir is called");
+    HILOG_DEBUG("JsBaseContext::GetFilesDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetFilesDir(*engine, *info) : nullptr;
 }
@@ -282,7 +282,7 @@ NativeValue* JsBaseContext::OnGetFilesDir(NativeEngine& engine, NativeCallbackIn
 
 NativeValue* JsBaseContext::GetDistributedFilesDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetDistributedFilesDir is called");
+    HILOG_DEBUG("JsBaseContext::GetDistributedFilesDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetDistributedFilesDir(*engine, *info) : nullptr;
 }
@@ -300,7 +300,7 @@ NativeValue* JsBaseContext::OnGetDistributedFilesDir(NativeEngine& engine, Nativ
 
 NativeValue* JsBaseContext::GetDatabaseDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetDatabaseDir is called");
+    HILOG_DEBUG("JsBaseContext::GetDatabaseDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetDatabaseDir(*engine, *info) : nullptr;
 }
@@ -318,7 +318,7 @@ NativeValue* JsBaseContext::OnGetDatabaseDir(NativeEngine& engine, NativeCallbac
 
 NativeValue* JsBaseContext::GetPreferencesDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetPreferencesDir is called");
+    HILOG_DEBUG("JsBaseContext::GetPreferencesDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetPreferencesDir(*engine, *info) : nullptr;
 }
@@ -336,7 +336,7 @@ NativeValue* JsBaseContext::OnGetPreferencesDir(NativeEngine& engine, NativeCall
 
 NativeValue* JsBaseContext::GetBundleCodeDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HILOG_INFO("JsBaseContext::GetBundleCodeDir is called");
+    HILOG_DEBUG("JsBaseContext::GetBundleCodeDir is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnGetBundleCodeDir(*engine, *info) : nullptr;
 }
@@ -415,7 +415,7 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
 
 NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("GetApplicationContext start");
+    HILOG_DEBUG("GetApplicationContext start");
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
@@ -469,7 +469,7 @@ bool JsBaseContext::CheckCallerIsSystemApp()
 
 NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
 {
-    HILOG_INFO("AttachBaseContext");
+    HILOG_DEBUG("AttachBaseContext");
     if (value == nullptr || engine == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -503,7 +503,7 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
 
 NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* hint)
 {
-    HILOG_INFO("AttachApplicationContext");
+    HILOG_DEBUG("AttachApplicationContext");
     if (value == nullptr || engine == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
