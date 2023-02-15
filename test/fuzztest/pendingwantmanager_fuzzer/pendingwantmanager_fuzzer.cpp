@@ -44,9 +44,8 @@ uint32_t GetU32Data(const char* ptr)
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
 }
 
-std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
+sptr<Token> GetFuzzAbilityToken()
 {
-    sptr<Token> token = nullptr;
     AbilityRequest abilityRequest;
     abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
     abilityRequest.abilityInfo.name = "MainAbility";
@@ -55,17 +54,7 @@ std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
     if (!abilityRecord) {
         return nullptr;
     }
-    return abilityRecord;
-}
-
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-    std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-    return token;
+    return abilityRecord->GetToken();
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
@@ -83,7 +72,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
             return false;
         }
     }
-    std::shared_ptr<AbilityRecord> abilityRecord = GetFuzzAbilityRecord();
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     std::vector<std::string> info;
     AbilityRequest abilityRequest;
@@ -165,7 +153,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for TaskDataPersistenceMgr
     auto taskDataPersistenceMgr = std::make_shared<TaskDataPersistenceMgr>();
-    taskDataPersistenceMgr->Init(intParam);
     std::list<InnerMissionInfo> missionInfoList;
     taskDataPersistenceMgr->LoadAllMissionInfo(missionInfoList);
     InnerMissionInfo innerMissionInfo;
@@ -176,6 +163,18 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     taskDataPersistenceMgr->SaveMissionSnapshot(intParam, missionSnapshot);
     taskDataPersistenceMgr->GetSnapshot(intParam);
     taskDataPersistenceMgr->GetMissionSnapshot(intParam, missionSnapshot, boolParam);
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
+    if (wantSenderPtr) {
+        delete wantSenderPtr;
+        wantSenderPtr = nullptr;
+    }
+    if (wantReceiverPtr) {
+        delete wantReceiverPtr;
+        wantReceiverPtr = nullptr;
+    }
 
     return true;
 }
