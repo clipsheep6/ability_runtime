@@ -4938,7 +4938,7 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
 
     // verify permission if 'permission' is not empty
     if (abilityInfo.permissions.empty() ||
-        AccessTokenKit::VerifyAccessToken(tokenId, PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY)) {
+        AccessTokenKit::VerifyAccessToken(tokenId, PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
