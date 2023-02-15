@@ -87,6 +87,16 @@ public:
     virtual void ScheduleLaunchApplication(const AppLaunchData &launchData, const Configuration &config) override;
 
     /**
+     * ScheduleUpdateApplicationInfoInstalled, call ScheduleUpdateApplicationInfoInstalled() through proxy object,
+     * update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     * @return
+     */
+    virtual void ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &) override;
+
+    /**
      * Notify application to launch ability stage.
      *
      * @param The resident process data value.

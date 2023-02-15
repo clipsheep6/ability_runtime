@@ -36,6 +36,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
+using RequestDialogResultTask = std::function<void(int32_t resultCode)>;
 class LocalCallContainer;
 class AbilityContext : public Context {
 public:
@@ -222,6 +223,18 @@ public:
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
     virtual ErrCode GetMissionId(int32_t &missionId) = 0;
+
+    /**
+     * @brief Requests dialogService from the system.
+     * This method is called for dialog request. This is an asynchronous method. When it is executed,
+     * the task will be called back.
+     *
+     * @param engine js native engine.
+     * @param want Indicates the dialog service to be requested.
+     * @param task The callback or promise fo js interface.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
 #ifdef SUPPORT_GRAPHICS
     /**

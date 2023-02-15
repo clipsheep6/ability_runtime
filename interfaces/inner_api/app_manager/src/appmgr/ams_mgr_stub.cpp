@@ -67,6 +67,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID)] =
         &AmsMgrStub::HandleGetApplicationInfoByProcessID;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED)] =
+        &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -339,5 +341,16 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
     }
     return NO_ERROR;
 }
+
+int32_t AmsMgrStub::HandleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    int uid = data.ReadInt32();
+    int32_t result = UpdateApplicationInfoInstalled(bundleName, uid);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

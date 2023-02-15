@@ -22,9 +22,11 @@
 #include "authorization_result.h"
 #include "hitrace_meter.h"
 #include "connection_manager.h"
+#include "dialog_request_callback_impl.h"
 #include "hilog_wrapper.h"
 #include "permission_list_state.h"
 #include "remote_object_wrapper.h"
+#include "request_constants.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -44,6 +46,11 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
 std::mutex AbilityContextImpl::mutex_;
 std::map<int, PermissionRequestTask> AbilityContextImpl::permissionRequestCallbacks;
+
+struct RequestResult {
+    int32_t resultCode {0};
+    RequestDialogResultTask task;
+};
 
 Global::Resource::DeviceType AbilityContextImpl::GetDeviceType() const
 {
@@ -562,6 +569,74 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
         HILOG_DEBUG("%{public}s success, missionId is %{public}d.", __func__, missionId_);
     }
     return err;
+}
+
+ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
+    AAFwk::Want &want, RequestDialogResultTask &&task)
+{
+    want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
+
+    auto resultTask =
+        [&engine, outTask = std::move(task)](int32_t resultCode) {
+        auto retData = new RequestResult();
+        retData->resultCode = resultCode;
+        retData->task = std::move(outTask);
+
+        auto loop = engine.GetUVLoop();
+        if (loop == nullptr) {
+            HILOG_ERROR("RequestDialogService, fail to get uv loop.");
+            return;
+        }
+        auto work = new uv_work_t;
+        work->data = static_cast<void*>(retData);
+        int rev = uv_queue_work(
+            loop,
+            work,
+            [](uv_work_t* work) {},
+            RequestDialogResultJSThreadWorker);
+        if (rev != 0) {
+            if (retData != nullptr) {
+                delete retData;
+                retData = nullptr;
+            }
+            if (work != nullptr) {
+                delete work;
+                work = nullptr;
+            }
+        }
+    };
+
+    sptr<IRemoteObject> remoteObject = new DialogRequestCallbackImpl(std::move(resultTask));
+    want.SetParam(RequestConstants::REQUEST_CALLBACK_KEY, remoteObject);
+
+    auto err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
+    HILOG_DEBUG("RequestDialogService ret=%{public}d", static_cast<int32_t>(err));
+    return err;
+}
+
+void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int status)
+{
+    HILOG_DEBUG("RequestDialogResultJSThreadWorker is called.");
+    if (work == nullptr) {
+        HILOG_ERROR("RequestDialogResultJSThreadWorker, uv_queue_work input work is nullptr");
+        return;
+    }
+    RequestResult* retCB = static_cast<RequestResult*>(work->data);
+    if (retCB == nullptr) {
+        HILOG_ERROR("RequestDialogResultJSThreadWorker, retCB is nullptr");
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    if (retCB->task) {
+        retCB->task(retCB->resultCode);
+    }
+
+    delete retCB;
+    retCB = nullptr;
+    delete work;
+    work = nullptr;
 }
 
 #ifdef SUPPORT_GRAPHICS

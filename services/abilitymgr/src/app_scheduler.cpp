@@ -106,6 +106,19 @@ int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearM
     return ERR_OK;
 }
 
+int AppScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    HILOG_DEBUG("Start to update the application info after new module installed.");
+    int ret = (int)appMgrClient_->UpdateApplicationInfoInstalled(bundleName, uid);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Fail to UpdateApplicationInfoInstalled.");
+        return INNER_ERR;
+    }
+
+    return ERR_OK;
+}
+
 void AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

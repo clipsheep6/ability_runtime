@@ -58,6 +58,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleNotifyHotReloadPage;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH)] =
         &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED)] =
+        &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -169,6 +171,19 @@ int32_t AppSchedulerHost::HandleScheduleLaunchApplication(MessageParcel &data, M
     }
 
     ScheduleLaunchApplication(*launchData, *config);
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<ApplicationInfo> appInfo(data.ReadParcelable<ApplicationInfo>());
+    if (!appInfo) {
+        HILOG_ERROR("ReadParcelable<ApplicationInfo> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    ScheduleUpdateApplicationInfoInstalled(*appInfo);
     return NO_ERROR;
 }
 
