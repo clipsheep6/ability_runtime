@@ -380,6 +380,38 @@ int32_t AmsMgrProxy::KillApplication(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
+int32_t AmsMgrProxy::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
+{
+    HILOG_DEBUG("start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("parcel WriteString failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(uid)) {
+        HILOG_ERROR("uid write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AmsMgrProxy::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
     HILOG_DEBUG("start");

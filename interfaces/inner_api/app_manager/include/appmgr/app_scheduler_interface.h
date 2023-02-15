@@ -91,6 +91,16 @@ public:
     virtual void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) = 0;
 
     /**
+     * ScheduleUpdateApplicationInfoInstalled, call ScheduleUpdateApplicationInfoInstalled() through proxy object,
+     * update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     * @return
+     */
+    virtual void ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &) = 0;
+
+    /**
      * ScheduleAbilityStageInfo, call ScheduleAbilityStageInfo() through proxy project,
      * Notify application to launch application.
      *
@@ -186,6 +196,7 @@ public:
         SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
+        SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
     };
 };
 }  // namespace AppExecFwk

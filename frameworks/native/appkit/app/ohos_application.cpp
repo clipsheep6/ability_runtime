@@ -558,6 +558,25 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
     return abilityStage->GetContext();
 }
 
+/**
+ *
+ * @brief update the application info after new module installed.
+ *
+ * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+ *
+ */
+void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::ApplicationInfo &appInfo)
+{
+    HILOG_DEBUG("OHOSApplication::UpdateApplicationInfoInstalled");
+
+    if (abilityRuntimeContext_ == nullptr) {
+        HILOG_ERROR("OHOSApplication::UpdateApplicationInfoInstalled abilityRuntimeContext_ is nullptr.");
+        return;
+    }
+
+    abilityRuntimeContext_->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(appInfo));
+}
+
 bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
     HILOG_DEBUG("OHOSApplication::AddAbilityStage");

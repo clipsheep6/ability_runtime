@@ -120,6 +120,16 @@ public:
     virtual AppMgrResultCode KillProcessesByUserId(int32_t userId);
 
     /**
+     * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
+     * update the application info after new module installed.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param  uid, uid.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid);
+
+    /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.

@@ -265,6 +265,13 @@ std::shared_ptr<AppExecFwk::ApplicationInfo> ApplicationContext::GetApplicationI
     return (contextImpl_ != nullptr) ? contextImpl_->GetApplicationInfo() : nullptr;
 }
 
+void ApplicationContext::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->SetApplicationInfo(info);
+    }
+}
+
 std::shared_ptr<Global::Resource::ResourceManager> ApplicationContext::GetResourceManager() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetResourceManager() : nullptr;
