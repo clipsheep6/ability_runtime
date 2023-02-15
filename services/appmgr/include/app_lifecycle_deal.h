@@ -40,6 +40,15 @@ public:
     void LaunchApplication(const AppLaunchData &launchData, const Configuration &config);
 
     /**
+     * update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     * @return
+     */
+    void UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
+
+    /**
      * AddAbilityStageInfo, call ScheduleAbilityStageInfo() through proxy project,
      * Notify application to launch application.
      *

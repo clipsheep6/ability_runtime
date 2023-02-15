@@ -249,6 +249,31 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
     HILOG_INFO("AppSchedulerProxy ScheduleLaunchApplication end");
 }
 
+void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled start");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(&appInfo)) {
+        return ;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
+}
+
 void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage start");
