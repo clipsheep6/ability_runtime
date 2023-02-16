@@ -124,11 +124,6 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
 
 void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 {
-    if (amsMgrServiceInner_->VerifyProcessPermission() != ERR_OK) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return;
-    }
-
     if (!IsReady()) {
         return;
     }
@@ -139,12 +134,6 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
 
 void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 {
-    auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
-    if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return;
-    }
-
     if (!IsReady()) {
         return;
     }
@@ -184,6 +173,7 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
 
 int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
 {
+    HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
@@ -193,6 +183,7 @@ int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
 
 int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
+    HILOG_INFO("bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
