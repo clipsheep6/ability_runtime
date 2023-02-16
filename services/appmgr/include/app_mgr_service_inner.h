@@ -543,10 +543,6 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission() const;
-
-    int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
-
     void ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp);
 
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -767,6 +763,12 @@ private:
     void RegisterFocusListener();
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
+
+    int VerifyProcessPermission(const std::string &bundleName) const;
+
+    int VerifyProcessPermission(const sptr<IRemoteObject> &token) const;
+
+    int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
 private:
     /**

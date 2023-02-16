@@ -526,20 +526,10 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return ERR_NO_INIT;
     }
 
-    auto errCode = VerifyProcessPermission();
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return errCode;
-    }
-
-    // PERMISSION_CLEAN_BACKGROUND_PROCESSES is normal now, need be controlled.
-    // verify self before kill process
-    auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    auto appRecord = GetAppRunningRecordByPid(callerPid);
-    if (!isSACall && (!appRecord || appRecord->GetBundleName() != bundleName)) {
+    auto result = VerifyProcessPermission(bundleName);
+    if (result != ERR_OK) {
         HILOG_ERROR("Permission verification failed.");
-        return ERR_PERMISSION_DENIED;
+        return result;
     }
 
     return KillApplicationByBundleName(bundleName);
@@ -552,23 +542,13 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return ERR_NO_INIT;
     }
 
-    auto errCode = VerifyProcessPermission();
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return errCode;
-    }
-
-    // PERMISSION_CLEAN_BACKGROUND_PROCESSES is normal now, need be controlled.
-    // verify self before kill process
-    auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    auto appRecord = GetAppRunningRecordByPid(callerPid);
-    if (!isSACall && (!appRecord || appRecord->GetBundleName() != bundleName)) {
+    auto result = VerifyProcessPermission(bundleName);
+    if (result != ERR_OK) {
         HILOG_ERROR("Permission verification failed.");
-        return ERR_PERMISSION_DENIED;
+        return result;
     }
 
-    int result = ERR_OK;
+    result = ERR_OK;
     int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (remoteClientManager_ == nullptr) {
@@ -1217,6 +1197,11 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
         return;
     }
 
+    if (VerifyProcessPermission(token) != ERR_OK) {
+        HILOG_ERROR("Permission verification failed");
+        return;
+    }
+
     // before exec ScheduleProcessSecurityExit return
     // The resident process won't let him die
     if (appRecord->IsKeepAliveApp()) {
@@ -1242,6 +1227,12 @@ void AppMgrServiceInner::KillProcessesByUserId(int32_t userId)
 {
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
+        return;
+    }
+
+    auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
+    if (VerifyAccountPermission(permission, userId) != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
         return;
     }
 
@@ -2595,8 +2586,36 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission() const
+int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) const
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (isSaCall || isShellCall) {
+        return ERR_OK;
+    }
+
+    if (VerifyAPL()) {
+        return ERR_OK;
+    }
+
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
+    if (!isCallingPerm) {
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        auto appRecord = GetAppRunningRecordByPid(callerPid);
+        if (!appRecord || appRecord->GetBundleName() != bundleName) {
+            HILOG_ERROR("Permission verification failed.");
+            return ERR_PERMISSION_DENIED;
+        }
+    }
+    
+    return ERR_OK;
+}
+
+int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token) const
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
         return ERR_OK;
@@ -2608,7 +2627,17 @@ int AppMgrServiceInner::VerifyProcessPermission() const
 
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
-    return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
+    if (!isCallingPerm) {
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        auto appRecord = GetAppRunningRecordByPid(callerPid);
+        auto targetRecord = GetAppRunningRecordByAbilityToken(token);
+        if (!appRecord || !targetRecord || appRecord != targetRecord) {
+            HILOG_ERROR("Permission verification failed.");
+            return ERR_PERMISSION_DENIED;
+        }
+    }
+    
+    return ERR_OK;
 }
 
 bool AppMgrServiceInner::VerifyAPL() const
