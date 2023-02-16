@@ -48,6 +48,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/featureAbility:featureability",
     "${ability_runtime_napi_path}/feature_ability:featureability_napi",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_napi_path}/js_dialog_request:dialogrequest_napi",
     "${ability_runtime_napi_path}/js_mission_manager:missionmanager",
     "${ability_runtime_napi_path}/mission_manager:distributedmissionmanager",
     "${ability_runtime_napi_path}/mission_manager:missionmanager_napi",

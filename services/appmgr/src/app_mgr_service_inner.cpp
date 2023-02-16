@@ -1892,7 +1892,7 @@ void AppMgrServiceInner::RestartResidentProcess(std::shared_ptr<AppRunningRecord
     if (findIter != restartResedentTaskList_.end()) {
         restartResedentTaskList_.erase(findIter);
     }
-    
+
     if (!CheckRemoteClient() || !appRecord || !appRunningManager_) {
         HILOG_ERROR("restart resident process failed!");
         return;

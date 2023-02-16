@@ -525,3 +525,36 @@ ohos_shared_library("ability_business_error") {
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
+
+config("dialog_request_callback_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/dialog_request_callback" ]
+}
+
+config("dialog_request_callback_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/dialog_request_callback" ]
+}
+
+ohos_shared_library("dialog_request_callback") {
+  sources = [
+    "${ability_runtime_native_path}/ability/native/dialog_request_callback/dialog_request_callback_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/dialog_request_callback/dialog_request_callback_stub.cpp",
+  ]
+
+  configs = [
+    ":dialog_request_callback_config",
+    "${ability_runtime_services_path}/common:common_config",
+  ]
+
+  public_configs = [ ":dialog_request_callback_public_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

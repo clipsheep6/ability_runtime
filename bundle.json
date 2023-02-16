@@ -245,6 +245,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/js/napi/dialog_request_info/include",
+              "header_files": [
+                "request_info.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/js/napi/dialog_request_info:dialog_request_info"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/",
               "header_files": [
                 "extension_context.h"

@@ -146,6 +146,10 @@ class AbilityContext extends Context {
     setMissionIcon(icon, callback) {
         return this.__context_impl__.setMissionIcon(icon, callback)
     }
+
+    requestDialogService(want, resultCallback) {
+        return this.__context_impl__.requestDialogService(want, resultCallback)
+    }
 }
 
 export default AbilityContext

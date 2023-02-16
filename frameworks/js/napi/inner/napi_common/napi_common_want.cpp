@@ -15,6 +15,7 @@
 
 #include "napi_common_want.h"
 
+#include "application_context.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "array_wrapper.h"
@@ -910,7 +911,12 @@ void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std
     if (IsSpecialObject(env, param, strProName, FD, napi_number)) {
         HandleFdObject(env, param, strProName, wantParams);
     } else if (IsSpecialObject(env, param, strProName, REMOTE_OBJECT, napi_object)) {
-        HILOG_WARN("REMOTE_OBJECT is FORIBBED IN WANT.");
+        auto appInfo = ApplicationContext::GetInstance()->GetApplicationInfo();
+        if (appInfo && appInfo->isSystemApp) {
+            HandleRemoteObject(env, param, strProName, wantParams);
+        } else {
+            HILOG_WARN("not system app, REMOTE_OBJECT is FORIBBED IN WANT.");
+        }
     } else {
         bool isArray = false;
         if (napi_is_array(env, jsProValue, &isArray) == napi_ok) {
