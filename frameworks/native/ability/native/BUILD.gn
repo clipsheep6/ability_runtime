@@ -324,6 +324,32 @@ ohos_shared_library("form_extension") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("form_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/form_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":form_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("service_extension") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -393,6 +419,32 @@ ohos_shared_library("static_subscriber_extension") {
     "ipc:ipc_core",
   ]
 
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("static_subscriber_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/static_subscriber_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":static_subscriber_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -488,15 +540,12 @@ ohos_shared_library("service_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "resource_management:global_resmgr",
   ]
 
   relative_install_dir = "extensionability/"
@@ -570,4 +619,15 @@ ohos_prebuilt_etc("extension_blocklist_config.json") {
 
 group("extension_blocklist_config") {
   deps = [ ":extension_blocklist_config.json" ]
+}
+
+group("extension_module") {
+  deps = [
+    ":service_extension_module",
+    ":static_subscriber_extension_module",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ ":form_extension_module" ]
+  }
 }

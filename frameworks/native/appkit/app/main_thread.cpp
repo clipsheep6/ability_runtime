@@ -39,7 +39,6 @@
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
-#include "form_extension.h"
 #include "locale_config.h"
 #endif
 #include "if_system_ability_manager.h"
@@ -50,8 +49,6 @@
 #include "parameters.h"
 #include "resource_manager.h"
 #include "runtime.h"
-#include "service_extension.h"
-#include "static_subscriber_extension.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
@@ -1116,30 +1113,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
             return nullptr;
         });
-#ifdef SUPPORT_GRAPHICS
-        AbilityLoader::GetInstance().RegisterExtension("FormExtension",
-            [wpApplication]() -> AbilityRuntime::Extension* {
-            auto app = wpApplication.lock();
-            if (app != nullptr) {
-                return AbilityRuntime::FormExtension::Create(app->GetRuntime());
-            }
-            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: FormExtension");
-            return nullptr;
-        });
-        AddExtensionBlockItem("FormExtension", static_cast<int32_t>(ExtensionAbilityType::FORM));
-#endif
-        AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension",
-            [wpApplication]() -> AbilityRuntime::Extension* {
-            auto app = wpApplication.lock();
-            if (app != nullptr) {
-                return AbilityRuntime::StaticSubscriberExtension::Create(app->GetRuntime());
-            }
-            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: StaticSubscriberExtension");
-            return nullptr;
-        });
-        AddExtensionBlockItem("StaticSubscriberExtension",
-            static_cast<int32_t>(ExtensionAbilityType::STATICSUBSCRIBER));
-
         if (application_ != nullptr) {
 #ifdef APP_USE_ARM
             LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);

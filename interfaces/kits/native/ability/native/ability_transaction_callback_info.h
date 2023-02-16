@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <stack>
-#include "lifecycle_state_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {

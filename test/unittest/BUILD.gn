@@ -133,7 +133,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/free_install_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_common_event.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_key.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
