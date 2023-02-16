@@ -39,6 +39,19 @@ private:
     std::mutex mutex_;
 };
 
+class NAPIDataAbilityHelperWrapper {
+public:
+    explicit NAPIDataAbilityHelperWrapper(std::weak_ptr<DataAbilityHelper>&& dataAbilityHelper)
+        : dataAbilityHelper_(dataAbilityHelper) {}
+    inline std::shared_ptr<DataAbilityHelper> GetDataAbilityHelper() const
+    {
+        return dataAbilityHelper_.lock();
+    }
+
+private:
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper_;
+};
+
 /**
  * @brief DataAbilityHelper NAPI module registration.
  *
@@ -462,8 +475,10 @@ void ExecuteBatchPromiseCompleteCB(napi_env env, napi_status status, void *data)
 void GetDataAbilityResultForResult(
     napi_env env, const std::vector<std::shared_ptr<DataAbilityResult>> &dataAbilityResult, napi_value result);
 
+void GetDataAbilityHelper(napi_env env, napi_value thisVar, std::shared_ptr<DataAbilityHelper>& dataAbilityHelper);
 void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB);
-bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter, const DataAbilityHelper* objectInfo);
+bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter,
+    const std::shared_ptr<DataAbilityHelper>&& dataAbilityHelper);
 void EraseMemberProperties(DAHelperOnOffCB* onCB);
 }  // namespace AppExecFwk
 }  // namespace OHOS
