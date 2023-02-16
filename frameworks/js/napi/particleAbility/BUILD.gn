@@ -25,6 +25,7 @@ ohos_shared_library("particleability") {
     "${relational_store_napi_path}/dataability/include",
     "//third_party/jsoncpp",
     "//third_party/jsoncpp/include/json",
+    "//foundation/distributeddatamgr/data_share/interfaces/inner_api/provider/include",
   ]
 
   sources = [
