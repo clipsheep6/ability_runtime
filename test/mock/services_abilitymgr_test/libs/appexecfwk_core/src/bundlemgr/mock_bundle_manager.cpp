@@ -65,14 +65,6 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-int32_t BundleMgrProxy::GetDisposedStatus(const std::string& bundleName)
-{
-    if (bundleName.compare("com.test.disposed") == 0) {
-        return -1;
-    }
-    return 0;
-}
-
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     return 0;
