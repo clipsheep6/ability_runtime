@@ -347,6 +347,9 @@ bool AbilityManagerService::Init()
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
 
+    // Register abilityBundleEventCallback to receive hap updates
+    HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
+
     HILOG_INFO("Init success.");
     return true;
 }
