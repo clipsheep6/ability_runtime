@@ -208,12 +208,6 @@ struct DAHelperOpenFileCB {
     int execResult;
 };
 
-struct DAHelperReleaseCB {
-    CBBase cbBase;
-    DataAbilityHelper *dataAbilityHelper = nullptr;
-    bool result = false;
-};
-
 struct DAHelperExecuteBatchCB {
     CBBase cbBase;
     std::string uri;
