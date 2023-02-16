@@ -577,10 +577,8 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
             [](uv_work_t* work) {},
             RequestDialogResultJSThreadWorker);
         if (rev != 0) {
-            if (retData != nullptr) {
-                delete retData;
-                retData = nullptr;
-            }
+            delete retData;
+            retData = nullptr;
             if (work != nullptr) {
                 delete work;
                 work = nullptr;
