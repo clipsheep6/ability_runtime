@@ -592,6 +592,8 @@ public:
     virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
+    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+
     /**
      * Called when client complete dump.
      *

@@ -2702,6 +2702,29 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("observer write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::ADD_FREE_INSTALL_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
 {
     MessageParcel data;

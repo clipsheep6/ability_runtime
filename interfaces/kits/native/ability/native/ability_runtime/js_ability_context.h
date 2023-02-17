@@ -22,6 +22,7 @@
 
 #include "ability_connect_callback.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "js_free_install_observer.h"
 #include "js_runtime.h"
 #include "event_handler.h"
 
@@ -107,6 +108,7 @@ private:
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
