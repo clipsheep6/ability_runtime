@@ -2717,7 +2717,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckStaticCfgPermission_001, TestSize.Level
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;
