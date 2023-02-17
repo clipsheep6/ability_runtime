@@ -109,7 +109,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     ApplicationInfo application;
     bool debug;
     appMgrServiceInner->GetApplicationInfoByProcessID(static_cast<int>(pid), application, debug);
-    appMgrServiceInner->VerifyProcessPermission();
+    appMgrServiceInner->VerifyProcessPermission("");
     appMgrServiceInner->VerifyAPL();
     std::string permissionName(data, size);
     appMgrServiceInner->VerifyAccountPermission(permissionName, static_cast<int>(userId));
