@@ -263,6 +263,7 @@ HWTEST_F(MissionInfoMgrTest, DeleteMissionInfo_001, TestSize.Level1)
     EXPECT_FALSE(missionInfoMgr->DeleteMissionInfo(1));
 
     missionInfoMgr->Init(0);
+    missionInfoMgr->missionIdMap_[1] = true;
     auto temp = missionInfoMgr->taskDataPersistenceMgr_->handler_;
     missionInfoMgr->taskDataPersistenceMgr_->handler_ = nullptr;
     EXPECT_FALSE(missionInfoMgr->DeleteMissionInfo(1));
