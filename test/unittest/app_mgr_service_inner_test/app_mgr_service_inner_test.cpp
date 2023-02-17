@@ -2718,10 +2718,10 @@ HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->VerifyProcessPermission();
+    appMgrServiceInner->VerifyProcessPermission("");
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->VerifyProcessPermission();
+    appMgrServiceInner->VerifyProcessPermission("");
 
     HILOG_INFO("VerifyProcessPermission_001 end");
 }
