@@ -165,9 +165,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_helper_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_result.cpp",
     "${ability_runtime_native_path}/ability/native/data_uri_utils.cpp",
     "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
     "${ability_runtime_native_path}/ability/native/extension.cpp",
@@ -175,7 +172,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
     "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
     "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
-    "${ability_runtime_native_path}/ability/native/mission_information.cpp",
     "${ability_runtime_native_path}/ability/native/new_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/ability_recovery.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/app_recovery.cpp",
@@ -187,8 +183,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
-    "${relational_store_napi_path}/common/src/js_utils.cpp",
-    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -228,9 +222,7 @@ ohos_shared_library("abilitykit_native") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
-    "relational_store:native_dataability",
     "relational_store:native_rdb",
-    "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
   ]
 
@@ -316,8 +308,7 @@ ohos_shared_library("form_extension") {
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "hiviewdfx_hilog_native:libhilog",
-      "relational_store:native_dataability",
-      "relational_store:native_rdb",
+      "ipc:ipc_core",
     ]
   }
   subsystem_name = "ability"
@@ -380,8 +371,6 @@ ohos_shared_library("service_extension") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
   ]
 
   subsystem_name = "ability"
