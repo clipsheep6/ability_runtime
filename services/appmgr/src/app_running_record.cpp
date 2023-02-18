@@ -35,7 +35,10 @@ RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
 {}
 
 RenderRecord::~RenderRecord()
-{}
+{
+    close(sharedFd_);
+    close(ipcFd_);
+}
 
 std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
     int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
