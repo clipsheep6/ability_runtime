@@ -241,12 +241,7 @@ public:
         return nullptr;
     }
 
-    ExceptionInfo *GetExceptionForWorker() const override
-    {
-        return nullptr;
-    }
-
-    void DeleteSerializationData(NativeValue *value) const override
+    void DeleteSerializationData(NativeValue* value) const override
     {}
 
     NativeValue *LoadModule(NativeValue *str, const std::string &fileName) override
@@ -324,7 +319,17 @@ public:
         return true;
     }
 
-    bool TriggerFatalException(NativeValue *error) override
+    bool IsExceptionPending() const override
+    {
+        return false;
+    }
+
+    NativeValue* GetAndClearLastException() override
+    {
+        return nullptr;
+    }
+
+    bool TriggerFatalException(NativeValue* error) override
     {
         return true;
     }

@@ -253,11 +253,6 @@ public:
         return nullptr;
     }
 
-    ExceptionInfo* GetExceptionForWorker() const override
-    {
-        return nullptr;
-    }
-
     void DeleteSerializationData(NativeValue* value) const override
     {}
 
@@ -333,6 +328,16 @@ public:
     bool StopHeapTracking(const std::string &filePath) override
     {
         return true;
+    }
+
+    bool IsExceptionPending() const override
+    {
+        return false;
+    }
+
+    NativeValue* GetAndClearLastException() override
+    {
+        return nullptr;
     }
 
     bool TriggerFatalException(NativeValue* error) override
