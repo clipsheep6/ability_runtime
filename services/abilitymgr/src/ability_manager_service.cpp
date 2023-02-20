@@ -2225,11 +2225,6 @@ int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &to
         return -1;
     }
 
-    if (IPCSkeleton::GetCallingPid() != getpid()) {
-        HILOG_ERROR("%{public}s: Only support same process call.", __func__);
-        return -1;
-    }
-
     return GetMissionIdByAbilityToken(token);
 }
 
@@ -3819,7 +3814,8 @@ int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObje
         HILOG_ERROR("abilityRecord is Null.");
         return -1;
     }
-    if (!JudgeSelfCalled(abilityRecord)) {
+
+    if (!JudgeSelfCalled(abilityRecord) && (IPCSkeleton::GetCallingPid() != getpid())) {
         return -1;
     }
     auto userId = abilityRecord->GetOwnerMissionUserId();
