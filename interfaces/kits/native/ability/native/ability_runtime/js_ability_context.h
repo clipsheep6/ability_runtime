@@ -105,6 +105,7 @@ private:
         const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
     static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
+    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;

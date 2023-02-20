@@ -46,10 +46,6 @@ private:
     void HandleOnInstallFinished(const std::string bundleName, const std::string abilityName,
         const std::string startTime, int resultCode);
 
-    void PostTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
-    void RemoveTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
-    void HandleTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
-
     std::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::vector<sptr<IFreeInstallObserver>> observerList_;
