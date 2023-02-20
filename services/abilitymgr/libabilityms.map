@@ -43,6 +43,7 @@
       *CrowdTestInterceptor*;
       *DataAbilityManager*;
       *FreeInstallManager*;
+      *FreeInstallObserverManager*;
       *ImplicitStartProcessor*;
       *InnerMissionInfo*;
       *LaunchParam*;
