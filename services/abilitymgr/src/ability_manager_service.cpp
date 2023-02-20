@@ -3008,9 +3008,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     auto func = []() {
         auto client = ContainerManagerClient::GetInstance();
-        if (client == nullptr) {
-            HILOG_ERROR("%{public}s get ContainerManagerClient null", __func__);
-        } else {
+        if (client != nullptr) {
             client->NotifyBootComplete(0);
             HILOG_INFO("StartSystemApplication NotifyBootComplete");
         }
