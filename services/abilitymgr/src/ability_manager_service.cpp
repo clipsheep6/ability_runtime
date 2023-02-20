@@ -106,7 +106,6 @@ const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
-const std::string BUNDLE_NAME_INPUTMETHOD_TEST = "com.acts.inputmethodtest";
 const std::string BUNDLE_NAME_TELE_DATA = "com.ohos.telephonydataability";
 const std::string BUNDLE_NAME_CONTACTS_DATA = "com.ohos.contactsdataability";
 const std::string BUNDLE_NAME_NOTE = "com.ohos.note";
@@ -117,9 +116,7 @@ const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilitys
 const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
 
 // White list
-const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_DEVICE_TEST,
-                                                                BUNDLE_NAME_INPUTMETHOD_TEST,
-                                                                BUNDLE_NAME_NOTE,
+const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_NOTE,
                                                                 BUNDLE_NAME_PHOTO,
                                                                 BUNDLE_NAME_SCREENSHOT,
                                                                 BUNDLE_NAME_SERVICE_TEST,
