@@ -52,7 +52,7 @@ private:
     NativeEngine& engine_;
     std::vector<JsFreeInstallObserverObject> jsObserverObjectList_;
 };
-} // namespace AAFwk
+} // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif
+#endif // OHOS_ABILITY_RUNTIME_JS_FREE_INSTALL_OBSERVER_H

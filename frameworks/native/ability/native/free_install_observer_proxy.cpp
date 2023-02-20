@@ -61,5 +61,5 @@ void FreeInstallObserverProxy::OnInstallFinished(const std::string bundleName, c
         return;
     }
 }
-}
-}
+} // namespace AbilityRuntime
+} // namespace OHOS

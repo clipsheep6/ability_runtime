@@ -38,8 +38,6 @@ private:
     using FreeInstallObserverFunc = int32_t (FreeInstallObserverStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, FreeInstallObserverFunc> memberFuncMap_;
 };
-
-
-} // namespace AAFwk
+} // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_FREE_INSTALL_OBSERVER_STUB_H

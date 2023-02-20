@@ -92,5 +92,5 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string bundleName, co
     object.callback = std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
     jsObserverObjectList_.emplace_back(object);
 }
-} // namespace AAFwk
+} // namespace AbilityRuntime
 } // namespace OHOS

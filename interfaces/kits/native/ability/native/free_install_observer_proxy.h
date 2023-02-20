@@ -28,7 +28,7 @@ public:
     virtual ~FreeInstallObserverProxy() = default;
 
     /**
-     * OnInstallFinished, AMS return free install result.
+     * OnInstallFinished, return free install result.
      * 
      * @param bundleName, free install bundleName
      * @param abilityName, free install abilityName
@@ -39,7 +39,7 @@ private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<FreeInstallObserverProxy> delegator_;
 };
-}
-}
+} // namespace AbilityRuntime
+} // namespace OHOS
 
-#endif
+#endif // OHOS_ABILITY_RUNTIME_FREE_INSTALL_OBSERVER_STUB_H

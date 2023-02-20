@@ -26,7 +26,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.IFreeInstallObserver");
 
     /**
-     * OnInstallFinished, AMS return free install result.
+     * OnInstallFinished, return free install result.
      * 
      * @param bundleName, free install bundleName
      * @param abilityName, free install abilityName
@@ -38,7 +38,7 @@ public:
         ON_INSTALL_FINISHED = 1,
     };
 };
-} // namespace AAFwk
+} // namespace AbilityRuntime
 } // namespace OHOS
 
 #endif // OHOS_ABILITY_RUNTIME_FREE_INSTALL_OBSERVER_INTERFACE_H

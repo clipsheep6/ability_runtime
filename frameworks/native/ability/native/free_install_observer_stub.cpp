@@ -63,5 +63,5 @@ int FreeInstallObserverStub::OnRemoteRequest(
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
-}
-}
+} // namespace AbilityRuntime
+} // namespace OHOS

@@ -36,6 +36,7 @@ struct FreeInstallInfo {
     Want want;
     int32_t userId = -1;
     int32_t requestCode = -1;
+    std::shared_ptr<std::promise<int32_t>> promise;
     bool isInstalled = false;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> dmsCallback = nullptr;
@@ -57,7 +58,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync = false);
 
     /**
      * OnRemoteInstallFinished, DMS has finished.
@@ -78,6 +79,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
+
+    /**
+     * Start to free install.
+     *
+     * @param want, the want of the ability to free install.
+     * @param userId, designation User ID.
+     * @param requestCode, ability request code.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartFreeInstallAsync(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
 
     /**
      * Start to remote free install.
@@ -144,8 +156,9 @@ private:
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);
+    void NotifyFreeInstallResultAsync(const Want &want, int resultCode);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken, bool isAsync);
     std::time_t GetTimeStamp();
 
     void PostTimeoutTask(const Want &want);
