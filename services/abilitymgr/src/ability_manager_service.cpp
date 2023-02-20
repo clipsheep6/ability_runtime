@@ -5540,7 +5540,14 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
         if (processInfo.processName_.empty() && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
-            HILOG_ERROR("Can not find caller application by callerPid, callerPid: %{private}d.", callerPid);
+            HILOG_DEBUG("Can not find caller application by callerPid: %{private}d.", callerPid);
+            if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+                PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
+                HILOG_DEBUG("Caller has PERMISSION_START_ABILITIES_FROM_BACKGROUND, PASS.");
+                isBackgroundCall = false;
+                return ERR_OK;
+            }
+            HILOG_ERROR("Caller does not have PERMISSION_START_ABILITIES_FROM_BACKGROUND, REJECT.");
             return ERR_INVALID_VALUE;
         }
     }
