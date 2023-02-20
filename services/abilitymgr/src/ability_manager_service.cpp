@@ -598,7 +598,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        return freeInstallManager_->StartFreeInstallAsync(want, validUserId, requestCode, callerToken);
+        Want localWant = want;
+        UpdateCallerInfo(localWant);
+        return freeInstallManager_->StartFreeInstallAsync(localWant, validUserId, requestCode, callerToken);
     }
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
@@ -747,7 +749,9 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        return freeInstallManager_->StartFreeInstallAsync(want, validUserId, requestCode, callerToken);
+        Want localWant = want;
+        UpdateCallerInfo(localWant);
+        return freeInstallManager_->StartFreeInstallAsync(localWant, validUserId, requestCode, callerToken);
     }
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");

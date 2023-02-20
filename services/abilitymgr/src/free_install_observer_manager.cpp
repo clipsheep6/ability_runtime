@@ -56,7 +56,8 @@ int32_t FreeInstallObserverManager::RemoveObserver(const sptr<IFreeInstallObserv
         return ERR_INVALID_VALUE;
     }
     std::lock_guard<std::mutex> lock(observerLock_);
-    auto it = std::find_if(observerList_.begin(), observerList_.end(), [&observer](const sptr<IFreeInstallObserver> &item) {
+    auto it = std::find_if(observerList_.begin(), observerList_.end(),
+        [&observer](const sptr<IFreeInstallObserver> &item) {
         return (item && item->AsObject() == observer->AsObject());
     });
     if (it != observerList_.end()) {
@@ -69,7 +70,8 @@ int32_t FreeInstallObserverManager::RemoveObserver(const sptr<IFreeInstallObserv
     return ERR_INVALID_VALUE;
 }
 
-void FreeInstallObserverManager::OnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode)
+void FreeInstallObserverManager::OnInstallFinished(const std::string bundleName, const std::string abilityName,
+    const std::string startTime, int resultCode)
 {
     auto task = [weak = weak_from_this(), bundleName, abilityName, startTime, resultCode]() {
         auto self = weak.lock();
@@ -87,7 +89,8 @@ void FreeInstallObserverManager::OnInstallFinished(const std::string bundleName,
     handler->PostTask(task);
 }
 
-void FreeInstallObserverManager::HandleOnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode)
+void FreeInstallObserverManager::HandleOnInstallFinished(const std::string bundleName, const std::string abilityName,
+    const std::string startTime, int resultCode)
 {
     HILOG_DEBUG("HandleOnInstallFinished begin.");
     for (auto it = observerList_.begin(); it != observerList_.end(); ++it) {
@@ -103,7 +106,8 @@ bool FreeInstallObserverManager::ObserverExist(const sptr<IFreeInstallObserver> 
         return false;
     }
     std::lock_guard<std::mutex> lock(observerLock_);
-    auto it = std::find_if(observerList_.begin(), observerList_.end(), [&observer](const sptr<IFreeInstallObserver> &item) {
+    auto it = std::find_if(observerList_.begin(), observerList_.end(),
+        [&observer](const sptr<IFreeInstallObserver> &item) {
         return (item && item->AsObject() == observer->AsObject());
     });
     if (it != observerList_.end()) {

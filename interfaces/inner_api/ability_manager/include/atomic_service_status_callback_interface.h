@@ -52,7 +52,7 @@ public:
 
     /**
      * OnRemoveTimeoutTask, BMS has connected AG.
-     * 
+     *
      * @param want, installed ability
      */
     virtual void OnRemoveTimeoutTask(const Want &want) = 0;

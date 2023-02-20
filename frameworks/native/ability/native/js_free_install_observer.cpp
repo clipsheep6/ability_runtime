@@ -28,12 +28,14 @@ JsFreeInstallObserver::JsFreeInstallObserver(NativeEngine& engine) : engine_(eng
 
 JsFreeInstallObserver::~JsFreeInstallObserver() = default;
 
-void JsFreeInstallObserver::OnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode)
+void JsFreeInstallObserver::OnInstallFinished(const std::string bundleName, const std::string abilityName,
+    const std::string startTime, int resultCode)
 {
     HILOG_DEBUG("OnInstallFinished come.");
     wptr<JsFreeInstallObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, bundleName, abilityName, startTime, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        ([jsObserver, bundleName, abilityName, startTime, resultCode](NativeEngine &engine, AsyncTask &task,
+            int32_t status) {
             sptr<JsFreeInstallObserver> jsObserverSptr = jsObserver.promote();
             if (jsObserverSptr) {
                 jsObserverSptr->HandleOnInstallFinished(bundleName, abilityName, startTime, resultCode);
@@ -41,10 +43,12 @@ void JsFreeInstallObserver::OnInstallFinished(const std::string bundleName, cons
         });
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsFreeInstallObserver::OnInstallFinished", engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    AsyncTask::Schedule("JsFreeInstallObserver::OnInstallFinished", engine_, std::make_unique<AsyncTask>(callback,
+        std::move(execute), std::move(complete)));
 }
 
-void JsFreeInstallObserver::HandleOnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode)
+void JsFreeInstallObserver::HandleOnInstallFinished(const std::string bundleName, const std::string abilityName,
+    const std::string startTime, int resultCode)
 {
     HILOG_DEBUG("HandleOnInstallFinished begin.");
     for (auto it = jsObserverObjectList_.begin(); it != jsObserverObjectList_.end();) {

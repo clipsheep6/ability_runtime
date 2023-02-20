@@ -1485,7 +1485,7 @@ int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, M
 
 int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply)
 {
-    sptr<AbilityRuntime::IFreeInstallObserver> observer = 
+    sptr<AbilityRuntime::IFreeInstallObserver> observer =
         iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
     int32_t result = AddFreeInstallObserver(observer);
     if (!reply.WriteInt32(result)) {

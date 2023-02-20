@@ -173,6 +173,12 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     if (result != ERR_NONE) {
         return result;
     }
+    auto remoteFuture = info.promise->get_future();
+    std::future_status remoteStatus = remoteFuture.wait_for(std::chrono::milliseconds(
+        DELAY_REMOTE_FREE_INSTALL_TIMEOUT));
+    if (remoteStatus == std::future_status::timeout) {
+        return FREE_INSTALL_TIMEOUT;
+    }
     return ERR_OK;
 }
 
@@ -332,7 +338,8 @@ void FreeInstallManager::NotifyFreeInstallResultAsync(const Want &want, int resu
             HILOG_INFO("FreeInstall success.");
             Want newWant((*it).want);
             newWant.SetFlags(want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
-            int result = AbilityManagerClient::GetInstance()->StartAbility(newWant, (*it).callerToken, (*it).userId, (*it).requestCode);
+            int result = AbilityManagerClient::GetInstance()->StartAbility(newWant, (*it).callerToken,
+                (*it).userId, (*it).requestCode);
             HILOG_INFO("The result of StartAbility is %{public}d.", result);
             DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
                 bundleName, abilityName, startTime, result);
@@ -431,11 +438,11 @@ std::time_t FreeInstallManager::GetTimeStamp()
 void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
-    std::string bundleName = want.GetElement().GetBundleName();
-    std::string abilityName = want.GetElement().GetAbilityName();
-    std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-    // remove timeout task
     if (isAsync) {
+        // remove timeout task
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
         RemoveTimeoutTask(bundleName, abilityName, startTime);
         NotifyFreeInstallResultAsync(want, resultCode);
     } else {
@@ -496,7 +503,8 @@ void FreeInstallManager::PostTimeoutTask(const Want &want)
             HILOG_ERROR("this is nullptr");
             return;
         }
-        DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(bundleName, abilityName, startTime, FREE_INSTALL_TIMEOUT);
+        DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(bundleName, abilityName,
+            startTime, FREE_INSTALL_TIMEOUT);
     };
     std::string taskName = std::string("FreeInstallTimeout_") + std::string("_") + bundleName + std::string("_") +
         abilityName + std::string("_") + startTime;
@@ -506,7 +514,8 @@ void FreeInstallManager::PostTimeoutTask(const Want &want)
     handler->PostTask(task, taskName, DELAY_LOCAL_FREE_INSTALL_TIMEOUT);
 }
 
-void FreeInstallManager::RemoveTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime)
+void FreeInstallManager::RemoveTimeoutTask(const std::string bundleName, const std::string abilityName,
+    const std::string startTime)
 {
     // remove timeout task
     std::string taskName = std::string("FreeInstallTimeout") + std::string("_") + bundleName + std::string("_") +

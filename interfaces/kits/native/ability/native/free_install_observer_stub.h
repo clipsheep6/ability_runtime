@@ -22,7 +22,7 @@
 #include "free_install_observer_interface.h"
 #include "nocopyable.h"
 
-namespace OHOS{
+namespace OHOS {
 namespace AbilityRuntime {
 class FreeInstallObserverStub : public IRemoteStub<IFreeInstallObserver> {
 public:

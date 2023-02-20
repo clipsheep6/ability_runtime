@@ -33,7 +33,8 @@ bool FreeInstallObserverProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-void FreeInstallObserverProxy::OnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode)
+void FreeInstallObserverProxy::OnInstallFinished(const std::string bundleName, const std::string abilityName,
+    const std::string startTime, int resultCode)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -48,7 +49,7 @@ void FreeInstallObserverProxy::OnInstallFinished(const std::string bundleName, c
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();  
+    sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
         return;

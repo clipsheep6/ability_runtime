@@ -33,7 +33,8 @@ public:
 
     int32_t RemoveObserver(const sptr<IFreeInstallObserver> &observer);
 
-    void OnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode);
+    void OnInstallFinished(const std::string bundleName, const std::string abilityName,
+        const std::string startTime, int resultCode);
 
 private:
     bool ObserverExist(const sptr<IFreeInstallObserver> &observer);
@@ -42,7 +43,8 @@ private:
 
     void OnObserverDied(const wptr<IRemoteObject> &remote);
 
-    void HandleOnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode);
+    void HandleOnInstallFinished(const std::string bundleName, const std::string abilityName,
+        const std::string startTime, int resultCode);
 
     void PostTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
     void RemoveTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);

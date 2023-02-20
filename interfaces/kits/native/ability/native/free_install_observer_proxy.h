@@ -21,20 +21,20 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class FreeInstallObserverProxy : public IRemoteProxy<IFreeInstallObserver>
-{
+class FreeInstallObserverProxy : public IRemoteProxy<IFreeInstallObserver> {
 public:
     explicit FreeInstallObserverProxy(const sptr<IRemoteObject> &impl);
     virtual ~FreeInstallObserverProxy() = default;
 
     /**
      * OnInstallFinished, return free install result.
-     * 
+     *
      * @param bundleName, free install bundleName
      * @param abilityName, free install abilityName
      * @param startTime, free install start request time
      */
-    virtual void OnInstallFinished(const std::string bundleName, const std::string abilityName, const std::string startTime, int resultCode) override;
+    virtual void OnInstallFinished(const std::string bundleName, const std::string abilityName,
+        const std::string startTime, int resultCode) override;
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<FreeInstallObserverProxy> delegator_;

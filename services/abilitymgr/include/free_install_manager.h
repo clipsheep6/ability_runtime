@@ -29,9 +29,6 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityManagerService;
 
-/**
- * Store StartAbility info 
- */
 struct FreeInstallInfo {
     Want want;
     int32_t userId = -1;

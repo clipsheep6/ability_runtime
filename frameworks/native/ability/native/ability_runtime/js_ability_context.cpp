@@ -262,8 +262,8 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
         AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
     } else {
-        AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+        AsyncTask::Schedule("JsAbilityContext::OnStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     }
     return result;
 }

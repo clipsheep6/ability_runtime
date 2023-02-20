@@ -815,9 +815,9 @@ public:
 
     /**
      * Add FreeInstall Observer
-     * 
-     * @param 
-    */
+     *
+     * @param observer the result callback of ability request
+     */
     int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
 
     /**

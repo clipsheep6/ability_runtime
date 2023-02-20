@@ -54,7 +54,7 @@ public:
 
     /**
      * OnRemoveTimeoutTask, BMS has connected AG.
-     * 
+     *
      * @param want, installed ability
      */
     void OnRemoveTimeoutTask(const Want &want) override;
