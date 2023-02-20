@@ -123,14 +123,46 @@ public:
     /**
      * Starts a new ability with specific start options.
      *
-     * @param want, the want of the ability to start.
+     * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken, caller ability token.
-     * @param userId, Designation User ID.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+            const Want &want,
+            const sptr<IRemoteObject> &callerToken,
+            int32_t userId = DEFAULT_INVAL_VALUE,
+            int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
@@ -577,7 +609,16 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int requestCode,
         int callerUid = DEFAULT_INVAL_VALUE,
-        int32_t userId = DEFAULT_INVAL_VALUE);
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
+
+    int StartAbilityForOptionInner(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
 
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 
@@ -964,7 +1005,7 @@ private:
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
-    void UpdateCallerInfo(Want& want);
+    void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
 
     bool CheckIfOperateRemote(const Want &want);
     std::string AnonymizeDeviceId(const std::string& deviceId);

@@ -1949,6 +1949,47 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbility_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto res = proxy_->StartAbilityAsCaller(want, callerToken);
+    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    StartOptions startOptions;
+    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken);
+    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CallRequestDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CallRequestDone

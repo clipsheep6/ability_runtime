@@ -145,6 +145,30 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
     return abms->StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
+ErrCode AbilityManagerClient::StartAbilityAsCaller(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("Start ability come, ability:%{public}s, userId:%{public}d.",
+               want.GetElement().GetAbilityName().c_str(), userId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityAsCaller(want, callerToken, userId, requestCode);
+}
+
+ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("%{public}s come, abilityName=%{public}s, userId=%{public}d.",
+               __func__, want.GetElement().GetAbilityName().c_str(), userId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityAsCaller(want, startOptions, callerToken, userId, requestCode);
+}
+
 ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCode, Want& resultWant)
 {
     auto abms = GetAbilityManager();

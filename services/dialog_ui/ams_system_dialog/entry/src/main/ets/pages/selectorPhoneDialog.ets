@@ -68,7 +68,7 @@ struct SelectorPhoneDialog {
     globalThis.abilityWant.bundleName = item.split("#")[0];
     globalThis.abilityWant.abilityName = item.split("#")[1];
     globalThis.abilityWant.moduleName = item.split("#")[4];
-    globalThis.selectExtensionContext.startAbility(globalThis.abilityWant, (data, error) => {
+    globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
         console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
         return;

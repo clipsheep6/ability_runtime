@@ -55,6 +55,9 @@ public:
     ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
     ErrCode StartAbilityWithAccount(const AAFwk::Want &want, int accountId, int requestCode) override;
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode) override;
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want, int requestCode) override;
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+        int requestCode) override;
     ErrCode StartAbilityWithAccount(
         const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task) override;

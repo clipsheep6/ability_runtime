@@ -89,6 +89,35 @@ public:
     virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode) = 0;
 
     /**
+     * @brief Starts a new ability using the original caller information.
+     * Start a new ability as if it was started by the ability that started current ability. This is for the confirm
+     * ability and selection ability, which passthrough their want to the target.
+     *
+     * @param want Indicates the Want containing information about the target ability to start.
+     * @param requestCode Indicates the request code returned after the ability using the AbilityInfo.AbilityType.PAGE
+     * template is started. You can define the request code to identify the results returned by abilities. The value
+     * ranges from 0 to 65535. This parameter takes effect only on abilities using the AbilityInfo.AbilityType.PAGE
+     * template.
+     */
+    virtual ErrCode StartAbilityAsCaller(const AAFwk::Want &want, int requestCode) = 0;
+
+    /**
+     * @brief Starts a new ability using the original caller information.
+     * Start a new ability as if it was started by the ability that started current ability. This is for the confirm
+     * ability and selection ability, which passthrough their want to the target.
+     *
+     * @param want Indicates the Want containing information about the target ability to start.
+     * @param startOptions Indicates the StartOptions containing service side information about the target ability to
+     * start.
+     * @param requestCode Indicates the request code returned after the ability using the AbilityInfo.AbilityType.PAGE
+     * template is started. You can define the request code to identify the results returned by abilities. The value
+     * ranges from 0 to 65535. This parameter takes effect only on abilities using the AbilityInfo.AbilityType.PAGE
+     * template.
+     */
+    virtual ErrCode StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+        int requestCode) = 0;
+
+    /**
      * @brief Starts a new ability.
      * An ability using the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE template uses this method
      * to start a specific ability. The system locates the target ability from installed abilities based on the value

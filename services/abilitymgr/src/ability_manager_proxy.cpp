@@ -226,6 +226,94 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartAbilityAsCaller(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("callerToken and flag write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+
+    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&startOptions)) {
+        HILOG_ERROR("startOptions write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {

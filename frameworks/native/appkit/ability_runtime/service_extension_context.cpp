@@ -48,6 +48,30 @@ ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want, const AAF
     return err;
 }
 
+ErrCode ServiceExtensionContext::StartAbilityAsCaller(const AAFwk::Want &want) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Start ability as caller begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, ILLEGAL_REQUEST_CODE);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ServiceContext::StartAbilityAsCaller is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode ServiceExtensionContext::StartAbilityAsCaller(const AAFwk::Want &want,
+    const AAFwk::StartOptions &startOptions) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Start ability as caller begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, startOptions, token_,
+        ILLEGAL_REQUEST_CODE);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ServiceContext::StartAbilityAsCaller is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode ServiceExtensionContext::StartAbilityByCall(
     const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
 {

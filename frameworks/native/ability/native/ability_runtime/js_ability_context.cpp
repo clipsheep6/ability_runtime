@@ -70,6 +70,13 @@ NativeValue* JsAbilityContext::StartAbility(NativeEngine* engine, NativeCallback
     return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
 }
 
+NativeValue* JsAbilityContext::StartAbilityAsCaller(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnStartAbilityAsCaller(*engine, *info) : nullptr;
+}
+
 NativeValue* JsAbilityContext::StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
@@ -229,6 +236,53 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsAbilityContext::OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("OnStartAbilityAsCaller is called.");
+
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]), want);
+    InheritWindowMode(want);
+    decltype(info.argc) unwrapArgc = 1;
+    HILOG_INFO("Start ability, ability name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+        HILOG_INFO("OnStartAbilityAsCaller start options is used.");
+        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+        unwrapArgc++;
+    }
+    AsyncTask::CompleteCallback complete =
+        [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto innerErrorCode = (unwrapArgc == 1) ?
+                context->StartAbilityAsCaller(want, -1) : context->StartAbilityAsCaller(want, startOptions, -1);
+            if (innerErrorCode == 0) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+            }
+        };
+
+    NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsAbilityContext::OnStartAbilityAsCaller",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -1218,6 +1272,7 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
 
     const char *moduleName = "JsAbilityContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsAbilityContext::StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityAsCaller", moduleName, JsAbilityContext::StartAbilityAsCaller);
     BindNativeFunction(engine, *object, "startAbilityWithAccount", moduleName,
         JsAbilityContext::StartAbilityWithAccount);
     BindNativeFunction(engine, *object, "startAbilityByCall", moduleName, JsAbilityContext::StartAbilityByCall);

@@ -411,8 +411,34 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     return ret;
 }
 
+int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto flags = want.GetFlags();
+    EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
+        HILOG_ERROR("StartAbility with continuation flags is not allowed!");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+
+    HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
+        want.GetElement().GetAbilityName().c_str(), userId);
+
+    int32_t ret = StartAbilityInner(want, callerToken, requestCode, -1, userId, true);
+    if (ret != ERR_OK) {
+        eventInfo.errCode = ret;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return ret;
+}
+
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int callerUid, int32_t userId)
+    int requestCode, int callerUid, int32_t userId, bool isStartAsCaller)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
@@ -535,7 +561,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
-    UpdateCallerInfo(abilityRequest.want);
+    if (!isStartAsCaller) {
+        UpdateCallerInfo(abilityRequest.want, callerToken);
+    } else {
+        HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+    }
+
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(validUserId);
         if (!connectManager) {
@@ -708,7 +739,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want);
+    UpdateCallerInfo(abilityRequest.want, callerToken);
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -720,8 +751,22 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
+    HILOG_DEBUG("Start ability with startOptions.");
+    return StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode, false);
+}
+
+int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+{
+    HILOG_DEBUG("Start ability as caller with startOptions.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode, true);
+}
+
+int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, bool isStartAsCaller)
+{
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Start ability options.");
     if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
@@ -863,7 +908,11 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
-    UpdateCallerInfo(abilityRequest.want);
+    if (!isStartAsCaller) {
+        UpdateCallerInfo(abilityRequest.want, callerToken);
+    } else {
+        HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+    }
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -916,7 +965,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
         }
     }
 
-    UpdateCallerInfo(abilityRequest.want);
+    UpdateCallerInfo(abilityRequest.want, nullptr);
     return ERR_OK;
 }
 
@@ -3917,7 +3966,7 @@ int AbilityManagerService::StartAbilityByCall(
         HILOG_ERROR("currentMissionListManager_ is Null. curentUserId=%{public}d", GetUserId());
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want);
+    UpdateCallerInfo(abilityRequest.want, callerToken);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
@@ -4807,7 +4856,7 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
     return currentMissionListManager_->MoveMissionToFront(missionId);
 }
 
-void AbilityManagerService::UpdateCallerInfo(Want& want)
+void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
     int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
     int32_t callerUid = IPCSkeleton::GetCallingUid();
@@ -4815,6 +4864,15 @@ void AbilityManagerService::UpdateCallerInfo(Want& want)
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!abilityRecord) {
+        HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(" "));
+    } else {
+        std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+    }
 }
 
 bool AbilityManagerService::JudgeMultiUserConcurrency(const int32_t userId)

@@ -72,6 +72,16 @@ public:
         return 0;
     }
 
+    virtual int StartAbilityAsCaller(
+        const Want& want,
+        const StartOptions& startOptions,
+        const sptr<IRemoteObject>& callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant = nullptr)
     {
         return 0;
@@ -257,6 +267,8 @@ public:
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+            int32_t userId, int requestCode));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));

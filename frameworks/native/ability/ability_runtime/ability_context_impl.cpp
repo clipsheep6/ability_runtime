@@ -134,6 +134,15 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
     return err;
 }
 
+ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Start calling StartAbilityAsCaller.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, requestCode);
+    HILOG_INFO("AbilityContextImpl::StartAbilityAsCaller. End calling StartAbilityAsCaller. ret=%{public}d", err);
+    return err;
+}
+
 ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int accountId, int requestCode)
 {
     HILOG_DEBUG("AbilityContextImpl::StartAbilityWithAccount. Start calling StartAbility.");
@@ -149,6 +158,17 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, const AAFwk::S
     HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
+    return err;
+}
+
+ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+    int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("AbilityContextImpl::StartAbilityAsCaller. Start calling StartAbilityAsCaller.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want,
+        startOptions, token_, requestCode);
+    HILOG_INFO("AbilityContextImpl::StartAbilityAsCaller. End calling StartAbilityAsCaller. ret=%{public}d", err);
     return err;
 }
 

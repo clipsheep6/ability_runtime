@@ -50,6 +50,19 @@ public:
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
 
     /**
+     * @brief Starts a new ability using the original caller information.
+     * Start a new ability as if it was started by the ability that started current ability. This is for the confirm
+     * ability and selection ability, which passthrough their want to the target.
+     *
+     * @param want Indicates the Want containing information about the target ability to start.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want) const;
+
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
+
+    /**
      * call function by callback object
      *
      * @param want Request info for ability.

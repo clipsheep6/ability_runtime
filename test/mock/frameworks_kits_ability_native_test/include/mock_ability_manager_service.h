@@ -130,6 +130,11 @@ public:
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender>& target, std::shared_ptr<WantSenderInfo>& info));
     MOCK_METHOD3(StartAbilityByCall, int(const Want&, const sptr<IAbilityConnection>&, const sptr<IRemoteObject>&));
+
+    MOCK_METHOD4(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        int32_t userId, int requestCode));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
 #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     MOCK_METHOD0(BlockAmsService, int());

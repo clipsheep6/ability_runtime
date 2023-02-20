@@ -72,6 +72,12 @@ public:
         return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
     }
 
+    static NativeValue* StartAbilityAsCaller(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
+        return (me != nullptr) ? me->OnStartAbilityAsCaller(*engine, *info) : nullptr;
+    }
+
     static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
@@ -186,6 +192,51 @@ private:
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbility",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+        HILOG_INFO("OnStartAbilityAsCaller is called");
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("Start ability as caller failed, not enough params.");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        size_t unwrapArgc = 0;
+        AAFwk::Want want;
+        AAFwk::StartOptions startOptions;
+        if (!CheckStartAbilityInputParam(engine, info, want, startOptions, unwrapArgc)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                HILOG_INFO("startAbility begin");
+                auto context = weak.lock();
+                if (!context) {
+                    HILOG_WARN("context is released");
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                    return;
+                }
+
+                ErrCode innerErrorCode = ERR_OK;
+                (unwrapArgc == 1) ? innerErrorCode = context->StartAbilityAsCaller(want) :
+                    innerErrorCode = context->StartAbilityAsCaller(want, startOptions);
+                if (innerErrorCode == 0) {
+                    task.Resolve(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityAsCaller",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -855,6 +906,8 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
 
     const char *moduleName = "JsServiceExtensionContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsServiceExtensionContext::StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityAsCaller",
+        moduleName, JsServiceExtensionContext::StartAbilityAsCaller);
     BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsServiceExtensionContext::TerminateAbility);
     BindNativeFunction(engine, *object, "connectAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
     BindNativeFunction(

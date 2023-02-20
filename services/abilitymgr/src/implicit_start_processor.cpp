@@ -101,7 +101,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
-    return abilityMgr->StartAbility(want);
+    return abilityMgr->StartAbility(want, request.callerToken);
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
