@@ -71,7 +71,7 @@ void MissionListManager::Init()
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
-int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
+int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (IsReachToLimitLocked(abilityRequest)) {
@@ -100,6 +100,7 @@ int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
     }
 
+    abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
     return StartAbility(currentTopAbility, callerAbility, abilityRequest);
 }
 
@@ -1474,6 +1475,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     for (auto it : terminateAbilityList_) {
         if (it == abilityRecord) {
+            abilityRecord->RemoveUriPermission();
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;
@@ -1794,6 +1796,7 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         return;
     }
     HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    abilityRecord->RemoveUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
     if (abilityRecord->IsStartingWindow()) {

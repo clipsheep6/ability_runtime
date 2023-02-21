@@ -20,6 +20,8 @@
 #include <map>
 
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "foundation/filemanagement/storage_service/services/storage_manager/include/ipc/storage_manager_proxy.h"
+#include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
 
@@ -38,7 +40,7 @@ public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
 
-    void GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
+    bool GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
         const Security::AccessToken::AccessTokenID targetTokenId) override;
 
     bool VerifyUriPermission(const Uri &uri, unsigned int flag,
@@ -48,13 +50,15 @@ public:
 
 private:
     sptr<AppExecFwk::IBundleMgr> ConnectBundleManager();
+    sptr<StorageManager::IStorageManager> ConnectStorageManager();
     int GetCurrentAccountId();
-    void ClearProxy();
+    void ClearBMSProxy();
+    void ClearSMProxy();
 
-    class BMSDeathRecipient : public IRemoteObject::DeathRecipient {
+    class BMSOrSMDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        BMSDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
-        ~BMSDeathRecipient() = default;
+        BMSOrSMDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
+        ~BMSOrSMDeathRecipient() = default;
         virtual void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote) override;
 
     private:
@@ -65,7 +69,9 @@ private:
     std::map<std::string, std::list<GrantInfo>> uriMap_;
     std::mutex mutex_;
     std::mutex bmsMutex_;
+    std::mutex storageMutex_;
     sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
+    sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

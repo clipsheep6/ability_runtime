@@ -38,7 +38,8 @@ int UriPermissionManagerStub::OnRemoteRequest(
             auto flag = data.ReadInt32();
             auto fromTokenId = data.ReadInt32();
             auto targetTokenId = data.ReadInt32();
-            GrantUriPermission(*uri, flag, fromTokenId, targetTokenId);
+            auto ret = GrantUriPermission(*uri, flag, fromTokenId, targetTokenId);
+            reply.WriteBool(ret);
             break;
         }
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {

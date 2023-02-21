@@ -22,14 +22,15 @@
 
 namespace OHOS {
 namespace AAFwk {
-void UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
+bool UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
     const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerClient::GrantUriPermission is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        uriPermMgr->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
+        return uriPermMgr->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
     }
+    return false;
 }
 
 bool UriPermissionManagerClient::VerifyUriPermission(const Uri &uri, unsigned int flag,
@@ -54,7 +55,6 @@ void UriPermissionManagerClient::RemoveUriPermission(const Security::AccessToken
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
-    return nullptr;
     HILOG_DEBUG("UriPermissionManagerClient::ConnectUriPermService is called.");
     std::lock_guard<std::mutex> lock(mutex_);
     if (uriPermMgr_ == nullptr) {

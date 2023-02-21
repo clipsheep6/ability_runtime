@@ -29,7 +29,6 @@ ohos_unittest("ability_manager_service_test") {
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/uri_permission/include",
     "//foundation/resourceschedule/background_task_mgr/services/transient_task/include",
     "//foundation/arkui/ace_engine/frameworks",
     "//foundation/resourceschedule/resource_schedule_service/ressched/interfaces/innerkits/ressched_client/include",

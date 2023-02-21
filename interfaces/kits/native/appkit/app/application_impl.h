@@ -141,8 +141,6 @@ private:
     int recordId_;
     std::shared_ptr<OHOSApplication> application_ = nullptr;
 
-    void RemoveUriPermission();
-
     DISALLOW_COPY_AND_MOVE(ApplicationImpl);
 };
 }  // namespace AppExecFwk

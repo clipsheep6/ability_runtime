@@ -103,8 +103,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->ReportEventToSuspendManager(abilityInfo);
     abilityms->StartExtensionAbility(*want, token, int32Param, extensionType);
     abilityms->StopExtensionAbility(*want, token, int32Param, extensionType);
-    abilityms->GrantUriPermission(*want, int32Param);
-    abilityms->GrantUriPermission(*want, int32Param, uint32Param);
     abilityms->TerminateAbility(token, intParam, want);
     abilityms->CloseAbility(token, intParam, want);
     abilityms->TerminateAbilityWithFlag(token, intParam, want, boolParam);

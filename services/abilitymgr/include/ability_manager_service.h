@@ -732,8 +732,6 @@ public:
 
     bool IsAbilityControllerStartById(int32_t missionId);
 
-    void GrantUriPermission(const Want &want, int32_t validUserId, uint32_t targetTokenId);
-
     bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int componentStatus, AbilityRequest &request);
 
@@ -1066,8 +1064,6 @@ private:
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
-    void GrantUriPermission(const Want &want, int32_t validUserId);
-    bool VerifyUriPermission(const AbilityRequest &abilityRequest, const Want &want);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 

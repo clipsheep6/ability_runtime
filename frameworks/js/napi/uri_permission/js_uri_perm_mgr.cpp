@@ -33,75 +33,6 @@ public:
         HILOG_INFO("JsUriPermMgr::Finalizer is called");
         std::unique_ptr<JsUriPermMgr>(static_cast<JsUriPermMgr*>(data));
     }
-
-    static NativeValue* VerifyUriPermission(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsUriPermMgr* me = CheckParamsAndGetThis<JsUriPermMgr>(engine, info);
-        return (me != nullptr) ? me->OnVerifyUriPermission(*engine, *info) : nullptr;
-    }
-
-private:
-    NativeValue* OnVerifyUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
-    {
-        HILOG_DEBUG("OnVerifyUriPermission is called");
-        constexpr int32_t argCount = 5;
-        if (info.argc > argCount) {
-            HILOG_ERROR("Too many parameters");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
-        }
-        std::vector<std::shared_ptr<NativeReference>> args;
-        for (size_t i = 0; i < info.argc; ++i) {
-            args.emplace_back(engine.CreateReference(info.argv[i], 1));
-        }
-
-        constexpr int32_t argCountThree = 3;
-        AsyncTask::CompleteCallback complete =
-        [args, argCountThree](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            constexpr int32_t argCountFour = 4;
-            if (args.size() != argCountThree && args.size() != argCountFour) {
-                HILOG_ERROR("Wrong number of parameters.");
-                task.Reject(engine, CreateJsError(engine, -1, "Wrong number of parameters."));
-                return;
-            }
-
-            std::string uriStr;
-            if (!ConvertFromJsValue(engine, args[0]->Get(), uriStr)) {
-                HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
-                task.Reject(engine, CreateJsError(engine, -1, "uri conversion failed."));
-                return;
-            }
-
-            int flag = 0;
-            if (!ConvertFromJsValue(engine, args[1]->Get(), flag)) {
-                HILOG_ERROR("%{public}s called, the second parameter is invalid.", __func__);
-                task.Reject(engine, CreateJsError(engine, -1, "flag conversion failed."));
-                return;
-            }
-
-            int accessTokenId = 0;
-            constexpr int32_t index = 2;
-            if (!ConvertFromJsValue(engine, args[index]->Get(), accessTokenId)) {
-                HILOG_ERROR("%{public}s called, the third parameter is invalid.", __func__);
-                task.Reject(engine, CreateJsError(engine, -1, "accessTokenId conversion failed."));
-                return;
-            }
-
-            Uri uri(uriStr);
-            if (AAFwk::UriPermissionManagerClient::GetInstance()->VerifyUriPermission(uri, flag, accessTokenId)) {
-                task.Resolve(engine, CreateJsValue(engine, 0));
-            } else {
-                task.Reject(engine, CreateJsError(engine, -1, "The app doesn't have the uri permission!"));
-            }
-        };
-
-        NativeValue* lastParam = (info.argc == argCountThree) ? nullptr : info.argv[argCountThree];
-        NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsUriPermMgr::OnVerifyUriPermission",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-        HILOG_DEBUG("OnVerifyUriPermission is called end");
-        return result;
-    }
 };
 
 NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj)
@@ -121,8 +52,6 @@ NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj)
     std::unique_ptr<JsUriPermMgr> jsUriPermMgr = std::make_unique<JsUriPermMgr>();
     object->SetNativePointer(jsUriPermMgr.release(), JsUriPermMgr::Finalizer, nullptr);
 
-    const char *moduleName = "JsUriPermMgr";
-    BindNativeFunction(*engine, *object, "verifyUriPermission", moduleName, JsUriPermMgr::VerifyUriPermission);
     return engine->CreateUndefined();
 }
 }  // namespace AbilityRuntime

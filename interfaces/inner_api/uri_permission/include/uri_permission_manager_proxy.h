@@ -26,7 +26,7 @@ public:
     explicit UriPermissionManagerProxy(const sptr<IRemoteObject> &impl);
     virtual ~UriPermissionManagerProxy() = default;
 
-    virtual void GrantUriPermission(const Uri &uri, unsigned int flag,
+    virtual bool GrantUriPermission(const Uri &uri, unsigned int flag,
         const Security::AccessToken::AccessTokenID fromTokenId,
         const Security::AccessToken::AccessTokenID targetTokenId) override;
 
