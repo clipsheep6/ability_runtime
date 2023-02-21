@@ -193,7 +193,7 @@ void Watchdog::ReportEvent()
     HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
 
     // should call error manager-> appRecovery
-    if (isSixSecondEvent_) {
+    if (eventType == "THREAD_BLOCK_6S") {
         AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
         AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
     }

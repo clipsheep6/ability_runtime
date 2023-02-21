@@ -261,10 +261,10 @@ void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin", __func__);
+#ifdef SUPPORT_GRAPHICS
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
-#ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     auto && window = GetWindow();
     if (window != nullptr) {
@@ -1879,6 +1879,14 @@ void Ability::OnCreate(Rosen::DisplayId displayId)
 void Ability::OnDestroy(Rosen::DisplayId displayId)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo_ == nullptr) {
+        return;
+    }
+    if (abilityInfo_->type == AbilityType::PAGE && abilityInfo_->isStageBasedModel) {
+        AppRecovery::GetInstance().removeAbility(GetToken());
+    }
+#endif
 }
 
 void Ability::OnChange(Rosen::DisplayId displayId)

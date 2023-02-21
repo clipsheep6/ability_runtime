@@ -926,11 +926,11 @@ void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token
     return abms->EnableRecoverAbility(token);
 }
 
-void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    return abms->ScheduleRecoverAbility(token, reason);
+    return abms->ScheduleRecoverAbility(token, reason, want);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

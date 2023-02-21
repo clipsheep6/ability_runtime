@@ -638,7 +638,8 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
-    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
+        const Want *want = nullptr) override;
 
 private:
     template <typename T>

@@ -74,13 +74,11 @@ bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<Ability>& ability,
     ability_ = ability;
     abilityInfo_ = abilityInfo;
     token_ = token;
-    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
-    if (ams == nullptr) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
-        return false;
+    auto abilityContext = ability->GetAbilityContext();
+    if (abilityContext != nullptr) {
+        abilityContext->GetMissionId(missionId_);
     }
-
-    ams->EnableRecoverAbility(token);
+    HILOG_INFO("AppRecovery InitAbilityInfo, missionId_:%{public}d", missionId_);
     return true;
 }
 
@@ -92,8 +90,19 @@ void AbilityRecovery::EnableAbilityRecovery(uint16_t restartFlag, uint16_t saveF
     saveMode_ = saveMode;
 }
 
+bool AbilityRecovery::IsSameAbility(uintptr_t ability)
+{
+    return ability == jsAbilityPtr_;
+}
+
+void AbilityRecovery::SetJsAbility(uintptr_t ability)
+{
+    jsAbilityPtr_ = ability;
+}
+
 bool AbilityRecovery::SaveAbilityState()
 {
+    HILOG_INFO("SaveAbilityState begin");
     auto ability = ability_.lock();
     auto abilityInfo = abilityInfo_.lock();
     if (ability == nullptr || abilityInfo == nullptr) {
@@ -117,7 +126,9 @@ bool AbilityRecovery::SaveAbilityState()
     }
 #endif
     if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
-        SerializeDataToFile(abilityInfo->descriptionId, wantParams);
+        int32_t saveId = missionId_ > 0 ? missionId_ : abilityInfo->descriptionId;
+        HILOG_INFO("AppRecovery SaveAbilityState, saveId:%{public}d", saveId);
+        SerializeDataToFile(saveId, wantParams);
     } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
         params_ = wantParams;
     }
@@ -226,19 +237,35 @@ bool AbilityRecovery::ScheduleSaveAbilityState(StateReason reason)
         HILOG_ERROR("AppRecovery ts not save ability state");
         return false;
     }
-    return SaveAbilityState();
+
+    bool ret = SaveAbilityState();
+    if (ret) {
+        auto token = token_.promote();
+        if (token == nullptr) {
+            HILOG_ERROR("AppRecovery token is nullptr");
+            return false;
+        }
+
+        std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
+        if (abilityMgr == nullptr) {
+            HILOG_ERROR("AppRecovery ScheduleSaveAbilityState. abilityMgr client is not exist.");
+            return false;
+        }
+        abilityMgr->EnableRecoverAbility(token);
+    }
+    return ret;
 }
 
-bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason)
+bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason, const Want *want)
 {
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery not enable");
         return false;
     }
 
-    std::shared_ptr<AAFwk::AbilityManagerClient> ams = AAFwk::AbilityManagerClient::GetInstance();
-    if (ams == nullptr) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp. ams client is not exist.");
+    std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityMgr == nullptr) {
+        HILOG_ERROR("AppRecovery ScheduleRecoverApp. abilityMgr client is not exist.");
         return false;
     }
 
@@ -246,7 +273,7 @@ bool AbilityRecovery::ScheduleRecoverAbility(StateReason reason)
     if (token == nullptr) {
         return false;
     }
-    ams->ScheduleRecoverAbility(token, reason);
+    abilityMgr->ScheduleRecoverAbility(token, reason, want);
     return true;
 }
 
@@ -259,7 +286,8 @@ bool AbilityRecovery::PersistState()
     }
 
     if (!params_.IsEmpty()) {
-        SerializeDataToFile(abilityInfo->descriptionId, params_);
+        int32_t saveId = missionId_ > 0 ? missionId_ : abilityInfo->descriptionId;
+        SerializeDataToFile(saveId, params_);
     }
     return true;
 }
@@ -278,9 +306,10 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
 
     hasTryLoad_ = true;
 
-    if (!ReadSerializeDataFromFile(abilityInfo->descriptionId, params_)) {
-        HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d",
-            abilityInfo->descriptionId);
+    int32_t saveId = missionId_ > 0 ? missionId_ : abilityInfo->descriptionId;
+    HILOG_INFO("AppRecovery LoadSavedState, saveId:%{public}d", saveId);
+    if (!ReadSerializeDataFromFile(saveId, params_)) {
+        HILOG_ERROR("AppRecovery ScheduleRestoreAbilityState. failed to find record for id:%{public}d", saveId);
         hasLoaded_ = false;
         return hasLoaded_;
     }
