@@ -282,11 +282,8 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
 
     NativeValue *result = nullptr;
     NativeValue *lastParam = (info.argc == ARGS_TWO) ? info.argv[ARGS_ONE] : nullptr;
-
-    std::unique_ptr<AbilityRuntime::AsyncTask> uasyncTask =
-        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
-    std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = std::move(uasyncTask);
-    startAbilityCallback->asyncTask = asyncTask;
+    startAbilityCallback->asyncTask =
+        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result).release();
 
     AbilityProcess::GetInstance()->AddAbilityResultCallback(ability_,
         *abilityParam, startAbilityCallback->errCode, *startAbilityCallback);
@@ -647,6 +644,8 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
                 int32_t errCode = GetStartAbilityErrorCode(onAbilityCB->cb.errCode);
                 onAbilityCB->cb.asyncTask->Reject(*(onAbilityCB->cb.engine),
                     CreateJsError(*(onAbilityCB->cb.engine), errCode, "StartAbilityForResult Error"));
+                delete onAbilityCB->cb.asyncTask;
+                onAbilityCB->cb.asyncTask = nullptr;
                 delete onAbilityCB;
                 onAbilityCB = nullptr;
                 delete work;
@@ -661,7 +660,8 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
             object->SetProperty("want", CreateJsWant(*(onAbilityCB->cb.engine), onAbilityCB->resultData));
 
             onAbilityCB->cb.asyncTask->Resolve(*(onAbilityCB->cb.engine), objValue);
-
+            delete onAbilityCB->cb.asyncTask;
+            onAbilityCB->cb.asyncTask = nullptr;
             delete onAbilityCB;
             onAbilityCB = nullptr;
             delete work;

@@ -159,7 +159,11 @@ public:
 
     MOCK_METHOD2(CreateError, NativeValue* (NativeValue*, NativeValue*));
 
-    bool CallInitTaskFunc(NativeEngine* engine, NativeValue* func) override
+    bool InitTaskPoolThread(NativeEngine* engine, NapiConcurrentCallback callback) override
+    {
+        return false;
+    }
+    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
     {
         return false;
     }
@@ -233,11 +237,6 @@ public:
     }
 
     NativeValue* Deserialize(NativeEngine* context, NativeValue* recorder) override
-    {
-        return nullptr;
-    }
-
-    ExceptionInfo* GetExceptionForWorker() const override
     {
         return nullptr;
     }
@@ -318,6 +317,16 @@ public:
     bool StopHeapTracking(const std::string& filePath) override
     {
         return true;
+    }
+
+    bool IsExceptionPending() const override
+    {
+        return false;
+    }
+
+    NativeValue* GetAndClearLastException() override
+    {
+        return nullptr;
     }
 
     bool TriggerFatalException(NativeValue* error) override

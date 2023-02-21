@@ -50,6 +50,17 @@ public:
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
+    int StartAbilityAsCaller(
+        const Want& want,
+        const sptr<IRemoteObject>& callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+    int StartAbilityAsCaller(
+        const Want& want,
+        const StartOptions& startOptions,
+        const sptr<IRemoteObject>& callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     int StartAbilityByCall(
         const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken);

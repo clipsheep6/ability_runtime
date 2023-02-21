@@ -15,14 +15,11 @@
 
 #include <gtest/gtest.h>
 #include "bundlemgr/mock_bundle_manager.h"
-#include "mock_ability_connect_callback.h"
 #include "mock_native_token.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler.h"
 #define private public
 #define protected public
 #include "ability_event_handler.h"
-#include "ability_manager_service.h"
 #undef private
 #undef protected
 #include "if_system_ability_manager.h"
@@ -47,25 +44,6 @@ using OHOS::AppExecFwk::ElementName;
 
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 #define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
 
 namespace {}  // namespace
@@ -95,7 +73,6 @@ public:
 
 public:
     std::shared_ptr<PendingWantManager> pendingManager_{ nullptr };
-    std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
     std::string test_apl = "";
 };
 
@@ -126,14 +103,10 @@ void PendingWantManagerTest::TearDownTestCase()
 
 void PendingWantManagerTest::SetUp()
 {
-    abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    abilityMs_->OnStart();
-    WaitUntilTaskFinished();
 }
 
 void PendingWantManagerTest::TearDown()
 {
-    abilityMs_->OnStop();
 }
 
 WantSenderInfo PendingWantManagerTest::MakeWantSenderInfo(Want& want, int32_t flags, int32_t userId, int32_t type)
@@ -996,53 +969,6 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_3700, TestSize.Level1)
     EXPECT_EQ((int)pendingManager_->wantRecords_.size(), 2);
     pendingManager_->ClearPendingWantRecordTask("bundleName3", 1);
     EXPECT_EQ((int)pendingManager_->wantRecords_.size(), 2);
-}
-
-/*
- * Feature: PendingWantManager
- * Function: PendingWantStartAbility
- * SubFunction: NA
- * FunctionPoints: PendingWant Start Ability
- * EnvConditions: NA
- * CaseDescription: PendingWantStartAbility, DeviceID isn't null, a single Want, callerUid is -1.
- */
-HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_3900, TestSize.Level1)
-{
-    int32_t callerUid = -1;
-    Want want;
-    ElementName element("device", "bundleName1", "abilityName1");
-    want.SetElement(element);
-    auto result = abilityMs_->pendingWantManager_->PendingWantStartAbility(want, nullptr, -1, callerUid);
-    EXPECT_NE(ERR_OK, result);
-}
-
-/*
- * Feature: PendingWantManager
- * Function: PendingWantStartAbilitys
- * SubFunction: NA
- * FunctionPoints: PendingWant Start Abilitys
- * EnvConditions: NA
- * CaseDescription: PendingWantStartAbilitys, DeviceID isn't null, multiple Want, callerUid is -1.
- */
-HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_4100, TestSize.Level1)
-{
-    int32_t callerUid = -1;
-    WantsInfo wantsInfo;
-    Want want;
-    ElementName element("device", "bundleName", "abilityName");
-    want.SetElement(element);
-    wantsInfo.want = want;
-    WantsInfo wantsInfo1;
-    Want want1;
-    ElementName element1("device", "bundleName1", "abilityName1");
-    want1.SetElement(element1);
-    wantsInfo1.want = want1;
-    std::vector<WantsInfo> wnatsInfos;
-    wnatsInfos.emplace_back(wantsInfo);
-    wnatsInfos.emplace_back(wantsInfo1);
-    auto result = abilityMs_->pendingWantManager_->PendingWantStartAbilitys(wnatsInfos,
-        nullptr, -1, callerUid);
-    EXPECT_NE(ERR_OK, result);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

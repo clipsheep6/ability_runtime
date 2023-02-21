@@ -103,7 +103,7 @@ public:
      * StartAbility with want, send want to ability manager service.
      *
      * @param want Ability want.
-     * @param callerToken, caller ability token.
+     * @param callerToken caller ability token.
      * @param requestCode Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
@@ -133,7 +133,7 @@ public:
      *
      * @param want, the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken, caller ability token.
+     * @param callerToken caller ability token.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
@@ -143,6 +143,36 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityAsCaller(
+            const Want &want,
+            const sptr<IRemoteObject> &callerToken,
+            int requestCode = DEFAULT_INVAL_VALUE,
+            int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want Indicates the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityAsCaller(
+            const Want &want,
+            const StartOptions &startOptions,
+            const sptr<IRemoteObject> &callerToken,
+            int requestCode = DEFAULT_INVAL_VALUE,
+            int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Start extension ability with want, send want to ability manager service.

@@ -77,7 +77,6 @@
       *KeyEvent*;
       *PointerEvent*;
       *SysMgrClient*;
-      *MissionInformation*;
       *LifeCycle*;
       *ProcessInfo*;
       *ExtensionModuleLoader*;

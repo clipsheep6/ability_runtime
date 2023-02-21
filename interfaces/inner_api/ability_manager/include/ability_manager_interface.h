@@ -125,6 +125,44 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -964,6 +1002,10 @@ public:
         CONNECT_ABILITY_WITH_TYPE,
 
         CALL_REQUEST_DONE,
+
+        START_ABILITY_AS_CALLER_BY_TOKEN,
+
+        START_ABILITY_AS_CALLER_FOR_OPTIONS,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

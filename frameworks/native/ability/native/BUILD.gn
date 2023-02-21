@@ -159,14 +159,12 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_caller_complex.cpp",
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/configuration_utils.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_handler.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_manager.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_helper_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_result.cpp",
     "${ability_runtime_native_path}/ability/native/data_uri_utils.cpp",
     "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
     "${ability_runtime_native_path}/ability/native/extension.cpp",
@@ -188,8 +186,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
-    "${relational_store_napi_path}/common/src/js_utils.cpp",
-    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -228,9 +224,8 @@ ohos_shared_library("abilitykit_native") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "relational_store:native_dataability",
+    "ipc:ipc_napi_common",
     "relational_store:native_rdb",
-    "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
   ]
 
@@ -316,11 +311,35 @@ ohos_shared_library("form_extension") {
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "hiviewdfx_hilog_native:libhilog",
-      "ipc_js:rpc",
-      "relational_store:native_dataability",
-      "relational_store:native_rdb",
+      "ipc:ipc_core",
     ]
   }
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("form_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/form_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":form_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -354,9 +373,7 @@ ohos_shared_library("service_extension") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
+    "ipc:ipc_napi_common",
   ]
 
   subsystem_name = "ability"
@@ -392,9 +409,34 @@ ohos_shared_library("static_subscriber_extension") {
     "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
   ]
 
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("static_subscriber_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/static_subscriber_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":static_subscriber_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -490,16 +532,12 @@ ohos_shared_library("service_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
-    "resource_management:global_resmgr",
   ]
 
   relative_install_dir = "extensionability/"
@@ -573,4 +611,15 @@ ohos_prebuilt_etc("extension_blocklist_config.json") {
 
 group("extension_blocklist_config") {
   deps = [ ":extension_blocklist_config.json" ]
+}
+
+group("extension_module") {
+  deps = [
+    ":service_extension_module",
+    ":static_subscriber_extension_module",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ ":form_extension_module" ]
+  }
 }

@@ -61,6 +61,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::ACQUIREFORMSTATE_FORM, "ACQUIREFORMSTATE_FORM"),
     std::map<EventName, std::string>::value_type(EventName::MESSAGE_EVENT_FORM, "MESSAGE_EVENT_FORM"),
     std::map<EventName, std::string>::value_type(EventName::ROUTE_EVENT_FORM, "ROUTE_EVENT_FORM"),
+    std::map<EventName, std::string>::value_type(EventName::BACKGROUND_EVENT_FORM, "BACKGROUND_EVENT_FORM"),
     std::map<EventName, std::string>::value_type(EventName::RELEASE_FORM, "RELEASE_FORM"),
     std::map<EventName, std::string>::value_type(EventName::DELETE_INVALID_FORM, "DELETE_INVALID_FORM"),
     std::map<EventName, std::string>::value_type(EventName::SET_NEXT_REFRESH_TIME_FORM, "SET_NEXT_REFRESH_TIME_FORM"),
@@ -236,6 +237,7 @@ void EventReport::SendFormEvent(const EventName &eventName, HiSysEventType type,
             break;
         case EventName::ADD_FORM:
         case EventName::REQUEST_FORM:
+        case EventName::BACKGROUND_EVENT_FORM:
         case EventName::ROUTE_EVENT_FORM:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,

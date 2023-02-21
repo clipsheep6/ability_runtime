@@ -110,9 +110,6 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
-    connectServerManager.handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
-    connectServerManager.instanceMap_.try_emplace(ONE, instanceName);
-    EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
     HILOG_INFO("ConnectServerManagerTest_0400 is end");
 }
 

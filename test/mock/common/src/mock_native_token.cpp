@@ -14,7 +14,6 @@
  */
 
 #include "mock_native_token.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

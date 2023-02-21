@@ -84,7 +84,6 @@ class ILifeCycle;
 class ContinuationManager;
 class AbilityRecovery;
 class ContinuationRegisterManager;
-class IContinuationRegisterManager;
 class Ability : public IAbilityEvent,
                 public ILifeCycle,
                 public AbilityContext,
@@ -743,15 +742,6 @@ public:
     void SetBundleManager(const sptr<IBundleMgr> &bundleManager);
 
     /**
-     * @brief You can use the IContinuationRegisterManager object to interact with the Device+ control center,
-     * including registering and unregistering the ability to migrate, updating the device connection state, and
-     * showing the list of devices that can be selected for ability migration.
-     *
-     * @return Returns true if the migration request is successful; returns false otherwise.
-     */
-    std::weak_ptr<IContinuationRegisterManager> GetContinuationRegisterManager();
-
-    /**
      * @brief Prepare user data of local Ability.
      *
      * @param wantParams Indicates the user data to be saved.
@@ -841,41 +831,6 @@ public:
      * @return Returns the notification is successful or fail
      */
     bool PrintDrawnCompleted() override;
-
-    /**
-     * @brief Inflates UI controls by using ComponentContainer.
-     * You can create a ComponentContainer instance that contains multiple components.
-     *
-     * @param componentContainer Indicates a set of customized components.
-     */
-    virtual void SetUIContent(const ComponentContainer &componentContainer);
-
-    /**
-     * @brief Inflates layout resources by using the layout resource ID.
-     *
-     * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
-     */
-    virtual void SetUIContent(int layoutRes) final;
-
-    /**
-     * @brief Inflates UI controls by using ComponentContainer.
-     * You can create a ComponentContainer instance that contains multiple components.
-     *
-     * @param componentContainer Indicates the component layout defined by the user.
-     * @param context Indicates the context to use.
-     * @param typeFlag Indicates the window type.
-     */
-    virtual void SetUIContent(
-        const ComponentContainer &componentContainer, std::shared_ptr<Context> &context, int typeFlag);
-
-    /**
-     * @brief Inflates layout resources by using the layout resource ID.
-     *
-     * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
-     * @param context Indicates the context to use.
-     * @param typeFlag Indicates the window type.
-     */
-    virtual void SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag);
 
     /**
      * @brief Called after instantiating WindowScene.
@@ -1022,17 +977,6 @@ public:
     int GetDisplayOrientation() override;
 
     /**
-     * @brief Called when a key is lone pressed.
-     *
-     * @param keyCode Indicates the code of the key long pressed.
-     * @param keyEvent Indicates the key-long-press event.
-     *
-     * @return Returns true if this event is handled and will not be passed further; returns false if this event
-     * is not handled and should be passed to other handlers.
-     */
-    virtual bool OnKeyPressAndHold(int keyCode, const std::shared_ptr<KeyEvent> &keyEvent);
-
-    /**
      * @brief Called when this ability is about to leave the foreground and enter the background due to a user
      * operation, for example, when the user touches the Home key.
      *
@@ -1045,13 +989,6 @@ public:
      * @param volumeType Indicates the AudioManager.AudioVolumeType to set.
      */
     virtual void SetVolumeTypeAdjustedByKey(int volumeType);
-
-    /**
-     * @brief Obtains the type of audio whose volume is adjusted by the volume button.
-     *
-     * @return Returns the AudioManager.AudioVolumeType.
-     */
-    int GetVolumeTypeAdjustedByKey();
 
     /**
      * @brief Called to return a FormProviderInfo object.

@@ -172,6 +172,15 @@ public:
     void ScheduleLaunchApplication(const AppLaunchData &data, const Configuration &config) override;
 
     /**
+     *
+     * @brief update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     */
+    void ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo) override;
+
+    /**
      * Notify application to launch ability stage.
      *
      * @param The resident process data value.
@@ -273,6 +282,15 @@ private:
      *
      */
     void HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config);
+
+    /**
+     *
+     * @brief update the application info after new module installed.
+     *
+     * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+     *
+     */
+    void HandleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
 
     /**
      *
@@ -453,7 +471,7 @@ private:
     
     /**
      * @brief Add Extension block item
-     * 
+     *
      * @param extensionName extension name
      * @param type extension type
      */
@@ -461,7 +479,7 @@ private:
     
     /**
      * @brief Update extension block list to nativeEngine
-     * 
+     *
      * @param nativeEngine nativeEngine instance
      */
     void UpdateEngineExtensionBlockList(NativeEngine &nativeEngine);

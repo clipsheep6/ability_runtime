@@ -16,6 +16,7 @@
 #include "js_free_install_observer.h"
 
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -54,7 +55,7 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string bundleName
     for (auto it = jsObserverObjectList_.begin(); it != jsObserverObjectList_.end();) {
         if ((it->bundleName == bundleName) && (it->abilityName == abilityName) && (it->startTime == startTime)) {
             NativeValue* value = (it->callback)->Get();
-            NativeValue* argv[] = { CreateJsValue(engine_, resultCode) };
+            NativeValue* argv[] = { CreateJsErrorByNativeErr(engine_, resultCode) };
             CallJsFunction(value, argv, ARGC_ONE);
             jsObserverObjectList_.erase(it);
             HILOG_DEBUG("the size of jsObserverObjectList_:%{public}d", jsObserverObjectList_.size());

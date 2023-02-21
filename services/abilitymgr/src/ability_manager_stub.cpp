@@ -55,6 +55,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[UNINSTALL_APP] = &AbilityManagerStub::UninstallAppInner;
     requestFuncMap_[START_ABILITY] = &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[START_ABILITY_ADD_CALLER] = &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[START_ABILITY_AS_CALLER_BY_TOKEN] = &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
+    requestFuncMap_[START_ABILITY_AS_CALLER_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
     requestFuncMap_[CONNECT_ABILITY] = &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
     requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
@@ -441,6 +443,53 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
     int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityAsCaller(*want, callerToken, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        delete want;
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    delete startOptions;
     return NO_ERROR;
 }
 

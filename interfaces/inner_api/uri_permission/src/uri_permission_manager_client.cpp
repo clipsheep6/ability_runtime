@@ -54,7 +54,6 @@ void UriPermissionManagerClient::RemoveUriPermission(const Security::AccessToken
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
-    return nullptr;
     HILOG_DEBUG("UriPermissionManagerClient::ConnectUriPermService is called.");
     std::lock_guard<std::mutex> lock(mutex_);
     if (uriPermMgr_ == nullptr) {

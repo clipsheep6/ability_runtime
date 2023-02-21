@@ -147,7 +147,7 @@ HWTEST_F(JsRuntimeTest, JsWorkerTest_0100, TestSize.Level0)
 
     std::vector<uint8_t> content;
     std::string str = "test";
-    InitWorkerModule(jsEngine, "", true, "", 0);
+    InitWorkerModule(jsEngine, "", true);
     jsEngine.CallGetAssetFunc("", content, str);
     EXPECT_TRUE(content.empty());
 
@@ -157,7 +157,7 @@ HWTEST_F(JsRuntimeTest, JsWorkerTest_0100, TestSize.Level0)
     jsEngine.CallGetAssetFunc("test.test", content, str);
     EXPECT_TRUE(content.empty());
 
-    InitWorkerModule(jsEngine, "", false, "", 0);
+    InitWorkerModule(jsEngine, "", false);
     jsEngine.CallGetAssetFunc("", content, str);
     EXPECT_TRUE(content.empty());
 
@@ -167,7 +167,7 @@ HWTEST_F(JsRuntimeTest, JsWorkerTest_0100, TestSize.Level0)
     jsEngine.CallGetAssetFunc("test.test", content, str);
     EXPECT_TRUE(content.empty());
 
-    InitWorkerModule(jsEngine, TEST_CODE_PATH, true, "", 0);
+    InitWorkerModule(jsEngine, TEST_CODE_PATH, true);
     jsEngine.CallGetAssetFunc("", content, str);
     EXPECT_TRUE(content.empty());
 
@@ -177,7 +177,7 @@ HWTEST_F(JsRuntimeTest, JsWorkerTest_0100, TestSize.Level0)
     jsEngine.CallGetAssetFunc("test.test", content, str);
     EXPECT_TRUE(content.empty());
 
-    InitWorkerModule(jsEngine, TEST_CODE_PATH, false, "", 0);
+    InitWorkerModule(jsEngine, TEST_CODE_PATH, false);
     jsEngine.CallGetAssetFunc("", content, str);
     EXPECT_TRUE(content.empty());
 

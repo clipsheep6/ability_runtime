@@ -29,7 +29,6 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage_napi",
     "${ability_runtime_napi_path}/app/ability_stage_context:abilitystagecontext_napi",
-    "${ability_runtime_napi_path}/app/appMgr:napi_app_mgr",
     "${ability_runtime_napi_path}/app/app_manager:appmanager_napi",
     "${ability_runtime_napi_path}/app/application_context:applicationcontext_napi",
     "${ability_runtime_napi_path}/app/context:context_napi",

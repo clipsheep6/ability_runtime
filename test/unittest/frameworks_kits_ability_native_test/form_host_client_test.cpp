@@ -34,6 +34,8 @@ public:
     {}
     void OnDeathReceived() override
     {}
+    void OnError(const int32_t errorCode, const std::string &errorMsg) override
+    {}
 };
 
 class FormHostClientTest : public testing::Test {
@@ -74,12 +76,13 @@ HWTEST_F(FormHostClientTest, AaFwk_formHostClientAddForm_0100, Function | Medium
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_AddForm_0100 start";
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
-    int64_t formId = 0;
-    instance_->AddForm(callback, formId);
-    formId = 1;
-    instance_->AddForm(callback, formId);
-    formId = 2;
-    instance_->AddForm(callback, formId);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 0;
+    instance_->AddForm(callback, formJsInfo);
+    formJsInfo.formId = 1;
+    instance_->AddForm(callback, formJsInfo);
+    formJsInfo.formId = 2;
+    instance_->AddForm(callback, formJsInfo);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_AddForm_0100 end";
 }
@@ -93,10 +96,11 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_RemoveForm_0100, Function | Me
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveForm_0100 start";
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
-    int64_t formId = 0;
-    instance_->RemoveForm(callback, formId);
-    instance_->AddForm(callback, formId);
-    instance_->RemoveForm(callback, formId);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 0;
+    instance_->RemoveForm(callback, formJsInfo.formId);
+    instance_->AddForm(callback, formJsInfo);
+    instance_->RemoveForm(callback, formJsInfo.formId);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveForm_0100 end";
 }
@@ -112,9 +116,10 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_ContainsForm_0100, Function | 
     int64_t formId = 0;
     EXPECT_EQ(false, instance_->ContainsForm(formId));
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
-    formId = 1;
-    instance_->AddForm(callback, formId);
-    EXPECT_EQ(true, instance_->ContainsForm(formId));
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1;
+    instance_->AddForm(callback, formJsInfo);
+    EXPECT_EQ(true, instance_->ContainsForm(formJsInfo.formId));
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_ContainsForm_0100 end";
 }
@@ -130,9 +135,9 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnAcquired_0100, Function | Me
     FormJsInfo formInfo;
     formInfo.formId = -1;
     instance_->OnAcquired(formInfo, nullptr);
-    int64_t formId = 1;
+    formInfo.formId = -1;
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
-    instance_->AddForm(callback, formId);
+    instance_->AddForm(callback, formInfo);
     formInfo.formId = 1;
     formInfo.jsFormCodePath = "/data/test";
     formInfo.formData = "test";
@@ -152,9 +157,9 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnUpdate_0100, Function | Medi
     FormJsInfo formInfo;
     formInfo.formId = -1;
     instance_->OnUpdate(formInfo);
-    int64_t formId = 1;
+    formInfo.formId = 1;
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
-    instance_->AddForm(callback, formId);
+    instance_->AddForm(callback, formInfo);
     formInfo.formId = 1;
     instance_->OnUpdate(formInfo);
 

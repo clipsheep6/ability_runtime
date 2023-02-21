@@ -833,6 +833,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityAddCallerInner_0
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityAsCallerByTokenInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCallerByTokenInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityAsCallerByTokenInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityAsCallerByTokenInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityAsCallerByTokenInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityAsCallerForOptionInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCallerForOptionInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityAsCallerForOptionInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityAsCallerForOptionInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityAsCallerForOptionInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ConnectAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ConnectAbilityInner

@@ -344,7 +344,7 @@ private:
             pandaOption.SetGcThreadNum(gcThreadNum);
             pandaOption.SetLongPauseTime(longPauseTime);
             HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
-	        arkProperties, bundleName.c_str());
+	            arkProperties, bundleName.c_str());
             pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
             pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
@@ -614,8 +614,13 @@ bool JsRuntime::Initialize(const Options& options)
     }
     bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
     if (!options.preload) {
-        InitTimerModule(*nativeEngine_, *globalObj);
-        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.bundleName, options.uid);
+        if (options.isUnique) {
+            HILOG_INFO("Not supported TimerModule when form render");
+        } else {
+            InitTimerModule(*nativeEngine_, *globalObj);
+        }
+
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
     nativeEngine_->RegisterPermissionCheck(PermissionCheckFunc);

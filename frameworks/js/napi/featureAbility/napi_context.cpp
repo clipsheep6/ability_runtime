@@ -828,7 +828,8 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
             object->SetProperty("authResults", CreateNativeArray(*(onRequestPermissionCB->cb.engine),
                 onRequestPermissionCB->grantResults));
             onRequestPermissionCB->cb.asyncTask->Resolve(*(onRequestPermissionCB->cb.engine), objValue);
-
+            delete onRequestPermissionCB->cb.asyncTask;
+            onRequestPermissionCB->cb.asyncTask = nullptr;
             delete onRequestPermissionCB;
             onRequestPermissionCB = nullptr;
             delete work;
@@ -3222,9 +3223,8 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
     auto callback = info.argc == ARGS_THREE ? info.argv[PARAM2] : nullptr;
     NativeValue *result = nullptr;
 
-    std::unique_ptr<AbilityRuntime::AsyncTask> uasyncTask =
-        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, callback, nullptr, nullptr, &result);
-    std::shared_ptr<AbilityRuntime::AsyncTask> asyncTask = std::move(uasyncTask);
+    auto asyncTask =
+        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, callback, nullptr, nullptr, &result).release();
 
     int32_t errorCode = NAPI_ERR_NO_ERROR;
     if (ability_ == nullptr) {
@@ -3239,11 +3239,14 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
 
     if (errorCode != NAPI_ERR_NO_ERROR) {
         asyncTask->Reject(engine, CreateJsError(engine, errorCode, ConvertErrorCode(errorCode)));
+        delete asyncTask;
+        asyncTask = nullptr;
+    } else {
+        CallbackInfo callbackInfo;
+        callbackInfo.engine = &engine;
+        callbackInfo.asyncTask = asyncTask;
+        AbilityProcess::GetInstance()->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
     }
-    CallbackInfo callbackInfo;
-    callbackInfo.engine = &engine;
-    callbackInfo.asyncTask = asyncTask;
-    AbilityProcess::GetInstance()->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
 
     return result;
 }

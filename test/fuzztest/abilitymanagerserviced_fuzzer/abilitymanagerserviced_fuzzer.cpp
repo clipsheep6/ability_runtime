@@ -66,8 +66,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->IsNeedTimeoutForTest(stringParam, stringParam);
-    AbilityRequest abilityRequest;
-    abilityms->VerifyUriPermission(abilityRequest, *want);
     abilityms->GetValidDataAbilityUri(stringParam, stringParam);
 
     return true;

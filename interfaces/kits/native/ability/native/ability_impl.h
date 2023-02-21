@@ -491,8 +491,7 @@ public:
     void AfterBackground() override;
     void AfterFocused() override;
     void AfterUnfocused() override;
-    void ForegroundFailed() override;
-    void ForegroundInvalidMode() override;
+    void ForegroundFailed(int32_t type) override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;

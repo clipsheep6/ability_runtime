@@ -196,6 +196,15 @@ public:
      */
     virtual void AbilityTerminated(const sptr<IRemoteObject> &token);
 
+     /**
+     * UpdateApplicationInfoInstalled, update the application info after new module installed.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param  uid, uid.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid);
+
     /**
      * KillApplication, kill the application.
      *
@@ -534,7 +543,7 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission() const;
+    int VerifyProcessPermission(const sptr<IRemoteObject> &token) const;
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
@@ -758,6 +767,10 @@ private:
     void RegisterFocusListener();
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
+
+    int VerifyProcessPermission() const;
+
+    int VerifyProcessPermission(const std::string &bundleName) const;
 
 private:
     /**

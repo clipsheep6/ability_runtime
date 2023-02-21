@@ -129,6 +129,16 @@ public:
     virtual int32_t KillProcessWithAccount(const std::string &bundleName, const int accountId) override;
 
     /**
+     * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
+     * update the application info after new module installed.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param  uid, uid.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid) override;
+
+    /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.

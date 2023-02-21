@@ -86,8 +86,8 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_DEBUG("JsFormExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
-        moduleName.c_str(), srcPath.c_str());
+    HILOG_DEBUG("JsFormExtension::Init moduleName:%{public}s,srcPath:%{public}s, compileMode :%{public}d.",
+        moduleName.c_str(), srcPath.c_str(), abilityInfo_->compileMode);
     HandleScope handleScope(jsRuntime_);
     auto& engine = jsRuntime_.GetNativeEngine();
 
@@ -334,7 +334,7 @@ void JsFormExtension::GetSrcPath(std::string &srcPath)
 
 void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    Extension::OnConfigurationUpdated(configuration);
+    FormExtension::OnConfigurationUpdated(configuration);
     HILOG_INFO("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);

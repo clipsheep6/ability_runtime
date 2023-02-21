@@ -67,13 +67,13 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return ret;
     }
 
-    auto startAbilityTask = [imp = shared_from_this(), request, userId,
-        identity = IPCSkeleton::ResetCallingIdentity()](const std::string& bundle, const std::string& abilityName) {
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    auto startAbilityTask = [imp = shared_from_this(), request, userId, identity]
+        (const std::string& bundle, const std::string& abilityName) mutable {
         HILOG_INFO("implicit start ability call back.");
 
-        auto oldIdentity = identity;
         // reset calling indentity
-        IPCSkeleton::SetCallingIdentity(oldIdentity);
+        IPCSkeleton::SetCallingIdentity(identity);
 
         AAFwk::Want targetWant = request.want;
         targetWant.SetElementName(bundle, abilityName);
@@ -99,7 +99,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
     Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
-    return abilityMgr->StartAbility(want);
+    // reset calling indentity
+    IPCSkeleton::SetCallingIdentity(identity);
+    return abilityMgr->StartAbility(want, request.callerToken);
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,

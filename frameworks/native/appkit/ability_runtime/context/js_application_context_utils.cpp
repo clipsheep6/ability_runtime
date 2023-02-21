@@ -923,13 +923,6 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
 {
     HILOG_DEBUG("CreateJsApplicationContext start");
 
-    std::shared_ptr<NativeReference> applicationContextObj =
-        ApplicationContextManager::GetApplicationContextManager().GetGlobalObject();
-    if (applicationContextObj != nullptr) {
-        NativeValue* objValue = applicationContextObj->Get();
-        return objValue;
-    }
-
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
@@ -988,8 +981,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
     BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
     BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
         JsApplicationContextUtils::GetApplicationContext);
-    BindNativeFunction(engine, *object, "killProcessesBySelf", MD_NAME,
-        JsApplicationContextUtils::KillProcessBySelf);
+    BindNativeFunction(engine, *object, "killAllProcesses", MD_NAME, JsApplicationContextUtils::KillProcessBySelf);
     BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,

@@ -16,6 +16,7 @@
 #include "service_extension.h"
 
 #include "ability_loader.h"
+#include "configuration_utils.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_service_extension.h"
@@ -75,5 +76,19 @@ std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
     }
     return context;
 }
+
+void ServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
+{
+    Extension::OnConfigurationUpdated(configuration);
+
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Context is invalid.");
+        return;
+    }
+
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateConfigToResourceManager(configuration, context->GetResourceManager());
 }
-}
+} // namespace AbilityRuntime
+} // namespace OHOS

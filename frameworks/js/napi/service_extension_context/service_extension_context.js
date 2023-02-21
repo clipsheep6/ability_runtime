@@ -35,6 +35,11 @@ class ServiceExtensionContext extends ExtensionContext {
         return this.__context_impl__.startAbility(want, options, callback);
     }
 
+    startAbilityAsCaller(want, options, callback) {
+        console.log("startAbilityAsCaller");
+        return this.__context_impl__.startAbilityAsCaller(want, options, callback);
+    }
+
     startRecentAbility(want, options, callback) {
         console.log("startRecentAbility");
         return this.__context_impl__.startRecentAbility(want, options, callback);

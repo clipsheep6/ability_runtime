@@ -51,6 +51,12 @@ int MockServiceAbilityManagerService::StartAbility(
     return 0;
 }
 
+int MockServiceAbilityManagerService::StartAbilityAsCaller(
+    const Want& want, const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
+{
+    return 0;
+}
+
 int MockServiceAbilityManagerService::TerminateAbility(
     const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
 {

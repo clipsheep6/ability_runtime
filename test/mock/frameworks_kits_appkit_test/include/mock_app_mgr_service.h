@@ -102,6 +102,8 @@ public:
         EXPECT_TRUE(Cleaned_);
     }
 
+    MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
+
     MOCK_METHOD1(KillApplication, int(const std::string& appName));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
 

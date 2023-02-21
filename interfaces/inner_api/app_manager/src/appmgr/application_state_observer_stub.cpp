@@ -52,7 +52,6 @@ ApplicationStateObserverStub::ApplicationStateObserverStub()
     memberFuncMap_[static_cast<uint32_t>(
         IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED)] =
         &ApplicationStateObserverStub::HandleOnProcessReused;
-
 }
 
 ApplicationStateObserverStub::~ApplicationStateObserverStub()

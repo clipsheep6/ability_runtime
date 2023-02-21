@@ -333,45 +333,6 @@ bool Ability::OnTouchEvent(const TouchEvent& touchEvent)
     return false;
 }
 
-void Ability::SetUIContent(const ComponentContainer& componentContainer)
-{
-    return;
-}
-
-void Ability::SetUIContent(int layoutRes)
-{
-    return;
-}  // namespace AppExecFwk
-
-void Ability::SetUIContent(
-    const ComponentContainer& componentContainer, std::shared_ptr<Context>& context, int typeFlag)
-{
-    return;
-}
-
-void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context>& context, int typeFlag)
-{
-    return;
-}
-
-/**
- * @brief Inflates UI controls by using WindowConfig.
- *
- * @param config Indicates the window config defined by the user.
- */
-void Ability::SetUIContent(const WindowConfig& config)
-{
-    if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability::SetUIContent abilityWindow_ is nullptr");
-        return;
-    }
-
-    HILOG_INFO("Ability::SetUIContent called");
-    abilityWindow_->SetWindowConfig(config);
-}
-
-/**
- * @brief Get the window belong to the ability.
  *
  * @return Returns a IWindowsManager object pointer.
  */
@@ -382,17 +343,7 @@ std::unique_ptr<Window>& Ability::GetWindow(int windowID)
     return abilityWindow_->GetWindow(windowID);
 }
 
-int Ability::GetVolumeTypeAdjustedByKey()
-{
-    return 0;
-}
-
 bool Ability::HasWindowFocus()
-{
-    return false;
-}
-
-bool Ability::OnKeyPressAndHold(int keyCode, const std::shared_ptr<KeyEvent>& keyEvent)
 {
     return false;
 }

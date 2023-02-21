@@ -16,6 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = "SelectorDialog_Service";
 
@@ -75,13 +76,14 @@ export default class SelectorServiceExtensionAbility extends extension {
         }).catch(error => {
             console.error(TAG, "getMediaBase64 error:" + JSON.stringify(error));
         });
-        showHapList.push(bundleName + "-" + abilityName + "-" + appName + "-" + appIcon);
+        showHapList.push(bundleName + "#" + abilityName + "#" + appName + "#" + appIcon + "#" + moduleName);
     }
 
     async onRequest(want, startId) {
         globalThis.abilityWant = want;
         globalThis.params = JSON.parse(want["parameters"]["params"]);
         globalThis.position = JSON.parse(want["parameters"]["position"]);
+        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
         console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
         console.debug(TAG, "onRequest, position: " + JSON.stringify(globalThis.position));
 
@@ -102,7 +104,11 @@ export default class SelectorServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+            if (deviceInfo.deviceType == "phone") {
+                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+            } else {
+                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+            }
             winNum++;
         })
     }

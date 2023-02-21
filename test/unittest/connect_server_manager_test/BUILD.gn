@@ -28,10 +28,7 @@ ohos_unittest("connect_server_manager_test") {
 
   include_dirs = [ "${ability_runtime_native_path}/runtime" ]
 
-  sources = [
-    "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
-    "connect_server_manager_test.cpp",
-  ]
+  sources = [ "connect_server_manager_test.cpp" ]
 
   configs = [
     ":coverage_flags",
@@ -49,6 +46,7 @@ ohos_unittest("connect_server_manager_test") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:runtime",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

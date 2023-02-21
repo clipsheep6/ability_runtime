@@ -30,7 +30,7 @@ namespace AAFwk {
  */
 class IAtomicServiceStatusCallback : public IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.IAtomicServiceStatusCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.IAtomicServiceStatusCallback");
 
     /**
      * OnInstallFinished, FreeInstall is complete.

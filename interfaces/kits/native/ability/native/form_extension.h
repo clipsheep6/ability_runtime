@@ -147,6 +147,13 @@ public:
      * @return none.
      */
     virtual bool OnShare(int64_t formId, AAFwk::WantParams &wantParams);
+
+    /**
+     * @brief Called when the system configuration is updated.
+     *
+     * @param configuration Indicates the updated configuration information.
+     */
+    void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

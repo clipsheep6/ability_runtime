@@ -430,6 +430,17 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
             } else {
                 DelayedSingleton<AppScheduler>::GetInstance()->UpdateExtensionState(
                     token, AppExecFwk::ExtensionState::EXTENSION_STATE_CREATE);
+                auto preloadTask = [owner = weak_from_this(), abilityRecord] {
+                    auto acm = owner.lock();
+                    if (acm == nullptr) {
+                        HILOG_ERROR("AbilityConnectManager is nullptr.");
+                        return;
+                    }
+                    acm->ProcessPreload(abilityRecord);
+                };
+                if (eventHandler_ != nullptr) {
+                    eventHandler_->PostTask(preloadTask);
+                }
             }
             return DispatchInactive(abilityRecord, state);
         }
@@ -448,6 +459,18 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
             return ERR_INVALID_VALUE;
         }
     }
+}
+
+void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
+{
+    auto bms = AbilityUtil::GetBundleManager();
+    CHECK_POINTER(bms);
+    auto abilityInfo = record->GetAbilityInfo();
+    Want want;
+    want.SetElementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
+    auto uid = record->GetUid();
+    want.SetParam("uid", uid);
+    bms->ProcessPreload(want);
 }
 
 int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(

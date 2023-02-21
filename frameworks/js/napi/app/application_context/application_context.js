@@ -119,8 +119,8 @@ class ApplicationContext {
         return this.__context_impl__.getApplicationContext()
     }
 
-    killProcessesBySelf(callback) {
-        this.__context_impl__.killProcessesBySelf(callback)
+    killAllProcesses(callback) {
+        return this.__context_impl__.killAllProcesses(callback)
     }
 
     getProcessRunningInformation(callback) {

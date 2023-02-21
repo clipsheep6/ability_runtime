@@ -35,7 +35,10 @@ RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
 {}
 
 RenderRecord::~RenderRecord()
-{}
+{
+    close(sharedFd_);
+    close(ipcFd_);
+}
 
 std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
     int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
@@ -377,6 +380,20 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
+}
+
+void AppRunningRecord::UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    if (!isStageBasedModel_) {
+        HILOG_INFO("Current version than supports !");
+        return;
+    }
+
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->UpdateApplicationInfoInstalled(appInfo);
 }
 
 void AppRunningRecord::AddAbilityStage()

@@ -42,6 +42,12 @@ int MockServiceAbilityManagerService::StartAbility(
     return 0;
 }
 
+int MockServiceAbilityManagerService::StartAbilityAsCaller(
+    const Want& want, const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
+{
+    return 0;
+}
+
 int MockServiceAbilityManagerService::StartAbilityByCall(
     const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
 {
@@ -55,6 +61,13 @@ int MockServiceAbilityManagerService::StartAbilityByCall(
 }
 
 int MockServiceAbilityManagerService::StartAbility(
+    const Want& want, const StartOptions& startOptions,
+    const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
+{
+    return 0;
+}
+
+int MockServiceAbilityManagerService::StartAbilityAsCaller(
     const Want& want, const StartOptions& startOptions,
     const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
 {

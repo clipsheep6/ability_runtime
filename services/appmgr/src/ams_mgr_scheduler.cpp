@@ -124,14 +124,15 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
 
 void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 {
-    if (amsMgrServiceInner_->VerifyProcessPermission() != ERR_OK) {
+    if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyProcessPermission(token) != ERR_OK) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return;
     }
 
-    if (!IsReady()) {
-        return;
-    }
     std::function<void()> killProcessByAbilityTokenFunc =
         std::bind(&AppMgrServiceInner::KillProcessByAbilityToken, amsMgrServiceInner_, token);
     amsHandler_->PostTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
@@ -139,15 +140,16 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
 
 void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 {
+    if (!IsReady()) {
+        return;
+    }
+
     auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
     if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return;
     }
-
-    if (!IsReady()) {
-        return;
-    }
+    
     std::function<void()> killProcessesByUserIdFunc =
         std::bind(&AppMgrServiceInner::KillProcessesByUserId, amsMgrServiceInner_, userId);
     amsHandler_->PostTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
@@ -182,8 +184,18 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
     amsHandler_->PostTask(task);
 }
 
+int32_t AmsMgrScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    return amsMgrServiceInner_->UpdateApplicationInfoInstalled(bundleName, uid);
+}
+
 int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
 {
+    HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
@@ -193,6 +205,7 @@ int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
 
 int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
+    HILOG_INFO("bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }

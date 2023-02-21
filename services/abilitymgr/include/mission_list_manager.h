@@ -50,7 +50,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(const AbilityRequest &abilityRequest);
+    int StartAbility(AbilityRequest &abilityRequest);
 
     /**
      * MinimizeAbility, minimize the special ability.
@@ -408,7 +408,7 @@ private:
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
-        bool isInvalidMode = false);
+        AbilityState state = AbilityState::INITIAL);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -438,14 +438,16 @@ private:
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability, bool isInvalidMode = false);
-    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability, bool isInvalidMode = false);
+    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability,
+        AbilityState state = AbilityState::INITIAL);
+    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
+        AbilityState state = AbilityState::INITIAL);
     void MoveToTerminateList(const std::shared_ptr<AbilityRecord> &ability);
     void DelayedResumeTimeout(const std::shared_ptr<AbilityRecord> &callerAbility);
     void BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility);
 
     // new version for call inner function.
-    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isInvalidMode);
+    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
@@ -460,6 +462,7 @@ private:
         const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
+    void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

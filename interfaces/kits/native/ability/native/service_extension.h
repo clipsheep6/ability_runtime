@@ -75,6 +75,14 @@ public:
      * @param creator The function for create a service-extension ability.
      */
     static void SetCreator(const CreatorFunc& creator);
+
+    /**
+     * @brief Called when the system configuration is updated.
+     *
+     * @param configuration Indicates the updated configuration information.
+     */
+    void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
+
 private:
     static CreatorFunc creator_;
 };

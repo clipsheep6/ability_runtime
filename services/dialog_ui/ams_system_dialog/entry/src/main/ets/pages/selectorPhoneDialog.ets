@@ -65,9 +65,10 @@ struct SelectorPhoneDialog {
   }
 
   onSelectApp(item) {
-    globalThis.abilityWant.bundleName = item.split("-")[0];
-    globalThis.abilityWant.abilityName = item.split("-")[1];
-    globalThis.selectExtensionContext.startAbility(globalThis.abilityWant, (data, error) => {
+    globalThis.abilityWant.bundleName = item.split("#")[0];
+    globalThis.abilityWant.abilityName = item.split("#")[1];
+    globalThis.abilityWant.moduleName = item.split("#")[4];
+    globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
         console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
         return;
@@ -115,8 +116,8 @@ struct SelectorPhoneDialog {
               ForEach(item, (item: any) => {
                 GridItem() {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
-                    if (item.split("-")[3] != "") {
-                      Image(item.split("-")[3])
+                    if (item.split("#")[3] != "") {
+                      Image(item.split("#")[3])
                         .height(60)
                         .width(60)
                         .alignSelf(ItemAlign.Center);
@@ -126,8 +127,8 @@ struct SelectorPhoneDialog {
                         .width(60)
                         .alignSelf(ItemAlign.Center);
                     }
-                    if (item.split("-")[2] != "") {
-                      Text(item.split("-")[2])
+                    if (item.split("#")[2] != "") {
+                      Text(item.split("#")[2])
                         .fontSize(16)
                         .width(58)
                         .height(23)
@@ -135,7 +136,7 @@ struct SelectorPhoneDialog {
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     } else {
-                      Text(item.split("-")[0])
+                      Text(item.split("#")[0])
                         .fontSize(16)
                         .width(58)
                         .height(23)

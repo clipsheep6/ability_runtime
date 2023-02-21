@@ -195,36 +195,40 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
-    AppExecFwk::BundleInfo bundleInfo;
+    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
+        (size_t)bundleName.length(), bundleName.c_str());
+
     int accountId = GetCurrentAccountId();
     if (accountId == 0) {
         accountId = GetCurrentActiveAccountId();
     }
-    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
-        (size_t)bundleName.length(), bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (bundleName == GetBundleName()) {
+        bundleMgr->GetBundleInfoForSelf(
+            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE)), bundleInfo);
+    } else {
+        bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+    }
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
         return nullptr;
     }
 
-    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    bool hasModule = false;
     auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
         [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
             return hapModuleInfo.moduleName == moduleName;
         });
-    if (info != bundleInfo.hapModuleInfos.end()) {
-        hasModule = true;
-        appContext->InitHapModuleInfo(*info);
-    }
-
-    if (!hasModule) {
+    if (info == bundleInfo.hapModuleInfos.end()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
         return nullptr;
     }
-
+    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
+    appContext->InitHapModuleInfo(*info);
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(GetApplicationInfo());

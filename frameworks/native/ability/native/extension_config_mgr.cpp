@@ -78,7 +78,7 @@ void ExtensionConfigMgr::UpdateBundleExtensionInfo(NativeEngine& engine, AppExec
 
 void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 {
-    HILOG_INFO("AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
+    HILOG_DEBUG("AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
     auto iter = blocklistConfig_.find(name);
     if (iter == blocklistConfig_.end()) {
         HILOG_ERROR("Extension name = %{public}s, not exist in blocklist config", name.c_str());

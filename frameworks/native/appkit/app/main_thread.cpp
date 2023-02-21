@@ -39,7 +39,6 @@
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
-#include "form_extension.h"
 #include "locale_config.h"
 #endif
 #include "if_system_ability_manager.h"
@@ -50,8 +49,6 @@
 #include "parameters.h"
 #include "resource_manager.h"
 #include "runtime.h"
-#include "service_extension.h"
-#include "static_subscriber_extension.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
@@ -525,6 +522,31 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
     }
 }
 
+/**
+ *
+ * @brief update the application info after new module installed.
+ *
+ * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+ *
+ */
+void MainThread::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, appInfo]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, HandleUpdateApplicationInfoInstalled failed.");
+            return;
+        }
+        appThread->HandleUpdateApplicationInfoInstalled(appInfo);
+    };
+    if (!mainHandler_->PostTask(task)) {
+        HILOG_ERROR("MainThread::ScheduleUpdateApplicationInfoInstalled PostTask task failed");
+    }
+    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled end.");
+}
+
 void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     HILOG_DEBUG("MainThread::ScheduleAbilityStageInfo start");
@@ -847,7 +869,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     } else {
         HILOG_INFO("LocaleInfo is nullptr.");
     }
-
+#endif
     std::string colormode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     HILOG_DEBUG("Colormode is %{public}s.", colormode.c_str());
     resConfig->SetColorMode(ConvertColorMode(colormode));
@@ -855,7 +877,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::string hasPointerDevice = config.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
     HILOG_DEBUG("HasPointerDevice is %{public}s.", hasPointerDevice.c_str());
     resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
-#endif
+
     std::string deviceType = config.GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
     HILOG_DEBUG("deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(), ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
@@ -962,8 +984,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
         HILOG_INFO("GetBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
-        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO,
-            bundleInfo, UNSPECIFIED_USERID);
+        queryResult = (bundleMgr->GetBundleInfoForSelf(
+            (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE)), bundleInfo) == ERR_OK);
     }
 
     if (!queryResult) {
@@ -1091,30 +1115,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
             return nullptr;
         });
-#ifdef SUPPORT_GRAPHICS
-        AbilityLoader::GetInstance().RegisterExtension("FormExtension",
-            [wpApplication]() -> AbilityRuntime::Extension* {
-            auto app = wpApplication.lock();
-            if (app != nullptr) {
-                return AbilityRuntime::FormExtension::Create(app->GetRuntime());
-            }
-            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: FormExtension");
-            return nullptr;
-        });
-        AddExtensionBlockItem("FormExtension", static_cast<int32_t>(ExtensionAbilityType::FORM));
-#endif
-        AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension",
-            [wpApplication]() -> AbilityRuntime::Extension* {
-            auto app = wpApplication.lock();
-            if (app != nullptr) {
-                return AbilityRuntime::StaticSubscriberExtension::Create(app->GetRuntime());
-            }
-            HILOG_ERROR("AbilityLoader::GetExtensionByName failed: StaticSubscriberExtension");
-            return nullptr;
-        });
-        AddExtensionBlockItem("StaticSubscriberExtension",
-            static_cast<int32_t>(ExtensionAbilityType::STATICSUBSCRIBER));
-
         if (application_ != nullptr) {
 #ifdef APP_USE_ARM
             LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
@@ -1255,6 +1255,21 @@ void MainThread::ChangeToLocalPath(const std::string &bundleName,
         }
         localPath.emplace_back(
             std::regex_replace(item, pattern, std::string(LOCAL_CODE_PATH) + std::string(FILE_SEPARATOR)));
+    }
+}
+
+void MainThread::HandleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    HILOG_DEBUG("MainThread::HandleUpdateApplicationInfoInstalled");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+    application_->UpdateApplicationInfoInstalled(appInfo);
+
+    if (!appMgr_ || !applicationImpl_) {
+        HILOG_ERROR("appMgr_ is nullptr");
+        return;
     }
 }
 
@@ -1427,8 +1442,8 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         HILOG_ERROR("appInfo is nullptr");
         return;
     }
-    
-    if (runtime && appInfo && want && appInfo->debug) {
+
+    if (runtime && want && appInfo->debug) {
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 
@@ -1485,7 +1500,6 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
     HILOG_INFO("ability name: %{public}s", abilityInfo->name.c_str());
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1494,7 +1508,6 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
             HILOG_ERROR("MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
     } else {
         HILOG_WARN("runner not found");
     }
@@ -1535,7 +1548,6 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
     }
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1544,7 +1556,6 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
             HILOG_ERROR("MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
     } else {
         HILOG_WARN("runner not found");
     }
@@ -1640,16 +1651,6 @@ void MainThread::HandleTerminateApplication()
         HILOG_ERROR("MainThread::handleTerminateApplication failed. runner->Run failed ret = %{public}d", ret);
     }
     SetRunnerStarted(false);
-
-#ifdef ABILITY_LIBRARY_LOADER
-    CloseAbilityLibrary();
-#endif  // ABILITY_LIBRARY_LOADER
-#ifdef APPLICATION_LIBRARY_LOADER
-    if (handleAppLib_ != nullptr) {
-        dlclose(handleAppLib_);
-        handleAppLib_ = nullptr;
-    }
-#endif  // APPLICATION_LIBRARY_LOADER
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     HILOG_DEBUG("MainThread::handleTerminateApplication called end.");
 }
@@ -2194,7 +2195,9 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo)) {
+    if (bundleMgr->GetBundleInfoForSelf(
+        (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_DEFAULT) +
+        static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE)), bundleInfo) != ERR_OK) {
         HILOG_ERROR("Get bundle info of %{public}s failed.", bundleName.c_str());
         return false;
     }

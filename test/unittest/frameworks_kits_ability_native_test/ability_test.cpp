@@ -1550,19 +1550,6 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0500, TestSize.Level1)
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
-    // branch when abilityInfo_ is nullptr
-    auto regMgr = ability->GetContinuationRegisterManager();
-    EXPECT_EQ(regMgr.lock(), nullptr);
-
-    // branch when type is not page
-    std::shared_ptr<AbilityInfo> serviceAbilityInfo = std::make_shared<AbilityInfo>();
-    serviceAbilityInfo->type = AppExecFwk::AbilityType::SERVICE;
-    auto eventRunner = EventRunner::Create(serviceAbilityInfo->name);
-    auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(serviceAbilityInfo, nullptr, handler, nullptr);
-    regMgr = ability->GetContinuationRegisterManager();
-    EXPECT_EQ(regMgr.lock(), nullptr);
-
     // branch when deviceId is emptry
     std::string deviceId;
     uint32_t versionCode = 1;
@@ -1576,9 +1563,9 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0500, TestSize.Level1)
     // branch when abilityInfo_ is nullptr and continuation register manager need init
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
+    auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
+    auto handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
-    regMgr = ability->GetContinuationRegisterManager();
-    EXPECT_NE(regMgr.lock(), nullptr);
     ability->ContinueAbility("deviceId");
     ability->ContinueAbilityWithStack("deviceId", versionCode);
 
@@ -2163,15 +2150,12 @@ HWTEST_F(AbilityBaseTest, AbilityFuncList_0100, TestSize.Level1)
     bool isCompleted = ability->PrintDrawnCompleted();
     EXPECT_EQ(isCompleted, false);
 
-    auto ret = ability->GetVolumeTypeAdjustedByKey();
-    EXPECT_EQ(ret, 0);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
  * @tc.name: AbilityFuncList_0200
- * @tc.desc: Ability function test, including SetVolumeTypeAdjustedByKey, OnKeyPressAndHold and so on
+ * @tc.desc: Ability function test, including SetVolumeTypeAdjustedByKey, OnLeaveForeground and so on
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
@@ -2244,26 +2228,6 @@ HWTEST_F(AbilityBaseTest, AbilityScene_0100, TestSize.Level1)
     auto scene = ability->GetScene();
     EXPECT_EQ(scene, nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
- * @tc.name: AbilitySetUIContent_0100
- * @tc.desc: Ability SetUIContent test
- * @tc.type: FUNC
- * @tc.require: issueI60B7N
- */
-HWTEST_F(AbilityBaseTest, AbilitySetUIContent_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    ASSERT_NE(ability, nullptr);
-
-    ComponentContainer componentContainer;
-    ability->SetUIContent(componentContainer);
-
-    int layoutRes = 0;
-    ability->SetUIContent(layoutRes);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -2752,27 +2716,6 @@ HWTEST_F(AbilityBaseTest, Ability_OnPointerEvent_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: Ability_SetUIContent_0100
- * @tc.desc: SetUIContent test
- * @tc.desc: Verify function SetUIContent.
- */
-HWTEST_F(AbilityBaseTest, Ability_SetUIContent_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    ASSERT_NE(ability, nullptr);
-
-    ComponentContainer componentContainer;
-    std::shared_ptr<Context> context = nullptr;
-    int typeFlag = 0;
-    ability->SetUIContent(componentContainer, context, typeFlag);
-
-    int layoutRes = 0;
-    ability->SetUIContent(layoutRes, context, typeFlag);
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
  * @tc.name: Ability_InitWindow_0100
  * @tc.desc: InitWindow test
  * @tc.desc: Verify function InitWindow.
@@ -2863,23 +2806,6 @@ HWTEST_F(AbilityBaseTest, Ability_HasWindowFocus_0300, TestSize.Level1)
 
     bool hasFocus = ability_->HasWindowFocus();
     ASSERT_EQ(hasFocus, false);
-
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
- * @tc.name: Ability_OnKeyPressAndHold_0100
- * @tc.desc: OnKeyPressAndHold test
- * @tc.desc: Verify function OnKeyPressAndHold.
- */
-HWTEST_F(AbilityBaseTest, Ability_OnKeyPressAndHold_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-
-    int keyCode = 0;
-    std::shared_ptr<KeyEvent> keyEvent = nullptr;
-    bool isPressAndHold = ability_->OnKeyPressAndHold(keyCode, keyEvent);
-    ASSERT_EQ(isPressAndHold, false);
 
     HILOG_INFO("%{public}s end.", __func__);
 }

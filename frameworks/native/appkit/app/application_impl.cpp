@@ -105,7 +105,6 @@ bool ApplicationImpl::PerformTerminate()
     if (curState_ == APP_STATE_BACKGROUND && application_ != nullptr) {
         application_->OnTerminate();
         curState_ = APP_STATE_TERMINATED;
-        RemoveUriPermission();
         return true;
     }
     HILOG_ERROR("ApplicationImpl::performTerminate error! curState is %{public}d", curState_);
@@ -126,28 +125,6 @@ void ApplicationImpl::PerformTerminateStrong()
         return;
     }
     application_->OnTerminate();
-    RemoveUriPermission();
-}
-
-void ApplicationImpl::RemoveUriPermission()
-{
-    if (application_ == nullptr) {
-        HILOG_ERROR("ApplicationImpl::RemoveUriPermission: invalid application_.");
-        return;
-    }
-
-    auto appContext = application_->GetAppContext();
-    if (!appContext) {
-        HILOG_ERROR("ApplicationImpl::RemoveUriPermission: Get appliction context failed.");
-        return;
-    }
-    auto appInfo = appContext->GetApplicationInfo();
-    if (!appInfo) {
-        HILOG_ERROR("ApplicationImpl::RemoveUriPermission: Get appliction info failed.");
-        return;
-    }
-    auto uriPermMgrClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    uriPermMgrClient->RemoveUriPermission(appInfo->accessTokenId);
 }
 
 /**
