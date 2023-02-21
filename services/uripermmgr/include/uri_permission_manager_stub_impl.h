@@ -40,7 +40,7 @@ public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
 
-    void GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
+    bool GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
         const Security::AccessToken::AccessTokenID targetTokenId) override;
 
     bool VerifyUriPermission(const Uri &uri, unsigned int flag,

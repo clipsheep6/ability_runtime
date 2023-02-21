@@ -294,7 +294,6 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, AbilityManagerService::FOREGROUND_TIMEOUT);
-    GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.accessTokenId);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -485,6 +484,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
+    GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.accessTokenId);
 
     if (isReady_) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -2041,7 +2041,7 @@ void AbilityRecord::SetStartToForeground(const bool flag)
     isStartToForeground_ = flag;
 }
 
-void AbilityRecord::CallRequest() const
+void AbilityRecord::CallRequest()
 {
     HILOG_INFO("Call Request.");
     CHECK_POINTER(scheduler_);
@@ -2202,7 +2202,7 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, uint32_t targetTokenId) const
+void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, uint32_t targetTokenId)
 {
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
@@ -2237,15 +2237,22 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, uint32_
             HILOG_ERROR("the uri does not belong to caller.");
             continue;
         }
-        IN_PROCESS_CALL_WITHOUT_RET(upmClient->GrantUriPermission(uri, want.GetFlags(),
+        auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
             callerAccessTokenId_, targetTokenId));
+        if (ret) {
+            isGrantedUriPermission_ = true;
+        }
     }
 }
 
-void AbilityRecord::RemoveUriPermission() const
+void AbilityRecord::RemoveUriPermission()
 {
-    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    upmClient->RemoveUriPermission(applicationInfo_.accessTokenId);
+    if (isGrantedUriPermission_) {
+        HILOG_DEBUG("To remove uri permission.");
+        auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
+        upmClient->RemoveUriPermission(applicationInfo_.accessTokenId);
+        isGrantedUriPermission_ = false;
+    }
 }
 
 void AbilityRecord::HandleDlpAttached()

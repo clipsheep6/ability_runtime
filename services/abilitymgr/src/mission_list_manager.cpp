@@ -1294,7 +1294,6 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     // remove AbilityRecord out of stack
     RemoveTerminatingAbility(abilityRecord, flag);
     abilityRecord->SendResultToCallers();
-    abilityRecord->RemoveUriPermission();
 
     // 1. if the ability was foreground, first should find wether there is other ability foreground
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
@@ -1489,6 +1488,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     for (auto it : terminateAbilityList_) {
         if (it == abilityRecord) {
+            abilityRecord->RemoveUriPermission();
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;

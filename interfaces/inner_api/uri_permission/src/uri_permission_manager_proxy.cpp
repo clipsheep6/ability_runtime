@@ -23,37 +23,39 @@ namespace AAFwk {
 UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
-void UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
+bool UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
     const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
-        return;
+        return false;
     }
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("Write uri failed.");
-        return;
+        return false;
     }
     if (!data.WriteInt32(flag)) {
         HILOG_ERROR("Write flag failed.");
-        return;
+        return false;
     }
     if (!data.WriteInt32(fromTokenId)) {
         HILOG_ERROR("Write fromTokenId failed.");
-        return;
+        return false;
     }
     if (!data.WriteInt32(targetTokenId)) {
         HILOG_ERROR("Write targetTokenId failed.");
-        return;
+        return false;
     }
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        return false;
     }
+    return reply.ReadBool();
 }
 
 bool UriPermissionManagerProxy::VerifyUriPermission(const Uri &uri, unsigned int flag,

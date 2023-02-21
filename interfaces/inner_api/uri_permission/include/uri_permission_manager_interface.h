@@ -34,7 +34,7 @@ public:
      * @param fromTokenId The owner of uri.
      * @param targetTokenId The user of uri.
      */
-    virtual void GrantUriPermission(const Uri &uri, unsigned int flag,
+    virtual bool GrantUriPermission(const Uri &uri, unsigned int flag,
         const Security::AccessToken::AccessTokenID fromTokenId,
         const Security::AccessToken::AccessTokenID targetTokenId) = 0;
 

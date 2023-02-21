@@ -22,14 +22,15 @@
 
 namespace OHOS {
 namespace AAFwk {
-void UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
+bool UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
     const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerClient::GrantUriPermission is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        uriPermMgr->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
+        return uriPermMgr->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
     }
+    return false;
 }
 
 bool UriPermissionManagerClient::VerifyUriPermission(const Uri &uri, unsigned int flag,
