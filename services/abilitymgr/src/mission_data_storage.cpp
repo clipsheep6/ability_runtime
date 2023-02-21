@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "image_source.h"
 #include "media_errors.h"
+#include "mission_info_mgr.h"
 #ifdef SUPPORT_GRAPHICS
 #include <cstdio>
 #include <setjmp.h>
@@ -245,6 +246,7 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const MissionSnapsh
 {
     SaveSnapshotFile(missionId, missionSnapshot.snapshot, missionSnapshot.isPrivate, false);
     SaveSnapshotFile(missionId, GetReducedPixelMap(missionSnapshot.snapshot), missionSnapshot.isPrivate, true);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->CompleteSaveSnapshot(missionId);
 }
 
 void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& snapshot,
