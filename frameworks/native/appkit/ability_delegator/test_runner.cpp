@@ -52,7 +52,8 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
     if (bms->GetBundleInfoForSelf(
         (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_DEFAULT) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
-        static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE)), bundleInfo) != ERR_OK) {
+        static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+        static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION)), bundleInfo) != ERR_OK) {
         HILOG_ERROR("Failed to GetBundleInfo");
         return nullptr;
     }
