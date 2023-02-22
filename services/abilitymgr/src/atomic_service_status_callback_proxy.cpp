@@ -93,5 +93,28 @@ void AtomicServiceStatusCallbackProxy::OnRemoteInstallFinished(int resultCode, c
         return;
     }
 }
+
+void AtomicServiceStatusCallbackProxy::OnRemoveTimeoutTask(const Want &want)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(IAtomicServiceStatusCallback::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("Write want error.");
+        return;
+    }
+
+    int error = Remote()->SendRequest(ON_REMOVE_TIMEOUT_TASK, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("OnFinished fail, error: %{public}d", error);
+        return;
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

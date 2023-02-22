@@ -182,6 +182,7 @@ private:
     #endif
 
     int FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply);
+    int AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

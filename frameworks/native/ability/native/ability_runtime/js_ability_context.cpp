@@ -16,7 +16,9 @@
 #include "ability_runtime/js_ability_context.h"
 
 #include <cstdint>
+#include <chrono>
 
+#include "ability_manager_client.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
@@ -216,27 +218,50 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
         want.SetParam(Want::PARAM_RESV_START_RECENT, true);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto innerErrorCode = (unwrapArgc == 1) ?
-                context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
-            if (innerErrorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
-            }
-        };
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+
+    auto innerErrorCode = std::make_shared<int>(ERR_OK);
+    AsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc,
+        &observer = freeInstallObserver_, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+
+        *innerErrorCode = (unwrapArgc == 1) ?
+            context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+        if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+            *innerErrorCode != 0 && observer != nullptr) {
+            std::string bundleName = want.GetElement().GetBundleName();
+            std::string abilityName = want.GetElement().GetAbilityName();
+            std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+            observer->OnInstallFinished(bundleName, abilityName, startTime, *innerErrorCode);
+        }
+    };
+
+    AsyncTask::CompleteCallback complete = [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        if (*innerErrorCode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
+        }
+    };
 
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        AddFreeInstallObserver(engine, want, lastParam);
+        AsyncTask::Schedule("JsAbilityContext::OnStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
+    } else {
+        AsyncTask::Schedule("JsAbilityContext::OnStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    }
+
     return result;
 }
 
@@ -314,30 +339,54 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
             reinterpret_cast<napi_value>(info.argv[ARGC_TWO]), startOptions);
         unwrapArgc++;
     }
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, want, accountId, startOptions, unwrapArgc](
-            NativeEngine& engine, AsyncTask& task, int32_t status) {
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                    return;
-                }
 
-                auto innerErrorCode = (unwrapArgc == INDEX_TWO) ?
-                    context->StartAbilityWithAccount(want, accountId, -1) : context->StartAbilityWithAccount(
-                        want, accountId, startOptions, -1);
-                if (innerErrorCode == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                } else {
-                    task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
-                }
-        };
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+
+    auto innerErrorCode = std::make_shared<int>(ERR_OK);
+    AsyncTask::ExecuteCallback execute =
+        [weak = context_, want, accountId, startOptions, unwrapArgc, innerErrorCode,
+            &observer = freeInstallObserver_]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+
+        *innerErrorCode = (unwrapArgc == INDEX_TWO) ?
+            context->StartAbilityWithAccount(want, accountId, -1) : context->StartAbilityWithAccount(
+                want, accountId, startOptions, -1);
+        if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+            *innerErrorCode != 0 && observer != nullptr) {
+            std::string bundleName = want.GetElement().GetBundleName();
+            std::string abilityName = want.GetElement().GetAbilityName();
+            std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+            observer->OnInstallFinished(bundleName, abilityName, startTime, *innerErrorCode);
+        }
+    };
+
+    AsyncTask::CompleteCallback complete = [innerErrorCode](
+        NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (*innerErrorCode == 0) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
+            }
+    };
 
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsAbilityContext::OnStartAbilityWithAccount",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        AddFreeInstallObserver(engine, want, lastParam);
+        AsyncTask::Schedule("JsAbilityContext::OnStartAbilityWithAccount", engine,
+            CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
+    } else {
+        AsyncTask::Schedule("JsAbilityContext::OnStartAbilityWithAccount", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    }
+
     return result;
 }
 
@@ -1248,6 +1297,27 @@ void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_pt
     HILOG_INFO("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
     NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
     engine->CallFunction(value, method, argv, ARGC_ONE);
+}
+
+void JsAbilityContext::AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback)
+{
+    // adapter free install async return install and start result
+    int ret = 0;
+    if (freeInstallObserver_ == nullptr) {
+        freeInstallObserver_ = new JsFreeInstallObserver(engine);
+        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("AddFreeInstallObserver failed.");
+    } else {
+        HILOG_INFO("AddJsObserverObject");
+        // build a callback observer with last param
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback);
+    }
 }
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context)

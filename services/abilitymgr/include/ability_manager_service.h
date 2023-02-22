@@ -853,6 +853,13 @@ public:
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Add FreeInstall Observer
+     *
+     * @param observer the result callback of ability request
+     */
+    int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+
+    /**
      * Check the uid is background task uid.
      *
      * @param uid userId.
@@ -1005,7 +1012,7 @@ private:
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
-    void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
+    void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken, bool isOverlay = false);
 
     bool CheckIfOperateRemote(const Want &want);
     std::string AnonymizeDeviceId(const std::string& deviceId);

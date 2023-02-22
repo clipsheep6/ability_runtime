@@ -1026,5 +1026,13 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
     want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
 #endif // WITH_DLP
 }
+
+ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    HILOG_INFO("AddFreeInstallObserver begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AddFreeInstallObserver(observer);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

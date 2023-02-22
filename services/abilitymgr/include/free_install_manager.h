@@ -22,6 +22,7 @@
 #include <iremote_stub.h>
 
 #include "ability_info.h"
+#include "free_install_observer_manager.h"
 #include "want.h"
 
 namespace OHOS {
@@ -32,7 +33,6 @@ struct FreeInstallInfo {
     Want want;
     int32_t userId = -1;
     int32_t requestCode = -1;
-    int64_t startInstallTime = 0;
     std::shared_ptr<std::promise<int32_t>> promise;
     bool isInstalled = false;
     sptr<IRemoteObject> callerToken = nullptr;
@@ -55,7 +55,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime);
+    void OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync = false);
 
     /**
      * OnRemoteInstallFinished, DMS has finished.
@@ -64,8 +64,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
-        int64_t startInstallTime);
+    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId);
 
     /**
      * Start to free install.
@@ -77,6 +76,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
+
+    /**
+     * Start to free install.
+     *
+     * @param want, the want of the ability to free install.
+     * @param userId, designation User ID.
+     * @param requestCode, ability request code.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartFreeInstallAsync(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
 
     /**
      * Start to remote free install.
@@ -114,6 +124,12 @@ public:
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
         const std::string& localDeviceId);
 
+    void PostUpgradeAtomicServiceTask(int resultCode, const Want &want, int32_t userId);
+
+    int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+
+    void OnRemoveTimeoutTask(const Want &want);
+
 private:
     std::weak_ptr<AbilityManagerService> server_;
     std::vector<FreeInstallInfo> freeInstallList_;
@@ -121,6 +137,8 @@ private:
     std::map<std::string, std::time_t> timeStampMap_;
     std::mutex distributedFreeInstallLock_;
     std::mutex freeInstallListLock_;
+
+    std::mutex freeInstallObserverLock_;
     /**
      * Start remote free install.
      *
@@ -134,10 +152,15 @@ private:
 
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode, int64_t startInstallTime);
+    void NotifyFreeInstallResult(const Want &want, int resultCode);
+    void NotifyFreeInstallResultAsync(const Want &want, int resultCode);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken, bool isAsync);
     std::time_t GetTimeStamp();
+
+    void PostTimeoutTask(const Want &want);
+    void HandleTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
+    void RemoveTimeoutTask(const std::string bundleName, const std::string abilityName, const std::string startTime);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

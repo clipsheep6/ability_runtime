@@ -20,6 +20,7 @@
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "js_free_install_observer.h"
 #include "js_runtime_utils.h"
 
 namespace OHOS {
@@ -126,7 +127,9 @@ public:
     std::string ConvertErrorCode(int32_t errCode);
     sptr<NAPIAbilityConnection> BuildWant(const Want &want, int64_t &id);
     void ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1);
+    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
     Ability *ability_;
+    sptr<AbilityRuntime::JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

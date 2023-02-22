@@ -15,6 +15,7 @@
   global:
     extern "C++" {
       *OHOS::AbilityRuntime::CreateJsCallerComplex*;
+      *OHOS::AbilityRuntime::FreeInstallObserverStub*;
       *OHOS::AppExecFwk::AbilityTransactionCallbackInfo*;
       "OHOS::AppExecFwk::CompleteAsyncCallbackWork(napi_env__*, napi_status, void*)";
       "OHOS::AppExecFwk::CompletePromiseCallbackWork(napi_env__*, napi_status, void*)";

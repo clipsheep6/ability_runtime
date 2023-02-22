@@ -26,6 +26,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
 #include "extension_running_info.h"
+#include "free_install_observer_interface.h"
 #include "iability_controller.h"
 #include "icomponent_interception.h"
 #include "mission_listener_interface.h"
@@ -733,6 +734,11 @@ public:
         return 0;
     }
 
+    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+    {
+        return 0;
+    }
+
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
@@ -1044,6 +1050,7 @@ public:
 
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
+        ADD_FREE_INSTALL_OBSERVER = 3002,
 
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,

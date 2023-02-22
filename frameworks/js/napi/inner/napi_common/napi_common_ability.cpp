@@ -15,6 +15,7 @@
 
 #include "napi_common_ability.h"
 
+#include <chrono>
 #include <dlfcn.h>
 #include <uv.h>
 
@@ -4976,7 +4977,11 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
         }
     }
 
-    auto execute = [obj = this, value = errorVal, abilityType, paramObj = param] () {
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    param->want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+
+    auto execute = [obj = this, value = errorVal, abilityType, paramObj = param, &observer = freeInstallObserver_] () {
         if (*value != NAPI_ERR_NO_ERROR) {
             HILOG_ERROR("JsStartAbility params error!");
             return;
@@ -5017,6 +5022,13 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
             HILOG_INFO("param.setting != nullptr call StartAbility.");
             *value = obj->ability_->StartAbility(paramObj->want, *(paramObj->setting));
         }
+        if ((paramObj->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+            *value != 0 && observer != nullptr) {
+            std::string bundleName = paramObj->want.GetElement().GetBundleName();
+            std::string abilityName = paramObj->want.GetElement().GetAbilityName();
+            std::string startTime = paramObj->want.GetStringParam(Want::PARAM_RESV_START_TIME);
+            observer->OnInstallFinished(bundleName, abilityName, startTime, *value);
+        }
     };
 
     auto complete = [value = errorVal]
@@ -5031,8 +5043,14 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
 
     auto callback = (info.argc == ARGS_ONE) ? nullptr : info.argv[PARAM1];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    if ((param->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        AddFreeInstallObserver(engine, param->want, callback);
+        AsyncTask::Schedule("JsNapiCommon::JsStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
+    } else {
+        AsyncTask::Schedule("JsNapiCommon::JsStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    }
 
     return result;
 }
@@ -5072,6 +5090,27 @@ NativeValue* JsNapiCommon::JsGetExternalCacheDir(NativeEngine &engine,
     AsyncTask::Schedule("JsNapiCommon::JsGetExternalCacheDir",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
     return result;
+}
+
+void JsNapiCommon::AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback)
+{
+    // adapter free install async return install and start result
+    int ret = 0;
+    if (freeInstallObserver_ == nullptr) {
+        freeInstallObserver_ = new JsFreeInstallObserver(engine);
+        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("AddFreeInstallObserver failed.");
+    } else {
+        HILOG_INFO("AddJsObserverObject");
+        // build a callback observer with last param
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

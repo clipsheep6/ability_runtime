@@ -23,6 +23,7 @@
 #include "ability_util.h"
 #include "atomic_service_status_callback.h"
 #include "distributed_client.h"
+#include "free_install_observer_manager.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 
@@ -86,13 +87,12 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     if (!isSaCall && !IsTopAbility(callerToken)) {
         return NOT_TOP_ABILITY;
     }
-    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, false);
     {
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
-        info.startInstallTime);
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), false);
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
@@ -117,6 +117,40 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     return future.get();
 }
 
+int FreeInstallManager::StartFreeInstallAsync(const Want &want, int32_t userId, int requestCode,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("StartFreeInstall called");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall && !IsTopAbility(callerToken)) {
+        HILOG_ERROR("The ability is not top ability.");
+        return NOT_TOP_ABILITY;
+    }
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, true);
+    {
+        std::lock_guard<std::mutex> lock(freeInstallListLock_);
+        freeInstallList_.push_back(info);
+    }
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), true);
+    auto bms = AbilityUtil::GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    AppExecFwk::AbilityInfo abilityInfo = {};
+    constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
+    info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
+    PostTimeoutTask(want);
+    if (IN_PROCESS_CALL(bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback))) {
+        HILOG_INFO("The app has installed.");
+    }
+    std::string callingAppId = info.want.GetStringParam(PARAM_FREEINSTALL_APPID);
+    std::vector<std::string> callingBundleNames = info.want.GetStringArrayParam(PARAM_FREEINSTALL_BUNDLENAMES);
+    if (callingAppId.empty() && callingBundleNames.empty()) {
+        HILOG_INFO("callingAppId and callingBundleNames are empty");
+    }
+    info.want.RemoveParam(PARAM_FREEINSTALL_APPID);
+    info.want.RemoveParam(PARAM_FREEINSTALL_BUNDLENAMES);
+    return ERR_OK;
+}
+
 int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int requestCode,
     const sptr<IRemoteObject> &callerToken)
 {
@@ -126,13 +160,12 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     if (!isSaCall && !isFromRemote && !IsTopAbility(callerToken)) {
         return NOT_TOP_ABILITY;
     }
-    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, false);
     {
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
-        info.startInstallTime);
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), false);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
@@ -146,22 +179,22 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     if (remoteStatus == std::future_status::timeout) {
         return FREE_INSTALL_TIMEOUT;
     }
-    return remoteFuture.get();
+    return ERR_OK;
 }
 
 FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken)
+    const sptr<IRemoteObject> &callerToken, bool isAsync)
 {
-    auto promise = std::make_shared<std::promise<int32_t>>();
     FreeInstallInfo info = {
         .want = want,
         .userId = userId,
         .requestCode = requestCode,
-        .startInstallTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count(),
-        .callerToken = callerToken,
-        .promise = promise
+        .callerToken = callerToken
     };
+    if (!isAsync) {
+        auto promise = std::make_shared<std::promise<int32_t>>();
+        info.promise = promise;
+    }
     return info;
 }
 
@@ -230,7 +263,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
     return reply.ReadInt32();
 }
 
-void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode, int64_t startInstallTime)
+void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode)
 {
     std::lock_guard<std::mutex> lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
@@ -243,9 +276,10 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
+        std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
             want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
-            (*it).startInstallTime != startInstallTime) {
+            want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0) {
             it++;
             continue;
         }
@@ -269,6 +303,52 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             (*it).promise->set_value(resultCode);
         }
 
+        it++;
+    }
+}
+
+void FreeInstallManager::NotifyFreeInstallResultAsync(const Want &want, int resultCode)
+{
+    std::lock_guard<std::mutex> lock(freeInstallListLock_);
+    if (freeInstallList_.empty()) {
+        HILOG_INFO("Has no app callback.");
+        return;
+    }
+
+    bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
+    HILOG_INFO("isFromRemote = %{public}d", isFromRemote);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        std::string bundleName = (*it).want.GetElement().GetBundleName();
+        std::string abilityName = (*it).want.GetElement().GetAbilityName();
+        std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
+            want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
+            want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0) {
+            it++;
+            continue;
+        }
+
+        if ((*it).isInstalled) {
+            it = freeInstallList_.erase(it);
+            continue;
+        }
+
+        if (resultCode == ERR_OK) {
+            // remove free-install-flag and start ability
+            HILOG_INFO("FreeInstall success.");
+            Want newWant((*it).want);
+            newWant.SetFlags(want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
+            int result = AbilityManagerClient::GetInstance()->StartAbility(newWant, (*it).callerToken,
+                (*it).userId, (*it).requestCode);
+            HILOG_INFO("The result of StartAbility is %{public}d.", result);
+            DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
+                bundleName, abilityName, startTime, result);
+            (*it).isInstalled = true;
+        } else {
+            HILOG_INFO("FreeInstall failed.");
+            DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
+                bundleName, abilityName, startTime, resultCode);
+        }
         it++;
     }
 }
@@ -355,12 +435,27 @@ std::time_t FreeInstallManager::GetTimeStamp()
     return timestamp;
 }
 
-void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime)
+void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
+    if (isAsync) {
+        // remove timeout task
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        RemoveTimeoutTask(bundleName, abilityName, startTime);
+        NotifyFreeInstallResultAsync(want, resultCode);
+    } else {
+        NotifyFreeInstallResult(want, resultCode);
+    }
     NotifyDmsCallback(want, resultCode);
-    NotifyFreeInstallResult(want, resultCode, startInstallTime);
 
+    PostUpgradeAtomicServiceTask(resultCode, want, userId);
+}
+
+void FreeInstallManager::PostUpgradeAtomicServiceTask(int resultCode, const Want &want, int32_t userId)
+{
+    HILOG_INFO("PostUpgradeAtomicServiceTask begin.");
     std::weak_ptr<FreeInstallManager> thisWptr(shared_from_this());
     if (resultCode == ERR_OK) {
         auto updateAtmoicServiceTask = [want, userId, thisWptr, &timeStampMap = timeStampMap_]() {
@@ -384,11 +479,71 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
     }
 }
 
-void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
-    int64_t startInstallTime)
+void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
-    NotifyFreeInstallResult(want, resultCode, startInstallTime);
+    NotifyFreeInstallResult(want, resultCode);
+}
+
+int FreeInstallManager::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    HILOG_INFO("Add FreeInstallObserver");
+    return DelayedSingleton<FreeInstallObserverManager>::GetInstance()->AddObserver(observer);
+}
+
+void FreeInstallManager::PostTimeoutTask(const Want &want)
+{
+    HILOG_INFO("PostTimeoutTask begin.");
+    std::string bundleName = want.GetElement().GetBundleName();
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+    auto task = [weak = weak_from_this(), bundleName, abilityName, startTime]() {
+        auto self = weak.lock();
+        if (!self) {
+            HILOG_ERROR("this is nullptr");
+            return;
+        }
+        DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(bundleName, abilityName,
+            startTime, FREE_INSTALL_TIMEOUT);
+    };
+    std::string taskName = std::string("FreeInstallTimeout_") + std::string("_") + bundleName + std::string("_") +
+        abilityName + std::string("_") + startTime;
+    std::shared_ptr<AbilityEventHandler> handler =
+        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    handler->PostTask(task, taskName, DELAY_LOCAL_FREE_INSTALL_TIMEOUT);
+}
+
+void FreeInstallManager::RemoveTimeoutTask(const std::string bundleName, const std::string abilityName,
+    const std::string startTime)
+{
+    // remove timeout task
+    std::string taskName = std::string("FreeInstallTimeout") + std::string("_") + bundleName + std::string("_") +
+        abilityName + std::string("_") + startTime;
+    HILOG_INFO("RemoveTimeoutTask task name:%{public}s", taskName.c_str());
+    std::shared_ptr<AbilityEventHandler> handler =
+        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    handler->RemoveTask(taskName);
+}
+
+void FreeInstallManager::OnRemoveTimeoutTask(const Want &want)
+{
+    // only SA can call this interface
+    HILOG_INFO("OnRemoveTimeoutTask begin.");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
+    std::string bundleName = want.GetElement().GetBundleName();
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("wantBundleName or wantAbilityName is empty");
+        return;
+    }
+    RemoveTimeoutTask(bundleName, abilityName, startTime);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

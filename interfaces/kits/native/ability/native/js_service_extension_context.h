@@ -21,6 +21,7 @@
 #include "ability_connect_callback.h"
 #include "service_extension_context.h"
 #include "event_handler.h"
+#include "js_free_install_observer.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
