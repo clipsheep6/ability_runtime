@@ -184,6 +184,15 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
     amsHandler_->PostTask(task);
 }
 
+int32_t AmsMgrScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    return amsMgrServiceInner_->UpdateApplicationInfoInstalled(bundleName, uid);
+}
+
 int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
 {
     HILOG_INFO("bundleName = %{public}s", bundleName.c_str());

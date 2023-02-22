@@ -222,6 +222,15 @@ public:
     int KillApplicationByUid(const std::string &bundleName, int32_t uid);
 
     /**
+     * update the application info after new module installed.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param  uid, uid.
+     * @return 0 if success.
+     */
+    int UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid);
+
+    /**
      * clear the application data
      *
      * @param bundleName.

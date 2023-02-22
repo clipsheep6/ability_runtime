@@ -124,6 +124,16 @@ public:
     virtual int KillProcessWithAccount(const std::string &bundleName, const int accountId) = 0;
 
     /**
+     * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
+     * update the application info after new module installed.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param  uid, uid.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid) = 0;
+
+    /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.
@@ -186,7 +196,8 @@ public:
         GET_CONFIGURATION,
         GET_APPLICATION_INFO_BY_PROCESS_ID,
         KILL_APPLICATION_SELF,
-        GET_RUNNING_PROCESS_INFO_BY_PID
+        GET_RUNNING_PROCESS_INFO_BY_PID,
+        UPDATE_APPLICATION_INFO_INSTALLED
     };
 };
 }  // namespace AppExecFwk

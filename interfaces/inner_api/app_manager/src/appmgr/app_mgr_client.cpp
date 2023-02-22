@@ -233,6 +233,22 @@ AppMgrResultCode AppMgrClient::KillProcessesByUserId(int32_t userId)
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+AppMgrResultCode AppMgrClient::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        sptr<IAmsMgr> amsService = service->GetAmsMgr();
+        if (amsService != nullptr) {
+            int32_t result = amsService->UpdateApplicationInfoInstalled(bundleName, uid);
+            if (result == ERR_OK) {
+                return AppMgrResultCode::RESULT_OK;
+            }
+            return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+        }
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

@@ -521,6 +521,31 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
     }
 }
 
+/**
+ *
+ * @brief update the application info after new module installed.
+ *
+ * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+ *
+ */
+void MainThread::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, appInfo]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, HandleUpdateApplicationInfoInstalled failed.");
+            return;
+        }
+        appThread->HandleUpdateApplicationInfoInstalled(appInfo);
+    };
+    if (!mainHandler_->PostTask(task)) {
+        HILOG_ERROR("MainThread::ScheduleUpdateApplicationInfoInstalled PostTask task failed");
+    }
+    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled end.");
+}
+
 void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     HILOG_DEBUG("MainThread::ScheduleAbilityStageInfo start");
@@ -1186,6 +1211,16 @@ void MainThread::ChangeToLocalPath(const std::string &bundleName,
         localPath.emplace_back(
             std::regex_replace(item, pattern, std::string(LOCAL_CODE_PATH) + std::string(FILE_SEPARATOR)));
     }
+}
+
+void MainThread::HandleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    HILOG_DEBUG("MainThread::HandleUpdateApplicationInfoInstalled");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+    application_->UpdateApplicationInfoInstalled(appInfo);
 }
 
 void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)

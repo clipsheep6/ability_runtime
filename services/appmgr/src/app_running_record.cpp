@@ -382,6 +382,20 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
 
+void AppRunningRecord::UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    if (!isStageBasedModel_) {
+        HILOG_INFO("Current version than supports !");
+        return;
+    }
+
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->UpdateApplicationInfoInstalled(appInfo);
+}
+
 void AppRunningRecord::AddAbilityStage()
 {
     if (!isStageBasedModel_) {
