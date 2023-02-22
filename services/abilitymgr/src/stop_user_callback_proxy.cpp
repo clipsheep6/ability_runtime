@@ -30,7 +30,7 @@ void StopUserCallbackProxy::SendRequestCommon(int userId, int errcode, IStopUser
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     HILOG_INFO("StopUserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d",
         cmd, userId, errcode);
