@@ -182,6 +182,26 @@ bool AppRunningManager::GetPidsByUserId(int32_t userId, std::list<pid_t> &pids)
     return (!pids.empty());
 }
 
+int32_t AppRunningManager::ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (!appRecord) {
+            continue;
+        }
+        auto appInfoList = appRecord->GetAppInfoList();
+        for (auto iter : appInfoList) {
+            if (iter->bundleName == appInfo.bundleName) {
+                appRecord->UpdateApplicationInfoInstalled(appInfo);
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 bool AppRunningManager::ProcessExitByBundleNameAndUid(
     const std::string &bundleName, const int uid, std::list<pid_t> &pids)
 {

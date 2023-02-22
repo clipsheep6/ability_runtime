@@ -35,6 +35,16 @@ void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const 
     }
 }
 
+void AppLifeCycleDeal::UpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
+{
+    if (!appThread_) {
+        HILOG_ERROR("appThread_ is nullptr");
+        return;
+    }
+
+    appThread_->ScheduleUpdateApplicationInfoInstalled(appInfo);
+}
+
 void AppLifeCycleDeal::AddAbilityStage(const HapModuleInfo &abilityStage)
 {
     if (!appThread_) {

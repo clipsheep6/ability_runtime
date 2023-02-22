@@ -34,6 +34,7 @@ public:
         const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&));
     MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD2(UpdateExtensionState, AppMgrResultCode(const sptr<IRemoteObject> &token, const ExtensionState state));
+    MOCK_METHOD2(UpdateApplicationInfoInstalled, AppMgrResultCode(const std::string &bundleName, const int uid));
     MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
     MOCK_METHOD2(KillApplicationByUid, AppMgrResultCode(const std::string &bundleName, const int uid));
     MOCK_METHOD1(ClearUpApplicationData, AppMgrResultCode(const std::string&));

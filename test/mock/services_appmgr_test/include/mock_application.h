@@ -37,6 +37,7 @@ public:
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration &));
     MOCK_METHOD0(ScheduleProcessSecurityExit, void());
     MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo &));
+    MOCK_METHOD1(ScheduleUpdateApplicationInfoInstalled, void(const ApplicationInfo&));
     MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want &want, const std::string &moduleName));
     MOCK_METHOD3(ScheduleNotifyLoadRepairPatch, int32_t(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId));

@@ -69,6 +69,8 @@ public:
     {}
     void ScheduleAbilityStage(const HapModuleInfo &) override
     {}
+    void ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo&) override
+    {}
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override
     {}
     int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
