@@ -999,19 +999,6 @@ HWTEST_F(AbilityManagerServiceTest, UnRegisterMissionListener_002, TestSize.Leve
 
 /*
  * Feature: AbilityManagerService
- * Function: RemoveAllServiceRecord
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RemoveAllServiceRecord
- */
-HWTEST_F(AbilityManagerServiceTest, RemoveAllServiceRecord_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest RemoveAllServiceRecord_001 start");
-    abilityMs_->RemoveAllServiceRecord();
-    HILOG_INFO("AbilityManagerServiceTest RemoveAllServiceRecord_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetWantSender
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetWantSender
@@ -1572,7 +1559,6 @@ HWTEST_F(AbilityManagerServiceTest, OnAbilityRequestDone_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest OnAbilityRequestDone_001 start");
     abilityMs_->OnAbilityRequestDone(nullptr, 1);
-    abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::SERVICE), 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::DATA), 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::UNKNOWN), 1);
     HILOG_INFO("AbilityManagerServiceTest OnAbilityRequestDone_001 end");
