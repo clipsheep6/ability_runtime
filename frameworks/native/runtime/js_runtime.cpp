@@ -620,7 +620,7 @@ bool JsRuntime::Initialize(const Options& options)
             InitTimerModule(*nativeEngine_, *globalObj);
         }
 
-        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
+        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.isBundle);
     }
 
     nativeEngine_->RegisterPermissionCheck(PermissionCheckFunc);
