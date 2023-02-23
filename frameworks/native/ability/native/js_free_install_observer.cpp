@@ -61,7 +61,7 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleNam
             NativeValue* argv[] = { CreateJsErrorByNativeErr(engine_, resultCode) };
             CallJsFunction(value, argv, ARGC_ONE);
             it = jsObserverObjectList_.erase(it);
-            HILOG_DEBUG("the size of jsObserverObjectList_:%{public}d", jsObserverObjectList_.size());
+            HILOG_DEBUG("the size of jsObserverObjectList_:%{public}zu", jsObserverObjectList_.size());
         } else {
             it++;
         }
