@@ -31,9 +31,11 @@ using testing::AtLeast;
 using testing::InSequence;
 using testing::Invoke;
 using testing::Return;
+using SharedPackage = BaseSharedPackageInfo;
 
 // keep same with app_spawn_client.cpp
 const int32_t CONNECT_RETRY_MAX_TIMES = 2;
+const size_t SOCK_MAX_SEND_BUFFER = 5 * 1024;
 
 // this function is only used to mock sleep method so ut can run without delay.
 int MockSleep([[maybe_unused]] uint32_t seconds)
@@ -104,6 +106,16 @@ void AmsServiceAppSpawnClientTest::SetUp()
 
 void AmsServiceAppSpawnClientTest::TearDown()
 {}
+
+static SharedPackage CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
+{
+    SharedPackage hsp;
+    hsp.bundleName = bundle;
+    hsp.moduleName = module;
+    hsp.versionCode = version;
+    hsp.nativeLibraryPath = libPath;
+    return hsp;
+}
 
 /*
  * Feature: AppMgrService
@@ -581,6 +593,113 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_019, TestSize.Level1)
     EXPECT_EQ(expectPid, newPid);
     EXPECT_EQ(ERR_OK, result);
     HILOG_INFO("ams_service_app_spawn_client_019 end");
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: Service
+ * SubFunction: AppSpawnClient
+ * FunctionPoints: AppSpawnClient send HspList_001
+ * EnvConditions: mobile that can run ohos test framework
+ * CaseDescription: Verify if AppSpawnClient call WriteMessage twice when send short HspList
+ */
+HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_020, TestSize.Level1)
+{
+    HILOG_INFO("ams_service_app_spawn_client_020 start");
+    std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
+    std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
+    appSpawnClient->SetSocket(socketMock);
+    EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillOnce(Return(ERR_OK));
+    EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
+    EXPECT_CALL(*socketMock, WriteMessage(_, _)).Times(2).WillRepeatedly(Return(ERR_OK));
+    EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
+    EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
+
+    params.hspList = {
+        CreateHsp("testBundle", "testModule", 10001, "testLibPath"),
+        CreateHsp("testBundle", "testModule", 10001, "testLibPath")
+    };
+
+    pid_t expectPid = 11111;
+    pid_t newPid = 0;
+    socketMock->SetExpectPid(expectPid);
+    appSpawnClient->StartProcess(params, newPid);
+    EXPECT_EQ(expectPid, newPid);
+    HILOG_INFO("ams_service_app_spawn_client_020 end");
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: Service
+ * SubFunction: AppSpawnClient
+ * FunctionPoints: AppSpawnClient send HspList_002
+ * EnvConditions: mobile that can run ohos test framework
+ * CaseDescription: Verify if AppSpawnClient call WriteMessage more than twice when send long HspList
+ */
+HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_021, TestSize.Level1)
+{
+    HILOG_INFO("ams_service_app_spawn_client_021 start");
+    std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
+    std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
+    appSpawnClient->SetSocket(socketMock);
+    EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillOnce(Return(ERR_OK));
+    EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
+    EXPECT_CALL(*socketMock, WriteMessage(_, _)).Times(AtLeast(2)).WillRepeatedly(Return(ERR_OK));
+    EXPECT_CALL(*socketMock, WriteMessage(_, SOCK_MAX_SEND_BUFFER)).Times(AtLeast(1)).WillRepeatedly(Return(ERR_OK));
+    EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
+    EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
+    SharedPackage hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
+    int listSize = 1000;
+    for (int i = 0; i < listSize; ++i) {
+        params.hspList.emplace_back(hsp);
+    }
+
+    pid_t expectPid = 11111;
+    pid_t newPid = 0;
+    socketMock->SetExpectPid(expectPid);
+    appSpawnClient->StartProcess(params, newPid);
+    EXPECT_EQ(expectPid, newPid);
+    HILOG_INFO("ams_service_app_spawn_client_021 end");
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: Service
+ * SubFunction: AppSpawnClient
+ * FunctionPoints: AppSpawnClient send HspList_003
+ * EnvConditions: mobile that can run ohos test framework
+ * CaseDescription: Verify if AppSpawnClient act normal when write HspList failed at first time,
+ *                  but succeed in second time
+ */
+HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_022, TestSize.Level1)
+{
+    HILOG_INFO("ams_service_app_spawn_client_022 start");
+    std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
+    std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
+    appSpawnClient->SetSocket(socketMock);
+    EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).Times(2).WillRepeatedly(Return(ERR_OK));
+    EXPECT_EQ(ERR_OK, appSpawnClient->OpenConnection());
+    EXPECT_CALL(*socketMock, WriteMessage(_, _)).WillOnce(Return(ERR_OK))
+        .WillOnce(Return(ERR_APPEXECFWK_SOCKET_WRITE_FAILED))
+        .WillRepeatedly(Return(ERR_OK));
+    EXPECT_CALL(*socketMock, WriteMessage(_, SOCK_MAX_SEND_BUFFER)).Times(AtLeast(2)).WillRepeatedly(Return(ERR_OK));
+    EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
+    EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(2);
+    AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
+    SharedPackage hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
+    int listSize = 1000;
+    for (int i = 0; i < listSize; ++i) {
+        params.hspList.emplace_back(hsp);
+    }
+
+    pid_t expectPid = 11111;
+    pid_t newPid = 0;
+    socketMock->SetExpectPid(expectPid);
+    appSpawnClient->StartProcess(params, newPid);
+    EXPECT_EQ(expectPid, newPid);
+    HILOG_INFO("ams_service_app_spawn_client_022 end");
 }
 
 /*
