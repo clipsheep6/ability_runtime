@@ -19,6 +19,7 @@ ohos_shared_library("particleability") {
   include_dirs = [
     "//third_party/node/src",
     "${ability_runtime_napi_path}/featureAbility",
+    "${ability_runtime_napi_path}/inner/napi_common",
     "${ability_runtime_services_path}/common/include",
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
@@ -31,6 +32,7 @@ ohos_shared_library("particleability") {
     "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
+    "${ability_runtime_napi_path}/inner/napi_common/napi_common_ability.cpp",
     "${relational_store_napi_path}/common/src/js_utils.cpp",
     "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
     "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
@@ -63,6 +65,7 @@ ohos_shared_library("particleability") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_napi_common",
     "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

@@ -62,6 +62,7 @@ config("appkit_public_config") {
   include_dirs = [
     "${ability_base_kits_path}/configuration/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${global_path}/resource_management/interfaces/inner_api/include",
   ]
 
@@ -80,7 +81,6 @@ ohos_shared_library("appkit_native") {
   include_dirs = [
     "native",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
@@ -122,6 +122,7 @@ ohos_shared_library("appkit_native") {
   deps = [
     ":appkit_delegator",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
@@ -137,6 +138,8 @@ ohos_shared_library("appkit_native") {
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",

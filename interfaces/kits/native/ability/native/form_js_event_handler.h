@@ -19,6 +19,7 @@
 #include <singleton.h>
 #include "ability.h"
 #include "event_handler.h"
+#include "form_js_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {

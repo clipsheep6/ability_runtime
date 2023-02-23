@@ -24,6 +24,7 @@ ohos_shared_library("featureability") {
   ]
 
   sources = [
+    "${ability_runtime_napi_path}/inner/napi_common/napi_common_ability.cpp",
     "${relational_store_napi_path}/common/src/js_utils.cpp",
     "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
     "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
@@ -56,6 +57,7 @@ ohos_shared_library("featureability") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_napi_common",
     "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

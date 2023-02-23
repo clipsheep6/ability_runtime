@@ -18,17 +18,13 @@
 #include <cinttypes>
 #include <thread>
 
-#include "ability_impl.h"
-#include "ability_loader.h"
 #include "ability_post_event_timeout.h"
 #include "ability_recovery.h"
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
 #include "app_recovery.h"
-#include "hitrace_meter.h"
 #include "configuration_convertor.h"
 #include "connection_manager.h"
-#include "context_impl.h"
 #include "continuation_manager.h"
 #include "continuation_register_manager.h"
 #include "continuation_register_manager_proxy.h"
@@ -36,20 +32,19 @@
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "data_uri_utils.h"
+#include "event_report.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary.h"
 #include "reverse_continuation_scheduler_replica.h"
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
-#include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
-#include "event_report.h"
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_mgr_helper.h"
@@ -58,16 +53,12 @@
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_type.h"
-#include "form_host_client.h"
-#include "form_mgr.h"
-#include "form_mgr_errors.h"
 #include "form_provider_client.h"
 #include "key_event.h"
 #endif
 
 namespace OHOS {
 namespace AppExecFwk {
-// REGISTER_AA(Ability)
 const std::string Ability::SYSTEM_UI("com.ohos.systemui");
 const std::string Ability::STATUS_BAR("com.ohos.systemui.statusbar.MainAbility");
 const std::string Ability::NAVIGATION_BAR("com.ohos.systemui.navigationbar.MainAbility");
@@ -77,7 +68,6 @@ const std::string DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
 const std::string Ability::DMS_SESSION_ID("sessionId");
 const std::string Ability::DMS_ORIGIN_DEVICE_ID("deviceId");
 const int Ability::DEFAULT_DMS_SESSION_ID(0);
-const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
