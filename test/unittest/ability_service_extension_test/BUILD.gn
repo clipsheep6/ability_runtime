@@ -41,7 +41,6 @@ ohos_unittest("ability_service_extension_test") {
   }
 
   deps = [
-    "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:service_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",

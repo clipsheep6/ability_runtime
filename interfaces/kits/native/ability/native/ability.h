@@ -31,6 +31,8 @@
 #include "context.h"
 #include "continuation_handler.h"
 #include "continuation_state.h"
+#include "dummy_ability_package.h"
+#include "dummy_component_container.h"
 #include "dummy_notification_request.h"
 #include "iability_callback.h"
 #include "iremote_object.h"
@@ -42,7 +44,10 @@
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window.h"
 #include "display_manager.h"
+#include "form_callback_interface.h"
 #include "form_constants.h"
+#include "form_death_callback.h"
+#include "form_info.h"
 #include "form_provider_info.h"
 #include "form_state_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
@@ -50,6 +55,7 @@
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
+#include "inttypes.h"
 #endif
 
 namespace OHOS {

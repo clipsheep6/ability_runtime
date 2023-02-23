@@ -15,6 +15,7 @@
 
 #include "static_subscriber_extension.h"
 
+#include "ability_loader.h"
 #include "hilog_wrapper.h"
 #include "js_static_subscriber_extension.h"
 #include "runtime.h"

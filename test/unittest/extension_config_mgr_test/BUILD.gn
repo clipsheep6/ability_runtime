@@ -26,7 +26,6 @@ ohos_unittest("extension_config_mgr_test") {
   deps = [ "${ability_runtime_native_path}/ability/native:abilitykit_native" ]
 
   external_deps = [
-    "ability_runtime:extensionkit_native",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",

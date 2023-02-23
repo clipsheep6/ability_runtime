@@ -15,6 +15,7 @@
 
 #include "service_extension.h"
 
+#include "ability_loader.h"
 #include "configuration_utils.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
