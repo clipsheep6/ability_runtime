@@ -22,6 +22,7 @@ ability_runtime_test_path = "${ability_runtime_path}/test"
 ability_runtime_system_test_app_path =
     "${ability_runtime_path}/test/resource/amssystemtestability/abilitySrc"
 ace_engine_path = "//foundation/arkui/ace_engine"
+arkui_path = "//foundation/arkui"
 
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
@@ -35,6 +36,7 @@ distributedschedule_path = "//foundation/systemabilitymgr"
 notification_path = "//base/notification"
 ans_core_path =
     "${notification_path}/distributed_notification_service/frameworks/core"
+eventhandler_path = "//base/notification/eventhandler"
 distributeddatamgr_path = "//foundation/distributeddatamgr"
 form_fwk_napi_path = "${form_fwk_path}/frameworks/js/napi"
 ability_base_kits_path = "${ability_base_path}/interfaces/kits/native"
@@ -42,6 +44,7 @@ ability_base_native_path = "${ability_base_path}/frameworks/native"
 appspawn_path = "//base/startup/appspawn"
 init_path = "//base/startup/init"
 ipc_native_path = "//foundation/communication/ipc/ipc/native"
+ipc_path = "//foundation/communication/ipc"
 third_party_path = "//third_party"
 
 declare_args() {

@@ -173,6 +173,18 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common",
+              "header_files": [
+                "napi_common_configuration.h",
+                "napi_common_start_options.h",
+                "napi_common_util.h",
+                "napi_common_want.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager/include",
               "header_files": [
                 "appmgr/app_mgr_client.h",
@@ -221,6 +233,17 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:form_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
+                "extension.h",
+                "extension_base.h",
+                "extension_module_loader.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:extensionkit_native"
           },
           {
             "header": {
