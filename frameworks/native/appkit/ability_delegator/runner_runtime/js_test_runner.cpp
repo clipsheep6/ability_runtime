@@ -68,11 +68,13 @@ JsTestRunner::JsTestRunner(
     }
     HILOG_DEBUG("JsTestRunner srcPath is %{public}s", srcPath_.c_str());
 
+    bool esmodule = (bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
     if (!moduleName.empty()) {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
             if ((hapModuleInfo.isModuleJson && hapModuleInfo.name == moduleName) ||
                 hapModuleInfo.package == moduleName) {
                 hapPath_ = hapModuleInfo.hapPath;
+                esmodule = (hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE);
                 break;
             }
         }
@@ -86,8 +88,7 @@ JsTestRunner::JsTestRunner(
     }
 
     moduleName.append("::").append("TestRunner");
-    jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
-        bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
+    jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_, esmodule);
 }
 
 JsTestRunner::~JsTestRunner() = default;
