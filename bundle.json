@@ -82,7 +82,6 @@
           "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
           "//foundation/ability/ability_runtime/services/quickfixmgr:quick_fix.cfg",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
-          "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
@@ -223,7 +222,6 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
-                "service_extension.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension"
@@ -251,6 +249,10 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
+                "extension.h",
+                "extension_base.h",
+                "service_extension.h",
+                "extension_module_loader.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:abilitykit_native"
@@ -274,9 +276,9 @@
           },
           {
             "header": {
-              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context",
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/",
               "header_files": [
-                "application_context.h"
+                "extension_context.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context"
