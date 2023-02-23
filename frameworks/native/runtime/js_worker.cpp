@@ -179,7 +179,13 @@ struct AssetHelper final {
             HILOG_DEBUG("The application is packaged using esmodule mode.");
             if (uri.find(BUNDLE_NAME_FLAG) == 0) {
                 HILOG_DEBUG("uri start with @bundle:");
-                ami = NormalizedFileName(uri);;
+                size_t fileNamePos = uri.find_last_of("/");
+                realPath = uri.substr(fileNamePos + 1);
+                if (realPath.find_last_of(".") != std::string::npos) {
+                    ami = NormalizedFileName(uri);
+                } else {
+                    ami = uri;
+                }
                 HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
                 return;
             } else if (uri.find_first_of("/") == 0) {
