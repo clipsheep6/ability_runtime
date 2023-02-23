@@ -413,7 +413,7 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
 }
 
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot, bool isLowResolution) const
+    MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -452,12 +452,38 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 #ifdef SUPPORT_GRAPHICS
     savedSnapshot.snapshot = snapshot.GetPixelMap();
 #endif
+    {
+        std::lock_guard<std::mutex> lock(savingSnapshotLock_);
+        auto search = savingSnapshot_.find(missionId);
+        if (search == savingSnapshot_.end()) {
+            savingSnapshot_[missionId] = 1;
+        } else {
+            auto savingCount = search->second + 1;
+            savingSnapshot_.insert_or_assign(missionId, savingCount);
+        }
+    }
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
         HILOG_ERROR("snapshot: save mission snapshot failed");
+        CompleteSaveSnapshot(missionId);
         return false;
     }
     HILOG_INFO("snapshot: update mission snapshot success");
     return true;
+}
+
+void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
+{
+    std::unique_lock<std::mutex> lock(savingSnapshotLock_);
+    auto search = savingSnapshot_.find(missionId);
+    if (search != savingSnapshot_.end()) {
+        auto savingCount = search->second - 1;
+        if (savingCount == 0) {
+            savingSnapshot_.erase(search);
+            waitSavingCondition_.notify_one();
+        } else {
+            savingSnapshot_.insert_or_assign(missionId, savingCount);
+        }
+    }
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -481,7 +507,7 @@ std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) 
 #endif
 
 bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot, bool isLowResolution, bool force) const
+    MissionSnapshot& missionSnapshot, bool isLowResolution, bool force)
 {
     HILOG_INFO("mission_list_info GetMissionSnapshot, missionId:%{public}d, force:%{public}d", missionId, force);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -500,6 +526,25 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     if (force) {
         HILOG_INFO("force to get snapshot");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(savingSnapshotLock_);
+        auto search = savingSnapshot_.find(missionId);
+        if (search != savingSnapshot_.end()) {
+            auto savingSnapshotTimeout = 100; // ms
+            std::chrono::milliseconds timeout { savingSnapshotTimeout };
+            auto waitingCount = 5; 
+            auto waitingNum = 0;
+            while (waitSavingCondition_.wait_for(lock, timeout) == std::cv_status::no_timeout) {
+                ++waitingNum;
+                auto iter = savingSnapshot_.find(missionId);
+                if (iter == savingSnapshot_.end() || waitingNum == waitingCount) {
+                    HILOG_INFO("Saved successfully or waiting failed.");
+                    break;
+                }
+            }
+        }
     }
 
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot, isLowResolution)) {
