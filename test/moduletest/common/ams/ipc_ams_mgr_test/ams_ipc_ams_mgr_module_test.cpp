@@ -29,6 +29,7 @@
 #include "mock_app_mgr_service.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_app_service_mgr.h"
+#include "mock_native_token.h"
 #include "iremote_object.h"
 
 using namespace testing::ext;
@@ -80,7 +81,9 @@ public:
 };
 
 void AmsIpcAmsmgrModuleTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsIpcAmsmgrModuleTest::TearDownTestCase()
 {}

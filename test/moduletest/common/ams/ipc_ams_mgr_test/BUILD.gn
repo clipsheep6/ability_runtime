@@ -21,9 +21,13 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
 
   include_dirs = [
     "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_test_path}/mock/common/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
-  sources = [ "ams_ipc_ams_mgr_module_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "ams_ipc_ams_mgr_module_test.cpp",
+  ]
 
   deps = [
     "${ability_runtime_services_path}/common:perm_verification",
@@ -32,6 +36,8 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
   ]
 
   external_deps = [
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",

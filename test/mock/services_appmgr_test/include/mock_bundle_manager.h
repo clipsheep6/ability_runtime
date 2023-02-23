@@ -135,6 +135,7 @@ public:
     void PushTestSpecialAbility();
     void PushTestHelloAbility();
     void MakingResidentProcData();
+    ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
 private:
     std::vector<BundleInfo> bundleInfos_;
     sptr<IQuickFixManager> quickFixManager_ = nullptr;

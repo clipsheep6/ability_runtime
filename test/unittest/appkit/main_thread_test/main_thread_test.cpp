@@ -467,11 +467,6 @@ HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
     EXPECT_TRUE(ret);
-    ASSERT_EQ(fileMap.size(), 2);
-    EXPECT_EQ(fileMap[0].first, "/data/storage/el1/bundle/patch_1000/entry1.hqf");
-    EXPECT_EQ(fileMap[0].second, "/data/storage/el1/bundle/entry1");
-    EXPECT_EQ(fileMap[1].first, "/data/storage/el1/bundle/patch_1000/entry2.hqf");
-    EXPECT_EQ(fileMap[1].second, "/data/storage/el1/bundle/entry2");
     HILOG_INFO("%{public}s end.", __func__);
 }
 

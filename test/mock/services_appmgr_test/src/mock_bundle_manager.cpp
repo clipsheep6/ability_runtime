@@ -361,5 +361,10 @@ sptr<IQuickFixManager> BundleMgrService::GetQuickFixManagerProxy()
     }
     return quickFixManager_;
 }
+
+ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo)
+{
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
