@@ -92,6 +92,8 @@ public:
     static NativeValue* FinishWithResult(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* TerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetWindow(NativeEngine *engine, NativeCallbackInfo *info);
+    std::shared_ptr<NativeReference> GetFAContext();
+    void SetFAContext(std::shared_ptr<NativeReference> context);
 private:
     NativeValue* OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnFinishWithResult(NativeEngine &engine, NativeCallbackInfo &info);
@@ -99,6 +101,7 @@ private:
 #ifdef SUPPORT_GRAPHICS
     NativeValue* OnHasWindowFocus(NativeEngine &engine, const NativeCallbackInfo &info);
 #endif
+    std::shared_ptr<NativeReference> context_;
 };
 
 void JsFeatureAbility::Finalizer(NativeEngine *engine, void *data, void *hint)
@@ -123,6 +126,10 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
 
     std::unique_ptr<JsFeatureAbility> jsFeatureAbility = std::make_unique<JsFeatureAbility>();
     jsFeatureAbility->ability_ = jsFeatureAbility->GetAbility(*engine);
+    NativeValue* contextValue = CreateNapiJSContext(*engine);
+    if (contextValue != nullptr) {
+        jsFeatureAbility->SetFAContext(std::shared_ptr<NativeReference>(engine->CreateReference(contextValue, 1)));
+    }
     object->SetNativePointer(jsFeatureAbility.release(), JsFeatureAbility::Finalizer, nullptr);
 
     const char *moduleName = "JsFeatureAbility";
@@ -137,6 +144,16 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
     BindNativeFunction(*engine, *object, "terminateSelfWithResult", moduleName, JsFeatureAbility::FinishWithResult);
     BindNativeFunction(*engine, *object, "terminateSelf", moduleName, JsFeatureAbility::TerminateAbility);
     return exports;
+}
+
+void JsFeatureAbility::SetFAContext(std::shared_ptr<NativeReference> context) 
+{
+    context_ = context;
+}
+
+std::shared_ptr<NativeReference> JsFeatureAbility::GetFAContext()
+{
+    return context_;
 }
 
 NativeValue* JsFeatureAbility::StartAbility(NativeEngine *engine, NativeCallbackInfo *info)
@@ -182,7 +199,19 @@ NativeValue* JsFeatureAbility::StartAbilityForResult(NativeEngine *engine, Nativ
 NativeValue* JsFeatureAbility::GetContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JsFeatureAbility *me = CheckParamsAndGetThis<JsFeatureAbility>(engine, info);
-    return (me != nullptr) ? me->JsGetContext(*engine, *info, AbilityType::PAGE) : nullptr;
+    if (me != nullptr) {
+        std::shared_ptr<NativeReference> contextObj = me->GetFAContext();
+        if (contextObj != nullptr) {
+            NativeValue* objValue = contextObj->Get();
+            return objValue;
+        }
+        NativeValue* contextValue = me->JsGetContext(*engine, *info, AbilityType::PAGE);
+        if (contextValue != nullptr) {
+            me->SetFAContext(std::shared_ptr<NativeReference>(engine->CreateReference(contextValue, 1)));
+            return contextValue;
+        }
+    }
+    return nullptr;
 }
 
 NativeValue* JsFeatureAbility::FinishWithResult(NativeEngine *engine, NativeCallbackInfo *info)
