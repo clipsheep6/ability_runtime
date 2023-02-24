@@ -18,12 +18,31 @@
 #include "securec.h"
 
 #include "hilog_wrapper.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    const std::string HSPLIST_BUNDLES = "bundles";
+    const std::string HSPLIST_MODULES = "modules";
+    const std::string HSPLIST_VERSIONS = "versions";
+    const std::string VERSION_PREFIX = "v";
+}
+
 AppSpawnMsgWrapper::~AppSpawnMsgWrapper()
 {
     FreeMsg();
+}
+
+static std::string DumpToJson(const HspList &hspList)
+{
+    nlohmann::json hspListJson;
+    for (auto& hsp : hspList) {
+        hspListJson[HSPLIST_BUNDLES].emplace_back(hsp.bundleName);
+        hspListJson[HSPLIST_MODULES].emplace_back(hsp.moduleName);
+        hspListJson[HSPLIST_VERSIONS].emplace_back(VERSION_PREFIX + std::to_string(hsp.versionCode));
+    }
+    return hspListJson.dump();
 }
 
 bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
@@ -77,6 +96,11 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         }
         msg_->flags = startMsg.flags;
         msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
+
+        if (!startMsg.hspList.empty()) {
+            this->hspListStr = DumpToJson(startMsg.hspList);
+            msg_->hspList.totalLength = this->hspListStr.size() + 1; // including termination char '\0'
+        }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {
