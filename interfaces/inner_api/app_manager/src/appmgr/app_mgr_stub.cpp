@@ -449,6 +449,10 @@ int32_t AppMgrStub::HandleAttachRenderProcess(MessageParcel &data, MessageParcel
 int32_t AppMgrStub::HandleGetRenderProcessTerminationStatus(MessageParcel &data, MessageParcel &reply)
 {
     int32_t renderPid = data.ReadInt32();
+    if (renderPid <= 0) {
+        HILOG_ERROR("invalid renderPid value");
+        return ERR_INVALID_VALUE;
+    }
     int status = 0;
     int32_t result = GetRenderProcessTerminationStatus(renderPid, status);
     if (!reply.WriteInt32(result)) {
