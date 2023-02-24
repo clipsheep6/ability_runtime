@@ -286,13 +286,6 @@ public:
     std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
         const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
-    /**
-     * @brief Report uri to suspend manager
-     *
-     * @param uriString Indicates the path of data to operate.
-     */
-    void ReportEventToSuspendManager(const std::string &uriString) const;
-
 private:
     DataAbilityHelperImpl(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
         const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
