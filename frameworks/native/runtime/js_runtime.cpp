@@ -364,6 +364,7 @@ private:
             }
 
             nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
+            panda::JSNApi::SetIsUnique(vm_, options.isUnique);
         }
 
         if (!options.preload) {
