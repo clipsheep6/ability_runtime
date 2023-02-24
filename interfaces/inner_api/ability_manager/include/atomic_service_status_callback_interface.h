@@ -49,11 +49,19 @@ public:
      * @param userId, user`s id.
      */
     virtual void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId) = 0;
+    
+    /**
+     * OnRemoveTimeoutTask, BMS has connected AG.
+     *
+     * @param want, the want of the ability to free install.
+     */
+    virtual void OnRemoveTimeoutTask(const Want &want) = 0;
 
 protected:
     enum IAtomicServiceStatusCallbackCmd {
         ON_FREE_INSTALL_DONE = 0,
         ON_REMOTE_FREE_INSTALL_DONE,
+        ON_REMOVE_TIMEOUT_TASK,
         CMD_MAX,
     };
 };

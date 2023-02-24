@@ -21,9 +21,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-AtomicServiceStatusCallback::AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server,
-    const int64_t startInstallTime)
-    : server_(server), startInstallTime_(startInstallTime)
+AtomicServiceStatusCallback::AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server, bool isAsync)
+    : server_(server), isAsync_(isAsync)
 {
 }
 
@@ -31,14 +30,21 @@ void AtomicServiceStatusCallback::OnInstallFinished(int resultCode, const Want &
 {
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->OnInstallFinished(resultCode, want, userId, startInstallTime_);
+    server->OnInstallFinished(resultCode, want, userId, isAsync_);
 }
 
 void AtomicServiceStatusCallback::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId)
 {
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->OnRemoteInstallFinished(resultCode, want, userId, startInstallTime_);
+    server->OnRemoteInstallFinished(resultCode, want, userId);
+}
+
+void AtomicServiceStatusCallback::OnRemoveTimeoutTask(const Want &want)
+{
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->OnRemoveTimeoutTask(want);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

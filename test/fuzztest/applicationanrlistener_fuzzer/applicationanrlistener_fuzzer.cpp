@@ -42,6 +42,7 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
+constexpr uint8_t ENABLE = 2;
 class MyAbilityConnection : public IAbilityConnection {
 public:
     MyAbilityConnection() = default;
@@ -106,6 +107,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IAbilityConnection> connect = new MyAbilityConnection();
     std::vector<std::string> info;
     std::shared_ptr<AbilityRecord> targetService = GetFuzzAbilityRecord();
+    bool boolParam = *data % ENABLE;
 
     // fuzz for ApplicationAnrListener
     auto applicationAnrListener = std::make_shared<ApplicationAnrListener>();
@@ -118,15 +120,15 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     freeInstallManager->IsTopAbility(token);
     freeInstallManager->StartFreeInstall(*want, int32Param, intParam, token);
     freeInstallManager->RemoteFreeInstall(*want, int32Param, intParam, token);
-    freeInstallManager->BuildFreeInstallInfo(*want, int32Param, intParam, token);
+    freeInstallManager->BuildFreeInstallInfo(*want, int32Param, intParam, token, boolParam);
     freeInstallManager->StartRemoteFreeInstall(*want, intParam, int32Param, token);
     freeInstallManager->NotifyDmsCallback(*want, intParam);
-    freeInstallManager->NotifyFreeInstallResult(*want, intParam, int64Param);
+    freeInstallManager->NotifyFreeInstallResult(*want, intParam);
     freeInstallManager->FreeInstallAbilityFromRemote(*want, token, int32Param, intParam);
     freeInstallManager->ConnectFreeInstall(*want, int32Param, token, stringParam);
     freeInstallManager->GetTimeStamp();
     freeInstallManager->OnInstallFinished(intParam, *want, int32Param, int64Param);
-    freeInstallManager->OnRemoteInstallFinished(intParam, *want, int32Param, int64Param);
+    freeInstallManager->OnRemoteInstallFinished(intParam, *want, int32Param);
 
     // fuzz for AtomicServiceStatusCallback
     std::weak_ptr<FreeInstallManager> fimWeakPtr{ freeInstallManager };
