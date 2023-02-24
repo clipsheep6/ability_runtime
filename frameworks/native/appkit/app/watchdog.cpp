@@ -32,6 +32,7 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
+constexpr int RESET_RATIO = 2;
 
 #ifdef SUPPORT_ASAN
 constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
@@ -146,21 +147,23 @@ void Watchdog::Timer()
         }
     }
     if (appMainHandler_ != nullptr) {
-        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
+        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE, EventQueue::Priority::HIGH);
     }
-    lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count();
+    int64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::
+        steady_clock::now().time_since_epoch()).count();
+    if ((now - lastWatchTime_) >= (CHECK_INTERVAL_TIME / RESET_RATIO)) {
+        lastWatchTime_ = now;
+    }
 }
 
 void Watchdog::ReportEvent()
 {
-    int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count();
-    constexpr int RESET_RATIO = 2;
-    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
+    int64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::
+        steady_clock::now().time_since_epoch()).count();
+    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
+        (now - lastWatchTime_) < (CHECK_INTERVAL_TIME / RESET_RATIO)) {
         HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
             static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
-        lastWatchTime_ = now;
         return;
     }
 
