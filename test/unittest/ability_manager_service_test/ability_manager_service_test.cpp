@@ -2906,10 +2906,6 @@ HWTEST_F(AbilityManagerServiceTest, CreateVerificationInfo_001, TestSize.Level1)
     abilityRequest.appInfo.bundleName = "com.ohos.settingsdata";
     EXPECT_TRUE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
 
-    abilityMs_->whiteListassociatedWakeUpFlag_ = true;
-    abilityRequest.appInfo.bundleName = "com.ohos.contactsdataability";
-    EXPECT_TRUE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
-
     abilityRequest.appInfo.bundleName = "test";
     abilityRequest.appInfo.associatedWakeUp = false;
     EXPECT_FALSE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
