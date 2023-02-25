@@ -106,7 +106,49 @@ JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& r
 }
 
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsServiceExtension::~JsServiceExtension() = default;
+
+JsServiceExtension::~JsServiceExtension()
+{
+    auto &engine = jsRuntime_.GetNativeEngine();
+    auto loop = engine.GetUVLoop();
+    if (loop == nullptr) {
+        return;
+    }
+
+    auto work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return;
+    }
+
+    auto cb = new (std::nothrow) JsServiceExtensionDeleterObject();
+    if (cb == nullptr) {
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    cb->jsObj_ = std::move(jsObj_);
+    cb->shellContextRef_ = std::move(shellContextRef_);
+    work->data = reinterpret_cast<void *>(cb);
+
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work != nullptr) {
+            if (work->data != nullptr) {
+                delete reinterpret_cast<JsServiceExtensionDeleterObject *>(work->data);
+                work->data = nullptr;
+            }
+            delete work;
+            work = nullptr;
+        }
+    });
+    if (ret != 0) {
+        delete reinterpret_cast<JsServiceExtensionDeleterObject *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
+}
 
 void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
