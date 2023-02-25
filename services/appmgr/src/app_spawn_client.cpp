@@ -172,9 +172,8 @@ ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
     // split msg
     const char *buff = hspListStr.c_str();
     size_t leftLen = hspListStr.size() + 1;
-    HILOG_DEBUG("hspList length is %u", leftLen);
-    while (leftLen >= SOCK_MAX_SEND_BUFFER)
-    {
+    HILOG_DEBUG("hspList length is %zu", leftLen);
+    while (leftLen >= SOCK_MAX_SEND_BUFFER) {
         result = socket_->WriteMessage(buff, SOCK_MAX_SEND_BUFFER);
         if (FAILED(result)) {
             return result;
@@ -183,7 +182,7 @@ ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
         leftLen -= SOCK_MAX_SEND_BUFFER;
     }
 
-    HILOG_DEBUG("WriteHspList: leftLen = %u", leftLen);
+    HILOG_DEBUG("WriteHspList: leftLen = %zu", leftLen);
     if (leftLen > 0) {
         result = socket_->WriteMessage(buff, leftLen);
     }

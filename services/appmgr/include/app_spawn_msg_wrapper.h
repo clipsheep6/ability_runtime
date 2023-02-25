@@ -115,7 +115,8 @@ public:
     /**
      * Get function, return hsp list string
     */
-    const std::string& GetHspListStr() const {
+    const std::string& GetHspListStr() const
+    {
         return hspListStr;
     }
 
