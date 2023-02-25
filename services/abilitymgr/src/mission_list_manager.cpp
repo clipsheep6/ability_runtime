@@ -522,6 +522,15 @@ void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std
     if (element.GetBundleName().empty() || element.GetAbilityName().empty()) {
         info.missionInfo.want.SetElementName(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
     }
+
+    auto& newWant = const_cast<Want&>(abilityRequest.want);
+    HILOG_INFO("AppRecovery BuildInnerMissionInfo the missionId: %{public}d hasRecoverInfo:%{public}d",
+        info.missionInfo.id, info.missionInfo.hasRecoverInfo);
+    if (info.missionInfo.hasRecoverInfo) {
+        HILOG_INFO("AppRecovery update recovery restart flag true");
+        newWant.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+        info.missionInfo.hasRecoverInfo = false;
+    }
 }
 
 std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(

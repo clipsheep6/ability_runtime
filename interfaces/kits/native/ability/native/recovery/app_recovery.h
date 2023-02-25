@@ -40,12 +40,14 @@ public:
         const std::shared_ptr<ApplicationInfo>& applicationInfo);
     bool AddAbility(const std::shared_ptr<Ability>& ability,
         const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
+    bool removeAbility(const sptr<IRemoteObject>& tokenId);
 
     bool IsEnabled() const;
     bool ScheduleRecoverApp(StateReason reason);
-    bool ScheduleSaveAppState(StateReason reason);
+    bool ScheduleSaveAppState(StateReason reason, uintptr_t ability = 0);
     bool TryRecoverApp(StateReason reason);
     bool PersistAppState();
+    void setRestartWant(std::shared_ptr<AAFwk::Want> want);
 
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
@@ -58,7 +60,7 @@ private:
     bool ShouldRecoverApp(StateReason reason);
 
     void DoRecoverApp(StateReason reason);
-    void DoSaveAppState(StateReason reason);
+    void DoSaveAppState(StateReason reason, uintptr_t ability = 0);
 
     bool isEnable_;
     uint16_t restartFlag_;
@@ -67,6 +69,7 @@ private:
     std::weak_ptr<AppExecFwk::EventHandler> mainHandler_;
     std::weak_ptr<AppExecFwk::ApplicationInfo> applicationInfo_;
     std::vector<std::shared_ptr<AbilityRecovery>> abilityRecoverys_;
+    std::shared_ptr<AAFwk::Want> want_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

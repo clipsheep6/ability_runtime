@@ -164,6 +164,11 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     obj->SetProperty("context", contextObj);
     HILOG_DEBUG("Set ability context");
 
+    if (abilityRecovery_ != nullptr) {
+        abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
+        HILOG_INFO("AppRecovery set JsAbility");
+    }
+
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {

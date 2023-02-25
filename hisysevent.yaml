@@ -224,3 +224,4 @@ APP_RECOVERY:
   VERSION_NAME: {type: STRING, desc: version name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+  RECOVERY_RESULT: {type: STRING, desc: recovery result}

@@ -39,10 +39,12 @@ public:
     bool InitAbilityInfo(const std::shared_ptr<Ability>& ability,
         const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
     bool ScheduleSaveAbilityState(StateReason reason);
-    bool ScheduleRecoverAbility(StateReason reason);
+    bool ScheduleRecoverAbility(StateReason reason, const Want *want = nullptr);
     bool ScheduleRestoreAbilityState(StateReason reason, const Want &want);
     bool CallOnRestoreAbilityState(StateReason reason);
     bool PersistState();
+    bool IsSameAbility(uintptr_t ability);
+    void SetJsAbility(uintptr_t ability);
     std::string GetSavedPageStack(StateReason reason);
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
@@ -63,8 +65,10 @@ private:
     uint16_t restartFlag_;
     uint16_t saveOccasion_;
     uint16_t saveMode_;
+    int32_t missionId_;
     std::weak_ptr<AppExecFwk::Ability> ability_;
     std::weak_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    uintptr_t jsAbilityPtr_;
     wptr<IRemoteObject> token_;
     std::string pageStack_;
     WantParams params_;
