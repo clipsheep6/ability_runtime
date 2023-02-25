@@ -29,6 +29,10 @@
 using IRemoteObject = OHOS::IRemoteObject;
 
 namespace OHOS {
+namespace AppExecFwk {
+class Configuration;
+}
+
 namespace AbilityRuntime {
 class ApplicationContext;
 
