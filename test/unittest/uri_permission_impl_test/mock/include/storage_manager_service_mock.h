@@ -224,6 +224,12 @@ public:
     {
         return E_OK;
     }
+
+    virtual int32_t SetBundleQuota(const std::string &bundleName, int32_t uid,
+        const std::string &bundleDataDirPath, int32_t limitSizeMb) override
+    {
+        return E_OK;
+    }
 };
 } // namespace StorageManager
 } // namespace OHOS
