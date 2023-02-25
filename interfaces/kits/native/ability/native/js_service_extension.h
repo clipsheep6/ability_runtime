@@ -27,12 +27,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ServiceExtension;
 class JsRuntime;
-
-struct JsServiceExtensionDeleterObject {
-    std::unique_ptr<NativeReference> jsObj_ = nullptr;
-    std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-};
-
 /**
  * @brief Basic service components.
  */
