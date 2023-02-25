@@ -41,6 +41,7 @@ using namespace std::chrono_literals;
 #ifdef ABILITY_COMMAND_FOR_TEST
 static const int APP_MS_BLOCK = 65;
 #endif
+const std::string TASK_INIT_APPMGRSERVICEINNER = "InitAppMgrServiceInnerTask";
 const std::string TASK_ATTACH_APPLICATION = "AttachApplicationTask";
 const std::string TASK_APPLICATION_FOREGROUNDED = "ApplicationForegroundedTask";
 const std::string TASK_APPLICATION_BACKGROUNDED = "ApplicationBackgroundedTask";
@@ -136,7 +137,9 @@ ErrCode AppMgrService::Init()
 
     handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
     appMgrServiceInner_->SetEventHandler(handler_);
-    appMgrServiceInner_->Init();
+    std::function<void()> initAppMgrServiceInnerTask = 
+        std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
+    handler_->PostTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
 
     ErrCode openErr = appMgrServiceInner_->OpenAppSpawnConnection();
     if (FAILED(openErr)) {

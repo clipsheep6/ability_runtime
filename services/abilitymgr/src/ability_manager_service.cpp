@@ -310,23 +310,30 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-    DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
+    auto initConnectionStateManagerTask = []() {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
+    };
+    handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
+
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
 
     // Register abilityBundleEventCallback to receive hap updates
     HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
-    sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
-        new (std::nothrow) AbilityBundleEventCallback(handler_);
-    auto bms = GetBundleManager();
-    if (bms && abilityBundleEventCallback_) {
-        bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
-        if (!re) {
-            HILOG_ERROR("RegisterBundleEventCallback failed!");
+    auto registerBundleEventCallbackTask = [aams = shared_from_this()]() {
+        sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
+            new (std::nothrow) AbilityBundleEventCallback(aams->handler_);
+        auto bms = aams->GetBundleManager(); 
+        if (bms && abilityBundleEventCallback_) {
+            bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
+            if (!re) {
+                HILOG_ERROR("RegisterBundleEventCallback failed!");
+            }
+        } else {
+            HILOG_ERROR("Get BundleManager or abilieyBundleEventCallback failed!");
         }
-    } else {
-        HILOG_ERROR("Get BundleManager or abilieyBundleEventCallback failed!");
-    }
+    };
+    handler_->PostTask(registerBundleEventCallbackTask, "RegisterBundleEventCallback");
     HILOG_INFO("Init success.");
     return true;
 }
