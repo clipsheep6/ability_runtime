@@ -644,10 +644,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             want, requestCode, callerToken, std::make_shared<AbilityStartSetting>(abilityStartSetting));
         abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
             return ERR_OK;
         }
+        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -813,10 +813,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
             return ERR_OK;
         }
+        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
