@@ -87,6 +87,7 @@
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
+          "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc"
@@ -152,6 +153,16 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/js_environment/interfaces/inner_api",
+              "header_files": [
+                "js_environment.h",
+                "js_environment_impl.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
           },
           {
             "header": {
