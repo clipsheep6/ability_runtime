@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+class Configuration;
 class IConfigurationObserver : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.abilityruntime.IConfigurationObserver");
