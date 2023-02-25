@@ -31,6 +31,8 @@ public:
     static constexpr char ABS_CODE_PATH[] = "/data/storage/el1/";
     static constexpr char MERGE_ABC_PATH[] = "ets/modules.abc";
     static constexpr char SHARED_FILE_SUFFIX[] = ".hsp";
+    static constexpr char HAP_SUFFIX[] = ".hap";
+    static constexpr char OH_TEST_FLAG[] = "_test";
     explicit JsModuleReader(const std::string& bundleName) : JsModuleSearcher(bundleName) {}
     ~JsModuleReader() = default;
 
