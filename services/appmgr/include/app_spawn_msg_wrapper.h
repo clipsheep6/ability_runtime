@@ -57,6 +57,7 @@ struct StartFlags {
     static const int BACKUP_EXTENSION = 1;
     static const int DLP_MANAGER = 2;
     static const int DEBUGGABLE = 3;
+    static const int ASANENABLED = 4;
 };
 
 union AppSpawnPidMsg {

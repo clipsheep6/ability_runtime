@@ -2901,6 +2901,9 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     if (abilityInfo.applicationInfo.debug) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
+    if (abilityInfo.applicationInfo.asanEnabled) {
+	startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+    }
 
     return startFlags;
 }
