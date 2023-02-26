@@ -20,9 +20,12 @@
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
+
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
@@ -119,6 +122,14 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
         abilityInfos.size(), extensionInfos.size());
+
+    if (abilityInfos.size() + extensionInfos.size() > 1) {
+        HILOG_INFO("More than one target application, filter by erms");
+        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos);
+        if (!ret) {
+            HILOG_ERROR("FilterAbilityList failed");
+        }
+    }
 
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
 
@@ -238,6 +249,24 @@ sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
         iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
     }
     return iBundleManager_;
+}
+
+bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
+    std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos)
+{
+    auto erms = AbilityUtil::GetEcologicalRuleMgr();
+    if (!erms) {
+        HILOG_ERROR("get ecological rule mgr failed.");
+        return false;
+    }
+
+    ErmsCallerInfo callerInfo;
+    int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Failed to evaluate resolve infos from erms.");
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

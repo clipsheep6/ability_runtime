@@ -17,10 +17,14 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_H
 
 #include "ability_util.h"
+#include "erms_mgr_interface.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
+using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
+
 class AbilityInterceptor {
 public:
     virtual ~AbilityInterceptor();
@@ -48,6 +52,15 @@ public:
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::AppRunningControlRuleResult &controlRule);
+};
+
+class EcologicalRuleInterceptor : public AbilityInterceptor {
+public:
+    EcologicalRuleInterceptor();
+    ~EcologicalRuleInterceptor();
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+private:
+    bool CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule);
 };
 } // namespace AAFwk
 } // namespace OHOS

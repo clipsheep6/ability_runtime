@@ -23,7 +23,9 @@
 #include "ability_manager_errors.h"
 #include "ability_manager_client.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "erms_mgr_interface.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_verification.h"
 #include "sa_mgr_client.h"
@@ -178,6 +180,20 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
 }
 
+[[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> GetEcologicalRuleMgr()
+{
+    // should remove when AG SA online
+    int32_t ECOLOGICAL_RULE_SA_ID = 9999;
+    auto remoteObject =
+            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(ECOLOGICAL_RULE_SA_ID);
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("%{public}s error, failed to get ecological rule manager service.", __func__);
+        return nullptr;
+    }
+
+    return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
+}
+
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
@@ -196,6 +212,47 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         return true;
     }
 
+    return false;
+}
+
+[[maybe_unused]] static  bool IsStartIncludeAtomicService(const Want &want, const int32_t callerUid)
+{
+    auto bms = GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return false;
+    }
+
+    std::string targetBundleName = want.GetBundle();
+    AppExecFwk::ApplicationInfo targetAppInfo;
+    bool result = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, targetAppInfo));
+    if (!result) {
+        HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
+        return false;
+    }
+    if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_INFO("the target is atomic service");
+        return true;
+    }
+
+    std::string callerBundleName;
+    result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, callerBundleName));
+    if (!result) {
+        HILOG_ERROR("Get bms failed in check atomic service.");
+        return false;
+    }
+    AppExecFwk::ApplicationInfo callerAppInfo;
+    result = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, callerAppInfo));
+    if (!result) {
+        HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
+        return false;
+    }
+    if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_INFO("the caller is atomic service");
+        return true;
+    }
     return false;
 }
 

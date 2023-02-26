@@ -53,6 +53,9 @@ private:
     bool CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
         const AppExecFwk::ExtensionAbilityInfo &extensionInfo);
 
+    bool FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos);
+
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;

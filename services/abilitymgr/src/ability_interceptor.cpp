@@ -22,6 +22,7 @@
 #include "app_running_control_rule_result.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
+#include "erms_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -29,6 +30,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
+using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
+
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string ACTION_MARKET_DISPOSED = "ohos.want.action.marketDisposed";
 const std::string PERMISSION_MANAGE_DISPOSED_APP_STATUS = "ohos.permission.MANAGE_DISPOSED_APP_STATUS";
@@ -143,6 +147,63 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
         HILOG_INFO("Get No AppRunningControlRule");
         return false;
     }
+    return true;
+}
+
+EcologicalRuleInterceptor::EcologicalRuleInterceptor()
+{}
+
+EcologicalRuleInterceptor::~EcologicalRuleInterceptor()
+{}
+
+ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+{
+    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(want, userId);
+    if (!isStartIncludeAtomicService) {
+        HILOG_INFO("This startup does not contain atomic service, keep going.");
+        return ERR_OK;
+    }
+
+
+    ErmsCallerInfo callerInfo;
+    ExperienceRule rule;
+    int ret = CheckRule(want, callerInfo, rule);
+    if (!ret) {
+        HILOG_ERROR("check ecological rule failed, keep going.");
+        return ERR_OK;
+    }
+
+    HILOG_INFO("check ecological rule success");
+    if (rule.isAllow) {
+        HILOG_ERROR("ecological rule is allow, keep going.");
+        return ERR_OK;
+    }
+#ifdef SUPPORT_GRAPHICS
+    if (isForeground && (rule.replaceWant != nullptr)) {
+        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
+            userId, requestCode));
+        if (ret != ERR_OK) {
+            HILOG_ERROR("ecological start replace want failed.");
+            return ret;
+        }
+    }
+#endif
+    return ERR_ECOLOGICAL_CONTROL_STATUS;
+}
+
+bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule)
+{
+    auto erms = AbilityUtil::GetEcologicalRuleMgr();
+    if (!erms) {
+        HILOG_ERROR("GetEcologicalRuleMgr failed.");
+        return false;
+    }
+    int ret = IN_PROCESS_CALL(erms->QueryStartExperience(want, callerInfo, rule));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Failed to query start experience from erms.");
+        return false;
+    }
+
     return true;
 }
 } // namespace AAFwk
