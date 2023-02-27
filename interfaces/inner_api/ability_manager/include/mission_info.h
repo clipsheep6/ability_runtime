@@ -41,6 +41,19 @@ struct MissionInfo : public Parcelable {
     std::string iconPath;
     Want want;
 };
+
+/**
+ * @struct MissionVaildResult
+ * Mission is vaild result.
+ */
+struct MissionVaildResult : public Parcelable {
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static MissionVaildResult *Unmarshalling(Parcel &parcel);
+
+    int32_t missionId = -1;
+    bool isVaild = false;
+};
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_MISSION_INFO_H

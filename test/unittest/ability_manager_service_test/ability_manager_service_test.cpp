@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -3096,6 +3096,37 @@ HWTEST_F(AbilityManagerServiceTest, IsCrossUserCall_003, TestSize.Level1)
     int32_t userId = 10;
     EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), true);
     HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 start");
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 start");
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    abilityMs_->InitMissionListManager(IPCSkeleton::GetCallingUid() / BASE_USER_RANGE, false);
+    EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_OK);
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS
