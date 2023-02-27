@@ -22,6 +22,7 @@
 
 #include "ability_connect_callback.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "js_free_install_observer.h"
 #include "js_runtime.h"
 #include "event_handler.h"
 
@@ -106,9 +107,11 @@ private:
         const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
     static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
+    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);

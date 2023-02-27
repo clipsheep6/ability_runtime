@@ -625,6 +625,14 @@ public:
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Add FreeInstall Observer
+     *
+     * @param observer the observer of ability free install start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+
+    /**
      * Called when client complete dump.
      *
      * @param infos The dump info.

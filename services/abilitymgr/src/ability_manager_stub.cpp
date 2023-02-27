@@ -78,6 +78,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[FORCE_TIMEOUT] = &AbilityManagerStub::ForceTimeoutForTestInner;
 #endif
     requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
+    requestFuncMap_[ADD_FREE_INSTALL_OBSERVER] = &AbilityManagerStub::AddFreeInstallObserverInner;
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
     requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
@@ -162,7 +163,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     std::u16string descriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -1524,6 +1525,18 @@ int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, M
     int32_t userId = data.ReadInt32();
     int32_t requestCode = data.ReadInt32();
     int32_t result = FreeInstallAbilityFromRemote(*want, callback, userId, requestCode);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityRuntime::IFreeInstallObserver> observer =
+        iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
+    int32_t result = AddFreeInstallObserver(observer);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

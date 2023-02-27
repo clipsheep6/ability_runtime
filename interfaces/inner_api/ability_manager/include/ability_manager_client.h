@@ -828,6 +828,9 @@ public:
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
     void EnableRecoverAbility(const sptr<IRemoteObject>& token);
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason);
+    
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+    
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

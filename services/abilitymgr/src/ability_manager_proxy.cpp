@@ -62,7 +62,13 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
         return INNER_ERR;
     }
 
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+
+    error = remote->SendRequest(IAbilityManager::START_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -79,7 +85,13 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
         return {};
     }
 
-    int error = Remote()->SendRequest(IAbilityManager::GET_TOP_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return {};
+    }
+
+    int error = remote->SendRequest(IAbilityManager::GET_TOP_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return {};
@@ -130,7 +142,12 @@ int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSettin
         HILOG_ERROR("requestCode write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_FOR_SETTINGS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::START_ABILITY_FOR_SETTINGS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -172,8 +189,12 @@ int AbilityManagerProxy::StartAbility(
         HILOG_ERROR("requestCode write failed.");
         return INNER_ERR;
     }
-
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_ADD_CALLER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::START_ABILITY_ADD_CALLER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -218,7 +239,12 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
         HILOG_ERROR("requestCode write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_FOR_OPTIONS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::START_ABILITY_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -260,8 +286,12 @@ int AbilityManagerProxy::StartAbilityAsCaller(
         HILOG_ERROR("requestCode write failed.");
         return INNER_ERR;
     }
-
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -306,7 +336,12 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
         HILOG_ERROR("requestCode write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -439,7 +474,12 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
         HILOG_ERROR("data write flag failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -465,7 +505,12 @@ int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t result
         HILOG_ERROR("data write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::SEND_RESULT_TO_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::SEND_RESULT_TO_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -498,7 +543,12 @@ int AbilityManagerProxy::TerminateAbilityByCaller(const sptr<IRemoteObject> &cal
         HILOG_ERROR("data write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY_BY_CALLER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::TERMINATE_ABILITY_BY_CALLER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -589,8 +639,12 @@ int AbilityManagerProxy::DisconnectAbility(const sptr<IAbilityConnection> &conne
         HILOG_ERROR("connect write failed.");
         return ERR_INVALID_VALUE;
     }
-
-    error = Remote()->SendRequest(IAbilityManager::DISCONNECT_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::DISCONNECT_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -617,7 +671,12 @@ sptr<IAbilityScheduler> AbilityManagerProxy::AcquireDataAbility(
         HILOG_ERROR("data write failed.");
         return nullptr;
     }
-    error = Remote()->SendRequest(IAbilityManager::ACQUIRE_DATA_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return nullptr;
+    }
+    error = remote->SendRequest(IAbilityManager::ACQUIRE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return nullptr;
@@ -644,7 +703,12 @@ int AbilityManagerProxy::ReleaseDataAbility(
         HILOG_ERROR("data write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::RELEASE_DATA_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::RELEASE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -668,7 +732,12 @@ int AbilityManagerProxy::AttachAbilityThread(const sptr<IAbilityScheduler> &sche
         HILOG_ERROR("data write failed.");
         return ERR_INVALID_VALUE;
     }
-    error = Remote()->SendRequest(IAbilityManager::ATTACH_ABILITY_THREAD, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::ATTACH_ABILITY_THREAD, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -694,7 +763,12 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
         HILOG_ERROR("saveData write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::ABILITY_TRANSITION_DONE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::ABILITY_TRANSITION_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -737,8 +811,12 @@ int AbilityManagerProxy::ScheduleConnectAbilityDone(
             return ERR_INVALID_VALUE;
         }
     }
-
-    error = Remote()->SendRequest(IAbilityManager::CONNECT_ABILITY_DONE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::CONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -760,8 +838,12 @@ int AbilityManagerProxy::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>
         HILOG_ERROR("token write failed.");
         return ERR_INVALID_VALUE;
     }
-
-    error = Remote()->SendRequest(IAbilityManager::DISCONNECT_ABILITY_DONE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::DISCONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -783,8 +865,12 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
         HILOG_ERROR("token write failed.");
         return ERR_INVALID_VALUE;
     }
-
-    error = Remote()->SendRequest(IAbilityManager::COMMAND_ABILITY_DONE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::COMMAND_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -817,7 +903,12 @@ void AbilityManagerProxy::DumpSysState(
         HILOG_ERROR("data write failed.");
         return ;
     }
-    error = Remote()->SendRequest(IAbilityManager::DUMPSYS_STATE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::DUMPSYS_STATE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("AbilityManagerProxy: SendRequest err %{public}d", error);
         return;
@@ -840,7 +931,12 @@ void AbilityManagerProxy::DumpState(const std::string &args, std::vector<std::st
         return;
     }
     data.WriteString16(Str8ToStr16(args));
-    error = Remote()->SendRequest(IAbilityManager::DUMP_STATE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::DUMP_STATE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("AbilityManagerProxy: SendRequest err %{public}d", error);
         return;
@@ -866,7 +962,12 @@ int AbilityManagerProxy::TerminateAbilityResult(const sptr<IRemoteObject> &token
         HILOG_ERROR("data write failed.");
         return ERR_INVALID_VALUE;
     }
-    error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY_RESULT, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::TERMINATE_ABILITY_RESULT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -892,7 +993,12 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
         HILOG_ERROR("data write failed.");
         return ERR_INVALID_VALUE;
     }
-    error = Remote()->SendRequest(IAbilityManager::MINIMIZE_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::MINIMIZE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -918,7 +1024,12 @@ int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId)
         HILOG_ERROR("userId write failed.");
         return INNER_ERR;
     }
-    error = Remote()->SendRequest(IAbilityManager::STOP_SERVICE_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::STOP_SERVICE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -969,7 +1080,12 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
         HILOG_ERROR("isLowResolution write failed.");
         return ERR_INVALID_VALUE;
     }
-    error = Remote()->SendRequest(IAbilityManager::GET_MISSION_SNAPSHOT_INFO, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::GET_MISSION_SNAPSHOT_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -998,7 +1114,12 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token
         HILOG_ERROR("token write failed.");
         return;
     }
-    error = Remote()->SendRequest(IAbilityManager::UPDATE_MISSION_SNAPSHOT, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::UPDATE_MISSION_SNAPSHOT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -1079,7 +1200,12 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
         HILOG_ERROR("bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
-    int error = Remote()->SendRequest(IAbilityManager::KILL_PROCESS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    int error = remote->SendRequest(IAbilityManager::KILL_PROCESS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1105,7 +1231,12 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
         HILOG_ERROR("abilityName write failed.");
         return ERR_INVALID_VALUE;
     }
-    int error = Remote()->SendRequest(IAbilityManager::FORCE_TIMEOUT, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int error = remote->SendRequest(IAbilityManager::FORCE_TIMEOUT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1127,7 +1258,12 @@ int AbilityManagerProxy::ClearUpApplicationData(const std::string &bundleName)
         HILOG_ERROR("bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
-    int error = Remote()->SendRequest(IAbilityManager::CLEAR_UP_APPLICATION_DATA, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    int error = remote->SendRequest(IAbilityManager::CLEAR_UP_APPLICATION_DATA, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1152,7 +1288,12 @@ int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid
         HILOG_ERROR("uid write failed.");
         return ERR_INVALID_VALUE;
     }
-    int error = Remote()->SendRequest(IAbilityManager::UNINSTALL_APP, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    int error = remote->SendRequest(IAbilityManager::UNINSTALL_APP, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1184,8 +1325,12 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
             return nullptr;
         }
     }
-
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return nullptr;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return nullptr;
@@ -1213,8 +1358,12 @@ int AbilityManagerProxy::SendWantSender(const sptr<IWantSender> &target, const S
         HILOG_ERROR("senderInfo write failed.");
         return INNER_ERR;
     }
-
-    auto error = Remote()->SendRequest(IAbilityManager::SEND_PENDING_WANT_SENDER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SEND_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1234,7 +1383,12 @@ void AbilityManagerProxy::CancelWantSender(const sptr<IWantSender> &sender)
         HILOG_ERROR("sender write failed.");
         return;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -1253,7 +1407,12 @@ int AbilityManagerProxy::GetPendingWantUid(const sptr<IWantSender> &target)
         HILOG_ERROR("target write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_UID, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_UID, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return INNER_ERR;
@@ -1273,7 +1432,12 @@ int AbilityManagerProxy::GetPendingWantUserId(const sptr<IWantSender> &target)
         HILOG_ERROR("target write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_USERID, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_USERID, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return INNER_ERR;
@@ -1293,7 +1457,12 @@ std::string AbilityManagerProxy::GetPendingWantBundleName(const sptr<IWantSender
         HILOG_ERROR("target write failed.");
         return "";
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return "";
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return "";
@@ -1313,7 +1482,12 @@ int AbilityManagerProxy::GetPendingWantCode(const sptr<IWantSender> &target)
         HILOG_ERROR("target write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return INNER_ERR;
@@ -1333,7 +1507,12 @@ int AbilityManagerProxy::GetPendingWantType(const sptr<IWantSender> &target)
         HILOG_ERROR("target write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return INNER_ERR;
@@ -1357,7 +1536,12 @@ void AbilityManagerProxy::RegisterCancelListener(const sptr<IWantSender> &sender
         HILOG_ERROR("receiver write failed.");
         return;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -1380,7 +1564,12 @@ void AbilityManagerProxy::UnregisterCancelListener(const sptr<IWantSender> &send
         HILOG_ERROR("receiver write failed.");
         return;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::UNREGISTER_CANCEL_LISTENER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::UNREGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -1403,7 +1592,12 @@ int AbilityManagerProxy::GetPendingRequestWant(const sptr<IWantSender> &target, 
         HILOG_ERROR("want write failed.");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_REQUEST_WANT, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_REQUEST_WANT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1434,7 +1628,12 @@ int AbilityManagerProxy::GetWantSenderInfo(const sptr<IWantSender> &target, std:
         HILOG_ERROR("info write failed.");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1458,7 +1657,12 @@ int AbilityManagerProxy::GetAppMemorySize()
         HILOG_ERROR("WriteInterfaceToken faild");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::GET_APP_MEMORY_SIZE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_APP_MEMORY_SIZE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1475,7 +1679,12 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
         HILOG_ERROR("WriteInterfaceToken faild");
         return false;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::IS_RAM_CONSTRAINED_DEVICE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return false;
+    }
+    auto error = remote->SendRequest(IAbilityManager::IS_RAM_CONSTRAINED_DEVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return false;
@@ -1513,7 +1722,12 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::CONTINUE_MISSION, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CONTINUE_MISSION, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1542,7 +1756,12 @@ int AbilityManagerProxy::ContinueAbility(const std::string &deviceId, int32_t mi
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::CONTINUE_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CONTINUE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1570,7 +1789,12 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
         HILOG_ERROR("status write failed.");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::START_CONTINUATION, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::START_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1599,7 +1823,12 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
         return;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -1623,7 +1852,12 @@ int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, int32_t res
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::NOTIFY_CONTINUATION_RESULT, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::NOTIFY_CONTINUATION_RESULT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1645,7 +1879,12 @@ int AbilityManagerProxy::LockMissionForCleanup(int32_t missionId)
         HILOG_ERROR("lock mission by id , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
-    error = Remote()->SendRequest(IAbilityManager::LOCK_MISSION_FOR_CLEANUP, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::LOCK_MISSION_FOR_CLEANUP, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("lock mission by id , error: %d", error);
         return error;
@@ -1720,7 +1959,12 @@ int AbilityManagerProxy::RegisterMissionListener(const std::string &deviceId,
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1978,7 +2222,12 @@ int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const
         HILOG_ERROR("SetMissionLabel write label failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::SET_MISSION_LABEL, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_MISSION_LABEL, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SetMissionLabel Send request error: %{public}d", error);
         return error;
@@ -2010,7 +2259,12 @@ int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::SET_MISSION_ICON, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_MISSION_ICON, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SetMissionIcon Send request error: %{public}d", error);
         return error;
@@ -2035,7 +2289,12 @@ int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowM
     }
     MessageOption option;
     MessageParcel reply;
-    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_WMS_HANDLER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_WMS_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("%{public}s: send request error: %{public}d", __func__, error);
         return error;
@@ -2056,7 +2315,12 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &a
     }
     MessageOption option;
     MessageParcel reply;
-    auto error = Remote()->SendRequest(IAbilityManager::COMPLETEFIRSTFRAMEDRAWING, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::COMPLETEFIRSTFRAMEDRAWING, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("%{public}s: send request error: %{public}d", __func__, error);
     }
@@ -2073,7 +2337,12 @@ int AbilityManagerProxy::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_ABILITY_RUNNING_INFO, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_ABILITY_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Get ability running info, error: %{public}d", error);
         return error;
@@ -2101,7 +2370,12 @@ int AbilityManagerProxy::GetExtensionRunningInfos(int upperLimit, std::vector<Ex
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_EXTENSION_RUNNING_INFO, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_EXTENSION_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
         return error;
@@ -2124,7 +2398,12 @@ int AbilityManagerProxy::GetProcessRunningInfos(std::vector<AppExecFwk::RunningP
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_PROCESS_RUNNING_INFO, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_PROCESS_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Get process running info, error: %{public}d", error);
         return error;
@@ -2163,7 +2442,12 @@ int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool 
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::START_SYNC_MISSIONS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::START_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2186,7 +2470,12 @@ int32_t AbilityManagerProxy::StopSyncRemoteMissions(const std::string& devId)
         HILOG_ERROR("write deviceId fail.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::STOP_SYNC_MISSIONS, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::STOP_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2212,7 +2501,12 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::UNREGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::UNREGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2296,7 +2590,12 @@ void AbilityManagerProxy::CallRequestDone(const sptr<IRemoteObject> &token, cons
         HILOG_ERROR("Call request done fail, Remote() is nullptr.");
         return;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::CALL_REQUEST_DONE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CALL_REQUEST_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return;
@@ -2346,7 +2645,12 @@ int AbilityManagerProxy::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& h
         HILOG_ERROR("snapshot: handler write failed.");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_SNAPSHOT_HANDLER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_SNAPSHOT_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("snapshot: send request error: %{public}d", error);
         return error;
@@ -2375,7 +2679,12 @@ int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityCon
         HILOG_ERROR("imAStabilityTest write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::SET_ABILITY_CONTROLLER, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_ABILITY_CONTROLLER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2399,7 +2708,12 @@ int AbilityManagerProxy::SetComponentInterception(const sptr<AppExecFwk::ICompon
         HILOG_ERROR("componentInterception write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::SET_COMPONENT_INTERCEPTION, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_COMPONENT_INTERCEPTION, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2437,7 +2751,12 @@ int32_t AbilityManagerProxy::SendResultToAbilityByToken(const Want &want, const 
         HILOG_ERROR("userId write failed.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::SEND_ABILITY_RESULT_BY_TOKEN, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SEND_ABILITY_RESULT_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2453,7 +2772,12 @@ bool AbilityManagerProxy::IsRunningInStabilityTest()
     if (!WriteInterfaceToken(data)) {
         return false;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::IS_USER_A_STABILITY_TEST, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return false;
+    }
+    auto error = remote->SendRequest(IAbilityManager::IS_USER_A_STABILITY_TEST, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return false;
@@ -2478,7 +2802,12 @@ int AbilityManagerProxy::StartUserTest(const Want &want, const sptr<IRemoteObjec
         HILOG_ERROR("observer write failed.");
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::START_USER_TEST, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::START_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2509,7 +2838,12 @@ int AbilityManagerProxy::FinishUserTest(
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::FINISH_USER_TEST, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::FINISH_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2527,7 +2861,12 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_TOP_ABILITY_TOKEN, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_TOP_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2557,7 +2896,12 @@ int AbilityManagerProxy::DelegatorDoAbilityForeground(const sptr<IRemoteObject> 
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::DELEGATOR_DO_ABILITY_FOREGROUND, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::DELEGATOR_DO_ABILITY_FOREGROUND, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2581,7 +2925,12 @@ int AbilityManagerProxy::DelegatorDoAbilityBackground(const sptr<IRemoteObject> 
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::DELEGATOR_DO_ABILITY_BACKGROUND, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::DELEGATOR_DO_ABILITY_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2610,7 +2959,12 @@ int AbilityManagerProxy::DoAbilityForeground(const sptr<IRemoteObject> &token, u
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::DO_ABILITY_FOREGROUND, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::DO_ABILITY_FOREGROUND, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2639,7 +2993,12 @@ int AbilityManagerProxy::DoAbilityBackground(const sptr<IRemoteObject> &token, u
         return ERR_INVALID_VALUE;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::DO_ABILITY_BACKGROUND, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::DO_ABILITY_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2660,7 +3019,12 @@ int AbilityManagerProxy::SendANRProcessID(int pid)
         HILOG_ERROR("pid WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SendANRProcessID error: %d", error);
         return error;
@@ -2688,7 +3052,12 @@ int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &toke
         return -1;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_MISSION_ID_BY_ABILITY_TOKEN, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return -1;
+    }
+    auto error = remote->SendRequest(IAbilityManager::GET_MISSION_ID_BY_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return -1;
@@ -2706,7 +3075,12 @@ int AbilityManagerProxy::BlockAmsService()
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::BLOCK_AMS_SERVICE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::BLOCK_AMS_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("BlockAmsService error: %d", error);
         return error;
@@ -2726,7 +3100,12 @@ int AbilityManagerProxy::BlockAbility(int32_t abilityRecordId)
         HILOG_ERROR("pid WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::BLOCK_ABILITY, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::BLOCK_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("BlockAbility error: %d", error);
         return error;
@@ -2742,7 +3121,12 @@ int AbilityManagerProxy::BlockAppService()
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    auto error = Remote()->SendRequest(IAbilityManager::BLOCK_APP_SERVICE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::BLOCK_APP_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("BlockAmsService error: %d", error);
         return error;
@@ -2781,12 +3165,45 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
 
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("observer write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::ADD_FREE_INSTALL_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
     return reply.ReadInt32();
 }
 

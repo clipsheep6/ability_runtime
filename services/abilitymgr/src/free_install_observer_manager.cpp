@@ -142,7 +142,8 @@ void FreeInstallObserverManager::OnObserverDied(const wptr<IRemoteObject> &remot
     remoteObj->RemoveDeathRecipient(deathRecipient_);
 
     std::lock_guard<std::mutex> lock(observerLock_);
-    auto it = std::find_if(observerList_.begin(), observerList_.end(), [&remoteObj](const sptr<IFreeInstallObserver> item) {
+    auto it = std::find_if(observerList_.begin(), observerList_.end(), [&remoteObj]
+        (const sptr<IFreeInstallObserver> item) {
         return (item && item->AsObject() == remoteObj);
     });
     if (it != observerList_.end()) {
