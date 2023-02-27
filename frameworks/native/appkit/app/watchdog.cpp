@@ -184,10 +184,13 @@ void Watchdog::ReportEvent()
         eventType = "THREAD_BLOCK_3S";
         isSixSecondEvent_.store(true);
     }
+    
+    HILOG_DEBUG("Start dump message.");
     std::string msgContent = "App main thread is not response!";
     MainHandlerDumper handlerDumper;
     appMainHandler_->Dump(handlerDumper);
     msgContent += handlerDumper.GetDumpInfo();
+    HILOG_DEBUG("msgContent is %{public}s", msgContent.c_str());
 
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
@@ -204,7 +207,6 @@ void Watchdog::ReportEvent()
 
 void MainHandlerDumper::Dump(const std::string &message)
 {
-    HILOG_DEBUG("message is %{public}s", message.c_str());
     dumpInfo += message;
 }
 
