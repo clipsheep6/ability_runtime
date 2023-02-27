@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1035,7 +1035,7 @@ void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
     return;
 }
 
-void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     int error;
     MessageParcel data;
@@ -1053,6 +1053,11 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     }
 
     data.WriteInt32(reason);
+
+    if (!data.WriteParcelable(want)) {
+        HILOG_ERROR("AppRecovery write want failed.");
+        return;
+    }
 
     auto remote = Remote();
     if (remote == nullptr) {
@@ -2819,6 +2824,43 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    HILOG_INFO("IsValidMissionIds Call. Quert size is %{public}zu", (missionIds.size()));
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32Vector(missionIds))
+    {
+        HILOG_ERROR("write missionIds size failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::QUERY_MISSION_VAILD, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    auto infoSize = reply.ReadInt32();
+    for (auto i = 0; i < infoSize; ++i) {
+        std::unique_ptr<MissionVaildResult> info(reply.ReadParcelable<MissionVaildResult>());
+        if (!info) {
+            HILOG_ERROR("Read Parcelable result infos failed.");
+            return INNER_ERR;
+        }
+        results.emplace_back(*info);
     }
 
     return reply.ReadInt32();

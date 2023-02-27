@@ -15,12 +15,17 @@
 
 #include "app_recovery.h"
 
+#include <csignal>
+#include <mutex>
+
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <syscall.h>
 #include <unistd.h>
 
+#include "ability_runtime/js_ability.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -32,9 +37,13 @@
 #include "recovery_param.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
+#include "ohos_application.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+std::mutex g_mutex;
+std::atomic<bool> g_blocked = false;
+
 AppRecovery::AppRecovery() : isEnable_(false), restartFlag_(RestartFlag::ALWAYS_RESTART),
     saveOccasion_(SaveOccasionFlag::SAVE_WHEN_ERROR), saveMode_(SaveModeFlag::SAVE_WITH_FILE)
 {
@@ -42,6 +51,38 @@ AppRecovery::AppRecovery() : isEnable_(false), restartFlag_(RestartFlag::ALWAYS_
 
 AppRecovery::~AppRecovery()
 {
+}
+
+static void SigQuitHandler(int signal)
+{
+    g_blocked = true;
+    HILOG_ERROR("AppRecovery SigQuitHandler0");
+    g_mutex.lock();
+    HILOG_ERROR("AppRecovery SigQuitHandler1");
+    g_blocked = false;
+}
+
+static void BlockMainThread()
+{
+    struct sigaction action;
+    memset(&action, 0, sizeof(action));
+    sigfillset(&action.sa_mask);
+    action.sa_handler = SigQuitHandler;
+    action.sa_flags = 0;
+    if (sigaction(3, &action, nullptr) != 0) {
+        HILOG_ERROR("AppRecovery Failed to register signal(%d)", 3);
+    }
+
+    g_mutex.lock();
+    if (syscall(SYS_tgkill, getpid(), getpid(), 3) != 0) {
+        HILOG_ERROR("Failed to send SIGDUMP to main thread, errno(%d).", errno);
+    }
+
+    int left = 2;
+    while(!g_blocked && left > 0) {
+        left = sleep(left);
+    }
+    HILOG_INFO("Main thread status:%{public}d", g_blocked.load());
 }
 
 AppRecovery& AppRecovery::GetInstance()
@@ -58,18 +99,19 @@ bool AppRecovery::InitApplicationInfo(const std::shared_ptr<EventHandler>& mainH
     return true;
 }
 
-bool AppRecovery::AddAbility(const std::shared_ptr<Ability>& ability,
+bool AppRecovery::AddAbility(std::shared_ptr<Ability> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
     if (!isEnable_) {
+        HILOG_ERROR("AppRecovery not enabled.");
         return false;
     }
 
-    if (!abilityRecoverys_.empty()) {
-        HILOG_ERROR("AppRecovery Only support single ability application at now.");
+    if (!abilityRecoverys_.empty() && !abilityInfo->recoverable) {
+        HILOG_ERROR("AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
         return false;
     }
-
+    ability_ = ability;
     std::shared_ptr<AbilityRecovery> abilityRecovery = std::make_shared<AbilityRecovery>();
     abilityRecovery->InitAbilityInfo(ability, abilityInfo, token);
     abilityRecovery->EnableAbilityRecovery(restartFlag_, saveOccasion_, saveMode_);
@@ -78,8 +120,32 @@ bool AppRecovery::AddAbility(const std::shared_ptr<Ability>& ability,
     return true;
 }
 
-bool AppRecovery::ScheduleSaveAppState(StateReason reason)
+bool AppRecovery::removeAbility(const sptr<IRemoteObject>& tokenId)
 {
+    if (!isEnable_) {
+        HILOG_ERROR("AppRecovery not enabled. not removeAbility");
+        return false;
+    }
+
+    if (!tokenId) {
+        HILOG_ERROR("AppRecovery removeAbility tokenId is null.");
+        return false;
+    }
+    HILOG_INFO("AppRecovery removeAbility start");
+    auto itr = std::find_if(abilityRecoverys_.begin(), abilityRecoverys_.end(),
+        [&tokenId](std::shared_ptr<AbilityRecovery> &abilityRecovery) {
+        return (abilityRecovery && abilityRecovery->GetToken() == tokenId);
+    });
+    if (itr != abilityRecoverys_.end()) {
+        abilityRecoverys_.erase(itr);
+        HILOG_DEBUG("AppRecovery removeAbility done");
+    }
+    return true;
+}
+
+bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
+{
+    HILOG_INFO("AppRecovery ScheduleSaveAppState begin");
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery ScheduleSaveAppState. is not enabled");
         return false;
@@ -91,8 +157,18 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
     }
 
     if (reason == StateReason::APP_FREEZE) {
-        HILOG_ERROR("ScheduleSaveAppState not support APP_FREEZE");
-        return false;
+        auto abilityPtr = ability_.lock();
+        if (!abilityPtr || !abilityPtr->GetAbilityContext()) {
+            HILOG_ERROR("AppRecovery ScheduleSaveAppState ability or context is nullptr");
+            return false;
+        }
+        HILOG_INFO("AppRecovery BlockMainThread start");
+        BlockMainThread();
+        HILOG_INFO("AppRecovery BlockMainThread end");
+        OHOS::AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*abilityPtr);
+        jsAbility.getJsRuntime()->EnableCrossThreadExecution();
+        AppRecovery::GetInstance().DoSaveAppState(reason, ability);
+        return true;
     }
 
     auto handler = mainHandler_.lock();
@@ -101,8 +177,8 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
         return false;
     }
 
-    auto task = [reason]() {
-        AppRecovery::GetInstance().DoSaveAppState(reason);
+    auto task = [reason, ability]() {
+        AppRecovery::GetInstance().DoSaveAppState(reason, ability);
     };
     if (!handler->PostTask(task)) {
         HILOG_ERROR("Failed to schedule save app state.");
@@ -110,6 +186,16 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason)
     }
 
     return true;
+}
+
+void AppRecovery::setRestartWant(std::shared_ptr<AAFwk::Want> want)
+{
+    HILOG_INFO("AppRecovery setRestartWant begin");
+    if (!isEnable_) {
+        HILOG_ERROR("AppRecovery setRestartWant not enabled");
+        return;
+    }
+    want_ = want;
 }
 
 bool AppRecovery::ScheduleRecoverApp(StateReason reason)
@@ -168,17 +254,39 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
-    for (auto& i : abilityRecoverys_) {
-        if (i->ScheduleRecoverAbility(reason)) {
-            break;
-        }
+    HILOG_INFO("AppRecovery DoRecoverApp begin");
+    if (abilityRecoverys_.empty()) {
+        HILOG_ERROR("AppRecovery no ability exist! ");
+        return;
     }
+    AAFwk::Want *want = nullptr;
+    if (want_ != nullptr) {
+        want = want_.get();
+    }
+    abilityRecoverys_.front()->ScheduleRecoverAbility(reason, want);
 }
 
-void AppRecovery::DoSaveAppState(StateReason reason)
+void AppRecovery::DoSaveAppState(StateReason reason, uintptr_t ability)
 {
-    for (auto& i : abilityRecoverys_) {
-        i->ScheduleSaveAbilityState(reason);
+    HILOG_DEBUG("AppRecovery DoSaveAppState begin");
+    auto appInfo = applicationInfo_.lock();
+    if (appInfo == nullptr || abilityRecoverys_.empty()) {
+        HILOG_ERROR("AppRecovery Application or ability info is not exist.");
+        return;
+    }
+
+    bool onlySaveTargetAbility = (ability != 0);
+    for (auto& abilityRecoveryRecord : abilityRecoverys_) {
+        if (!onlySaveTargetAbility) {
+            abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
+            HILOG_DEBUG("AppRecovery not onlySaveTargetAbility ScheduleSaveAbilityState");
+            continue;
+        }
+        if (abilityRecoveryRecord->IsSameAbility(ability)) {
+            abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
+            HILOG_DEBUG("AppRecovery IsSameAbility ScheduleSaveAbilityState");
+            break;
+        }
     }
 }
 

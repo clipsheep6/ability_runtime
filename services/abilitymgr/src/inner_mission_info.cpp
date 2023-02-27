@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@ const std::string KEY_BUNDLE_NAME = "BundleName";
 const std::string KEY_UID = "Uid";
 const std::string KEY_IS_TEMPORARY = "IsTemporary";
 const std::string KEY_SPEC_FLAG = "SpecFlag";
+const std::string KEY_HAS_RECONER_INFO = "hasRecoverInfo";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {
@@ -55,6 +56,7 @@ std::string InnerMissionInfo::ToJsonStr() const
     value[KEY_LABEL] = missionInfo.label;
     value[KEY_ICON_PATH] = missionInfo.iconPath;
     value[KEY_WANT] = missionInfo.want.ToUri();
+    value[KEY_HAS_RECONER_INFO] = hasRecoverInfo;
 
     return value.dump();
 }
@@ -128,6 +130,10 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
     if (!CheckJsonNode(value, KEY_WANT, JsonType::STRING)) {
         return false;
     }
+    if (!CheckJsonNode(value, KEY_HAS_RECONER_INFO, JsonType::BOOLEAN)) {
+        return false;
+    }
+    hasRecoverInfo = value[KEY_HAS_RECONER_INFO].get<bool>();
     Want* want = Want::ParseUri(value[KEY_WANT].get<std::string>());
     if (want) {
         missionInfo.want = *want;

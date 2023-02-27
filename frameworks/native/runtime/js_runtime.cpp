@@ -307,6 +307,14 @@ public:
         return true;
     }
 
+    void EnableCrossThreadExecution()
+    {
+        HILOG_INFO("EnableCrossThreadExecution.");
+        if (vm_ != nullptr) {
+            //panda::JSNApi::AllowCrossThreadExecution(vm_);
+        }
+    }
+
 private:
     static int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
     {

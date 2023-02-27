@@ -926,11 +926,11 @@ void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token
     return abms->EnableRecoverAbility(token);
 }
 
-void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    return abms->ScheduleRecoverAbility(token, reason);
+    return abms->ScheduleRecoverAbility(token, reason, want);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -1025,6 +1025,23 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
     bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
     want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
 #endif // WITH_DLP
+}
+
+ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    HILOG_INFO("AddFreeInstallObserver begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AddFreeInstallObserver(observer);
+}
+
+int32_t AbilityManagerClient::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    HILOG_INFO("IsValidMissionIds Call.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->IsValidMissionIds(missionIds, results);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -4282,6 +4282,14 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
     if (it == appRecoveryHistory_.end()) {
         appRecoveryHistory_.emplace(record->GetUid(), 0);
     }
+
+    auto userId = record->GetOwnerMissionUserId();
+    auto missionListMgr = GetListManagerByUserId(userId);
+    if(missionListMgr == nullptr) {
+        HILOG_ERROR("missionListMgr is nullptr");
+        return;
+    }
+    missionListMgr->EnableRecoverAbility(record->GetMissionId());
 }
 
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
@@ -4295,7 +4303,19 @@ void AbilityManagerService::RecoverAbilityRestart(const Want& want)
     IPCSkeleton::SetCallingIdentity(identity);
 }
 
-void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
+    const std::string& abilityName, const std::string& result)
+{
+    HiSysEventWrite(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
+        "APP_UID", appId,
+        "VERSION_CODE", std::to_string(appInfo.versionCode),
+        "VERSION_NAME", appInfo.versionName,
+        "BUNDLE_NAME", appInfo.bundleName,
+        "ABILITY_NAME", abilityName,
+        "RECOVERY_RESULT", result);
+}
+
+void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     if (token == nullptr) {
         return;
@@ -4313,7 +4333,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         return;
     }
 
-    AAFwk::Want want;
+    AAFwk::Want curWant;
     {
         std::lock_guard<std::recursive_mutex> guard(globalLock_);
         auto type = record->GetAbilityInfo().type;
@@ -4325,32 +4345,41 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         constexpr int64_t MIN_RECOVERY_TIME = 60;
         int64_t now = time(nullptr);
         auto it = appRecoveryHistory_.find(record->GetUid());
+        auto appInfo = record->GetApplicationInfo();
+        auto abilityInfo = record->GetAbilityInfo();
+
         if ((it != appRecoveryHistory_.end()) &&
             (it->second + MIN_RECOVERY_TIME > now)) {
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
+            ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_WITHIN_ONE_MINUTE");
             kill(record->GetPid(), SIGKILL);
             return;
         }
 
-        auto appInfo = record->GetApplicationInfo();
-        auto abilityInfo = record->GetAbilityInfo();
-        appRecoveryHistory_[record->GetUid()] = now;
-        want = record->GetWant();
-        want.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+        if (want != nullptr) {
+            HILOG_DEBUG("BundleName:%{public}s targetBundleName:%{public}s.",
+                appInfo.bundleName.c_str(), want->GetElement().GetBundleName().c_str());
+            if (want->GetElement().GetBundleName().empty() ||
+                (appInfo.bundleName.compare(want->GetElement().GetBundleName()) != 0)) {
+                HILOG_ERROR("AppRecovery BundleName not match, Not recovery ability!");
+                ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_BUNDLE_NAME_NOT_MATCH");
+                return;
+            }
+        }
 
-        HiSysEventWrite(HiSysEvent::Domain::AAFWK, "APP_RECOVERY", HiSysEvent::EventType::BEHAVIOR,
-            "APP_UID", record->GetUid(),
-            "VERSION_CODE", std::to_string(appInfo.versionCode),
-            "VERSION_NAME", appInfo.versionName,
-            "BUNDLE_NAME", appInfo.bundleName,
-            "ABILITY_NAME", abilityInfo.name);
+        appRecoveryHistory_[record->GetUid()] = now;
+        curWant = (want == nullptr) ? record->GetWant() : *want;
+        curWant.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+
+        ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "SUCCESS");
         kill(record->GetPid(), SIGKILL);
     }
 
-    constexpr int delaytime = 2000;
+    constexpr int delaytime = 1000;
     std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
-    auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, want);
+    auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, curWant);
+    HILOG_INFO("AppRecovery RecoverAbilityRestart task begin");
     handler_->PostTask(task, taskName, delaytime);
 }
 
@@ -5885,6 +5914,28 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
 #endif
 
     return nullptr;
+}
+
+int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    if (freeInstallManager_ == nullptr) {
+        HILOG_ERROR("freeInstallManager_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return freeInstallManager_->AddFreeInstallObserver(observer);
+}
+
+int32_t AbilityManagerService::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    auto missionlistMgr = GetListManagerByUserId(userId);
+    if (missionlistMgr == nullptr) {
+        HILOG_ERROR("missionlistMgr is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return missionlistMgr->IsValidMissionIds(missionIds, results);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

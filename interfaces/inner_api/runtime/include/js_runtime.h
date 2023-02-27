@@ -84,6 +84,7 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
     void UpdateExtensionType(int32_t extensionType) override;
+    virtual void EnableCrossThreadExecution();
 
 protected:
     JsRuntime() = default;

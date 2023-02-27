@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1157,5 +1157,20 @@ HWTEST_F(AbilityManagerClientTest, CallRequestDone_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "CallRequestDone_0100 end";
 }
 
+
+/**
+ * @tc.name: AbilityManagerClient_IsValidMissionIds_0100
+ * @tc.desc: CallRequestDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, IsValidMissionIds_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "IsValidMissionIds_0100 start";
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
+    EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);
+    GTEST_LOG_(INFO) << "IsValidMissionIds_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS

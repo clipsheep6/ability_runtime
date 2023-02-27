@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -472,6 +472,8 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
+        targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
+        info.hasRecoverInfo = false;
         targetMission->SetLockedState(info.missionInfo.lockedState);
         targetMission->UpdateMissionTime(info.missionInfo.time);
         targetRecord->SetMission(targetMission);
@@ -497,6 +499,17 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
     }
+}
+
+void MissionListManager::EnableRecoverAbility(int32_t missionId)
+{
+    InnerMissionInfo info;
+    if(DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
+        HILOG_ERROR("failed to get mission info by id.");
+        return;
+    }
+    info.hasRecoverInfo = true;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
 }
 
 void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
@@ -1501,6 +1514,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
             auto missionId = abilityRecord->GetMissionId();
             int result = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
                 missionId, innerMissionInfo);
+            innerMissionInfo.hasRecoverInfo = false;
             if (result != 0) {
                 HILOG_ERROR("Get missionInfo error, result is %{public}d, missionId is %{public}d", result, missionId);
                 break;
@@ -3202,6 +3216,34 @@ void MissionListManager::SetMissionANRStateByTokens(const std::vector<sptr<IRemo
         }
         mission->SetANRState(true);
     }
+}
+
+int32_t MissionListManager::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    constexpr int32_t searchCount = 20;
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
+        MissionVaildResult missionResult = {};
+        missionResult.missionId = missionIds.at(i);
+        auto mission = GetMissionById(missionResult.missionId);
+        if (mission == nullptr) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        auto record = mission->GetAbilityRecord();
+        if (record == nullptr) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        missionResult.isVaild = (callerTokenId == record->GetApplicationInfo().accessTokenId);
+        results.push_back(missionResult);
+    }
+
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
