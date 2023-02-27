@@ -79,6 +79,7 @@ const std::string FUNC_NAME = "main";
 const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
+const std::string PERF_CMD = "perfCmd";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
@@ -179,6 +180,8 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex);
+        std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
+        StartPerfProcess(appRecord, perfCmd);
     } else {
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
         if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
@@ -1400,6 +1403,30 @@ void AppMgrServiceInner::OnAbilityStateChanged(
 void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
 {
     DelayedSingleton<AppStateObserverManager>::GetInstance()->StateChangedNotifyObserver(abilityStateData, isAbility);
+}
+
+void AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd)
+{
+    if (!remoteClientManager_->GetSpawnClient() || !appRecord) {
+        HILOG_ERROR("appSpawnClient or appRecord is null");
+        return;
+    }
+    if (perfCmd.empty()) {
+        HILOG_ERROR("perfCmd is empty");
+        return;
+    }
+
+    AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    startMsg.renderParam = perfCmd;
+    startMsg.code = AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS;
+    pid_t pid = 0;
+    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    if (FAILED(errCode)) {
+        HILOG_ERROR("failed to spawn perf process, errCode %{public}08x", errCode);
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
+        return;
+    }
+    HILOG_INFO("Start perf process success, pid is %{public}d", pid);
 }
 
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,

@@ -685,6 +685,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     std::string bundleName = "";
     std::string abilityName = "";
     std::string moduleName;
+    std::string perfCmd;
     bool isColdStart = false;
     bool isDebugApp = false;
     bool isContinuation = false;
@@ -779,6 +780,17 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
+                case 'p': {
+                    // 'aa start -p' with no argument
+                    // 'aa stop-service -p' with no argument
+                    HILOG_INFO("'aa %{public}s -p' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
                 case 0: {
                     // 'aa start' with an unknown option: aa start --x
                     // 'aa start' with an unknown option: aa start --xxx
@@ -860,6 +872,14 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 moduleName = optarg;
                 break;
             }
+            case 'p': {
+                // 'aa start -p xxx'
+                // 'aa stop-service -p xxx'
+
+                // save module name
+                perfCmd = optarg;
+                break;
+            }
             case 'C': {
                 // 'aa start -C'
                 // cold start app
@@ -914,6 +934,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isContinuation) {
                 want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
+            }
+            if (!perfCmd.empty()) {
+                want.SetParam("perfCmd", perfCmd);
             }
         }
     }

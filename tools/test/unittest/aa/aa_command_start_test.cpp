@@ -40,6 +40,7 @@ const std::string STRING_STATE_ON = "on";
 const std::string STRING_STATE_ON_INVALID = "invalid_on";
 const std::string STRING_STATE_OFF = "off";
 const std::string STRING_STATE_OFF_INVALID = "invalid_off";
+const std::string STRING_PERF_CMD = "perf_cmd";
 }  // namespace
 
 class AaCommandStartTest : public ::testing::Test {
@@ -714,4 +715,171 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2700, Function | MediumTest | Leve
 
     AbilityManagerShellCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: Aa_Command_Start_2800
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -p <perf-cmd>" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_2800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_2700");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-p",
+        (char*)STRING_PERF_CMD.c_str(),
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), "error: -a <ability-name> is expected\nerror: -b <bundle-name> is expected\n"
+        + HELP_MSG_START);
+}
+
+/**
+ * @tc.number: Aa_Command_Start_2900
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -p <perf-cmd>" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_2900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_2900");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-p",
+        (char*)STRING_PERF_CMD.c_str(),
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), "error: -a <ability-name> is expected\nerror: -b <bundle-name> is expected\n"
+        + HELP_MSG_START);
+}
+
+/**
+ * @tc.number: Aa_Command_Start_3000
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -p <perf-cmd>" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_3000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_3000");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-p",
+        (char*)STRING_PERF_CMD.c_str(),
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), "error: -b <bundle-name> is expected\n" + HELP_MSG_START);
+}
+
+/**
+ * @tc.number: Aa_Command_Start_3100
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -b <bundle-name> -p <perf-cmd>" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_3100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_3100");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-p",
+        (char*)STRING_PERF_CMD.c_str(),
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), "error: -a <ability-name> is expected\n" + HELP_MSG_START);
+}
+
+/**
+ * @tc.number: Aa_Command_Start_3200
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> -p <perf-cmd>" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_3200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_3200");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-p",
+        (char*)STRING_PERF_CMD.c_str(),
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: Aa_Command_Start_3300
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> -p" command.
+ * @tc.type: FUNC
+ * @tc.require: issueI6AJMB
+ */
+HWTEST_F(AaCommandStartTest, Aa_Command_Start_3300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_Start_3200");
+
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"-p",
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), "error: option requires a value.\n" + HELP_MSG_START);
 }

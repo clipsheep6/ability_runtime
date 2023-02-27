@@ -619,6 +619,14 @@ private:
         const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want);
 
     /**
+     * StartPerfProcess.
+     *
+     * @return
+     */
+    void StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd);
+
+
+    /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
      *
      * @param appName, the app name.
