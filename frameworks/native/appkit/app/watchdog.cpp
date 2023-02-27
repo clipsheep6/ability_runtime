@@ -147,10 +147,10 @@ void Watchdog::Timer()
         }
     }
     if (appMainHandler_ != nullptr) {
-        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE, EventQueue::Priority::HIGH);
+        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
-    int64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::
-        steady_clock::now().time_since_epoch()).count();
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
     if ((now - lastWatchTime_) >= (CHECK_INTERVAL_TIME / RESET_RATIO)) {
         lastWatchTime_ = now;
     }
@@ -158,8 +158,8 @@ void Watchdog::Timer()
 
 void Watchdog::ReportEvent()
 {
-    int64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::
-        steady_clock::now().time_since_epoch()).count();
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
         (now - lastWatchTime_) < (CHECK_INTERVAL_TIME / RESET_RATIO)) {
         HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
