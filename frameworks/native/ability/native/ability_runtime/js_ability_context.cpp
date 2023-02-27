@@ -47,6 +47,8 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+// constexpr int64_t DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
+// constexpr int64_t DELAY_REMOTE_FREE_INSTALL_TIMEOUT = 30000 + DELAY_LOCAL_FREE_INSTALL_TIMEOUT;
 
 class StartAbilityByCallParameters {
 public:
@@ -216,16 +218,20 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
         want.SetParam(Want::PARAM_RESV_START_RECENT, true);
     }
 
+    int innerErrorCode = 0;
+    AsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc, &innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+        innerErrorCode = (unwrapArgc == 1) ?
+            context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+    };
+
     AsyncTask::CompleteCallback complete =
-        [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
-            auto innerErrorCode = (unwrapArgc == 1) ?
-                context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+        [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             if (innerErrorCode == 0) {
                 task.Resolve(engine, engine.CreateUndefined());
             } else {
@@ -236,7 +242,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
