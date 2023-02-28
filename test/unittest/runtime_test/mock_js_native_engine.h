@@ -402,6 +402,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::GetScopeManager called";
         return nullptr;
     }
+
+    void AllowCrossThreadExecution() const override
+    {}
 };
 
 #endif /* MOCK_JS_NATIVE_ENGINE_H */

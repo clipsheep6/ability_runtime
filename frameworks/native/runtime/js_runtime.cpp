@@ -876,5 +876,14 @@ void JsRuntime::UpdateExtensionType(int32_t extensionType)
     }
     moduleManager->SetProcessExtensionType(extensionType);
 }
+
+void JsRuntime::AllowCrossThreadExecution() const
+{
+    if (nativeEngine_ == nullptr) {
+        HILOG_ERROR("AllowCrossThreadExecution error, nativeEngine_ is nullptr");
+        return;
+    }
+    nativeEngine_->AllowCrossThreadExecution();
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
