@@ -61,6 +61,7 @@ constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
+constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -150,6 +151,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::INPUTMETHOD) {
             abilityName = INPUTMETHOD_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UIEXTENSION) {
+            abilityName = UI_EXTENSION;
         }
         HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {

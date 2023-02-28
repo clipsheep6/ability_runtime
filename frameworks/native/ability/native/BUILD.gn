@@ -774,3 +774,62 @@ group("extension_module") {
     deps += [ ":form_extension_module" ]
   }
 }
+
+ohos_shared_library("ui_extension") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",
+  ]
+
+  deps = [
+    ":abilitykit_native",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/appkit:app_context",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("ui_extension_module") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+
+  deps = [ ":ui_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

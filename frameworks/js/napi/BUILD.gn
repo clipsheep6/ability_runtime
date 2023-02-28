@@ -59,6 +59,8 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/service_extension_context:serviceextensioncontext_napi",
     "${ability_runtime_napi_path}/static_subscriber_extension:staticsubscriberextensionability_napi",
     "${ability_runtime_napi_path}/static_subscriber_extension_context:staticsubscriberextensioncontext_napi",
+    "${ability_runtime_napi_path}/ui_extension_ability:uiextensionability_napi",
+    "${ability_runtime_napi_path}/ui_extension_context:uiextensioncontext_napi",
     "${ability_runtime_napi_path}/uri_permission:uripermissionmanager_napi",
     "${ability_runtime_napi_path}/wantConstant:wantconstant",
     "${ability_runtime_napi_path}/wantConstant:wantconstant_napi",
