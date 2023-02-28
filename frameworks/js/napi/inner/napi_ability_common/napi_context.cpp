@@ -18,7 +18,7 @@
 #include <cstring>
 #include <uv.h>
 
-#include "../inner/napi_common/napi_common_ability.h"
+#include "napi_common_ability.h"
 #include "ability_util.h"
 #include "ability_process.h"
 #include "directory_ex.h"

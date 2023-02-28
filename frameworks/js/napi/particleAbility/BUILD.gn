@@ -28,7 +28,6 @@ ohos_shared_library("particleability") {
   ]
 
   sources = [
-    "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
     "${relational_store_napi_path}/common/src/js_utils.cpp",
@@ -42,6 +41,7 @@ ohos_shared_library("particleability") {
 
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_napi_path}/inner/napi_ability_common:napi_ability_common",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",

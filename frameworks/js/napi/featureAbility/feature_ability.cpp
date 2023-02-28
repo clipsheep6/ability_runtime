@@ -18,8 +18,8 @@
 #include <uv.h>
 #include <vector>
 
-#include "../inner/napi_common/napi_common_ability.h"
-#include "../inner/napi_common/js_napi_common_ability.h"
+#include "napi_common_ability.h"
+#include "js_napi_common_ability.h"
 #include "ability_process.h"
 #include "element_name.h"
 #include "hilog_wrapper.h"

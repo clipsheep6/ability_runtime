@@ -23,7 +23,7 @@
 #include "data_ability_observer_interface.h"
 #include "uri.h"
 
-#include "../inner/napi_common/napi_common_ability.h"
+#include "napi_common_ability.h"
 #include "data_ability_operation.h"
 #include "data_ability_result.h"
 #include "hilog_wrapper.h"

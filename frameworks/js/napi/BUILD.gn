@@ -47,6 +47,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/extensioncontext:extensioncontext_napi",
     "${ability_runtime_napi_path}/featureAbility:featureability",
     "${ability_runtime_napi_path}/feature_ability:featureability_napi",
+    "${ability_runtime_napi_path}/inner/napi_ability_common:napi_ability_common",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_napi_path}/js_dialog_request:dialogrequest_napi",
     "${ability_runtime_napi_path}/js_mission_manager:missionmanager",

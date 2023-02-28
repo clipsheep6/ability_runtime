@@ -62,6 +62,7 @@ config("ability_config") {
 config("ability_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "${ability_runtime_napi_path}/inner/napi_ability_common",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
@@ -194,12 +195,6 @@ ohos_shared_library("abilitykit_native") {
 
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
-    "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_ability.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_configuration.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_start_options.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_util.cpp",
-    "${ability_runtime_napi_path}/inner/napi_common/napi_common_want.cpp",
     "${ability_runtime_native_path}/ability/native/ability.cpp",
     "${ability_runtime_native_path}/ability/native/ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ability_impl.cpp",
@@ -295,6 +290,7 @@ ohos_shared_library("abilitykit_native") {
 
   public_deps = [
     ":abilitykit_utils",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",

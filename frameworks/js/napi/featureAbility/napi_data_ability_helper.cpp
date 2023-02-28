@@ -23,7 +23,7 @@
 #include "data_ability_observer_interface.h"
 #include "uri.h"
 
-#include "../inner/napi_common/napi_common_ability.h"
+#include "napi_common_ability.h"
 #include "data_ability_operation.h"
 #include "data_ability_result.h"
 #include "hilog_wrapper.h"
@@ -3378,7 +3378,7 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
     HILOG_INFO("%{public}s,operations size=%{public}zu", __func__, operations.size());
     executeBatchCB->operations = operations;
     GetDataAbilityHelper(env, thisVar, executeBatchCB->dataAbilityHelper);
-    
+
 
     if (argcAsync > argcPromise) {
         ret = ExecuteBatchAsync(env, args, argcAsync, argcPromise, executeBatchCB);

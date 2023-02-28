@@ -15,7 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H
-#include "../inner/napi_common/napi_common.h"
+#include "napi_common.h"
 #include "ability.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
