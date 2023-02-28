@@ -449,13 +449,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
-
-    /**
-     * remove all service record.
-     *
-     */
-    void RemoveAllServiceRecord();
-
     /**
      * InitMissionListManager, set the user id of mission list manager.
      *

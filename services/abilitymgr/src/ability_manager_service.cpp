@@ -1795,12 +1795,6 @@ int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId
     return dmsClient.UnRegisterMissionListener(Str8ToStr16(deviceId), listener->AsObject());
 }
 
-void AbilityManagerService::RemoveAllServiceRecord()
-{
-    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
-    connectManager_->RemoveAll();
-}
-
 sptr<IWantSender> AbilityManagerService::GetWantSender(
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
@@ -2868,16 +2862,6 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 
     auto type = abilityRecord->GetAbilityInfo().type;
     switch (type) {
-        case AppExecFwk::AbilityType::SERVICE:
-        case AppExecFwk::AbilityType::EXTENSION: {
-            auto connectManager = GetConnectManagerByUserId(userId);
-            if (!connectManager) {
-                HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userId);
-                return;
-            }
-            connectManager->OnAbilityRequestDone(token, state);
-            break;
-        }
         case AppExecFwk::AbilityType::DATA: {
             auto dataAbilityManager = GetDataAbilityManagerByUserId(userId);
             if (!dataAbilityManager) {
@@ -3516,7 +3500,12 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
-    if (connectManager_->GetServiceRecordByToken(token)) {
+    if (connectManager_->GetExtensionByTokenFromSeriveMap(token)) {
+        HILOG_INFO("Verification token5.");
+        return true;
+    }
+
+    if (connectManager_->GetExtensionByTokenFromTerminatingMap(token)) {
         HILOG_INFO("Verification token5.");
         return true;
     }
@@ -3555,7 +3544,10 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
         for (auto item: connectManagers_) {
-            if (item.second && item.second->GetServiceRecordByToken(token)) {
+            if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+                return true;
+            }
+            if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
                 return true;
             }
         }
@@ -3620,7 +3612,10 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 {
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto item: connectManagers_) {
-        if (item.second && item.second->GetServiceRecordByToken(token)) {
+        if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+            return item.second;
+        }
+        if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
             return item.second;
         }
     }
