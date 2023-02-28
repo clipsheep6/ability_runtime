@@ -24,6 +24,7 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "session_info.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "hitrace_meter.h"
@@ -215,6 +216,15 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token,
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
+ErrCode AbilityManagerClient::TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode,
+    const Want *resultWant)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("Terminate ability come.");
+    return abms->TerminateUIExtensionAbility(persistentId, resultCode, resultWant);
+}
+
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -245,6 +255,15 @@ ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, 
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
     return abms->MinimizeAbility(token, fromUser);
+}
+
+ErrCode AbilityManagerClient::MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
+    return abms->MinimizeUIExtensionAbility(persistentId, fromUser);
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(const Want &want, const sptr<IAbilityConnection> &connect, int32_t userId)

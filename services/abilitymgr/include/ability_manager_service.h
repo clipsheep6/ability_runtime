@@ -226,6 +226,17 @@ public:
         const Want *resultWant = nullptr) override;
 
     /**
+     * TerminateAbility, terminate the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param resultCode, the resultCode of the ui extension ability to terminate.
+     * @param resultWant, the Want of the ui extension ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode = DEFAULT_INVAL_VALUE,
+        const Want *resultWant = nullptr) override;
+
+    /**
      * SendResultToAbility with want, return want from ability manager service.
      *
      * @param requestCode, request code.
@@ -263,6 +274,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser = false) override;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -1106,6 +1126,7 @@ private:
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityConnectManager> GetConnectManagerByPersistentId(const uint64_t persistentId);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
     bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 

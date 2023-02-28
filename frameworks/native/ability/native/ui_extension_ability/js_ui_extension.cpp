@@ -71,6 +71,12 @@ JsUIExtension* JsUIExtension::Create(const std::unique_ptr<Runtime>& runtime)
 JsUIExtension::JsUIExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsUIExtension::~JsUIExtension() = default;
 
+void JsUIExtension::Finalizer(NativeEngine* engine, void* data, void* hint)
+{
+    HILOG_INFO("JsUIExtension Finalizer");
+    std::unique_ptr<JsUIExtension>(static_cast<JsUIExtension*>(data));
+}
+
 void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
@@ -104,6 +110,9 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
 
     BindContext(engine, obj);
+    obj->SetNativePointer(this, JsUIExtension::Finalizer, nullptr);
+    const char *loadName = "JsUIExtension";
+    BindNativeFunction(engine, *obj, "loadContent", loadName, JsUIExtension::LoadContent);
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
@@ -151,6 +160,36 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
+    HILOG_DEBUG("JsUIExtension OnStart end.");
+}
+
+void JsUIExtension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    HILOG_DEBUG("JsUIExtension OnStart begin.");
+
+    Extension::OnStart(want, sessionInfo);
+    if (sessionInfo) {
+        uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(GetContext(),
+            sessionInfo->sessionToken, sessionInfo->surfaceNode);
+        uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
+    } else {
+        HILOG_DEBUG("JsUIExtension OnStart sessionInfo is nullptr.");
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
+    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
+    NativeValue* argv[] = {nativeWant};
+    CallObjectMethod("onCreate", argv, ARGC_ONE);
+
+    if (uiWindow_ != nullptr && !contextPath_.empty()) {
+        uiWindow_->LoadContent(contextPath_, nativeEngine, nullptr);
+        uiWindow_->Connect();
+    } else {
+        HILOG_ERROR("JsUIExtension::OnStart uiWindow or contextPath is null.");
+    }
     HILOG_DEBUG("JsUIExtension OnStart end.");
 }
 
@@ -205,7 +244,49 @@ void JsUIExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId
     NativeValue* nativeStartId = reinterpret_cast<NativeValue*>(napiStartId);
     NativeValue* argv[] = {nativeWant, nativeStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
+    if (uiWindow_) {
+        HILOG_DEBUG("JsUIExtension::OnForeground uiWindow Foreground.");
+        uiWindow_->Foreground();
+    } else {
+        HILOG_ERROR("JsUIExtension::OnForeground uiWindow is null.");
+    }
     HILOG_DEBUG("JsUIExtension OnCommand end.");
+}
+
+void JsUIExtension::OnForeground(const Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("JsUIExtension OnForeground begin.");
+
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
+    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
+    NativeValue* argv[] = {nativeWant};
+    CallObjectMethod("onForeground", argv, ARGC_ONE);
+    Extension::OnForeground(want);
+    if (uiWindow_) {
+        HILOG_DEBUG("JsUIExtension::OnForeground uiWindow Foreground.");
+        uiWindow_->Foreground();
+    } else {
+        HILOG_ERROR("JsUIExtension::OnForeground uiWindow is null.");
+    }
+    HILOG_DEBUG("JsUIExtension OnForeground end.");
+}
+
+void JsUIExtension::OnBackground()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("JsUIExtension OnBackground begin.");
+    CallObjectMethod("onBackground");
+    Extension::OnBackground();
+    if (uiWindow_) {
+        HILOG_DEBUG("JsUIExtension::OnForeground uiWindow Foreground.");
+        uiWindow_->Background();
+    } else {
+        HILOG_ERROR("JsUIExtension::OnForeground uiWindow is null.");
+    }
+    HILOG_DEBUG("JsUIExtension OnBackground end.");
 }
 
 NativeValue* JsUIExtension::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
@@ -272,7 +353,7 @@ NativeValue *JsUIExtension::CallOnConnect(const AAFwk::Want &want)
 
 NativeValue *JsUIExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
-    HandleScope HandleScope(jsRuntime_);
+    HandleEscape handleEscape(jsRuntime_);
     NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
@@ -296,7 +377,7 @@ NativeValue *JsUIExtension::CallOnDisconnect(const AAFwk::Want &want, bool withR
     }
 
     if (withResult) {
-        return HandleScope.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
+        return handleEscape.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
     } else {
         nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
         return nullptr;
@@ -379,6 +460,19 @@ void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std
         info.push_back(dumpInfoStr);
     }
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+}
+
+NativeValue* JsUIExtension::LoadContent(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsUIExtension::LoadContent is called");
+    JsUIExtension *me = CheckParamsAndGetThis<JsUIExtension>(engine, info);
+
+    if (!ConvertFromJsValue(*engine, info->argv[0], me->contextPath_)) {
+        HILOG_ERROR("JsUIExtension LoadContent failed to convert parameter to context url");
+        return engine->CreateUndefined();
+    }
+
+    return engine->CreateUndefined();
 }
 }
 }

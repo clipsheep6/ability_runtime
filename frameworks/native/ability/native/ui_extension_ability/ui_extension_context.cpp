@@ -52,7 +52,7 @@ ErrCode UIExtensionContext::StartUIExtensionAbility(const AAFwk::Want &want, int
 {
     HILOG_DEBUG("StartUIExtensionAbility begin.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
-        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UIEXTENSION);
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI);
     if (err != ERR_OK) {
         HILOG_ERROR("StartUIExtensionAbility is failed %{public}d", err);
     }

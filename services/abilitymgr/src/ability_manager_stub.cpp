@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -143,7 +144,6 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[GET_TOP_ABILITY] = &AbilityManagerStub::GetTopAbilityInner;
     requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
-    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
     requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
     requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
@@ -154,6 +154,9 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
+    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
+    requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
+    requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
@@ -211,6 +214,19 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
+int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t persistentId = data.ReadUint64();
+    int resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    int32_t result = TerminateUIExtensionAbility(persistentId, resultCode, resultWant);
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     int requestCode = data.ReadInt32();
@@ -245,6 +261,15 @@ int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel 
     auto token = data.ReadRemoteObject();
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeAbility(token, fromUser);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t persistentId = data.ReadUint64();
+    auto fromUser = data.ReadBool();
+    int32_t result = MinimizeUIExtensionAbility(persistentId, fromUser);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

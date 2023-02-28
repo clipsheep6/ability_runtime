@@ -438,8 +438,10 @@ private:
      * @description:  Handle the life cycle of Extension.
      * @param want  Indicates the structure containing lifecycle information about the extension.
      * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
+    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+        sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @description:  Handle the current connection of Ability.

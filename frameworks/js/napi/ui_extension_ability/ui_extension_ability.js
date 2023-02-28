@@ -15,7 +15,7 @@
 
 var ExtensionAbility = requireNapi("app.ability.ExtensionAbility")
 
-class UIExtension extends ExtensionAbility {
+class UIExtensionAbility extends ExtensionAbility {
     onCreate(want) {
         console.log('onCreate, want:' + want.abilityName);
     }
@@ -37,4 +37,4 @@ class UIExtension extends ExtensionAbility {
     }
 }
 
-export default UIExtension
+export default UIExtensionAbility

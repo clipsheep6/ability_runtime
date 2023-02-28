@@ -152,7 +152,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::INPUTMETHOD) {
             abilityName = INPUTMETHOD_EXTENSION;
         }
-        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UIEXTENSION) {
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
             abilityName = UI_EXTENSION;
         }
         HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
@@ -469,7 +469,8 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
  * @param want  Indicates the structure containing lifecycle information about the extension.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleExtensionTransaction begin");
@@ -477,7 +478,7 @@ void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycle
         HILOG_ERROR("AbilityThread::HandleExtensionTransaction extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo);
+    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("AbilityThread::HandleAbilityTransaction end");
 }
 

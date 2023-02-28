@@ -24,6 +24,7 @@
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -527,6 +528,29 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
         return INNER_ERR;
     }
     error = remote->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode,
+    const Want *resultWant)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteUint64(persistentId) || !data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
+        HILOG_ERROR("data write failed.");
+        return INNER_ERR;
+    }
+    error = Remote()->SendRequest(IAbilityManager::TERMINATE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1046,6 +1070,32 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
         return INNER_ERR;
     }
     error = remote->SendRequest(IAbilityManager::MINIMIZE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteUint64(persistentId)) {
+        HILOG_ERROR("persistentId write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteBool(fromUser)) {
+        HILOG_ERROR("data write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    error = Remote()->SendRequest(IAbilityManager::MINIMIZE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;

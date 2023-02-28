@@ -1127,31 +1127,34 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
 {
     HILOG_INFO("Start ui extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventInfo eventInfo = BuildEventInfo(want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
-    AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+    EventReport::SendExtensionEvent(EventName::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
 
     sptr<IRemoteObject> callerToken = extensionSessionInfo->callerToken;
 
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
-        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        HILOG_ERROR("StartUIExtensionAbility: Permission verification failed.");
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return CHECK_PERMISSION_FAILED;
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        HILOG_ERROR("StartUIExtensionAbility VerificationAllToken failed.");
         eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CALLER;
     }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
     if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
 
@@ -1159,31 +1162,26 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
-        return ERR_CROSS_USER;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        HILOG_ERROR("UI extension ability donot support implicit start.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_VALUE;
     }
 
     AbilityRequest abilityRequest;
-#ifdef SUPPORT_GRAPHICS
-    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
-        abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
-        abilityRequest.extensionType = extensionType;
-        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
-        if (result != ERR_OK) {
-            HILOG_ERROR("implicit start ability error.");
-            eventInfo.errCode = result;
-            AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
-        }
-        return result;
-    }
-#endif
+    abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+    abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
+    abilityRequest.extensionType = extensionType;
     result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
 
@@ -1196,7 +1194,7 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
     if (result != ERR_OK) {
         HILOG_ERROR("CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
 
@@ -1204,13 +1202,13 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
         eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
-    eventInfo.errCode = connectManager->StartAbility(abilityRequest);
+    eventInfo.errCode = connectManager->StartAbility(abilityRequest, extensionSessionInfo);
     if (eventInfo.errCode != ERR_OK) {
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return eventInfo.errCode;
 }
@@ -1353,6 +1351,40 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         return ERR_INVALID_VALUE;
     }
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
+}
+
+int AbilityManagerService::TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode,
+    const Want *resultWant)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Terminate ui extension ability begin.");
+    auto connectManager = GetConnectManagerByPersistentId(persistentId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}llu", persistentId);
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = connectManager->GetServiceRecordByPersistentId(persistentId);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    if (result != ERR_OK) {
+        HILOG_ERROR("TerminateUIExtensionAbility JudgeAbilityVisibleControl error.");
+        return result;
+    }
+
+    if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
+        HILOG_ERROR("System ui not allow terminate.");
+        return ERR_INVALID_VALUE;
+    }
+
+    EventInfo eventInfo;
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
+    EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    eventInfo.errCode = connectManager->TerminateAbility(abilityRecord->GetToken());
+    if (eventInfo.errCode != ERR_OK) {
+        EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return eventInfo.errCode;
 }
 
 int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)
@@ -1580,6 +1612,36 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
         return ERR_INVALID_VALUE;
     }
     return missionListManager->MinimizeAbility(token, fromUser);
+}
+
+int AbilityManagerService::MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
+    auto connectManager = GetConnectManagerByPersistentId(persistentId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}llu", persistentId);
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = connectManager->GetServiceRecordByPersistentId(persistentId);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    if (result != ERR_OK) {
+        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        return result;
+    }
+
+    auto extensionAbilityType = abilityRecord->GetAbilityInfo().extensionAbilityType;
+    if (extensionAbilityType != AppExecFwk::ExtensionAbilityType::UI) {
+        HILOG_ERROR("Cannot minimize except extension ability.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
+        return ERR_WOULD_BLOCK;
+    }
+
+    return connectManager->MinimizeUIExtensionAbility(abilityRecord->GetToken(), fromUser);
 }
 
 int AbilityManagerService::ConnectAbility(
@@ -3815,6 +3877,19 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     return nullptr;
 }
 
+std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByPersistentId(
+    const uint64_t persistentId)
+{
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto item: connectManagers_) {
+        if (item.second && item.second->GetServiceRecordByPersistentId(persistentId)) {
+            return item.second;
+        }
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByToken(
     const sptr<IRemoteObject> &token)
 {
@@ -5582,7 +5657,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
-    if (extensionType == AppExecFwk::ExtensionAbilityType::UIEXTENSION) {
+    if (extensionType == AppExecFwk::ExtensionAbilityType::UI) {
         return ERR_OK;
     }
     const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";

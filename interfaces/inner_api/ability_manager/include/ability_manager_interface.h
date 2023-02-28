@@ -243,6 +243,17 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
 
     /**
+     * TerminateUIExtensionAbility, terminate the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param resultCode, the resultCode of the ui extension ability to terminate.
+     * @param resultWant, the Want of the ui extension ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(
+        const uint64_t persistentId, int resultCode, const Want *resultWant = nullptr) = 0;
+
+    /**
      * SendResultToAbility, send the result to ability.
      *
      * @param requestCode, the requestCode of the ability to terminate.
@@ -283,6 +294,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) = 0;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser = false) = 0;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -1033,6 +1053,12 @@ public:
         START_ABILITY_AS_CALLER_BY_TOKEN,
 
         START_ABILITY_AS_CALLER_FOR_OPTIONS,
+
+        // ipc id for minimize ui extension ability
+        MINIMIZE_UI_EXTENSION_ABILITY,
+
+        // ipc id for terminating ui extension ability
+        TERMINATE_UI_EXTENSION_ABILITY,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

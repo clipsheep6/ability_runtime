@@ -51,13 +51,14 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
-void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo)
+void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("Inactivate.");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
@@ -131,7 +132,8 @@ void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInf
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
-void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo)
+void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("Start move ability to background.");
     auto abilityScheduler = GetScheduler();
@@ -140,7 +142,7 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
 void LifecycleDeal::ContinueAbility(const std::string& deviceId, uint32_t versionCode)

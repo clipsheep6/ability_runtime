@@ -46,7 +46,7 @@ public:
      *
      */
     void Activate(const Want &want, LifeCycleStateInfo &stateInfo);
-    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo);
+    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo = nullptr);
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);
@@ -56,7 +56,8 @@ public:
     void RestoreAbilityState(const PacMap &inState);
     void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
         sptr<SessionInfo> sessionInfo = nullptr);
-    void BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo);
+    void BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
+        sptr<SessionInfo> sessionInfo = nullptr);
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
 

@@ -28,8 +28,8 @@ gen_js_obj("ui_extension_context_js") {
 }
 
 gen_js_obj("ui_extension_context_abc") {
-  input = get_label_info(":gen_ui_extension_context_abc",
-                         "target_out_dir") + "/ui_extension_context.abc"
+  input = get_label_info(":gen_ui_extension_context_abc", "target_out_dir") +
+          "/ui_extension_context.abc"
   output = target_out_dir + "/ui_extension_context_abc.o"
   dep = ":gen_ui_extension_context_abc"
 }

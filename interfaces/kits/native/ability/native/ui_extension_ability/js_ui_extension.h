@@ -34,6 +34,7 @@ class JsUIExtension : public UIExtension, public std::enable_shared_from_this<Js
 public:
     explicit JsUIExtension(JsRuntime& jsRuntime);
     virtual ~JsUIExtension() override;
+    static void Finalizer(NativeEngine* engine, void* data, void* hint);
 
     /**
      * @brief Create JsUIExtension.
@@ -65,6 +66,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ui extension.
      */
     virtual void OnStart(const AAFwk::Want &want) override;
+    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when this ui extension is connected for the first time.
@@ -116,6 +118,24 @@ public:
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     /**
+     * @brief Called when this extension enters the <b>STATE_FOREGROUND</b> state.
+     *
+     *
+     * The extension in the <b>STATE_FOREGROUND</b> state is visible.
+     * You can override this function to implement your own processing logic.
+     */
+    void OnForeground(const Want &want) override;
+
+    /**
+     * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.
+     *
+     *
+     * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
+     * You can override this function to implement your own processing logic.
+     */
+    void OnBackground() override;
+
+    /**
      * @brief Called when ui extension need dump info.
      *
      * @param params The params from ui extension.
@@ -123,18 +143,21 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
+    static NativeValue* LoadContent(NativeEngine *engine, NativeCallbackInfo *info);
+
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
 
     void BindContext(NativeEngine& engine, NativeObject* obj);
 
-    NativeValue *CallOnConnect(const AAFwk::Want &want);
+    NativeValue* CallOnConnect(const AAFwk::Want &want);
 
-    NativeValue *CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
+    NativeValue* CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
+    std::string contextPath_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

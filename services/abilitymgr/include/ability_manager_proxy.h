@@ -183,6 +183,17 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
 
     /**
+     * TerminateUIExtensionAbility, terminate the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param resultCode resultCode.
+     * @param Want Ability want returned.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode,
+        const Want *resultWant) override;
+
+    /**
      * SendResultToAbility with want, return want from ability manager service.(Only used for dms)
      *
      * @param requestCode, request code.
@@ -220,6 +231,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param persistentId, the persistentId of the ui extension ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser = false) override;
 
     /**
      * ConnectAbility, connect session with service ability.

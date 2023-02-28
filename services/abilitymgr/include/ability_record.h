@@ -53,6 +53,7 @@ class ConnectionRecord;
 class Mission;
 class MissionList;
 class CallContainer;
+// class SessionInfo;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";

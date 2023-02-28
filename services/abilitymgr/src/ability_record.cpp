@@ -965,7 +965,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     currentState_ = AbilityState::BACKGROUNDING;
-    lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
 int AbilityRecord::TerminateAbility()
@@ -1168,13 +1168,15 @@ void AbilityRecord::Inactivate()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Inactivate ability start, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
+    HILOG_DEBUG("AbilityRecord::Inactivate begin sessionInfo=%{public}s.",
+        sessionInfo_ == nullptr ? "nullptr" : "not nullptr");
 
     SendEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, AbilityManagerService::INACTIVE_TIMEOUT);
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     currentState_ = AbilityState::INACTIVATING;
-    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
 void AbilityRecord::Terminate(const Closure &task)

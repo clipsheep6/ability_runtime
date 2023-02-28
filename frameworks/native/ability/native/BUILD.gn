@@ -160,10 +160,6 @@ ohos_shared_library("abilitykit_utils") {
 
   deps = []
 
-  if (ability_runtime_graphics) {
-    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-  }
-
   public_configs = [ ":abilitykit_utils_public_config" ]
 
   external_deps = [
@@ -179,6 +175,14 @@ ohos_shared_library("abilitykit_utils") {
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+    external_deps += [
+      "ability_base:session_info",
+      "ace_engine:ace_uicontent",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -320,6 +324,8 @@ ohos_shared_library("abilitykit_native") {
     ]
 
     public_deps += [
+      "${ability_base_path}:session_info",
+      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
@@ -393,6 +399,13 @@ ohos_shared_library("extensionkit_native") {
     "${arkui_path}/napi:ace_napi",
     "${eventhandler_path}/frameworks/eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    public_deps += [
+      "${ability_base_path}:session_info",
+      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -478,6 +491,8 @@ ohos_shared_library("form_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -579,6 +594,8 @@ ohos_shared_library("static_subscriber_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -683,6 +700,9 @@ ohos_shared_library("service_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -801,6 +821,7 @@ ohos_shared_library("ui_extension") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc:ipc_napi_common",
     "ipc_js:rpc",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -821,7 +842,10 @@ ohos_shared_library("ui_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
     "ability_runtime:runtime",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
