@@ -201,10 +201,7 @@ ohos_unittest("js_test_runner_unittest") {
   sources += ability_delegator_mock_sources
 
   configs = [ ":unittest_include_dir" ]
-  configs += [
-    "${ability_runtime_services_path}/common:common_config",
-    "//arkcompiler/ets_runtime:ark_jsruntime_public_config",
-  ]
+  configs += [ "${ability_runtime_services_path}/common:common_config" ]
 
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
@@ -213,7 +210,6 @@ ohos_unittest("js_test_runner_unittest") {
     "${ability_runtime_native_path}/appkit:appkit_delegator",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "//arkcompiler/ets_runtime:libark_jsruntime",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -225,6 +221,7 @@ ohos_unittest("js_test_runner_unittest") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

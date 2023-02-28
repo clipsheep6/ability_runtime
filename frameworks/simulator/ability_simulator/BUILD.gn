@@ -78,12 +78,9 @@ ohos_shared_library("ability_simulator") {
     "${ability_runtime_services_path}/common:common_config",
   ]
 
-  configs = [ "//arkcompiler/ets_runtime:ark_jsruntime_public_config" ]
-
   deps = [
     ":gen_obj_src_js_mock_abc",
     "${ability_runtime_native_path}/runtime:string_utils",
-    "//arkcompiler/ets_runtime:libark_jsruntime",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
@@ -91,6 +88,8 @@ ohos_shared_library("ability_simulator") {
     "//foundation/arkui/napi:ace_napi",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
+
+  external_deps = [ "ets_runtime:libark_jsruntime" ]
 
   part_name = "simulator"
   subsystem_name = "ability"
