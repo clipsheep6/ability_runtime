@@ -143,6 +143,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[GET_TOP_ABILITY] = &AbilityManagerStub::GetTopAbilityInner;
     requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
+    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
     requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
     requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
@@ -399,6 +400,29 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t userId = data.ReadInt32();
     int32_t extensionType = data.ReadInt32();
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
+        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int32_t extensionType = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(*want, extensionSessionInfo, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
     delete want;

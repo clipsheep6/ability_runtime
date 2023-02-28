@@ -24,6 +24,7 @@
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"
+#include "session_info.h"
 #include "values_bucket.h"
 #include "want.h"
 
@@ -103,7 +104,11 @@ int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessagePa
         HILOG_ERROR("ReadParcelable<LifeCycleStateInfo> failed");
         return ERR_INVALID_VALUE;
     }
-    ScheduleAbilityTransaction(*want, *stateInfo);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    ScheduleAbilityTransaction(*want, *stateInfo, sessionInfo);
     return NO_ERROR;
 }
 

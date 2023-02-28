@@ -118,7 +118,8 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
     abilityScheduler->ScheduleRestoreAbilityState(inState);
 }
 
-void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo)
+void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("ForegroundNew.");
     auto abilityScheduler = GetScheduler();
@@ -127,7 +128,7 @@ void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInf
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
 void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo)

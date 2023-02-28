@@ -54,7 +54,8 @@ public:
     void CommandAbility(const Want &want, bool reStart, int startId);
     void SaveAbilityState();
     void RestoreAbilityState(const PacMap &inState);
-    void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo);
+    void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
+        sptr<SessionInfo> sessionInfo = nullptr);
     void BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo);
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);

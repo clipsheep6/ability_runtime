@@ -727,8 +727,10 @@ void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration &conf
  * @description:  Provide operating system AbilityTransaction information to the observer
  * @param want Indicates the structure containing Transaction information about the ability.
  * @param lifeCycleStateInfo Indicates the lifecycle state.
+ * @param lifeCycleStateInfo Indicates the session info.
  */
-void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is %{public}d, isNewWant is %{public}d.",
@@ -741,14 +743,14 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         return;
     }
     wptr<AbilityThread> weak = this;
-    auto task = [weak, want, lifeCycleStateInfo]() {
+    auto task = [weak, want, lifeCycleStateInfo, sessionInfo]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
             HILOG_ERROR("abilityThread is nullptr, ScheduleAbilityTransaction failed.");
             return;
         }
         if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
+            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
         } else {
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
         }

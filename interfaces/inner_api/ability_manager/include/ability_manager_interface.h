@@ -181,6 +181,24 @@ public:
     }
 
     /**
+     * Start ui extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param extensionSessionInfo the extension session info of the ability to start.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIExtensionAbility(
+        const Want &want,
+        const sptr<SessionInfo> extensionSessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED)
+    {
+        return 0;
+    }
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -1006,6 +1024,9 @@ public:
         RELEASE_CALL_ABILITY,
 
         CONNECT_ABILITY_WITH_TYPE,
+        
+        // start ui extension ability
+        START_UI_EXTENSION_ABILITY,
 
         CALL_REQUEST_DONE,
 

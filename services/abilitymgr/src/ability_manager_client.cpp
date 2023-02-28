@@ -187,6 +187,16 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, const sptr
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
 
+ErrCode AbilityManagerClient::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> extensionSessionInfo,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("StartUIExtensionAbility come, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StartUIExtensionAbility(want, extensionSessionInfo, userId, extensionType);
+}
+
 ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {

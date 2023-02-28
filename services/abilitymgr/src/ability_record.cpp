@@ -299,7 +299,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     // earlier than above actions.
     currentState_ = AbilityState::FOREGROUNDING;
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
 
@@ -1958,6 +1958,11 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         HILOG_INFO("SetMission come, missionId is %{public}d.", missionId_);
     }
     mission_ = mission;
+}
+
+void AbilityRecord::SetSessionInfo(sptr<SessionInfo> sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
 }
 
 void AbilityRecord::SetMinimizeReason(bool fromUser)

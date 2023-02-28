@@ -1122,6 +1122,99 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     return eventInfo.errCode;
 }
 
+int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> extensionSessionInfo,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    HILOG_INFO("Start ui extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    AAFWK::EventInfo eventInfo = BuildEventInfo(want, userId);
+    eventInfo.extensionType = static_cast<int32_t>(extensionType);
+    AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+
+    sptr<IRemoteObject> callerToken = extensionSessionInfo->callerToken;
+
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
+        !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
+        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        eventInfo.errCode = CHECK_PERMISSION_FAILED;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CALLER;
+    }
+
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        return result;
+    }
+
+    int32_t validUserId = GetValidUserId(userId);
+    if (!JudgeMultiUserConcurrency(validUserId)) {
+        HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_CROSS_USER;
+    }
+
+    AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+        abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
+        abilityRequest.extensionType = extensionType;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
+    result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
+    HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
+        validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
+
+    result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType);
+    if (result != ERR_OK) {
+        HILOG_ERROR("CheckOptExtensionAbility error.");
+        eventInfo.errCode = result;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
+    eventInfo.errCode = connectManager->StartAbility(abilityRequest);
+    if (eventInfo.errCode != ERR_OK) {
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return eventInfo.errCode;
+}
+
 int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
