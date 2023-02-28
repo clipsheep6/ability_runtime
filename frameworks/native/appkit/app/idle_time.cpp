@@ -28,10 +28,10 @@ constexpr int32_t DEVIATION_MIN = 1000; // ns
 std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;
 }
 
-IdleTime::IdleTime(const std::shared_ptr<EventHandler> &eventHandler, const std::shared_ptr<NativeEngine> &nativeEngine)
+IdleTime::IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback)
 {
     eventHandler_ = eventHandler;
-    nativeEngine_ = nativeEngine;
+    callback_ = idleTimeCallback;
 }
 
 int64_t IdleTime::GetSysTimeNs()
@@ -127,13 +127,10 @@ void IdleTime::EventTask()
     int64_t lastVSyncTime = numPeriod * period + firstVSyncTime_;
     int64_t elapsedTime = occurTimestamp - lastVSyncTime;
     int64_t idleTime = period - elapsedTime;
-    // set runtime
-    if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("nativeEngine_ is nullptr.");
-        return;
+    if (callback_ != nullptr) {
+        callback_(idleTime / MS_PER_NS);
+        PostTask();
     }
-    nativeEngine_->NotifyIdleTime(idleTime / MS_PER_NS);
-    PostTask();
 }
 
 void IdleTime::PostTask()

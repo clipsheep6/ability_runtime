@@ -1146,8 +1146,22 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
 #endif
         }
-        std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);
-        idleTime_ = std::make_shared<IdleTime>(mainHandler_, nativeEngine);
+
+        IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
+            auto app = wpApplication.lock();
+            if (app == nullptr) {
+                HILOG_ERROR("app is nullptr.");
+                return;
+            }
+            auto &runtime = app->GetRuntime();
+            if (runtime == nullptr) {
+                HILOG_ERROR("runtime is nullptr.");
+                return;
+            }
+            auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+            nativeEngine.NotifyIdleTime(idleTime);
+        };
+        idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
         idleTime_->Start();
     }
 

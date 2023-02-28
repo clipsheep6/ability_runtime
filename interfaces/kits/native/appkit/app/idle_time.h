@@ -21,9 +21,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using IdleTimeCallback = std::function<void(int32_t)>;
 class IdleTime : public std::enable_shared_from_this<IdleTime> {
 public:
-    IdleTime(const std::shared_ptr<EventHandler> &eventHandler, const std::shared_ptr<NativeEngine> &nativeEngine);
+    IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback);
     ~IdleTime() = default;
     void Start();
 
@@ -39,7 +40,7 @@ private:
     int32_t continueFailCount_ = 0;
     int32_t successCount_ = 0;
     std::shared_ptr<EventHandler> eventHandler_;
-    std::shared_ptr<NativeEngine> nativeEngine_;
+    IdleTimeCallback callback_ = nullptr;
 };
 } // namespace AppExecFwk
 } // namespace OHOS
