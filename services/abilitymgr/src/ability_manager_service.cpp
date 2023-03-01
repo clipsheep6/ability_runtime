@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -4272,6 +4272,14 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
     if (it == appRecoveryHistory_.end()) {
         appRecoveryHistory_.emplace(record->GetUid(), 0);
     }
+
+    auto userId = record->GetOwnerMissionUserId();
+    auto missionListMgr = GetListManagerByUserId(userId);
+    if(missionListMgr == nullptr) {
+        HILOG_ERROR("missionListMgr is nullptr");
+        return;
+    }
+    missionListMgr->EnableRecoverAbility(record->GetMissionId());
 }
 
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
@@ -5892,6 +5900,19 @@ int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFr
         return ERR_INVALID_VALUE;
     }
     return freeInstallManager_->AddFreeInstallObserver(observer);
+}
+
+int32_t AbilityManagerService::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    auto missionlistMgr = GetListManagerByUserId(userId);
+    if (missionlistMgr == nullptr) {
+        HILOG_ERROR("missionlistMgr is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return missionlistMgr->IsValidMissionIds(missionIds, results);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -3239,6 +3239,56 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
     }
 
     return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    HILOG_INFO("IsValidMissionIds Call. Quert size is %{public}zu", missionIds.size());
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    constexpr int32_t MAX_COUNT = 20;
+    int32_t num = missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size();
+    data.WriteInt32(num);
+    for (auto i = 0; i < num; ++i) {
+        data.WriteInt32(missionIds.at(i));
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return INNER_ERR;
+    }
+
+    auto error = remote->SendRequest(IAbilityManager::QUERY_MISSION_VAILD, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    auto resultCode = reply.ReadInt32();
+    if (resultCode != ERR_OK) {
+        HILOG_ERROR("Send request reply error: %{public}d", resultCode);
+        return resultCode;
+    }
+
+    auto infoSize = reply.ReadInt32();
+    for (auto i = 0; i < infoSize && i < MAX_COUNT; ++i) {
+        std::unique_ptr<MissionVaildResult> info(reply.ReadParcelable<MissionVaildResult>());
+        if (!info) {
+            HILOG_ERROR("Read Parcelable result infos failed.");
+            return INNER_ERR;
+        }
+        results.emplace_back(*info);
+    }
+
+    return resultCode;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -331,6 +331,8 @@ public:
      */
     void UpdateSnapShot(const sptr<IRemoteObject>& token);
 
+    void EnableRecoverAbility(int32_t missionId);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
@@ -348,6 +350,8 @@ public:
     void ResumeManager();
 
     void SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens);
+
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
 
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -463,6 +467,8 @@ private:
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
+    bool UpdateAbilityRecordLaunchReason(
+        const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

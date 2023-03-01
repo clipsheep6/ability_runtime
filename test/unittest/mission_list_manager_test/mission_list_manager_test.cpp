@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -5651,6 +5651,176 @@ HWTEST_F(MissionListManagerTest, SetMissionANRStateByTokens_003, TestSize.Level1
     tokens.clear();
     missionListManager->SetMissionANRStateByTokens(tokens);
     missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: EnableRecoverAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager EnableRecoverAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify EnableRecoverAbility
+ */
+HWTEST_F(MissionListManagerTest, EnableRecoverAbility_001, TestSize.Level1)
+{
+    int userId = 3;
+    constexpr int32_t missionId = 100;
+    InnerMissionInfo missionInfo;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->EnableRecoverAbility(missionId);
+    EXPECT_NE(
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, missionInfo), ERR_OK);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: EnableRecoverAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager EnableRecoverAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify EnableRecoverAbility
+ */
+HWTEST_F(MissionListManagerTest, EnableRecoverAbility_002, TestSize.Level1)
+{
+    int userId = 3;
+    constexpr int32_t missionId = 100;
+    InnerMissionInfo missionInfo;
+    missionInfo.missionInfo.id = missionId;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->missionIdMap_.emplace(missionId, true);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(missionInfo);
+    missionListManager->EnableRecoverAbility(missionId);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, missionInfo);
+    EXPECT_TRUE(missionInfo.hasRecoverInfo);
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify IsValidMissionIds
+ */
+HWTEST_F(MissionListManagerTest, IsValidMissionIds_001, TestSize.Level1)
+{
+    constexpr int32_t size = 10;
+    constexpr int32_t userId = 3;
+    constexpr int32_t missionIdFirst = 1;
+    constexpr int32_t missionIdSecond = 2;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    auto mission1 = std::make_shared<Mission>(nullptr);
+    mission1->missionId_ = missionIdFirst;
+    mission1->abilityRecord_ = InitAbilityRecord();
+    mission1->abilityRecord_->SetMission(mission1);
+    mission1->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto mission2 = std::make_shared<Mission>(nullptr);
+    mission2->missionId_ = missionIdSecond;
+    mission2->abilityRecord_ = InitAbilityRecord();
+    mission2->abilityRecord_->SetMission(mission2);
+    mission2->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID() + 1;
+    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
+    missionListManager->launcherList_->AddMissionToTop(mission1);
+    missionListManager->launcherList_->AddMissionToTop(mission2);
+    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    for (int32_t i = 0; i < size; ++i) {
+        missionIds.push_back(i);
+    }
+    missionListManager->IsValidMissionIds(missionIds, results);
+    for (auto &item : results) {
+        if (item.missionId == missionIdFirst) {
+            EXPECT_TRUE(item.isVaild);
+        } else {
+            EXPECT_FALSE(item.isVaild);
+        }
+    }
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify IsValidMissionIds
+ */
+HWTEST_F(MissionListManagerTest, IsValidMissionIds_002, TestSize.Level1)
+{
+    constexpr int32_t size = 21;
+    constexpr int32_t userId = 3;
+    constexpr int32_t missionIdFirst = 1;
+    constexpr int32_t missionIdSecond = 2;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    auto mission1 = std::make_shared<Mission>(nullptr);
+    mission1->missionId_ = missionIdFirst;
+    mission1->abilityRecord_ = InitAbilityRecord();
+    mission1->abilityRecord_->SetMission(mission1);
+    mission1->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto mission2 = std::make_shared<Mission>(nullptr);
+    mission2->missionId_ = missionIdSecond;
+    mission2->abilityRecord_ = InitAbilityRecord();
+    mission2->abilityRecord_->SetMission(mission2);
+    mission2->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID() + 1;
+    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
+    missionListManager->launcherList_->AddMissionToTop(mission1);
+    missionListManager->launcherList_->AddMissionToTop(mission2);
+    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    for (int32_t i = 0; i < size; ++i) {
+        missionIds.push_back(i);
+    }
+    missionListManager->IsValidMissionIds(missionIds, results);
+    for (auto &item : results) {
+        if (item.missionId == missionIdFirst) {
+            EXPECT_TRUE(item.isVaild);
+        } else {
+            EXPECT_FALSE(item.isVaild);
+        }
+    }
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify IsValidMissionIds
+ */
+HWTEST_F(MissionListManagerTest, IsValidMissionIds_003, TestSize.Level1)
+{
+    constexpr size_t size = 0;
+    constexpr int32_t userId = 3;
+    constexpr int32_t missionIdFirst = 1;
+    constexpr int32_t missionIdSecond = 2;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    auto mission1 = std::make_shared<Mission>(nullptr);
+    mission1->missionId_ = missionIdFirst;
+    mission1->abilityRecord_ = InitAbilityRecord();
+    mission1->abilityRecord_->SetMission(mission1);
+    mission1->abilityRecord_->applicationInfo_.accessTokenId = 0;
+    auto mission2 = std::make_shared<Mission>(nullptr);
+    mission2->missionId_ = missionIdSecond;
+    mission2->abilityRecord_ = InitAbilityRecord();
+    mission2->abilityRecord_->SetMission(mission2);
+    mission2->abilityRecord_->applicationInfo_.accessTokenId = 1;
+    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
+    missionListManager->launcherList_->AddMissionToTop(mission1);
+    missionListManager->launcherList_->AddMissionToTop(mission2);
+    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
+    EXPECT_EQ(results.size(), size);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

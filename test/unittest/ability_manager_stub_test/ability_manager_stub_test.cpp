@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2198,6 +2198,49 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_CallRequestDone_001, TestSiz
     sptr<IRemoteObject> callStub = nullptr;
     stub_->CallRequestDone(token, callStub);
     EXPECT_TRUE(true);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIdsInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIdsInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function IsValidMissionIdsInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
+        MissionVaildResult result;
+        result.missionId = 1;
+        result.isVaild = true;
+        results.push_back(result);
+        return ERR_OK;
+    };
+    EXPECT_CALL(*stub_, IsValidMissionIds(_, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(stub_->IsValidMissionIdsInner(data, reply), NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIdsInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIdsInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function IsValidMissionIdsInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
+        GTEST_LOG_(INFO) << "AbilityManagerStub_IsValidMissionIdsInner_002 caller";
+        return ERR_INVALID_VALUE;
+    };
+    EXPECT_CALL(*stub_, IsValidMissionIds(_, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(stub_->IsValidMissionIdsInner(data, reply), NO_ERROR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

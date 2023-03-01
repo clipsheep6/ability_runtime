@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1033,6 +1033,15 @@ ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<AbilityRuntime::
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->AddFreeInstallObserver(observer);
+}
+
+int32_t AbilityManagerClient::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    HILOG_INFO("IsValidMissionIds Call.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->IsValidMissionIds(missionIds, results);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
