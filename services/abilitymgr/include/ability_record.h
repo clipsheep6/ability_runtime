@@ -34,6 +34,7 @@
 #include "ipc_skeleton.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
+#include "session_info.h"
 #include "uri.h"
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
@@ -52,6 +53,7 @@ class ConnectionRecord;
 class Mission;
 class MissionList;
 class CallContainer;
+// class SessionInfo;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
@@ -361,6 +363,11 @@ public:
     {
         return scheduler_;
     }
+
+    inline sptr<SessionInfo> GetSessionInfo() const
+     {
+        return sessionInfo_;
+     }
 
     /**
      * get ability's token.
@@ -802,6 +809,7 @@ public:
     void SetStartToBackground(const bool flag);
     bool IsStartToForeground() const;
     void SetStartToForeground(const bool flag);
+    void SetSessionInfo(sptr<SessionInfo> sessionInfo);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -982,6 +990,9 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
+
+    // scene session
+    sptr<SessionInfo> sessionInfo_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;

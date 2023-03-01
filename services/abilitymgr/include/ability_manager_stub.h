@@ -67,9 +67,11 @@ private:
     void SecondStepInit();
     void ThirdStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int AttachAbilityThreadInner(MessageParcel &data, MessageParcel &reply);
     int AbilityTransitionDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleConnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
@@ -85,6 +87,7 @@ private:
     int StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
     int ConnectAbilityInner(MessageParcel &data, MessageParcel &reply);

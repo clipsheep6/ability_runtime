@@ -98,6 +98,7 @@ ohos_shared_library("ability_manager") {
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:app_manager",

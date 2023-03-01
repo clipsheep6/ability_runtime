@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var ExtensionContext = requireNapi("application.ExtensionContext")
+
+const ERROR_CODE_INVALID_PARAM = 401;
+const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+class ParamError extends Error {
+    constructor() {
+        super(ERROR_MSG_INVALID_PARAM);
+        this.code = ERROR_CODE_INVALID_PARAM;
+    }
+}
+
+class UIExtensionContext extends ExtensionContext {
+    constructor(obj) {
+        super(obj);
+    }
+
+    startAbility(want, options, callback) {
+        console.log("startAbility");
+        return this.__context_impl__.startAbility(want, options, callback);
+    }
+
+    startUIExtensionAbility(want, callback) {
+        console.log("startUIExtensionAbility");
+        return this.__context_impl__.startUIExtensionAbility(want, callback);
+    }
+
+    connectExtensionAbility(want, options) {
+        console.log("connectExtensionAbility");
+        return this.__context_impl__.connectExtensionAbility(want, options);
+    }
+
+    disconnectExtensionAbility(connection, callback) {
+        console.log("disconnectExtensionAbility");
+        return this.__context_impl__.disconnectExtensionAbility(connection, callback);
+    }
+
+    terminateSelf(callback) {
+        console.log("terminateSelf");
+        return this.__context_impl__.terminateSelf(callback);
+    }
+}
+
+export default UIExtensionContext

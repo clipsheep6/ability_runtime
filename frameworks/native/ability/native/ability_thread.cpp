@@ -61,6 +61,7 @@ constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
+constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -150,6 +151,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::INPUTMETHOD) {
             abilityName = INPUTMETHOD_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
+            abilityName = UI_EXTENSION;
         }
         HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {
@@ -465,7 +469,8 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
  * @param want  Indicates the structure containing lifecycle information about the extension.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleExtensionTransaction begin");
@@ -473,7 +478,7 @@ void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycle
         HILOG_ERROR("AbilityThread::HandleExtensionTransaction extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo);
+    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("AbilityThread::HandleAbilityTransaction end");
 }
 
@@ -723,8 +728,10 @@ void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration &conf
  * @description:  Provide operating system AbilityTransaction information to the observer
  * @param want Indicates the structure containing Transaction information about the ability.
  * @param lifeCycleStateInfo Indicates the lifecycle state.
+ * @param lifeCycleStateInfo Indicates the session info.
  */
-void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is %{public}d, isNewWant is %{public}d.",
@@ -737,14 +744,14 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         return;
     }
     wptr<AbilityThread> weak = this;
-    auto task = [weak, want, lifeCycleStateInfo]() {
+    auto task = [weak, want, lifeCycleStateInfo, sessionInfo]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
             HILOG_ERROR("abilityThread is nullptr, ScheduleAbilityTransaction failed.");
             return;
         }
         if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
+            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
         } else {
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
         }

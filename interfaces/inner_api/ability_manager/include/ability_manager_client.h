@@ -190,6 +190,21 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     /**
+     * Start ui extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param extensionSessionInfo the extension session info of the ability to start.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartUIExtensionAbility(
+        const Want &want,
+        const sptr<SessionInfo> extensionSessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -213,6 +228,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
+
+    /**
+     * TerminateUIExtensionAbility with want, return want from ability manager service.
+     *
+     * @param persistentId, service ability's persistentId.
+     * @param resultCode resultCode.
+     * @param Want Ability want returned.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode TerminateUIExtensionAbility(const uint64_t persistentId, int resultCode = DEFAULT_INVAL_VALUE,
+        const Want *resultWant = nullptr);
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.
@@ -264,6 +290,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false);
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param persistentId, service ability's persistentId.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MinimizeUIExtensionAbility(const uint64_t persistentId, bool fromUser = false);
 
     /**
      * ConnectAbility, connect session with service ability.
