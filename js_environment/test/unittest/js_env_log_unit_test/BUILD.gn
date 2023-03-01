@@ -11,7 +11,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-base_path = "//foundation/ability/ability_runtime/js_environment"
-inner_api_path = "${base_path}/interfaces/inner_api"
-utils_path = "${base_path}/frameworks/utils"
-ark_compile_path = "//arkcompiler"
+import("//build/test.gni")
+import("../../../js_environment.gni")
+
+module_output_path = "ability_runtime/js_environment"
+
+ohos_unittest("js_env_log_test") {
+  module_out_path = module_output_path
+  include_dirs = [ "${utils_path}/include" ]
+  sources = [ "js_env_log_unit_test.cpp" ]
+
+  configs = []
+
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [ ":js_env_log_test" ]
+}

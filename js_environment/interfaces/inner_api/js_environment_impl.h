@@ -24,6 +24,18 @@ class JsEnvironmentImpl {
 public:
     JsEnvironmentImpl() {}
     virtual ~JsEnvironmentImpl() {}
+
+    virtual void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime) = 0;
+
+    virtual void RemoveTask(const std::string& name) = 0;
+
+    virtual void InitTimerModule() = 0;
+
+    virtual void InitConsoleLogModule() = 0;
+
+    virtual void InitWorkerModule() = 0;
+
+    virtual void InitSyscapModule() = 0;
 };
 } // namespace JsEnv
 } // namespace OHOS

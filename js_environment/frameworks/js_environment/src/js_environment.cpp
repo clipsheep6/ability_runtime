@@ -14,9 +14,66 @@
  */
 
 #include "js_environment.h"
+#include "js_environment_impl.h"
 
 namespace OHOS {
 namespace JsEnv {
-    
+JsEnvironment::JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl) : impl_(impl)
+{
+}
+
+void JsEnvironment::Initialize(const panda::RuntimeOption& options)
+{
+}
+
+void JsEnvironment::StartDebuggger(bool needBreakPoint)
+{
+}
+
+void JsEnvironment::StopDebugger()
+{
+}
+
+void JsEnvironment::InitTimerModule()
+{
+    if (impl_ != nullptr) {
+        impl_->InitTimerModule();
+    }
+}
+
+void JsEnvironment::InitConsoleLogModule()
+{
+    if (impl_ != nullptr) {
+        impl_->InitConsoleLogModule();
+    }
+}
+
+void JsEnvironment::InitWorkerModule()
+{
+    if (impl_ != nullptr) {
+        impl_->InitWorkerModule();
+    }
+}
+
+void JsEnvironment::InitSyscapModule()
+{
+    if (impl_ != nullptr) {
+        impl_->InitSyscapModule();
+    }
+}
+
+void JsEnvironment::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
+{
+    if (impl_ != nullptr) {
+        impl_->PostTask(task, name, delayTime);
+    }
+}
+
+void JsEnvironment::RemoveTask(const std::string& name)
+{
+    if (impl_ != nullptr) {
+        impl_->RemoveTask(name);
+    }
+}
 } // namespace JsEnv
 } // namespace OHOS

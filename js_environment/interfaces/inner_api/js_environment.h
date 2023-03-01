@@ -17,16 +17,49 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_H
 
 #include <memory>
-#include "js_environment_impl.h"
+#include "ecmascript/napi/include/jsnapi.h"
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace JsEnv {
+class JsEnvironmentImpl;
 class JsEnvironment final {
 public:
-    explicit JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl) : impl_(impl) {}
+    JsEnvironment() {}
+    explicit JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl);
     ~JsEnvironment() = default;
+
+    void Initialize(const panda::RuntimeOption& options);
+
+    std::shared_ptr<NativeEngine> GetNativeEngine() const
+    {
+        return engine_;
+    }
+
+    panda::ecmascript::EcmaVM* GetVM() const
+    {
+        return vm_;
+    }
+
+    void StartDebuggger(bool needBreakPoint);
+
+    void StopDebugger();
+
+    void InitTimerModule();
+
+    void InitConsoleLogModule();
+
+    void InitWorkerModule();
+
+    void InitSyscapModule();
+
+    void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
+
+    void RemoveTask(const std::string& name);
 private:
-    std::shared_ptr<JsEnvironmentImpl> impl_;
+    std::shared_ptr<JsEnvironmentImpl> impl_ = nullptr;
+    std::shared_ptr<NativeEngine> engine_ = nullptr;
+    panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 } // namespace JsEnv
 } // namespace OHOS

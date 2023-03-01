@@ -11,7 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-base_path = "//foundation/ability/ability_runtime/js_environment"
-inner_api_path = "${base_path}/interfaces/inner_api"
-utils_path = "${base_path}/frameworks/utils"
-ark_compile_path = "//arkcompiler"
+import("//build/test.gni")
+import("../../js_environment.gni")
+
+group("unittest") {
+  testonly = true
+
+  deps = [ "js_env_log_unit_test:unittest" ]
+}
