@@ -178,6 +178,7 @@ if (accessibility_enable) {
       "ability_base:configuration",
       "access_token:libaccesstoken_sdk",
       "access_token:libnativetoken",
+      "access_token:libtoken_setproc",
       "accessibility:accessibilityclient",
       "accessibility:accessibilityconfig",
       "bundle_framework:appexecfwk_base",
