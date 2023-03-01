@@ -2248,12 +2248,7 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     for (auto hapInfo : bundleInfo.hapModuleInfos) {
         if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
             (!hapInfo.hqfInfo.hqfFilePath.empty())) {
-            std::string resolvedHapPath;
-            std::string hapPath = AbilityBase::GetLoadPath(hapInfo.hapPath);
-            auto position = hapPath.rfind('/');
-            if (position != std::string::npos) {
-                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
-            }
+            std::string resolvedHapPath(AbilityBase::GetLoadPath(hapInfo.hapPath));
             std::string resolvedHqfFile(AbilityBase::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
             HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
                 "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
