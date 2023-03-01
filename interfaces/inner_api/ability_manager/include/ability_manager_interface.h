@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -751,7 +751,18 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
-    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) {};
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
+        const Want *want = nullptr) {};
+
+    /**
+     * Called to update mission snapshot.
+     * @param missionIds Query mission list.
+     * @param results Output parameters, return results up to 20 query results.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t IsValidMissionIds(
+        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1061,6 +1072,8 @@ public:
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,
         ABILITY_RECOVERY_ENABLE = 3011,
+
+        QUERY_MISSION_VAILD = 3012,
     };
 };
 }  // namespace AAFwk

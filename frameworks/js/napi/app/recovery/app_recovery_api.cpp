@@ -24,7 +24,9 @@
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 
+#include "napi_common_want.h"
 #include "recovery_param.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -61,6 +63,12 @@ public:
     {
         AppRecoveryApiRegistry *me = CheckParamsAndGetThis<AppRecoveryApiRegistry>(engine, info);
         return (me != nullptr) ? me->OnSaveAppState(*engine, *info) : nullptr;
+    }
+
+    static NativeValue *SetRestartWant(NativeEngine *engine, NativeCallbackInfo *info)
+    {
+        AppRecoveryApiRegistry *me = CheckParamsAndGetThis<AppRecoveryApiRegistry>(engine, info);
+        return (me != nullptr) ? me->OnSetRestartWant(*engine, *info) : nullptr;
     }
 
 private:
@@ -126,12 +134,21 @@ private:
 
     NativeValue *OnSaveAppState(NativeEngine &engine, const NativeCallbackInfo &info)
     {
-        if (info.argc != 0) {
+        if (info.argc > 1) {
             HILOG_ERROR("AppRecoveryApi SaveAppState Incorrect number of parameters");
             return engine.CreateBoolean(false);
         }
-
-        if (AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST)) {
+        uintptr_t ability = 0;
+        if (info.argc == 1) {
+            NativeValue* value = reinterpret_cast<NativeValue*>(info.argv[0]);
+            NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+            if (obj == nullptr) {
+                HILOG_ERROR("AppRecoveryApi Invalid abilityContext.");
+                return engine.CreateBoolean(false);
+            }
+            ability = reinterpret_cast<uintptr_t>(obj->GetNativePointer());
+        }
+        if (AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::DEVELOPER_REQUEST, ability)) {
             return engine.CreateBoolean(true);
         }
         return engine.CreateBoolean(false);
@@ -145,6 +162,19 @@ private:
         }
 
         AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
+        return engine.CreateUndefined();
+    }
+
+    NativeValue *OnSetRestartWant(NativeEngine &engine, const NativeCallbackInfo &info)
+    {
+        if (info.argc != 1) {
+            HILOG_ERROR("AppRecoveryApi OnSetRestartWant Incorrect number of parameters");
+            return engine.CreateUndefined();
+        }
+        std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[0]), *(want.get()));
+        AppRecovery::GetInstance().SetRestartWant(want);
         return engine.CreateUndefined();
     }
 };
@@ -233,6 +263,7 @@ NativeValue *InitAppRecoveryApiModule(NativeEngine *engine, NativeValue *exportO
     BindNativeFunction(*engine, *object, "enableAppRecovery", moduleName, AppRecoveryApiRegistry::EnableAppRecovery);
     BindNativeFunction(*engine, *object, "restartApp", moduleName, AppRecoveryApiRegistry::RestartApp);
     BindNativeFunction(*engine, *object, "saveAppState", moduleName, AppRecoveryApiRegistry::SaveAppState);
+    BindNativeFunction(*engine, *object, "setRestartWant", moduleName, AppRecoveryApiRegistry::SetRestartWant);
 
     object->SetProperty("RestartFlag", AppRecoveryRestartFlagInit(engine));
     object->SetProperty("SaveOccasionFlag", AppRecoveryStateSaveFlagInit(engine));
