@@ -50,6 +50,9 @@ public:
         bool preload = false;
         bool isBundle = true;
         bool isDebugVersion = false;
+        // ArkTsCard start
+        bool isUnique = false;
+        // ArkTsCard end
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);

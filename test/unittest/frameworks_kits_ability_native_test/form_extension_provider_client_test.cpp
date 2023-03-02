@@ -50,6 +50,8 @@ public:
         const Want& want));
     MOCK_METHOD5(OnShareAcquire, void(int64_t formId, const std::string& remoteDeviceId,
         const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result));
+    MOCK_METHOD2(OnRenderTaskDone, int32_t(int64_t formId, const Want &want));
+    MOCK_METHOD2(OnStopRenderingTaskDone, int32_t(int64_t formId, const Want &want));
 };
 
 class FormExtensionProviderClientTest : public testing::Test {
