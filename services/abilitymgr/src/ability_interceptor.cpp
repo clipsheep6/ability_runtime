@@ -22,6 +22,7 @@
 #include "app_running_control_rule_result.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
+#include "erms_mgr_param.h"
 #include "erms_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
