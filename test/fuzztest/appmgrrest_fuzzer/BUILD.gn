@@ -42,6 +42,7 @@ ohos_fuzztest("AppMgrRestFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "appspawn:appspawn_socket_client",

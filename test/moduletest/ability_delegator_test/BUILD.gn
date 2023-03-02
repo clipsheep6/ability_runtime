@@ -154,6 +154,7 @@ ohos_moduletest("iability_monitor_moduletest") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utils",

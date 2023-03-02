@@ -133,6 +133,7 @@ ohos_unittest("ability_delegator_unittest") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",

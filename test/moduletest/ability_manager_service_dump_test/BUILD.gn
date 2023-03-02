@@ -54,6 +54,7 @@ ohos_moduletest("ability_manager_service_dump_test") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",

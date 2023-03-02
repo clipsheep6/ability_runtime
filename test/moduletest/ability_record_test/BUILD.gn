@@ -64,6 +64,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",

@@ -24,6 +24,7 @@
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -394,6 +395,60 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &extensionSessionInfo,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+
+    if (extensionSessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
+            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("StartExtensionAbility, userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
+        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
+        return INNER_ERR;
+    }
+    if (!Remote()) {
+        HILOG_ERROR("StartExtensionAbility, Remote error.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("StartExtensionAbility, Remote() is NULL");
+        return INNER_ERR;
+    }
+
+    error = remote->SendRequest(IAbilityManager::START_UI_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
@@ -480,6 +535,49 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
         return INNER_ERR;
     }
     error = remote->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
+    const Want *resultWant)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (extensionSessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
+            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (!data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
+        HILOG_ERROR("data write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+
+    error = remote->SendRequest(IAbilityManager::TERMINATE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -999,6 +1097,47 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
         return INNER_ERR;
     }
     error = remote->SendRequest(IAbilityManager::MINIMIZE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+    bool fromUser)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (extensionSessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
+            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteBool(fromUser)) {
+        HILOG_ERROR("data write failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("StartExtensionAbility, Remote() is NULL");
+        return INNER_ERR;
+    }
+
+    error = remote->SendRequest(IAbilityManager::MINIMIZE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;

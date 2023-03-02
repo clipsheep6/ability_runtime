@@ -67,6 +67,7 @@ ohos_unittest("ability_manager_service_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",

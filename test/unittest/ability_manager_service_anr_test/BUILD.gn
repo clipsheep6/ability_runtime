@@ -58,6 +58,7 @@ ohos_unittest("ability_manager_service_anr_test") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",

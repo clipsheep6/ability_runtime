@@ -34,12 +34,18 @@ public:
     MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
+    MOCK_METHOD3(TerminateUIExtensionAbility, int(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
+        const Want* resultWant));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override
     {
         return 0;
     }
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser = false) override
+    {
+        return 0;
+    }
+    int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser = false) override
     {
         return 0;
     }

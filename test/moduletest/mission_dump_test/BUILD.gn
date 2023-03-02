@@ -49,6 +49,7 @@ ohos_moduletest("mission_dump_test") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",

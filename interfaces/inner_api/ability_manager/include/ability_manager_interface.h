@@ -50,6 +50,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+
+class SessionInfo;
+
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -181,6 +184,24 @@ public:
     }
 
     /**
+     * Start ui extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param extensionSessionInfo the extension session info of the ability to start.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIExtensionAbility(
+        const Want &want,
+        const sptr<SessionInfo> &extensionSessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED)
+    {
+        return 0;
+    }
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -225,6 +246,20 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
 
     /**
+     * TerminateUIExtensionAbility, terminate the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to terminate.
+     * @param resultCode, the resultCode of the ui extension ability to terminate.
+     * @param resultWant, the Want of the ui extension ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        int resultCode, const Want *resultWant = nullptr)
+    {
+        return 0;
+    }
+
+    /**
      * SendResultToAbility, send the result to ability.
      *
      * @param requestCode, the requestCode of the ability to terminate.
@@ -265,6 +300,19 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) = 0;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        bool fromUser = false)
+    {
+        return 0;
+    };
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -1018,11 +1066,20 @@ public:
 
         CONNECT_ABILITY_WITH_TYPE,
 
+        // start ui extension ability
+        START_UI_EXTENSION_ABILITY,
+
         CALL_REQUEST_DONE,
 
         START_ABILITY_AS_CALLER_BY_TOKEN,
 
         START_ABILITY_AS_CALLER_FOR_OPTIONS,
+
+        // ipc id for minimize ui extension ability
+        MINIMIZE_UI_EXTENSION_ABILITY,
+
+        // ipc id for terminating ui extension ability
+        TERMINATE_UI_EXTENSION_ABILITY,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

@@ -316,6 +316,7 @@ ohos_shared_library("abilitykit_native") {
     ]
 
     public_deps += [
+      "${ability_base_path}:session_info",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",

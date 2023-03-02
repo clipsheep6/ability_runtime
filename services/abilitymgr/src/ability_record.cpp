@@ -1960,6 +1960,11 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
     mission_ = mission;
 }
 
+void AbilityRecord::SetSessionInfo(sptr<SessionInfo> sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
+}
+
 void AbilityRecord::SetMinimizeReason(bool fromUser)
 {
     minimizeReason_ = fromUser;

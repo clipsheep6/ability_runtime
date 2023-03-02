@@ -28,17 +28,25 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
+constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+}
+
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
 {}
 
 AbilityConnectManager::~AbilityConnectManager()
 {}
 
-int AbilityConnectManager::StartAbility(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StartAbility(const AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    return StartAbilityLocked(abilityRequest);
+    return StartAbilityLocked(abilityRequest, sessionInfo);
 }
 
 int AbilityConnectManager::TerminateAbility(const sptr<IRemoteObject> &token)
@@ -100,7 +108,7 @@ int AbilityConnectManager::TerminateAbilityResult(const sptr<IRemoteObject> &tok
     return TerminateAbilityResultLocked(token, startId);
 }
 
-int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability locked, ability_name: %{public}s",
@@ -112,6 +120,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
 
     targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+
+    targetService->SetSessionInfo(sessionInfo);
 
     if (!isLoadedAbility) {
         LoadAbility(targetService);
@@ -605,6 +615,24 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromSer
     auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
     if (serviceRecord != serviceMap_.end()) {
         return serviceRecord->second;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordBySessionToken(
+    const sptr<Rosen::ISession> sessionToken)
+{
+    std::lock_guard<std::recursive_mutex> guard(Lock_);
+    auto IsMatch = [sessionToken](auto service) {
+        if (!service.second || !service.second->GetSessionInfo()) {
+            return false;
+        }
+        sptr<Rosen::ISession> srcSessionToken = service.second->GetSessionInfo()->sessionToken;
+        return srcSessionToken == sessionToken;
+    };
+    auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
+    if (serviceRecord != serviceMap_.end()) {
+        return serviceRecord->second;    
     }
     return nullptr;
 }
@@ -1399,6 +1427,129 @@ void AbilityConnectManager::StopAllExtensions()
         }
     }
     HILOG_INFO("StopAllExtensions end.");
+}
+
+int AbilityConnectManager::MinimizeUIExtensionAbility(const sptr<IRemoteObject> &token, bool fromUser)
+{
+    HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
+    std::lock_guard<std::recursive_mutex> guard(Lock_);
+    // check if ability is in list to avoid user create fake token.
+    CHECK_POINTER_AND_RETURN_LOG(GetExtensionByTokenFromSeriveMap(token), INNER_ERR,
+        "Minimize ui extension ability fail, ability is not in mission list.");
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    return MinimizeUIExtensionAbilityLocked(abilityRecord, fromUser);
+}
+
+int AbilityConnectManager::MinimizeUIExtensionAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    bool fromUser)
+{
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("Minimize ui extension ability fail, ability record is null.");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("MinimizeUIExtensionAbilityLocked called, ability:%{public}s.",
+        abilityRecord->GetAbilityInfo().name.c_str());
+
+    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+        HILOG_ERROR("Fail to minimize ui extension ability, ability state is not foreground.");
+        return ERR_OK;
+    }
+
+    abilityRecord->SetMinimizeReason(fromUser);
+    MoveToBackground(abilityRecord);
+
+    return ERR_OK;
+}
+
+void AbilityConnectManager::MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("Move the ui extension ability to background fail, ability record is null.");
+        return;
+    }
+    HILOG_DEBUG("Move the ui extension ability to background, ability:%{public}s.",
+        abilityRecord->GetAbilityInfo().name.c_str());
+    abilityRecord->SetIsNewWant(false);
+
+    auto self(weak_from_this());
+    auto task = [abilityRecord, self]() {
+        auto selfObj = self.lock();
+        if (selfObj == nullptr) {
+            HILOG_WARN("Mission list mgr is invalid.");
+            return;
+        }
+        HILOG_ERROR("Mission list manager move to background timeout.");
+        selfObj->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
+        selfObj->CompleteBackground(abilityRecord);
+    };
+    abilityRecord->BackgroundAbility(task);
+}
+
+
+void AbilityConnectManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    std::lock_guard<std::recursive_mutex> guard(Lock_);
+    if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
+        HILOG_ERROR("Ability state is %{public}d, it can't complete background.", abilityRecord->GetAbilityState());
+        return;
+    }
+
+    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    // send application state to AppMS.
+    // notify AppMS to update application state.
+    DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+}
+
+void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+{
+    if (ability == nullptr) {
+        HILOG_ERROR("ability is nullptr");
+        return;
+    }
+
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+    if (processInfo.pid_ == 0) {
+        HILOG_ERROR("error: the ability[%{public}s], app may fork fail or not running.",
+            ability->GetAbilityInfo().name.data());
+        return;
+    }
+    std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
+    switch (msgId) {
+        case AbilityManagerService::LOAD_TIMEOUT_MSG:
+            msgContent += "load timeout";
+            break;
+        case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
+            msgContent += "active timeout";
+            break;
+        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
+            msgContent += "inactive timeout";
+            break;
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+            msgContent += "foreground timeout";
+            break;
+        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
+            msgContent += "background timeout";
+            break;
+        case AbilityManagerService::TERMINATE_TIMEOUT_MSG:
+            msgContent += "terminate timeout";
+            break;
+        default:
+            return;
+    }
+    std::string eventType = "LIFECYCLE_TIMEOUT";
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_UID, processInfo.uid_,
+        EVENT_KEY_PID, processInfo.pid_,
+        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
+        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
+        EVENT_KEY_MESSAGE, msgContent);
+
+    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 }
 
 void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord) {

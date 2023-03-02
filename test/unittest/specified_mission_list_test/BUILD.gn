@@ -49,6 +49,7 @@ ohos_unittest("specified_mission_list_test") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",

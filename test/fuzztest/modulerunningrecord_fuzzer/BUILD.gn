@@ -43,6 +43,7 @@ ohos_fuzztest("ModuleRunningRecordFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
