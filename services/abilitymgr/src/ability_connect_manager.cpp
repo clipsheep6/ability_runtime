@@ -119,8 +119,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         CommandAbility(targetService);
     } else {
-        HILOG_ERROR("Target service is already activating.");
-        return START_SERVICE_ABILITY_ACTIVATING;
+        HILOG_INFO("Target service is already activating.");
+        EnqueStartServiceReq(abilityRequest);
+        return ERR_OK;
     }
 
     sptr<Token> token = targetService->GetToken();
@@ -130,6 +131,31 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ERR_OK;
+}
+
+void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRequest)
+{
+    std::lock_guard guard(startServiceReqListLock_);
+    auto abilityUri = abilityRequest.want.GetElement().GetURI();
+    auto reqListIt = startServiceReqList_.find(abilityUri);
+    if (reqListIt != startServiceReqList_.end()) {
+        reqListIt->second->push_back(abilityRequest);
+    } else {
+        auto reqList = std::make_shared<std::list<AbilityRequest>>();
+        reqList->push_back(abilityRequest);
+        startServiceReqList_.emplace(abilityUri, reqList);
+
+        auto callback = [abilityUri, connectManager = shared_from_this()]() {
+            std::lock_guard guard{connectManager->startServiceReqListLock_};
+            auto exist = connectManager->startServiceReqList_.erase(abilityUri);
+            if (exist) {
+                HILOG_ERROR("Target service %{public}s start timeout", abilityUri.c_str());
+            }
+        };
+
+        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri,
+            AbilityManagerService::CONNECT_TIMEOUT);
+    }
 }
 
 int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &token)
@@ -580,6 +606,30 @@ void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord
     }
 
     abilityRecord->SetAbilityState(AbilityState::ACTIVE);
+
+    // manage queued request
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
+                                    abilityInfo.name, abilityInfo.moduleName);
+    CompleteStartServiceReq(element.GetURI());
+}
+
+void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri)
+{
+    std::unique_lock lock{startServiceReqListLock_, std::try_to_lock};
+    if (!lock.owns_lock()) {
+        lock.lock();
+    }
+    auto it = startServiceReqList_.find(serviceUri);
+    if (it != startServiceReqList_.end()) {
+        const auto reqList = it->second;
+        startServiceReqList_.erase(it);
+        lock.unlock();
+        HILOG_INFO("Target service is already activating : %{public}zu", reqList->size());
+        for (const auto &req: *reqList) {
+            StartAbilityLocked(req);
+        }
+    }
 }
 
 std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordByElementName(const std::string &element)
