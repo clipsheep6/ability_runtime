@@ -22,7 +22,6 @@
 #include "ability_recovery.h"
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
-#include "app_recovery.h"
 #include "configuration_convertor.h"
 #include "connection_manager.h"
 #include "continuation_manager.h"
@@ -105,8 +104,6 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         if (!abilityInfo_->isStageBasedModel) {
             abilityWindow_ = std::make_shared<AbilityWindow>();
             abilityWindow_->Init(handler_, shared_from_this());
-        } else {
-            AppRecovery::GetInstance().AddAbility(shared_from_this(), GetAbilityInfo(), GetToken());
         }
         continuationManager_ = std::make_shared<ContinuationManager>();
         std::weak_ptr<Ability> ability = shared_from_this();
@@ -251,10 +248,10 @@ void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin", __func__);
+#ifdef SUPPORT_GRAPHICS
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
-#ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     auto && window = GetWindow();
     if (window != nullptr) {

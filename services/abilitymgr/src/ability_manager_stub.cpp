@@ -1589,7 +1589,11 @@ int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, Message
     }
 
     int reason = data.ReadInt32();
-    ScheduleRecoverAbility(token, reason);
+    Want *want = data.ReadParcelable<Want>();
+    ScheduleRecoverAbility(token, reason, want);
+    if (want != nullptr) {
+        delete want;
+    }
     return NO_ERROR;
 }
 

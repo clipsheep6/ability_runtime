@@ -1585,6 +1585,12 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
         return;
     }
 
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        AppRecovery::GetInstance().RemoveAbility(token);
+    }
+#endif
+
     abilityRecordMgr_->RemoveAbilityRecord(token);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();

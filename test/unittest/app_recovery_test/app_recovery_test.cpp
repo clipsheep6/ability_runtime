@@ -56,6 +56,7 @@ void AppRecoveryUnitTest::SetUp()
     AppRecovery::GetInstance().abilityRecoverys_.clear();
     AppRecovery::GetInstance().mainHandler_ = testHandler_;
     AppRecovery::GetInstance().applicationInfo_ = applicationInfo_;
+    AppRecovery::GetInstance().want_ = nullptr;
 }
 
 void AppRecoveryUnitTest::TearDown()
@@ -299,7 +300,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_005
- * @tc.desc:  ScheduleSaveAppState should be return false.
+ * @tc.desc:  ScheduleSaveAppState the ability is null, should be return false.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -520,7 +521,7 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
 
 /**
  * @tc.name:  PersistAppState_003
- * @tc.desc:  Test PersistAppState when abilityRecoverys is not empty.
+ * @tc.desc:  Test PersistAppState when abilityRecoverys is not empty. no valid missionId, return false
  * @tc.type: FUNC
  * @tc.require: I5Z7LE
  */
@@ -529,7 +530,39 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_);
-    EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
+    EXPECT_FALSE(AppRecovery::GetInstance().PersistAppState());
+}
+
+/**
+ * @tc.name:  SetRestartWant_001
+ * @tc.desc:  Test SetRestartWant when enable flag is false.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, SetRestartWant_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = false;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    const std::string START_ABILITY = "RestartAbility";
+    want->SetParam(START_ABILITY, std::string("com.ohos.recovery.TestRecoveryAbility"));
+    AppRecovery::GetInstance().SetRestartWant(want);
+    EXPECT_EQ(AppRecovery::GetInstance().want_, nullptr);
+}
+
+/**
+ * @tc.name:  SetRestartWant_002
+ * @tc.desc:  Test SetRestartWant when enable flag is true.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, SetRestartWant_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = true;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    const std::string START_ABILITY = "RestartAbility";
+    want->SetParam(START_ABILITY, std::string("com.ohos.recovery.TestRecoveryAbility"));
+    AppRecovery::GetInstance().SetRestartWant(want);
+    EXPECT_EQ(AppRecovery::GetInstance().want_, want);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

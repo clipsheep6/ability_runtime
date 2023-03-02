@@ -827,7 +827,7 @@ public:
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
     void EnableRecoverAbility(const sptr<IRemoteObject>& token);
-    void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason);
+    void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
     
     ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
     

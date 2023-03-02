@@ -1156,7 +1156,7 @@ void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
     return;
 }
 
-void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason)
+void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     int error;
     MessageParcel data;
@@ -1174,6 +1174,11 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     }
 
     data.WriteInt32(reason);
+
+    if (!data.WriteParcelable(want)) {
+        HILOG_ERROR("AppRecovery write want failed.");
+        return;
+    }
 
     auto remote = Remote();
     if (remote == nullptr) {
