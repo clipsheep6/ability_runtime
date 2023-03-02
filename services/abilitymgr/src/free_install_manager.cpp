@@ -97,13 +97,12 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
-    info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
     
     if (isAsync) {
         PostTimeoutTask(want);
     }
     
-    if (IN_PROCESS_CALL(bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback))) {
+    if (bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback)) {
         HILOG_INFO("The app has installed.");
     }
     std::string callingAppId = info.want.GetStringParam(PARAM_FREEINSTALL_APPID);
@@ -352,9 +351,9 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
 
     AppExecFwk::AbilityInfo abilityInfo;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    if (!IN_PROCESS_CALL(bms->QueryAbilityInfo(
+    if (!(bms->QueryAbilityInfo(
             want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfo)) &&
-        !IN_PROCESS_CALL(bms->QueryExtensionAbilityInfos(
+        !(bms->QueryExtensionAbilityInfos(
             want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos))) {
         HILOG_INFO("AbilityManagerService::ConnectFreeInstall. try to StartFreeInstall");
         int result = StartFreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken);
