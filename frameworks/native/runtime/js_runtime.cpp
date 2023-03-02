@@ -552,7 +552,13 @@ bool JsRuntime::Initialize(const Options& options)
         }
 #ifdef SUPPORT_GRAPHICS
         if (options.loadAce) {
-            OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+            // ArkTsCard start
+            if (options.isUnique) {
+                OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine_);
+            } else {
+                OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+            }
+            // ArkTsCard end
         }
 #endif
     }
@@ -585,7 +591,12 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        InitTimerModule(*nativeEngine_, *globalObj);
+        if (options.isUnique) {
+            HILOG_INFO("Not supported TimerModule when form render");
+        } else {
+            InitTimerModule(*nativeEngine_, *globalObj);
+        }
+
         InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion);
     }
 
@@ -602,6 +613,9 @@ void JsRuntime::Deinitialize()
 
     methodRequireNapiRef_.reset();
 
+    if (nativeEngine_ == nullptr) {
+        return;
+    }
     auto uvLoop = nativeEngine_->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd >= 0 && eventHandler_ != nullptr) {
@@ -609,6 +623,7 @@ void JsRuntime::Deinitialize()
     }
     RemoveTask(TIMER_TASK);
 
+    nativeEngine_->DeleteEngine();
     nativeEngine_.reset();
 }
 
