@@ -130,12 +130,12 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     return ERR_OK;
 }
 
-void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRequest) 
+void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRequest)
 {
     std::lock_guard guard(startServiceReqListLock_);
     auto abilityUri = abilityRequest.want.GetElement().GetURI();
     auto reqListIt = startServiceReqList_.find(abilityUri);
-    if(reqListIt != startServiceReqList_.end()) {
+    if (reqListIt != startServiceReqList_.end()) {
         reqListIt->second->push_back(abilityRequest);
     } else {
         auto reqList = std::make_shared<std::list<AbilityRequest>>();
@@ -150,7 +150,8 @@ void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRe
             }
         };
 
-        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri, AbilityManagerService::CONNECT_TIMEOUT);
+        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri,
+            AbilityManagerService::CONNECT_TIMEOUT);
     }
 }
 
@@ -613,11 +614,12 @@ void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord
 
     // manage queued request
     auto abilityInfo = abilityRecord->GetAbilityInfo();
-    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
+                                    abilityInfo.name, abilityInfo.moduleName);
     CompleteStartServiceReq(element.GetURI());
 }
 
-void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri) 
+void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri)
 {
     std::unique_lock lock{startServiceReqListLock_, std::try_to_lock};
     if (!lock.owns_lock()) {
@@ -628,7 +630,7 @@ void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUr
         const auto reqList = it->second;
         startServiceReqList_.erase(it);
         lock.unlock();
-        HILOG_INFO("Target service is already activating : %{public}llu", static_cast<unsigned long long>(reqList->size()));
+        HILOG_INFO("Target service is already activating : %{public}zu", reqList->size());
         for (const auto &req: *reqList) {
             StartAbilityLocked(req);
         }
