@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_H
 
 #include "ability_util.h"
+#include "erms_mgr_param.h"
 #include "erms_mgr_interface.h"
 #include "want.h"
 

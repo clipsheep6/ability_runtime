@@ -139,6 +139,8 @@
                 "ability_manager_errors.h",
                 "ability_manager_interface.h",
                 "ability_scheduler_interface.h",
+                "erms_mgr_interface.h",
+                "erms_mgr_param.h",
                 "stop_user_callback.h",
                 "stop_user_callback_stub.h"
               ]

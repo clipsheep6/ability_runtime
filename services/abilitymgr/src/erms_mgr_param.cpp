@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "erms_mgr_param.h"
+
 #include <string>
 #include <vector>
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
-
-#include "erms_mgr_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
