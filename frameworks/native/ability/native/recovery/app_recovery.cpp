@@ -153,21 +153,21 @@ bool AppRecovery::RemoveAbility(const sptr<IRemoteObject>& tokenId)
         HILOG_ERROR("AppRecovery removeAbility tokenId is null.");
         return false;
     }
-    HILOG_DEBUG("AppRecovery removeAbility start");
+    HILOG_INFO("AppRecovery removeAbility start");
     auto itr = std::find_if(abilityRecoverys_.begin(), abilityRecoverys_.end(),
         [&tokenId](std::shared_ptr<AbilityRecovery> &abilityRecovery) {
         return (abilityRecovery && abilityRecovery->GetToken() == tokenId);
     });
     if (itr != abilityRecoverys_.end()) {
         abilityRecoverys_.erase(itr);
-        HILOG_DEBUG("AppRecovery removeAbility done");
+        HILOG_INFO("AppRecovery removeAbility done");
     }
     return true;
 }
 
 bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 {
-    HILOG_DEBUG("AppRecovery ScheduleSaveAppState begin");
+    HILOG_INFO("AppRecovery ScheduleSaveAppState begin");
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery ScheduleSaveAppState. is not enabled");
         return false;
@@ -215,7 +215,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 
 void AppRecovery::SetRestartWant(std::shared_ptr<AAFwk::Want> want)
 {
-    HILOG_DEBUG("AppRecovery SetRestartWant begin");
+    HILOG_INFO("AppRecovery SetRestartWant begin");
     if (!isEnable_) {
         HILOG_ERROR("AppRecovery SetRestartWant not enabled");
         return;
@@ -279,7 +279,7 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
-    HILOG_DEBUG("AppRecovery DoRecoverApp begin");
+    HILOG_INFO("AppRecovery DoRecoverApp begin");
     if (abilityRecoverys_.empty()) {
         HILOG_ERROR("AppRecovery no ability exist! ");
         return;
@@ -407,7 +407,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    HILOG_INFO("AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
         HILOG_ERROR("AppRecovery GetSaveAppCachePath fileDir is empty or fileDir is not exists.");
         return;
@@ -455,7 +455,7 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
         return;
     }
     remove(path);
-    HILOG_DEBUG("AppRecovery delete the file: %{public}s done", file.c_str());
+    HILOG_INFO("AppRecovery delete the file: %{public}s done", file.c_str());
 }
 
 bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionIds)

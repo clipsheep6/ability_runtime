@@ -78,7 +78,8 @@ bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<Ability> ability,
     if (abilityContext != nullptr) {
         abilityContext->GetMissionId(missionId_);
     }
-    HILOG_INFO("AppRecovery InitAbilityInfo, missionId_:%{public}d", missionId_);
+    HILOG_INFO("AppRecovery InitAbilityInfo, missionId_:%{public}d, abilityName:%{public}s", missionId_,
+        (abilityInfo->name).c_str());
     return true;
 }
 
@@ -102,7 +103,7 @@ void AbilityRecovery::SetJsAbility(uintptr_t ability)
 
 bool AbilityRecovery::SaveAbilityState()
 {
-    HILOG_DEBUG("SaveAbilityState begin");
+    HILOG_INFO("SaveAbilityState begin");
     auto ability = ability_.lock();
     auto abilityInfo = abilityInfo_.lock();
     if (ability == nullptr || abilityInfo == nullptr) {
@@ -126,6 +127,7 @@ bool AbilityRecovery::SaveAbilityState()
     }
 #endif
     if (saveMode_ == SaveModeFlag::SAVE_WITH_FILE) {
+        HILOG_INFO("AppRecovery SaveAbilityState, missionId_:%{public}d",missionId_);
         SerializeDataToFile(missionId_, wantParams);
     } else if (saveMode_ == SaveModeFlag::SAVE_WITH_SHARED_MEMORY) {
         params_ = wantParams;
@@ -328,7 +330,7 @@ bool AbilityRecovery::LoadSavedState(StateReason reason)
     }
     hasTryLoad_ = true;
 
-    HILOG_DEBUG("AppRecovery LoadSavedState,missionId_:%{public}d", missionId_);
+    HILOG_INFO("AppRecovery LoadSavedState,missionId_:%{public}d", missionId_);
     if (!ReadSerializeDataFromFile(missionId_, params_)) {
         HILOG_ERROR("AppRecovery LoadSavedState. failed to find record for id:%{public}d", missionId_);
         hasLoaded_ = false;
