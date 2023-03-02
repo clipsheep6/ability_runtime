@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -153,6 +154,9 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
+    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
+    requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
+    requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
@@ -211,6 +215,22 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
+int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    int32_t result = TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     int requestCode = data.ReadInt32();
@@ -245,6 +265,18 @@ int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel 
     auto token = data.ReadRemoteObject();
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeAbility(token, fromUser);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    auto fromUser = data.ReadBool();
+    int32_t result = MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -400,6 +432,29 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t userId = data.ReadInt32();
     int32_t extensionType = data.ReadInt32();
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
+        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int32_t extensionType = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(*want, extensionSessionInfo, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
     delete want;

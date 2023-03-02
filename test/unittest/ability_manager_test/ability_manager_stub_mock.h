@@ -86,6 +86,11 @@ public:
     {
         return 0;
     }
+    virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
+        const Want* resultWant = nullptr)
+    {
+        return 0;
+    }
 
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override
@@ -93,6 +98,10 @@ public:
         return 0;
     }
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser) override
+    {
+        return 0;
+    }
+    int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser) override
     {
         return 0;
     }
