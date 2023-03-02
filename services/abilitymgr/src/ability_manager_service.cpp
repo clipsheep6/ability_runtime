@@ -4876,30 +4876,22 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
     return currentMissionListManager_->MoveMissionToFront(missionId);
 }
 
-void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken, bool isOverlay)
+void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
-    int32_t tokenId = want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
-    int32_t callerUid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, 0);
-    int32_t callerPid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, 0);
-    std::string callerBundleName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-    if (tokenId == 0 || isOverlay) {
-        want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, (int32_t)IPCSkeleton::GetCallingTokenID());
-    }
-    if (callerUid == 0 || isOverlay) {
-        want.SetParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
-    }
-    if (callerPid == 0 || isOverlay) {
-        want.SetParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    }
-    if (callerBundleName == "" || callerBundleName == " " || isOverlay) {
-        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (!abilityRecord) {
-            HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
-            want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(" "));
-        } else {
-            callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-            want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
-        }
+    int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+    want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
+    want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!abilityRecord) {
+        HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(" "));
+    } else {
+        std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     }
 }
 
