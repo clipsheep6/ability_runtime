@@ -121,14 +121,6 @@ public:
      */
     int AttachAbilityThreadLocked(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
 
-    /**
-     * OnAbilityRequestDone, app manager service call this interface after ability request done.
-     *
-     * @param token, ability's token.
-     * @param state, the state of ability lift cycle.
-     */
-    void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
-
     void OnAppStateChanged(const AppInfo &info);
 
     /**
@@ -173,15 +165,9 @@ public:
      */
     std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
 
-    /**
-     * GetServiceRecordByToken.
-     *
-     * @param token, service ability's token.
-     * @return Returns AbilityRecord shared_ptr.
-     */
-    std::shared_ptr<AbilityRecord> GetServiceRecordByToken(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromSeriveMap(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);
     ConnectListType GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
-    void RemoveAll();
 
     void GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info,
         const int32_t userId, bool isPerm);
@@ -430,6 +416,7 @@ private:
 
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
@@ -438,6 +425,7 @@ private:
     std::recursive_mutex Lock_;
     ConnectMapType connectMap_;
     ServiceMapType serviceMap_;
+    ServiceMapType terminatingExtensionMap_;
     RecipientMapType recipientMap_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     int userId_;
