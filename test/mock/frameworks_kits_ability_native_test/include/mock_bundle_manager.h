@@ -55,6 +55,12 @@ public:
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
     }
+
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -84,6 +90,11 @@ public:
     bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo) override;
     bool GetHapModuleInfo(
         const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

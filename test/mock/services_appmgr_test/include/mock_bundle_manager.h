@@ -69,6 +69,12 @@ public:
         GTEST_LOG_(INFO) << "bundleInfos size : " << bundleInfos.size();
         return true;
     };
+
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -136,6 +142,11 @@ public:
     void PushTestHelloAbility();
     void MakingResidentProcData();
     ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 private:
     std::vector<BundleInfo> bundleInfos_;
     sptr<IQuickFixManager> quickFixManager_ = nullptr;

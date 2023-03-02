@@ -306,6 +306,11 @@ public:
         const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -354,6 +359,12 @@ public:
     {}
 
     bool CheckWantEntity(const AAFwk::Want&, AbilityInfo&);
+
+    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
+        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    {
+        return ERR_OK;
+    }
 
 public:
     using QueryAbilityInfoFunType =
