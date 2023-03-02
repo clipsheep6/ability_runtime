@@ -48,7 +48,6 @@ abilityms_files = [
   "src/pending_want_manager.cpp",
   "src/pending_want_common_event.cpp",
   "src/ams_configuration_parameter.cpp",
-  "src/erms_mgr_interface.cpp",
   "src/image_info.cpp",
   "src/mission_snapshot.cpp",
 

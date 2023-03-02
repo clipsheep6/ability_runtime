@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,6 +79,35 @@ bool MissionInfo::Marshalling(Parcel &parcel) const
     }
 
     return true;
+}
+
+bool MissionVaildResult::ReadFromParcel(Parcel &parcel)
+{
+    missionId = parcel.ReadInt32();
+    isVaild = parcel.ReadBool();
+    return true;
+}
+
+bool MissionVaildResult::Marshalling(Parcel &parcel) const
+{
+    if (!parcel.WriteInt32(missionId)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(isVaild)) {
+        return false;
+    }
+
+    return true;
+}
+
+MissionVaildResult *MissionVaildResult::Unmarshalling(Parcel &parcel)
+{
+    std::unique_ptr<MissionVaildResult> info = std::make_unique<MissionVaildResult>();
+    if (!info->ReadFromParcel(parcel)) {
+        return nullptr;
+    }
+    return info.release();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

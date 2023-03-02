@@ -106,6 +106,9 @@ protected:
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
+
+private:
+    bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

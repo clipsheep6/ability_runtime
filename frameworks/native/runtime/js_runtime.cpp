@@ -216,6 +216,34 @@ public:
             static_cast<ArkNativeEngine*>(nativeEngine_.get()), exportObj);
     }
 
+    bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
+    {
+        Extractor extractor(filePath);
+        if (!extractor.Init()) {
+            HILOG_ERROR("GetFileBuffer, Extractor of %{private}s init failed.", filePath.c_str());
+            return false;
+        }
+
+        std::vector<std::string> fileNames;
+        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+        if (fileNames.empty()) {
+            HILOG_WARN("GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
+            return true;
+        }
+
+        std::string fileName = fileNames.front();
+        fileFullName = filePath + "/" + fileName;
+        std::ostringstream outStream;
+        if (!extractor.ExtractByName(fileName, outStream)) {
+            HILOG_ERROR("GetFileBuffer, Extract %{public}s failed.", fileFullName.c_str());
+            return false;
+        }
+
+        const auto &outStr = outStream.str();
+        buffer.assign(outStr.begin(), outStr.end());
+        return true;
+    }
+
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
     {
         HILOG_DEBUG("LoadRepairPatch function called.");
@@ -224,45 +252,36 @@ public:
             return false;
         }
 
-        Extractor extractor(hqfFile);
-        if (!extractor.Init()) {
-            HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
+        std::string patchFile;
+        std::vector<uint8_t> patchBuffer;
+        if(!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+            HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
             return false;
         }
 
-        std::vector<std::string> fileNames;
-        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
-        if (fileNames.empty()) {
-            HILOG_WARN("LoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
-            return true;
+        std::string baseFile;
+        std::vector<uint8_t> baseBuffer;
+        if(!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+            HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
+            return false;
         }
 
-        for (const auto &fileName : fileNames) {
-            std::string patchFile = hqfFile + "/" + fileName;
-            std::string baseFile = hapPath + "/" + fileName;
-            std::ostringstream outStream;
-            if (!extractor.ExtractByName(fileName, outStream)) {
-                HILOG_ERROR("LoadRepairPatch, Extract %{public}s failed.", patchFile.c_str());
-                return false;
-            }
-
-            const auto &outStr = outStream.str();
-            std::vector<uint8_t> buffer;
-            buffer.assign(outStr.begin(), outStr.end());
-            HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
-                patchFile.c_str(), baseFile.c_str());
-            auto ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
-            if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
-                if (ret == panda::JSNApi::PatchErrorCode::FILE_NOT_EXECUTED) {
-                    HILOG_WARN("LoadPatch when base file didn't execute.");
-                    continue;
-                }
-                HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
-                return false;
-            }
-            HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
+        std::string resolvedHapPath;
+        auto position = hapPath.find(".hap");
+        if (position != std::string::npos) {
+            resolvedHapPath = hapPath.substr(0, position) + MERGE_ABC_PATH;
         }
 
+        HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+                patchFile.c_str(), resolvedHapPath.c_str());
+        auto ret = panda::JSNApi::LoadPatch(vm_, patchFile, patchBuffer.data(), patchBuffer.size(),
+                                            resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+        if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+            HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+            return false;
+        }
+
+        HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
         return true;
     }
 

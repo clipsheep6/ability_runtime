@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "mission_info_mgr.h"
+#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -281,14 +282,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
     }
 
-    if (abilityRequest.IsContinuation()) {
-        targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
-    } else if (abilityRequest.IsAppRecovery()) {
-        targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
-    } else {
-        targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
-    }
-
+    UpdateAbilityRecordLaunchReason(abilityRequest, targetAbilityRecord);
     std::string srcAbilityId = "";
     if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
@@ -472,6 +466,8 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
+        targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
+        info.hasRecoverInfo = false;
         targetMission->SetLockedState(info.missionInfo.lockedState);
         targetMission->UpdateMissionTime(info.missionInfo.time);
         targetRecord->SetMission(targetMission);
@@ -497,6 +493,17 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
     }
+}
+
+void MissionListManager::EnableRecoverAbility(int32_t missionId)
+{
+    InnerMissionInfo info;
+    if(DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
+        HILOG_ERROR("failed to get mission info by id.");
+        return;
+    }
+    info.hasRecoverInfo = true;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
 }
 
 void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
@@ -1505,6 +1512,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
                 HILOG_ERROR("Get missionInfo error, result is %{public}d, missionId is %{public}d", result, missionId);
                 break;
             }
+            innerMissionInfo.hasRecoverInfo = false;
             innerMissionInfo.missionInfo.time = GetCurrentTime();
             innerMissionInfo.missionInfo.runningState = -1;
             DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
@@ -2140,6 +2148,8 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
 
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
+    abilityRecord->UpdateRecoveryInfo(innerMissionInfo.hasRecoverInfo);
+    innerMissionInfo.hasRecoverInfo = false;
     mission->SetLockedState(innerMissionInfo.missionInfo.lockedState);
     abilityRecord->SetMission(mission);
     abilityRecord->SetOwnerMissionUserId(userId_);
@@ -2810,14 +2820,7 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
             }
             ability->SetWant(abilityRequest.want);
             ability->SetIsNewWant(true);
-            if (abilityRequest.IsContinuation()) {
-                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
-            } else if (abilityRequest.IsAppRecovery()) {
-                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
-            } else {
-                ability->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
-            }
-
+            UpdateAbilityRecordLaunchReason(abilityRequest, ability);
             auto isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
             MoveMissionToFront(mission->GetMissionId(), isCallerFromLauncher);
             NotifyRestartSpecifiedAbility(abilityRequest, ability->GetToken());
@@ -3202,6 +3205,71 @@ void MissionListManager::SetMissionANRStateByTokens(const std::vector<sptr<IRemo
         }
         mission->SetANRState(true);
     }
+}
+
+int32_t MissionListManager::IsValidMissionIds(
+    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+{
+    constexpr int32_t searchCount = 20;
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    auto missionInfoMgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
+    if (missionInfoMgr == nullptr) {
+        HILOG_ERROR("missionInfoMgr is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto bms = AbilityUtil::GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bundleManager is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::string bundleName;
+    if (!IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName))) {
+        HILOG_ERROR("get bundle name by uid error.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
+        MissionVaildResult missionResult = {};
+        missionResult.missionId = missionIds.at(i);
+        InnerMissionInfo info;
+        if (missionInfoMgr->GetInnerMissionInfoById(missionResult.missionId, info) != ERR_OK) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        if (bundleName != info.bundleName) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        results.push_back(missionResult);
+    }
+
+    return ERR_OK;
+}
+
+bool MissionListManager::UpdateAbilityRecordLaunchReason(
+    const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("input record is nullptr.");
+        return false;
+    }
+
+    if (abilityRequest.IsContinuation()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+        return true;
+    }
+
+    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+        return true;
+    }
+
+    abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

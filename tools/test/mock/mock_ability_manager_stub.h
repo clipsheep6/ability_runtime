@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,12 +34,18 @@ public:
     MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
+    MOCK_METHOD3(TerminateUIExtensionAbility, int(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
+        const Want* resultWant));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override
     {
         return 0;
     }
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser = false) override
+    {
+        return 0;
+    }
+    int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser = false) override
     {
         return 0;
     }
@@ -251,6 +257,7 @@ public:
         return 0;
     }
 #endif
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
 
 public:
     std::string powerState_;
