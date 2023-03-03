@@ -17,171 +17,108 @@
 #include "data_ability_observer_stub.h"
 #include "dataobs_mgr_errors.h"
 #include "hilog_wrapper.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
-std::mutex DataObsMgrInner::innerMutex_;
 
-DataObsMgrInner::DataObsMgrInner()
+DataObsMgrInner::DataObsMgrInner() {}
+
+DataObsMgrInner::~DataObsMgrInner() {}
+
+int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    taskCount_.store(0);
-}
+    std::lock_guard<std::mutex> lock(innerMutex_);
 
-DataObsMgrInner::~DataObsMgrInner()
-{
-    taskCount_.store(0);
-}
+    auto [obsPair, flag] = observers_.try_emplace(uri.ToString(), std::list<sptr<IDataAbilityObserver>>());
+    if (!flag && obsPair->second.size() > OBS_NUM_MAX) {
+        HILOG_ERROR("The number of subscribers for this uri : %{public}s has reached the upper limit.",
+            CommonUtils::Anonymous(uri.ToString()).c_str());
+        return DATAOBS_SERVICE_OBS_LIMMIT;
+    }
 
-void DataObsMgrInner::SetHandler(const std::shared_ptr<EventHandler> &handler)
-{
-    handler_ = handler;
-}
-
-int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
-{
-    HILOG_INFO("DataObsMgrInner::HandleRegisterObserver called start");
-    std::lock_guard<std::mutex> lock_l(innerMutex_);
-
-    ObsListType obslist;
-    bool exist = GetObsListFromMap(uri, obslist);
-
-    auto obs = obslist.begin();
-    for (; obs != obslist.end(); obs++) {
+    for (auto obs = obsPair->second.begin(); obs != obsPair->second.end(); obs++) {
         if ((*obs)->AsObject() == dataObserver->AsObject()) {
-            HILOG_ERROR("DataObsMgrInner::HandleRegisterObserver the obs exist. no need to register.");
-            AtomicSubTaskCount();
+            HILOG_ERROR("the obs has registered on this uri : %{public}s",
+                CommonUtils::Anonymous(uri.ToString()).c_str());
             return OBS_EXIST;
         }
     }
 
-    obslist.push_back(dataObserver);
+    obsPair->second.push_back(dataObserver);
 
     AddObsDeathRecipient(dataObserver);
 
-    if (exist) {
-        obsmap_.erase(uri.ToString());
-    }
-
-    obsmap_.emplace(uri.ToString(), obslist);
-
-    AtomicSubTaskCount();
-
-    HILOG_INFO("DataObsMgrInner::HandleRegisterObserver called end");
     return NO_ERROR;
 }
 
-int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    HILOG_INFO("DataObsMgrInner::HandleUnregisterObserver called start");
-    std::lock_guard<std::mutex> lock_l(innerMutex_);
+    std::lock_guard<std::mutex> lock(innerMutex_);
 
-    ObsListType obslist;
-    if (!GetObsListFromMap(uri, obslist)) {
-        AtomicSubTaskCount();
-        HILOG_ERROR("DataObsMgrInner::HandleUnregisterObserver there is no obs in the uri.");
+    auto obsPair = observers_.find(uri.ToString());
+    if (obsPair == observers_.end()) {
+        HILOG_WARN("no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
 
-    HILOG_INFO("DataObsMgrInner::HandleUnregisterObserver obslist size is %{public}zu", obslist.size());
-    auto obs = obslist.begin();
-    for (; obs != obslist.end(); obs++) {
+    HILOG_DEBUG("obs num is %{public}zu on this uri : %{public}s", obsPair->second.size(),
+        CommonUtils::Anonymous(uri.ToString()).c_str());
+    auto obs = obsPair->second.begin();
+    for (; obs != obsPair->second.end(); obs++) {
         if ((*obs)->AsObject() == dataObserver->AsObject()) {
             break;
         }
     }
-    if (obs == obslist.end()) {
-        AtomicSubTaskCount();
-        HILOG_ERROR("DataObsMgrInner::HandleUnregisterObserver the obs is not registered to the uri.");
+    if (obs == obsPair->second.end()) {
+        HILOG_WARN("no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
-    sptr<IDataAbilityObserver> removeObs = *obs;
-    obslist.remove(removeObs);
-    obsmap_.erase(uri.ToString());
-    if (!obslist.empty()) {
-        obsmap_.emplace(uri.ToString(), obslist);
+    obsPair->second.remove(*obs);
+    if (obsPair->second.empty()) {
+        observers_.erase(obsPair);
     }
 
-    if (!ObsExistInMap(removeObs)) {
-        RemoveObsDeathRecipient(removeObs->AsObject());
+    if (!HaveRegistered(dataObserver)) {
+        RemoveObsDeathRecipient(dataObserver->AsObject());
     }
 
-    AtomicSubTaskCount();
-    HILOG_INFO("DataObsMgrInner::HandleUnregisterObserver called end");
     return NO_ERROR;
 }
 
 int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
 {
-    HILOG_INFO("DataObsMgrInner::HandleNotifyChange called start");
-    std::lock_guard<std::mutex> lock_l(innerMutex_);
-
-    ObsListType obslist;
-    if (!GetObsListFromMap(uri, obslist)) {
-        AtomicSubTaskCount();
-        HILOG_INFO("DataObsMgrInner::HandleNotifyChange there is no obs in the uri.");
-        return NO_OBS_FOR_URI;
+    std::list<sptr<IDataAbilityObserver>> obsList;
+    std::lock_guard<std::mutex> lock(innerMutex_);
+    {
+        auto obsPair = observers_.find(uri.ToString());
+        if (obsPair == observers_.end()) {
+            HILOG_WARN("there is no obs on the uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            return NO_OBS_FOR_URI;
+        }
+        obsList = obsPair->second;
     }
 
-    for (auto obs : obslist) {
+    for (auto &obs : obsList) {
         if (obs != nullptr) {
             obs->OnChange();
         }
     }
 
-    AtomicSubTaskCount();
-    HILOG_INFO("DataObsMgrInner::HandleNotifyChange called end %{public}zu", obslist.size());
+    HILOG_DEBUG("called end on the uri : %{public}s,obs num: %{public}zu",
+        CommonUtils::Anonymous(uri.ToString()).c_str(), obsList.size());
     return NO_ERROR;
 }
 
-bool DataObsMgrInner::CheckNeedLimmit()
-{
-    return (taskCount_.load() >= taskCount_max_) ? true : false;
-}
-
-bool DataObsMgrInner::CheckRegisteFull(const Uri &uri)
-{
-    std::lock_guard<std::mutex> lock_l(innerMutex_);
-
-    ObsListType obslist;
-    if (GetObsListFromMap(uri, obslist)) {
-        // The obs size for input uri has been lager than max.
-        if (obslist.size() >= obs_max_) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void DataObsMgrInner::AtomicAddTaskCount()
-{
-    taskCount_.fetch_add(1);
-}
-
-void DataObsMgrInner::AtomicSubTaskCount()
-{
-    taskCount_.fetch_sub(1);
-}
-
-bool DataObsMgrInner::GetObsListFromMap(const Uri &uri, ObsListType &obslist)
-{
-    auto it = obsmap_.find(uri.ToString());
-    if (it == obsmap_.end()) {
-        return false;
-    }
-
-    obslist = it->second;
-    return true;
-}
-
-void DataObsMgrInner::AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dataObserver)
+void DataObsMgrInner::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserver)
 {
     if ((dataObserver == nullptr) || dataObserver->AsObject() == nullptr) {
         return;
     }
 
-    auto it = recipientMap_.find(dataObserver->AsObject());
-    if (it != recipientMap_.end()) {
-        HILOG_ERROR("%{public}s this death recipient has been added.", __func__);
+    auto it = obsRecipient_.find(dataObserver->AsObject());
+    if (it != obsRecipient_.end()) {
+        HILOG_WARN("this death recipient has been added.");
         return;
     } else {
         std::weak_ptr<DataObsMgrInner> thisWeakPtr(shared_from_this());
@@ -192,56 +129,44 @@ void DataObsMgrInner::AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dat
                     dataObsMgrInner->OnCallBackDied(remote);
                 }
             });
-            dataObserver->AsObject()->AddDeathRecipient(deathRecipient);
-            recipientMap_.emplace(dataObserver->AsObject(), deathRecipient);
+        dataObserver->AsObject()->AddDeathRecipient(deathRecipient);
+        obsRecipient_.emplace(dataObserver->AsObject(), deathRecipient);
     }
 }
 
-void DataObsMgrInner::RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver)
+void DataObsMgrInner::RemoveObsDeathRecipient(sptr<IRemoteObject> dataObserver)
 {
     if (dataObserver == nullptr) {
         return;
     }
 
-    auto it = recipientMap_.find(dataObserver);
-    if (it != recipientMap_.end()) {
+    auto it = obsRecipient_.find(dataObserver);
+    if (it != obsRecipient_.end()) {
         it->first->RemoveDeathRecipient(it->second);
-        recipientMap_.erase(it);
+        obsRecipient_.erase(it);
         return;
     }
 }
 
 void DataObsMgrInner::OnCallBackDied(const wptr<IRemoteObject> &remote)
 {
-    auto object = remote.promote();
-    if (object == nullptr) {
+    auto dataObserver = remote.promote();
+    if (dataObserver == nullptr) {
         return;
     }
-
-    if (handler_) {
-        auto task = [object, dataObsMgrInner = shared_from_this()]() {
-            dataObsMgrInner->HandleCallBackDiedTask(object);
-        };
-        handler_->PostTask(task);
-    }
-}
-
-void DataObsMgrInner::HandleCallBackDiedTask(const sptr<IRemoteObject> &dataObserver)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    std::lock_guard<std::mutex> lock_l(innerMutex_);
+    std::lock_guard<std::mutex> lock(innerMutex_);
 
     if (dataObserver == nullptr) {
-        HILOG_WARN("dataObserver is nullptr.");
+        HILOG_ERROR("dataObserver is nullptr.");
         return;
     }
 
-    RemoveObsFromMap(dataObserver);
+    RemoveObs(dataObserver);
 }
 
-void DataObsMgrInner::RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver)
+void DataObsMgrInner::RemoveObs(sptr<IRemoteObject> dataObserver)
 {
-    for (auto iter = obsmap_.begin(); iter != obsmap_.end();) {
+    for (auto iter = observers_.begin(); iter != observers_.end();) {
         auto &obsList = iter->second;
         for (auto it = obsList.begin(); it != obsList.end(); it++) {
             if ((*it)->AsObject() == dataObserver) {
@@ -251,7 +176,7 @@ void DataObsMgrInner::RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver)
             }
         }
         if (obsList.size() == 0) {
-            obsmap_.erase(iter++);
+            iter = observers_.erase(iter);
         } else {
             iter++;
         }
@@ -259,12 +184,11 @@ void DataObsMgrInner::RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver)
     RemoveObsDeathRecipient(dataObserver);
 }
 
-bool DataObsMgrInner::ObsExistInMap(const sptr<IDataAbilityObserver> &dataObserver)
+bool DataObsMgrInner::HaveRegistered(sptr<IDataAbilityObserver> dataObserver)
 {
-    for (auto &obsCallback : obsmap_) {
-        auto &obsList = obsCallback.second;
-        auto obs = std::find(obsList.begin(), obsList.end(), dataObserver);
-        if (obs != obsList.end()) {
+    for (auto &[key, value] : observers_) {
+        auto obs = std::find(value.begin(), value.end(), dataObserver);
+        if (obs != value.end()) {
             return true;
         }
     }

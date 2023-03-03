@@ -23,6 +23,7 @@
 #include <map>
 
 #include "hilog_wrapper.h"
+#include "dataobs_mgr_errors.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -38,12 +39,16 @@ public:
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    int RegisterObserverInner(MessageParcel &data, MessageParcel &reply);
-    int UnregisterObserverInner(MessageParcel &data, MessageParcel &reply);
-    int NotifyChangeInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RegisterObserverInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterObserverInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyChangeInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RegisterObserverExtInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterObserverExtInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterObserverExtALLInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyChangeExtInner(MessageParcel &data, MessageParcel &reply);
 
-    using RequestFuncType = int (DataObsManagerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
+    using RequestFuncType = int32_t (DataObsManagerStub::*)(MessageParcel &data, MessageParcel &reply);
+    static const RequestFuncType HANDLES[TRANS_BUTT];
 };
 }  // namespace AAFwk
 }  // namespace OHOS

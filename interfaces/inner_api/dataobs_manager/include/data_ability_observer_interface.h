@@ -16,7 +16,7 @@
 #define OHOS_ABILITY_RUNTIME_DATA_ABILITY_OBSERVER_INTERFACE_H
 
 #include <iremote_broker.h>
-#include "uri.h"
+#include "dataobs_mgr_changeinfo.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -25,7 +25,10 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.DataAbilityObserver");
 
     enum {
-        DATA_ABILITY_OBSERVER_CHANGE,
+        TRANS_HEAD,
+        DATA_ABILITY_OBSERVER_CHANGE = TRANS_HEAD,
+        DATA_ABILITY_OBSERVER_CHANGE_EXT,
+        TRANS_BUTT,
     };
 
     /**
@@ -34,6 +37,16 @@ public:
      * @param uri Indicates the path of the data to operate.
      */
     virtual void OnChange() = 0;
+
+    /**
+     * @brief Called back to notify that the data being observed has changed.
+     *
+     * @param changeInfo Indicates the info of the data to operate.
+     */
+    virtual void OnChangeExt(const ChangeInfo &changeInfo)
+    {
+        return;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

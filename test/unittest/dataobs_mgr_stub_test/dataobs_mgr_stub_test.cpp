@@ -55,8 +55,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_OnRemoteRequest_01
 {
     GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_OnRemoteRequest_0100 start";
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
-    const int testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
-    uint32_t code = IDataObsMgr::NOTIFY_CHANGE + 1;
+    uint32_t code = IDataObsMgr::TRANS_BUTT + 1;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -68,7 +67,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_OnRemoteRequest_01
 
     const int retval = dataobs->OnRemoteRequest(code, data, reply, option);
 
-    EXPECT_EQ(testVal, retval);
+    EXPECT_EQ(-1, retval);
     GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_OnRemoteRequest_0100 end";
 }
 
@@ -87,8 +86,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_RegisterObserver_0
     const int testVal2 = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
     sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
-    std::shared_ptr<Uri> uri =
-        std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
     uint32_t code = IDataObsMgr::REGISTER_OBSERVER;
     MessageParcel data;
     MessageParcel reply;
@@ -98,7 +96,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_RegisterObserver_0
         GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
         return;
     }
-    if (!data.WriteParcelable(uri.get())) {
+    if (!data.WriteString(uri.ToString())) {
         GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
         return;
     }
@@ -136,8 +134,8 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_UnregisterObserver
     const int testVal2 = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
     sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
-    std::shared_ptr<Uri> uri =
-        std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
+
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
     uint32_t code = IDataObsMgr::UNREGISTER_OBSERVER;
     MessageParcel data;
     MessageParcel reply;
@@ -147,7 +145,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_UnregisterObserver
         GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
         return;
     }
-    if (!data.WriteParcelable(uri.get())) {
+    if (!data.WriteString(uri.ToString())) {
         GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
         return;
     }
@@ -182,8 +180,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_NotifyChange_0100,
 {
     GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_NotifyChange_0100 start";
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
-    std::shared_ptr<Uri> uri =
-        std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
     const int testVal1 = static_cast<int>(NO_ERROR);
     const int testVal2 = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     uint32_t code = IDataObsMgr::NOTIFY_CHANGE;
@@ -195,7 +192,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_NotifyChange_0100,
         GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
         return;
     }
-    if (!data.WriteParcelable(uri.get())) {
+    if (!data.WriteString(uri.ToString())) {
         GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
         return;
     }

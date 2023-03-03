@@ -14,68 +14,80 @@
  */
 
 #include "data_ability_observer_stub.h"
+
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
+#include "common_utils.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace AAFwk {
-DataAbilityObserverStub::DataAbilityObserverStub()
-{
-    requestFuncMap_[DATA_ABILITY_OBSERVER_CHANGE] = &DataAbilityObserverStub::OnChangeInner;
-}
 
-DataAbilityObserverStub::~DataAbilityObserverStub()
-{
-    requestFuncMap_.clear();
-}
+const DataAbilityObserverStub::RequestFuncType DataAbilityObserverStub::HANDLES[TRANS_BUTT] = {
+    &DataAbilityObserverStub::OnChangeInner,
+    &DataAbilityObserverStub::OnChangeExtInner,
+};
 
-int DataAbilityObserverStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+DataAbilityObserverStub::DataAbilityObserverStub() {}
+
+DataAbilityObserverStub::~DataAbilityObserverStub() {}
+
+int DataAbilityObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
-    HILOG_DEBUG("%{public}s, cmd = %d, flags= %d", __func__, code, option.GetFlags());
+    HILOG_INFO("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
+        IPCSkeleton::GetCallingPid());
     std::u16string descriptor = DataAbilityObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+            CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
+            CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
+        HILOG_ERROR("not support code:%u, BUTT:%d", code, TRANS_BUTT);
+        return -1;
     }
-    HILOG_WARN("%{public}s, default case, need check.", __func__);
-    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    return (this->*HANDLES[code])(data, reply);
 }
 
 /**
  * @brief Called back to notify that the data being observed has changed.
  *
- * @param uri Indicates the path of the data to operate.
- *
  * @return Returns 0 on success, others on failure.
  */
-int DataAbilityObserverStub::OnChangeInner(MessageParcel &data, MessageParcel &reply)
+int32_t DataAbilityObserverStub::OnChangeInner(MessageParcel &data, MessageParcel &reply)
 {
     OnChange();
     return ERR_NONE;
 }
 
+/**
+ * @brief Called back to notify that the data being observed has changed.
+ *
+ * @return Returns 0 on success, others on failure.
+ */
+int32_t DataAbilityObserverStub::OnChangeExtInner(MessageParcel &data, MessageParcel &reply)
+{
+    ChangeInfo changeInfo;
+    if (!ChangeInfo::Unmarshalling(changeInfo, data)) {
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
+    OnChangeExt(changeInfo);
+    return ERR_NONE;
+}
+
 void DataObsCallbackRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_ERROR("recv DataObsCallbackRecipient death notice");
-
     if (handler_) {
         handler_(remote);
     }
 }
 
-DataObsCallbackRecipient::DataObsCallbackRecipient(RemoteDiedHandler handler) : handler_(handler)
-{}
+DataObsCallbackRecipient::DataObsCallbackRecipient(RemoteDiedHandler handler) : handler_(handler) {}
 
-DataObsCallbackRecipient::~DataObsCallbackRecipient()
-{}
+DataObsCallbackRecipient::~DataObsCallbackRecipient() {}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -13,6 +13,7 @@
 
 dataobs_manager_headers = {
   header_files = [
+    "dataobs_mgr_changeinfo.h",
     "dataobs_mgr_errors.h",
     "dataobs_mgr_client.h",
     "dataobs_mgr_interface.h",

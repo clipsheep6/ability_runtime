@@ -14,7 +14,9 @@
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 dataobsms_files = [
+  "src/dataobs_mgr_changeinfo.cpp",
   "src/dataobs_mgr_inner.cpp",
+  "src/dataobs_mgr_inner_ext.cpp",
   "src/dataobs_mgr_proxy.cpp",
   "src/dataobs_mgr_stub.cpp",
   "src/dataobs_mgr_service.cpp",

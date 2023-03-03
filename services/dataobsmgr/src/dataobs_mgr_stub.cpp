@@ -15,97 +15,139 @@
 
 #include "dataobs_mgr_stub.h"
 
-#include "errors.h"
 #include "string_ex.h"
 
 #include "data_ability_observer_proxy.h"
-#include "data_ability_observer_stub.h"
 #include "dataobs_mgr_errors.h"
+#include "ipc_skeleton.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
 using Uri = OHOS::Uri;
-DataObsManagerStub::DataObsManagerStub()
-{
-    requestFuncMap_[REGISTER_OBSERVER] = &DataObsManagerStub::RegisterObserverInner;
-    requestFuncMap_[UNREGISTER_OBSERVER] = &DataObsManagerStub::UnregisterObserverInner;
-    requestFuncMap_[NOTIFY_CHANGE] = &DataObsManagerStub::NotifyChangeInner;
-}
 
-DataObsManagerStub::~DataObsManagerStub()
-{
-    requestFuncMap_.clear();
-}
+const DataObsManagerStub::RequestFuncType DataObsManagerStub::HANDLES[TRANS_BUTT] = {
+    &DataObsManagerStub::RegisterObserverInner,
+    &DataObsManagerStub::UnregisterObserverInner,
+    &DataObsManagerStub::NotifyChangeInner,
+    &DataObsManagerStub::RegisterObserverExtInner,
+    &DataObsManagerStub::UnregisterObserverExtInner,
+    &DataObsManagerStub::UnregisterObserverExtALLInner,
+    &DataObsManagerStub::NotifyChangeExtInner
+};
+
+DataObsManagerStub::DataObsManagerStub() {}
+
+DataObsManagerStub::~DataObsManagerStub() {}
 
 int DataObsManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("DataObsManagerStub::OnRemoteRequest, cmd = %d, flags= %d", code, option.GetFlags());
+    HILOG_INFO("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
+        IPCSkeleton::GetCallingPid());
     std::u16string descriptor = DataObsManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+            CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
+            CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
+        HILOG_ERROR("not support code:%{public}u, BUTT:%{public}d", code, TRANS_BUTT);
+        return -1;
     }
-    HILOG_WARN("DataObsManagerStub::OnRemoteRequest, default case, need check.");
-    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    return (this->*HANDLES[code])(data, reply);
 }
 
 int DataObsManagerStub::RegisterObserverInner(MessageParcel &data, MessageParcel &reply)
 {
-    Uri *uri = data.ReadParcelable<Uri>();
-    if (uri == nullptr) {
-        HILOG_ERROR("DataObsManagerStub: uri is nullptr");
-        return ERR_INVALID_VALUE;
+    Uri uri(data.ReadString());
+    if (uri.ToString().empty()) {
+        HILOG_ERROR("uri is invalid");
+        return IPC_STUB_INVALID_DATA_ERR;
     }
 
-    auto observer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
-    int32_t result = RegisterObserver(*uri, observer);
+    auto remote = data.ReadRemoteObject();
+    auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    int32_t result = RegisterObserver(uri, observer);
     reply.WriteInt32(result);
-    if (uri != nullptr) {
-        delete uri;
-    }
     return NO_ERROR;
 }
 
 int DataObsManagerStub::UnregisterObserverInner(MessageParcel &data, MessageParcel &reply)
 {
-    Uri *uri = data.ReadParcelable<Uri>();
-    if (uri == nullptr) {
-        HILOG_ERROR("DataObsManagerStub: uri is nullptr");
-        return ERR_INVALID_VALUE;
+    Uri uri(data.ReadString());
+    if (uri.ToString().empty()) {
+        HILOG_ERROR("uri is invalid");
+        return IPC_STUB_INVALID_DATA_ERR;
     }
 
-    auto observer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
-    int32_t result = UnregisterObserver(*uri, observer);
+    auto remote = data.ReadRemoteObject();
+    auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    int32_t result = UnregisterObserver(uri, observer);
     reply.WriteInt32(result);
-    if (uri != nullptr) {
-        delete uri;
-    }
     return NO_ERROR;
 }
 
 int DataObsManagerStub::NotifyChangeInner(MessageParcel &data, MessageParcel &reply)
 {
-    Uri *uri = data.ReadParcelable<Uri>();
-    if (uri == nullptr) {
-        HILOG_ERROR("DataObsManagerStub: uri is nullptr");
-        return ERR_INVALID_VALUE;
+    Uri uri(data.ReadString());
+    if (uri.ToString().empty()) {
+        HILOG_ERROR("uri is invalid");
+        return IPC_STUB_INVALID_DATA_ERR;
     }
 
-    int32_t result = NotifyChange(*uri);
+    int32_t result = NotifyChange(uri);
     reply.WriteInt32(result);
-    if (uri != nullptr) {
-        delete uri;
-    }
     return NO_ERROR;
+}
+
+int32_t DataObsManagerStub::RegisterObserverExtInner(MessageParcel &data, MessageParcel &reply)
+{
+    Uri uri(data.ReadString());
+    if (uri.ToString().empty()) {
+        HILOG_ERROR("uri is invalid");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
+    auto remote = data.ReadRemoteObject();
+    auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    bool isDescendants = data.ReadBool();
+    reply.WriteInt32(RegisterObserverExt(uri, observer, isDescendants));
+    return SUCCESS;
+}
+
+int32_t DataObsManagerStub::UnregisterObserverExtInner(MessageParcel &data, MessageParcel &reply)
+{
+    Uri uri(data.ReadString());
+    if (uri.ToString().empty()) {
+        HILOG_ERROR("uri is invalid");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
+    auto remote = data.ReadRemoteObject();
+    auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+
+    reply.WriteInt32(UnregisterObserverExt(uri, observer));
+    return SUCCESS;
+}
+
+int32_t DataObsManagerStub::UnregisterObserverExtALLInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto remote = data.ReadRemoteObject();
+    auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    reply.WriteInt32(UnregisterObserverExt(observer));
+    return SUCCESS;
+}
+
+int32_t DataObsManagerStub::NotifyChangeExtInner(MessageParcel &data, MessageParcel &reply)
+{
+    ChangeInfo changeInfo;
+    if (!ChangeInfo::Unmarshalling(changeInfo, data)) {
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
+
+    reply.WriteInt32(NotifyChangeExt(changeInfo));
+    return SUCCESS;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

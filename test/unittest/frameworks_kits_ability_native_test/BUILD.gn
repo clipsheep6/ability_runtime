@@ -607,11 +607,9 @@ ohos_unittest("ability_thread_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "${ability_runtime_path}/services/dataobsmgr/src/dataobs_mgr_client.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_client.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_data_ability_impl.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
-    "//foundation/ability/ability_runtime/services/dataobsmgr/src/data_ability_observer_stub.cpp",
     "ability_thread_test.cpp",
   ]
 
@@ -619,10 +617,12 @@ ohos_unittest("ability_thread_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/dataobsmgr:dataobsms_static",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

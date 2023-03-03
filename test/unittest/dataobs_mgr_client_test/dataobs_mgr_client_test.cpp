@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include <memory>
-#include "mock_dataobs_mgr_client.h"
-#include "dataobs_mgr_proxy.h"
 #define private public
-#include "mock_dataobs_mgr_service.h"
-#include "data_ability_observer_proxy.h"
-#include "data_ability_observer_stub.h"
+#include "dataobs_mgr_proxy.h"
+#include "dataobs_mgr_client.h"
 #include "mock_data_obs_manager_onchange_callback.h"
+#include "mock_dataobs_mgr_service.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -46,82 +44,119 @@ void DataObsMgrClientTest::TearDown()
 
 /*
  * Feature: DataObsMgrClient.
- * Function: The RegisterObserver function of dataobsmgrservice was called.
- * SubFunction: DataObsMgrService::RegisterObserver is called.
+ * Function: The function of dataobsmgrservice was called.
+ * SubFunction: NA.
  * FunctionPoints: NA.
  * EnvConditions: NA.
  * CaseDescription: NA.
  */
-HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_RegisterObserver_0100, TestSize.Level1)
+HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_Call_Service_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_RegisterObserver_0100 start";
-
-    sptr<MockDataObsManagerOnChangeCallBack> callBack(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
-    sptr<DataAbilityObserverProxy> dataAbilityObserverProxy(new (std::nothrow) DataAbilityObserverProxy(callBack));
-
-    MockDataObsMgrClient::GetInstance();
-
-    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
-        RegisterObserverCall(testing::_, testing::_))
-        .Times(1);
-    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/25");
-    MockDataObsMgrClient::GetInstance()->RegisterObserver(uri, dataAbilityObserverProxy);
-
-    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->remoteObject_);
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_RegisterObserver_0100 end";
-}
-/*
- * Feature: DataObsMgrClient.
- * Function: The unregisterObserve function of dataobsmgrservice was called.
- * SubFunction: DataObsMgrService::UnregisterObserve is called.
- * FunctionPoints: NA.
- * EnvConditions: NA.
- * CaseDescription: NA.
- */
-HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_UnregisterObserver_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_UnregisterObserver_0100 start";
-
     sptr<MockDataObsManagerOnChangeCallBack> callBack(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
 
-    sptr<DataAbilityObserverProxy> dataAbilityObserverProxy(new (std::nothrow) DataAbilityObserverProxy(callBack));
+    auto client = DataObsMgrClient::GetInstance();
+    client->observers_.Clear();
+    client->observerExts_.Clear();
 
-    MockDataObsMgrClient::GetInstance();
+    sptr<MockDataObsMgrService> service(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+    Uri uri("datashare://device_id/com.domainname.dataability.persondata/person/25");
+    client->RegisterObserver(uri, callBack);
+    EXPECT_EQ(service->onChangeCall_, 1);
 
-    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
-        UnregisterObserverCall(testing::_, testing::_))
-        .Times(1);
+    client->UnregisterObserver(uri, callBack);
+    EXPECT_EQ(service->onChangeCall_, 2);
 
-    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/25");
-    MockDataObsMgrClient::GetInstance()->UnregisterObserver(uri, dataAbilityObserverProxy);
+    client->NotifyChange(uri);
+    EXPECT_EQ(service->onChangeCall_, 3);
 
-    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->remoteObject_);
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_UnregisterObserver_0100 end";
+    client->RegisterObserverExt(uri, callBack, false);
+    EXPECT_EQ(service->onChangeCall_, 4);
+
+    client->UnregisterObserverExt(uri, callBack);
+    EXPECT_EQ(service->onChangeCall_, 5);
+
+    client->UnregisterObserverExt(callBack);
+    EXPECT_EQ(service->onChangeCall_, 6);
+
+    client->NotifyChangeExt({ ChangeInfo::ChangeType::INSERT, { uri } });
+    EXPECT_EQ(service->onChangeCall_, 7);
+
+    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->dataObsManger_);
 }
 
 /*
  * Feature: DataObsMgrClient.
- * Function: The NotifyChange function of dataobsmgrservice was called.
- * SubFunction: DataObsMgrService::NotifyChange is called.
+ * Function: re-subscribe when service restart.
+ * SubFunction: NA.
  * FunctionPoints: NA.
  * EnvConditions: NA.
  * CaseDescription: NA.
  */
-HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_NotifyChange_0100, TestSize.Level1)
+HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_ReregisterObserver_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_NotifyChange_0100 start";
+    sptr<MockDataObsManagerOnChangeCallBack> callBack1(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
+    sptr<MockDataObsManagerOnChangeCallBack> callBack2(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
 
-    MockDataObsMgrClient::GetInstance()->Connect();
+    auto client = DataObsMgrClient::GetInstance();
+    client->observers_.Clear();
+    client->observerExts_.Clear();
 
-    EXPECT_CALL(*((MockDataObsMgrService*)(DataObsMgrClient::GetInstance()->remoteObject_).GetRefPtr()),
-        NotifyChangeCall(testing::_))
-        .Times(1);
+    sptr<MockDataObsMgrService> service1(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service1;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+    Uri uri1("datashare://device_id/com.domainname.dataability.persondata/person/25");
+    Uri uri2("datashare://device_id/com.domainname.dataability.persondata/person/26");
 
-    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/25");
-    MockDataObsMgrClient::GetInstance()->NotifyChange(uri);
+    EXPECT_EQ(client->RegisterObserver(uri1, callBack1), NO_ERROR);
+    EXPECT_EQ(client->RegisterObserver(uri2, callBack2), NO_ERROR);
+    EXPECT_EQ(service1->onChangeCall_, 2);
 
-    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->remoteObject_);
-    GTEST_LOG_(INFO) << "DataObsMgrClientTest_DataObsMgrClient_NotifyChange_0100 end";
+    sptr<MockDataObsMgrService> service2(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service2;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+
+    client->ReRegister();
+    EXPECT_EQ(service2->onChangeCall_, 2);
+    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->dataObsManger_);
 }
+
+/*
+ * Feature: DataObsMgrClient.
+ * Function: re-subscribe when service restart.
+ * SubFunction: NA.
+ * FunctionPoints: NA.
+ * EnvConditions: NA.
+ * CaseDescription: NA.
+ */
+HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_ReregisterObserver_0200, TestSize.Level1)
+{
+    sptr<MockDataObsManagerOnChangeCallBack> callBack1(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
+    sptr<MockDataObsManagerOnChangeCallBack> callBack2(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
+
+    Uri uri1("datashare://device_id/com.domainname.dataability.persondata/person/1");
+    Uri uri2("datashare://device_id/com.domainname.dataability.persondata/person/2");
+    auto client = DataObsMgrClient::GetInstance();
+    client->observers_.Clear();
+    client->observerExts_.Clear();
+
+    sptr<MockDataObsMgrService> service1(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service1;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+
+    EXPECT_EQ(client->RegisterObserverExt(uri1, callBack1, false), SUCCESS);
+    EXPECT_EQ(client->RegisterObserverExt(uri2, callBack2, true), SUCCESS);
+    EXPECT_EQ(service1->onChangeCall_, 2);
+
+    sptr<MockDataObsMgrService> service2(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service2;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+
+    client->ReRegister();
+    EXPECT_EQ(service2->onChangeCall_, 2);
+    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->dataObsManger_);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

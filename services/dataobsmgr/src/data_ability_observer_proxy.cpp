@@ -33,7 +33,7 @@ void DataAbilityObserverProxy::OnChange()
 {
     auto remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("%{public}s remote is nullptr", __func__);
+        HILOG_ERROR("remote is nullptr");
         return;
     }
 
@@ -42,14 +42,48 @@ void DataAbilityObserverProxy::OnChange()
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("%{public}s data.WriteInterfaceToken(GetDescriptor()) return false", __func__);
+        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
         return;
     }
 
     int result = remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE, data, reply, option);
     if (result != ERR_NONE) {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        HILOG_ERROR("SendRequest error, result=%{public}d", result);
     }
 }
+
+/**
+ * @brief Called back to notify that the data being observed has changed.
+ *
+ * @param changeInfo Indicates the info of the data to operate.
+ */
+void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
+{
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
+        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
+        return;
+    }
+
+    if (ChangeInfo::Marshalling(changeInfo, data)) {
+        HILOG_ERROR("changeInfo marshalling failed");
+        return;
+    }
+
+    int result = remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_EXT, data, reply, option);
+    if (result != ERR_NONE) {
+        HILOG_ERROR("SendRequest error, result=%{public}d", result);
+    }
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

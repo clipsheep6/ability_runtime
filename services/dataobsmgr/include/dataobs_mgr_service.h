@@ -22,6 +22,7 @@
 #include <unordered_map>
 
 #include "dataobs_mgr_inner.h"
+#include "dataobs_mgr_inner_ext.h"
 #include "dataobs_mgr_stub.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
@@ -50,9 +51,14 @@ public:
     void OnStop() override;
     DataObsServiceRunningState QueryServiceState() const;
 
-    virtual int RegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override;
-    virtual int UnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) override;
+    virtual int RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override;
+    virtual int UnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override;
     virtual int NotifyChange(const Uri &uri) override;
+    virtual Status RegisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver,
+        bool isDescendants) override;
+    virtual Status UnregisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override;
+    virtual Status UnregisterObserverExt(sptr<IDataAbilityObserver> dataObserver) override;
+    virtual Status NotifyChangeExt(const ChangeInfo &changeInfo) override;
 
     /**
      * @brief DataObs hidumper.
@@ -75,11 +81,17 @@ private:
     void ShowHelp(std::string& result) const;
 
 private:
+    static constexpr std::uint32_t TASK_COUNT_MAX = 50;
+    std::mutex taskCountMutex_;
+    std::uint32_t taskCount_ = 0;
+
     std::shared_ptr<EventRunner> eventLoop_;
     std::shared_ptr<EventHandler> handler_;
+
     DataObsServiceRunningState state_;
+
     std::shared_ptr<DataObsMgrInner> dataObsMgrInner_;
-    const int taskMax_ = 50;
+    std::shared_ptr<DataObsMgrInnerExt> dataObsMgrInnerExt_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
