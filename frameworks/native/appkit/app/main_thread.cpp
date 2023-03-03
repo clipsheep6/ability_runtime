@@ -1103,7 +1103,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             if (obj != nullptr) {
                 NativeValue* value = obj->GetProperty("errorfunc");
                 NativeFunction* fuc = AbilityRuntime::ConvertNativeValueTo<NativeFunction>(value);
-                error = fuc->GetSourceCodeInfo(errorPos);
+                if (fuc != nullptr) {
+                    error = fuc->GetSourceCodeInfo(errorPos);
+                }
             }
             summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
                 bindSourceMaps, hapPath);
