@@ -66,6 +66,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    abilityms->RemoveAllServiceRecord();
     WantSenderInfo wantSenderInfo;
     abilityms->GetWantSender(wantSenderInfo, token);
     sptr<IWantSender> target;
