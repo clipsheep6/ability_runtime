@@ -2305,5 +2305,18 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_UpdateRecoveryInfo_002, TestSize.Level
     abilityRecord->UpdateRecoveryInfo(true);
     EXPECT_TRUE(abilityRecord->want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false));
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetRecoveryInfo
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify whether the GetRecoveryInfo interface calls normally.
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetRecoveryInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_FALSE(abilityRecord->GetRecoveryInfo());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

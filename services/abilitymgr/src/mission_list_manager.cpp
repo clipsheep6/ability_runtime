@@ -3217,18 +3217,6 @@ int32_t MissionListManager::IsValidMissionIds(
         HILOG_ERROR("missionInfoMgr is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    if (bms == nullptr) {
-        HILOG_ERROR("bundleManager is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    std::string bundleName;
-    if (!IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName))) {
-        HILOG_ERROR("get bundle name by uid error.");
-        return ERR_INVALID_VALUE;
-    }
-
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
         MissionVaildResult missionResult = {};
@@ -3239,11 +3227,12 @@ int32_t MissionListManager::IsValidMissionIds(
             continue;
         }
 
-        if (bundleName != info.bundleName) {
+        if (callerUid != info.uid) {
             results.push_back(missionResult);
             continue;
         }
 
+        missionResult.isVaild = true;
         results.push_back(missionResult);
     }
 

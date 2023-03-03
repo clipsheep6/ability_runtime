@@ -27,6 +27,7 @@
 #undef protected
 
 using namespace testing::ext;
+using namespace testing;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
@@ -5696,6 +5697,94 @@ HWTEST_F(MissionListManagerTest, EnableRecoverAbility_002, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
+ * Function: UpdateAbilityRecordLaunchReason
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UpdateAbilityRecordLaunchReason
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityRecordLaunchReason
+ */
+HWTEST_F(MissionListManagerTest, UpdateAbilityRecordLaunchReason_001, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    const AbilityRequest abilityRequest = {};
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    EXPECT_FALSE(missionListManager->UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UpdateAbilityRecordLaunchReason
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UpdateAbilityRecordLaunchReason
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityRecordLaunchReason
+ */
+HWTEST_F(MissionListManagerTest, UpdateAbilityRecordLaunchReason_002, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    abilityRequest.want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_TRUE(missionListManager->UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UpdateAbilityRecordLaunchReason
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UpdateAbilityRecordLaunchReason
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityRecordLaunchReason
+ */
+HWTEST_F(MissionListManagerTest, UpdateAbilityRecordLaunchReason_003, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    abilityRequest.want.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_TRUE(missionListManager->UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UpdateAbilityRecordLaunchReason
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UpdateAbilityRecordLaunchReason
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityRecordLaunchReason
+ */
+HWTEST_F(MissionListManagerTest, UpdateAbilityRecordLaunchReason_004, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->UpdateRecoveryInfo(true);
+    EXPECT_TRUE(missionListManager->UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: UpdateAbilityRecordLaunchReason
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager UpdateAbilityRecordLaunchReason
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateAbilityRecordLaunchReason
+ */
+HWTEST_F(MissionListManagerTest, UpdateAbilityRecordLaunchReason_005, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_TRUE(missionListManager->UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
  * Function: IsValidMissionIds
  * SubFunction: NA
  * FunctionPoints: MissionListManager IsValidMissionIds
@@ -5708,29 +5797,28 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_001, TestSize.Level1)
     constexpr int32_t userId = 3;
     constexpr int32_t missionIdFirst = 1;
     constexpr int32_t missionIdSecond = 2;
+    const int32_t missionUidFirst = IPCSkeleton::GetCallingUid();
+    const int32_t missionUidSecond = IPCSkeleton::GetCallingUid() + 1;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    auto mission1 = std::make_shared<Mission>(nullptr);
-    mission1->missionId_ = missionIdFirst;
-    mission1->abilityRecord_ = InitAbilityRecord();
-    mission1->abilityRecord_->SetMission(mission1);
-    mission1->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID();
-    auto mission2 = std::make_shared<Mission>(nullptr);
-    mission2->missionId_ = missionIdSecond;
-    mission2->abilityRecord_ = InitAbilityRecord();
-    mission2->abilityRecord_->SetMission(mission2);
-    mission2->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID() + 1;
-    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
-    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
-    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
-    missionListManager->launcherList_->AddMissionToTop(mission1);
-    missionListManager->launcherList_->AddMissionToTop(mission2);
-    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
+    auto missionInfoMgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
+    missionInfoMgr->missionIdMap_.clear();
+    missionInfoMgr->missionIdMap_[missionIdFirst] = true;
+    missionInfoMgr->missionIdMap_[missionIdSecond] = true;
+    missionInfoMgr->missionInfoList_.clear();
+    InnerMissionInfo innerInfoFirst;
+    innerInfoFirst.missionInfo.id = missionIdFirst;
+    innerInfoFirst.uid = missionUidFirst;
+    missionInfoMgr->missionInfoList_.push_back(innerInfoFirst);
+    InnerMissionInfo innerInfoSecond;
+    innerInfoSecond.missionInfo.id = missionIdSecond;
+    innerInfoSecond.uid = missionUidSecond;
+    missionInfoMgr->missionInfoList_.push_back(innerInfoSecond);
     std::vector<int32_t> missionIds;
     std::vector<MissionVaildResult> results;
     for (int32_t i = 0; i < size; ++i) {
         missionIds.push_back(i);
     }
-    missionListManager->IsValidMissionIds(missionIds, results);
+    EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     for (auto &item : results) {
         if (item.missionId == missionIdFirst) {
             EXPECT_TRUE(item.isVaild);
@@ -5754,28 +5842,28 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_002, TestSize.Level1)
     constexpr int32_t userId = 3;
     constexpr int32_t missionIdFirst = 1;
     constexpr int32_t missionIdSecond = 2;
+    const int32_t missionUidFirst = IPCSkeleton::GetCallingUid();
+    const int32_t missionUidSecond = IPCSkeleton::GetCallingUid() + 1;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    auto mission1 = std::make_shared<Mission>(nullptr);
-    mission1->missionId_ = missionIdFirst;
-    mission1->abilityRecord_ = InitAbilityRecord();
-    mission1->abilityRecord_->SetMission(mission1);
-    mission1->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID();
-    auto mission2 = std::make_shared<Mission>(nullptr);
-    mission2->missionId_ = missionIdSecond;
-    mission2->abilityRecord_ = InitAbilityRecord();
-    mission2->abilityRecord_->SetMission(mission2);
-    mission2->abilityRecord_->applicationInfo_.accessTokenId = IPCSkeleton::GetCallingTokenID() + 1;
-    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
-    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
-    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
-    missionListManager->launcherList_->AddMissionToTop(mission1);
-    missionListManager->launcherList_->AddMissionToTop(mission2);
-    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
+    auto missionInfoMgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
+    missionInfoMgr->missionIdMap_.clear();
+    missionInfoMgr->missionIdMap_[missionIdFirst] = true;
+    missionInfoMgr->missionIdMap_[missionIdSecond] = true;
+    missionInfoMgr->missionInfoList_.clear();
+    InnerMissionInfo innerInfoFirst;
+    innerInfoFirst.missionInfo.id = missionIdFirst;
+    innerInfoFirst.uid = missionUidFirst;
+    missionInfoMgr->missionInfoList_.push_back(innerInfoFirst);
+    InnerMissionInfo innerInfoSecond;
+    innerInfoSecond.missionInfo.id = missionIdSecond;
+    innerInfoSecond.uid = missionUidSecond;
+    missionInfoMgr->missionInfoList_.push_back(innerInfoSecond);
     std::vector<int32_t> missionIds;
     std::vector<MissionVaildResult> results;
     for (int32_t i = 0; i < size; ++i) {
         missionIds.push_back(i);
     }
+    EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     missionListManager->IsValidMissionIds(missionIds, results);
     for (auto &item : results) {
         if (item.missionId == missionIdFirst) {
@@ -5798,25 +5886,8 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_003, TestSize.Level1)
 {
     constexpr size_t size = 0;
     constexpr int32_t userId = 3;
-    constexpr int32_t missionIdFirst = 1;
-    constexpr int32_t missionIdSecond = 2;
+    const std::string mockBundleNameFirst = "mock.bundle.name.first";
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    auto mission1 = std::make_shared<Mission>(nullptr);
-    mission1->missionId_ = missionIdFirst;
-    mission1->abilityRecord_ = InitAbilityRecord();
-    mission1->abilityRecord_->SetMission(mission1);
-    mission1->abilityRecord_->applicationInfo_.accessTokenId = 0;
-    auto mission2 = std::make_shared<Mission>(nullptr);
-    mission2->missionId_ = missionIdSecond;
-    mission2->abilityRecord_ = InitAbilityRecord();
-    mission2->abilityRecord_->SetMission(mission2);
-    mission2->abilityRecord_->applicationInfo_.accessTokenId = 1;
-    missionListManager->launcherList_ = std::make_shared<MissionList>(MissionListType::LAUNCHER);
-    missionListManager->defaultStandardList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
-    missionListManager->defaultSingleList_ = std::make_shared<MissionList>(MissionListType::DEFAULT_SINGLE);
-    missionListManager->launcherList_->AddMissionToTop(mission1);
-    missionListManager->launcherList_->AddMissionToTop(mission2);
-    missionListManager->currentMissionLists_.push_front(missionListManager->launcherList_);
     std::vector<int32_t> missionIds;
     std::vector<MissionVaildResult> results;
     EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
