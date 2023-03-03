@@ -32,7 +32,6 @@ config("dataobsms_config") {
 }
 
 ohos_shared_library("dataobsms") {
-  shlib_type = "sa"
   sources = dataobsms_files
 
   configs = [ ":dataobsms_config" ]

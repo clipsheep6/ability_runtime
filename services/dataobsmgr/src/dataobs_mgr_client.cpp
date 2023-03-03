@@ -117,6 +117,9 @@ ErrCode DataObsMgrClient::Connect()
         HILOG_ERROR("%{private}s:fail to get Registry", __func__);
         return GET_DATAOBS_SERVICE_FAILED;
     }
+
+    return GET_DATAOBS_SERVICE_FAILED;
+#if 0
     remoteObject_ = systemManager->GetSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
     if (remoteObject_ == nullptr) {
         HILOG_ERROR("%{private}s:fail to connect DataObsMgrService", __func__);
@@ -124,6 +127,7 @@ ErrCode DataObsMgrClient::Connect()
     }
     HILOG_DEBUG("connect DataObsMgrService success");
     return ERR_OK;
+#endif
 }
 }  // namespace AAFwk
 }  // namespace OHOS
