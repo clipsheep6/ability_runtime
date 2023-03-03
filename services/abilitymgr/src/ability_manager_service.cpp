@@ -1360,7 +1360,7 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     HILOG_DEBUG("Terminate ui extension ability begin.");
     auto connectManager = GetConnectManagerBySessionToken(extensionSessionInfo->sessionToken);
     if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr. userId=%{public}llu", extensionSessionInfo->persistentId);
+        HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = connectManager->GetServiceRecordBySessionToken(extensionSessionInfo->sessionToken);
@@ -1621,7 +1621,7 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
     auto connectManager = GetConnectManagerBySessionToken(extensionSessionInfo->sessionToken);
     if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr. userId=%{public}llu", extensionSessionInfo->persistentId);
+        HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = connectManager->GetServiceRecordBySessionToken(extensionSessionInfo->sessionToken);
