@@ -143,7 +143,6 @@ public:
      */
     void SetCallerTokenId(int32_t tokenId);
 
-
     /**
      * @brief Obtains the app record isLauncherApp flag.
      *
