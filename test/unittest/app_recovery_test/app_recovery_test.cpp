@@ -15,12 +15,18 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <thread>
+
 #define private public
 #include "app_recovery.h"
 #undef private
 #include "ability.h"
 #include "ability_info.h"
+#include "ability_runtime/js_ability.h"
 #include "event_handler.h"
+#include "js_runtime.h"
+#include "mock_ability_context.h"
 #include "mock_ability_token.h"
 #include "recovery_param.h"
 
@@ -38,6 +44,7 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppExecFwk::EventHandler> testHandler_ = std::make_shared<EventHandler>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();
+    std::shared_ptr<AbilityRuntime::MockAbilityContext> context_ = std::make_shared<AbilityRuntime::MockAbilityContext>();
 };
 
 void AppRecoveryUnitTest::SetUpTestCase()
@@ -271,7 +278,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_002, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_003
- * @tc.desc:  ScheduleSaveAppState when reason == StateReason::APP_FREEZE.
+ * @tc.desc:  ScheduleSaveAppState when APP_FREEZE.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -279,8 +286,23 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
-    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
-    EXPECT_FALSE(ret);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
+    auto constContext = std::static_pointer_cast<AbilityRuntime::AbilityContext>(context_);
+    // create js runtime for calling AllowCrossThreadExecution
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::JsRuntime::Create(options);
+    auto jsRuntime = static_cast<AbilityRuntime::JsRuntime*>(runtime.get());
+    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<AbilityRuntime::JsAbility>(*jsRuntime);
+    ability->AttachAbilityContext(constContext);
+    AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
+    // this call will block main thread, thus call it in new thread
+    std::thread watchdog([&] {
+        bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+        EXPECT_TRUE(ret);
+    });
+    watchdog.join();
+
 }
 
 /**
@@ -300,7 +322,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_005
- * @tc.desc:  ScheduleSaveAppState the ability is null, should be return false.
+ * @tc.desc:  ScheduleSaveAppState when CPP_CRASH
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -308,8 +330,10 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_005, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::CPP_CRASH);
-    EXPECT_FALSE(ret);
+    EXPECT_TRUE(ret);
 }
 
 /**
@@ -521,7 +545,7 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
 
 /**
  * @tc.name:  PersistAppState_003
- * @tc.desc:  Test PersistAppState when abilityRecoverys is not empty. no valid missionId, return false
+ * @tc.desc:  Test PersistAppState when abilityRecoverys is not empty.
  * @tc.type: FUNC
  * @tc.require: I5Z7LE
  */
@@ -529,8 +553,11 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
-    AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_);
-    EXPECT_FALSE(AppRecovery::GetInstance().PersistAppState());
+    auto constContext = std::static_pointer_cast<AbilityRuntime::AbilityContext>(context_);
+    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<Ability>();
+    ability->AttachAbilityContext(constContext);
+    AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
+    EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
 }
 
 /**

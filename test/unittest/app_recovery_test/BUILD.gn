@@ -22,6 +22,7 @@ ohos_unittest("AppRecoveryUnitTest") {
   cflags = [ "-DUNITTEST" ]
   include_dirs = [
     "./",
+    "mock",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
 
