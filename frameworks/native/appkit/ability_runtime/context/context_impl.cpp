@@ -221,7 +221,11 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
-        return nullptr;
+        ErrCode ret = bundleMgr->GetDependentBundleInfo(bundleName, bundleInfo);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
+            return nullptr;
+        }
     }
 
     auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
