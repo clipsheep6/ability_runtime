@@ -15,6 +15,7 @@
 
 #include "app_mgr_service_inner.h"
 
+#include <cinttypes>
 #include <csignal>
 #include <securec.h>
 #include <sys/stat.h>
@@ -593,7 +594,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.exitResult = EXIT_SUCESS;
         eventInfo.pid = pid;
         AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
-        HILOG_INFO("%{public}s. time : %{public}lld, exitResult : %{public}d, pid : %{public}d",
+        HILOG_INFO("%{public}s. time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             __func__, eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
     }
@@ -604,7 +605,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.exitResult = EXIT_FAILED;
         eventInfo.pid = pid;
         AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
-        HILOG_INFO("%{public}s. time : %{public}lld, exitResult : %{public}d, pid : %{public}d",
+        HILOG_INFO("%{public}s. time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             __func__, eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
     }
@@ -1579,7 +1580,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     time(&currentTime);
     eventInfo.time = currentTime;
     eventInfo.callerUid = appRecord->GetCallerUid() == -1 ? IPCSkeleton::GetCallingUid() : appRecord->GetCallerUid();
-    if(!appRecord->GetAbilities().empty()) {
+    if (!appRecord->GetAbilities().empty()) {
         auto abilityinfo = appRecord->GetAbilities().begin()->second->GetAbilityInfo();
         UpDateStartupType(abilityinfo, eventInfo.abilityType, eventInfo.extensionType);
     } else {
@@ -1595,7 +1596,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.bundleName = "";
         eventInfo.processName = nativeTokenInfo.processName;
     } else {
-        if (callerAppRecord->GetBundleName().empty()){
+        if (callerAppRecord->GetBundleName().empty()) {
             eventInfo.bundleName = callerAppRecord->GetName();
         } else {
             eventInfo.bundleName = callerAppRecord->GetBundleName();
@@ -1603,7 +1604,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.processName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_INFO("%{public}s. time : %{public}lld, abilityType : %{public}d, bundle : %{public}s, uid : %{public}d,\
+    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s, uid : %{public}d,\
         process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
         eventInfo.processName.c_str());
@@ -1716,7 +1717,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
     }
 
-    if(appRecord->GetPriorityObject() != nullptr) {
+    if (appRecord->GetPriorityObject() != nullptr) {
         SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
     }
 

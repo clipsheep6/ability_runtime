@@ -40,7 +40,6 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
-// static int recordId_ = 0;
 class AppMgrServiceInnerTest : public testing::Test {
 public:
     static void SetUpTestCase();
