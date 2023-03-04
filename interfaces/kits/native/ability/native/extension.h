@@ -21,6 +21,8 @@
 #include "ability_transaction_callback_info.h"
 #include "napi_remote_object.h"
 #include "iremote_object.h"
+#include "session_info.h"
+#include "ui_window.h"
 #include "want.h"
 
 namespace OHOS {
@@ -62,6 +64,13 @@ public:
     void SetLaunchWant(const AAFwk::Want &want);
 
     /**
+     * @brief Obtains the first want object.
+     *
+     * @return Returns the first want object.
+     */
+    std::shared_ptr<AAFwk::Want> GetLaunchWant();
+
+    /**
      * @brief Sets the last want object.
      *
      * @param Want information of other ability or extension.
@@ -88,6 +97,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the extension.
      */
     virtual void OnStart(const AAFwk::Want &want);
+    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Called when this Service extension is connected for the first time.
@@ -168,6 +178,24 @@ public:
     virtual void OnMemoryLevel(int level);
 
     /**
+     * @brief Called when this extension enters the <b>STATE_FOREGROUND</b> state.
+     *
+     *
+     * The extension in the <b>STATE_FOREGROUND</b> state is visible.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnForeground(const Want &want);
+
+    /**
+     * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.
+     *
+     *
+     * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnBackground();
+
+    /**
      * @brief Called when extension need dump info.
      *
      * @param params The params from service.
@@ -175,14 +203,25 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
 
+    void SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo);
+
+    sptr<AAFwk::SessionInfo> GetSessionInfo();
+
+    void SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener);
+
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 protected:
     std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;
+
+    //  window scene
+    std::shared_ptr<Ace::NG::UIWindow> uiWindow_;
+    std::shared_ptr<Rosen::ISessionStageStateListener> sceneSessionStageListener_ = nullptr;
 private:
     std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
     std::shared_ptr<AAFwk::Want> launchWant_ = nullptr;
     std::shared_ptr<AAFwk::Want> lastRequestWant_ = nullptr;
     std::shared_ptr<CallingInfo> callingInfo_ = nullptr;
+    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -161,10 +161,6 @@ ohos_shared_library("abilitykit_utils") {
 
   deps = []
 
-  if (ability_runtime_graphics) {
-    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-  }
-
   public_configs = [ ":abilitykit_utils_public_config" ]
 
   external_deps = [
@@ -180,6 +176,14 @@ ohos_shared_library("abilitykit_utils") {
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+    external_deps += [
+      "ability_base:session_info",
+      "ace_engine:ace_uicontent",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -317,6 +321,7 @@ ohos_shared_library("abilitykit_native") {
 
     public_deps += [
       "${ability_base_path}:session_info",
+      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
@@ -390,6 +395,13 @@ ohos_shared_library("extensionkit_native") {
     "${arkui_path}/napi:ace_napi",
     "${eventhandler_path}/frameworks/eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    public_deps += [
+      "${ability_base_path}:session_info",
+      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -475,6 +487,8 @@ ohos_shared_library("form_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -576,6 +590,8 @@ ohos_shared_library("static_subscriber_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -680,6 +696,9 @@ ohos_shared_library("service_extension_module") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
+    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -770,4 +789,67 @@ group("extension_module") {
   if (ability_runtime_graphics) {
     deps += [ ":form_extension_module" ]
   }
+}
+
+ohos_shared_library("ui_extension") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",
+  ]
+
+  deps = [
+    ":abilitykit_native",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/appkit:app_context",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc:ipc_napi_common",
+    "ipc_js:rpc",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("ui_extension_module") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+
+  deps = [ ":ui_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "ace_engine:ace_uicontent",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }

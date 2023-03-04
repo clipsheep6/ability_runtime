@@ -92,7 +92,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -202,7 +202,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestS
     system_clock::duration timeout = 800ms;
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -263,7 +263,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_003, TestSize.Lev
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
 
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_INVALID_STATE);
 
@@ -322,7 +322,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_003, Te
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
 
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
 
     abilityState_ = INITIAL;
@@ -361,7 +361,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_004, Te
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
 
     abilityState_ = ACTIVE;
@@ -446,7 +446,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_004, TestSize.
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->AddClient(abilityRecord_->GetToken(), true, false), ERR_INVALID_STATE);
 
@@ -469,7 +469,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_005, TestSize.
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -555,7 +555,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_004, TestSi
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_INVALID_STATE);
 
@@ -578,7 +578,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_005, TestSi
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -603,7 +603,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_006, TestSi
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -633,7 +633,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_007, TestSi
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -714,7 +714,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_003, TestS
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_INVALID_STATE);
 
@@ -737,7 +737,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_005, TestS
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -762,7 +762,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_006, TestS
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
@@ -839,7 +839,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_003, Test
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
@@ -901,7 +901,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
 
@@ -923,7 +923,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     abilityState_ = ACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);

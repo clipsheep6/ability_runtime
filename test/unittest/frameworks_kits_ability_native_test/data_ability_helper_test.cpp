@@ -31,6 +31,7 @@
 #include "data_ability_observer_interface.h"
 #include "datashare_helper.h"
 #include "mock_ability_runtime_context.h"
+#include "session_info.h"
 #undef private
 #undef protected
 

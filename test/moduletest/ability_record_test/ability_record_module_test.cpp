@@ -267,11 +267,12 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
     for (int i = 0; i < COUNT; ++i) {
         // Activate
-        auto mockActivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
+        auto mockActivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo,
+            sptr<SessionInfo> sessionInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         };
         testResult = false;
-        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _))
+        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _, _))
             .Times(1)
             .WillOnce(Invoke(mockActivateHandler));
 
@@ -281,10 +282,11 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
         // Inactivate
         testResult = false;
-        auto mockInactivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
+        auto mockInactivateHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo,
+            sptr<SessionInfo> sessionInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         };
-        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _))
+        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _, _))
             .Times(1)
             .WillOnce(Invoke(mockInactivateHandler));
 
@@ -295,7 +297,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
         testResult = false;
 
         // Terminate
-        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _)).Times(1);
+        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _, _)).Times(1);
         abilityRecord->Terminate([] {});
         EXPECT_EQ(abilityRecord->GetAbilityState(), TERMINATING);
 

@@ -166,12 +166,12 @@ public:
     std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
 
     /**
-     * GetServiceRecordBySessionToken.
+     * GetServiceRecordBySessionInfo.
      *
      * @param sessionToken, service ability's session token.
      * @return Returns AbilityRecord shared_ptr.
      */
-    std::shared_ptr<AbilityRecord> GetServiceRecordBySessionToken(const sptr<Rosen::ISession> sessionToken);
+    std::shared_ptr<AbilityRecord> GetServiceRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromSeriveMap(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);

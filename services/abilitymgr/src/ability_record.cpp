@@ -299,7 +299,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     // earlier than above actions.
     currentState_ = AbilityState::FOREGROUNDING;
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
 
@@ -965,7 +965,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     currentState_ = AbilityState::BACKGROUNDING;
-    lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
 int AbilityRecord::TerminateAbility()
@@ -1174,7 +1174,7 @@ void AbilityRecord::Inactivate()
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     currentState_ = AbilityState::INACTIVATING;
-    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_);
+    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
 void AbilityRecord::Terminate(const Closure &task)

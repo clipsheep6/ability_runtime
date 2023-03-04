@@ -192,7 +192,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Flow_001, TestSize.Lev
     };
 
     std::thread(func).detach();
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
+    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
     EXPECT_NE(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
 
     sptr<IRemoteObject> token =

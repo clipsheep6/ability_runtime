@@ -17,6 +17,7 @@
 #include "app_process_data.h"
 #include "lifecycle_deal.h"
 #include "ability_scheduler_mock.h"
+#include "session_info.h"
 
 using namespace testing::ext;
 
@@ -57,7 +58,7 @@ void LifecycleDealTest::SetUp()
 HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_001, TestSize.Level1)
 {
     LifeCycleStateInfo val;
-    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_))
+    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_, ::testing::_))
         .Times(1)
         .WillOnce(testing::SaveArg<1>(&val));
 
@@ -89,7 +90,7 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_001, TestSize.Level1)
 HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_002, TestSize.Level1)
 {
     LifeCycleStateInfo val;
-    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_))
+    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_, ::testing::_))
         .Times(1)
         .WillOnce(testing::SaveArg<1>(&val));
 
@@ -121,7 +122,7 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_002, TestSize.Level1)
 HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_003, TestSize.Level1)
 {
     LifeCycleStateInfo val;
-    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_))
+    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_, ::testing::_))
         .Times(1)
         .WillOnce(testing::SaveArg<1>(&val));
 
@@ -187,7 +188,8 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_005, TestSize.Level1)
  */
 HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_006, TestSize.Level1)
 {
-    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_)).Times(1);
+    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_, ::testing::_))
+        .Times(1);
 
     const Want want;
     CallerInfo caller;

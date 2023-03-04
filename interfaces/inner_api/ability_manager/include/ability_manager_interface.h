@@ -50,9 +50,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
-class SessionInfo;
-
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;

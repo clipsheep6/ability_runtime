@@ -40,6 +40,11 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
 
     token_ = record->GetToken();
     extension_ = extension;
+    if (record->GetAbilityInfo() != nullptr &&
+        record->GetAbilityInfo()->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
+        extension_->SetSceneSessionStageListener(
+            std::make_shared<ExtensionSessionStateLifeCycleImpl>(token_, shared_from_this()));
+    }
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     HILOG_INFO("ExtensionImpl Init end.");
@@ -50,10 +55,11 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
  *
  * @param want Indicates the structure containing information about the extension.
  * @param targetState The life cycle state to switch to.
+ * @param sessionInfo  Indicates the sessionInfo.
  *
  */
-void ExtensionImpl::HandleExtensionTransaction(const Want &want,
-    const AAFwk::LifeCycleStateInfo &targetState)
+void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("ExtensionImpl::HandleExtensionTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d",
@@ -76,24 +82,24 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want,
         }
         case AAFwk::ABILITY_STATE_INACTIVE: {
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
-                Start(want);
+                Start(want, sessionInfo);
             }
             break;
         }
         default: {
             ret = false;
-            HILOG_ERROR("ExtensionImpl::HandleAbilityTransaction state is error");
+            HILOG_ERROR("ExtensionImpl::HandleExtensionTransaction state is error");
             break;
         }
     }
 
     if (ret) {
-        HILOG_INFO("ExtensionImpl::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
+        HILOG_INFO("ExtensionImpl::HandleExtensionTransaction before AbilityManagerClient->AbilityTransitionDone");
         AAFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
-        HILOG_INFO("ExtensionImpl::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
+        HILOG_INFO("ExtensionImpl::HandleExtensionTransaction after AbilityManagerClient->AbilityTransitionDone");
     }
-    HILOG_INFO("ExtensionImpl::HandleAbilityTransaction end");
+    HILOG_INFO("ExtensionImpl::HandleExtensionTransaction end");
 }
 
 void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
@@ -133,8 +139,9 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  * that it belongs to of the lifecycle status.
  *
  * @param want  The Want object to switch the life cycle.
+ * @param sessionInfo  Indicates the sessionInfo.
  */
-void ExtensionImpl::Start(const Want &want)
+void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (extension_ == nullptr) {
@@ -143,7 +150,11 @@ void ExtensionImpl::Start(const Want &want)
     }
 
     HILOG_INFO("ExtensionImpl::Start");
-    extension_->OnStart(want);
+    if (extension_->abilityInfo_->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
+        extension_->OnStart(want, sessionInfo);
+    } else {
+        extension_->OnStart(want);
+    }
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -321,6 +332,49 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
     extension_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+void ExtensionImpl::Foreground(const Want &want)
+{
+    HILOG_DEBUG("ExtensionImpl::Foreground begin");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ExtensionImpl::Foreground ability is nullptr");
+        return;
+    }
+
+    extension_->OnForeground(want);
+    lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+}
+
+void ExtensionImpl::Background()
+{
+    HILOG_DEBUG("ExtensionImpl::Background begin");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ExtensionImpl::Background ability is nullptr");
+        return;
+    }
+    extension_->OnBackground();
+    lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
+}
+
+void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterForeground()
+{
+    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterForeground called.");
+}
+
+void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterBackground()
+{
+    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterBackground called.");
+}
+
+void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterActive()
+{
+    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterActive called.");
+}
+
+void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterInactive()
+{
+    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterInactive called.");
 }
 }
 }

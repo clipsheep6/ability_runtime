@@ -1358,12 +1358,12 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ui extension ability begin.");
-    auto connectManager = GetConnectManagerBySessionToken(extensionSessionInfo->sessionToken);
+    auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto abilityRecord = connectManager->GetServiceRecordBySessionToken(extensionSessionInfo->sessionToken);
+    auto abilityRecord = connectManager->GetServiceRecordBySessionInfo(extensionSessionInfo);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
@@ -1619,12 +1619,12 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
-    auto connectManager = GetConnectManagerBySessionToken(extensionSessionInfo->sessionToken);
+    auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto abilityRecord = connectManager->GetServiceRecordBySessionToken(extensionSessionInfo->sessionToken);
+    auto abilityRecord = connectManager->GetServiceRecordBySessionInfo(extensionSessionInfo);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
@@ -3873,12 +3873,12 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     return nullptr;
 }
 
-std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerBySessionToken(
-    const sptr<Rosen::ISession> sessionToken)
+std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerBySessionInfo(
+    const sptr<SessionInfo> &sessionInfo)
 {
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto item: connectManagers_) {
-        if (item.second && item.second->GetServiceRecordBySessionToken(sessionToken)) {
+        if (item.second && item.second->GetServiceRecordBySessionInfo(sessionInfo)) {
             return item.second;
         }
     }

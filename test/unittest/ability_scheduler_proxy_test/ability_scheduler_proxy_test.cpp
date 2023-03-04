@@ -18,6 +18,7 @@
 #include "ability_scheduler_stub.h"
 #include "ability_scheduler_mock.h"
 #include "pac_map.h"
+#include "session_info.h"
 
 using namespace testing::ext;
 using namespace testing;
