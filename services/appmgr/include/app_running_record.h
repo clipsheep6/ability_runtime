@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,6 +100,49 @@ public:
      * @return Returns app record bundleName.
      */
     const std::string &GetBundleName() const;
+
+    /**
+     * @brief Obtains the app record CallerPid.
+     *
+     * @return Returns app record CallerPid.
+     */
+    int32_t GetCallerPid() const;
+
+    /**
+     * @brief Setting the Caller pid.
+     *
+     * @param CallerUid, the Caller pid.
+     */
+    void SetCallerPid(int32_t pid);
+
+    /**
+     * @brief Obtains the app record CallerUid.
+     *
+     * @return Returns app record CallerUid.
+     */
+    int32_t GetCallerUid() const;
+
+    /**
+     * @brief Setting the Caller uid.
+     *
+     * @param CallerUid, the Caller uid.
+     */
+    void SetCallerUid(int32_t uid);
+
+    /**
+     * @brief Obtains the app record CallerTokenId.
+     *
+     * @return Returns app record CallerTokenId.
+     */
+    int32_t GetCallerTokenId() const;
+
+    /**
+     * @brief Setting the Caller tokenId.
+     *
+     * @param CallerToken, the Caller tokenId.
+     */
+    void SetCallerTokenId(int32_t tokenId);
+
 
     /**
      * @brief Obtains the app record isLauncherApp flag.
@@ -662,6 +705,9 @@ private:
     bool securityFlag_ = false;
     int32_t requestProcCode_ = 0;
     ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
+    int32_t callerPid_ = -1;
+    int32_t callerUid_ = -1;
+    int32_t callerTokenId_ = -1;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

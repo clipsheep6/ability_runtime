@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -111,6 +111,7 @@ const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -475,6 +476,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 
     HILOG_INFO("application is terminated");
+    SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
 }
 
 int32_t AppMgrServiceInner::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
@@ -577,6 +579,50 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         }
     }
     return result;
+}
+
+void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count)
+{
+    auto exitResult = !ProcessExist(pid);
+    constexpr int32_t EXIT_SUCESS = 0;
+    constexpr int32_t EXIT_FAILED = -1;
+
+    if (exitResult) {
+        AAFwk::EventInfo eventInfo;
+        eventInfo.time = exitTime;
+        eventInfo.exitResult = EXIT_SUCESS;
+        eventInfo.pid = pid;
+        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        HILOG_INFO("%{public}s. time : %{public}lld, exitResult : %{public}d, pid : %{public}d",
+            __func__, eventInfo.time, eventInfo.exitResult, eventInfo.pid);
+        return;
+    }
+
+    if (--count <= 0) {
+        AAFwk::EventInfo eventInfo;
+        eventInfo.time = exitTime;
+        eventInfo.exitResult = EXIT_FAILED;
+        eventInfo.pid = pid;
+        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        HILOG_INFO("%{public}s. time : %{public}lld, exitResult : %{public}d, pid : %{public}d",
+            __func__, eventInfo.time, eventInfo.exitResult, eventInfo.pid);
+        return;
+    }
+
+    auto sendEventTask = [inner = shared_from_this(), pid, exitTime, count] () {
+        inner->SendProcessExitEventTask(pid, exitTime, count);
+    };
+    eventHandler_->PostTask(sendEventTask, PROCESS_EXIT_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
+}
+
+void AppMgrServiceInner::SendProcessExitEvent(pid_t pid)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    time_t currentTime;
+    time(&currentTime);
+    constexpr int32_t RETRY_COUNT = 5;
+    SendProcessExitEventTask(pid, currentTime, RETRY_COUNT);
+    return;
 }
 
 int32_t AppMgrServiceInner::KillApplicationSelf()
@@ -966,6 +1012,9 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
+        appRecord->SetCallerPid(want->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
+        appRecord->SetCallerUid(want->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
+        appRecord->SetCallerTokenId(want->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     }
 
     if (preToken) {
@@ -1499,6 +1548,67 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
     PerfProfile::GetInstance().SetAppForkEndTime(GetTickCount());
+    SendProcessStartEvent(appRecord);
+}
+
+void AppMgrServiceInner::UpDateStartupType(
+    const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType)
+{
+    if (info == nullptr) {
+        return;
+    }
+
+    HILOG_DEBUG("bundleName:%{public}s, abilityName:%{public}s", info->bundleName.c_str(), info->name.c_str());
+    abilityType = static_cast<int32_t>(info->type);
+    if (info->type != AbilityType::EXTENSION) {
+        return;
+    }
+
+    extensionType = static_cast<int32_t>(info->extensionAbilityType);
+}
+
+bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr");
+        return false;
+    }
+
+    AAFwk::EventInfo eventInfo;
+    time_t currentTime;
+    time(&currentTime);
+    eventInfo.time = currentTime;
+    eventInfo.callerUid = appRecord->GetCallerUid() == -1 ? IPCSkeleton::GetCallingUid() : appRecord->GetCallerUid();
+    if(!appRecord->GetAbilities().empty()) {
+        auto abilityinfo = appRecord->GetAbilities().begin()->second->GetAbilityInfo();
+        UpDateStartupType(abilityinfo, eventInfo.abilityType, eventInfo.extensionType);
+    } else {
+        HILOG_INFO("Abilities nullptr!");
+    }
+
+    auto callerAppRecord = GetAppRunningRecordByPid(appRecord->GetCallerPid());
+    if (callerAppRecord == nullptr) {
+        Security::AccessToken::NativeTokenInfo nativeTokenInfo = {};
+        auto token =
+            appRecord->GetCallerTokenId() == -1 ? IPCSkeleton::GetCallingTokenID() : appRecord->GetCallerTokenId();
+        Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
+        eventInfo.bundleName = "";
+        eventInfo.processName = nativeTokenInfo.processName;
+    } else {
+        if (callerAppRecord->GetBundleName().empty()){
+            eventInfo.bundleName = callerAppRecord->GetName();
+        } else {
+            eventInfo.bundleName = callerAppRecord->GetBundleName();
+        }
+        eventInfo.processName = callerAppRecord->GetProcessName();
+    }
+    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
+    HILOG_INFO("%{public}s. time : %{public}lld, abilityType : %{public}d, bundle : %{public}s, uid : %{public}d,\
+        process : %{public}s",
+        __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
+        eventInfo.processName.c_str());
+
+    return true;
 }
 
 void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, const std::string &processName)
@@ -1604,6 +1714,10 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         HILOG_DEBUG("Kill render process when host died.");
         KillProcessByPid(renderRecord->GetPid());
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+    }
+
+    if(appRecord->GetPriorityObject() != nullptr) {
+        SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
     }
 
     if (appRecord->IsKeepAliveApp()) {
@@ -1756,6 +1870,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
         auto timeoutTask = [pid, innerService = shared_from_this()]() {
             HILOG_INFO("KillProcessByPid %{public}d", pid);
             int32_t result = innerService->KillProcessByPid(pid);
+            innerService->SendProcessExitEvent(pid);
             if (result < 0) {
                 HILOG_ERROR("KillProcessByPid kill process is fail");
                 return;
@@ -2257,6 +2372,12 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         if (!appRecord) {
             HILOG_ERROR("start process [%{public}s] failed!", processName.c_str());
             return;
+        }
+        auto wantPtr = std::make_shared<AAFwk::Want>(want);
+        if (wantPtr != nullptr) {
+            appRecord->SetCallerPid(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
+            appRecord->SetCallerUid(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
+            appRecord->SetCallerTokenId(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
         }
         appRecord->SetEventHandler(eventHandler_);
         appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,

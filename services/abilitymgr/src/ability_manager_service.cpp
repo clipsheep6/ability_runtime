@@ -961,7 +961,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
         }
     }
 
-    UpdateCallerInfo(abilityRequest.want, nullptr);
+    UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
     return ERR_OK;
 }
 
@@ -1114,6 +1114,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+    UpdateCallerInfo(abilityRequest.want, callerToken);
     HILOG_INFO("Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
     eventInfo.errCode = connectManager->StartAbility(abilityRequest);
     if (eventInfo.errCode != ERR_OK) {
@@ -1734,6 +1735,7 @@ int AbilityManagerService::ConnectAbilityCommon(
         }
         return eventInfo.errCode;
     }
+    UpdateCallerInfo(abilityWant, callerToken);
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         HILOG_INFO("%{public}s invalid Token.", __func__);
@@ -2515,6 +2517,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     bool isNotHap = isSaCall || isShellCall;
+    UpdateCallerInfo(abilityRequest.want, callerToken);
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
 }
 
@@ -3629,6 +3632,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
 
     auto begin = system_clock::now();
     AbilityRequest dataAbilityRequest;
+    UpdateCallerInfo(dataAbilityRequest.want, nullptr);
     dataAbilityRequest.appInfo = bundleInfo.applicationInfo;
     for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
         if (it->type != AppExecFwk::AbilityType::DATA) {

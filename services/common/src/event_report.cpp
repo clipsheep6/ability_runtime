@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,15 @@ const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
 const std::string EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
 const std::string EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
+const std::string EVENT_KEY_STARTUP_TIME = "STARTUP_TIME";
+const std::string EVENT_KEY_STARTUP_ABILITY_TYPE = "STARTUP_ABILITY_TYPE";
+const std::string EVENT_KEY_STARTUP_EXTENSION_TYPE = "STARTUP_EXTENSION_TYPE";
+const std::string EVENT_KEY_CALLER_BUNDLE_NAME = "CALLER_BUNDLE_NAME";
+const std::string EVENT_KEY_CALLER_UID = "CALLER_UID";
+const std::string EVENT_KEY_CALLER_PROCESS_NAME = "CALLER_PROCESS_NAME";
+const std::string EVENT_KEY_EXIT_TIME = "EXIT_TIME";
+const std::string EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
+const std::string EVENT_KEY_EXIT_PID = "EXIT_PID";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -70,26 +79,66 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::APP_FOREGROUND, "APP_FOREGROUND"),
     std::map<EventName, std::string>::value_type(EventName::APP_BACKGROUND, "APP_BACKGROUND"),
     std::map<EventName, std::string>::value_type(EventName::APP_TERMINATE, "APP_TERMINATE"),
+    std::map<EventName, std::string>::value_type(EventName::PROCESS_START, "PROCESS_START"),
+    std::map<EventName, std::string>::value_type(EventName::PROCESS_EXIT, "PROCESS_EXIT"),
 };
 }
 
 void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
+    constexpr int32_t defaultVal = -1;
     std::string name = ConvertEventName(eventName);
     if (name == "INVALIDEVENTNAME") {
         HILOG_ERROR("invalid eventName");
         return;
     }
-    HiSysEventWrite(
-        HiSysEvent::Domain::AAFWK,
-        name,
-        type,
-        EVENT_KEY_APP_PID, eventInfo.pid,
-        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-        EVENT_KEY_VERSION_NAME, eventInfo.versionName,
-        EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-        EVENT_KEY_PROCESS_NAME, eventInfo.processName);
+    switch (eventName) {
+        case EventName::PROCESS_START:
+            if (eventInfo.extensionType == defaultVal) {
+                HiSysEventWrite(
+                    HiSysEvent::Domain::AAFWK,
+                    name,
+                    type,
+                    EVENT_KEY_STARTUP_TIME, eventInfo.time,
+                    EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
+                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_CALLER_UID, eventInfo.callerUid,
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.processName);
+            } else {
+                HiSysEventWrite(
+                    HiSysEvent::Domain::AAFWK,
+                    name,
+                    type,
+                    EVENT_KEY_STARTUP_TIME, eventInfo.time,
+                    EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
+                    EVENT_KEY_STARTUP_EXTENSION_TYPE, eventInfo.extensionType,
+                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_CALLER_UID, eventInfo.callerUid,
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.processName);
+            }
+            break;
+        case EventName::PROCESS_EXIT:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_EXIT_TIME, eventInfo.time,
+                EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
+                EVENT_KEY_EXIT_PID, eventInfo.pid);
+            break;
+        default:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_EXIT_RESULT, eventInfo.bundleName,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_PROCESS_NAME, eventInfo.processName);
+            break;
+    }
 }
 
 void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type,

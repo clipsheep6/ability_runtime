@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -172,6 +172,36 @@ void AppRunningRecord::SetApplicationClient(const sptr<IAppScheduler> &thread)
 const std::string &AppRunningRecord::GetBundleName() const
 {
     return mainBundleName_;
+}
+
+int32_t AppRunningRecord::GetCallerPid() const
+{
+    return callerPid_;
+}
+
+void AppRunningRecord::SetCallerPid(int32_t pid)
+{
+    callerPid_ = pid;
+}
+
+int32_t AppRunningRecord::GetCallerUid() const
+{
+    return callerUid_;
+}
+
+void AppRunningRecord::SetCallerUid(int32_t uid)
+{
+    callerUid_ = uid;
+}
+
+int32_t AppRunningRecord::GetCallerTokenId() const
+{
+    return callerTokenId_;
+}
+
+void AppRunningRecord::SetCallerTokenId(int32_t tokenId)
+{
+    callerTokenId_ = tokenId;
 }
 
 bool AppRunningRecord::IsLauncherApp() const
