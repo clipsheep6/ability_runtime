@@ -478,8 +478,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
 
     auto scheduler = new AbilityScheduler();
     ConnectManager()->AttachAbilityThreadLocked(scheduler, token->AsObject());
-    ConnectManager()->OnAbilityRequestDone(
-        token->AsObject(), static_cast<int32_t>(AppAbilityState::ABILITY_STATE_FOREGROUND));
     ConnectManager()->AbilityTransitionDone(token->AsObject(), OHOS::AAFwk::AbilityState::INACTIVE);
 
     WaitUntilTaskDone(handler);
@@ -961,48 +959,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
- * Function: OnAbilityRequestDone
- * SubFunction: NA
- * FunctionPoints: OnAbilityRequestDone
- * EnvConditions:NA
- * CaseDescription: Verify the ability status, right
- */
-HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_018, TestSize.Level1)
-{
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
-
-    ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
-    auto elementName = abilityRequest_.want.GetElement();
-    std::string elementNameUri = elementName.GetURI();
-    auto serviceMap = ConnectManager()->GetServiceMap();
-    auto abilityRecord = serviceMap.at(elementNameUri);
-    auto token = abilityRecord->GetToken();
-
-    auto connectMap = ConnectManager()->GetConnectMap();
-    EXPECT_EQ(1, static_cast<int>(connectMap.size()));
-
-    auto scheduler = new AbilityScheduler();
-    ConnectManager()->AttachAbilityThreadLocked(scheduler, token->AsObject());
-
-    // invalid parameter, direct return
-    OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
-    ConnectManager()->OnAbilityRequestDone(
-        nullToken, static_cast<int32_t>(OHOS::AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND));
-
-    ConnectManager()->OnAbilityRequestDone(
-        token->AsObject(), static_cast<int32_t>(OHOS::AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND));
-    WaitUntilTaskDone(handler);
-    EXPECT_EQ(abilityRecord->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVATING);
-
-    ConnectManager()->OnAbilityRequestDone(
-        token->AsObject(), static_cast<int32_t>(OHOS::AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND));
-    WaitUntilTaskDone(handler);
-    EXPECT_EQ(0, static_cast<int>(ConnectManager()->GetServiceMap().size()));
-}
-
-/*
- * Feature: AbilityConnectManager
  * Function: AbilityTransitionDone
  * SubFunction: NA
  * FunctionPoints: AbilityTransitionDone
@@ -1118,11 +1074,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_021, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetServiceRecordByToken
+ * Function: GetExtensionByTokenFromSeriveMap
  * SubFunction: NA
- * FunctionPoints: GetServiceRecordByToken
+ * FunctionPoints: GetExtensionByTokenFromSeriveMap
  * EnvConditions:NA
- * CaseDescription: Verify the GetServiceRecordByToken process
+ * CaseDescription: Verify the GetExtensionByTokenFromSeriveMap process
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_022, TestSize.Level1)
 {
@@ -1133,40 +1089,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_022, TestSize.Level1)
     auto abilityRecord = serviceMap.at(elementNameUri);
     auto token = abilityRecord->GetToken();
 
-    auto ability = ConnectManager()->GetServiceRecordByToken(token);
+    auto ability = ConnectManager()->GetExtensionByTokenFromSeriveMap(token);
     EXPECT_EQ(abilityRecord, ability);
 
     OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
-    auto ability1 = ConnectManager()->GetServiceRecordByToken(nullToken);
+    auto ability1 = ConnectManager()->GetExtensionByTokenFromSeriveMap(nullToken);
     EXPECT_EQ(nullptr, ability1);
-}
-
-/*
- * Feature: AbilityConnectManager
- * Function: RemoveAll
- * SubFunction: NA
- * FunctionPoints: RemoveAll
- * EnvConditions:NA
- * CaseDescription: Verify the RemoveAll process
- */
-HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_023, TestSize.Level1)
-{
-    ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
-    auto elementName = abilityRequest_.want.GetElement();
-    std::string elementNameUri = elementName.GetURI();
-    auto serviceMap = ConnectManager()->GetServiceMap();
-    auto abilityRecord = serviceMap.at(elementNameUri);
-    auto token = abilityRecord->GetToken();
-
-    auto conMap = ConnectManager()->GetConnectMap();
-    EXPECT_EQ(conMap.empty(), false);
-    EXPECT_EQ(serviceMap.empty(), false);
-
-    ConnectManager()->RemoveAll();
-    conMap = ConnectManager()->GetConnectMap();
-    serviceMap = ConnectManager()->GetServiceMap();
-    EXPECT_EQ(conMap.empty(), true);
-    EXPECT_EQ(serviceMap.empty(), true);
 }
 
 /*
@@ -1780,19 +1708,19 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetServiceRecordByElementNam
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetServiceRecordByToken
- * SubFunction: GetServiceRecordByToken
+ * Function: GetExtensionByTokenFromSeriveMap
+ * SubFunction: GetExtensionByTokenFromSeriveMap
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager GetServiceRecordByToken
+ * CaseDescription: Verify AbilityConnectManager GetExtensionByTokenFromSeriveMap
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetServiceRecordByToken_001, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionByTokenFromSeriveMap_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     sptr<IRemoteObject> token = abilityRecord->GetToken();
     connectManager->serviceMap_.emplace("first", nullptr);
-    auto res = connectManager->GetServiceRecordByToken(token);
+    auto res = connectManager->GetExtensionByTokenFromSeriveMap(token);
     EXPECT_EQ(res, nullptr);
 }
 
