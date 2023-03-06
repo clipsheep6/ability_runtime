@@ -26,7 +26,7 @@ using namespace testing;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.IAtomicServiceStatusCallback";
+const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.IAtomicServiceStatusCallback";
 }
 
 class AtomicServiceStatusCallbackStubTest : public testing::Test {
