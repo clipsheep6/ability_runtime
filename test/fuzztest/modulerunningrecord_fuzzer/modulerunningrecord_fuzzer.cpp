@@ -76,9 +76,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Parcel wantParcel;
     std::shared_ptr<Want> want;
     moduleRecord.AddAbility(token, abilityInfo, want);
-    std::string abilityName(data, size);
-    int32_t ownerUserId = static_cast<int32_t>(GetU32Data(data));
-    moduleRecord.GetAbilityRunningRecord(abilityName, ownerUserId);
     int64_t eventId = static_cast<int64_t>(GetU32Data(data));
     moduleRecord.GetAbilityRunningRecord(eventId);
     std::shared_ptr<AbilityRunningRecord> record;
@@ -95,7 +92,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int64_t timeOut = static_cast<int64_t>(GetU32Data(data));
     moduleRecord.SendEvent(msg, timeOut, record);
     moduleRecord.RemoveTerminateAbilityTimeoutTask(token);
-    moduleRecord.ClearAbility(record);
     moduleRecord.GetModuleName();
     moduleRecord.GetPageAbilitySize();
     moduleRecord.GetModuleRecordState();

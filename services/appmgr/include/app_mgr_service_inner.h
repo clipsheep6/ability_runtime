@@ -349,13 +349,6 @@ public:
     virtual void AddAbilityStageDone(const int32_t recordId);
 
     /**
-     * GetRecordMap, Get all the ability information in the application record.
-     *
-     * @return all the ability information in the application record.
-     */
-    std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> GetRecordMap() const;
-
-    /**
      * GetAppRunningRecordByPid, Get process record by application pid.
      *
      * @param pid, the application pid.
