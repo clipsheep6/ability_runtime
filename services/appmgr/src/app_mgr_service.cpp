@@ -655,5 +655,13 @@ bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
 
     return true;
 }
+
+bool AppMgrService::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->IsSharedBundleRunning(bundleName, versionCode);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

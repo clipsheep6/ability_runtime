@@ -44,6 +44,7 @@
 #include "running_process_info.h"
 #include "bundle_info.h"
 #include "istart_specified_ability_response.h"
+#include "shared_package/base_shared_package_info.h"
 
 #include "want.h"
 #include "window_focus_changed_listener.h"
@@ -282,6 +283,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level);
+
+    /**
+     * @brief Check whether the shared bundle is running.
+     *
+     * @param bundleName Shared bundle name.
+     * @param versionCode Shared bundle version code.
+     * @return Returns the shared bundle running result. The result is true if running, false otherwise.
+     */
+    virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
         const sptr<IRemoteObject> &token,
@@ -800,6 +810,11 @@ private:
 
     void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
 
+    void SetRunningSharedBundleList(const std::string &bundleName,
+        const std::vector<BaseSharedPackageInfo> baseSharedPackageInfoList);
+
+    void RemoveRunningSharedBundleList(const std::string &bundleName);
+
 private:
     /**
      * Notify application status.
@@ -829,6 +844,7 @@ private:
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
+    std::map<std::string, std::vector<BaseSharedPackageInfo>> runningSharedBundleList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

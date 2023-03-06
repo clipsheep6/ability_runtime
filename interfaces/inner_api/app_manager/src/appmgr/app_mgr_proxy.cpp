@@ -1041,5 +1041,36 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, cons
 
     return reply.ReadInt32();
 }
+
+bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteString(bundleName) || !data.WriteUint32(versionCode)) {
+        HILOG_ERROR("Write bundle name or version code failed.");
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::IS_SHARED_BUNDLE_RUNNING),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return false;
+    }
+
+    return reply.ReadBool();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

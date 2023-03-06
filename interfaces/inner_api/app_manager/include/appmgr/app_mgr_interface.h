@@ -310,6 +310,15 @@ public:
     };
 #endif
 
+    /**
+     * @brief Check whether the shared bundle is running.
+     *
+     * @param bundleName Shared bundle name.
+     * @param versionCode Shared bundle version code.
+     * @return Returns the shared bundle running result. The result is true if running, false otherwise.
+     */
+    virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -347,6 +356,7 @@ public:
         NOTIFY_UNLOAD_REPAIR_PATCH,
         PRE_START_NWEBSPAWN_PROCESS,
         APP_GET_PROCESS_RUNNING_INFORMATION,
+        IS_SHARED_BUNDLE_RUNNING,
     };
 };
 }  // namespace AppExecFwk

@@ -475,6 +475,9 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
+    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
+        RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
 
     HILOG_INFO("application is terminated");
     SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
@@ -1541,6 +1544,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
     HILOG_INFO("Start process success, pid is %{public}d, processName is %{public}s.", pid, processName.c_str());
+    SetRunningSharedBundleList(bundleName, hspList);
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
     appRecord->SetStartMsg(startMsg);
@@ -1686,6 +1690,9 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
     }
 
     ClearAppRunningData(appRecord, false);
+    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
+        RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
 }
 
 void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp)
@@ -1885,6 +1892,9 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     }
     appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
     RemoveAppFromRecentListById(appRecord->GetRecordId());
+    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
+        RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 }
 
@@ -3245,6 +3255,36 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
+}
+
+bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
+{
+    if (!CheckGetRunningInfoPermission()) {
+        return false;
+    }
+    for (const auto &it : runningSharedBundleList_) {
+        for (const auto &item : it.second) {
+            if (item.bundleName == bundleName && item.versionCode == versionCode) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void AppMgrServiceInner::SetRunningSharedBundleList(const std::string &bundleName,
+    const std::vector<BaseSharedPackageInfo> baseSharedPackageInfoList)
+{
+    runningSharedBundleList_.try_emplace(bundleName, baseSharedPackageInfoList);
+}
+
+void AppMgrServiceInner::RemoveRunningSharedBundleList(const std::string &bundleName)
+{
+    auto iterator = runningSharedBundleList_.find(bundleName);
+    if (iterator == runningSharedBundleList_.end()) {
+        return;
+    }
+    runningSharedBundleList_.erase(iterator);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

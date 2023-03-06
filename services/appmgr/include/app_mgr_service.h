@@ -262,6 +262,15 @@ public:
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;
 #endif
 
+    /**
+     * @brief Check whether the shared bundle is running.
+     *
+     * @param bundleName Shared bundle name.
+     * @param versionCode Shared bundle version code.
+     * @return Returns the shared bundle running result. The result is true if running, false otherwise.
+     */
+    virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) override;
+
 private:
     /**
      * Init, Initialize application services.

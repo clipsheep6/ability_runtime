@@ -58,6 +58,7 @@ public:
             const int32_t perceptibility, const int32_t connectionState));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());
+    MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
 
     void Post()
     {

@@ -95,6 +95,7 @@ private:
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t HandleSetContinuousTaskProcess(MessageParcel &data, MessageParcel &reply);
 #endif
+    int32_t HandleIsSharedBundleRunning(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

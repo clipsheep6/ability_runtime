@@ -115,6 +115,12 @@ public:
         return (me != nullptr) ? me->OnClearUpApplicationData(*engine, *info) : nullptr;
     }
 
+    static NativeValue* IsSharedBundleRunning(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnIsSharedBundleRunning(*engine, *info) : nullptr;
+    }
+
     static NativeValue* GetAppMemorySize(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
@@ -389,6 +395,48 @@ private:
         return result;
     }
 
+    NativeValue* OnIsSharedBundleRunning(NativeEngine &engine, const NativeCallbackInfo &info)
+    {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        if (info.argc < ARGC_TWO) {
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("get bundleName failed!");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        uint32_t versionCode = 0;
+        if (!ConvertFromJsValue(engine, info.argv[1], versionCode)) {
+            HILOG_ERROR("get versionCode failed!");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [bundleName, versionCode, appManager = appManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (appManager == nullptr) {
+                HILOG_WARN("appManager nullptr");
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            bool ret = appManager->IsSharedBundleRunning(bundleName, versionCode);
+            HILOG_INFO("IsSharedBundleRunning result:%{public}d", ret);
+            task.ResolveWithNoError(engine, CreateJsValue(engine, ret));
+        };
+
+        NativeValue* lastParam = (info.argc == ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnIsSharedBundleRunning",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     NativeValue* OnKillProcessWithAccount(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
@@ -560,6 +608,8 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::GetAppMemorySize);
     BindNativeFunction(*engine, *object, "isRamConstrainedDevice", moduleName,
         JsAppManager::IsRamConstrainedDevice);
+    BindNativeFunction(*engine, *object, "isSharedBundleRunning", moduleName,
+        JsAppManager::IsSharedBundleRunning);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }
