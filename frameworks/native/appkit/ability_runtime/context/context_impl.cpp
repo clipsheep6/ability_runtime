@@ -35,6 +35,7 @@
 #include "running_process_info.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -221,7 +222,9 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
+        std::string identity = IPCSkeleton::ResetCallingIdentity();
         ErrCode ret = bundleMgr->GetDependentBundleInfo(bundleName, bundleInfo);
+        IPCSkeleton::SetCallingIdentity(identity);
         if (ret != ERR_OK) {
             HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
             return nullptr;
