@@ -143,7 +143,7 @@ public:
      */
     static ErrCode GetCommonEventAsUser(
         const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
-        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags, int uid,
+        int requestCode, const std::shared_ptr<AAFwk::Want> &want, unsigned int flags,
         std::shared_ptr<PendingWant> &pendingWant);
 
     /**
