@@ -896,8 +896,6 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_001, TestSize.Level1)
     EXPECT_TRUE(service_ != nullptr);
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchAbility(_, _, _)).Times(1);
@@ -939,8 +937,6 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_002, TestSize.Level1)
 
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
     record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
@@ -991,8 +987,6 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_003, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
     record->SetState(ApplicationState::APP_STATE_READY);
     record->SetApplicationClient(GetMockedAppSchedulerClient());
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(0);
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchAbility(_, _, _)).Times(0);
@@ -1035,8 +1029,6 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_004, TestSize.Level1)
 
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchAbility(_, _, _)).Times(1);
@@ -1083,8 +1075,6 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_005, TestSize.Level1)
 
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
     record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
@@ -1152,8 +1142,6 @@ HWTEST_F(AmsAppRunningRecordTest, TerminateAbility_002, TestSize.Level1)
 
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleCleanAbility(_)).Times(0);
     record->TerminateAbility(GetMockToken(), false);
@@ -1178,40 +1166,6 @@ HWTEST_F(AmsAppRunningRecordTest, AbilityTerminated_001, TestSize.Level1)
     record->AbilityTerminated(nullptr);
 
     HILOG_INFO("AmsAppRunningRecordTest AbilityTerminated_001 end");
-}
-
-/*
- * Feature: AMS
- * Function: AppRunningRecord
- * SubFunction: GetAbilityRunningRecord
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Verify the function GetAbilityRunningRecord return nullptr when the ability doesn't added.
- */
-HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest GetAbilityRunningRecord_001 start");
-
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-
-    HapModuleInfo hapModuleInfo;
-    hapModuleInfo.moduleName = "module789";
-    BundleInfo bundleInfo;
-    bundleInfo.appId = "com.ohos.test.helloworld_code123";
-    auto appInfo = std::make_shared<ApplicationInfo>();
-    appInfo->name = GetTestAppName();
-    appInfo->bundleName = GetTestAppName();
-
-    std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
-        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
-
-    std::string abilityName = "not_exist_ability_name";
-    EXPECT_EQ(nullptr, record->GetAbilityRunningRecord(abilityName, hapModuleInfo.moduleName));
-
-    HILOG_INFO("AmsAppRunningRecordTest GetAbilityRunningRecord_001 end");
 }
 
 /*
@@ -1293,7 +1247,7 @@ HWTEST_F(AmsAppRunningRecordTest, OnAbilityStateChanged_001, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
     auto moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord != nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
+    auto abilityRecord = record->GetAbilityRunningRecordByToken(GetMockToken());
     EXPECT_TRUE(abilityRecord != nullptr);
 
     sptr<MockAppStateCallback> callback = new (std::nothrow) MockAppStateCallback();
@@ -1843,14 +1797,12 @@ HWTEST_F(AmsAppRunningRecordTest, Specified_LaunchApplication_001, TestSize.Leve
     EXPECT_TRUE(service_ != nullptr);
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
-    auto abilityRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
-    EXPECT_TRUE(abilityRecord != nullptr);
 
     record->SetApplicationClient(GetMockedAppSchedulerClient());
     record->isSpecifiedAbility_ = true;
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     service_->LaunchApplication(record);
-    auto ability = record->GetAbilityRunningRecord(GetTestAbilityName(), hapModuleInfo.moduleName);
+    auto ability = record->GetAbilityRunningRecordByToken(GetMockToken());
     EXPECT_TRUE(ability->GetState() != AbilityState::ABILITY_STATE_READY);
 }
 
@@ -2191,10 +2143,6 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_002, TestSize.Level1)
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
-    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
-        record->GetAbilityRunningRecord(GetTestAbilityName(), "module123", 0);
-    EXPECT_EQ(abilityRunningRecord, nullptr);
-
     sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
     record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
     auto abilityInfo1 = std::make_shared<AbilityInfo>();
@@ -2207,12 +2155,6 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_002, TestSize.Level1)
     auto moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);
 
-    abilityRunningRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), "", 0);
-    EXPECT_NE(abilityRunningRecord, nullptr);
-    abilityRunningRecord = record->GetAbilityRunningRecord(GetTestAbilityName(), "module789", 0);
-    EXPECT_NE(abilityRunningRecord, nullptr);
-
-    abilityRunningRecord->SetEventId(999);
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 = record->GetAbilityRunningRecord(999);
     EXPECT_NE(abilityRunningRecord1, nullptr);
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 = record->GetAbilityRunningRecord(123);

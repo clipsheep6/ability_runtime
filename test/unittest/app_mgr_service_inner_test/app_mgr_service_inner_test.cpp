@@ -1195,30 +1195,6 @@ HWTEST_F(AppMgrServiceInnerTest, QueryAppSpawnConnectionState_001, TestSize.Leve
 }
 
 /**
- * @tc.name: GetRecordMap_001
- * @tc.desc: get record map.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, GetRecordMap_001, TestSize.Level0)
-{
-    HILOG_INFO("GetRecordMap_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap;
-
-    auto appRunningRecordMap1 = appMgrServiceInner->GetRecordMap();
-    EXPECT_EQ(appRunningRecordMap1, appRunningRecordMap);
-
-    appMgrServiceInner->appRunningManager_ = nullptr;
-    auto appRunningRecordMap2 = appMgrServiceInner->GetRecordMap();
-    EXPECT_EQ(appRunningRecordMap2, appRunningRecordMap);
-
-    HILOG_INFO("GetRecordMap_001 end");
-}
-
-/**
  * @tc.name: SetAppSpawnClient_001
  * @tc.desc: set app spawn client.
  * @tc.type: FUNC

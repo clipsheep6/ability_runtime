@@ -1104,17 +1104,6 @@ SpawnConnectionState AppMgrServiceInner::QueryAppSpawnConnectionState() const
     return SpawnConnectionState::STATE_NOT_CONNECT;
 }
 
-std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppMgrServiceInner::GetRecordMap() const
-{
-    if (!appRunningManager_) {
-        HILOG_ERROR("appRunningManager nullptr!");
-        std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap;
-        return appRunningRecordMap;
-    }
-
-    return appRunningManager_->GetAppRunningRecordMap();
-}
-
 void AppMgrServiceInner::SetAppSpawnClient(std::shared_ptr<AppSpawnClient> spawnClient)
 {
     if (remoteClientManager_ == nullptr) {
@@ -1252,20 +1241,12 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
         want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord->GetSecurityFlag());
     }
 
-    if (abilityInfo->launchMode == LaunchMode::SINGLETON) {
-        int32_t ownerUserId = -1;
-        if (want) {
-            ownerUserId = want->GetIntParam(ABILITY_OWNER_USERID, -1);
-        }
-        auto abilityRecord = appRecord->GetAbilityRunningRecord(abilityInfo->name,
-            abilityInfo->moduleName, ownerUserId);
-        if (abilityRecord) {
-            HILOG_WARN("same ability info in singleton launch mode, will not add ability");
-            return;
-        }
+    auto ability = appRecord->GetAbilityRunningRecordByToken(token);
+    if (abilityInfo->launchMode == LaunchMode::SINGLETON && ability != nullptr) {
+        HILOG_WARN("same ability info in singleton launch mode, will not add ability");
+        return;
     }
 
-    auto ability = appRecord->GetAbilityRunningRecordByToken(token);
     if (ability && preToken) {
         HILOG_ERROR("Ability is already started");
         ability->SetPreToken(preToken);
