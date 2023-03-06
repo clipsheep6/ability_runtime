@@ -1020,9 +1020,11 @@ void AbilityConnectManager::RemoveConnectionRecordFromMap(const std::shared_ptr<
 void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    auto&& element = abilityRecord->GetWant().GetElement().GetURI();
-    HILOG_DEBUG("Remove service(%{public}s) from terminating map.", element.c_str());
-    terminatingExtensionMap_.erase(element);
+    auto& abilityInfo = abilityRecord->GetAbilityInfo();
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+        abilityInfo.moduleName);
+    HILOG_DEBUG("Remove service(%{public}s) from terminating map.", element.GetURI().c_str());
+    terminatingExtensionMap_.erase(element.GetURI());
 }
 
 void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
@@ -1562,11 +1564,14 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 }
 
-void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord) {
+void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord)
+{
     CHECK_POINTER(abilityRecord);
-    auto&& element = abilityRecord->GetWant().GetElement().GetURI();
-    terminatingExtensionMap_.emplace(element, abilityRecord);
-    serviceMap_.erase(element);
+    auto& abilityInfo = abilityRecord->GetAbilityInfo();
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+        abilityInfo.moduleName);
+    terminatingExtensionMap_.emplace(element.GetURI(), abilityRecord);
+    serviceMap_.erase(element.GetURI());
 }
 }  // namespace AAFwk
 }  // namespace OHOS
