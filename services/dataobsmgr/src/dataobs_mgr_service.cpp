@@ -225,14 +225,14 @@ Status DataObsMgrService::UnregisterObserverExt(sptr<IDataAbilityObserver> dataO
 Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
 {
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr, changeType:%{public}ud, num of uris:%{public}ul, data is "
+        HILOG_ERROR("handler is nullptr, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return DATAOBS_SERVICE_HANDLER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr) {
-        HILOG_ERROR("dataObsMgrInner_ is nullptr, changeType:%{public}ud, num of uris:%{public}ul, data is "
+        HILOG_ERROR("dataObsMgrInner_ is nullptr, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return DATAOBS_SERVICE_INNER_IS_NULL;
@@ -242,7 +242,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         std::lock_guard<std::mutex> lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             HILOG_ERROR("The number of task has reached the upper limit, changeType:%{public}ud, num of "
-                        "uris:%{public}ul, data is nullptr:%{public}d, size:%{public}ud",
+                        "uris:%{public}zu, data is nullptr:%{public}d, size:%{public}ud",
                 changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
             return DATAOBS_SERVICE_TASK_LIMMIT;
         }
@@ -258,7 +258,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         --taskCount_;
     });
     if (!ret) {
-        HILOG_ERROR("Post NotifyChangeExt fail, changeType:%{public}ud, num of uris:%{public}ud, data is "
+        HILOG_ERROR("Post NotifyChangeExt fail, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return DATAOBS_SERVICE_POST_TASK_FAILED;

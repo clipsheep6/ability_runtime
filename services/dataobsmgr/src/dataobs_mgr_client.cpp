@@ -138,7 +138,7 @@ Status DataObsMgrClient::Connect()
         HILOG_ERROR("fail to get IDataObsMgr");
         return GET_DATAOBS_SERVICE_FAILED;
     }
-    auto serviceDeathRecipient = sptr<ServiceDeathRecipient>(new (std::nothrow) ServiceDeathRecipient(GetInstance()));
+    sptr<ServiceDeathRecipient> serviceDeathRecipient(new (std::nothrow) ServiceDeathRecipient(GetInstance()));
     dataObsManger_->AsObject()->AddDeathRecipient(serviceDeathRecipient);
     return SUCCESS;
 }

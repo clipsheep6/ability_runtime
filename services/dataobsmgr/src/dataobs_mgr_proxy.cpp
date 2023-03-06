@@ -219,7 +219,7 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
     }
 
     if (ChangeInfo::Marshalling(changeInfo, data)) {
-        HILOG_ERROR("failed, changeInfo marshalling error, changeType:%{public}ud, num of uris:%{public}ul, data is "
+        HILOG_ERROR("failed, changeInfo marshalling error, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return INVALID_PARAM;
@@ -227,7 +227,7 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
 
     auto error = Remote()->SendRequest(IDataObsMgr::NOTIFY_CHANGE_EXT, data, reply, option);
     if (error != 0) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, changeType:%{public}ud, num of uris:%{public}ul, data is "
+        HILOG_ERROR("failed, SendRequest error: %{public}d, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             error, changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return IPC_ERROR;

@@ -94,7 +94,7 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
         }
     }
     if (changeRes.empty()) {
-        HILOG_ERROR("no obs for this uris, changeType:%{public}ud, num of uris:%{public}ul, data is "
+        HILOG_ERROR("no obs for this uris, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return NO_OBS_FOR_URI;
