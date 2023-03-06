@@ -235,7 +235,6 @@ bool DataAbilityHelper::Release()
     if (dataAbilityHelperImpl_) {
         HILOG_INFO("Call DataAbilityHelperImpl Release.");
         ret = dataAbilityHelperImpl_->Release();
-        dataAbilityHelperImpl_.reset();
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Release.");
