@@ -274,6 +274,7 @@ ohos_shared_library("abilitykit_native") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "relational_store:native_rdb",
@@ -308,10 +309,7 @@ ohos_shared_library("abilitykit_native") {
       "${ability_runtime_native_path}/ability/native/form_provider_client.cpp",
       "${ability_runtime_native_path}/ability/native/page_ability_impl.cpp",
     ]
-    deps += [
-      "${multimodalinput_path}/frameworks/proxy:libmmi-common",
-      "//third_party/icu/icu4c:shared_icuuc",
-    ]
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
 
     external_deps += [
       "form_fwk:fmskit_native",
