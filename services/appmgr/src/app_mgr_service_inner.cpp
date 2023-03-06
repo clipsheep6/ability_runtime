@@ -1490,9 +1490,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     HspList hspList;
-    ErrCode ret = bundleMgr_->GetBaseSharedPackageInfos(bundleName, userId, hspList);
+    ErrCode ret = bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     if (ret != ERR_OK) {
-        HILOG_ERROR("GetBaseSharedPackageInfos failed: %d", ret);
+        HILOG_ERROR("GetBaseSharedBundleInfos failed: %d", ret);
         return;
     }
 
@@ -3273,9 +3273,9 @@ bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, ui
 }
 
 void AppMgrServiceInner::SetRunningSharedBundleList(const std::string &bundleName,
-    const std::vector<BaseSharedPackageInfo> baseSharedPackageInfoList)
+    const std::vector<BaseSharedBundleInfo> baseSharedBundleInfoList)
 {
-    runningSharedBundleList_.try_emplace(bundleName, baseSharedPackageInfoList);
+    runningSharedBundleList_.try_emplace(bundleName, baseSharedBundleInfoList);
 }
 
 void AppMgrServiceInner::RemoveRunningSharedBundleList(const std::string &bundleName)
