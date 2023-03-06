@@ -158,7 +158,7 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     }
 
     ChangeInfo changeInfo = { ChangeInfo::ChangeType::OTHER, { uri } };
-    bool ret = handler_->PostTask([this, &uri, &changeInfo]() {
+    bool ret = handler_->PostTask([this, uri, changeInfo]() {
         dataObsMgrInner_->HandleNotifyChange(uri);
         dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
         std::lock_guard<std::mutex> lck(taskCountMutex_);
@@ -249,7 +249,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         ++taskCount_;
     }
 
-    bool ret = handler_->PostTask([this, &changeInfo]() {
+    bool ret = handler_->PostTask([this, changeInfo]() {
         dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
         for (auto &uri : changeInfo.uris_) {
             dataObsMgrInner_->HandleNotifyChange(uri);
