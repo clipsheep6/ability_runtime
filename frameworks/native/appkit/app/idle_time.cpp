@@ -25,7 +25,6 @@ constexpr int64_t PERIOD = 16666666; // ns
 constexpr int64_t MS_PER_NS = 1000000;
 constexpr int32_t TRY_COUNT_MAX = 6;
 constexpr int32_t DEVIATION_MIN = 1000; // ns
-std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;
 }
 
 IdleTime::IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback)
