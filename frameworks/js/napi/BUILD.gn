@@ -63,6 +63,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/ui_extension_ability:uiextensionability_napi",
     "${ability_runtime_napi_path}/ui_extension_context:uiextensioncontext_napi",
     "${ability_runtime_napi_path}/uri_permission:uripermissionmanager_napi",
+    "${ability_runtime_napi_path}/want:want",
     "${ability_runtime_napi_path}/wantConstant:wantconstant",
     "${ability_runtime_napi_path}/wantConstant:wantconstant_napi",
     "${ability_runtime_napi_path}/wantagent:napi_wantAgent",
