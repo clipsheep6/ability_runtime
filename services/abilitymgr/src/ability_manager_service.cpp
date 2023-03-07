@@ -302,6 +302,11 @@ bool AbilityManagerService::Init()
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
 #endif
 
+    auto initConnectionStateManagerTask = []() {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
+    };
+    handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
+
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
@@ -311,10 +316,6 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-    auto initConnectionStateManagerTask = []() {
-        DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-    };
-    handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
