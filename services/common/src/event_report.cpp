@@ -133,7 +133,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                 name,
                 type,
                 EVENT_KEY_APP_PID, eventInfo.pid,
-                EVENT_KEY_EXIT_RESULT, eventInfo.bundleName,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_VERSION_NAME, eventInfo.versionName,
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName);
