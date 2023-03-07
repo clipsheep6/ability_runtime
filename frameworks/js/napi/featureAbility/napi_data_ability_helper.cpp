@@ -3379,7 +3379,6 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
     executeBatchCB->operations = operations;
     GetDataAbilityHelper(env, thisVar, executeBatchCB->dataAbilityHelper);
 
-
     if (argcAsync > argcPromise) {
         ret = ExecuteBatchAsync(env, args, argcAsync, argcPromise, executeBatchCB);
     } else {

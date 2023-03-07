@@ -532,7 +532,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         if (search != savingSnapshot_.end()) {
             auto savingSnapshotTimeout = 100; // ms
             std::chrono::milliseconds timeout { savingSnapshotTimeout };
-            auto waitingCount = 5; 
+            auto waitingCount = 5;
             auto waitingNum = 0;
             while (waitSavingCondition_.wait_for(lock, timeout) == std::cv_status::no_timeout) {
                 ++waitingNum;

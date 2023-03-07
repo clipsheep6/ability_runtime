@@ -1575,8 +1575,8 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     auto callerAppRecord = GetAppRunningRecordByPid(appRecord->GetCallerPid());
     if (callerAppRecord == nullptr) {
         Security::AccessToken::NativeTokenInfo nativeTokenInfo = {};
-        auto token =
-            appRecord->GetCallerTokenId() == -1 ? IPCSkeleton::GetCallingTokenID() : appRecord->GetCallerTokenId();
+        auto token = appRecord->GetCallerTokenId() == -1 ?
+            static_cast<int>(IPCSkeleton::GetCallingTokenID()) : appRecord->GetCallerTokenId();
         Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
         eventInfo.bundleName = "";
         eventInfo.processName = nativeTokenInfo.processName;
