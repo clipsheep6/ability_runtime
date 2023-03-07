@@ -5779,12 +5779,6 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         return ERR_OK;
     }
 
-    if (!abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
-        // The call is from AbilityDelegator, no need to check permission
-        isBackgroundCall = false;
-        return ERR_OK;
-    }
-
     if (AbilityUtil::IsStartFreeInstall(abilityRequest.want)) {
         isBackgroundCall = false;
         return ERR_OK;
@@ -5811,6 +5805,12 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         }
     }
 
+    if (IsDelegatorCall(processInfo, abilityRequest)) {
+        HILOG_DEBUG("The call is from AbilityDelegator, allow background-call.");
+        isBackgroundCall = false;
+        return ERR_OK;
+    }
+
     if (backgroundJudgeFlag_) {
         isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
             !processInfo.isFocused;
@@ -5820,8 +5820,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             // Allow background startup within 1 second after application startup if state is FOREGROUND
             int64_t aliveTime = AbilityUtil::SystemTimeMillis() - processInfo.startTimeMillis_;
             isBackgroundCall = aliveTime > APP_ALIVE_TIME_MS;
-            HILOG_DEBUG(
-                "Process %{public}s is alive %{public}s ms.",
+            HILOG_DEBUG("Process %{public}s is alive %{public}s ms.",
                 processInfo.processName_.c_str(), std::to_string(aliveTime).c_str());
         }
     }
@@ -5831,6 +5830,20 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         static_cast<int32_t>(processInfo.state_));
 
     return ERR_OK;
+}
+
+inline bool AbilityManagerService::IsDelegatorCall(
+    const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest)
+{
+    /*  To make sure the AbilityDelegator is not counterfeited
+     *   1. The caller-process must be test-process
+     *   2. The callerToken must be nullptr
+     */
+    if (processInfo.isTestProcess &&
+        !abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        return true;
+    }
+    return false;
 }
 
 int AbilityManagerService::CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall)

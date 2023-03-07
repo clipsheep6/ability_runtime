@@ -2979,7 +2979,7 @@ HWTEST_F(AbilityManagerServiceTest, IsCallFromBackground_001, TestSize.Level1)
 
     abilityRequest.callerToken = nullptr;
     abilityRequest.want.SetParam("isDelegatorCall", true);
-    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_OK);
+    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest IsCallFromBackground_001 end");
 }
 
