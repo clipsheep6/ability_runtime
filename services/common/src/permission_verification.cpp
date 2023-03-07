@@ -93,6 +93,7 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
+    HILOG_INFO("xts_test_tag %{public}s called beigin", __FUNCTION__);
     if (IsSACall()) {
         HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
         return true;

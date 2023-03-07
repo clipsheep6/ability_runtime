@@ -733,7 +733,11 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
 
 int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
+    HILOG_INFO("xts_test_tag %{public}s called beigin", __FUNCTION__);
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+
+    HILOG_INFO("xts_test_tag %{public}s, VerifyRunningInfoPerm ret: %{public}d", __FUNCTION__, (int)isPerm);
+
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
@@ -814,6 +818,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
     std::vector<RunningProcessInfo> &info)
 {
+    HILOG_INFO("xts_test_tag %{public}s called beigin", __FUNCTION__);
     RunningProcessInfo runningProcessInfo;
     GetRunningProcess(appRecord, runningProcessInfo);
     info.emplace_back(runningProcessInfo);
@@ -822,6 +827,7 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
 void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord,
     RunningProcessInfo &info)
 {
+    HILOG_INFO(" %{public}s called beigin", __FUNCTION__);
     info.processName_ = appRecord->GetProcessName();
     info.pid_ = appRecord->GetPriorityObject()->GetPid();
     info.uid_ = appRecord->GetUid();
