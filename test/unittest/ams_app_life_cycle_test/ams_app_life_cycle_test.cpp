@@ -1292,11 +1292,11 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_001, TestSize.Level1)
     EXPECT_EQ(appState, appRecord->GetState());
 
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, serviceInner_->QueryAppSpawnConnectionState());
-    int32_t size = serviceInner_->GetRecordMap().size();
+    int32_t size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(1, size);
     serviceInner_->OnStop();
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, serviceInner_->QueryAppSpawnConnectionState());
-    size = serviceInner_->GetRecordMap().size();
+    size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(0, size);
 }
 
@@ -1317,13 +1317,13 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_002, TestSize.Level1)
     serviceInner_->SetAppSpawnClient(appSpawnClient);
     serviceInner_->OpenAppSpawnConnection();
     EXPECT_EQ(SpawnConnectionState::STATE_CONNECTED, serviceInner_->QueryAppSpawnConnectionState());
-    int32_t size = serviceInner_->GetRecordMap().size();
+    int32_t size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(0, size);
 
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
     serviceInner_->OnStop();
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, serviceInner_->QueryAppSpawnConnectionState());
-    size = serviceInner_->GetRecordMap().size();
+    size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(0, size);
 }
 
@@ -1358,13 +1358,13 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_003, TestSize.Level1)
     serviceInner_->SetAppSpawnClient(appSpawnClient);
     serviceInner_->OpenAppSpawnConnection();
     EXPECT_EQ(SpawnConnectionState::STATE_CONNECTED, serviceInner_->QueryAppSpawnConnectionState());
-    int32_t size = serviceInner_->GetRecordMap().size();
+    int32_t size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(1, size);
 
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
     serviceInner_->OnStop();
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, serviceInner_->QueryAppSpawnConnectionState());
-    size = serviceInner_->GetRecordMap().size();
+    size = serviceInner_->appRunningManager_->GetAppRunningRecordMap().size();
     EXPECT_EQ(0, size);
 }
 

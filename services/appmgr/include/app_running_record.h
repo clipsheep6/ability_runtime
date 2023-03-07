@@ -267,32 +267,8 @@ public:
 
     std::shared_ptr<ModuleRunningRecord> GetModuleRunningRecordByTerminateLists(const sptr<IRemoteObject> &token) const;
 
-    // It can only used in SINGLETON mode.
-    /**
-     * GetAbilityRunningRecord, Get ability record by the ability Name.
-     *
-     * @param abilityName, the ability name.
-     * @param ownerUserId, the owner userId of this ability.
-     *
-     * @return the ability record.
-     */
-    std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(
-        const std::string &abilityName, const std::string &moduleName, int32_t ownerUserId = -1) const;
-
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId) const;
 
-    // Clear(remove) the specified ability record from the list
-
-    /**
-     * ClearAbility, Clear ability record by record info.
-     *
-     * @param record, the ability record.
-     *
-     * @return
-     */
-    void ClearAbility(const std::shared_ptr<AbilityRunningRecord> &record);
-
-    // Update the trim memory level value of this process
     /**
      * @brief Setting the Trim Memory Level.
      *

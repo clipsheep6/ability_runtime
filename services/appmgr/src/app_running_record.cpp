@@ -302,24 +302,6 @@ sptr<IAppScheduler> AppRunningRecord::GetApplicationClient() const
     return (appLifeCycleDeal_ ? appLifeCycleDeal_->GetApplicationClient() : nullptr);
 }
 
-std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(
-    const std::string &abilityName, const std::string &moduleName, int32_t ownerUserId) const
-{
-    HILOG_INFO("Get ability running record by ability name.");
-    auto moduleRecordList = GetAllModuleRecord();
-    for (const auto &moduleRecord : moduleRecordList) {
-        if (!moduleName.empty() && moduleRecord->GetModuleName() != moduleName) {
-            continue;
-        }
-        auto abilityRecord = moduleRecord->GetAbilityRunningRecord(abilityName, ownerUserId);
-        if (abilityRecord) {
-            return abilityRecord;
-        }
-    }
-
-    return nullptr;
-}
-
 std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
     HILOG_INFO("Get ability running record by eventId.");
@@ -332,26 +314,6 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(
     }
 
     return nullptr;
-}
-
-void AppRunningRecord::ClearAbility(const std::shared_ptr<AbilityRunningRecord> &record)
-{
-    if (!record) {
-        HILOG_ERROR("Param record is null");
-        return;
-    }
-
-    auto moduleRecord = GetModuleRunningRecordByToken(record->GetToken());
-    if (!moduleRecord) {
-        HILOG_ERROR("moduleRecord is not exit");
-        return;
-    }
-
-    moduleRecord->ClearAbility(record);
-
-    if (moduleRecord->GetAbilities().empty()) {
-        RemoveModuleRecord(moduleRecord);
-    }
 }
 
 void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &moduleRecord)
