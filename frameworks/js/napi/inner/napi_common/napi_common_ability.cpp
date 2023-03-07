@@ -33,6 +33,10 @@ using namespace OHOS::AbilityRuntime;
 namespace OHOS {
 namespace AppExecFwk {
 napi_ref thread_local g_dataAbilityHelper = nullptr;
+namespace {
+napi_ref g_testRef = nullptr;
+}
+
 bool thread_local g_dataAbilityHelperStatus = false;
 const int32_t ERR_ABILITY_START_SUCCESS = 0;
 const int32_t ERR_ABILITY_QUERY_FAILED = 1;
@@ -94,14 +98,40 @@ const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
-napi_value *GetGlobalClassContext(void)
-{
-    return AbilityRuntime::GetFAModeContextClassObject();
-}
+// napi_value *GetGlobalClassContext(void)
+// {
+//     return AbilityRuntime::GetFAModeContextClassObject();
+// }
 
 napi_status SaveGlobalDataAbilityHelper(napi_env env, napi_value constructor)
 {
     return napi_create_reference(env, constructor, 1, &g_dataAbilityHelper);
+}
+
+napi_status SaveGlobalClassContext(napi_env env, napi_value constructor)
+{
+    napi_status status = napi_create_reference(env, constructor, 1, &g_testRef);
+    HILOG_ERROR("dingwen SaveGlobalClassContext");
+    if (g_testRef == nullptr) {
+        HILOG_ERROR("dingwen SaveGlobalClassContext g_testRef == nullptr");
+    } else {
+        HILOG_ERROR("dingwen SaveGlobalClassContext g_testRef != nullptr, addr %{public}p", &g_testRef);
+    }
+    return status;
+}
+
+napi_value GetGlobalClassContext(napi_env env)
+{
+    napi_value constructor;
+    if (g_testRef == nullptr) {
+        HILOG_ERROR("dingwen g_testRef == nullptr, addr %{public}p", &g_testRef);
+    }
+    NAPI_CALL(env, napi_get_reference_value(env, g_testRef, &constructor));
+    if (constructor == nullptr) {
+        HILOG_ERROR("dingwen constructor == nullptr");
+    }
+    HILOG_ERROR("dingwen constructor != nullptr");
+    return constructor;
 }
 
 napi_value GetGlobalDataAbilityHelper(napi_env env)
@@ -2410,7 +2440,7 @@ napi_value GetContextAsync(
             napi_get_undefined(env, &undefined);
             result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
-                napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result[PARAM1]);
+                napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result[PARAM1]);
             } else {
                 result[PARAM1] = WrapUndefinedToJS(env);
             }
@@ -2458,7 +2488,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value result = nullptr;
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
-                napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result);
+                napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
                 napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
             } else {
                 result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
@@ -2487,22 +2517,22 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
  */
 napi_value GetContextWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("dingwen %{public}s, called.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        HILOG_INFO("%{public}s, asyncCallbackInfo == nullptr.", __func__);
         return nullptr;
     }
 
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s,wrong ability type", __func__);
+        HILOG_INFO("%{public}s,wrong ability type", __func__);
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return nullptr;
     }
 
     napi_value result = nullptr;
-    napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result);
-    HILOG_INFO("%{public}s, end.", __func__);
+    napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
+    HILOG_INFO("dingwen %{public}s, end.", __func__);
     return result;
 }
 
@@ -2516,7 +2546,7 @@ napi_value GetContextWrap(napi_env env, napi_callback_info info, AsyncCallbackIn
  */
 napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("dingwen %{public}s, called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
@@ -2532,9 +2562,9 @@ napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityT
 
     if (ret == nullptr) {
         ret = WrapVoidToJS(env);
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_INFO("dingwen %{public}s ret == nullptr", __func__);
     } else {
-        HILOG_INFO("%{public}s, end.", __func__);
+        HILOG_INFO("dingwen %{public}s, end.", __func__);
     }
     return ret;
 }
