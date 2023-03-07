@@ -279,6 +279,7 @@ private:
                 }
                 std::vector<AppExecFwk::RunningProcessInfo> infos;
                 auto ret = appManager->GetAllRunningProcesses(infos);
+                HILOG_INFO("xts_test_tag %{public}s, GetAllRunningProcesses ret: %{public}d", __FUNCTION__, ret);
                 if (ret == 0) {
                     task.Resolve(engine, CreateJsProcessRunningInfoArray(engine, infos));
                 } else {

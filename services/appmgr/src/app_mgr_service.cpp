@@ -303,6 +303,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
 
 int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
+    HILOG_INFO("xts_test_tag %{public}s called beigin", __FUNCTION__);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }

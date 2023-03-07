@@ -197,15 +197,18 @@ void AsyncTask::ResolveWithNoError(NativeEngine& engine, NativeValue* value)
 {
     HILOG_DEBUG("AsyncTask::Resolve is called");
     if (deferred_) {
+        HILOG_INFO("xts_test_tag %{public}s, callbackRef_ deferred", __FUNCTION__);
         deferred_->Resolve(value);
         deferred_.reset();
     }
     if (callbackRef_) {
+        HILOG_INFO("xts_test_tag %{public}s, callbackRef_ begin", __FUNCTION__);
         NativeValue* argv[] = {
             engine.CreateNull(),
             value,
         };
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
+        HILOG_INFO("xts_test_tag %{public}s, callbackRef_ end", __FUNCTION__);
         callbackRef_.reset();
     }
     HILOG_DEBUG("AsyncTask::Resolve is called end.");

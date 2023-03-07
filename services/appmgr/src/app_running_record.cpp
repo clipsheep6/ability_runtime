@@ -1144,10 +1144,12 @@ bool AppRunningRecord::CanRestartResidentProc()
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
+    HILOG_INFO("xts_test_tag %{public}s called beigin", __FUNCTION__);
     std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }
+    HILOG_INFO("xts_test_tag %{public}s called end", __FUNCTION__);
 }
 
 void AppRunningRecord::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record)
