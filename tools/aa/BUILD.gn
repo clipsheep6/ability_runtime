@@ -100,10 +100,10 @@ ohos_executable("aa") {
 
     deps += [
       "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-      "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     ]
 
     external_deps += [
+      "access_token:libtoken_setproc",
       "access_token:libaccesstoken_sdk",
       "accessibility:accessibility_common",
       "accessibility:accessibilityclient",
