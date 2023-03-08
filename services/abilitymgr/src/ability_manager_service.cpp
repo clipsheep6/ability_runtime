@@ -5247,6 +5247,10 @@ int AbilityManagerService::VerifyAccountPermission(int32_t userId)
 int AbilityManagerService::BlockAmsService()
 {
     HILOG_DEBUG("%{public}s", __func__);
+    if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not shell call");
+        return ERR_PERMISSION_DENIED;
+    }
     if (handler_) {
         HILOG_DEBUG("%{public}s begin post block ams service task", __func__);
         auto BlockAmsServiceTask = [aams = shared_from_this()]() {
@@ -5264,6 +5268,10 @@ int AbilityManagerService::BlockAmsService()
 int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not shell call");
+        return ERR_PERMISSION_DENIED;
+    }
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
@@ -5271,6 +5279,10 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
 int AbilityManagerService::BlockAppService()
 {
     HILOG_DEBUG("%{public}s", __func__);
+    if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not shell call");
+        return ERR_PERMISSION_DENIED;
+    }
     return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();
 }
 #endif
