@@ -177,7 +177,7 @@ void AsyncTask::Schedule(const std::string &name, NativeEngine& engine, std::uni
 
 void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
 {
-    HILOG_DEBUG("AsyncTask::Resolve is called");
+    HILOG_DEBUG("xts_test_tag_2: AsyncTask::Resolve is called");
     if (deferred_) {
         deferred_->Resolve(value);
         deferred_.reset();
@@ -190,12 +190,12 @@ void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
         callbackRef_.reset();
     }
-    HILOG_DEBUG("AsyncTask::Resolve is called end.");
+    HILOG_DEBUG("xts_test_tag_2: AsyncTask::Resolve is called end.");
 }
 
 void AsyncTask::ResolveWithNoError(NativeEngine& engine, NativeValue* value)
 {
-    HILOG_DEBUG("AsyncTask::Resolve is called");
+    HILOG_DEBUG("xts_test_tag_2: AsyncTask::Resolve is called");
     if (deferred_) {
         deferred_->Resolve(value);
         deferred_.reset();
@@ -208,11 +208,12 @@ void AsyncTask::ResolveWithNoError(NativeEngine& engine, NativeValue* value)
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
         callbackRef_.reset();
     }
-    HILOG_DEBUG("AsyncTask::Resolve is called end.");
+    HILOG_DEBUG("xts_test_tag_2: AsyncTask::Resolve is called end.");
 }
 
 void AsyncTask::Reject(NativeEngine& engine, NativeValue* error)
 {
+    HILOG_INFO("xts_test_tag_2: AsyncTask::Reject is called");
     if (deferred_) {
         deferred_->Reject(error);
         deferred_.reset();
@@ -225,6 +226,7 @@ void AsyncTask::Reject(NativeEngine& engine, NativeValue* error)
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
         callbackRef_.reset();
     }
+    HILOG_INFO("xts_test_tag_2: AsyncTask::Reject is called end.");
 }
 
 void AsyncTask::ResolveWithCustomize(NativeEngine& engine, NativeValue* error, NativeValue* value)
