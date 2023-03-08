@@ -77,7 +77,7 @@ const std::string Want::PARAM_RESV_CALLER_PID("ohos.aafwk.param.callerPid");
  * @param None
  * @return None
  */
-Want::Want() : picker_(nullptr)
+Want::Want()
 {}
 
 /**
@@ -95,14 +95,12 @@ Want::~Want()
  */
 Want::Want(const Want &other)
 {
-    picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;
 }
 
 Want &Want::operator=(const Want &other)
 {
-    picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;
     return *this;
@@ -1348,10 +1346,6 @@ std::string Want::ToUri() const
     std::string uriString = WANT_HEADER;
     ToUriStringInner(uriString);
 
-    if (picker_ != nullptr) {
-        uriString.append("PICK;");
-        picker_->ToUriStringInner(uriString);
-    }
     uriString += "end";
 
     return uriString;
@@ -1592,20 +1586,6 @@ bool Want::Marshalling(Parcel &parcel) const
         return false;
     }
 
-    // write picker
-    if (picker_ == nullptr) {
-        if (!parcel.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteInt32(VALUE_OBJECT)) {
-            return false;
-        }
-        if (!parcel.WriteParcelable(picker_)) {
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -1700,21 +1680,6 @@ bool Want::ReadFromParcel(Parcel &parcel)
 
     // read package
     operation_.SetBundleName(Str16ToStr8(parcel.ReadString16()));
-
-    // read picker
-    empty = VALUE_NULL;
-    if (!parcel.ReadInt32(empty)) {
-        return false;
-    }
-
-    if (empty == VALUE_OBJECT) {
-        auto picker = parcel.ReadParcelable<Want>();
-        if (picker != nullptr) {
-            picker_ = picker;
-        } else {
-            return false;
-        }
-    }
 
     return true;
 }
@@ -1927,9 +1892,6 @@ void Want::DumpInfo(int level) const
     operation_.DumpInfo(level);
     parameters_.DumpInfo(level);
 
-    if (picker_ != nullptr) {
-        picker_->DumpInfo(level + 1);
-    }
     ABILITYBASE_LOGI("==================Want::DumpInfo level: %{public}d end=============", level);
 }
 

@@ -804,7 +804,6 @@ public:
 private:
     WantParams parameters_;
     Operation operation_;
-    Want *picker_;
 
     static const std::string OCT_EQUALSTO;
     static const std::string OCT_SEMICOLON;
