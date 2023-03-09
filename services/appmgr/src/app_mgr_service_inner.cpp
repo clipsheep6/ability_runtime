@@ -105,6 +105,9 @@ const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 
+constexpr int32_t ROOT_UID = 0;
+constexpr int32_t FOUNDATION_UID = 5523;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -2513,6 +2516,13 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
         HILOG_ERROR("no such appRecord");
         return ERR_NAME_NOT_FOUND;
     }
+
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    if (!isSaCall && callingPid != pid) {
+        HILOG_ERROR("Permission verify failed.");
+        return ERR_PERMISSION_DENIED;
+    }
     for (auto &item : appRecord->GetAbilities()) {
         tokens.emplace_back(item.first);
     }
@@ -2653,6 +2663,18 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
     }
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(permissionName);
     return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
+}
+
+int AppMgrServiceInner::VerifyRequestPermission() const
+{
+    auto callerUid = IPCSkeleton::GetCallingUid();
+
+    if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
+        return ERR_OK;
+    } else {
+        HILOG_ERROR("Permission verification failed.[DongLin]%{public}d", callerUid);
+        return ERR_PERMISSION_DENIED;
+    }
 }
 
 int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)

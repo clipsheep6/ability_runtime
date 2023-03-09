@@ -540,6 +540,8 @@ public:
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
+    int VerifyRequestPermission() const;
+
     void ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp);
 
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);

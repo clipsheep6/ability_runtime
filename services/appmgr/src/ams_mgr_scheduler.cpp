@@ -64,6 +64,11 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     if (!IsReady()) {
         return;
     }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
     std::function<void()> loadAbilityFunc =
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
@@ -76,6 +81,11 @@ void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const
     if (!IsReady()) {
         return;
     }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     std::function<void()> updateAbilityStateFunc =
         std::bind(&AppMgrServiceInner::UpdateAbilityState, amsMgrServiceInner_, token, state);
     amsHandler_->PostTask(updateAbilityStateFunc, TASK_UPDATE_ABILITY_STATE);
@@ -86,6 +96,11 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
     if (!IsReady()) {
         return;
     }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     std::function<void()> updateExtensionStateFunc =
         std::bind(&AppMgrServiceInner::UpdateExtensionState, amsMgrServiceInner_, token, state);
     amsHandler_->PostTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
@@ -94,6 +109,11 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
 void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
         return;
     }
     std::function<void()> terminateAbilityFunc =
@@ -115,6 +135,11 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
 {
     if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
         return;
     }
     std::function<void()> abilityBehaviorAnalysisFunc = std::bind(&AppMgrServiceInner::AbilityBehaviorAnalysis,
@@ -170,6 +195,11 @@ void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     if (!IsReady()) {
         return;
     }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     auto task = [=]() { amsMgrServiceInner_->HandleAbilityAttachTimeOut(token); };
     amsHandler_->PostTask(task);
 }
@@ -178,6 +208,11 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("Notify AppMgrService to prepare to terminate the ability.");
     if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
         return;
     }
     auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token); };
@@ -249,6 +284,10 @@ void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecF
         return;
     }
 
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
 }
 
@@ -258,6 +297,10 @@ void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppEx
         return;
     }
 
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
     auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo); };
     amsHandler_->PostTask(task);
 }
