@@ -725,8 +725,7 @@ public:
 
     bool IsAbilityControllerStartById(int32_t missionId);
 
-    bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int requestCode, int componentStatus, AbilityRequest &request);
+    bool IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest, AbilityRequest &request);
 
     void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code);
 
@@ -1174,6 +1173,8 @@ private:
     void InitStartupFlag();
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
+    ComponentRequest initComponentRequest(const sptr<IRemoteObject> &callerToken = nullptr,
+        const int requestCode = -1, const int componentStatus = 0);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
