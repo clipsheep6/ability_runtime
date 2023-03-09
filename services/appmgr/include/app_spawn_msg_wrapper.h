@@ -22,12 +22,12 @@
 
 #include "nocopyable.h"
 #include "client_socket.h"
-#include "shared_package/base_shared_package_info.h"
+#include "shared/base_shared_bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;
-using HspList = std::vector<BaseSharedPackageInfo>;
+using HspList = std::vector<BaseSharedBundleInfo>;
 
 struct AppSpawnStartMsg {
     int32_t uid;

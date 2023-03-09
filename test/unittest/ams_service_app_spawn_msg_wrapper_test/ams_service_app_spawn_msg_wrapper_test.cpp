@@ -29,7 +29,7 @@ int MockSleep([[maybe_unused]] uint32_t seconds)
 
 namespace OHOS {
 namespace AppExecFwk {
-using SharedPackage = BaseSharedPackageInfo;
+using SharedBundle = BaseSharedBundleInfo;
 
 class AmsServiceAppSpawnMsgWrapperTest : public testing::Test {
 public:
@@ -51,9 +51,9 @@ void AmsServiceAppSpawnMsgWrapperTest::SetUp()
 void AmsServiceAppSpawnMsgWrapperTest::TearDown()
 {}
 
-static SharedPackage CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
+static SharedBundle CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
 {
-    SharedPackage hsp;
+    SharedBundle hsp;
     hsp.bundleName = bundle;
     hsp.moduleName = module;
     hsp.versionCode = version;

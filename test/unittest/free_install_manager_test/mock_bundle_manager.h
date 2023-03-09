@@ -65,8 +65,8 @@ public:
     {
         return true;
     }
-    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
-        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
     {
         return ERR_OK;
     }
@@ -111,8 +111,8 @@ public:
         sptr<IAppControlMgr> appControlMgr = new (std::nothrow) AppControlProxy(nullptr);
         return appControlMgr;
     }
-    ErrCode GetBaseSharedPackageInfos(const std::string &bundleName,
-        int32_t userId, std::vector<BaseSharedPackageInfo> &baseSharedPackageInfos) override
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
     {
         return ERR_OK;
     }
