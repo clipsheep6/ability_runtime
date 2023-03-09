@@ -499,8 +499,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        if (!IsComponentInterceptionStart(want, callerToken, requestCode, result, abilityRequest)) {
-            return ERR_OK;
+        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
+        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+            return componentRequest.requestResult;
         }
         abilityRequest.Voluation(want, requestCode, callerToken);
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
@@ -508,8 +509,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (!IsComponentInterceptionStart(want, callerToken, requestCode, result, abilityRequest)) {
-        return ERR_OK;
+    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
+    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
     }
 
     if (result != ERR_OK) {
@@ -575,6 +577,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return connectManager->StartAbility(abilityRequest);
     }
 
+    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
+    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
@@ -648,14 +653,15 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode);
+        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+            return componentRequest.requestResult;
+        }
         abilityRequest.Voluation(
             want, requestCode, callerToken, std::make_shared<AbilityStartSetting>(abilityStartSetting));
         abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
-        if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
-            return ERR_OK;
-        }
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -665,8 +671,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
-        return ERR_OK;
+    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
+    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -722,6 +729,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_WRONG_INTERFACE_CALL;
     }
 #endif
+    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
+    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         eventInfo.errCode = ERR_WOULD_BLOCK;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -818,15 +828,16 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode);
+        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+            return componentRequest.requestResult;
+        }
         abilityRequest.Voluation(want, requestCode, callerToken);
         abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
-        if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
-            return ERR_OK;
-        }
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -836,8 +847,9 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
-        return ERR_OK;
+    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
+    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -890,6 +902,9 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         }
     }
 
+    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
+    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         eventInfo.errCode = ERR_WOULD_BLOCK;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -1713,8 +1728,9 @@ int AbilityManagerService::ConnectAbilityCommon(
 
         AbilityRequest abilityRequest;
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
-        if (!IsComponentInterceptionStart(abilityWant, callerToken, 0, 0, abilityRequest)) {
-            return ERR_OK;
+        ComponentRequest componentRequest = initComponentRequest(callerToken);
+        if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
+            return componentRequest.requestResult;
         }
         abilityWant.RemoveParam("abilityConnectionObj");
 
@@ -1796,8 +1812,9 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
 
     Want requestWant = want;
     requestWant.SetParam("abilityConnectionObj", connect->AsObject());
-    if (!IsComponentInterceptionStart(requestWant, callerToken, 0, result, abilityRequest)) {
-        return ERR_OK;
+    ComponentRequest componentRequest = initComponentRequest(callerToken);
+    if (!IsComponentInterceptionStart(requestWant, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
     }
 
     if (result != ERR_OK) {
@@ -3220,7 +3237,8 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
             return;
         }
         AbilityRequest abilityRequest;
-        if (!IsComponentInterceptionStart(want, nullptr, 0, 0, abilityRequest)) {
+        ComponentRequest componentRequest = initComponentRequest();
+        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
             return;
         }
         usleep(REPOLL_TIME_MICRO_SECONDS);
@@ -4105,8 +4123,9 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.want = want;
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
-    if (!IsComponentInterceptionStart(want, callerToken, 0, result, abilityRequest)) {
-        return ERR_OK;
+    ComponentRequest componentRequest = initComponentRequest(callerToken, -1, result);
+    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
@@ -6013,8 +6032,8 @@ int AbilityManagerService::SetComponentInterception(
     return ERR_OK;
 }
 
-bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int componentStatus, AbilityRequest &request)
+bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest,
+    AbilityRequest &request)
 {
     if (componentInterception_ != nullptr) {
         Want newWant = want;
@@ -6025,11 +6044,13 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, const
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();
-        bool isStart = componentInterception_->AllowComponentStart(newWant, callerToken,
-            requestCode, componentStatus, extraParam);
+        bool isStart = componentInterception_->AllowComponentStart(newWant, componentRequest.callerToken,
+            componentRequest.requestCode, componentRequest.componentStatus, extraParam);
+        componentRequest.requestResult = extraParam->GetIntParam("requestResult", 0);
         UpdateAbilityRequestInfo(extraParam, request);
         if (!isStart) {
-            HILOG_INFO("not finishing start component because interception");
+            HILOG_INFO("not finishing start component because interception, requestResult: %{public}d",
+                componentRequest.requestResult);
             return false;
         }
     }
@@ -6041,6 +6062,16 @@ void AbilityManagerService::NotifyHandleMoveAbility(const sptr<IRemoteObject> &a
     if (componentInterception_ != nullptr) {
         componentInterception_->NotifyHandleMoveAbility(abilityToken, code);
     }
+}
+
+ComponentRequest AbilityManagerService::initComponentRequest(const sptr<IRemoteObject> &callerToken,
+    const int requestCode, const int componentStatus)
+{
+    ComponentRequest componentRequest;
+    componentRequest.callerToken = callerToken;
+    componentRequest.requestCode = requestCode;
+    componentRequest.componentStatus = componentStatus;
+    return componentRequest;
 }
 
 void AbilityManagerService::UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request)

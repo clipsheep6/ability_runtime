@@ -189,6 +189,14 @@ enum AbilityCallType {
     START_SETTINGS_TYPE,
     START_EXTENSION_TYPE,
 };
+
+struct ComponentRequest {
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    int componentStatus = 0;
+    int requestResult = 0;
+};
+
 struct AbilityRequest {
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;
