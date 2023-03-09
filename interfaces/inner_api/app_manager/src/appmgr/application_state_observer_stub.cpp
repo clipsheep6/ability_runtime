@@ -18,6 +18,7 @@
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -62,6 +63,7 @@ ApplicationStateObserverStub::~ApplicationStateObserverStub()
 int ApplicationStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    AAFwk::MemoryGuard cacheGuard;
     HILOG_DEBUG("ApplicationStateObserverStub::OnReceived, code = %{public}u, flags= %{public}d.",
         code, option.GetFlags());
     std::u16string descriptor = ApplicationStateObserverStub::GetDescriptor();

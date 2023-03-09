@@ -18,6 +18,7 @@
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -67,6 +68,7 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse(MessageParcel
 int StartSpecifiedAbilityResponseStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    AAFwk::MemoryGuard cacheGuard;
     HILOG_INFO("StartSpecifiedAbilityResponseStub::OnReceived, code = %{public}u, flags= %{public}d.",
         code, option.GetFlags());
     std::u16string descriptor = StartSpecifiedAbilityResponseStub::GetDescriptor();

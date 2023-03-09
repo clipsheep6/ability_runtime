@@ -44,6 +44,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
+#include "memory_guard.h"
 #include "mission_info_mgr.h"
 #include "sa_mgr_client.h"
 #include "system_ability_token_callback.h"
@@ -297,6 +298,7 @@ bool AbilityManagerService::Init()
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
 #endif
+    handler_->PostTask([]() { MemoryGuard cacheGuard; }, AppExecFwk::EventQueue::Priority::IMMEDIATE);
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();

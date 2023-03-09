@@ -49,6 +49,7 @@ ohos_moduletest("ability_timeout_module_test") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:disable_jemalloc_cache",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",

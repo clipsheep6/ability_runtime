@@ -25,6 +25,7 @@
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
+#include "memory_guard.h"
 #include "system_ability_definition.h"
 #include "common_utils.h"
 
@@ -76,6 +77,7 @@ bool DataObsMgrService::Init()
     }
 
     handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
+    handler_->PostTask([]() { MemoryGuard cacheGuard; }, AppExecFwk::EventQueue::Priority::IMMEDIATE);
 
     return true;
 }

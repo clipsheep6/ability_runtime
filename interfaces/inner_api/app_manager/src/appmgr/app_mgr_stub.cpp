@@ -26,6 +26,7 @@
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "iapp_state_callback.h"
+#include "memory_guard.h"
 #include "want.h"
 #include "bundle_info.h"
 
@@ -118,6 +119,7 @@ AppMgrStub::~AppMgrStub()
 
 int AppMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    AAFwk::MemoryGuard cacheGuard;
     HILOG_INFO("AppMgrStub::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
     std::u16string descriptor = AppMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();

@@ -97,7 +97,7 @@ ohos_shared_library("app_manager") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = []
+  deps = [ "${ability_runtime_services_path}/common:disable_jemalloc_cache" ]
 
   external_deps = [
     "ability_base:configuration",

@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "memory_guard.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -165,6 +166,7 @@ void AbilityManagerStub::ThirdStepInit()
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    MemoryGuard cacheGuard;
     std::u16string descriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
