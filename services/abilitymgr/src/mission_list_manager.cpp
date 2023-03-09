@@ -72,7 +72,7 @@ void MissionListManager::Init()
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
-int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
+int MissionListManager::StartAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (IsReachToLimitLocked(abilityRequest)) {
@@ -102,11 +102,12 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
     }
 
     abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
-    return StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    return StartAbility(currentTopAbility, callerAbility, abilityRequest, sessionInfo);
 }
 
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest,
+    sptr<SessionInfo> sessionInfo)
 {
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
@@ -116,7 +117,7 @@ int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &curre
         return 0;
     }
 
-    return StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest);
+    return StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest, sessionInfo);
 }
 
 int MissionListManager::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
@@ -251,7 +252,8 @@ void MissionListManager::StartWaitingAbility()
 }
 
 int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability locked.");
@@ -262,7 +264,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     // 2. get target mission
     std::shared_ptr<AbilityRecord> targetAbilityRecord;
     std::shared_ptr<Mission> targetMission;
-    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord);
+    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord, sessionInfo);
     if (!targetMission || !targetAbilityRecord) {
         HILOG_ERROR("Failed to get mission or record.");
         return ERR_INVALID_VALUE;
@@ -444,8 +446,18 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     return reUsedMissionInfo;
 }
 
+sptr<IRemoteObject> MissionListManager::GetTokenBySceneSession(uint64_t persistentId)
+{
+    if (abilitySceneMap_.count(persistentId) == 0) {
+        HILOG_ERROR("chy GetTokenBySceneSession failed with persistentId %{public}" PRIu64 ".", persistentId);
+        return nullptr;
+    }
+    return abilitySceneMap_[persistentId];
+}
+
 void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
-    std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord)
+    std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord,
+    sptr<SessionInfo> sessionInfo)
 {
     if (HandleReusedMissionAndAbility(abilityRequest, targetMission, targetRecord)) {
         return;
@@ -472,6 +484,12 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetMission->UpdateMissionTime(info.missionInfo.time);
         targetRecord->SetMission(targetMission);
         targetRecord->SetOwnerMissionUserId(userId_);
+        targetRecord->SetSessionInfo(sessionInfo);
+        if (sessionInfo) {
+            uint64_t persistentId = sessionInfo->persistentId;
+            HILOG_DEBUG("get persistentId %{public}" PRIu64 ".", persistentId);
+            abilitySceneMap_.insert(std::make_pair(persistentId, targetRecord->GetToken()));
+        }
 
         // handle specified
         if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
@@ -1370,7 +1388,13 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
     }
 
     // 1. clear old
-    abilityRecord->SetNextAbilityRecord(nullptr);
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    if (sessionInfo) {
+        uint64_t persistentId = sessionInfo->persistentId;
+        HILOG_DEBUG("erase persistentId %{public}" PRIu64 ".", persistentId);
+        abilitySceneMap_.erase(persistentId);
+    }
+
     // 2. if the ability to terminate is background, just background
     if (!(abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING))) {
         HILOG_DEBUG("Ability state is %{public}d, just return.", abilityRecord->GetAbilityState());

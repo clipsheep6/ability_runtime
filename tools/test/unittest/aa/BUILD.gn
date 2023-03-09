@@ -47,6 +47,7 @@ ohos_unittest("aa_command_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -74,6 +75,7 @@ ohos_unittest("aa_command_start_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -101,6 +103,7 @@ ohos_unittest("aa_command_stop_service_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -128,6 +131,7 @@ ohos_unittest("aa_command_dump_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -155,6 +159,7 @@ ohos_unittest("aa_command_dumpsys_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -182,6 +187,7 @@ ohos_unittest("aa_command_screen_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -209,6 +215,7 @@ ohos_unittest("aa_command_force_stop_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -236,6 +243,7 @@ ohos_unittest("aa_command_force_timeout_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -263,6 +271,7 @@ ohos_unittest("aa_command_test_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

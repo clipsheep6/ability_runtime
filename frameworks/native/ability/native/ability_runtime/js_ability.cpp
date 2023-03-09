@@ -184,11 +184,11 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         nullptr);
 }
 
-void JsAbility::OnStart(const Want &want)
+void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStart begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnStart(want);
+    Ability::OnStart(want, sessionInfo);
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found Ability.js");
@@ -201,7 +201,15 @@ void JsAbility::OnStart(const Want &want)
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() &&
+        want.GetBundle().find("animationdesktop") == std::string::npos) {
+        HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
+        if (sessionInfo) {
+            uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_,
+                sessionInfo->sessionToken, sessionInfo->surfaceNode);
+            uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
+        }
+    }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
@@ -322,19 +330,16 @@ void JsAbility::OnSceneCreated()
     }
     NativeValue *argv[] = {jsAppWindowStage->Get()};
     CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
-
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceCreated");
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
-
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageCreate(jsAbilityObj_, jsWindowStageObj_);
     }
-
     HILOG_DEBUG("OnSceneCreated end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
@@ -391,7 +396,6 @@ void JsAbility::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnForeground begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
@@ -410,7 +414,12 @@ void JsAbility::OnForeground(const Want &want)
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
 
     obj->SetProperty("lastRequestWant", jsWant);
-
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() &&
+        want.GetBundle().find("animationdesktop") == std::string::npos) {
+        if (GetState() == AppExecFwk::AbilityLifecycleExecutor::STARTED_NEW) {
+            AbilityContinuationOrRecover(want);
+        }
+    }
     CallObjectMethod("onForeground", &jsWant, 1);
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -423,6 +432,8 @@ void JsAbility::OnForeground(const Want &want)
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
+
+    Ability::OnForeground(want);
     HILOG_DEBUG("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
@@ -449,9 +460,10 @@ void JsAbility::OnBackground()
 
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
+    HILOG_ERROR("chy ----%{public}s, %{public}d", __FUNCTION__, __LINE__);
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
-    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene());
+    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene(), uiWindow_);
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
@@ -508,12 +520,27 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
         }
         OnSceneRestored();
     } else {
+        HILOG_INFO("chy OnSceneCreated");
         OnSceneCreated();
     }
 }
 
 void JsAbility::DoOnForeground(const Want &want)
 {
+    HILOG_ERROR("chy ========test");
+    std::string testName = want.GetBundle();
+    HILOG_ERROR("chy BundleName: %{public}s beforeForeground", testName.c_str());
+    auto testType = Ability::GetAbilityInfo()->type;
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && testName.find("animationdesktop") == std::string::npos) {
+        HILOG_ERROR("chy ablitytype: %{public}d", static_cast<uint32_t>(testType));
+        if (uiWindow_) {
+            uiWindow_->Foreground();
+        } else {
+            HILOG_ERROR("chy %{public}s uiWindow_ is null.", __func__);
+        }
+        return;
+    }
+    HILOG_ERROR("chy BundleName: %{public}s doOnForegound", testName.c_str());
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");

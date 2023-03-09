@@ -88,6 +88,11 @@ public:
     virtual int StartAbility(
         const Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
 
+    virtual int StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    virtual sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId) override;
     /**
      * StartAbility with want, send want to ability manager service.
      *

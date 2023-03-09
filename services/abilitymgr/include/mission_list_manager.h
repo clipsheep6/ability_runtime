@@ -48,9 +48,12 @@ public:
      * StartAbility with request.
      *
      * @param abilityRequest, the request of the service ability to start.
+     * @param sessionInfo, the info of scene session
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(AbilityRequest &abilityRequest);
+    int StartAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo = nullptr);
+
+    sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId);
 
     /**
      * MinimizeAbility, minimize the special ability.
@@ -384,9 +387,11 @@ private:
 
 private:
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest,
+        sptr<SessionInfo> sessionInfo = nullptr);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest,
+        sptr<SessionInfo> sessionInfo = nullptr);
     int MinimizeAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser);
     std::shared_ptr<AbilityRecord> GetCurrentTopAbilityLocked() const;
     std::shared_ptr<MissionList> GetTargetMissionList(
@@ -398,7 +403,7 @@ private:
     std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedStandardMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
-        std::shared_ptr<AbilityRecord> &targetRecord);
+        std::shared_ptr<AbilityRecord> &targetRecord, sptr<SessionInfo> sessionInfo = nullptr);
     bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
     std::string GetMissionName(const AbilityRequest &abilityRequest) const;
@@ -483,6 +488,7 @@ private:
 
     std::queue<AbilityRequest> waitingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
+    std::map<uint32_t, sptr<IRemoteObject>> abilitySceneMap_;
 
     class MissionDmInitCallback : public DistributedHardware::DmInitCallback {
     public:

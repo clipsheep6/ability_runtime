@@ -46,6 +46,7 @@ ohos_shared_library("napi_common") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "access_token:libtokenid_sdk",
+    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

@@ -616,6 +616,12 @@ public:
      */
     ErrCode GetMissionIdByToken(const sptr<IRemoteObject> &token, int32_t &missionId);
 
+    ErrCode StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE);
+
+    sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId);
+
     /**
      * Start Ability, connect session with common ability.
      *

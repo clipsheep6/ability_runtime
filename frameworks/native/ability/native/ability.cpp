@@ -126,7 +126,9 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         // register displayid change callback
         HILOG_DEBUG("Ability::Init call RegisterDisplayListener");
         abilityDisplayListener_ = new AbilityDisplayListener(ability);
-        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
+        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+            Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
+        }
     }
 #endif
     lifecycle_ = std::make_shared<LifeCycle>();
@@ -157,6 +159,97 @@ bool Ability::IsUpdatingConfigurations()
 {
     return AbilityContext::IsUpdatingConfigurations();
 }
+
+void Ability::OnStart(const Want &want, sptr<SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("Ability::OnStart failed abilityInfo_ is nullptr.");
+        return;
+    }
+
+    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
+    (const_cast<Want &>(want)).RemoveParam(DLP_INDEX);
+    securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
+    (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
+    SetWant(want);
+    SetSessionInfo(sessionInfo);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
+        auto option = GetWindowOption(want);
+        InitWindow(displayId, option);
+
+        if (abilityWindow_ != nullptr) {
+            HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
+            auto window = abilityWindow_->GetWindow();
+            if (window) {
+                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+                window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+            }
+        }
+
+        // Update resMgr, Configuration
+        HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
+        sptr<Rosen::Display> display = nullptr;
+        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+            display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        }
+        if (display) {
+            float density = display->GetVirtualPixelRatio();
+            int32_t width = display->GetWidth();
+            int32_t height = display->GetHeight();
+            std::shared_ptr<Configuration> configuration = nullptr;
+            if (application_) {
+                configuration = application_->GetConfiguration();
+            }
+            if (configuration) {
+                std::string direction = GetDirectionStr(height, width);
+                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
+                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+                configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
+                UpdateContextConfiguration();
+            }
+
+            std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+            if (resConfig == nullptr) {
+                HILOG_ERROR("%{public}s error, resConfig is nullptr.", __func__);
+                return;
+            }
+            auto resourceManager = GetResourceManager();
+            if (resourceManager != nullptr) {
+                resourceManager->GetResConfig(*resConfig);
+                resConfig->SetScreenDensity(ConvertDensity(density));
+                resConfig->SetDirection(ConvertDirection(height, width));
+                resourceManager->UpdateResConfig(*resConfig);
+                HILOG_DEBUG("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
+                    resConfig->GetScreenDensity(), resConfig->GetDirection());
+            }
+        }
+    }
+#endif
+    if (abilityLifecycleExecutor_ == nullptr) {
+        HILOG_ERROR("Ability::OnStart error. abilityLifecycleExecutor_ == nullptr.");
+        return;
+    }
+    if (!abilityInfo_->isStageBasedModel) {
+        abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
+    } else {
+        abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::STARTED_NEW);
+    }
+
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("Ability::OnStart error. lifecycle_ == nullptr.");
+        return;
+    }
+    lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
+    HILOG_DEBUG("%{public}s end", __func__);
+}
+
 
 void Ability::OnStart(const Want &want)
 {
@@ -252,7 +345,9 @@ void Ability::OnStop()
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
-    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    }
     auto && window = GetWindow();
     if (window != nullptr) {
         HILOG_DEBUG("Call UnregisterDisplayMoveListener");
@@ -262,6 +357,13 @@ void Ability::OnStop()
     if (scene_ != nullptr) {
         scene_->GoDestroy();
         onSceneDestroyed();
+    } else {
+        if (uiWindow_) {
+            HILOG_ERROR("CHY %{public}s DoDisconnect.", __func__);
+            uiWindow_->Disconnect();
+        } else {
+            HILOG_ERROR("%{public}s uiWindow_ is null.", __func__);
+        }
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -659,6 +761,16 @@ void Ability::OnEventDispatch()
 void Ability::SetWant(const AAFwk::Want &want)
 {
     setWant_ = std::make_shared<AAFwk::Want>(want);
+}
+
+void Ability::SetSessionInfo(sptr<SessionInfo> sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
+}
+
+sptr<SessionInfo> Ability::GetSessionInfo()
+{
+    return sessionInfo_;
 }
 
 std::shared_ptr<AAFwk::Want> Ability::GetWant()
@@ -1524,12 +1636,16 @@ void Ability::OnBackground()
     }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
-            if (scene_ == nullptr) {
-                HILOG_ERROR("Ability::OnBackground error. scene_ == nullptr.");
+            if (scene_) {
+                HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
+                scene_->GoBackground(sceneFlag_);
+            } else if (uiWindow_) {
+                HILOG_INFO("CHY new pipe bundleName:%{public}s DoBackground.", abilityInfo_->bundleName.c_str());
+                uiWindow_->Background();
+            } else {
+                HILOG_ERROR("Ability::OnBackground error. scene_ == nullptr and uiWindow_ == nullptr.");
                 return;
             }
-            HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
-            scene_->GoBackground(sceneFlag_);
             if (abilityRecovery_ != nullptr) {
                 abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
             }
@@ -1720,6 +1836,11 @@ sptr<IRemoteObject> Ability::GetFormRemoteObject()
 void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 {
     sceneListener_ = listener;
+}
+
+void Ability::SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener)
+{
+    sceneSessionStageListener_ = listener;
 }
 
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)

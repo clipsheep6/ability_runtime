@@ -44,6 +44,7 @@
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
 #include "uri.h"
+
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
 #endif
@@ -75,6 +76,18 @@ public:
         const Want &want,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
+
+    virtual int StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    virtual sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId)
+    {
+        return 0;
+    }
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -1049,6 +1062,10 @@ public:
         CLEAR_UP_APPLICATION_DATA,
 
         START_ABILITY_FOR_OPTIONS,
+
+        START_ABILITY_BY_LAUNCHER,
+
+        GET_TOKEN_BY_SCENE_SESSION,
 
         BLOCK_AMS_SERVICE,
 

@@ -45,7 +45,8 @@ public:
      * @param targetState The life cycle state to switch to.
      *
      */
-    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState) override;
+    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief The life cycle callback of NewAbility.
@@ -62,7 +63,8 @@ public:
      * @return return true if the lifecycle transaction successfully, otherwise return false.
      *
      */
-    bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<SessionInfo> sessionInfo = nullptr);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

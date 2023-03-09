@@ -37,7 +37,10 @@
 #include "pac_map.h"
 #include "want.h"
 #include "want_agent.h"
+#include "session_info.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+
+#include "ui_window.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window.h"
@@ -184,6 +187,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
      */
     virtual void OnStart(const Want &want);
+    virtual void OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.
@@ -801,6 +805,10 @@ public:
      */
     void EnableAbilityRecovery(const std::shared_ptr<AbilityRecovery>& abilityRecovery);
 
+    void SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo);
+
+    sptr<AAFwk::SessionInfo> GetSessionInfo();
+
 #ifdef SUPPORT_GRAPHICS
 public:
     friend class PageAbilityImpl;
@@ -1069,6 +1077,7 @@ public:
      */
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
+    void SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener);
     /**
      * @brief Called back at ability context.
      *
@@ -1193,8 +1202,12 @@ protected:
 
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
+    std::shared_ptr<Rosen::ISessionStageStateListener> sceneSessionStageListener_ = nullptr;
     sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;
     sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
+
+    //  window scene
+    std::shared_ptr<Ace::NG::UIWindow> uiWindow_;
 #endif
 
 protected:
@@ -1281,6 +1294,7 @@ private:
     std::vector<std::string> types_;
     std::map<int, FeatureAbilityTask> resultCallbacks_;
     std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
+    sptr<SessionInfo> sessionInfo_ = nullptr;
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
 
     static const std::string SYSTEM_UI;

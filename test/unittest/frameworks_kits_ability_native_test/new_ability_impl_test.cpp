@@ -98,7 +98,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
     AAFwk::LifeCycleStateInfo state;
     state.state = ABILITY_STATE_FOREGROUND_NEW;
     state.isNewWant = true;
-    newAbilityImpl_->HandleAbilityTransaction(want, state);
+    newAbilityImpl_->HandleAbilityTransaction(want, state, nullptr);
     EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_INITIAL);
     EXPECT_EQ(newAbility->onNewWantCalled_, true);
     EXPECT_EQ(newAbility->continueRestoreCalled_, true);
@@ -118,7 +118,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200,
     AAFwk::LifeCycleStateInfo state;
     state.state = ABILITY_STATE_BACKGROUND_NEW;
     newAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND;
-    newAbilityImpl_->HandleAbilityTransaction(want, state);
+    newAbilityImpl_->HandleAbilityTransaction(want, state, nullptr);
     EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_BACKGROUND);
     EXPECT_TRUE(newAbilityImpl_->ability_ == nullptr);
     GTEST_LOG_(INFO) << "AaFwk_NewAbilityImpl_HandleAbilityTransaction_0200 end";
@@ -157,7 +157,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300,
     state.state = ABILITY_STATE_BACKGROUND_NEW;
     state.isNewWant = true;
     newAbilityImpl_->lifecycleState_ = ABILITY_STATE_BACKGROUND;
-    newAbilityImpl_->HandleAbilityTransaction(want, state);
+    newAbilityImpl_->HandleAbilityTransaction(want, state, nullptr);
     EXPECT_EQ(newAbilityImpl_->GetCurrentState(), ABILITY_STATE_BACKGROUND);
     EXPECT_TRUE(newAbilityImpl_->ability_ != nullptr);
 

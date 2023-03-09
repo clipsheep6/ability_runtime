@@ -27,7 +27,8 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  *
  */
 
-void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
@@ -53,13 +54,13 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
         ability_->SetLaunchParam(targetState.launchParam);
         if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
             ability_->SetStartAbilitySetting(targetState.setting);
-            Start(want);
+            Start(want, sessionInfo);
             CheckAndRestore();
         }
     }
 
     bool ret = false;
-    ret = AbilityTransaction(want, targetState);
+    ret = AbilityTransaction(want, targetState, sessionInfo);
     if (ret) {
         AbilityTransactionCallback(targetState.state);
     }
@@ -80,7 +81,8 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
  * @return return true if need notify ams, otherwise return false.
  *
  */
-bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;

@@ -51,8 +51,14 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     isStageBasedModel_ = info && info->isStageBasedModel;
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
-        ability_->SetSceneListener(
-            sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
+        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() ||
+            ability_->GetBundleName().find("animationdesktop") != std::string::npos) {
+            ability_->SetSceneListener(
+                sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
+        } else {
+            ability_->SetSceneSessionStageListener(
+                std::make_shared<SessionStateLifeCycleImpl>(token_, shared_from_this()));
+        }
     }
 #endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
@@ -62,7 +68,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     HILOG_DEBUG("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want &want)
+void AbilityImpl::Start(const Want &want, sptr<SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
@@ -81,13 +87,20 @@ void AbilityImpl::Start(const Want &want)
     }
 #endif
     HILOG_DEBUG("AbilityImpl::Start");
-    ability_->OnStart(want);
+    if (!ability_->GetAbilityInfo()->isStageBasedModel) {
+        HILOG_ERROR("chy AbilityImpl::Start data");
+        ability_->OnStart(want);
+    } else {
+        HILOG_ERROR("chy AbilityImpl::Start page");
+        ability_->OnStart(want, sessionInfo);
+    }
 #ifdef SUPPORT_GRAPHICS
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
         lifecycleState_ = AAFwk::ABILITY_STATE_STARTED_NEW;
     } else {
 #endif
+
         if (ability_->GetAbilityInfo()->type == AbilityType::DATA) {
             lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
         } else {
@@ -242,6 +255,10 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 }
 
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+{}
+
+void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<SessionInfo> sessionInfo)
 {}
 
 void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
@@ -678,6 +695,75 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
     }
+}
+
+void AbilityImpl::SessionStateLifeCycleImpl::AfterForeground()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_ERROR("chy new listener AfterForeground");
+    HILOG_INFO("chy %{public}s %{public}d begin.", __FUNCTION__, __LINE__);
+    auto owner = owner_.lock();
+    if (owner == nullptr || !owner->IsStageBasedModel()) {
+        HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
+        return;
+    }
+    bool needNotifyAMS = false;
+    {
+        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
+        if (owner->notifyForegroundByAbility_) {
+            owner->notifyForegroundByAbility_ = false;
+            needNotifyAMS = true;
+        } else {
+            HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
+            owner->notifyForegroundByWindow_ = true;
+        }
+    }
+    HILOG_INFO("%{public}s %{public}d begin.", __FUNCTION__, __LINE__);
+    if (needNotifyAMS) {
+        HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service.");
+        PacMap restoreData;
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
+    }
+    HILOG_INFO("%{public}s %{public}d end.", __FUNCTION__, __LINE__);
+}
+
+void AbilityImpl::SessionStateLifeCycleImpl::AfterBackground()
+{
+    HILOG_ERROR("chy new listener AfterBackground");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    auto owner = owner_.lock();
+    if (owner && !owner->IsStageBasedModel()) {
+        return;
+    }
+
+    HILOG_DEBUG("new version ability, window after background.");
+    PacMap restoreData;
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+        AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
+}
+
+void AbilityImpl::SessionStateLifeCycleImpl::AfterActive()
+{
+    HILOG_ERROR("chy new listener AfterActive");
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    auto owner = owner_.lock();
+    if (owner) {
+        owner->AfterFocused();
+    }
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void AbilityImpl::SessionStateLifeCycleImpl::AfterInactive()
+{
+    HILOG_ERROR("chy new listener AfterInactive");
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    auto owner = owner_.lock();
+    if (owner) {
+        owner->AfterUnFocused();
+    }
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void AbilityImpl::Foreground(const Want &want)

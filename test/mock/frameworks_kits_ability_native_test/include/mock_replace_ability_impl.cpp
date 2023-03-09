@@ -67,7 +67,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std:
     HILOG_INFO("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want& want)
+void AbilityImpl::Start(const Want& want, sptr<SessionInfo> sessionInfo)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Start called";
 }

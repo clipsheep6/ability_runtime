@@ -278,6 +278,7 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_napi_common",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
+    "window_manager:scene_session",
   ]
 
   defines = []
@@ -326,6 +327,9 @@ ohos_shared_library("abilitykit_native") {
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
       "${windowmanager_path}/wm:libwm",
+      "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
+      "//foundation/window/window_manager/window_scene/session:scene_session",
+      "//foundation/arkui/ace_engine/interfaces/inner_api/ace:ace_uicontent",
     ]
   }
 
@@ -697,7 +701,6 @@ ohos_shared_library("service_extension_module") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:session_info",
-    "ability_base:want",
     "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

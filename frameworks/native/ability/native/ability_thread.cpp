@@ -446,7 +446,8 @@ void AbilityThread::Attach(
  * @param want  Indicates the structure containing lifecycle information about the ability.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Handle ability transaction begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -459,7 +460,11 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
         lifeCycleStateInfo.caller.bundleName,
         lifeCycleStateInfo.caller.abilityName,
         lifeCycleStateInfo.caller.moduleName);
-    abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
+    if (!abilityImpl_->IsStageBasedModel()) {
+        abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
+    } else {
+        abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
+    }
     HILOG_DEBUG("Handle ability transaction success.");
 }
 
@@ -753,7 +758,7 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         if (abilityThread->isExtension_) {
             abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
         } else {
-            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
+            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
         }
     };
 

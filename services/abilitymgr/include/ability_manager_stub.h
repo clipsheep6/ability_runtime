@@ -24,6 +24,7 @@
 #include "dlp_connection_info.h"
 #include "hilog_wrapper.h"
 #include "iconnection_observer.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -98,6 +99,8 @@ private:
     int DumpSysStateInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityByLauncherInner(MessageParcel &data, MessageParcel &reply);
+    int GetTokenBySceneSessionInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);

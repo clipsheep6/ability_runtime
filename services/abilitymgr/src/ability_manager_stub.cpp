@@ -73,6 +73,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
     requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
     requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
+    requestFuncMap_[START_ABILITY_BY_LAUNCHER] = &AbilityManagerStub::StartAbilityByLauncherInner;
+    requestFuncMap_[GET_TOKEN_BY_SCENE_SESSION] = &AbilityManagerStub::GetTokenBySceneSessionInner;
     requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
     requestFuncMap_[STOP_SYNC_MISSIONS] = &AbilityManagerStub::StopSyncRemoteMissionsInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -708,6 +710,54 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityByLauncherInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        delete want;
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityByLauncher(*want, *startOptions, callerToken, sessionInfo, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    delete startOptions;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetTokenBySceneSessionInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t persistentId = data.ReadUint64();
+    sptr<IRemoteObject> token = GetTokenBySceneSession(persistentId);
+    if (token) {
+        if (!reply.WriteBool(true) || !reply.WriteRemoteObject(token)) {
+            HILOG_ERROR("flag and token write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!reply.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
     return NO_ERROR;
 }
 

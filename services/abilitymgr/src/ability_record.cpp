@@ -34,6 +34,7 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "session_info.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #ifdef SUPPORT_GRAPHICS
@@ -537,6 +538,12 @@ std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
+    auto abilityInfo = GetAbilityInfo();
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+        abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
+        HILOG_ERROR("sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
+        return;
+    }
     HILOG_INFO("%{public}s was called.", __func__);
     if (isRecent) {
         auto want = GetWantFromMission();
@@ -617,6 +624,12 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
 void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
     std::shared_ptr<StartOptions> &startOptions)
 {
+    auto abilityInfo = GetAbilityInfo();
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+        abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
+        HILOG_ERROR("chy sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
+        return;
+    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s was called.", __func__);
     if (isRecent) {
@@ -638,6 +651,12 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
+    auto abilityInfo = GetAbilityInfo();
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+        abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
+        HILOG_ERROR("chy sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
+        return;
+    }
     if (want_.GetBoolParam(DEBUG_APP, false)) {
         HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
         return;

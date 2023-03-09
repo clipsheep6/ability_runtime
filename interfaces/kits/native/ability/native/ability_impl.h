@@ -24,9 +24,11 @@
 #include "ability_handler.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
+#include "session/container/include/session_stage.h"
 #ifdef SUPPORT_GRAPHICS
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/i_input_event_consumer.h"
 #endif
+
 namespace OHOS {
 namespace AppExecFwk {
 class Ability;
@@ -95,6 +97,8 @@ public:
 
     // Page Service Ability has different AbilityTransaction
     virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+      sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief The life cycle callback.
@@ -362,6 +366,10 @@ public:
     void AfterUnFocused();
     void AfterFocused();
 
+    AbilityType GetAbilityType()
+    {
+        return ability_->GetAbilityInfo()->type;
+    }
 protected:
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
@@ -386,7 +394,7 @@ protected:
      *
      * @param want  The Want object to switch the life cycle.
      */
-    void Start(const Want &want);
+    void Start(const Want &want, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
@@ -491,6 +499,20 @@ public:
     void AfterFocused() override;
     void AfterUnfocused() override;
     void ForegroundFailed(int32_t type) override;
+private:
+    sptr<IRemoteObject> token_ = nullptr;
+    std::weak_ptr<AbilityImpl> owner_;
+};
+
+class SessionStateLifeCycleImpl : public Rosen::ISessionStageStateListener {
+public:
+    SessionStateLifeCycleImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityImpl>& owner)
+        : token_(token), owner_(owner) {}
+    virtual ~SessionStateLifeCycleImpl() {}
+    void AfterForeground() override;
+    void AfterBackground() override;
+    void AfterActive() override;
+    void AfterInactive() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;

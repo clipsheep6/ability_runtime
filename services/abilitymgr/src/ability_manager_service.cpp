@@ -46,6 +46,7 @@
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
 #include "sa_mgr_client.h"
+#include "session_info.h"
 #include "system_ability_token_callback.h"
 #include "softbus_bus_center.h"
 #include "string_ex.h"
@@ -915,6 +916,79 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int AbilityManagerService::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+    int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Start ability options.");
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+        return ERR_INVALID_CALLER;
+    }
+
+    int32_t oriValidUserId = GetValidUserId(userId);
+    int32_t validUserId = oriValidUserId;
+
+    if (!JudgeMultiUserConcurrency(validUserId)) {
+        HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
+        return ERR_CROSS_USER;
+    }
+
+    AbilityRequest abilityRequest;
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        return result;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
+    HILOG_DEBUG("userId : %{public}d, singleton is : %{public}d",
+        validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
+
+    if (abilityInfo.type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("Only support for page type ability.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
+        result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("StartAbility: App data ability preloading failed, '%{public}s', %{public}d",
+                abilityInfo.bundleName.c_str(),
+                result);
+            return result;
+        }
+    }
+
+    if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
+        return ERR_WOULD_BLOCK;
+    }
+    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+    auto missionListManager = GetListManagerByUserId(oriValidUserId);
+    if (missionListManager == nullptr) {
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
+        return ERR_INVALID_VALUE;
+    }
+
+#ifdef SUPPORT_GRAPHICS
+    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+    auto ret = missionListManager->StartAbility(abilityRequest, sessionInfo);
+    return ret;
+}
+
+sptr<IRemoteObject> AbilityManagerService::GetTokenBySceneSession(uint64_t persistentId)
+{
+    if (!currentMissionListManager_) {
+        return nullptr;
+    }
+    return currentMissionListManager_->GetTokenBySceneSession(persistentId);
 }
 
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)

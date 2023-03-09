@@ -432,7 +432,8 @@ private:
      * @param want  Indicates the structure containing lifecycle information about the ability.
      * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
      */
-    void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
+    void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+        sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @description:  Handle the life cycle of Extension.

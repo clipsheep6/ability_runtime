@@ -350,6 +350,90 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+    int32_t userId, int requestCode)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&startOptions)) {
+        HILOG_ERROR("startOptions write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    error = Remote()->SendRequest(IAbilityManager::START_ABILITY_BY_LAUNCHER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+sptr<IRemoteObject> AbilityManagerProxy::GetTokenBySceneSession(uint64_t persistentId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return nullptr;
+    }
+    if (!data.WriteUint64(persistentId)) {
+        HILOG_ERROR("persistentId write failed.");
+        return nullptr;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::GET_TOKEN_BY_SCENE_SESSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return nullptr;
+    }
+    sptr<IRemoteObject> token = nullptr;
+    if (reply.ReadBool()) {
+        token = reply.ReadRemoteObject();
+    }
+    return token;
+}
+
 int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {

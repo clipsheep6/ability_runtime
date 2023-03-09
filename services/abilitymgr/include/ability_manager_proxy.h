@@ -62,6 +62,12 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
+
+    virtual int StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    virtual sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId) override;
     /**
      * Starts a new ability with specific start settings.
      *

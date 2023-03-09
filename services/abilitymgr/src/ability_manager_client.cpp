@@ -170,6 +170,30 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const Start
     return abms->StartAbilityAsCaller(want, startOptions, callerToken, userId, requestCode);
 }
 
+ErrCode AbilityManagerClient::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+    int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("%{public}s come, abilityName=%{public}s, userId=%{public}d.",
+        __func__, want.GetElement().GetAbilityName().c_str(), userId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityByLauncher(want, startOptions, callerToken, sessionInfo, userId, requestCode);
+}
+
+sptr<IRemoteObject> AbilityManagerClient::GetTokenBySceneSession(uint64_t persistentId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        return nullptr;
+    }
+    HILOG_INFO("persistentId: %{public}" PRIu64 ".", persistentId);
+    return abms->GetTokenBySceneSession(persistentId);
+}
+
 ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCode, Want& resultWant)
 {
     auto abms = GetAbilityManager();
