@@ -5037,6 +5037,7 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
         (NativeEngine& engine, AsyncTask& task, int32_t status) {
         if (*value != NAPI_ERR_NO_ERROR) {
             int32_t errCode = GetStartAbilityErrorCode(*value);
+            HILOG_INFO("xts_test_tag_2: JsStartAbility failed origin code: %{public}d, nowcode: %{public}d", *value, errCode);
             task.Reject(engine, CreateJsError(engine, errCode, "StartAbility Failed"));
             return;
         }
