@@ -40,7 +40,7 @@ DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareH
  *
  * @return Returns the created DataAbilityHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> &context)
+std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> context)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
@@ -60,7 +60,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
  * @return Returns the created DataAbilityHelper instance with a specified Uri.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<Context> context, const std::shared_ptr<Uri> &uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri.");
     if (!context || !uri) {
@@ -94,7 +94,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance with a specified Uri.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> context, const std::shared_ptr<Uri> &uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri.");
     if (!context || !uri) {
@@ -133,7 +133,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<Context> context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
@@ -157,7 +157,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
@@ -175,7 +175,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  *
  * @return Returns the created DataAbilityHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> &token)
+std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> token)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with token.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
@@ -197,7 +197,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
+    const sptr<IRemoteObject> token, const std::shared_ptr<Uri> &uri)
 {
     HILOG_INFO("Call DataAbilityHelperImpl Creator with token & uri.");
     if (!token || !uri) {
