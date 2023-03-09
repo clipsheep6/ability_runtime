@@ -949,6 +949,7 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
 
 void AppRunningRecord::RegisterAppDeathRecipient() const
 {
+    HILOG_INFO("RegisterAppDeathRecipient, appName: %{public}s", appName_.c_str());
     if (appLifeCycleDeal_ == nullptr) {
         HILOG_ERROR("appLifeCycleDeal_ is null");
         return;
@@ -958,8 +959,8 @@ void AppRunningRecord::RegisterAppDeathRecipient() const
         return;
     }
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
-    if (object) {
-        object->AddDeathRecipient(appDeathRecipient_);
+    if (!object || !object->AddDeathRecipient(appDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 }
 
