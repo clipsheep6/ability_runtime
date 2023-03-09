@@ -4524,6 +4524,38 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 HILOG_ERROR("AppRecovery BundleName not match, Not recovery ability!");
                 ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_BUNDLE_NAME_NOT_MATCH");
                 return;
+            } else if (want->GetElement().GetAbilityName().empty()) {
+                HILOG_ERROR("AppRecovery recovery target ability is empty");
+                ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_TARGET_ABILITY_EMPTY");
+                return;
+            } else {
+                auto bms = GetBundleManager();
+                AppExecFwk::BundleInfo bundleInfo;
+                auto bundleName = want->GetElement().GetBundleName();
+                int32_t userId = GetUserId();
+                bool ret = IN_PROCESS_CALL(
+                    bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo,
+                    userId));
+                if (!ret) {
+                    HILOG_ERROR("AppRecovery Failed to get bundle info, not do recovery!");
+                    return;
+                }
+                bool isRestartPage = false;
+                auto abilityName = want->GetElement().GetAbilityName();
+                HILOG_ERROR("AppRecovery the recovery target want ability: %{public}s", abilityName.c_str());
+                for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
+                    HILOG_ERROR("AppRecovery find ability name: %{public}s, className:%{public}s", (it->name).c_str(), (it->className).c_str());
+                    if ((abilityName.compare(it->name) == 0) && it->type == AppExecFwk::AbilityType::PAGE) {
+                        isRestartPage = true;
+                        HILOG_INFO("AppRecovery the recovery target ability: %{public}s is page type", abilityName.c_str());
+                        break;
+                    }
+                }
+                if (!isRestartPage) {
+                    HILOG_ERROR("AppRecovery the target ability type is not PAGE!");
+                    ReportAppRecoverResult(record->GetUid(), appInfo, abilityName, "FAIL_TARGET_ABILITY_NOT_PAGE");
+                    return;
+                }
             }
         }
 

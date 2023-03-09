@@ -130,15 +130,7 @@ bool AppRecovery::AddAbility(std::shared_ptr<Ability> ability,
     abilityRecovery->EnableAbilityRecovery(restartFlag_, saveOccasion_, saveMode_);
     ability->EnableAbilityRecovery(abilityRecovery);
     abilityRecoverys_.push_back(abilityRecovery);
-    auto handler = mainHandler_.lock();
-    if (handler != nullptr) {
-        auto task = []() {
-            AppRecovery::GetInstance().DeleteInValidMissionFiles();
-        };
-        if (!handler->PostTask(task, 1000)) {
-            HILOG_ERROR("Failed to DeleteInValidMissionFiles.");
-        }
-    }
+    DeleteRecoveryStateFiles();
     return true;
 }
 
@@ -399,7 +391,7 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
     return ret;
 }
 
-void AppRecovery::DeleteInValidMissionFiles()
+void AppRecovery::DeleteRecoveryStateFiles()
 {
     auto context = AbilityRuntime::Context::GetApplicationContext();
     if (context == nullptr) {
@@ -407,14 +399,39 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    HILOG_DEBUG("AppRecovery DeleteRecoveryStateFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
-        HILOG_ERROR("AppRecovery GetSaveAppCachePath fileDir is empty or fileDir is not exists.");
+        HILOG_ERROR("AppRecovery DeleteRecoveryStateFiles fileDir is empty or fileDir is not exists.");
         return;
     }
+    auto ability = ability_.lock();
+    if (ability == nullptr) {
+         HILOG_ERROR("AppRecovery DeleteRecoveryStateFiles ability is nullptr.");
+        return;
+    }
+    auto launcherParam = ability->GetLaunchParam();
+    if (launcherParam.launchReason != LaunchReason::LAUNCHREASON_APP_RECOVERY) {
+        auto curAbilityRecovery = abilityRecoverys_.back();
+        DeleteInValidStateFileById(fileDir, curAbilityRecovery->missionId_);
+    } else {
+        auto handler = mainHandler_.lock();
+        if (handler == nullptr) {
+            HILOG_ERROR("DeleteRecoveryStateFiles. main handler is not exist");
+            return;
+        }
+        auto task = [fileDir]() {
+            AppRecovery::GetInstance().DeleteInValidStateFiles(fileDir);
+        };
+        if (!handler->PostTask(task, 1000)) {
+            HILOG_ERROR("Failed to DeleteInValidStateFiles.");
+        }
+    }
+}
+
+void AppRecovery::DeleteInValidStateFiles(std::string fileDir)
+{
     std::vector<int32_t> missionIds;
     std::vector<MissionVaildResult> results;
-
     if (!GetMissionIds(fileDir, missionIds)) {
         HILOG_ERROR("AppRecovery get mssion file id error.");
         return;
@@ -437,25 +454,20 @@ void AppRecovery::DeleteInValidMissionFiles()
         HILOG_INFO("AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d",item.missionId,
             item.isVaild);
         if (!item.isVaild) {
-            DeleteInValidMissionFileById(fileDir, item.missionId);
+            DeleteInValidStateFileById(fileDir, item.missionId);
         }
     }
 }
 
-void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t missionId) {
+void AppRecovery::DeleteInValidStateFileById(std::string path, int32_t missionId)
+{
     std::string fileName = std::to_string(missionId) + ".state";
-    std::string file = fileDir + "/" + fileName;
-    if (file.empty()) {
-        HILOG_ERROR("AppRecovery %{public}s failed to delete file path.", __func__);
-        return;
+    std::string file = path + "/" + fileName;
+    bool ret = OHOS::RemoveFile(file);
+    if (!ret) {
+        HILOG_ERROR("AppRecovery delete the file: %{public}s failed", file.c_str());
     }
-    char path[PATH_MAX] = {0};
-    if (realpath(file.c_str(), path) == nullptr) {
-        HILOG_ERROR("AppRecovery realpath error, errno is %{public}d.", errno);
-        return;
-    }
-    remove(path);
-    HILOG_DEBUG("AppRecovery delete the file: %{public}s done", file.c_str());
+    HILOG_INFO("AppRecovery delete the file: %{public}s done", file.c_str());
 }
 
 bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionIds)

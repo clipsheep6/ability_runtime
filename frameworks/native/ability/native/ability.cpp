@@ -377,23 +377,23 @@ bool Ability::IsRestoredInContinuation() const
 
 bool Ability::ShouldRecoverState(const Want& want)
 {
+    if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
+        HILOG_INFO("AppRecovery not recovery restart");
+        return false;
+    }
+
     if (abilityRecovery_ == nullptr) {
-        HILOG_ERROR("AppRecovery Not enable");
+        HILOG_WARN("AppRecovery Not enable");
         return false;
     }
 
     if (abilityContext_ == nullptr) {
-        HILOG_ERROR("AppRecovery abilityContext_ is null");
+        HILOG_WARN("AppRecovery abilityContext_ is null");
         return false;
     }
 
     if (abilityContext_->GetContentStorage() == nullptr) {
-        HILOG_ERROR("AppRecovery abilityContext_ GetContentStorage is null");
-        return false;
-    }
-
-    if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        HILOG_ERROR("AppRecovery not recovery restart");
+        HILOG_WARN("AppRecovery abilityContext_ GetContentStorage is null");
         return false;
     }
 
@@ -997,7 +997,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
 void Ability::HandleCreateAsRecovery(const Want &want)
 {
     if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        HILOG_ERROR("AppRecovery not recovery restart");
+        HILOG_INFO("AppRecovery not recovery restart");
         return;
     }
 
