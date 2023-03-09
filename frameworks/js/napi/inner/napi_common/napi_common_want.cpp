@@ -315,7 +315,6 @@ bool InnerWrapWantParamsRemoteObject(
     }
     auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
     auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
-    HILOG_DEBUG("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
     if (jsValue == nullptr) {
         HILOG_ERROR("%{public}s jsValue is nullptr.", __func__);
         return false;
