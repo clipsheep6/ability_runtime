@@ -44,7 +44,7 @@
 #include "running_process_info.h"
 #include "bundle_info.h"
 #include "istart_specified_ability_response.h"
-#include "shared_package/base_shared_package_info.h"
+#include "shared/base_shared_bundle_info.h"
 
 #include "want.h"
 #include "window_focus_changed_listener.h"
@@ -806,7 +806,7 @@ private:
     void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
 
     void SetRunningSharedBundleList(const std::string &bundleName,
-        const std::vector<BaseSharedPackageInfo> baseSharedPackageInfoList);
+        const std::vector<BaseSharedBundleInfo> baseSharedBundleInfoList);
 
     void RemoveRunningSharedBundleList(const std::string &bundleName);
 
@@ -839,7 +839,7 @@ private:
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
-    std::map<std::string, std::vector<BaseSharedPackageInfo>> runningSharedBundleList_;
+    std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
