@@ -25,11 +25,13 @@ class VSyncReceiver;
 }
 namespace AppExecFwk {
 using IdleTimeCallback = std::function<void(int32_t)>;
+using IdleNotifyStatusCallback = std::function<void(bool)>;
 class IdleTime : public std::enable_shared_from_this<IdleTime> {
 public:
     IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback);
     ~IdleTime() = default;
     void Start();
+    IdleNotifyStatusCallback GetIdleNotifyFunc();
 
 private:
     int64_t GetSysTimeNs();
@@ -37,10 +39,13 @@ private:
     void RequestVSync();
     void EventTask();
     void PostTask();
+    void SetNeedStop(bool needStop);
+    bool GetNeedStop();
 
     int64_t firstVSyncTime_ = 0;
     int64_t period_ = 0;
     int32_t continueFailCount_ = 0;
+    bool needStop_ {false};
     int32_t successCount_ = 0;
     std::shared_ptr<EventHandler> eventHandler_;
     IdleTimeCallback callback_ = nullptr;

@@ -1165,6 +1165,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         };
         idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
         idleTime_->Start();
+
+        IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
+        jsEngine.NotifyIdleStatusControl(cb);
     }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
