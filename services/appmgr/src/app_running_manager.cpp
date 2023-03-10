@@ -474,6 +474,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isContinuousTask = appRecord->IsContinuousTask();
     info.isKeepAlive = appRecord->IsKeepAliveApp();
     info.isFocused = appRecord->GetFocusFlag();
+    info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
 }
 
