@@ -128,8 +128,8 @@ void RenderRecord::RegisterDeathRecipient()
 {
     if (renderScheduler_ && deathRecipient_) {
         auto obj = renderScheduler_->AsObject();
-        if (obj) {
-            obj->AddDeathRecipient(deathRecipient_);
+        if (!obj || !obj->AddDeathRecipient(deathRecipient_)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
         }
     }
 }
@@ -958,8 +958,8 @@ void AppRunningRecord::RegisterAppDeathRecipient() const
         return;
     }
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
-    if (object) {
-        object->AddDeathRecipient(appDeathRecipient_);
+    if (!object || !object->AddDeathRecipient(appDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 }
 

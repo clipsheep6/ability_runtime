@@ -81,7 +81,9 @@ void CallRecord::SetCallStub(const sptr<IRemoteObject> &call)
                 new AbilityCallRecipient(callStubDied);
     }
 
-    callRemoteObject_->AddDeathRecipient(callDeathRecipient_);
+    if (!callRemoteObject_->AddDeathRecipient(callDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
+    }
 }
 
 sptr<IRemoteObject> CallRecord::GetCallStub()
