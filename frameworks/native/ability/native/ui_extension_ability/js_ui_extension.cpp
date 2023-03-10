@@ -215,6 +215,12 @@ void JsUIExtension::OnStop()
     HILOG_DEBUG("JsUIExtension OnStop begin.");
     CallObjectMethod("onDestroy");
 
+    if (uiWindow_ != nullptr) {
+        uiWindow_->Disconnect();
+    } else {
+        HILOG_ERROR("JsUIExtension::OnStop uiWindow is null.");
+    }
+
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_ERROR("Failed to get context");
