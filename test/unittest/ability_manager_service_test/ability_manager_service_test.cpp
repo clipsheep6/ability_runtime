@@ -2703,31 +2703,31 @@ HWTEST_F(AbilityManagerServiceTest, CheckStaticCfgPermission_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 start");
     AppExecFwk::AbilityInfo abilityInfo;
     MyFlag::flag_ = 1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     MyFlag::flag_ = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     abilityInfo.applicationInfo.accessTokenId = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), ERR_OK);
 
     // abilityInfo.permissions is empty
     abilityInfo.applicationInfo.accessTokenId = -1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;
     abilityInfo.readPermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.readPermission.clear();
     abilityInfo.writePermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 end");
 }
 
