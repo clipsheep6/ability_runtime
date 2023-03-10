@@ -21,8 +21,8 @@
 #include <memory>
 
 #include "ability_lifecycle_callbacks.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
-#include "ability_stage.h"
+#include "../../ability_runtime/context/context.h"
+#include "../../ability_runtime/app/ability_stage.h"
 #include "app_context.h"
 #include "element_callback.h"
 

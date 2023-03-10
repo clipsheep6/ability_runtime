@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <stack>
+#include <functional>
 
 namespace OHOS {
 namespace AppExecFwk {

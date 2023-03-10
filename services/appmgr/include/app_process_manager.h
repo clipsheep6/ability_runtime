@@ -64,7 +64,7 @@ public:
      *
      * @return a list of recent applications.
      */
-    const std::list<const std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
+    const std::list<std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -105,7 +105,7 @@ public:
         const std::string &appName, const std::string &processName) const;
 
 private:
-    std::list<const std::shared_ptr<AppTaskInfo>> recentAppList_;
+    std::list<std::shared_ptr<AppTaskInfo>> recentAppList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

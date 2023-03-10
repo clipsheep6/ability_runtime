@@ -4814,7 +4814,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("SendANRProcessID error, debug mode.");
         return ERR_INVALID_VALUE;
     }
-
+#ifdef SUPPORT_GRAPHICS
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     if (!sysDialog) {
         HILOG_ERROR("SystemDialogScheduler is nullptr.");
@@ -4827,6 +4827,9 @@ int AbilityManagerService::SendANRProcessID(int pid)
         return ERR_INVALID_VALUE;
     }
     return StartAbility(want);
+#else
+    return ERR_OK;
+#endif
 }
 
 bool AbilityManagerService::IsRunningInStabilityTest()
@@ -5572,7 +5575,7 @@ int32_t AbilityManagerService::ShowPickerDialog(
     newWant.SetAction("");
     return IN_PROCESS_CALL(StartAbility(newWant, DEFAULT_INVAL_VALUE, userId));
 }
-#endif
+
 
 bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
@@ -5592,7 +5595,7 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     }
     return false;
 }
-
+#endif
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
 {
     if (!IsUseNewStartUpRule(abilityRequest)) {

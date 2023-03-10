@@ -36,7 +36,7 @@
 #include "test_runner.h"
 
 #include "ability_lifecycle_executor.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
+#include "context.h"
 #include "want.h"
 
 namespace OHOS {

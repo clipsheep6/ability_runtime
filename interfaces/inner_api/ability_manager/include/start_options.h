@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_START_OPTIONS_H
 
 #include <string>
+#include <memory>
 
 #include "ability_window_configuration.h"
 #include "parcel.h"

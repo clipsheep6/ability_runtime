@@ -21,6 +21,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <condition_variable>
 
 #include "ability_connect_callback_interface.h"
 #include "ability_info.h"

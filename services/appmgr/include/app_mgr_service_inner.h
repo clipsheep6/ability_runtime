@@ -827,7 +827,7 @@ private:
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
-    std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
+    std::vector<sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;
     std::shared_ptr<AppRunningManager> appRunningManager_;

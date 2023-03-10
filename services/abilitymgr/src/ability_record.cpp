@@ -18,7 +18,7 @@
 #include <singleton.h>
 #include <vector>
 
-#include "constants.h"
+// #include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
@@ -27,7 +27,7 @@
 #include "bundle_mgr_client.h"
 #include "connection_state_manager.h"
 #include "hitrace_meter.h"
-#include "image_source.h"
+// #include "image_source.h"
 #include "in_process_call_wrapper.h"
 #include "errors.h"
 #include "event_report.h"

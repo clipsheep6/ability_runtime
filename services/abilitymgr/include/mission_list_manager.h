@@ -21,7 +21,7 @@
 #include <memory>
 
 #include "ability_running_info.h"
-#include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
+#include "device_manager.h"
 #include "mission_list.h"
 #include "mission_listener_controller.h"
 #include "mission_info.h"

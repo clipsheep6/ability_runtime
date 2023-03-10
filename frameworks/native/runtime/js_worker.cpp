@@ -23,15 +23,15 @@
 #include <unistd.h>
 
 #include "connect_server_manager.h"
-#include "commonlibrary/c_utils/base/include/refbase.h"
+#include "refbase.h"
 #ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
 #endif
 #include "extractor.h"
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
-#include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "bundle_info.h"
+#include "bundle_mgr_proxy.h"
+#include "iservice_registry.h"
+#include "iremote_object.h"
 #include "system_ability_definition.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"

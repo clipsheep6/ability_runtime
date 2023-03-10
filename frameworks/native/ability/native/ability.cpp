@@ -44,6 +44,7 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+#include "continuation_handler.h"
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_mgr_helper.h"
@@ -576,11 +577,13 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 void Ability::OnMemoryLevel(int level)
 {
     HILOG_INFO("%{public}s start.", __func__);
+#ifdef SUPPORT_GRAPHICS
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 int Ability::OpenRawFile(const Uri &uri, const std::string &mode)

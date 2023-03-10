@@ -18,6 +18,7 @@
 
 #include "ability.h"
 #include "ability_delegator_infos.h"
+#include "want_params.h"
 
 class NativeReference;
 class NativeValue;
@@ -31,6 +32,7 @@ using AbilityHandler = AppExecFwk::AbilityHandler;
 using AbilityInfo = AppExecFwk::AbilityInfo;
 using OHOSApplication = AppExecFwk::OHOSApplication;
 using Want = AppExecFwk::Want;
+using WantParams = AppExecFwk::WantParams;
 using AbilityStartSetting = AppExecFwk::AbilityStartSetting;
 using Configuration = AppExecFwk::Configuration;
 

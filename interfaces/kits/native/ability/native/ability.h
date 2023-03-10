@@ -29,7 +29,6 @@
 #include "appexecfwk_errors.h"
 #include "configuration.h"
 #include "context.h"
-#include "continuation_handler.h"
 #include "continuation_state.h"
 #include "dummy_notification_request.h"
 #include "iability_callback.h"
@@ -37,7 +36,7 @@
 #include "pac_map.h"
 #include "want.h"
 #include "want_agent.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "../ability_runtime/ability_context.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window.h"
@@ -78,6 +77,7 @@ class ILifeCycle;
 class ContinuationManager;
 class AbilityRecovery;
 class ContinuationRegisterManager;
+class ContinuationHandler;
 class Ability : public IAbilityEvent,
                 public ILifeCycle,
                 public AbilityContext,

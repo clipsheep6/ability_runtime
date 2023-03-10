@@ -2514,7 +2514,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         return ERR_INVALID_VALUE;
     }
     configurationObservers_.push_back(observer);
-    return NO_ERROR;
+    return EventFwkNapi::NO_ERROR;
 }
 
 int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigurationObserver>& observer)
@@ -2532,7 +2532,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
     );
     if (it != configurationObservers_.end()) {
         configurationObservers_.erase(it);
-        return NO_ERROR;
+        return EventFwkNapi::NO_ERROR;
     }
     HILOG_INFO("AppMgrServiceInner ConfigurationObserver not register");
     return ERR_INVALID_VALUE;

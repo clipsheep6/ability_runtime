@@ -40,6 +40,7 @@
 #include "context/context.h"
 #include "context/application_context.h"
 #include "hitrace_meter.h"
+#include "continuation_manager.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
