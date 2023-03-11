@@ -469,6 +469,7 @@ private:
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
     bool UpdateAbilityRecordLaunchReason(
         const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
+    std::shared_ptr<AbilityRecord> GetAliveAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
