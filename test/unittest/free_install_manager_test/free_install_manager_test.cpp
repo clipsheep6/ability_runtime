@@ -232,7 +232,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
 }
 
 /**
- * @tc.number: FreeInstall_StartFreeInstall_004
+ * @tc.number: FreeInstall_OnInstallFinished_002
  * @tc.name: OnInstallFinished
  * @tc.desc: Test OnInstallFinished failed.
  */
@@ -279,6 +279,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_003, TestSize.Level1)
     FreeInstallInfo info = freeInstallManager_->BuildFreeInstallInfo(want, userId, requestCode, nullptr, false);
     info.isInstalled = true;
     freeInstallManager_->freeInstallList_.resize(0);
+    info.promise.reset();
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, false);
 

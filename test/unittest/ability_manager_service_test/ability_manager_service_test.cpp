@@ -679,7 +679,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
 
     abilityMs_->freeInstallManager_ = temp;
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), INVALID_PARAMETERS_ERR);
 
     // GetBoolParam
     want.SetFlags(0);
@@ -1273,7 +1273,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfos_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 start");
     std::vector<MissionInfo> missionInfos;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 end");
 }
 
@@ -1301,7 +1301,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 start");
     MissionInfo missionInfo;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 end");
 }
 
