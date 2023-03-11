@@ -1197,6 +1197,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         HILOG_ERROR("missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
         return ERR_INVALID_VALUE;
     }
+    NotifyHandleAbilityStateChange(tokne, TERMINATE_ABILITY_CODE);
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
 }
 
@@ -4684,14 +4685,14 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         return ERR_INVALID_VALUE;
     }
 
-    NotifyHandleMoveAbility(token, 0);
+    NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
     return DelegatorMoveMissionToFront(missionId);
 }
 
 int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("enter");
-    NotifyHandleMoveAbility(token, 1);
+    NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_BACKGROUND_CODE);
     return MinimizeAbility(token, true);
 }
 
@@ -5727,10 +5728,10 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
     return true;
 }
 
-void AbilityManagerService::NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code)
+void AbilityManagerService::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
 {
     if (componentInterception_ != nullptr) {
-        componentInterception_->NotifyHandleMoveAbility(abilityToken, code);
+        componentInterception_->NotifyHandleAbilityStateChange(abilityToken, opCode);
     }
 }
 
