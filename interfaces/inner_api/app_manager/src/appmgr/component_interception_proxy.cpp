@@ -96,7 +96,7 @@ void ComponentInterceptionProxy::SetExtraParam(const sptr<Want> &want, sptr<Want
     extraParam->SetParam(Want::PARAM_RESV_ABILITY_INFO_CALLBACK, tempCallBack);
 }
 
-void ComponentInterceptionProxy::NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code)
+void ComponentInterceptionProxy::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -111,7 +111,7 @@ void ComponentInterceptionProxy::NotifyHandleMoveAbility(const sptr<IRemoteObjec
         data.WriteBool(true);
         data.WriteRemoteObject(abilityToken);
     }
-    data.WriteInt32(code);
+    data.WriteInt32(opCode);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
