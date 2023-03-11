@@ -49,6 +49,7 @@ constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Can not free install othe
 constexpr const char* ERROR_MSG_INVALID_CALLER = "Caller released, The caller has been released.";
 constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission id does not exist.";
 constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "The specified mission listener does not exist.";
+constexpr const char* ERROR_MSG_START_ABILITY_WAITTING = "The previous ability is starting, wait start later.";
 
 static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_OK, ERROR_MSG_OK },
@@ -74,7 +75,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_FREE_INSTALL_OTHERS, ERROR_MSG_FREE_INSTALL_OTHERS },
     { AbilityErrorCode::ERROR_CODE_INVALID_CALLER, ERROR_MSG_INVALID_CALLER },
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_ID, ERROR_MSG_NO_MISSION_ID },
-    { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER }
+    { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER },
+    { AbilityErrorCode::ERROR_START_ABILITY_WAITTING, ERROR_MSG_START_ABILITY_WAITTING }
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -97,7 +99,8 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {FREE_INSTALL_TIMEOUT, AbilityErrorCode::ERROR_CODE_FREE_INSTALL_TIMEOUT},
     {NOT_ALLOWED_TO_PULL_THIS_FA, AbilityErrorCode::ERROR_CODE_FREE_INSTALL_OTHERS},
     {ERR_INVALID_CALLER, AbilityErrorCode::ERROR_CODE_INVALID_CALLER},
-    {MISSION_NOT_FOUND, AbilityErrorCode::ERROR_CODE_NO_MISSION_ID}
+    {MISSION_NOT_FOUND, AbilityErrorCode::ERROR_CODE_NO_MISSION_ID},
+    {START_ABILITY_WAITING, AbilityErrorCode::ERROR_START_ABILITY_WAITTING}
 };
 }
 
