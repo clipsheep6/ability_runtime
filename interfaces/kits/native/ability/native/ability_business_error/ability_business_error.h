@@ -73,7 +73,7 @@ enum class AbilityErrorCode {
     ERROR_CODE_INVALID_CONTEXT = 16000011,
 
     // ability wait start.
-    ERROR_START_ABILITY_WAITTING = 16000012,
+    ERROR_START_ABILITY_WAITTING = 16000017,
 
     // free install network abnormal.
     ERROR_CODE_NETWORK_ABNORMAL = 16000051,
