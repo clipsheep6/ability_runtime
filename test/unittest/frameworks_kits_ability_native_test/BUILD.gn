@@ -1947,7 +1947,7 @@ ohos_unittest("ability_connection_manager_test") {
     "access_token:libtoken_callback_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "faultloggerd:lib_dfx_dump_catcher",
+    "faultloggerd:libdfx_dumpcatcher",
     "hichecker_native:libhichecker",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",

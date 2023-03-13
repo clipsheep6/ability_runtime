@@ -341,7 +341,7 @@ ohos_unittest("mix_stack_dumper_test") {
   external_deps = [
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "faultloggerd:lib_dfx_dump_catcher",
+    "faultloggerd:libdfx_dumpcatcher",
   ]
 }
 
