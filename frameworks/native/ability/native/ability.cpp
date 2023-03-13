@@ -43,6 +43,7 @@
 #include "runtime.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
+#include "ui_window.h"
 #include "values_bucket.h"
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE

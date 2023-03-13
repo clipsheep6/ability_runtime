@@ -40,8 +40,6 @@
 #include "session_info.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
-#include "ui_window.h"
-
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window.h"
 #include "display_manager.h"
@@ -50,6 +48,7 @@
 #include "form_state_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
+#include "session/container/include/session_stage.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -66,6 +65,9 @@ class Runtime;
 }
 #ifdef SUPPORT_GRAPHICS
 class KeyEvent;
+namespace Ace::NG {
+class UIWindow;
+}
 #endif
 namespace AppExecFwk {
 using FeatureAbilityTask = std::function<void(int, const AAFwk::Want&)>;
