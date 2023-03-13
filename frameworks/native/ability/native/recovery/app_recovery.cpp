@@ -48,6 +48,7 @@ namespace OHOS {
 namespace AppExecFwk {
 std::mutex g_mutex;
 std::atomic<bool> g_blocked = false;
+const int DELAY_TIME = 1000;
 
 AppRecovery::AppRecovery() : isEnable_(false), restartFlag_(RestartFlag::ALWAYS_RESTART),
     saveOccasion_(SaveOccasionFlag::SAVE_WHEN_ERROR), saveMode_(SaveModeFlag::SAVE_WITH_FILE)
@@ -135,7 +136,7 @@ bool AppRecovery::AddAbility(std::shared_ptr<Ability> ability,
         auto task = []() {
             AppRecovery::GetInstance().DeleteInValidMissionFiles();
         };
-        if (!handler->PostTask(task, 1000)) {
+        if (!handler->PostTask(task, DELAY_TIME)) {
             HILOG_ERROR("Failed to DeleteInValidMissionFiles.");
         }
     }
@@ -434,7 +435,7 @@ void AppRecovery::DeleteInValidMissionFiles()
         return;
     }
     for (auto& item : results) {
-        HILOG_INFO("AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d",item.missionId,
+        HILOG_INFO("AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d", item.missionId,
             item.isVaild);
         if (!item.isVaild) {
             DeleteInValidMissionFileById(fileDir, item.missionId);
@@ -442,7 +443,8 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 }
 
-void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t missionId) {
+void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t missionId)
+{
     std::string fileName = std::to_string(missionId) + ".state";
     std::string file = fileDir + "/" + fileName;
     if (file.empty()) {
@@ -471,7 +473,7 @@ bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionI
             HILOG_ERROR("AppRecovery GetMissionIds read dir error.");
             return false;
         }
-        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0){
+        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) {
             continue;
         } else if (ptr->d_type == DT_REG) {
             std::string fileName = ptr->d_name;

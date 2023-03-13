@@ -498,7 +498,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
 void MissionListManager::EnableRecoverAbility(int32_t missionId)
 {
     InnerMissionInfo info;
-    if(DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
         HILOG_ERROR("failed to get mission info by id.");
         return;
     }
@@ -1832,7 +1832,8 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId,
+        abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RemoveUriPermission();
 
 #ifdef SUPPORT_GRAPHICS

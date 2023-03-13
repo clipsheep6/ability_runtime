@@ -44,22 +44,23 @@ NativeValue *AttachUIExtensionContext(NativeEngine *engine, void *value, void *)
         HILOG_ERROR("invalid parameter.");
         return nullptr;
     }
+
     auto ptr = reinterpret_cast<std::weak_ptr<UIExtensionContext> *>(value)->lock();
     if (ptr == nullptr) {
         HILOG_ERROR("invalid context.");
         return nullptr;
     }
     NativeValue *object = JsUIExtensionContext::CreateJsUIExtensionContext(*engine, ptr);
+
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.UIExtensionContext", &object, 1)->Get();
-
     if (contextObj == nullptr) {
         HILOG_ERROR("load context error.");
         return nullptr;
     }
-
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachUIExtensionContext, value, nullptr);
+    
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
