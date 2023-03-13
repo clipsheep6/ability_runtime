@@ -718,7 +718,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_002, TestSize.Level1)
     sptr<IRemoteObject> preToken = token;
     service_->SetAppSpawnClient(mockClientPtr);
     service_->LoadAbility(token2, preToken, abilityInfo, appInfo, nullptr);
-    EXPECT_EQ(recordMap.size(), (uint32_t)1);
+    EXPECT_EQ(recordMap.size(), (uint32_t)2);
     auto record2 = service_->appRunningManager_->CheckAppRunningRecordIsExist(
         appInfo->name, GetTestAppName(), appInfo->uid, bundleInfo);
     EXPECT_EQ(record2, record);

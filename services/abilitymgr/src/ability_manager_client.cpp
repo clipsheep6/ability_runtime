@@ -140,8 +140,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("%{public}s come, abilityName=%{public}s, userId=%{public}d.",
-        __func__, want.GetElement().GetAbilityName().c_str(), userId);
+    HILOG_INFO("abilityName=%{public}s, userId=%{public}d.", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
@@ -183,8 +182,8 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, const sptr
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("%{public}s come, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d.",
-        __func__, want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    HILOG_INFO("bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
 
@@ -203,8 +202,8 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("%{public}s come, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d.",
-        __func__, want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    HILOG_INFO("bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
 }
 
@@ -384,11 +383,11 @@ ErrCode AbilityManagerClient::Connect()
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AbilityMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        HILOG_ERROR("%{public}s :Failed to create AbilityMgrDeathRecipient!", __func__);
+        HILOG_ERROR("Failed to create AbilityMgrDeathRecipient!");
         return GET_ABILITY_SERVICE_FAILED;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        HILOG_ERROR("%{public}s :Add death recipient to AbilityManagerService failed.", __func__);
+        HILOG_ERROR("Add death recipient to AbilityManagerService failed.");
         return GET_ABILITY_SERVICE_FAILED;
     }
 
@@ -406,7 +405,7 @@ ErrCode AbilityManagerClient::StopServiceAbility(const Want &want)
 
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_INFO("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->KillProcess(bundleName);
@@ -415,7 +414,7 @@ ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 #ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_DEBUG("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ForceTimeoutForTest(abilityName, state);
@@ -965,7 +964,7 @@ void AbilityManagerClient::ScheduleRecoverAbility(const sptr<IRemoteObject>& tok
 #ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::BlockAmsService()
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_DEBUG("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAmsService();
@@ -973,7 +972,7 @@ ErrCode AbilityManagerClient::BlockAmsService()
 
 ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_DEBUG("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAbility(abilityRecordId);
@@ -981,7 +980,7 @@ ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
 
 ErrCode AbilityManagerClient::BlockAppService()
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_DEBUG("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAppService();
@@ -1021,7 +1020,7 @@ void AbilityManagerClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRe
 ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
     int32_t userId, int requestCode)
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_INFO("enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
@@ -1029,10 +1028,10 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, con
 
 AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("[%{public}s] abms == nullptr", __FUNCTION__);
+        HILOG_ERROR("abms == nullptr");
         return {};
     }
 

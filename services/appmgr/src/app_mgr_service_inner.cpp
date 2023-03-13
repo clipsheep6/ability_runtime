@@ -114,6 +114,9 @@ const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 
+constexpr int32_t ROOT_UID = 0;
+constexpr int32_t FOUNDATION_UID = 5523;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -306,10 +309,10 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         return;
     }
     appRecord->SetApplicationClient(appScheduler);
+    appRecord->RegisterAppDeathRecipient();
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
-    appRecord->RegisterAppDeathRecipient();
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
@@ -1359,6 +1362,11 @@ void AppMgrServiceInner::AbilityTerminated(const sptr<IRemoteObject> &token)
         return;
     }
 
+    if (VerifyProcessPermission(token) != ERR_OK) {
+        HILOG_ERROR("Permission verify failed.");
+        return;
+    }
+
     auto appRecord = appRunningManager_->GetTerminatingAppRunningRecord(token);
     if (!appRecord) {
         HILOG_ERROR("Terminate ability error, appRecord is not exist!");
@@ -1471,9 +1479,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     HspList hspList;
-    ErrCode ret = bundleMgr_->GetBaseSharedPackageInfos(bundleName, userId, hspList);
+    ErrCode ret = bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     if (ret != ERR_OK) {
-        HILOG_ERROR("GetBaseSharedPackageInfos failed: %d", ret);
+        HILOG_ERROR("GetBaseSharedBundleInfos failed: %d", ret);
         return;
     }
 
@@ -1589,8 +1597,8 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.processName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s, uid : %{public}d,\
-        process : %{public}s",
+    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
+        uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
         eventInfo.processName.c_str());
 
@@ -2376,7 +2384,8 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
         uint32_t startFlags = BuildStartFlags(want, abilityInfo);
         int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName, bundleIndex);
+        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
+            bundleIndex);
 
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
         appRecord->AddModules(appInfo, hapModules);
@@ -2666,6 +2675,13 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
         HILOG_ERROR("no such appRecord");
         return ERR_NAME_NOT_FOUND;
     }
+
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    if (!isSaCall && callingPid != pid) {
+        HILOG_ERROR("Permission verify failed.");
+        return ERR_PERMISSION_DENIED;
+    }
     for (auto &item : appRecord->GetAbilities()) {
         tokens.emplace_back(item.first);
     }
@@ -2824,6 +2840,18 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
     }
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(permissionName);
     return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
+}
+
+int AppMgrServiceInner::VerifyRequestPermission() const
+{
+    auto callerUid = IPCSkeleton::GetCallingUid();
+
+    if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
+        return ERR_OK;
+    } else {
+        HILOG_ERROR("Permission verification failed.[DongLin]%{public}d", callerUid);
+        return ERR_PERMISSION_DENIED;
+    }
 }
 
 int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
@@ -3021,7 +3049,7 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
-	startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
     }
 
     return startFlags;
@@ -3254,9 +3282,9 @@ bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, ui
 }
 
 void AppMgrServiceInner::SetRunningSharedBundleList(const std::string &bundleName,
-    const std::vector<BaseSharedPackageInfo> baseSharedPackageInfoList)
+    const std::vector<BaseSharedBundleInfo> baseSharedBundleInfoList)
 {
-    runningSharedBundleList_.try_emplace(bundleName, baseSharedPackageInfoList);
+    runningSharedBundleList_.try_emplace(bundleName, baseSharedBundleInfoList);
 }
 
 void AppMgrServiceInner::RemoveRunningSharedBundleList(const std::string &bundleName)

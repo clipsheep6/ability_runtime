@@ -152,8 +152,8 @@ void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject>
 
     remoteReplicaProxy_ = iface_cast<IReverseContinuationSchedulerReplica>(remoteReplica);
     auto schedulerObject = remoteReplicaProxy_->AsObject();
-    if (schedulerObject != nullptr) {
-        schedulerObject->AddDeathRecipient(schedulerDeathRecipient_);
+    if (schedulerObject == nullptr || !schedulerObject->AddDeathRecipient(schedulerDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRcipient failed.");
     }
 
     remoteReplicaProxy_->PassPrimary(remotePrimaryStub_);

@@ -498,7 +498,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
 void MissionListManager::EnableRecoverAbility(int32_t missionId)
 {
     InnerMissionInfo info;
-    if(DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, info) != ERR_OK) {
         HILOG_ERROR("failed to get mission info by id.");
         return;
     }
@@ -872,7 +872,7 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
-        auto abilityRecord = GetAbilityRecordByToken(token);
+        auto abilityRecord = GetAliveAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
@@ -952,6 +952,17 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByToken(
         }
     }
 
+    return GetAliveAbilityRecordByToken(token);
+}
+
+std::shared_ptr<AbilityRecord> MissionListManager::GetAliveAbilityRecordByToken(
+    const sptr<IRemoteObject> &token) const
+{
+    if (!token) {
+        return nullptr;
+    }
+
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     for (auto missionList : currentMissionLists_) {
         if (missionList && (abilityRecord = missionList->GetAbilityRecordByToken(token)) != nullptr) {
@@ -1487,6 +1498,11 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
         HILOG_ERROR("AppMS fail to terminate ability.");
     }
 
+    auto&& preAbilityRecord = abilityRecord->GetPreAbilityRecord();
+    if (preAbilityRecord != nullptr) {
+        TerminateAbilityLocked(preAbilityRecord, false);
+    }
+
     CompleteTerminateAndUpdateMission(abilityRecord);
 }
 
@@ -1816,7 +1832,8 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId,
+        abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RemoveUriPermission();
 
 #ifdef SUPPORT_GRAPHICS

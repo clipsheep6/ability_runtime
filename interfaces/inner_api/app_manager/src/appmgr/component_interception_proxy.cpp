@@ -79,6 +79,12 @@ bool ComponentInterceptionProxy::AllowComponentStart(const Want &want, const spt
 
 void ComponentInterceptionProxy::SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam)
 {
+    if (extraParam == nullptr) {
+        return;
+    }
+    int requestResult = want->GetIntParam("requestResult", ERR_OK);
+    extraParam->SetParam("requestResult", requestResult == ERR_OK ? ERR_OK : ERR_WOULD_BLOCK);
+
     sptr<IRemoteObject> tempCallBack = want->GetRemoteObject(Want::PARAM_RESV_ABILITY_INFO_CALLBACK);
     if (tempCallBack == nullptr) {
         return;
@@ -90,7 +96,7 @@ void ComponentInterceptionProxy::SetExtraParam(const sptr<Want> &want, sptr<Want
     extraParam->SetParam(Want::PARAM_RESV_ABILITY_INFO_CALLBACK, tempCallBack);
 }
 
-void ComponentInterceptionProxy::NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code)
+void ComponentInterceptionProxy::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -105,7 +111,7 @@ void ComponentInterceptionProxy::NotifyHandleMoveAbility(const sptr<IRemoteObjec
         data.WriteBool(true);
         data.WriteRemoteObject(abilityToken);
     }
-    data.WriteInt32(code);
+    data.WriteInt32(opCode);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");

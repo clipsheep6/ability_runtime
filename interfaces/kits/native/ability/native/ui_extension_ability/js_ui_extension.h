@@ -62,7 +62,7 @@ public:
      *        initialization operations during ui extension startup.
      *
      * This function can be called only once in the entire lifecycle of an ui extension.
-     * 
+     *
      * @param Want Indicates the {@link Want} structure containing startup information about the ui extension.
      */
     virtual void OnStart(const AAFwk::Want &want) override;
@@ -88,7 +88,7 @@ public:
 
     /**
      * @brief Called back when ui extension is started.
-     * 
+     *
      * This method can be called only by ui extension. You can use the StartAbility(Want) method to start
      * ui extension. Then the system calls back the current method to use the transferred want parameter to
      * execute its own logic.

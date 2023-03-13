@@ -109,7 +109,7 @@ int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserve
     if (status != NO_ERROR) {
         HILOG_ERROR("Observer register failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
-        return DATAOBS_SERVICE_POST_TASK_FAILED;
+        return status;
     }
     return NO_ERROR;
 }
@@ -127,10 +127,10 @@ int DataObsMgrService::UnregisterObserver(const Uri &uri, sptr<IDataAbilityObser
     }
 
     auto status = dataObsMgrInner_->HandleUnregisterObserver(uri, dataObserver);
-    if (!status) {
+    if (status != NO_ERROR) {
         HILOG_ERROR("Observer unregister failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
-        return DATAOBS_SERVICE_POST_TASK_FAILED;
+        return status;
     }
     return NO_ERROR;
 }

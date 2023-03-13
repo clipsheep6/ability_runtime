@@ -87,9 +87,13 @@ void IdleTime::OnVSync(int64_t timestamp, void* client)
 
 void IdleTime::RequestVSync()
 {
+    if (needStop_) {
+        return;
+    }
+
     if (receiver_ == nullptr) {
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
-        receiver_ = rsClient.CreateVSyncReceiver("ABILITY");
+        receiver_ = rsClient.CreateVSyncReceiver("ABILITY", eventHandler_);
         if (receiver_ == nullptr) {
             HILOG_ERROR("Create VSync receiver failed.");
             return;
@@ -134,6 +138,10 @@ void IdleTime::EventTask()
 
 void IdleTime::PostTask()
 {
+    if (needStop_) {
+        return;
+    }
+
     if (continueFailCount_ > TRY_COUNT_MAX) {
         HILOG_ERROR("Only support 60HZ.");
         return;
@@ -159,6 +167,31 @@ void IdleTime::Start()
 {
     RequestVSync();
     PostTask();
+}
+
+void IdleTime::SetNeedStop(bool needStop)
+{
+    needStop_ = needStop;
+}
+
+bool IdleTime::GetNeedStop()
+{
+    return needStop_;
+}
+
+IdleNotifyStatusCallback IdleTime::GetIdleNotifyFunc()
+{
+    IdleNotifyStatusCallback cb = [this](bool needStop) {
+        if (this->GetNeedStop() == needStop) {
+            return;
+        }
+
+        this->SetNeedStop(needStop);
+        if (needStop == false) {
+            this->Start();
+        }
+    };
+    return cb;
 }
 } // AppExecFwk
 } // namespace OHOS

@@ -352,6 +352,9 @@ public:
     void NotifyApplicationState(bool inBackground) override
     {}
 
+    void NotifyIdleStatusControl(std::function<void(bool)> callback) override
+    {}
+
     void NotifyIdleTime(int idleMicroSec) override
     {}
 

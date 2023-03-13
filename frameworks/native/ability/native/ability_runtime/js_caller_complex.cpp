@@ -66,7 +66,7 @@ public:
 
     static bool ReleaseObject(JsCallerComplex* data)
     {
-        HILOG_DEBUG("ReleaseObject begin %{public}p", data);
+        HILOG_DEBUG("ReleaseObject begin");
         if (data == nullptr) {
             HILOG_ERROR("ReleaseObject begin, but input parameters is nullptr");
             return false;

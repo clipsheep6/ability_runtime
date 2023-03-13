@@ -31,7 +31,7 @@ using testing::AtLeast;
 using testing::InSequence;
 using testing::Invoke;
 using testing::Return;
-using SharedPackage = BaseSharedPackageInfo;
+using SharedBundle = BaseSharedBundleInfo;
 
 // keep same with app_spawn_client.cpp
 const int32_t CONNECT_RETRY_MAX_TIMES = 2;
@@ -107,9 +107,9 @@ void AmsServiceAppSpawnClientTest::SetUp()
 void AmsServiceAppSpawnClientTest::TearDown()
 {}
 
-static SharedPackage CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
+static SharedBundle CreateHsp(std::string bundle, std::string module, uint32_t version, std::string libPath)
 {
-    SharedPackage hsp;
+    SharedBundle hsp;
     hsp.bundleName = bundle;
     hsp.moduleName = module;
     hsp.versionCode = version;
@@ -650,7 +650,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_021, TestSize.Level1)
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(1);
     AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
-    SharedPackage hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
+    SharedBundle hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
     int listSize = 1000;
     for (int i = 0; i < listSize; ++i) {
         params.hspList.emplace_back(hsp);
@@ -688,7 +688,7 @@ HWTEST_F(AmsServiceAppSpawnClientTest, AppSpawnClient_022, TestSize.Level1)
     EXPECT_CALL(*socketMock, ReadMessage(_, _)).WillOnce(Invoke(socketMock.get(), &MockAppSpawnSocket::ReadImpl));
     EXPECT_CALL(*socketMock, CloseAppSpawnConnection()).Times(2);
     AppSpawnStartMsg params = { 10001, 10001, {10001, 10002}, "processName", "soPath" };
-    SharedPackage hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
+    SharedBundle hsp = CreateHsp("testBundle", "testModule", 10001, "testLibPath");
     int listSize = 1000;
     for (int i = 0; i < listSize; ++i) {
         params.hspList.emplace_back(hsp);

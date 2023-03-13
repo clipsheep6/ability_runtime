@@ -803,10 +803,9 @@ public:
 
     bool IsAbilityControllerStartById(int32_t missionId);
 
-    bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int requestCode, int componentStatus, AbilityRequest &request);
+    bool IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest, AbilityRequest &request);
 
-    void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code);
+    void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode);
 
     /**
      * Send not response process ID to ability manager service.
@@ -992,6 +991,12 @@ public:
         KEY_DUMPSYS_DATA,
     };
 
+    enum {
+        ABILITY_MOVE_TO_FOREGROUND_CODE = 0,
+        ABILITY_MOVE_TO_BACKGROUND_CODE,
+        TERMINATE_ABILITY_CODE
+    };
+
     friend class UserController;
 
 protected:
@@ -1153,7 +1158,8 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
-    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
+    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
+        int32_t callerTokenId);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1280,6 +1286,9 @@ private:
     void InitStartupFlag();
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
+
+    ComponentRequest initComponentRequest(const sptr<IRemoteObject> &callerToken = nullptr,
+        const int requestCode = -1, const int componentStatus = 0);
 
     inline bool IsCrossUserCall(int32_t userId)
     {

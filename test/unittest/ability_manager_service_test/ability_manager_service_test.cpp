@@ -76,6 +76,7 @@ public:
     void TearDown();
     std::shared_ptr<AbilityRecord> MockAbilityRecord(AbilityType);
     sptr<Token> MockToken(AbilityType);
+    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
 
     AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
         const std::string& appName, const std::string& bundleName, const std::string& moduleName);
@@ -102,6 +103,17 @@ sptr<Token> AbilityManagerServiceTest::MockToken(AbilityType abilityType)
         return nullptr;
     }
     return abilityRecord->GetToken();
+}
+
+sptr<SessionInfo> AbilityManagerServiceTest::MockSessionInfo(uint64_t persistentId)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    if (!sessionInfo) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return nullptr;
+    }
+    sessionInfo->persistentId = persistentId;
+    return sessionInfo;
 }
 
 AbilityRequest AbilityManagerServiceTest::GenerateAbilityRequest(const std::string& deviceName,
@@ -667,7 +679,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
 
     abilityMs_->freeInstallManager_ = temp;
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), INVALID_PARAMETERS_ERR);
 
     // GetBoolParam
     want.SetFlags(0);
@@ -1261,7 +1273,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfos_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 start");
     std::vector<MissionInfo> missionInfos;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 end");
 }
 
@@ -1289,7 +1301,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 start");
     MissionInfo missionInfo;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 end");
 }
 
@@ -2691,31 +2703,31 @@ HWTEST_F(AbilityManagerServiceTest, CheckStaticCfgPermission_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 start");
     AppExecFwk::AbilityInfo abilityInfo;
     MyFlag::flag_ = 1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     MyFlag::flag_ = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     abilityInfo.applicationInfo.accessTokenId = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), ERR_OK);
 
     // abilityInfo.permissions is empty
     abilityInfo.applicationInfo.accessTokenId = -1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;
     abilityInfo.readPermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.readPermission.clear();
     abilityInfo.writePermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 end");
 }
 
@@ -3113,6 +3125,63 @@ HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
     abilityMs_->InitMissionListManager(IPCSkeleton::GetCallingUid() / BASE_USER_RANGE, false);
     EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_OK);
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+        ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_002, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100, 
+        AppExecFwk::ExtensionAbilityType::UI), CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: TerminateUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService TerminateUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, TerminateUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 start");
+    Want* resultWant = nullptr;
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(MockSessionInfo(0), 1, resultWant), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, MinimizeUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 start");
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, false), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), false), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

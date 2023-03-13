@@ -353,6 +353,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::NotifyApplicationState called";
     }
 
+    void NotifyIdleStatusControl(std::function<void(bool)> callback) override
+    {}
+
     void NotifyIdleTime(int idleMicroSec) override
     {}
 
