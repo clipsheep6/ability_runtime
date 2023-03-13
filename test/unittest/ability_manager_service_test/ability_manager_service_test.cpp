@@ -76,6 +76,7 @@ public:
     void TearDown();
     std::shared_ptr<AbilityRecord> MockAbilityRecord(AbilityType);
     sptr<Token> MockToken(AbilityType);
+    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
 
     AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
         const std::string& appName, const std::string& bundleName, const std::string& moduleName);
@@ -102,6 +103,17 @@ sptr<Token> AbilityManagerServiceTest::MockToken(AbilityType abilityType)
         return nullptr;
     }
     return abilityRecord->GetToken();
+}
+
+sptr<SessionInfo> AbilityManagerServiceTest::MockSessionInfo(uint64_t persistentId)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    if (!sessionInfo) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return nullptr;
+    }
+    sessionInfo->persistentId = persistentId;
+    return sessionInfo;
 }
 
 AbilityRequest AbilityManagerServiceTest::GenerateAbilityRequest(const std::string& deviceName,
@@ -3113,6 +3125,63 @@ HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
     abilityMs_->InitMissionListManager(IPCSkeleton::GetCallingUid() / BASE_USER_RANGE, false);
     EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_OK);
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+        ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_002, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100, 
+        AppExecFwk::ExtensionAbilityType::UI), CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: TerminateUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService TerminateUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, TerminateUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 start");
+    Want* resultWant = nullptr;
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(MockSessionInfo(0), 1, resultWant), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, MinimizeUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 start");
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, false), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), false), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

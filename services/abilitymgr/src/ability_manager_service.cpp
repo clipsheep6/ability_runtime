@@ -1202,6 +1202,7 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
 {
     HILOG_INFO("Start ui extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     EventInfo eventInfo = BuildEventInfo(want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
     EventReport::SendExtensionEvent(EventName::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
@@ -1433,6 +1434,7 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ui extension ability begin.");
+    CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
@@ -1694,6 +1696,7 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
+    CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
