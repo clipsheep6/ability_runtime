@@ -58,8 +58,8 @@ int32_t FreeInstallObserverManager::AddObserver(const sptr<IFreeInstallObserver>
     }
     
     auto observerObj = observer->AsObject();
-    if (observerObj) {
-        observerObj->AddDeathRecipient(deathRecipient_);
+    if (!observerObj || !observerObj->AddDeathRecipient(deathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 
     return ERR_OK;

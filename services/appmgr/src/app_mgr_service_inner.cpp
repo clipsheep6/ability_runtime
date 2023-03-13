@@ -309,10 +309,10 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         return;
     }
     appRecord->SetApplicationClient(appScheduler);
+    appRecord->RegisterAppDeathRecipient();
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
-    appRecord->RegisterAppDeathRecipient();
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
@@ -1362,7 +1362,7 @@ void AppMgrServiceInner::AbilityTerminated(const sptr<IRemoteObject> &token)
         return;
     }
 
-    if (!VerifyProcessPermission()) {
+    if (VerifyProcessPermission(token) != ERR_OK) {
         HILOG_ERROR("Permission verify failed.");
         return;
     }

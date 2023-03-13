@@ -1044,7 +1044,9 @@ void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnecti
                     abilityConnectManager->OnCallBackDied(remote);
                 }
             });
-        connect->AsObject()->AddDeathRecipient(deathRecipient);
+        if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
         recipientMap_.emplace(connect->AsObject(), deathRecipient);
     }
 }
@@ -1143,6 +1145,12 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
 
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
+    if ((abilityRecord->GetApplicationInfo().bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME &&
+            abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME) ||
+        (abilityRecord->GetApplicationInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
+            abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME)) {
+        return true;
+    }
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
@@ -1191,9 +1199,7 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
 
     auto findKeepAliveAbility = [abilityRecord](const std::pair<std::string, std::string> &keepAlivePair) {
         return ((abilityRecord->GetAbilityInfo().bundleName == keepAlivePair.first &&
-                abilityRecord->GetAbilityInfo().name == keepAlivePair.second) ||
-                abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME ||
-                abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME);
+                abilityRecord->GetAbilityInfo().name == keepAlivePair.second));
     };
 
     std::vector<std::pair<std::string, std::string>> keepAliveAbilities;
