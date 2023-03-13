@@ -55,7 +55,9 @@ JsTestRunner::JsTestRunner(
         std::string srcPath;
         if (bundleInfo.hapModuleInfos.back().isModuleJson) {
             srcPath.append(args->GetTestModuleName());
-            srcPath.append("/ets/TestRunner/");
+            if (args->GetTestRunnerClassName().find("/") == std::string::npos) {
+                srcPath.append("/ets/TestRunner/");
+            }
             moduleName = args->GetTestModuleName();
         } else {
             srcPath.append(args->GetTestPackageName());
