@@ -32,6 +32,7 @@ using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
+napi_ref thread_local g_contextObject = nullptr;
 napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
 const int32_t ERR_ABILITY_START_SUCCESS = 0;
@@ -94,9 +95,16 @@ const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
-napi_value *GetGlobalClassContext(void)
+napi_status SetGlobalClassContext(napi_env env, napi_value constructor)
 {
-    return AbilityRuntime::GetFAModeContextClassObject();
+    return napi_create_reference(env, constructor, 1, &g_contextObject);
+}
+
+napi_value GetGlobalClassContext(napi_env env)
+{
+    napi_value constructor;
+    NAPI_CALL(env, napi_get_reference_value(env, g_contextObject, &constructor));
+    return constructor;
 }
 
 napi_status SaveGlobalDataAbilityHelper(napi_env env, napi_value constructor)
@@ -2410,7 +2418,7 @@ napi_value GetContextAsync(
             napi_get_undefined(env, &undefined);
             result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
-                napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result[PARAM1]);
+                napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result[PARAM1]);
             } else {
                 result[PARAM1] = WrapUndefinedToJS(env);
             }
@@ -2458,7 +2466,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             napi_value result = nullptr;
             if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
-                napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result);
+                napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
                 napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
             } else {
                 result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
@@ -2501,7 +2509,7 @@ napi_value GetContextWrap(napi_env env, napi_callback_info info, AsyncCallbackIn
     }
 
     napi_value result = nullptr;
-    napi_new_instance(env, *GetGlobalClassContext(), 0, nullptr, &result);
+    napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
     HILOG_INFO("%{public}s, end.", __func__);
     return result;
 }
