@@ -80,7 +80,6 @@ ohos_shared_library("ability_simulator") {
 
   deps = [
     ":gen_obj_src_js_mock_abc",
-    "${ability_runtime_native_path}/runtime:string_utils",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
@@ -89,7 +88,11 @@ ohos_shared_library("ability_simulator") {
     "//foundation/arkui/napi:ace_napi_ark",
   ]
 
-  external_deps = [ "ets_runtime:libark_jsruntime" ]
+  external_deps = [
+    "c_utils:utils",
+    "ability_base:string_utils",
+    "ets_runtime:libark_jsruntime",
+  ]
 
   part_name = "simulator"
   subsystem_name = "ability"
