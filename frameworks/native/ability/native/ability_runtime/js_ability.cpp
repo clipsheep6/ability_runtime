@@ -112,7 +112,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     if (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel &&
         abilityContext_ != nullptr) {
             AppExecFwk::AppRecovery::GetInstance().AddAbility(shared_from_this(), abilityContext_->GetAbilityInfo(),
-                abilityContext_->GetToken());
+                abilityContext_->GetToken(), GetLaunchParam().launchReason);
     }
 #endif
     std::string srcPath(abilityInfo->package);

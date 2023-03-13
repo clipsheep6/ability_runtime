@@ -38,8 +38,8 @@ public:
     void EnableAppRecovery(uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
     bool InitApplicationInfo(const std::shared_ptr<AppExecFwk::EventHandler>& mainHandler,
         const std::shared_ptr<ApplicationInfo>& applicationInfo);
-    bool AddAbility(std::shared_ptr<Ability> ability,
-        const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
+    bool AddAbility(std::shared_ptr<Ability> ability,const std::shared_ptr<AbilityInfo>& abilityInfo,
+        const sptr<IRemoteObject>& token, LaunchReason reason = LaunchReason::LAUNCHREASON_UNKNOWN);
     bool RemoveAbility(const sptr<IRemoteObject>& tokenId);
 
     bool IsEnabled() const;
@@ -61,8 +61,9 @@ private:
 
     void DoRecoverApp(StateReason reason);
     void DoSaveAppState(StateReason reason, uintptr_t ability = 0);
-    void DeleteInValidMissionFiles();
-    void DeleteInValidMissionFileById(std::string path, int32_t missionId);
+    void DeleteRecoveryStateFiles(LaunchReason reason);
+    void DeleteInValidStateFiles(std::string path);
+    void DeleteInValidStateFileById(std::string path, int32_t missionId);
     bool GetMissionIds(std::string path, std::vector<int32_t> &missionIds);
 
     bool isEnable_;
