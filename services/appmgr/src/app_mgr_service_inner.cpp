@@ -2849,7 +2849,7 @@ int AppMgrServiceInner::VerifyRequestPermission() const
     if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
         return ERR_OK;
     } else {
-        HILOG_ERROR("Permission verification failed.[DongLin]%{public}d", callerUid);
+        HILOG_ERROR("Permission verification failed, callerUid: %{public}d", callerUid);
         return ERR_PERMISSION_DENIED;
     }
 }

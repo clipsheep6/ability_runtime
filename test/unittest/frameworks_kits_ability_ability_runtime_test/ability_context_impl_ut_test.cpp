@@ -390,7 +390,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithA
     int32_t accountId = 1;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_0100 task called"; };
     auto ret = context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
@@ -406,7 +406,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0100
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0100 task called"; };
     auto ret = context_->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
@@ -422,7 +422,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithA
     AAFwk::Want want;
     int32_t requestCode = 1;
     int32_t accountId = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_0200 task called"; };
     auto ret = context_->StartAbilityForResultWithAccount(want, accountId, requestCode, std::move(task));
     EXPECT_EQ(ret, ERR_OK);
@@ -437,7 +437,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0200
 {
     AAFwk::Want want;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0200 task called"; };
     auto ret = context_->StartAbilityForResult(want, requestCode, std::move(task));
     EXPECT_EQ(ret, ERR_OK);
@@ -510,7 +510,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnAbilityResult_0100, Func
     int32_t accountId = 1;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_OnAbilityResult_0100 task called"; };
     context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
     int32_t count = context_->resultCallbacks_.size();
@@ -535,7 +535,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnAbilityResult_0200, Func
     int32_t accountId = 1;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want)
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
     { GTEST_LOG_(INFO) << "Ability_Context_Impl_OnAbilityResult_0200 task called"; };
     context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
     int32_t count = context_->resultCallbacks_.size();

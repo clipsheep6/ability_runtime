@@ -57,6 +57,10 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleNam
             if (it->callback == nullptr) {
                 continue;
             }
+            if (it->isAbilityResult && resultCode == ERR_OK) {
+                it = jsObserverObjectList_.erase(it);
+                continue;
+            }
             NativeValue* value = (it->callback)->Get();
             NativeValue* argv[] = { CreateJsErrorByNativeErr(engine_, resultCode) };
             CallJsFunction(value, argv, ARGC_ONE);
@@ -79,7 +83,7 @@ void JsFreeInstallObserver::CallJsFunction(NativeValue* value, NativeValue* cons
 }
 
 void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
-    const std::string &startTime, NativeValue* jsObserverObject)
+    const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult)
 {
     HILOG_INFO("AddJsObserverObject begin.");
     if (jsObserverObject == nullptr) {
@@ -99,6 +103,7 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, c
     object.abilityName = abilityName;
     object.startTime = startTime;
     object.callback = std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
+    object.isAbilityResult = isAbilityResult;
     jsObserverObjectList_.emplace_back(object);
 }
 } // namespace AbilityRuntime
