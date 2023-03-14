@@ -34,7 +34,7 @@ sptr<IRemoteObject> DistributedClient::GetDmsProxy()
         HILOG_ERROR("fail to get samgr.");
         return nullptr;
     }
-    return samgrProxy->GetSystemAbility(DISTRIBUTED_SCHED_SA_ID);
+    return samgrProxy->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID);
 }
 
 int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
