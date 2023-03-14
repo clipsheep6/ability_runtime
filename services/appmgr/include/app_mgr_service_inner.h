@@ -377,6 +377,15 @@ public:
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByAbilityToken(const sptr<IRemoteObject> &abilityToken) const;
 
     /**
+     * GetTerminatingAppRunningRecord, Get process record by ability token.
+     *
+     * @param abilityToken, the ability token.
+     *
+     * @return process record.
+     */
+    std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &token) const;
+
+    /**
      * GetAppRunningRecordByAppRecordId, Get process record by application id.
      *
      * @param recordId, the application id.

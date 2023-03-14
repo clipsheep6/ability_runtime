@@ -1353,17 +1353,22 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAbili
     return appRunningManager_->GetAppRunningRecordByAbilityToken(abilityToken);
 }
 
+std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetTerminatingAppRunningRecord(
+    const sptr<IRemoteObject> &token) const
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr.");
+        return nullptr;
+    }
+    return appRunningManager_->GetTerminatingAppRunningRecord(token);
+}
+
 void AppMgrServiceInner::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability come.");
     if (!token) {
         HILOG_ERROR("Terminate ability error, token is null!");
-        return;
-    }
-
-    if (VerifyProcessPermission(token) != ERR_OK) {
-        HILOG_ERROR("Permission verify failed.");
         return;
     }
 
