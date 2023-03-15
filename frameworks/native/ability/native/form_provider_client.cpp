@@ -66,6 +66,11 @@ int FormProviderClient::AcquireProviderFormInfo(
     createWant.RemoveParam(Constants::ACQUIRE_TYPE);
     createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
     createWant.RemoveParam(Constants::PARAM_FORM_HOST_TOKEN);
+    createWant.RemoveParam(Constants::FORM_COMP_ID);
+    createWant.RemoveParam(Constants::FORM_DENSITY);
+    createWant.RemoveParam(Constants::FORM_PROCESS_ON_ADD_SURFACE);
+    createWant.RemoveParam(Constants::FORM_ALLOW_UPDATE);
+    createWant.RemoveParam(Constants::FORM_MODULE_NAME);
     FormProviderInfo formProviderInfo = ownerAbility->OnCreate(createWant);
     HILOG_DEBUG("%{public}s, formId: %{public}" PRId64 ", data: %{public}s",
         __func__, formJsInfo.formId, formProviderInfo.GetFormDataString().c_str());

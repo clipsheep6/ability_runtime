@@ -87,6 +87,11 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         createWant.RemoveParam(Constants::ACQUIRE_TYPE);
         createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
         createWant.RemoveParam(Constants::PARAM_FORM_HOST_TOKEN);
+        createWant.RemoveParam(Constants::FORM_COMP_ID);
+        createWant.RemoveParam(Constants::FORM_DENSITY);
+        createWant.RemoveParam(Constants::FORM_PROCESS_ON_ADD_SURFACE);
+        createWant.RemoveParam(Constants::FORM_ALLOW_UPDATE);
+        createWant.RemoveParam(Constants::FORM_MODULE_NAME);
         createWant.SetElement(want.GetElement());
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
