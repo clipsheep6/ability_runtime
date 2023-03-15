@@ -981,6 +981,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_019, TestSize.Level1)
     auto result1 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::INACTIVE);
     EXPECT_EQ(result1, OHOS::ERR_INVALID_VALUE);
 
+    ConnectManager()->MoveToTerminatingMap(abilityRecord);
     auto result2 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::INITIAL);
     EXPECT_EQ(result2, OHOS::ERR_OK);
 
@@ -1441,6 +1442,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbilityResultLocked
     int res1 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
     EXPECT_NE(res1, TERMINATE_ABILITY_RESULT_FAILED);
     abilityRecord->AddStartId();
+    std::string stringUri = "id/bundle/module/name";
+    connectManager->serviceMap_.emplace(stringUri, abilityRecord);
     int res2 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
     EXPECT_EQ(res2, TERMINATE_ABILITY_RESULT_FAILED);
 }
@@ -1595,6 +1598,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_AbilityTransitionDone_001, T
     int res1 = connectManager->AbilityTransitionDone(token, state);
     EXPECT_EQ(res1, ERR_INVALID_VALUE);
     state = AbilityState::INITIAL;
+    connectManager->MoveToTerminatingMap(abilityRecord);
     int res2 = connectManager->AbilityTransitionDone(token, state);
     EXPECT_EQ(res2, ERR_OK);
 }

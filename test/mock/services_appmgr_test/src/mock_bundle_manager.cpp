@@ -350,5 +350,12 @@ sptr<IQuickFixManager> BundleMgrService::GetQuickFixManagerProxy()
     }
     return quickFixManager_;
 }
+
+ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo)
+{
+    HapModuleInfo hapModuleInfo;
+    bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
