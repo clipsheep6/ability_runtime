@@ -37,7 +37,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-constexpr int32_t MAX_INSTANCE_COUNT = 128;
+constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
@@ -72,12 +72,55 @@ void MissionListManager::Init()
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
+std::shared_ptr<Mission> MissionListManager::FindEarliestMission() const
+{
+    // find the earliest mission of background abilityRecord
+    std::shared_ptr<Mission> earliestMission;
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+        missionList->FindEarliestMission(earliestMission);
+    }
+    if (defaultStandardList_) {
+        defaultStandardList_->FindEarliestMission(earliestMission);
+    }
+    if (defaultSingleList_) {
+        defaultSingleList_->FindEarliestMission(earliestMission);
+    }
+    return earliestMission;
+}
+
+int32_t MissionListManager::GetMissionCount() const
+{
+    int32_t missionCount = 0;
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+        missionCount += missionList->GetMissionCount();
+    }
+    if (defaultStandardList_) {
+        missionCount += defaultStandardList_->GetMissionCount();
+    }
+    if (defaultSingleList_) {
+        missionCount += defaultSingleList_->GetMissionCount();
+    }
+    return missionCount;
+}
+
 int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (IsReachToLimitLocked(abilityRequest)) {
-        HILOG_ERROR("already reach limit instance. limit is : %{public}d", MAX_INSTANCE_COUNT);
-        return ERR_REACH_UPPER_LIMIT;
+        auto oldestMission = FindEarliestMission();
+        if (oldestMission) {
+            if (TerminateAbility(oldestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
+                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate oldestAbility failed.",
+                    MAX_INSTANCE_COUNT);
+                return ERR_REACH_UPPER_LIMIT;
+            }
+        }
     }
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
@@ -2933,25 +2976,11 @@ bool MissionListManager::IsReachToLimitLocked(const AbilityRequest &abilityReque
         return false;
     }
 
-    int32_t totalCount = 0;
-    for (const auto& missionList : currentMissionLists_) {
-        if (!missionList) {
-            continue;
-        }
-
-        totalCount += missionList->GetMissionCountByUid(abilityRequest.uid);
-        if (totalCount >= MAX_INSTANCE_COUNT) {
-            return true;
-        }
-    }
-
-    totalCount += defaultStandardList_->GetMissionCountByUid(abilityRequest.uid);
-    if (totalCount >= MAX_INSTANCE_COUNT) {
+    auto missionCount = GetMissionCount();
+    if (missionCount == MAX_INSTANCE_COUNT) {
         return true;
     }
-
-    totalCount += defaultSingleList_->GetMissionCountByUid(abilityRequest.uid);
-    return totalCount >= MAX_INSTANCE_COUNT;
+    return false;
 }
 
 bool MissionListManager::MissionDmInitCallback::isInit_ = false;

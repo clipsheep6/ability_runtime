@@ -420,5 +420,28 @@ int32_t MissionList::GetMissionCountByUid(int32_t targetUid) const
     }
     return count;
 }
+
+void MissionList::FindEarliestMission(std::shared_ptr<Mission>& targetMission) const
+{
+    for (const auto& mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+        if (!abilityRecord->IsAbilityState(AbilityState::BACKGROUND) ||
+            (targetMission && targetMission->GetMissionTime() < mission->GetMissionTime())) {
+            continue;
+        }
+        targetMission = mission;
+    }
+}
+
+int32_t MissionList::GetMissionCount() const
+{
+    return static_cast<int32_t>(missions_.size());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

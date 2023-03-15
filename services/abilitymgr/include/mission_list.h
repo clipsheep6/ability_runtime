@@ -210,6 +210,8 @@ public:
     #endif
 
     int32_t GetMissionCountByUid(int32_t targetUid) const;
+    void FindEarliestMission(std::shared_ptr<Mission>& targetMission) const;
+    int32_t GetMissionCount() const;
 
 private:
     std::string GetTypeName();

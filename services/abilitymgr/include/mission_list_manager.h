@@ -439,6 +439,8 @@ private:
         std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const AAFwk::Want &want, const std::string &flag) const;
     bool IsReachToLimitLocked(const AbilityRequest &abilityRequest);
+    std::shared_ptr<Mission> FindEarliestMission() const;
+    int32_t GetMissionCount() const;
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
