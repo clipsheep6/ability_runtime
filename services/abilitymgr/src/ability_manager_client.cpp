@@ -1071,5 +1071,13 @@ int32_t AbilityManagerClient::IsValidMissionIds(
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->IsValidMissionIds(missionIds, results);
 }
+
+ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, int pid, int uid)
+{
+    HILOG_INFO("VerifyPermission begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->VerifyPermission(permission, pid, uid);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

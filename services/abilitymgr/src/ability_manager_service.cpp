@@ -4216,8 +4216,8 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
         }
 
         std::string bundleName;
-        bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
-        if (!result) {
+        auto result = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName));
+        if (result != ERR_OK) {
             HILOG_ERROR("GetBundleNameForUid from bms fail.");
             return false;
         }
@@ -6171,6 +6171,44 @@ int32_t AbilityManagerService::IsValidMissionIds(
     }
 
     return missionlistMgr->IsValidMissionIds(missionIds, results);
+}
+
+int AbilityManagerService::VerifyPermission(const std::string &permission, int pid, int uid)
+{
+    HILOG_INFO("permission=%{public}s, pid=%{public}d, uid=%{public}d",
+        permission.c_str(),
+        pid,
+        uid);
+    if (permission.empty()) {
+        HILOG_ERROR("VerifyPermission permission invalid");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+
+    std::string bundleName;
+    if (IN_PROCESS_CALL(bms->GetNameForUid(uid, bundleName)) != ERR_OK) {
+        HILOG_ERROR("VerifyPermission failed to get bundle name by uid");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int account = -1;
+    DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(uid, account);
+    AppExecFwk::ApplicationInfo appInfo;
+    if (!IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+        account, appInfo))) {
+        HILOG_ERROR("VerifyPermission failed to get application info");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
+    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+        HILOG_ERROR("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
