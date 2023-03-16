@@ -1015,7 +1015,8 @@ void AbilityRecord::SetAbilityState(AbilityState state)
 
 void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("bundle:%{public}s, ability: %{public}s", applicationInfo_.bundleName.c_str(),
+        abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     if (scheduler != nullptr) {
         if (scheduler_ != nullptr && schedulerDeathRecipient_ != nullptr) {
@@ -1038,8 +1039,8 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         scheduler_ = scheduler;
         lifecycleDeal_->SetScheduler(scheduler);
         auto schedulerObject = scheduler_->AsObject();
-        if (schedulerObject != nullptr) {
-            schedulerObject->AddDeathRecipient(schedulerDeathRecipient_);
+        if (schedulerObject == nullptr || !schedulerObject->AddDeathRecipient(schedulerDeathRecipient_)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
         }
         pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         HandleDlpAttached();
@@ -1051,6 +1052,7 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (scheduler_ != nullptr && schedulerDeathRecipient_ != nullptr) {
             auto schedulerObject = scheduler_->AsObject();
             if (schedulerObject != nullptr) {
+                HILOG_INFO("RemoveDeathRecipient");
                 schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
             }
         }

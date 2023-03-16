@@ -228,6 +228,14 @@ void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
     if (!IsReady()) {
         return;
     }
+    
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    auto appRecord = appMgrServiceInner_->GetTerminatingAppRunningRecord(token);
+    if (!appRecord || appRecord->GetUid() != callerUid) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
+
     std::function<void()> abilityCleanedFunc =
         std::bind(&AppMgrServiceInner::AbilityTerminated, appMgrServiceInner_, token);
     handler_->PostTask(abilityCleanedFunc, TASK_ABILITY_CLEANED);

@@ -343,8 +343,8 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
         }
         int callerUid = IPCSkeleton::GetCallingUid();
         std::string localBundleName;
-        bms->GetBundleNameForUid(callerUid, localBundleName);
-        if (localBundleName != wantBundleName) {
+        auto res = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, localBundleName));
+        if (res != ERR_OK || localBundleName != wantBundleName) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName is not local BundleName");
             return INVALID_PARAMETERS_ERR;
         }

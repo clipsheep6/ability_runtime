@@ -30,6 +30,7 @@ struct JsFreeInstallObserverObject {
     std::string abilityName;
     std::string startTime;
     std::shared_ptr<NativeReference> callback;
+    bool isAbilityResult = false;
 };
 
 class JsFreeInstallObserver : public FreeInstallObserverStub {
@@ -57,7 +58,7 @@ public:
      * @param jsObserverObject The js object instance.
      */
     void AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
-        const std::string &startTime, NativeValue* jsObserverObject);
+        const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult = false);
 private:
     void CallJsFunction(NativeValue* value, NativeValue* const *argv, size_t argc);
     void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,

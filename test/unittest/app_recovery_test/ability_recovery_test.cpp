@@ -503,6 +503,7 @@ HWTEST_F(AbilityRecoveryUnitTest, PersistAppState_001, TestSize.Level1)
 HWTEST_F(AbilityRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
 {
     abilityRecovery_->abilityInfo_ = abilityInfo_;
+    abilityRecovery_->missionId_ = 1;
     EXPECT_TRUE(abilityRecovery_->PersistState());
     abilityRecovery_->params_ = want_.GetParams();
     int32_t natValue32 = 0;

@@ -61,7 +61,7 @@ HWTEST_F(SysMgrClient, GetSystemAbility_0100, TestSize.Level1)
     auto sysMgr = DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     EXPECT_NE(sysMgr, nullptr);
 
-    EXPECT_EQ(sysMgr-> abilityManager_, nullptr);
+    EXPECT_EQ(sysMgr->abilityManager_, nullptr);
 
     auto ret = sysMgr->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     EXPECT_NE(ret, nullptr);
@@ -79,8 +79,8 @@ HWTEST_F(SysMgrClient, GetSystemAbility_0200, TestSize.Level1)
     auto sysMgr = DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     EXPECT_NE(sysMgr, nullptr);
 
-    sysMgr-> abilityManager_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(sysMgr-> abilityManager_, nullptr);
+    sysMgr->abilityManager_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(sysMgr->abilityManager_, nullptr);
 
     auto ret = sysMgr->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     EXPECT_NE(ret, nullptr);

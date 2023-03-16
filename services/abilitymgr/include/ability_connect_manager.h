@@ -19,6 +19,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 
 #include "ability_connect_callback_interface.h"
 #include "ability_event_handler.h"
@@ -446,6 +447,15 @@ private:
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
 
+    /**
+     * When a service is under starting, enque the request and handle it after the service starting completes
+     */
+    void EnqueStartServiceReq(const AbilityRequest &abilityRequest);
+    /**
+     * After the service starting completes, complete the request list
+     */
+    void CompleteStartServiceReq(const std::string &serviceUri);
+
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     const std::string TASK_ON_ABILITY_DIED = "OnAbilityDiedTask";
@@ -458,7 +468,9 @@ private:
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     int userId_;
     std::vector<AbilityRequest> restartResidentTaskList_;
-
+    std::unordered_map<std::string, std::shared_ptr<std::list<AbilityRequest>>> startServiceReqList_;
+    std::mutex startServiceReqListLock_;
+    
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
 }  // namespace AAFwk

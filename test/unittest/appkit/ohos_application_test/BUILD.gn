@@ -70,7 +70,7 @@ ohos_unittest("ohos_application_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "faultloggerd:lib_dfx_dump_catcher",
+    "faultloggerd:libdfx_dumpcatcher",
     "faultloggerd:libfaultloggerd",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

@@ -309,10 +309,10 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         return;
     }
     appRecord->SetApplicationClient(appScheduler);
+    appRecord->RegisterAppDeathRecipient();
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
-    appRecord->RegisterAppDeathRecipient();
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
@@ -1353,17 +1353,22 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAbili
     return appRunningManager_->GetAppRunningRecordByAbilityToken(abilityToken);
 }
 
+std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetTerminatingAppRunningRecord(
+    const sptr<IRemoteObject> &token) const
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr.");
+        return nullptr;
+    }
+    return appRunningManager_->GetTerminatingAppRunningRecord(token);
+}
+
 void AppMgrServiceInner::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability come.");
     if (!token) {
         HILOG_ERROR("Terminate ability error, token is null!");
-        return;
-    }
-
-    if (!VerifyProcessPermission()) {
-        HILOG_ERROR("Permission verify failed.");
         return;
     }
 
@@ -1597,8 +1602,8 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.processName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s, uid : %{public}d,\
-        process : %{public}s",
+    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
+        uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
         eventInfo.processName.c_str());
 
@@ -2384,7 +2389,8 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
         uint32_t startFlags = BuildStartFlags(want, abilityInfo);
         int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName, bundleIndex);
+        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
+            bundleIndex);
 
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
         appRecord->AddModules(appInfo, hapModules);
@@ -2848,7 +2854,7 @@ int AppMgrServiceInner::VerifyRequestPermission() const
     if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
         return ERR_OK;
     } else {
-        HILOG_ERROR("Permission verification failed.[DongLin]%{public}d", callerUid);
+        HILOG_ERROR("Permission verification failed, callerUid: %{public}d", callerUid);
         return ERR_PERMISSION_DENIED;
     }
 }
@@ -3048,7 +3054,7 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
-	startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
     }
 
     return startFlags;

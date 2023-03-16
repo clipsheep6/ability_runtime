@@ -805,7 +805,7 @@ public:
 
     bool IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest, AbilityRequest &request);
 
-    void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code);
+    void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode);
 
     /**
      * Send not response process ID to ability manager service.
@@ -922,6 +922,15 @@ public:
 
     std::shared_ptr<AbilityRecord> GetFocusAbility();
 
+    /**
+     * Query whether the application of the specified PID and UID has been granted a certain permission
+     * @param permission
+     * @param pid Process id
+     * @param uid
+     * @return Returns ERR_OK if the current process has the permission, others on failure.
+     */
+    virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -989,6 +998,12 @@ public:
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
         KEY_DUMPSYS_DATA,
+    };
+
+    enum {
+        ABILITY_MOVE_TO_FOREGROUND_CODE = 0,
+        ABILITY_MOVE_TO_BACKGROUND_CODE,
+        TERMINATE_ABILITY_CODE
     };
 
     friend class UserController;
@@ -1152,7 +1167,8 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
-    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
+    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
+        int32_t callerTokenId);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 

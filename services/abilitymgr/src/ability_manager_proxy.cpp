@@ -3434,5 +3434,46 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
     return resultCode;
 }
+
+int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid, int uid)
+{
+    HILOG_INFO("VerifyPermission Call");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteString(permission)) {
+        HILOG_ERROR("permission write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("pid write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(uid)) {
+        HILOG_ERROR("uid write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return INNER_ERR;
+    }
+
+    auto error = remote->SendRequest(IAbilityManager::VERIFY_PERMISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

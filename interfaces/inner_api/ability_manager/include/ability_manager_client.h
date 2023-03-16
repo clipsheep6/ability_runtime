@@ -97,7 +97,8 @@ public:
      * @param requestCode Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE);
+    ErrCode StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -865,7 +866,6 @@ public:
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
     
     ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
-    
 
     /**
      * Called to verify that the MissionId is valid.
@@ -874,6 +874,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
+
+    /**
+     * Query whether the application of the specified PID and UID has been granted a certain permission
+     * @param permission
+     * @param pid Process id
+     * @param uid
+     * @return Returns ERR_OK if the current process has the permission, others on failure.
+     */
+    ErrCode VerifyPermission(const std::string &permission, int pid, int uid);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

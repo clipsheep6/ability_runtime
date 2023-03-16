@@ -61,7 +61,7 @@ HWTEST_F(RuntimeTest, Create_0100, TestSize.Level0)
     std::unique_ptr<Runtime> runtime = std::make_unique<MockRuntime>();
     auto result = runtime->Create(options);
     EXPECT_TRUE(runtime != nullptr);
-    EXPECT_TRUE(result == nullptr);
+    EXPECT_TRUE(result != nullptr);
     GTEST_LOG_(INFO) << "RuntimeTest Create_0100 end";
 }
 
