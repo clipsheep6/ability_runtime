@@ -34,7 +34,7 @@
 
 #include "ability_manager_client.h"
 
-#include "dirent.h"
+#include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "parcel.h"
@@ -411,7 +411,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     std::string fileDir = context->GetFilesDir();
     HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
-        HILOG_ERROR("AppRecovery GetSaveAppCachePath fileDir is empty or fileDir is not exists.");
+        HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
         return;
     }
     std::vector<int32_t> missionIds;
@@ -422,7 +422,7 @@ void AppRecovery::DeleteInValidMissionFiles()
         return;
     }
     if (missionIds.empty()) {
-        HILOG_ERROR("AppRecovery no mission file, no need delete it.");
+        HILOG_DEBUG("AppRecovery no mission file, no need delete it.");
         return;
     }
     std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
@@ -448,16 +448,10 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
 {
     std::string fileName = std::to_string(missionId) + ".state";
     std::string file = fileDir + "/" + fileName;
-    if (file.empty()) {
-        HILOG_ERROR("AppRecovery %{public}s failed to delete file path.", __func__);
-        return;
+    bool ret = OHOS::RemoveFile(file);
+    if (!ret) {
+        HILOG_ERROR("AppRecovery delete the file: %{public}s failed", file.c_str());
     }
-    char path[PATH_MAX] = {0};
-    if (realpath(file.c_str(), path) == nullptr) {
-        HILOG_ERROR("AppRecovery realpath error, errno is %{public}d.", errno);
-        return;
-    }
-    remove(path);
     HILOG_DEBUG("AppRecovery delete the file: %{public}s done", file.c_str());
 }
 
