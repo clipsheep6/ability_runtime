@@ -2156,7 +2156,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_002, TestSize.Level1)
     EXPECT_TRUE(moduleRecordList.size() == 2);
 
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 = record->GetAbilityRunningRecord(999);
-    EXPECT_NE(abilityRunningRecord1, nullptr);
+    EXPECT_EQ(abilityRunningRecord1, nullptr);
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 = record->GetAbilityRunningRecord(123);
     EXPECT_EQ(abilityRunningRecord2, nullptr);
 }
