@@ -18,6 +18,7 @@
 
 #include <memory>
 #include "ecmascript/napi/include/jsnapi.h"
+#include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
@@ -27,11 +28,11 @@ class JsEnvironment final {
 public:
     JsEnvironment() {}
     explicit JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl);
-    ~JsEnvironment() = default;
+    ~JsEnvironment();
 
-    void Initialize(const panda::RuntimeOption& options);
+    bool Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine);
 
-    std::shared_ptr<NativeEngine> GetNativeEngine() const
+    NativeEngine* GetNativeEngine() const
     {
         return engine_;
     }
@@ -58,7 +59,7 @@ public:
     void RemoveTask(const std::string& name);
 private:
     std::shared_ptr<JsEnvironmentImpl> impl_ = nullptr;
-    std::shared_ptr<NativeEngine> engine_ = nullptr;
+    NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 } // namespace JsEnv

@@ -1424,6 +1424,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.hapPath = entryHapModuleInfo.hapPath;
         options.loadAce = false;
         options.isStageModel = false;
+        options.isTestFramework = true;
         if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;

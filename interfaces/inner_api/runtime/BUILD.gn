@@ -45,6 +45,8 @@ config("runtime_all_deps_config") {
 }
 
 ohos_shared_library("runtime") {
+  include_dirs = [ "${ability_runtime_path}/services/abilitymgr/include" ]
+
   sources = [
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
@@ -57,6 +59,8 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_timer.cpp",
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
+    "${ability_runtime_native_path}/runtime/ohos_js_env_logger.cpp",
+    "${ability_runtime_native_path}/runtime/ohos_js_environment_impl.cpp",
     "${ability_runtime_native_path}/runtime/runtime.cpp",
     "${ability_runtime_native_path}/runtime/source_map.cpp",
   ]
@@ -82,6 +86,7 @@ ohos_shared_library("runtime") {
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
+    "ability_runtime:js_environment",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

@@ -62,7 +62,7 @@ void JsRuntimeTest::SetUp()
     options_.bundleName = TEST_BUNDLE_NAME;
     options_.codePath = TEST_CODE_PATH;
     options_.hapPath = TEST_HAP_PATH;
-    options_.loadAce = true;
+    options_.loadAce = false;
     options_.isBundle = true;
     options_.preload = false;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner = AppExecFwk::EventRunner::Create(TEST_ABILITY_NAME);
@@ -210,19 +210,19 @@ HWTEST_F(JsRuntimeTest, JsRuntimeGetLanguageTest_0100, TestSize.Level0)
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeBuildJsStackInfoListTest_0100, TestSize.Level0)
 {
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    HILOG_INFO("Test BuildJsStackInfoList start");
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::vector<JsFrames> frames;
     bool ret = jsRuntime->BuildJsStackInfoList(gettid(), frames);
-    EXPECT_TRUE(ret);
+    EXPECT_FALSE(ret);
+    HILOG_INFO("Test BuildJsStackInfoList end");
 }
 
 /**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0100
- * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine_ is nullptr.
+ * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is nullptr.
  * @tc.type: FUNC
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level0)
@@ -232,8 +232,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level
     std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
     EXPECT_TRUE(jsRuntime != nullptr);
 
-    jsRuntime->nativeEngine_ = nullptr;
-
     bool isBackground = false;
     jsRuntime->NotifyApplicationState(isBackground);
 
@@ -242,17 +240,15 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level
 
 /**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0200
- * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine_ is not nullptr.
+ * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is not nullptr.
  * @tc.type: FUNC
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0200, TestSize.Level0)
 {
     HILOG_INFO("NotifyApplicationState start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     bool isBackground = true;
     jsRuntime->NotifyApplicationState(isBackground);
@@ -269,10 +265,8 @@ HWTEST_F(JsRuntimeTest, JsRuntimeDumpHeapSnapshotTest_0100, TestSize.Level0)
 {
     HILOG_INFO("DumpHeapSnapshot start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     bool isPrivate = true;
     jsRuntime->DumpHeapSnapshot(isPrivate);
@@ -289,10 +283,8 @@ HWTEST_F(JsRuntimeTest, JsRuntimePreloadSystemModuleTest_0100, TestSize.Level0)
 {
     HILOG_INFO("PreloadSystemModule start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string moduleName = "PreloadSystemModuleTest";
     jsRuntime->PreloadSystemModule(moduleName);
@@ -309,15 +301,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunSandboxScriptTest_0100, TestSize.Level0)
 {
     HILOG_INFO("RunSandboxScript start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string path = "";
     std::string hapPath = "";
-    bool ret = jsRuntime->RunSandboxScript(path, hapPath);
-    EXPECT_TRUE(ret);
+    bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunSandboxScript(path, hapPath);
+    EXPECT_FALSE(ret);
 
     HILOG_INFO("RunSandboxScript end");
 }
@@ -350,16 +340,15 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadModuleTest_0100, TestSize.Level0)
 {
     HILOG_INFO("LoadModule start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string moduleName = TEST_MODULE_NAME;
     std::string modulePath = TEST_MODULE_PATH;
     std::string hapPath = TEST_HAP_PATH;
     bool esmodule = true;
-    std::unique_ptr<NativeReference> ref = jsRuntime->LoadModule(moduleName, modulePath, hapPath, esmodule);
+    std::unique_ptr<NativeReference> ref = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).LoadModule(moduleName,
+        modulePath, hapPath, esmodule);
     EXPECT_EQ(ref, nullptr);
 
     HILOG_INFO("LoadModule end");

@@ -192,7 +192,8 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
         }
         OHOS::AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*abilityPtr);
         AbilityRuntime::JsRuntime& runtime = const_cast<AbilityRuntime::JsRuntime&>(jsAbility.GetJsRuntime());
-        runtime.AllowCrossThreadExecution();
+        auto& nativeEngine = runtime.GetNativeEngine();
+        nativeEngine.AllowCrossThreadExecution();
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
         return true;
     }

@@ -111,12 +111,38 @@ ohos_unittest("hdc_register_test") {
   ]
 }
 
+ohos_unittest("ohos_js_environment_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [ "${ability_runtime_native_path}/runtime" ]
+
+  sources = [ "ohos_js_environment_test.cpp" ]
+
+  configs = []
+
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "napi:ace_napi",
+  ]
+}
+
 group("unittest") {
   testonly = true
 
   deps = [
     ":hdc_register_test",
     ":js_runtime_test",
+    ":ohos_js_environment_test",
     ":runtime_test",
   ]
 }

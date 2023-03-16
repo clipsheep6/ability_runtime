@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 
-#include "js_environment_impl.h"
+#include <string>
 
 namespace OHOS {
 namespace JsEnv {
