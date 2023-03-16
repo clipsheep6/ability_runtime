@@ -77,6 +77,12 @@ std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
+#ifdef APP_USE_ARM64
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
+#else
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#endif
+
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
@@ -1193,16 +1199,28 @@ void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
 
     void *handleAbilityLib = nullptr;
     for (auto fileEntry : nativeFileEntries_) {
-        if (!fileEntry.empty()) {
-            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
-            if (handleAbilityLib == nullptr) {
+        if (fileEntry.empty()) {
+            continue;
+        }
+        handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (handleAbilityLib == nullptr) {
+            if (fileEntry.find("libformrender.z.so") == std::string::npos) {
                 HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
                     __func__, fileEntry.c_str(), dlerror());
                 exit(-1);
+            } else {
+                HILOG_DEBUG("Load libformrender.z.so from native lib path.");
+                handleAbilityLib = dlopen(FORM_RENDER_LIB_PATH, RTLD_NOW | RTLD_GLOBAL);
+                if (handleAbilityLib == nullptr) {
+                    HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
+                        __func__, FORM_RENDER_LIB_PATH, dlerror());
+                    exit(-1);
+                }
+                fileEntry = FORM_RENDER_LIB_PATH;
             }
-            HILOG_DEBUG("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
-            handleAbilityLib_.emplace_back(handleAbilityLib);
         }
+        HILOG_DEBUG("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
+        handleAbilityLib_.emplace_back(handleAbilityLib);
     }
 #endif
 }
