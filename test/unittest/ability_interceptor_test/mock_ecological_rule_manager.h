@@ -46,32 +46,28 @@ public:
     }
 
     virtual int32_t EvaluateResolveInfos(const Want &want, const ErmsParams::CallerInfo &callerInfo, int32_t type,
-                                         std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> extensionInfos)
+        std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> extensionInfos)
     {
         return 0;
     }
 
     virtual int32_t QueryStartExperience(const Want &want,
-                                         const ErmsParams::CallerInfo &callerInfo, ErmsParams::ExperienceRule &rule)
+        const ErmsParams::CallerInfo &callerInfo, ErmsParams::ExperienceRule &rule)
     {
         GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::QueryStartExperience";
         std::string abilityName = want.GetElement().GetAbilityName();
-        if (abilityName == "com.test.pass")
-        {
+        if (abilityName == "com.test.pass") {
             GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::pass";
             rule.isAllow = true;
-        } else if (abilityName == "com.test.deny")
-        {
+        } else if (abilityName == "com.test.deny") {
             GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::deny";
             rule.isAllow = false;
             rule.replaceWant = nullptr;
-        } else if (abilityName == "com.test.jump")
-        {
+        } else if (abilityName == "com.test.jump") {
             GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::jump";
             rule.isAllow = false;
             rule.replaceWant = std::make_shared<Want>();
-        } else
-        {
+        } else {
             GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::invalid";
             return -1;
         }
@@ -84,7 +80,7 @@ public:
     }
 
     virtual int32_t IsSupportPublishForm(const Want &want, const ErmsParams::CallerInfo &callerInfo,
-                                         ErmsParams::ExperienceRule &rule)
+        ErmsParams::ExperienceRule &rule)
     {
         return 0;
     }

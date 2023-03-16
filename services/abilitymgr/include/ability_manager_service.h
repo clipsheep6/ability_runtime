@@ -1168,7 +1168,7 @@ private:
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-        int32_t callerTokenId);
+        uint32_t callerTokenId);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 

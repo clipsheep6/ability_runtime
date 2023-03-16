@@ -5143,7 +5143,7 @@ int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, c
 #endif
 
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-    int32_t callerTokenId)
+    uint32_t callerTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -5152,7 +5152,7 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
-    int32_t tokenId;
+    uint32_t tokenId;
     if (isStartAsCaller) {
         tokenId = callerTokenId;
     } else {

@@ -44,7 +44,8 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppExecFwk::EventHandler> testHandler_ = std::make_shared<EventHandler>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();
-    std::shared_ptr<AbilityRuntime::MockAbilityContext> context_ = std::make_shared<AbilityRuntime::MockAbilityContext>();
+    std::shared_ptr<AbilityRuntime::MockAbilityContext> context_ =
+        std::make_shared<AbilityRuntime::MockAbilityContext>();
 };
 
 void AppRecoveryUnitTest::SetUpTestCase()
@@ -386,8 +387,8 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
         SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
     EXPECT_TRUE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE, SaveOccasionFlag::SAVE_WHEN_ERROR,
-        SaveModeFlag::SAVE_WITH_FILE);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE,
+        SaveOccasionFlag::SAVE_WHEN_ERROR, SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }
