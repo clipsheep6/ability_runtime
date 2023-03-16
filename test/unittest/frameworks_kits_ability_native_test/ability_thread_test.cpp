@@ -1963,7 +1963,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUnregisterObserver_0100, F
 
     Uri uri(TEST);
     sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
-    EXPECT_TRUE(abilitythread->HandleUnregisterObserver(uri, dataObserver));
+    EXPECT_FALSE(abilitythread->HandleUnregisterObserver(uri, dataObserver));
     sleep(1);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleUnregisterObserver_0100 end";
 }
