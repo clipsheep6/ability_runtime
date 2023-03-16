@@ -218,7 +218,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, startInstallTime);
     
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) == 0 &&
@@ -248,7 +249,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_002, TestSize.Level1)
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(1, want, userId, startInstallTime);
     
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) == 0 &&
@@ -319,7 +321,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnRemoteInstallFinished_001, TestSize.Leve
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnRemoteInstallFinished(0, want, userId, startInstallTime);
     
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         if (want.GetElement().GetBundleName().compare(bundleName) == 0 &&

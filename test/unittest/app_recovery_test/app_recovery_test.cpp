@@ -361,8 +361,8 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
         SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
     EXPECT_TRUE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE, SaveOccasionFlag::SAVE_WHEN_ERROR,
-        SaveModeFlag::SAVE_WITH_FILE);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE,
+        SaveOccasionFlag::SAVE_WHEN_ERROR, SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }

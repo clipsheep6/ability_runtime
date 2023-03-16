@@ -1966,7 +1966,8 @@ int AbilityManagerService::GetPendingWantType(const sptr<IWantSender> &target)
     return pendingWantManager_->GetPendingWantType(target);
 }
 
-void AbilityManagerService::RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver)
+void AbilityManagerService::RegisterCancelListener(const sptr<IWantSender> &sender,
+    const sptr<IWantReceiver> &receiver)
 {
     HILOG_INFO("Register cancel listener.");
     CHECK_POINTER(pendingWantManager_);
@@ -3063,7 +3064,8 @@ int AbilityManagerService::GenerateAbilityRequest(
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
         if (appIndex == 0) {
-            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag,
+                userId, extensionInfos));
         } else {
             IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
                 abilityInfoFlag, userId, extensionInfos));
@@ -3407,7 +3409,8 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         }
         dataAbilityRequest.abilityInfo = *it;
         dataAbilityRequest.uid = bundleInfo.uid;
-        HILOG_INFO("App data ability preloading: '%{public}s.%{public}s'...", it->bundleName.c_str(), it->name.c_str());
+        HILOG_INFO("App data ability preloading: '%{public}s.%{public}s'...",
+            it->bundleName.c_str(), it->name.c_str());
 
         auto dataAbility = dataAbilityManager->Acquire(dataAbilityRequest, false, nullptr, false);
         if (dataAbility == nullptr) {
@@ -4863,8 +4866,8 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     // verify permission if 'permission' is not empty
-    if (abilityInfo.permissions.empty() ||
-        AccessTokenKit::VerifyAccessToken(tokenId, PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == ERR_OK) {
+    if (abilityInfo.permissions.empty() || AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 

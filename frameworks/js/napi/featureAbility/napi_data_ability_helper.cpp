@@ -3378,7 +3378,6 @@ napi_value ExecuteBatchWrap(napi_env env, napi_callback_info info, DAHelperExecu
     HILOG_INFO("%{public}s,operations size=%{public}zu", __func__, operations.size());
     executeBatchCB->operations = operations;
     GetDataAbilityHelper(env, thisVar, executeBatchCB->dataAbilityHelper);
-    
 
     if (argcAsync > argcPromise) {
         ret = ExecuteBatchAsync(env, args, argcAsync, argcPromise, executeBatchCB);
