@@ -60,6 +60,7 @@ ohos_unittest("service_extension_context_test") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
     "c_utils:utils",
     "eventhandler:libeventhandler",

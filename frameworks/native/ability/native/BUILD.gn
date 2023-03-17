@@ -218,19 +218,13 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_uri_utils.cpp",
     "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
-    "${ability_runtime_native_path}/ability/native/extension.cpp",
-    "${ability_runtime_native_path}/ability/native/extension_config_mgr.cpp",
-    "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
-    "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
     "${ability_runtime_native_path}/ability/native/free_install_observer_proxy.cpp",
     "${ability_runtime_native_path}/ability/native/free_install_observer_stub.cpp",
-    "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
     "${ability_runtime_native_path}/ability/native/js_free_install_observer.cpp",
     "${ability_runtime_native_path}/ability/native/new_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/ability_recovery.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/app_recovery.cpp",
     "${ability_runtime_native_path}/ability/native/service_ability_impl.cpp",
-    "${ability_runtime_native_path}/appkit/ability_runtime/extension_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
@@ -414,6 +408,7 @@ ohos_shared_library("ability_thread") {
 
   deps = [
     ":abilitykit_native",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
@@ -452,6 +447,7 @@ ohos_shared_library("form_extension") {
 
     deps = [
       ":abilitykit_native",
+      ":extensionkit_native",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/appkit:app_context",
       "${form_fwk_napi_path}:formutil_napi",
@@ -515,6 +511,7 @@ ohos_shared_library("service_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":extensionkit_native",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -800,6 +797,7 @@ ohos_shared_library("ui_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":extensionkit_native",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:app_context",
