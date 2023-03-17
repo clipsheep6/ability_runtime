@@ -581,8 +581,8 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
     HILOG_ERROR("DumpHeapMemory is called.");
     HILOG_ERROR("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     for (const auto &item : appRunningRecordMap_) {
-        const auto &appRecord = item.second;
-        int32_t everyPid = appRecord->GetUid();
+        auto renderRecord = item.second->GetRenderRecord();
+        auto everyPid = renderRecord->GetPid();
         HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
         if (pid != everyPid) {
             continue;
