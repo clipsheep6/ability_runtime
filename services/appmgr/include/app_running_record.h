@@ -380,6 +380,13 @@ public:
     void ScheduleMemoryLevel(int32_t level);
 
     /**
+     * ScheduleHeapMemory, get the application's memory info.
+     *
+     * @return
+     */
+    void ScheduleHeapMemory(std::vector<int32_t> &mallinfo);
+
+    /**
      * GetAbilityRunningRecordByToken, Obtaining the ability record through token.
      *
      * @param token, the unique identification to the ability.

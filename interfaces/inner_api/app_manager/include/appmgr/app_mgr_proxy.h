@@ -135,6 +135,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
     /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory info.
+     *
+     * @param mallinfo, the mallinfo vector.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo) override;
+
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */

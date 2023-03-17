@@ -112,6 +112,16 @@ public:
     void ScheduleMemoryLevel(int32_t Level);
 
     /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory info.
+     *
+     * @param mallinfo, the mallinfo vector.
+     *
+     * @return
+     */
+    void ScheduleHeapMemory(std::vector<int32_t> &mallinfo);
+    
+    /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
      * Notify application to low memory.
      *
