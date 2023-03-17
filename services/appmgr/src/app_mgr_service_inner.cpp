@@ -495,7 +495,7 @@ int32_t AppMgrServiceInner::UpdateApplicationInfoInstalled(const std::string &bu
         return ERR_NO_INIT;
     }
 
-    int32_t result = VerifyProcessPermission();
+    int32_t result = VerifyRequestPermission();
     if (result != ERR_OK) {
         HILOG_ERROR("Permission verification failed");
         return result;
