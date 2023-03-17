@@ -116,6 +116,7 @@ private:
 
     std::string bundleName_;
     uint32_t instanceId_ = 0;
+    int32_t extensionType_ = 255; // default unspecified type.
 
     static std::atomic<bool> hasInstance;
 

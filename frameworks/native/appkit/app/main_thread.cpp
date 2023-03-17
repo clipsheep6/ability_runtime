@@ -1499,19 +1499,18 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     auto& runtime = application_->GetRuntime();
     auto appInfo = application_->GetApplicationInfo();
-    auto want = abilityRecord->GetWant();
     if (appInfo == nullptr) {
         HILOG_ERROR("appInfo is nullptr");
         return;
     }
 
-    if (runtime && want && appInfo->debug) {
-        runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+    UpdateProcessExtensionType(abilityRecord);
+    if (runtime && appInfo->debug) {
+        runtime->StartDebugMode(IsDebugMode(abilityRecord));
     }
 
     mainThreadState_ = MainThreadState::RUNNING;
     std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
-    UpdateProcessExtensionType(abilityRecord);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
 #else
@@ -2342,6 +2341,31 @@ void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRe
     }
     runtime->UpdateExtensionType(static_cast<int32_t>(abilityInfo->extensionAbilityType));
     HILOG_INFO("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
+}
+
+bool MainThread::IsDebugMode(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+{
+    if (!abilityRecord) {
+        return false;
+    }
+
+    auto &abilityInfo = abilityRecord->GetAbilityInfo();
+    if (!abilityInfo) {
+        HILOG_ERROR("Get abilityInfo failed");
+        return false;
+    }
+
+    // set extension to debugmode if app is already debugable.
+    if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
+        return true;
+    }
+
+    auto want = abilityRecord->GetWant();
+    if (want) {
+        return want->GetBoolParam("debugApp", false);
+    }
+
+    return false;
 }
 
 void MainThread::AddExtensionBlockItem(const std::string &extensionName, int32_t type)

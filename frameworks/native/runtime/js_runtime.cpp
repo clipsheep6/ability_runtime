@@ -75,6 +75,11 @@ constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
+constexpr int32_t EXTENSION_TYPE_SERVICE = 3;
+constexpr int32_t EXTENSION_TYPE_DATASHARE = 5;
+constexpr int32_t EXTENSION_TYPE_UNSPECIFIED = 255;
+constexpr const char* SEP = "_";
+
 static auto PermissionCheckFunc = []() {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
 
@@ -252,6 +257,11 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
 
+    std::string debugName = bundleName_;
+    if (extensionType_ != EXTENSION_TYPE_SERVICE && extensionType_ != EXTENSION_TYPE_DATASHARE &&
+        extensionType_ != EXTENSION_TYPE_UNSPECIFIED) {
+        debugName.append(SEP).append(std::to_string(extensionType_));
+    }
     HdcRegister::Get().StartHdcRegister(bundleName_);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
     ConnectServerManager::Get().AddInstance(instanceId_);
@@ -896,6 +906,7 @@ void JsRuntime::UpdateExtensionType(int32_t extensionType)
         return;
     }
     moduleManager->SetProcessExtensionType(extensionType);
+    extensionType_ = extensionType;
 }
 
 NativeEngine& JsRuntime::GetNativeEngine() const
