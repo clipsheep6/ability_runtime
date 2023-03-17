@@ -311,6 +311,7 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
 
 int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
+    HILOG_ERROR("AppMgrProxy::DumpHeapMemory.\n");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);

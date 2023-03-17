@@ -346,6 +346,7 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
 
 int32_t AppMgrService::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
+    HILOG_ERROR("AppMgrService::DumpHeapMemory.\n");
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }

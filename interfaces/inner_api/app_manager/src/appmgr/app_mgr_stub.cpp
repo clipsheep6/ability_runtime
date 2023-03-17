@@ -281,6 +281,7 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
+    HILOG_ERROR("AppMgrStub::HandleDumpHeapMemory.\n");
     HITRACE_METER(HITRACE_TAG_APP);
     std::vector<int32_t> mallinfo;
     bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);

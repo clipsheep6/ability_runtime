@@ -875,7 +875,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 
 int32_t AppMgrServiceInner::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
-    HILOG_INFO("AppMgrServiceInner DumpHeapMemory start");
+    HILOG_ERROR("AppMgrServiceInner::DumpHeapMemory.\n");
     if (mallinfo.empty()) {
         HILOG_ERROR("mallinfo's pid nullptr or empty!");
         return ERR_INVALID_VALUE;

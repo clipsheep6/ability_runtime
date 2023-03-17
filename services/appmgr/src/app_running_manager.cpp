@@ -578,13 +578,13 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
     int32_t pid = mallinfo.front();
-    HILOG_INFO("DumpHeapMemory is called.");
-    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    HILOG_ERROR("DumpHeapMemory is called.");
+    HILOG_ERROR("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         int32_t everyPid = appRecord->GetUid();
-        HILOG_INFO("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
-        if(pid != everyPid) {
+        HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
+        if (pid != everyPid) {
             continue;
         } else {
             appRecord->ScheduleHeapMemory(mallinfo);

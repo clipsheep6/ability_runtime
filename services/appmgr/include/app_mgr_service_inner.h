@@ -291,7 +291,7 @@ public:
      *
      * @return ERR_OK, return back success，others fail.
      */
-     virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
 
     /**
      * @brief Check whether the shared bundle is running.
