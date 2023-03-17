@@ -200,6 +200,15 @@ public:
     virtual AppMgrResultCode NotifyMemoryLevel(MemoryLevel level);
 
     /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory info.
+     *
+     * @param mallinfo, the mallinfo vector.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode DumpHeapMemory(std::vector<int32_t> &mallinfo);
+
+    /**
      * GetConfiguration
      *
      * @param info, configuration.

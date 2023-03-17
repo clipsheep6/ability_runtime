@@ -126,6 +126,27 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
     ScheduleMemoryCommon(level, operation);
 }
 
+void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
+{
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    data.WriteInt32Vector(mallinfo);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(operation, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
 {
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);

@@ -141,6 +141,14 @@ public:
     */
     int32_t NotifyMemoryLevel(int32_t level);
 
+    /*
+    * Get the application's memory info.
+    *
+    * @param mallinfo, the mallinfo vector.
+    * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
+
     void HandleTerminateTimeOut(int64_t eventId);
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecord(const int64_t eventId);

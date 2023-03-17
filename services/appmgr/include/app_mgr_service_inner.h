@@ -285,6 +285,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level);
 
     /**
+     * DumpHeapMemory, get the application's memory info.
+     *
+     * @param mallinfo, the mallinfo vector.
+     *
+     * @return ERR_OK, return back success，others fail.
+     */
+     virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
+
+    /**
      * @brief Check whether the shared bundle is running.
      *
      * @param bundleName Shared bundle name.
