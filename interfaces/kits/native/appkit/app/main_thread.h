@@ -157,6 +157,14 @@ public:
 
     /**
      *
+     * @brief Get the application's memory info.
+     *
+     * @param miVector, the miVector vector.
+     */
+    void ScheduleHeapMemory(std::vector<int32_t> &miVector) override;
+
+    /**
+     *
      * @brief Low the memory which used by application.
      *
      */

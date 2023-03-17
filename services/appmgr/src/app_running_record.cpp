@@ -536,6 +536,13 @@ void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
     }
 }
 
+void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleHeapMemory(mallinfo);
+    }
+}
+
 void AppRunningRecord::LowMemoryWarning()
 {
     if (appLifeCycleDeal_) {

@@ -81,6 +81,14 @@ public:
     virtual void ScheduleMemoryLevel(int32_t level) = 0;
 
     /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory info.
+     *
+     * @return
+     */
+    virtual void ScheduleHeapMemory(std::vector<int32_t> &mallinfo) = 0;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
@@ -193,6 +201,7 @@ public:
         SCHEDULE_ABILITY_STAGE_INFO,
         SCHEDULE_ACCEPT_WANT,
         SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
+        SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
         SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
