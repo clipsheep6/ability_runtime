@@ -77,7 +77,6 @@ constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
 constexpr int REGISTER_FOCUS_DELAY = 5000;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
-const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
@@ -1547,7 +1546,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     startMsg.procName = processName;
-    startMsg.soPath = SO_PATH;
     startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
 
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());

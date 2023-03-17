@@ -903,7 +903,9 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
 
     auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_cold";
     handler->RemoveTask(taskName);
+#ifdef SUPPORT_GRAPHICS
     abilityRecord->PostCancelStartingWindowHotTask();
+#endif
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 
     return ERR_OK;
