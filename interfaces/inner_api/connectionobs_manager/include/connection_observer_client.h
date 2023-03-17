@@ -16,6 +16,8 @@
 #ifndef ABILITY_RUNTIME_CONNECTION_OBSERVER_CLIENT_H
 #define ABILITY_RUNTIME_CONNECTION_OBSERVER_CLIENT_H
 
+#include <memory>
+
 #include "connection_observer.h"
 #include "dlp_connection_info.h"
 

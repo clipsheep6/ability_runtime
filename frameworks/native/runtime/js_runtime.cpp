@@ -21,7 +21,9 @@
 #include <regex>
 
 #include <atomic>
+#ifdef TARGET_LINUX
 #include <sys/epoll.h>
+#endif
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
@@ -473,11 +475,12 @@ private:
         HILOG_DEBUG("UvLoopHandler::OnTriggered is triggered");
 
         auto fd = uv_backend_fd(uvLoop_);
+#ifdef TARGET_LINUX
         struct epoll_event ev;
         do {
             uv_run(uvLoop_, UV_RUN_NOWAIT);
         } while (epoll_wait(fd, &ev, 1, 0) > 0);
-
+#endif
         auto eventHandler = GetOwner();
         if (!eventHandler) {
             return;

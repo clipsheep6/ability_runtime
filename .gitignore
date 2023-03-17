@@ -1,4 +1,2 @@
 .xmake
 .vscode
-xmake.lua
-.clangd

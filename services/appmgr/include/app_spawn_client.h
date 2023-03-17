@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
 #define OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
 
+#include <memory>
+
 #include "nocopyable.h"
 #include "app_spawn_msg_wrapper.h"
 #include "app_spawn_socket.h"

@@ -16,6 +16,7 @@
 #include "napi_common_ability.h"
 
 #include <chrono>
+#include <inttypes.h>
 #include <dlfcn.h>
 #include <uv.h>
 
