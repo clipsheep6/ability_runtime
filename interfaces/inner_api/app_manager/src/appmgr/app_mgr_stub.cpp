@@ -53,6 +53,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL)] =
         &AppMgrStub::HandleNotifyMemoryLevel;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS)] =
+        &AppMgrStub::HandleDumpHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -271,6 +273,22 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t level = data.ReadInt32();
     auto result = NotifyMemoryLevel(level);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::vector<int32_t> mallinfo;
+    bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
+    if (!intVectorReadSuccess) {
+        HILOG_ERROR("app_mgr_stub: failed to read Int32Vector for mallinfo");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = DumpHeapMemory(mallinfo);
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }

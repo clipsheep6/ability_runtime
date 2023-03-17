@@ -873,6 +873,20 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     return appRunningManager_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrServiceInner::DumpHeapMemory(std::vector<int32_t> &mallinfo)
+{
+    HILOG_INFO("AppMgrServiceInner DumpHeapMemory start");
+    if (mallinfo.empty()) {
+        HILOG_ERROR("mallinfo's pid nullptr or empty!");
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+    return appRunningManager_->DumpHeapMemory(mallinfo);
+}
+
 void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
     std::vector<RunningProcessInfo> &info)
 {
