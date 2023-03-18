@@ -579,43 +579,16 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t pid = mallinfo.front();
-    HILOG_ERROR("DumpHeapMemory is called.");
-    HILOG_ERROR("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
-    for (const auto &item : appRunningRecordMap_) {
-        const auto &appRecord = item.second;
-        HILOG_ERROR("dump app [%{public}s] - [%{public}i] - [%{public}i] - [%{public}i] - [%{public}s]", 
-            appRecord->GetName().c_str(), appRecord->GetCallerPid(), appRecord->GetUid(), appRecord->GetRecordId(), 
-            appRecord->GetBundleName().c_str());
-        HILOG_ERROR("renderRecord == nullptr: %{public}d", appRecord->GetRenderRecord() == nullptr);
-        auto priorityObject = appRecord->GetPriorityObject();
-        if (priorityObject != nullptr) {
-            auto pid = priorityObject->GetPid();
-            HILOG_ERROR("pid: %{public}d", pid);
-        }
-        // if (appRecord == nullptr) {
-        //     continue;
-        // }
-        // auto renderRecord = appRecord->GetRenderRecord();
-        // if (renderRecord == nullptr) {
-        //     continue;
-        // }
-        // auto everyPid = renderRecord->GetPid();
-        // HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
-        // if (pid != everyPid) {
-        //     continue;
-        // } else {
-        //     appRecord->ScheduleHeapMemory(mallinfo);
-        //     return ERR_OK;
-        // }
-    }
-
-    const pid_t pid_p = (pid_t) pid;
-    auto appRecord = GetAppRunningRecordByRenderPid(pid_p);
-    if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr.");
+    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
         return ERR_OK;
     }
-    appRecord->ScheduleHeapMemory(mallinfo);
+    iter.second->ScheduleHeapMemory(mallinfo);
     return ERR_OK;
 }
 
