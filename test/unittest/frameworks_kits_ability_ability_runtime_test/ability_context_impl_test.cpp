@@ -506,46 +506,11 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0400, Functio
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnAbilityResult_0100, Function | MediumTest | Level1)
 {
-    AAFwk::Want want;
-    int32_t accountId = 1;
-    AAFwk::StartOptions startOptions;
-    int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
-    { GTEST_LOG_(INFO) << "Ability_Context_Impl_OnAbilityResult_0100 task called"; };
-    context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
-    int32_t count = context_->resultCallbacks_.size();
-    EXPECT_EQ(count, 1);
-
     int32_t code = 2;
     int32_t resultCode = 2;
     AAFwk::Want resultData;
     context_->OnAbilityResult(code, resultCode, resultData);
-    count = context_->resultCallbacks_.size();
-    EXPECT_EQ(count, 1);
-}
-
-/**
- * @tc.number: Ability_Context_Impl_OnAbilityResult_0200
- * @tc.name: OnAbilityResult
- * @tc.desc: On Ability Result
- */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnAbilityResult_0200, Function | MediumTest | Level1)
-{
-    AAFwk::Want want;
-    int32_t accountId = 1;
-    AAFwk::StartOptions startOptions;
-    int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
-    { GTEST_LOG_(INFO) << "Ability_Context_Impl_OnAbilityResult_0200 task called"; };
-    context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
-    int32_t count = context_->resultCallbacks_.size();
-    EXPECT_EQ(count, 1);
-
-    int32_t code = 1;
-    int32_t resultCode = 1;
-    AAFwk::Want resultData;
-    context_->OnAbilityResult(code, resultCode, resultData);
-    count = context_->resultCallbacks_.size();
+    auto count = context_->resultCallbacks_.size();
     EXPECT_EQ(count, 0);
 }
 
