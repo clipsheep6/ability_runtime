@@ -632,6 +632,7 @@ ohos_unittest("ability_thread_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -765,6 +766,7 @@ ohos_unittest("extension_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -1221,6 +1223,7 @@ ohos_unittest("extension_impl_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:extensionkit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -1817,6 +1820,7 @@ ohos_unittest("ability_loader_test") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:extensionkit_native",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hitrace_native:hitrace_meter",
