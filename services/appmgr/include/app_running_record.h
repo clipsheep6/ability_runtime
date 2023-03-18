@@ -380,7 +380,7 @@ public:
     void ScheduleMemoryLevel(int32_t level);
 
     /**
-     * ScheduleHeapMemory, get the application's memory info.
+     * ScheduleHeapMemory, Get the application's memory info.
      *
      * @return
      */
