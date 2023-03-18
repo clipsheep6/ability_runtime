@@ -583,11 +583,11 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
     for (const auto &item : appRunningRecordMap_) {
         auto renderRecord = item.second->GetRenderRecord();
         auto everyPid = renderRecord->GetPid();
-        HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
+        HILOG_ERROR("dump app [%{public}s] - [%{public}i]", item.second->GetName().c_str(), everyPid);
         if (pid != everyPid) {
             continue;
         } else {
-            appRecord->ScheduleHeapMemory(mallinfo);
+            item.second->ScheduleHeapMemory(mallinfo);
             break;
         }
     }
