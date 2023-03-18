@@ -539,11 +539,11 @@ void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
 void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
 {
     HILOG_ERROR("AppRunningRecord ScheduleHeapMemory is called.");
-    if (!appLifeCycleDeal_) {
-        HILOG_INFO("appLifeCycleDeal_ is nullptr, make_shared to it.");
-        appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleHeapMemory(mallinfo);
+    } else {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr");
     }
-    appLifeCycleDeal_->ScheduleHeapMemory(mallinfo);
 }
 
 void AppRunningRecord::LowMemoryWarning()
