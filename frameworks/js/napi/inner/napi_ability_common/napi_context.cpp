@@ -2732,7 +2732,7 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisplayOrientation", NAPI_GetDisplayOrientation),
         DECLARE_NAPI_FUNCTION("getExternalCacheDir", NAPI_GetExternalCacheDir),
     };
-
+    napi_value constructor;
     NAPI_CALL(env,
         napi_define_class(env,
             "context",
@@ -2741,8 +2741,8 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
             nullptr,
             sizeof(properties) / sizeof(*properties),
             properties,
-            GetGlobalClassContext()));
-
+            &constructor));
+    NAPI_CALL(env, SetGlobalClassContext(env, constructor));
     return exports;
 }
 
