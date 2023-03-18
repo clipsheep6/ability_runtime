@@ -587,6 +587,11 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
             appRecord->GetName().c_str(), appRecord->GetCallerPid(), appRecord->GetUid(), appRecord->GetRecordId(), 
             appRecord->GetBundleName().c_str());
         HILOG_ERROR("renderRecord == nullptr: %{public}d", appRecord->GetRenderRecord() == nullptr);
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject != nullptr) {
+            auto pid = priorityObject->GetPid();
+            HILOG_ERROR("pid: %{public}d", pid);
+        }
         // if (appRecord == nullptr) {
         //     continue;
         // }
