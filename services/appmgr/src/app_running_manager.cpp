@@ -587,6 +587,9 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
             continue;
         }
         auto renderRecord = appRecord->GetRenderRecord();
+        if (renderRecord == nullptr) {
+            continue;
+        }
         auto everyPid = renderRecord->GetPid();
         HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
         if (pid != everyPid) {
