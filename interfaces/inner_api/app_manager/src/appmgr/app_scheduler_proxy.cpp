@@ -128,6 +128,7 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
 
 void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
 {
+    HILOG_ERROR("AppSchedulerProxy ScheduleHeapMemory.");
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;

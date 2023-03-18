@@ -115,7 +115,7 @@ void AppLifeCycleDeal::ScheduleMemoryLevel(int32_t Level)
 
 void AppLifeCycleDeal::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
 {
-    HILOG_DEBUG("call %{public}s", __func__);
+    HILOG_ERROR("AppLifeCycleDeal ScheduleHeapMemory is called.");
     if (!appThread_) {
         HILOG_ERROR("appThread_ is nullptr");
         return;

@@ -133,6 +133,7 @@ int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, Message
 
 int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
+    HILOG_ERROR("AppSchedulerHost HandleScheduleHeapMemory.");
     std::vector<int32_t> mallinfo;
     bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
     if (!intVectorReadSuccess) {

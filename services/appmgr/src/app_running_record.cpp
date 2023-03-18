@@ -541,6 +541,8 @@ void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
     HILOG_ERROR("AppRunningRecord ScheduleHeapMemory is called.");
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleHeapMemory(mallinfo);
+    } else {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr");
     }
 }
 
