@@ -581,26 +581,31 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
     int32_t pid = mallinfo.front();
     HILOG_ERROR("DumpHeapMemory is called.");
     HILOG_ERROR("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        HILOG_ERROR("dump app [%{public}s] - [%{public}i] - [%{public}i] - [%{public}i] - [%{public}s]", 
+            appRecord->GetName().c_str(), appRecord->GetCallerPid(), appRecord->GetUid(), appRecord->GetRecordId(), 
+            appRecord->GetBundleName().c_str());
+        HILOG_ERROR("renderRecord == nullptr: %d\n", appRecord->GetRenderRecord() == nullptr);
+        // if (appRecord == nullptr) {
+        //     continue;
+        // }
+        // auto renderRecord = appRecord->GetRenderRecord();
+        // if (renderRecord == nullptr) {
+        //     continue;
+        // }
+        // auto everyPid = renderRecord->GetPid();
+        // HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
+        // if (pid != everyPid) {
+        //     continue;
+        // } else {
+        //     appRecord->ScheduleHeapMemory(mallinfo);
+        //     return ERR_OK;
+        // }
+    }
+
     const pid_t pid_p = (pid_t) pid;
     auto appRecord = GetAppRunningRecordByRenderPid(pid_p);
-    // for (const auto &item : appRunningRecordMap_) {
-    //     const auto &appRecord = item.second;
-    //     if (appRecord == nullptr) {
-    //         continue;
-    //     }
-    //     auto renderRecord = appRecord->GetRenderRecord();
-    //     if (renderRecord == nullptr) {
-    //         continue;
-    //     }
-    //     auto everyPid = renderRecord->GetPid();
-    //     HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
-    //     if (pid != everyPid) {
-    //         continue;
-    //     } else {
-    //         appRecord->ScheduleHeapMemory(mallinfo);
-    //         return ERR_OK;
-    //     }
-    // }
     if (appRecord == nullptr) {
         HILOG_ERROR("appRecord is nullptr.");
         return ERR_OK;
