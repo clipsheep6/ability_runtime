@@ -586,7 +586,7 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
         HILOG_ERROR("dump app [%{public}s] - [%{public}i] - [%{public}i] - [%{public}i] - [%{public}s]", 
             appRecord->GetName().c_str(), appRecord->GetCallerPid(), appRecord->GetUid(), appRecord->GetRecordId(), 
             appRecord->GetBundleName().c_str());
-        HILOG_ERROR("renderRecord == nullptr: %d\n", appRecord->GetRenderRecord() == nullptr);
+        HILOG_ERROR("renderRecord == nullptr: %{public}d", appRecord->GetRenderRecord() == nullptr);
         // if (appRecord == nullptr) {
         //     continue;
         // }
