@@ -577,11 +577,15 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 
 int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
 {
+    std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t pid = mallinfo.front();
     HILOG_ERROR("DumpHeapMemory is called.");
     HILOG_ERROR("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
         auto renderRecord = appRecord->GetRenderRecord();
         auto everyPid = renderRecord->GetPid();
         HILOG_ERROR("dump app [%{public}s] - [%{public}i]", appRecord->GetName().c_str(), everyPid);
@@ -589,7 +593,7 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
             continue;
         } else {
             appRecord->ScheduleHeapMemory(mallinfo);
-            break;
+            return ERR_OK;
         }
     }
     return ERR_OK;
