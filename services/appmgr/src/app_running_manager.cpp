@@ -588,7 +588,7 @@ int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &mallinfo)
         HILOG_ERROR("No matching application was found.");
         return ERR_OK;
     }
-    iter.second->ScheduleHeapMemory(mallinfo);
+    iter->ScheduleHeapMemory(mallinfo);
     return ERR_OK;
 }
 
