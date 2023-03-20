@@ -31,8 +31,6 @@ using Want = OHOS::AAFwk::Want;
 
 class MockEcologicalRuleMgrService : public OHOS::IRemoteStub<IEcologicalRuleManager> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"IEcologicalRuleManagerMock");
-
     MockEcologicalRuleMgrService()
     {}
 
@@ -54,7 +52,6 @@ public:
     virtual int32_t QueryStartExperience(const Want &want,
         const ErmsParams::CallerInfo &callerInfo, ErmsParams::ExperienceRule &rule)
     {
-        GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::QueryStartExperience";
         std::string abilityName = want.GetElement().GetAbilityName();
         if (abilityName == "com.test.pass") {
             GTEST_LOG_(INFO) << "MockEcologicalRuleMgrService::pass";
@@ -92,5 +89,4 @@ public:
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-
 #endif // OHOS_FORM_FWK_MOCK_ECOLOGICAL_RULE_MANAGER_H

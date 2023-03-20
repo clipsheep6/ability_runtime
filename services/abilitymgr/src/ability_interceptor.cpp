@@ -194,9 +194,10 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
 
 bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule)
 {
-    auto erms = AbilityUtil::GetEcologicalRuleMgr();
+    HILOG_INFO("Enter Erms CheckRule.");
+    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
     if (!erms) {
-        HILOG_ERROR("GetEcologicalRuleMgr failed.");
+        HILOG_ERROR("CheckEcologicalRuleMgr failed.");
         return false;
     }
     int ret = IN_PROCESS_CALL(erms->QueryStartExperience(want, callerInfo, rule));
