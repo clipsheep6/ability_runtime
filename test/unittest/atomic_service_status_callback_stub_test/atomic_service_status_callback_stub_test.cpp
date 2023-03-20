@@ -168,5 +168,52 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
         IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/**
+ * @tc.name: AtomicServiceStatusCallbackStub_OnRemoveTimeoutTaskInner_001
+ * @tc.desc: OnRemoveTimeoutTaskInner
+ * @tc.type: FUNC
+ * @tc.require: issueI6F3F6
+ */
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoveTimeoutTaskInner_001, TestSize.Level1)
+{
+    sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
+        new MockAtomicServiceStatusCallbackStub());
+    
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    data.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
+    data.WriteParcelable(nullptr);
+    EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoveTimeoutTask(_)).Times(0);
+    int res = mockAtomicServiceStatusCallbackStub->OnRemoteRequest(
+        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOVE_TIMEOUT_TASK, data, reply, option);
+    EXPECT_NE(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AtomicServiceStatusCallbackStub_OnRemoveTimeoutTaskInner_002
+ * @tc.desc: OnRemoveTimeoutTaskInner
+ * @tc.type: FUNC
+ * @tc.require: issueI6F3F6
+ */
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoveTimeoutTaskInner_002, TestSize.Level1)
+{
+    sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
+        new MockAtomicServiceStatusCallbackStub());
+    
+    Want want;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    data.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
+    data.WriteParcelable(&want);
+    EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoveTimeoutTask(_)).Times(1);
+    int res = mockAtomicServiceStatusCallbackStub->OnRemoteRequest(
+        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOVE_TIMEOUT_TASK, data, reply, option);
+    EXPECT_EQ(res, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

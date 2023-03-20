@@ -60,6 +60,8 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
     sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     int resultCode = 0;
     Want want;
+    AppExecFwk::ElementName element("", "com.test.demo", "MainAbility");
+    want.SetElement(element);
     int32_t userId = 0;
 
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnInstallFinished(_, _, _))
@@ -84,6 +86,8 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
     sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     int resultCode = 0;
     Want want;
+    AppExecFwk::ElementName element("", "com.test.demo", "MainAbility");
+    want.SetElement(element);
     int32_t userId = 0;
 
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoteInstallFinished(_, _, _))
@@ -107,6 +111,28 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
         new MockAtomicServiceStatusCallbackStub());
     sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     EXPECT_NE(callback, nullptr);
+}
+
+/**
+ * @tc.name: AtomicServiceStatusCallbackProxy_IPC_003
+ * @tc.desc: OnRemoveTimeoutTask
+ * @tc.type: FUNC
+ * @tc.require: issueI6F3F6
+ */
+HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_IPC_004, TestSize.Level1)
+{
+    sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
+        new MockAtomicServiceStatusCallbackStub());
+    sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
+    Want want;
+    AppExecFwk::ElementName element("", "com.test.demo", "MainAbility");
+    want.SetElement(element);
+
+    EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoveTimeoutTask(_))
+        .Times(1)
+        .WillOnce(InvokeWithoutArgs(mockAtomicServiceStatusCallbackStub.GetRefPtr(), &MockAtomicServiceStatusCallbackStub::PostVoid));
+    callback->OnRemoveTimeoutTask(want);
+    mockAtomicServiceStatusCallbackStub->Wait();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
