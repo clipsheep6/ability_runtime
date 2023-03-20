@@ -1661,7 +1661,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
 }
 
-const std::list<const std::shared_ptr<AppTaskInfo>> &AppMgrServiceInner::GetRecentAppList() const
+const std::list<std::shared_ptr<AppTaskInfo>> &AppMgrServiceInner::GetRecentAppList() const
 {
     return appProcessManager_->GetRecentAppList();
 }

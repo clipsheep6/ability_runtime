@@ -409,7 +409,7 @@ public:
      *
      * @return a list of recent applications.
      */
-    const std::list<const std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
+    const std::list<std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
 
     /**
      * GetRecentAppList, Remove the corresponding latest application list data by applying the name.
