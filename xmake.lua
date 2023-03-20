@@ -6,6 +6,7 @@ target("ability_runtime")
     add_defines("DEBUG_REFBASE", "INCLUDE_SELF_DEFINE")
     add_includedirs("services/abilitymgr/include", "services/common/include", "services/appmgr/include",
         "services/dataobsmgr/include")
+    add_includedirs("frameworks/js/napi/inner/napi_common", "frameworks/js/napi/inner/napi_ability_common")
     add_includedirs("d:/repo", "interfaces")
     add_includedirs("interfaces/inner_api/app_manager/include", "interfaces/inner_api/app_manager/include/appmgr", 
         "interfaces/inner_api/ability_manager/include", "interfaces/inner_api/connectionobs_manager/include",
@@ -13,15 +14,19 @@ target("ability_runtime")
         "interfaces/inner_api/runtime/include", "interfaces/inner_api/deps_wrapper/include",
         "interfaces/inner_api/uri_permission/include", "interfaces/inner_api/wantagent/include",
         "interfaces/inner_api/dataobs_manager/include",
-        "interfaces/kits/native/ability/ability_runtime", "interfaces/kits/native/ability/native",
+        "interfaces/kits/native/appkit/ability_runtime",
+        "interfaces/kits/native/appkit/ability_runtime/context",
+        "interfaces/kits/native/appkit/app",
+        "interfaces/kits/native/ability/ability_runtime",
+        "interfaces/kits/native/ability/native",
         "interfaces/kits/native/ability/native/distributed_ability_runtime",
-        "interfaces/kits/native/appkit/ability_runtime", "interfaces/kits/native/appkit/ability_runtime/context",
-        "interfaces/kits/native/appkit/app", "interfaces/kits/native/ability/native/continuation/kits",
-        "interfaces/kits/native/ability/native/continuation/distributed", 
+        "interfaces/kits/native/ability/native/continuation/kits",
+        "interfaces/kits/native/ability/native/continuation/distributed",
         "interfaces/kits/native/ability/native/continuation/remote_register_service",
-        "interfaces/kits/native/ability/native/ability_business_error", "frameworks/js/napi/inner/napi_common",
+        "interfaces/kits/native/ability/native/ability_business_error",
+        "interfaces/kits/native/ability/native/dialog_request_callback",
         "interfaces/kits/native/ability/native/recovery", "interfaces/kits/native/appkit/ability_delegator",
-        "tools/aa/include", "tools/fm/include", "frameworks/js/napi/inner/napi_ability_common")
+        "tools/aa/include", "tools/fm/include")
     add_includedirs("../communication_ipc/interfaces/innerkits/ipc_core/include", "../communication_ipc/interfaces/innerkits/ipc_napi_common/include")
     add_includedirs("../commonlibrary_c_utils/base/include")
     add_includedirs("D:/cache/include")

@@ -34,7 +34,7 @@ enum class AppProcessState {
 };
 
 enum class WeightReasonCode {
-    REASON_UNKNOWN = 0,
+    // REASON_UNKNOWN = 0,
     WEIGHT_FOREGROUND = 100,
     WEIGHT_FOREGROUND_SERVICE = 125,
     WEIGHT_VISIBLE = 200,
