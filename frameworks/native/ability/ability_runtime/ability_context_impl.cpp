@@ -283,7 +283,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
 }
 
 void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want& resultData)
-{   
+{
     HILOG_DEBUG("%{public}s. Start calling OnAbilityResult.", __func__);
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {

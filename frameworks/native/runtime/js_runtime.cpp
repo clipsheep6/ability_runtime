@@ -301,14 +301,14 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
-    if(!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
         HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
         return false;
     }
 
     std::string baseFile;
     std::vector<uint8_t> baseBuffer;
-    if(!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
         HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
         return false;
     }
@@ -320,9 +320,9 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     }
 
     HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
-            patchFile.c_str(), resolvedHapPath.c_str());
+        patchFile.c_str(), resolvedHapPath.c_str());
     auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
-                                        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
     if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
         HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
         return false;
@@ -917,7 +917,7 @@ panda::ecmascript::EcmaVM* JsRuntime::GetEcmaVm() const
 
 bool JsRuntime::IsUseAbilityRuntime(const Options& options) const
 {
-    return (options.isStageModel) || ((!options.isStageModel) && (options.isTestFramework));
+    return (options.isStageModel) || (options.isTestFramework);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
