@@ -20,27 +20,11 @@ ohos_unittest("AppDeathRecipientTest") {
   module_out_path = module_output_path
   cflags_cc = []
   sources = [
-    "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_lifecycle_deal.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_process_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_running_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
-    "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/src/window_focus_changed_listener.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "ams_app_death_recipient_test.cpp",
   ]
 
   include_dirs = []
-
-  sources += [ "ams_app_death_recipient_test.cpp" ]
 
   configs = [ "${ability_runtime_test_path}/unittest:appmgr_test_config" ]
   cflags = []
@@ -50,6 +34,7 @@ ohos_unittest("AppDeathRecipientTest") {
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",

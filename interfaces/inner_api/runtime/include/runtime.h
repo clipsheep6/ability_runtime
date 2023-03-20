@@ -52,6 +52,7 @@ public:
         bool isBundle = true;
         bool isDebugVersion = false;
         bool isStageModel = true;
+        bool isTestFramework = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;

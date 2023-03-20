@@ -38,12 +38,16 @@
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
 #include "js_console_log.h"
+#include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
+#include "js_utils.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "ohos_js_env_logger.h"
+#include "ohos_js_environment_impl.h"
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
@@ -83,342 +87,6 @@ static auto PermissionCheckFunc = []() {
         return false;
     }
 };
-
-class ArkJsRuntime : public JsRuntime {
-public:
-    ArkJsRuntime()
-    {
-        HILOG_INFO("ArkJsRuntime::ArkJsRuntime call constructor.");
-        isArkEngine_ = true;
-    }
-
-    ~ArkJsRuntime() override
-    {
-        HILOG_INFO("ArkJsRuntime::ArkJsRuntime call destructor.");
-        Deinitialize();
-
-        if (vm_ != nullptr) {
-            if (debugMode_) {
-                ConnectServerManager::Get().RemoveInstance(instanceId_);
-                panda::JSNApi::StopDebugger(vm_);
-            }
-
-            panda::JSNApi::DestroyJSVM(vm_);
-            vm_ = nullptr;
-        }
-    }
-
-    void StartDebugMode(bool needBreakPoint) override
-    {
-        if (vm_ == nullptr) {
-            HILOG_ERROR("Virtual machine does not exist");
-            return;
-        }
-
-        if (debugMode_) {
-            HILOG_INFO("Already in debug mode");
-            return;
-        }
-
-        // Set instance id to tid after the first instance.
-        if (ArkJsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-            instanceId_ = static_cast<uint32_t>(gettid());
-        }
-
-        HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-
-        HdcRegister::Get().StartHdcRegister(bundleName_);
-        ConnectServerManager::Get().StartConnectServer(bundleName_);
-        ConnectServerManager::Get().AddInstance(instanceId_);
-        StartDebuggerInWorkerModule();
-
-        auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
-            eventHandler->PostTask(task);
-        };
-        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId_, debuggerPostTask);
-
-        debugMode_ = true;
-    }
-
-    bool RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk) override
-    {
-        std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
-        std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
-        if (hapPath.empty()) {
-            if (useCommonChunk) {
-                (void)nativeEngine_->RunScriptPath(commonsPath.c_str());
-                (void)nativeEngine_->RunScriptPath(vendorsPath.c_str());
-            }
-            return nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
-        }
-
-        bool newCreate = false;
-        std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
-        if (!extractor) {
-            HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
-            return false;
-        }
-        if (newCreate) {
-            ExtractorUtil::AddExtractor(loadPath, extractor);
-            extractor->SetRuntimeFlag(true);
-            panda::JSNApi::LoadAotFile(vm_, hapPath);
-            auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
-            if (resourceManager) {
-                resourceManager->AddResource(loadPath.c_str());
-            }
-        }
-
-        auto func = [&](std::string modulePath, const std::string abcPath) {
-            std::ostringstream outStream;
-            if (!extractor->GetFileBuffer(modulePath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
-                return false;
-            }
-
-            const auto& outStr = outStream.str();
-            std::vector<uint8_t> buffer;
-            buffer.assign(outStr.begin(), outStr.end());
-
-            return nativeEngine_->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
-        };
-
-        if (useCommonChunk) {
-            (void)func(commonsPath, commonsPath);
-            (void)func(vendorsPath, vendorsPath);
-        }
-
-        std::string path = srcPath;
-        if (!isBundle_) {
-            if (!vm_ || moduleName_.empty()) {
-                HILOG_ERROR("vm is nullptr or moduleName is hole");
-                return false;
-            }
-            path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
-            panda::JSNApi::SetAssetPath(vm_, path);
-            panda::JSNApi::SetModuleName(vm_, moduleName_);
-        }
-        return func(path, srcPath);
-    }
-
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
-    {
-        if (!RunScript(path, hapPath, false)) {
-            HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
-            return nullptr;
-        }
-
-        panda::Local<panda::ObjectRef> exportObj = panda::JSNApi::GetExportObject(vm_, path, "default");
-        if (exportObj->IsNull()) {
-            HILOG_ERROR("Get export object failed");
-            return nullptr;
-        }
-
-        return ArkNativeEngine::ArkValueToNativeValue(
-            static_cast<ArkNativeEngine*>(nativeEngine_.get()), exportObj);
-    }
-
-    bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
-    {
-        Extractor extractor(filePath);
-        if (!extractor.Init()) {
-            HILOG_ERROR("GetFileBuffer, Extractor of %{private}s init failed.", filePath.c_str());
-            return false;
-        }
-
-        std::vector<std::string> fileNames;
-        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
-        if (fileNames.empty()) {
-            HILOG_WARN("GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
-            return true;
-        }
-
-        std::string fileName = fileNames.front();
-        fileFullName = filePath + "/" + fileName;
-        std::ostringstream outStream;
-        if (!extractor.ExtractByName(fileName, outStream)) {
-            HILOG_ERROR("GetFileBuffer, Extract %{public}s failed.", fileFullName.c_str());
-            return false;
-        }
-
-        const auto &outStr = outStream.str();
-        buffer.assign(outStr.begin(), outStr.end());
-        return true;
-    }
-
-    bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
-    {
-        HILOG_DEBUG("LoadRepairPatch function called.");
-        if (vm_ == nullptr) {
-            HILOG_ERROR("LoadRepairPatch, vm is nullptr.");
-            return false;
-        }
-
-        std::string patchFile;
-        std::vector<uint8_t> patchBuffer;
-        if(!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
-            HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
-            return false;
-        }
-
-        std::string baseFile;
-        std::vector<uint8_t> baseBuffer;
-        if(!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
-            HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
-            return false;
-        }
-
-        std::string resolvedHapPath;
-        auto position = hapPath.find(".hap");
-        if (position != std::string::npos) {
-            resolvedHapPath = hapPath.substr(0, position) + MERGE_ABC_PATH;
-        }
-
-        HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
-                patchFile.c_str(), resolvedHapPath.c_str());
-        auto ret = panda::JSNApi::LoadPatch(vm_, patchFile, patchBuffer.data(), patchBuffer.size(),
-                                            resolvedHapPath, baseBuffer.data(), baseBuffer.size());
-        if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
-            HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
-            return false;
-        }
-
-        HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
-        return true;
-    }
-
-    bool UnLoadRepairPatch(const std::string& hqfFile) override
-    {
-        HILOG_DEBUG("UnLoadRepairPatch function called.");
-        if (vm_ == nullptr) {
-            HILOG_ERROR("UnLoadRepairPatch vm is nullptr.");
-            return false;
-        }
-
-        Extractor extractor(hqfFile);
-        if (!extractor.Init()) {
-            HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
-            return false;
-        }
-
-        std::vector<std::string> fileNames;
-        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
-        if (fileNames.empty()) {
-            HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
-            return true;
-        }
-
-        for (const auto &fileName : fileNames) {
-            std::string patchFile = hqfFile + "/" + fileName;
-            HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
-            auto ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
-            if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
-                HILOG_WARN("UnLoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
-            }
-            HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
-        }
-
-        return true;
-    }
-
-    bool NotifyHotReloadPage() override
-    {
-        HILOG_DEBUG("function called.");
-        Ace::HotReloader::HotReload();
-        return true;
-    }
-
-private:
-    static int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
-    {
-        HILOG_INFO("ArkLog: %{public}s", message);
-        return 0;
-    }
-
-    void FinishPreload() override
-    {
-        panda::JSNApi::PreFork(vm_);
-    }
-
-    bool Initialize(const Runtime::Options& options) override
-    {
-        if (preloaded_) {
-            panda::RuntimeOption postOption;
-            postOption.SetBundleName(options.bundleName);
-            if (!options.arkNativeFilePath.empty()) {
-                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
-                postOption.SetAnDir(sandBoxAnFilePath);
-            }
-            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
-            postOption.SetEnableProfile(profileEnabled);
-            panda::JSNApi::PostFork(vm_, postOption);
-            nativeEngine_->ReinitUVLoop();
-            panda::JSNApi::SetLoop(vm_, nativeEngine_->GetUVLoop());
-        } else {
-            panda::RuntimeOption pandaOption;
-            int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
-            std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
-            size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
-            size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
-            pandaOption.SetArkProperties(arkProperties);
-            pandaOption.SetArkBundleName(bundleName);
-            pandaOption.SetGcThreadNum(gcThreadNum);
-            pandaOption.SetLongPauseTime(longPauseTime);
-            HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
-	            arkProperties, bundleName.c_str());
-            pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
-            pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
-            pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
-            pandaOption.SetLogBufPrint(PrintVmLog);
-
-            bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
-            std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
-            pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
-            pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-            // aot related
-            bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
-            pandaOption.SetEnableAOT(aotEnabled);
-            pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
-            vm_ = panda::JSNApi::CreateJSVM(pandaOption);
-            if (vm_ == nullptr) {
-                return false;
-            }
-
-            nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
-        }
-
-        if (!options.preload) {
-            bundleName_ = options.bundleName;
-            if (!options.hapPath.empty()) {
-                bool newCreate = false;
-                std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
-                std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
-                if (!extractor) {
-                    HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", options.hapPath.c_str());
-                    return false;
-                }
-                if (newCreate) {
-                    ExtractorUtil::AddExtractor(loadPath, extractor);
-                    extractor->SetRuntimeFlag(true);
-                    panda::JSNApi::LoadAotFile(vm_, options.hapPath);
-                }
-            }
-        }
-        isBundle_ = options.isBundle;
-        panda::JSNApi::SetBundle(vm_, options.isBundle);
-        panda::JSNApi::SetBundleName(vm_, options.bundleName);
-        panda::JSNApi::SetHostResolveBufferTracker(vm_, JsModuleReader(options.bundleName));
-        return JsRuntime::Initialize(options);
-    }
-
-    std::string bundleName_;
-    panda::ecmascript::EcmaVM* vm_ = nullptr;
-    uint32_t instanceId_ = 0;
-
-    static std::atomic<bool> hasInstance;
-};
-
-std::atomic<bool> ArkJsRuntime::hasInstance(false);
 
 NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 {
@@ -520,27 +188,190 @@ private:
     int64_t lastTimeStamp_ = 0;
     bool haveTimerTask_ = false;
 };
+
+int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
+{
+    HILOG_INFO("ArkLog: %{public}s", message);
+    return 0;
+}
 } // namespace
 
-std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
+std::atomic<bool> JsRuntime::hasInstance(false);
+
+JsRuntime::JsRuntime()
+{
+    HILOG_DEBUG("JsRuntime costructor.");
+}
+
+JsRuntime::~JsRuntime()
+{
+    HILOG_DEBUG("JsRuntime destructor.");
+    Deinitialize();
+
+    auto vm = GetEcmaVm();
+    if (vm != nullptr) {
+        if (debugMode_) {
+            ConnectServerManager::Get().RemoveInstance(instanceId_);
+            panda::JSNApi::StopDebugger(vm);
+        }
+    }
+}
+
+std::unique_ptr<Runtime> JsRuntime::Create(const Options& options)
 {
     std::unique_ptr<JsRuntime> instance;
 
-    if (!options.preload) {
+    if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
         if (preloadedInstance && preloadedInstance->GetLanguage() == Runtime::Language::JS) {
             instance.reset(static_cast<JsRuntime*>(preloadedInstance.release()));
         } else {
-            instance = std::make_unique<ArkJsRuntime>();
+            instance = std::make_unique<JsRuntime>();
         }
     } else {
-        instance = std::make_unique<ArkJsRuntime>();
+        instance = std::make_unique<JsRuntime>();
     }
 
     if (!instance->Initialize(options)) {
         return std::unique_ptr<Runtime>();
     }
     return instance;
+}
+
+void JsRuntime::StartDebugMode(bool needBreakPoint)
+{
+    if (debugMode_) {
+        HILOG_INFO("Already in debug mode");
+        return;
+    }
+
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+
+    // Set instance id to tid after the first instance.
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    StartDebuggerInWorkerModule();
+
+    auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
+        eventHandler->PostTask(task);
+    };
+    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm, needBreakPoint, instanceId_, debuggerPostTask);
+
+    debugMode_ = true;
+}
+
+bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
+{
+    Extractor extractor(filePath);
+    if (!extractor.Init()) {
+        HILOG_ERROR("GetFileBuffer, Extractor of %{private}s init failed.", filePath.c_str());
+        return false;
+    }
+
+    std::vector<std::string> fileNames;
+    extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+    if (fileNames.empty()) {
+        HILOG_WARN("GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
+        return true;
+    }
+
+    std::string fileName = fileNames.front();
+    fileFullName = filePath + "/" + fileName;
+    std::ostringstream outStream;
+    if (!extractor.ExtractByName(fileName, outStream)) {
+        HILOG_ERROR("GetFileBuffer, Extract %{public}s failed.", fileFullName.c_str());
+        return false;
+    }
+
+    const auto &outStr = outStream.str();
+    buffer.assign(outStr.begin(), outStr.end());
+    return true;
+}
+
+bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath)
+{
+    HILOG_DEBUG("LoadRepairPatch function called.");
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, false);
+
+    std::string patchFile;
+    std::vector<uint8_t> patchBuffer;
+    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+        HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
+        return false;
+    }
+
+    std::string baseFile;
+    std::vector<uint8_t> baseBuffer;
+    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+        HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
+        return false;
+    }
+
+    std::string resolvedHapPath;
+    auto position = hapPath.find(".hap");
+    if (position != std::string::npos) {
+        resolvedHapPath = hapPath.substr(0, position) + MERGE_ABC_PATH;
+    }
+
+    HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+        patchFile.c_str(), resolvedHapPath.c_str());
+    auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
+        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+    if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+        HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+        return false;
+    }
+
+    HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
+    return true;
+}
+
+bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
+{
+    HILOG_DEBUG("UnLoadRepairPatch function called.");
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, false);
+
+    Extractor extractor(hqfFile);
+    if (!extractor.Init()) {
+        HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
+        return false;
+    }
+
+    std::vector<std::string> fileNames;
+    extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+    if (fileNames.empty()) {
+        HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
+        return true;
+    }
+
+    for (const auto &fileName : fileNames) {
+        std::string patchFile = hqfFile + "/" + fileName;
+        HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
+        auto ret = panda::JSNApi::UnloadPatch(vm, patchFile);
+        if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+            HILOG_WARN("UnLoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+        }
+        HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
+    }
+
+    return true;
+}
+
+bool JsRuntime::NotifyHotReloadPage()
+{
+    HILOG_DEBUG("function called.");
+    Ace::HotReloader::HotReload();
+    return true;
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
@@ -571,90 +402,213 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
 
+void JsRuntime::FinishPreload()
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    panda::JSNApi::PreFork(vm);
+}
+
 bool JsRuntime::Initialize(const Options& options)
 {
-    HandleScope handleScope(*this);
-
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
-    if (globalObj == nullptr) {
-        HILOG_ERROR("Failed to get global object");
-        return false;
-    }
-
     if (!preloaded_) {
-        InitConsoleLogModule(*nativeEngine_, *globalObj);
-        InitSyscapModule(*nativeEngine_, *globalObj);
-
-        // Simple hook function 'isSystemplugin'
-        const char *moduleName = "JsRuntime";
-        BindNativeFunction(*nativeEngine_, *globalObj, "isSystemplugin", moduleName,
-            [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
-                return engine->CreateUndefined();
-            });
-
-        methodRequireNapiRef_.reset(nativeEngine_->CreateReference(globalObj->GetProperty("requireNapi"), 1));
-        if (!methodRequireNapiRef_) {
-            HILOG_ERROR("Failed to create reference for global.requireNapi");
+        if (!CreateJsEnv(options)) {
+            HILOG_ERROR("Create js environment failed.");
             return false;
         }
-#ifdef SUPPORT_GRAPHICS
-        if (options.loadAce) {
-            // ArkTsCard start
-            if (options.isUnique) {
-                OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine_);
-            } else {
-                OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+    }
+
+    if (IsUseAbilityRuntime(options)) {
+        HandleScope handleScope(*this);
+        auto nativeEngine = GetNativeEnginePointer();
+        CHECK_POINTER_AND_RETURN(nativeEngine, false);
+
+        auto vm = GetEcmaVm();
+        CHECK_POINTER_AND_RETURN(vm, false);
+
+        if (preloaded_) {
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
             }
-            // ArkTsCard end
-        }
-#endif
-    }
-
-    if (!options.preload) {
-        // Create event handler for runtime
-        eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(options.eventRunner);
-
-        auto uvLoop = nativeEngine_->GetUVLoop();
-        auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-        if (fd < 0) {
-            HILOG_ERROR("Failed to get backend fd from uv loop");
-            return false;
+            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            postOption.SetEnableProfile(profileEnabled);
+            panda::JSNApi::PostFork(vm, postOption);
+            nativeEngine->ReinitUVLoop();
+            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
         }
 
-        // MUST run uv loop once before we listen its backend fd.
-        uv_run(uvLoop, UV_RUN_NOWAIT);
+        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+        CHECK_POINTER_AND_RETURN(globalObj, false);
 
-        uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-        eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
+        if (!preloaded_) {
+            InitConsoleLogModule(*nativeEngine, *globalObj);
+            InitSyscapModule(*nativeEngine, *globalObj);
 
-        codePath_ = options.codePath;
-    }
+            // Simple hook function 'isSystemplugin'
+            const char* moduleName = "JsRuntime";
+            BindNativeFunction(*nativeEngine, *globalObj, "isSystemplugin", moduleName,
+                [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
+                    return engine->CreateUndefined();
+                });
 
-    auto moduleManager = NativeModuleManager::GetInstance();
-    if (moduleManager != nullptr) {
-        for (const auto &appLibPath : options.appLibPaths) {
-            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
+            methodRequireNapiRef_.reset(nativeEngine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+            if (!methodRequireNapiRef_) {
+                HILOG_ERROR("Failed to create reference for global.requireNapi");
+                return false;
+            }
+
+            PreloadAce(options);
+            nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
+        }
+
+        if (!options.preload) {
+            isBundle_ = options.isBundle;
+            bundleName_ = options.bundleName;
+            codePath_ = options.codePath;
+
+            if (!options.hapPath.empty()) {
+                bool newCreate = false;
+                std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
+                std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+                if (!extractor) {
+                    HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", options.hapPath.c_str());
+                    return false;
+                }
+                if (newCreate) {
+                    ExtractorUtil::AddExtractor(loadPath, extractor);
+                    extractor->SetRuntimeFlag(true);
+                    panda::JSNApi::LoadAotFile(vm, options.hapPath);
+                }
+            }
+
+            panda::JSNApi::SetBundle(vm, options.isBundle);
+            panda::JSNApi::SetBundleName(vm, options.bundleName);
+            panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName));
+
+            if (!InitLoop(options.eventRunner)) {
+                HILOG_ERROR("Initialize loop failed.");
+                return false;
+            }
+
+            SetAppLibPath(options.appLibPaths);
+            InitSourceMap(options);
+
+            if (options.isUnique) {
+                HILOG_INFO("Not supported TimerModule when form render");
+            } else {
+                InitTimerModule(*nativeEngine, *globalObj);
+            }
+
+            InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
         }
     }
-    bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
-    if (!options.preload) {
-        if (options.isUnique) {
-            HILOG_INFO("Not supported TimerModule when form render");
-        } else {
-            InitTimerModule(*nativeEngine_, *globalObj);
-        }
-
-        InitWorkerModule(*nativeEngine_, codePath_, options.isDebugVersion, options.isBundle);
-    }
-
-    nativeEngine_->RegisterPermissionCheck(PermissionCheckFunc);
 
     preloaded_ = options.preload;
     return true;
 }
 
+bool JsRuntime::CreateJsEnv(const Options& options)
+{
+    panda::RuntimeOption pandaOption;
+    int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
+    std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
+    size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
+    size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
+    pandaOption.SetArkProperties(arkProperties);
+    pandaOption.SetArkBundleName(bundleName);
+    pandaOption.SetGcThreadNum(gcThreadNum);
+    pandaOption.SetLongPauseTime(longPauseTime);
+    HILOG_INFO("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
+        arkProperties, bundleName.c_str());
+    pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
+    pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
+    pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
+    pandaOption.SetLogBufPrint(PrintVmLog);
+
+    bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+    std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
+    pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
+    pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+
+    if (IsUseAbilityRuntime(options)) {
+        // aot related
+        bool aotEnabled = OHOS::system::GetBoolParameter("persist.ark.aot", true);
+        pandaOption.SetEnableAOT(aotEnabled);
+        pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
+    }
+
+    OHOSJsEnvLogger::RegisterJsEnvLogger();
+    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
+    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(jsEnvImpl);
+    if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
+        HILOG_ERROR("Initialize js environment failed.");
+        return false;
+    }
+
+    return true;
+}
+
+void JsRuntime::PreloadAce(const Options& options)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+#ifdef SUPPORT_GRAPHICS
+    if (options.loadAce) {
+        // ArkTsCard start
+        if (options.isUnique) {
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine);
+        } else {
+            OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
+        }
+        // ArkTsCard end
+    }
+#endif
+}
+
+bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, false);
+
+    // Create event handler for runtime
+    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+
+    auto uvLoop = nativeEngine->GetUVLoop();
+    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+    if (fd < 0) {
+        HILOG_ERROR("Failed to get backend fd from uv loop");
+        return false;
+    }
+
+    // MUST run uv loop once before we listen its backend fd.
+    uv_run(uvLoop, UV_RUN_NOWAIT);
+
+    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
+    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
+    return true;
+}
+
+void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths)
+{
+    auto moduleManager = NativeModuleManager::GetInstance();
+    if (moduleManager != nullptr) {
+        for (const auto &appLibPath : appLibPaths) {
+            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
+        }
+    }
+}
+
+void JsRuntime::InitSourceMap(const Options& options)
+{
+    bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
+}
+
 void JsRuntime::Deinitialize()
 {
+    HILOG_DEBUG("JsRuntime deinitialize.");
     for (auto it = modules_.begin(); it != modules_.end(); it = modules_.erase(it)) {
         delete it->second;
         it->second = nullptr;
@@ -662,24 +616,22 @@ void JsRuntime::Deinitialize()
 
     methodRequireNapiRef_.reset();
 
-    if (nativeEngine_ == nullptr) {
-        return;
-    }
-    auto uvLoop = nativeEngine_->GetUVLoop();
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    auto uvLoop = nativeEngine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
     RemoveTask(TIMER_TASK);
-
-    nativeEngine_->DeleteEngine();
-    nativeEngine_.reset();
 }
 
 NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
-    NativeValue* exports = nativeEngine_->CreateObject();
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+    NativeValue* exports = nativeEngine->CreateObject();
     globalObj->SetProperty("exports", exports);
 
     if (!RunScript(path, hapPath, useCommonChunk)) {
@@ -702,11 +654,34 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
     return exportObj;
 }
 
+NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string& hapPath)
+{
+    if (!RunScript(path, hapPath, false)) {
+        HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
+        return nullptr;
+    }
+
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, nullptr);
+    panda::Local<panda::ObjectRef> exportObj = panda::JSNApi::GetExportObject(vm, path, "default");
+    if (exportObj->IsNull()) {
+        HILOG_ERROR("Get export object failed");
+        return nullptr;
+    }
+
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
+    return ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine), exportObj);
+}
+
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
     const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, std::unique_ptr<NativeReference>());
+
     HandleScope handleScope(*this);
 
     std::string path = moduleName;
@@ -738,79 +713,103 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
             return std::unique_ptr<NativeReference>();
         }
 
-        modules_.emplace(modulePath, nativeEngine_->CreateReference(classValue, 1));
+        modules_.emplace(modulePath, nativeEngine->CreateReference(classValue, 1));
     }
 
-    NativeValue* instanceValue = nativeEngine_->CreateInstance(classValue, nullptr, 0);
+    NativeValue* instanceValue = nativeEngine->CreateInstance(classValue, nullptr, 0);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
-    return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
+    return std::unique_ptr<NativeReference>(nativeEngine->CreateReference(instanceValue, 1));
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
     HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, std::unique_ptr<NativeReference>());
 
     HandleScope handleScope(*this);
 
-    NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
+    NativeValue* className = nativeEngine->CreateString(moduleName.c_str(), moduleName.length());
     NativeValue* classValue =
-        nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-    NativeValue* instanceValue = nativeEngine_->CreateInstance(classValue, argv, argc);
+        nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    NativeValue* instanceValue = nativeEngine->CreateInstance(classValue, argv, argc);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
-    return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
+    return std::unique_ptr<NativeReference>(nativeEngine->CreateReference(instanceValue, 1));
 }
 
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
-    bool result = false;
-    if (!hapPath.empty()) {
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, false);
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, false);
+
+    std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
+    std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
+    if (hapPath.empty()) {
+        if (useCommonChunk) {
+            (void)nativeEngine->RunScriptPath(commonsPath.c_str());
+            (void)nativeEngine->RunScriptPath(vendorsPath.c_str());
+        }
+        return nativeEngine->RunScriptPath(srcPath.c_str()) != nullptr;
+    }
+
+    bool newCreate = false;
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+    if (!extractor) {
+        HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+        return false;
+    }
+    if (newCreate) {
+        ExtractorUtil::AddExtractor(loadPath, extractor);
+        extractor->SetRuntimeFlag(true);
+        panda::JSNApi::LoadAotFile(vm, hapPath);
+        auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
+        if (resourceManager) {
+            resourceManager->AddResource(loadPath.c_str());
+        }
+    }
+
+    auto func = [&](std::string modulePath, const std::string abcPath) {
         std::ostringstream outStream;
-        bool newCreate = false;
-        std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
-        if (!extractor) {
-            HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+        if (!extractor->GetFileBuffer(modulePath, outStream)) {
+            HILOG_ERROR("Get abc file failed");
             return false;
-        }
-        if (newCreate) {
-            extractor->SetRuntimeFlag(true);
-            ExtractorUtil::AddExtractor(loadPath, extractor);
-            auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
-            if (resourceManager) {
-                resourceManager->AddResource(loadPath.c_str());
-            }
-        }
-        if (isBundle_) {
-            if (!extractor->GetFileBuffer(srcPath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
-                return result;
-            }
-        } else {
-            std::string mergeAbcPath = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
-            if (!extractor->GetFileBuffer(mergeAbcPath, outStream)) {
-                HILOG_ERROR("Get Module abc file failed");
-                return result;
-            }
         }
 
         const auto& outStr = outStream.str();
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
 
-        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
-    } else {
-        result = nativeEngine_->RunScript(srcPath.c_str()) != nullptr;
+        return nativeEngine->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
+    };
+
+    if (useCommonChunk) {
+        (void)func(commonsPath, commonsPath);
+        (void)func(vendorsPath, vendorsPath);
     }
-    return result;
+
+    std::string path = srcPath;
+    if (!isBundle_) {
+        if (moduleName_.empty()) {
+            HILOG_ERROR("moduleName is hole");
+            return false;
+        }
+        path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+        panda::JSNApi::SetAssetPath(vm, path);
+        panda::JSNApi::SetModuleName(vm, moduleName_);
+    }
+    return func(path, srcPath);
 }
 
 bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hapPath)
@@ -850,13 +849,17 @@ void JsRuntime::RemoveTask(const std::string& name)
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 {
-    nativeEngine_->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
 }
 
 bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
 {
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, false);
     std::vector<JsFrameInfo> jsFrameInfo;
-    bool ret = nativeEngine_->BuildJsStackInfoList(tid, jsFrameInfo);
+    bool ret = nativeEngine->BuildJsStackInfoList(tid, jsFrameInfo);
     if (!ret) {
         return ret;
     }
@@ -873,29 +876,26 @@ bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFram
 
 void JsRuntime::NotifyApplicationState(bool isBackground)
 {
-    if (nativeEngine_ == nullptr) {
-        HILOG_INFO("NotifyApplicationState, nativeEngine_ is nullptr");
-        return;
-    }
-    nativeEngine_->NotifyApplicationState(isBackground);
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->NotifyApplicationState(isBackground);
     HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
 void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 {
     HandleScope handleScope(*this);
-
-    NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
-    nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    NativeValue* className = nativeEngine->CreateString(moduleName.c_str(), moduleName.length());
+    nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
 
 void JsRuntime::UpdateExtensionType(int32_t extensionType)
 {
-    if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, nativeEngine_ is nullptr");
-        return;
-    }
-    NativeModuleManager* moduleManager = nativeEngine_->GetModuleManager();
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    NativeModuleManager* moduleManager = nativeEngine->GetModuleManager();
     if (moduleManager == nullptr) {
         HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
         return;
@@ -903,13 +903,26 @@ void JsRuntime::UpdateExtensionType(int32_t extensionType)
     moduleManager->SetProcessExtensionType(extensionType);
 }
 
-void JsRuntime::AllowCrossThreadExecution() const
+NativeEngine& JsRuntime::GetNativeEngine() const
 {
-    if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("AllowCrossThreadExecution error, nativeEngine_ is nullptr");
-        return;
-    }
-    nativeEngine_->AllowCrossThreadExecution();
+    return *GetNativeEnginePointer();
+}
+
+NativeEngine* JsRuntime::GetNativeEnginePointer() const
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, nullptr);
+    return jsEnv_->GetNativeEngine();
+}
+
+panda::ecmascript::EcmaVM* JsRuntime::GetEcmaVm() const
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, nullptr);
+    return jsEnv_->GetVM();
+}
+
+bool JsRuntime::IsUseAbilityRuntime(const Options& options) const
+{
+    return (options.isStageModel) || (options.isTestFramework);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

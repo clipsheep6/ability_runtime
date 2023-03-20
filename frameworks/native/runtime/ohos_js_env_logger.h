@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,24 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
-#define OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
-
-#include <memory>
-
-#include "napi/native_api.h"
+#ifndef OHOS_ABILITY_RUNTIME_OHOS_JS_ENV_LOGGER_H
+#define OHOS_ABILITY_RUNTIME_OHOS_JS_ENV_LOGGER_H
 
 namespace OHOS {
-namespace AppExecFwk {
-class Ability;
-}
 namespace AbilityRuntime {
-napi_status IsStageContext(napi_env env, napi_value object, bool& stageMode);
-
-class Context;
-std::shared_ptr<Context> GetStageModeContext(napi_env env, napi_value object);
-
-AppExecFwk::Ability* GetCurrentAbility(napi_env env);
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
+class OHOSJsEnvLogger {
+public:
+    static void RegisterJsEnvLogger();
+};
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_OHOS_JS_ENV_LOGGER_H

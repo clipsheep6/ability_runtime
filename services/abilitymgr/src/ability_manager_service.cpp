@@ -105,7 +105,6 @@ const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.asso
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
-const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
 const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
 const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
@@ -114,7 +113,7 @@ const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceability
 const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_SERVICE_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER_TEST,
                                                                 BUNDLE_NAME_SERVICE_SERVER2_TEST };
-const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_DEVICE_TEST };
+const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 } // namespace
 
 using namespace std::chrono;
@@ -4552,6 +4551,35 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 HILOG_ERROR("AppRecovery BundleName not match, Not recovery ability!");
                 ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_BUNDLE_NAME_NOT_MATCH");
                 return;
+            } else if (want->GetElement().GetAbilityName().empty()) {
+                HILOG_DEBUG("AppRecovery recovery target ability is empty");
+                ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_TARGET_ABILITY_EMPTY");
+                return;
+            } else {
+                auto bms = GetBundleManager();
+                AppExecFwk::BundleInfo bundleInfo;
+                auto bundleName = want->GetElement().GetBundleName();
+                int32_t userId = GetUserId();
+                bool ret = IN_PROCESS_CALL(
+                    bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo,
+                    userId));
+                if (!ret) {
+                    HILOG_ERROR("AppRecovery Failed to get bundle info, not do recovery!");
+                    return;
+                }
+                bool isRestartPage = false;
+                auto abilityName = want->GetElement().GetAbilityName();
+                for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
+                    if ((abilityName.compare(it->name) == 0) && it->type == AppExecFwk::AbilityType::PAGE) {
+                        isRestartPage = true;
+                        break;
+                    }
+                }
+                if (!isRestartPage) {
+                    HILOG_INFO("AppRecovery the target ability type is not PAGE!");
+                    ReportAppRecoverResult(record->GetUid(), appInfo, abilityName, "FAIL_TARGET_ABILITY_NOT_PAGE");
+                    return;
+                }
             }
         }
 
@@ -5146,7 +5174,7 @@ int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, c
 #endif
 
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-    int32_t callerTokenId)
+    uint32_t callerTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -5155,7 +5183,7 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
-    int32_t tokenId;
+    uint32_t tokenId;
     if (isStartAsCaller) {
         tokenId = callerTokenId;
     } else {
@@ -5592,7 +5620,6 @@ int32_t AbilityManagerService::ShowPickerDialog(
     return IN_PROCESS_CALL(StartAbility(newWant, DEFAULT_INVAL_VALUE, userId));
 }
 
-
 bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
 {
@@ -5612,6 +5639,7 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     return false;
 }
 #endif
+
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
 {
     if (!IsUseNewStartUpRule(abilityRequest)) {
@@ -5676,8 +5704,7 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
         HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundle in white-list, allow associatedWakeUp.");
         verificationInfo.associatedWakeUp = true;
     } else {
-        verificationInfo.associatedWakeUp = abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ?
-                                            true : abilityRequest.appInfo.associatedWakeUp;
+        verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
     }
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {

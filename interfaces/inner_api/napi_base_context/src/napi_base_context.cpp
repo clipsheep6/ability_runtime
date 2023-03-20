@@ -25,12 +25,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-napi_value* GetFAModeContextClassObject()
-{
-    static thread_local napi_value contextClassObject = {0};
-    return &contextClassObject;
-}
-
 napi_status IsStageContext(napi_env env, napi_value object, bool& stageMode)
 {
     napi_value boolValue;

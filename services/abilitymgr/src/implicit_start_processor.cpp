@@ -254,7 +254,7 @@ sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
 bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
     std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos)
 {
-    auto erms = AbilityUtil::GetEcologicalRuleMgr();
+    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
     if (!erms) {
         HILOG_ERROR("get ecological rule mgr failed.");
         return false;

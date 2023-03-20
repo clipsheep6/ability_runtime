@@ -45,6 +45,22 @@ sptr<IRemoteObject> SaMgrClient::GetSystemAbility(const int32_t systemAbilityId)
     return saMgr_->GetSystemAbility(systemAbilityId);
 }
 
+sptr<IRemoteObject> SaMgrClient::CheckSystemAbility(const int32_t systemAbilityId)
+{
+    // use single instance of saMgr_
+    if (saMgr_ == nullptr) {
+        std::lock_guard<std::mutex> lock(saMutex_);
+        if (saMgr_ == nullptr) {
+            saMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (saMgr_ == nullptr) {
+                HILOG_ERROR("Fail to get registry.");
+                return nullptr;
+            }
+        }
+    }
+    return saMgr_->CheckSystemAbility(systemAbilityId);
+}
+
 void SaMgrClient::RegisterSystemAbility(
     const int32_t __attribute__((unused)) systemAbilityId, sptr<IRemoteObject> __attribute__((unused)) broker)
 {
