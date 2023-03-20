@@ -1092,6 +1092,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\n";
+            if (obj != nullptr && obj->HasProperty("code")) {
+                std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
+                summary += "Error code:" + errorCode + "\n";
+            }
             if (appThread->application_ == nullptr) {
                 HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
                 return;
