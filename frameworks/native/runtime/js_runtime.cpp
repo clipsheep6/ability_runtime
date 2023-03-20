@@ -415,17 +415,31 @@ bool JsRuntime::Initialize(const Options& options)
         }
     }
 
-    HandleScope handleScope(*this);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
-
-    auto vm = GetEcmaVm();
-    CHECK_POINTER_AND_RETURN(vm, false);
-
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
-    CHECK_POINTER_AND_RETURN(globalObj, false);
-
     if (IsUseAbilityRuntime(options)) {
+        HandleScope handleScope(*this);
+        auto nativeEngine = GetNativeEnginePointer();
+        CHECK_POINTER_AND_RETURN(nativeEngine, false);
+
+        auto vm = GetEcmaVm();
+        CHECK_POINTER_AND_RETURN(vm, false);
+
+        if (preloaded_) {
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
+            }
+            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            postOption.SetEnableProfile(profileEnabled);
+            panda::JSNApi::PostFork(vm, postOption);
+            nativeEngine->ReinitUVLoop();
+            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
+        }
+
+        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+        CHECK_POINTER_AND_RETURN(globalObj, false);
+
         if (!preloaded_) {
             InitConsoleLogModule(*nativeEngine, *globalObj);
             InitSyscapModule(*nativeEngine, *globalObj);
@@ -445,18 +459,6 @@ bool JsRuntime::Initialize(const Options& options)
 
             PreloadAce(options);
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
-        } else {
-            panda::RuntimeOption postOption;
-            postOption.SetBundleName(options.bundleName);
-            if (!options.arkNativeFilePath.empty()) {
-                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
-                postOption.SetAnDir(sandBoxAnFilePath);
-            }
-            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
-            postOption.SetEnableProfile(profileEnabled);
-            panda::JSNApi::PostFork(vm, postOption);
-            nativeEngine->ReinitUVLoop();
-            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
         }
 
         if (!options.preload) {
