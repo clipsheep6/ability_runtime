@@ -145,8 +145,10 @@ int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageP
     ScheduleHeapMemory(mallinfo);
     int i = 0;
     for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
+        mallinfo.push_back(*begin);
         HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
     }
+    reply.WriteInt32Vector(mallinfo);
     return NO_ERROR;
 }
 
