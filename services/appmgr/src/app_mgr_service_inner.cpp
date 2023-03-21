@@ -1429,8 +1429,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     {
         // Add TRACE
         HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
-        if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        int ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+        if (ret != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
         }
