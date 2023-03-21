@@ -144,10 +144,10 @@ public:
     /*
     * Get the application's memory info.
     *
-    * @param mallinfo, the mallinfo vector.
+    * @param pidInfo, contains the pid info and malloc info.
     * @return Returns ERR_OK on success, others on failure.
     */
-    int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
+    int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo);
 
     void HandleTerminateTimeOut(int64_t eventId);
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);

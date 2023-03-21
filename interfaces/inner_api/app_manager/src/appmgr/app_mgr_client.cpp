@@ -360,15 +360,14 @@ AppMgrResultCode AppMgrClient::NotifyMemoryLevel(MemoryLevel level)
     return AppMgrResultCode(service->NotifyMemoryLevel(level));
 }
 
-AppMgrResultCode AppMgrClient::DumpHeapMemory(std::vector<int32_t> &mallinfo)
+AppMgrResultCode AppMgrClient::DumpHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("AppMgrClient::DumpHeapMemory.\n");
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
         HILOG_ERROR("DumpHeapMemory: service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return AppMgrResultCode(service->DumpHeapMemory(mallinfo));
+    return AppMgrResultCode(service->DumpHeapMemory(pidInfo));
 }
 
 AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)

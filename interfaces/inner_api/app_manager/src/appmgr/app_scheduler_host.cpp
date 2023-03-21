@@ -133,23 +133,15 @@ int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, Message
 
 int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_ERROR("AppSchedulerHost HandleScheduleHeapMemory.");
-    std::vector<int32_t> pidInfo;
-    bool intVectorReadSuccess = data.ReadInt32Vector(&pidInfo);
+    std::vector<int32_t> mallinfo;
+    bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
     if (!intVectorReadSuccess) {
-        HILOG_ERROR("failed to read Int32Vector for pidInfo");
+        HILOG_ERROR("failed to read Int32Vector for mallinfo");
         return ERR_INVALID_VALUE;
     }
 
     HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleHeapMemory(pidInfo);
-    
-    std::vector<int32_t> mallinfo;
-    int i = 0;
-    for (std::vector<int32_t>::iterator begin = pidInfo.begin();begin != pidInfo.end();begin++) {
-        mallinfo.push_back(*begin);
-        HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: pidInfo[%{public}i], value: %{public}i", i++, *begin);
-    }
+    ScheduleHeapMemory(mallinfo);
     reply.WriteInt32Vector(mallinfo);
     return NO_ERROR;
 }

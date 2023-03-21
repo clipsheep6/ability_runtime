@@ -490,22 +490,21 @@ void MainThread::ScheduleMemoryLevel(const int level)
  *
  * @brief Get the application's heap memory info.
  *
- * @param miVector, the miVector vector.
+ * @param pidInfo, contains the pid info and malloc info.
  */
-void MainThread::ScheduleHeapMemory(std::vector<int32_t> &miVector)
+void MainThread::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("MainThread::ScheduleHeapMemory, pid: %{public}i", miVector[0]);
     struct mallinfo mi = mallinfo();
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
-    HILOG_ERROR("usmblks: %{public}i\n", usmblks);
-    HILOG_ERROR("uordblks: %{public}i\n", uordblks);
-    HILOG_ERROR("fordblks: %{public}i\n", fordblks);
-    miVector.clear();
-    miVector.push_back((int32_t)usmblks);
-    miVector.push_back((int32_t)uordblks);
-    miVector.push_back((int32_t)fordblks);
+    HILOG_INFO("usmblks: %{public}i\n", usmblks);
+    HILOG_INFO("uordblks: %{public}i\n", uordblks);
+    HILOG_INFO("fordblks: %{public}i\n", fordblks);
+    pidInfo.clear();
+    pidInfo.push_back((int32_t)usmblks);
+    pidInfo.push_back((int32_t)uordblks);
+    pidInfo.push_back((int32_t)fordblks);
 }
 
 /**

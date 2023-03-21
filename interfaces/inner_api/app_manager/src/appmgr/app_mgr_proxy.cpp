@@ -309,9 +309,9 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
     return result;
 }
 
-int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &mallinfo)
+int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("AppMgrProxy::DumpHeapMemory.\n");
+    HILOG_DEBUG("AppMgrProxy::DumpHeapMemory.\n");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -319,7 +319,7 @@ int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &mallinfo)
     if (!WriteInterfaceToken(data)) {
         return ERR_FLATTEN_OBJECT;
     }
-    data.WriteInt32Vector(mallinfo);
+    data.WriteInt32Vector(pidInfo);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
@@ -329,12 +329,13 @@ int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &mallinfo)
         remote->SendRequest(
             static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
     }
+
+    std::vector<int32_t> &mallinfo;
     reply.ReadInt32Vector(&mallinfo);
-    int i = 0;
     for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
-        HILOG_ERROR("AppMgrProxy::DumpHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
+        pidInfo.push_back(*begin);
     }
     return ret;
 }

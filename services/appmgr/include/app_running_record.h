@@ -384,7 +384,7 @@ public:
      *
      * @return
      */
-    void ScheduleHeapMemory(std::vector<int32_t> &mallinfo);
+    void ScheduleHeapMemory(std::vector<int32_t> &pidInfo);
 
     /**
      * GetAbilityRunningRecordByToken, Obtaining the ability record through token.

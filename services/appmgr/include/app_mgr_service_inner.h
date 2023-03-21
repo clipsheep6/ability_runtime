@@ -287,11 +287,11 @@ public:
     /**
      * DumpHeapMemory, get the application's memory info.
      *
-     * @param mallinfo, the mallinfo vector.
+     * @param pidInfo, contains the pid info and malloc info.
      *
      * @return ERR_OK, return back success，others fail.
      */
-    virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo);
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo);
 
     /**
      * @brief Check whether the shared bundle is running.

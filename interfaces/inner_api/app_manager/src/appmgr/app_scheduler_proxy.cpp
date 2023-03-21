@@ -126,9 +126,8 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
     ScheduleMemoryCommon(level, operation);
 }
 
-void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
+void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("AppSchedulerProxy HandleScheduleHeapMemory.");
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;
@@ -137,7 +136,7 @@ void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
         HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
         return;
     }
-    data.WriteInt32Vector(mallinfo);
+    data.WriteInt32Vector(pidInfo);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
@@ -145,14 +144,10 @@ void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
     }
     int32_t ret = remote->SendRequest(operation, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
         return;
     }
-    reply.ReadInt32Vector(&mallinfo);
-    int i = 0;
-    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
-        HILOG_ERROR("AppSchedulerProxy::ScheduleHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
-    }
+    reply.ReadInt32Vector(&pidInfo);
 }
 
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)

@@ -157,10 +157,10 @@ public:
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get application's memory info.
      *
-     * @param mallinfo, the mallinfo vector.
+     * @param pidInfo, contains the pid info and malloc info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo) override;
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo) override;
 
     // the function about system
     /**

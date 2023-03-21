@@ -281,20 +281,19 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_ERROR("AppMgrStub::HandleDumpHeapMemory.\n");
+    HILOG_DEBUG("AppMgrStub::HandleDumpHeapMemory.\n");
     HITRACE_METER(HITRACE_TAG_APP);
-    std::vector<int32_t> mallinfo;
-    bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
+    std::vector<int32_t> mallocInfo;
+    bool intVectorReadSuccess = data.ReadInt32Vector(&mallocInfo);
     if (!intVectorReadSuccess) {
-        HILOG_ERROR("app_mgr_stub: failed to read Int32Vector for mallinfo");
+        HILOG_ERROR("app_mgr_stub: failed to read Int32Vector for mallocInfo");
         return ERR_INVALID_VALUE;
     }
-    auto result = DumpHeapMemory(mallinfo);
-    HILOG_ERROR("AppMgrStub::HandleDumpHeapMemory, result: %{public}i", result);
+    auto result = DumpHeapMemory(mallocInfo);
     if(result != NO_ERROR) {
         return result;
     }
-    reply.WriteInt32Vector(mallinfo);
+    reply.WriteInt32Vector(mallocInfo);
     return NO_ERROR;
 }
 

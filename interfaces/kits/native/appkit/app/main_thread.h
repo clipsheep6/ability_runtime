@@ -159,9 +159,9 @@ public:
      *
      * @brief Get the application's memory info.
      *
-     * @param miVector, the miVector vector.
+     * @param pidInfo, contains the pid info and malloc info.
      */
-    void ScheduleHeapMemory(std::vector<int32_t> &miVector) override;
+    void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) override;
 
     /**
      *

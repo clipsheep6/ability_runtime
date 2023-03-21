@@ -138,10 +138,10 @@ public:
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get the application's memory info.
      *
-     * @param mallinfo, the mallinfo vector.
+     * @param pidInfo, contains the pid info and malloc info.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual int32_t DumpHeapMemory(std::vector<int32_t> &mallinfo) override;
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo) override;
 
     /**
      * Notify that the ability stage has been updated

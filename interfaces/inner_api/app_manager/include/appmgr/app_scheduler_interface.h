@@ -84,9 +84,11 @@ public:
      * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
      * Get the application's memory info.
      *
+     * @param pidInfo, contains the pid info and malloc info.
+     * 
      * @return
      */
-    virtual void ScheduleHeapMemory(std::vector<int32_t> &mallinfo) = 0;
+    virtual void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) = 0;
 
     /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,

@@ -536,11 +536,10 @@ void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
     }
 }
 
-void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
+void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("AppRunningRecord ScheduleHeapMemory is called.");
     if (appLifeCycleDeal_) {
-        appLifeCycleDeal_->ScheduleHeapMemory(mallinfo);
+        appLifeCycleDeal_->ScheduleHeapMemory(pidInfo);
     } else {
         HILOG_ERROR("appLifeCycleDeal_ is nullptr");
     }

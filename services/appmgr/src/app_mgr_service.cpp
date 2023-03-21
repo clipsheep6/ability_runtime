@@ -344,18 +344,12 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
     return appMgrServiceInner_->NotifyMemoryLevel(level);
 }
 
-int32_t AppMgrService::DumpHeapMemory(std::vector<int32_t> &mallinfo)
+int32_t AppMgrService::DumpHeapMemory(std::vector<int32_t> &pidInfo)
 {
-    HILOG_ERROR("AppMgrService::DumpHeapMemory.\n");
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    int32_t res = appMgrServiceInner_->DumpHeapMemory(mallinfo);
-    int i = 0;
-    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
-        HILOG_ERROR("AppMgrService::DumpHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
-    }
-    return res;
+    return appMgrServiceInner_->DumpHeapMemory(pidInfo);
 }
 
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)

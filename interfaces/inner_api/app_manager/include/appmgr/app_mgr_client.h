@@ -203,10 +203,10 @@ public:
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get the application's memory info.
      *
-     * @param mallinfo, the mallinfo vector.
+     * @param pidInfo, contains the pid info and malloc info.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual AppMgrResultCode DumpHeapMemory(std::vector<int32_t> &mallinfo);
+    virtual AppMgrResultCode DumpHeapMemory(std::vector<int32_t> &pidInfo);
 
     /**
      * GetConfiguration
