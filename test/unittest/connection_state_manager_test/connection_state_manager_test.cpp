@@ -21,6 +21,7 @@
 #include "ability_record.h"
 #include "connection_observer_errors.h"
 #include "data_ability_record.h"
+#include "dlp_state_item.h"
 
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
