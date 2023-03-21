@@ -61,6 +61,8 @@ void Logger(JsEnvLogLevel level, const char* fileName, const char* functionName,
         case JsEnvLogLevel::FATAL:
             HiviewDFX::HiLog::Fatal(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
+        default:
+            break;
     }
     va_end(printArgs);
 }

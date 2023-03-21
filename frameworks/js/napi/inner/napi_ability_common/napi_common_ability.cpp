@@ -3609,7 +3609,7 @@ napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRunti
 void StartBackgroundRunningExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
         return;
