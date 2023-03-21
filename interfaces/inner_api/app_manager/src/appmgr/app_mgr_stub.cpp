@@ -290,9 +290,11 @@ int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &rep
         return ERR_INVALID_VALUE;
     }
     auto result = DumpHeapMemory(mallinfo);
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
+    HILOG_ERROR("AppMgrStub::HandleDumpHeapMemory, result: %{public}i", result);
+    if(result != NO_ERROR) {
+        return result;
     }
+    reply.WriteInt32Vector(mallinfo);
     return NO_ERROR;
 }
 

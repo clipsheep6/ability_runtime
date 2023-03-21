@@ -331,8 +331,12 @@ int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &mallinfo)
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    int result = reply.ReadInt32();
-    return result;
+    reply.ReadInt32Vector(&mallinfo);
+    int i = 0;
+    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
+        HILOG_ERROR("AppMgrProxy::DumpHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
+    }
+    return ret;
 }
 
 bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply)
