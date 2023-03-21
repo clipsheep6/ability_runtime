@@ -150,7 +150,7 @@ int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageP
         mallinfo.push_back(*begin);
         HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: pidInfo[%{public}i], value: %{public}i", i++, *begin);
     }
-    reply.WriteInt32Vector(&mallinfo);
+    reply.WriteInt32Vector(mallinfo);
     return NO_ERROR;
 }
 
