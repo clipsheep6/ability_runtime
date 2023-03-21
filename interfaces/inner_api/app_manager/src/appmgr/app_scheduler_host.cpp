@@ -143,6 +143,10 @@ int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageP
 
     HITRACE_METER(HITRACE_TAG_APP);
     ScheduleHeapMemory(mallinfo);
+    int i = 0;
+    for (iterator::vector<int32_t> begin = mallinfo.begin();begin != mallinfo.end();begin++) {
+        HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
+    }
     return NO_ERROR;
 }
 
