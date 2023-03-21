@@ -44,7 +44,6 @@ ohos_unittest("connection_record_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -53,6 +52,7 @@ ohos_unittest("connection_record_test") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",

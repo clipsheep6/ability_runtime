@@ -30,7 +30,10 @@ ohos_unittest("mission_listener_test") {
     "mission_listener_test.cpp",
   ]
 
-  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config",
+  ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -42,7 +45,6 @@ ohos_unittest("mission_listener_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

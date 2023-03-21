@@ -27,10 +27,7 @@ ohos_unittest("app_scheduler_test") {
     "${ability_runtime_services_path}/abilitymgr/include",
   ]
 
-  sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/app_scheduler.cpp",
-    "app_scheduler_test.cpp",
-  ]
+  sources = [ "app_scheduler_test.cpp" ]
 
   configs = [
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
@@ -43,11 +40,11 @@ ohos_unittest("app_scheduler_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
