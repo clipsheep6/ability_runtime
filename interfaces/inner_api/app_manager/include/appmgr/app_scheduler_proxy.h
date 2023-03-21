@@ -81,7 +81,7 @@ public:
      * Get the application's memory info.
      *
      * @param pidInfo, contains the pid info and malloc info.
-     * 
+     *
      * @return
      */
     virtual void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) override;
