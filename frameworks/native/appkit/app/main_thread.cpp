@@ -494,7 +494,7 @@ void MainThread::ScheduleMemoryLevel(const int level)
  */
 void MainThread::ScheduleHeapMemory(std::vector<int32_t> &miVector)
 {
-    HILOG_ERROR("MainThread call %{public}s", __func__);
+    HILOG_ERROR("MainThread::ScheduleHeapMemory, pid: %{public}i", miVector[0]);
     struct mallinfo mi = mallinfo();
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
@@ -502,6 +502,7 @@ void MainThread::ScheduleHeapMemory(std::vector<int32_t> &miVector)
     HILOG_ERROR("usmblks: %{public}i\n", usmblks);
     HILOG_ERROR("uordblks: %{public}i\n", uordblks);
     HILOG_ERROR("fordblks: %{public}i\n", fordblks);
+    miVector.clear();
     miVector.push_back((int32_t)usmblks);
     miVector.push_back((int32_t)uordblks);
     miVector.push_back((int32_t)fordblks);

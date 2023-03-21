@@ -146,6 +146,12 @@ void AppSchedulerProxy::ScheduleHeapMemory(std::vector<int32_t> &mallinfo)
     int32_t ret = remote->SendRequest(operation, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return;
+    }
+    reply.ReadInt32Vector(&mallinfo);
+    int i = 0;
+    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
+        HILOG_ERROR("AppSchedulerProxy::ScheduleHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
     }
 }
 

@@ -134,20 +134,23 @@ int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, Message
 int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_ERROR("AppSchedulerHost HandleScheduleHeapMemory.");
-    std::vector<int32_t> mallinfo;
-    bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
+    std::vector<int32_t> pidInfo;
+    bool intVectorReadSuccess = data.ReadInt32Vector(&pidInfo);
     if (!intVectorReadSuccess) {
-        HILOG_ERROR("failed to read Int32Vector for mallinfo");
+        HILOG_ERROR("failed to read Int32Vector for pidInfo");
         return ERR_INVALID_VALUE;
     }
 
     HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleHeapMemory(mallinfo);
+    ScheduleHeapMemory(pidInfo);
+    
+    std::vector<int32_t> mallinfo;
     int i = 0;
-    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
-        HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: mallinfo[%{public}i], value: %{public}i", i++, *begin);
+    for (std::vector<int32_t>::iterator begin = pidInfo.begin();begin != pidInfo.end();begin++) {
+        mallinfo.push_back(*begin);
+        HILOG_ERROR("AppSchedulerHost::HandleScheduleHeapMemory: pidInfo[%{public}i], value: %{public}i", i++, *begin);
     }
-    reply.WriteInt32Vector(mallinfo);
+    reply.WriteInt32Vector(&mallinfo);
     return NO_ERROR;
 }
 
