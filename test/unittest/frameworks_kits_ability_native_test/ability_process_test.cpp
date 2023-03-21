@@ -163,6 +163,7 @@ HWTEST_F(AbilityProcessTest, AaFwk_AbilityProcess_0600, Function | MediumTest | 
 HWTEST_F(AbilityProcessTest, AaFwk_AbilityProcess_0700, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityProcess_0700 start";
+    process_->abilityResultMap_.clear();
     Ability *ability = new (std::nothrow) MockNewAbility();
     CallAbilityParam param;
     param.forResultOption = true;
