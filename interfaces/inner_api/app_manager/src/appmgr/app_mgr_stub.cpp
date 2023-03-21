@@ -290,7 +290,7 @@ int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &rep
         return ERR_INVALID_VALUE;
     }
     auto result = DumpHeapMemory(mallocInfo);
-    if(result != NO_ERROR) {
+    if (result != NO_ERROR) {
         return result;
     }
     reply.WriteInt32Vector(mallocInfo);

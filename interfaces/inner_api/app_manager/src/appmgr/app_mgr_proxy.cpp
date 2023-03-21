@@ -332,9 +332,9 @@ int32_t AppMgrProxy::DumpHeapMemory(std::vector<int32_t> &pidInfo)
         HILOG_ERROR("AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
     }
 
-    std::vector<int32_t> &mallinfo;
+    std::vector<int32_t> mallinfo;
     reply.ReadInt32Vector(&mallinfo);
-    for (std::vector<int32_t>::iterator begin = mallinfo.begin();begin != mallinfo.end();begin++) {
+    for (std::vector<int32_t>::iterator begin = mallinfo.begin(); begin != mallinfo.end(); begin++) {
         pidInfo.push_back(*begin);
     }
     return ret;
