@@ -44,13 +44,13 @@ ohos_unittest("task_data_persistence_mgr_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
