@@ -2923,10 +2923,14 @@ void MissionListManager::NotifyStartSpecifiedAbility(AbilityRequest &abilityRequ
         sptr<Want> extraParam = new (std::nothrow) Want();
         abilityInfoCallback->NotifyStartSpecifiedAbility(abilityRequest.callerToken, newWant,
             abilityRequest.requestCode, extraParam);
-        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE,
-            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
-        abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
-            extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
+        int32_t procCode = extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
+        if (procCode != 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE, procCode);
+        }
+        int32_t tokenCode = extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0);
+        if (tokenCode != 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, tokenCode);
+        }
     }
 }
 
