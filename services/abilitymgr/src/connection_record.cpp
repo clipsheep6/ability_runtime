@@ -24,6 +24,11 @@
 namespace OHOS {
 namespace AAFwk {
 int64_t ConnectionRecord::connectRecordId = 0;
+#ifdef SUPPORT_ASAN
+const int DISCONNECT_TIMEOUT_MULTIPLE = 75;
+#else
+const int DISCONNECT_TIMEOUT_MULTIPLE = 1;
+#endif
 
 ConnectionRecord::ConnectionRecord(const sptr<IRemoteObject> &callerToken,
     const std::shared_ptr<AbilityRecord> &targetService, const sptr<IAbilityConnection> &connCallback)
@@ -102,7 +107,9 @@ int ConnectionRecord::DisconnectAbility()
                 HILOG_ERROR("Disconnect ability timeout");
                 connectionRecord->DisconnectTimeout();
             };
-            handler->PostTask(disconnectTask, taskName, AbilityManagerService::DISCONNECT_TIMEOUT);
+            int disconnectTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DISCONNECT_TIMEOUT_MULTIPLE;
+            handler->PostTask(disconnectTask, taskName, disconnectTimeout);
         }
         /* schedule disconnect to target ability */
         targetService_->DisconnectAbility();

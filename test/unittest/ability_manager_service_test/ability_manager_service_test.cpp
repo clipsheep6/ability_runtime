@@ -1734,7 +1734,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
     int max = 0;
-    abilityMs_->GetMaxRestartNum(max, true);
+    max = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
 
@@ -2038,12 +2038,7 @@ HWTEST_F(AbilityManagerServiceTest, IsRamConstrainedDevice_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, GetMissionSaveTime_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 start");
-    EXPECT_NE(abilityMs_->GetMissionSaveTime(), 0);
-
-    auto temp = abilityMs_->amsConfigResolver_;
-    abilityMs_->amsConfigResolver_.reset();
-    EXPECT_EQ(abilityMs_->GetMissionSaveTime(), 0);
-    abilityMs_->amsConfigResolver_ = temp;
+    EXPECT_NE(AmsConfigurationParameter::GetInstance().GetMissionSaveTime(), 0);
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 end");
 }
 

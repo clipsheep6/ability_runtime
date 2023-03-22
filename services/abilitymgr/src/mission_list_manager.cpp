@@ -43,6 +43,11 @@ const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+#ifdef SUPPORT_ASAN
+const int KILL_TIMEOUT_MULTIPLE = 45;
+#else
+const int KILL_TIMEOUT_MULTIPLE = 3;
+#endif
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -1525,7 +1530,8 @@ void MissionListManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRec
         HILOG_INFO("emit delay complete terminate task.");
         self->CompleteTerminate(abilityRecord);
     };
-    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", AbilityManagerService::KILL_TIMEOUT);
+    int killTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * KILL_TIMEOUT_MULTIPLE;
+    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
 }
 
 void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)

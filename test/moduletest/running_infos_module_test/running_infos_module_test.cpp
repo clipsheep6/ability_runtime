@@ -130,9 +130,7 @@ void RunningInfosModuleTest::OnStartAms()
         abilityMgrServ_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
         EXPECT_TRUE(abilityMgrServ_->systemDataAbilityManager_);
 
-        abilityMgrServ_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-        EXPECT_TRUE(abilityMgrServ_->amsConfigResolver_);
-        abilityMgrServ_->amsConfigResolver_->Parse();
+        AmsConfigurationParameter::GetInstance().Parse();
 
         abilityMgrServ_->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
         EXPECT_TRUE(abilityMgrServ_->interceptorExecuter_);

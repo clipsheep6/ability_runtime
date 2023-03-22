@@ -277,12 +277,11 @@ bool AbilityManagerService::Init()
     InitPendWantManager(MAIN_USER_ID, true);
     systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
 
-    amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-    amsConfigResolver_->Parse();
+    AmsConfigurationParameter::GetInstance().Parse();
     HILOG_INFO("ams config parse");
     InitMissionListManager(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
-    int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
+    int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
     std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
@@ -297,7 +296,8 @@ bool AbilityManagerService::Init()
     }
 #endif
 #ifdef SUPPORT_GRAPHICS
-    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
+    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(
+        AmsConfigurationParameter::GetInstance().GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
 #endif
 
@@ -3271,7 +3271,8 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 #ifdef SUPPORT_GRAPHICS
     abilityWant.SetParam(NEED_STARTINGWINDOW, false);
     // wait BOOT_ANIMATION_STARTED to start LAUNCHER
-    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true", amsConfigResolver_->GetBootAnimationTimeoutTime());
+    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+        AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
 #endif
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
@@ -3527,20 +3528,6 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
     CHECK_POINTER(callRecord);
     if (currentMissionListManager_) {
         currentMissionListManager_->OnCallConnectDied(callRecord);
-    }
-}
-
-void AbilityManagerService::GetMaxRestartNum(int &max, bool isRootLauncher)
-{
-    if (amsConfigResolver_) {
-        max = amsConfigResolver_->GetMaxRestartNum(isRootLauncher);
-    }
-}
-
-void AbilityManagerService::GetRestartIntervalTime(int &restartIntervalTime)
-{
-    if (amsConfigResolver_) {
-        restartIntervalTime = amsConfigResolver_->GetRestartIntervalTime();
     }
 }
 
@@ -3949,7 +3936,7 @@ void AbilityManagerService::StartResidentApps()
     if (!bundleInfos.empty()) {
 #ifdef SUPPORT_GRAPHICS
         WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-            amsConfigResolver_->GetBootAnimationTimeoutTime());
+            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
     }
@@ -4034,15 +4021,6 @@ bool AbilityManagerService::IsRamConstrainedDevice()
         return false;
     }
     return false;
-}
-
-int AbilityManagerService::GetMissionSaveTime() const
-{
-    if (!amsConfigResolver_) {
-        return 0;
-    }
-
-    return amsConfigResolver_->GetMissionSaveTime();
 }
 
 int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObject> &token)

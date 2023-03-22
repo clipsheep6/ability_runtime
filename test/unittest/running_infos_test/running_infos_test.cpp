@@ -102,9 +102,7 @@ void RunningInfosTest::OnStartAms()
         abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
         EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
 
-        abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-        EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-        abilityMs_->amsConfigResolver_->Parse();
+        AmsConfigurationParameter::GetInstance().Parse();
         abilityMs_->InitMissionListManager(userId, true);
         abilityMs_->connectManager_->SetEventHandler(abilityMs_->handler_);
         abilityMs_->eventLoop_->Run();

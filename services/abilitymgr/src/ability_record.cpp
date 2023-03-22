@@ -66,6 +66,25 @@ int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
+#ifdef SUPPORT_ASAN
+const int COLDSTART_TIMEOUT_MULTIPLE = 150;
+const int LOAD_TIMEOUT_MULTIPLE = 150;
+const int FOREGROUND_TIMEOUT_MULTIPLE = 75;
+const int BACKGROUND_TIMEOUT_MULTIPLE = 45;
+const int ACTIVE_TIMEOUT_MULTIPLE = 75;
+const int TERMINATE_TIMEOUT_MULTIPLE = 150;
+const int INACTIVE_TIMEOUT_MULTIPLE = 8;
+const int DUMP_TIMEOUT_MULTIPLE = 15;
+#else
+const int COLDSTART_TIMEOUT_MULTIPLE = 10;
+const int LOAD_TIMEOUT_MULTIPLE = 10;
+const int FOREGROUND_TIMEOUT_MULTIPLE = 5;
+const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
+const int ACTIVE_TIMEOUT_MULTIPLE = 5;
+const int TERMINATE_TIMEOUT_MULTIPLE = 10;
+const int INACTIVE_TIMEOUT_MULTIPLE = 1;
+const int DUMP_TIMEOUT_MULTIPLE = 1;
+#endif
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
     std::map<AbilityState, std::string>::value_type(INACTIVE, "INACTIVE"),
@@ -146,7 +165,7 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
         bool isRootLauncher = (applicationInfo_.bundleName == LAUNCHER_BUNDLE_NAME);
-        abilityMgr->GetMaxRestartNum(restartMax_, isRootLauncher);
+        restartMax_ = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(isRootLauncher);
         bool flag = abilityMgr->GetStartUpNewRuleFlag();
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
@@ -220,10 +239,12 @@ int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start load ability, name is %{public}s.", abilityInfo_.name.c_str());
+    int coldStartTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
+    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
     if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
-        auto loadTimeOut = want_.GetBoolParam("coldStart", false) ?
-            AbilityManagerService::COLDSTART_LOAD_TIMEOUT : AbilityManagerService::LOAD_TIMEOUT;
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeOut);
+        auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime);
     }
 
     startTime_ = AbilityUtil::SystemTimeMillis();
@@ -274,7 +295,7 @@ bool AbilityRecord::CanRestartResident()
         int restartIntervalTime = 0;
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMgr) {
-            abilityMgr->GetRestartIntervalTime(restartIntervalTime);
+            restartIntervalTime = AmsConfigurationParameter::GetInstance().GetRestartIntervalTime();
         }
         HILOG_DEBUG("restartTime: %{public}lld, now: %{public}lld, intervalTine:%{public}d",
             static_cast<unsigned long long>(restartTime_),
@@ -293,7 +314,9 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, AbilityManagerService::FOREGROUND_TIMEOUT);
+    int foregroundTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -659,7 +682,9 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
         }
     };
     auto taskName = std::to_string(missionId_) + "_hot";
-    handler->PostTask(delayTask, taskName, AbilityManagerService::FOREGROUND_TIMEOUT);
+    int foregroundTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+    handler->PostTask(delayTask, taskName, foregroundTimeout);
 }
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
@@ -686,7 +711,8 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         }
     };
     auto taskName = std::to_string(missionId_) + "_cold";
-    handler->PostTask(delayTask, taskName, AbilityManagerService::LOAD_TIMEOUT);
+    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
+    handler->PostTask(delayTask, taskName, loadTimeout);
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const
@@ -951,7 +977,9 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
             g_abilityRecordEventId_++;
             eventId_ = g_abilityRecordEventId_;
             // eventId_ is a unique id of the task.
-            handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::BACKGROUND_TIMEOUT);
+            int backgroundTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, std::to_string(eventId_), backgroundTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1148,7 +1176,8 @@ void AbilityRecord::Activate()
     HILOG_INFO("Activate.");
     CHECK_POINTER(lifecycleDeal_);
 
-    SendEvent(AbilityManagerService::ACTIVE_TIMEOUT_MSG, AbilityManagerService::ACTIVE_TIMEOUT);
+    int activeTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * ACTIVE_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::ACTIVE_TIMEOUT_MSG, activeTimeout);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -1171,7 +1200,9 @@ void AbilityRecord::Inactivate()
     HILOG_INFO("Inactivate ability start, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    SendEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, AbilityManagerService::INACTIVE_TIMEOUT);
+    int inactiveTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * INACTIVE_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, inactiveTimeout);
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -1190,7 +1221,9 @@ void AbilityRecord::Terminate(const Closure &task)
             g_abilityRecordEventId_++;
             eventId_ = g_abilityRecordEventId_;
             // eventId_ is a unique id of the task.
-            handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::TERMINATE_TIMEOUT);
+            int terminateTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, std::to_string(eventId_), terminateTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -2170,7 +2203,8 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
 
     HILOG_INFO("Dump begin wait.");
     isDumpTimeout_ = false;
-    std::chrono::milliseconds timeout { AbilityManagerService::DUMP_TIMEOUT };
+    int dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_MULTIPLE;
+    std::chrono::milliseconds timeout { dumpTimeout };
     if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
         isDumpTimeout_ = true;
     }

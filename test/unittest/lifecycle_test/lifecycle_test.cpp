@@ -107,9 +107,7 @@ void LifecycleTest::OnStartabilityAms()
         abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
         abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
         EXPECT_TRUE(abilityMs_->dataAbilityManager_);
-        abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-        EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-        abilityMs_->amsConfigResolver_->Parse();
+        AmsConfigurationParameter::GetInstance().Parse();
         abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(0);
         abilityMs_->currentMissionListManager_->Init();
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
