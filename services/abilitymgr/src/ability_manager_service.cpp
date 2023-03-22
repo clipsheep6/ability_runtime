@@ -4124,7 +4124,7 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
     ComponentRequest componentRequest = initComponentRequest(callerToken, -1, result);
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
@@ -4152,6 +4152,9 @@ int AbilityManagerService::StartAbilityByCall(
     }
     UpdateCallerInfo(abilityRequest.want, callerToken);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
+    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+        return componentRequest.requestResult;
+    }
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
 
@@ -6041,6 +6044,8 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         newWant.SetParam("abilityType", type);
         int32_t launchMode = static_cast<int32_t>(request.abilityInfo.launchMode);
         newWant.SetParam("launchMode", launchMode);
+        int32_t callType = static_cast<int32_t>(abilityRequest.callType);
+        newWant.SetParam("callType", callType);
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();

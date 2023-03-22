@@ -2691,6 +2691,12 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         defaultSingleList_->AddMissionToTop(targetMission);
     }
 
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        abilityInfoCallback->NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest.want);
+    }
+
     // new version started by call type
     auto ret = ResolveAbility(targetAbilityRecord, abilityRequest);
     if (ret == ResolveResultType::OK_HAS_REMOTE_OBJ) {
