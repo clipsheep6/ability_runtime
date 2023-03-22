@@ -2137,7 +2137,11 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     appRecord->SetUserTestInfo(testRecord);
 
     int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-    StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, appInfo->bundleName, bundleIndex);
+    uint32_t startFlags = 0x0;
+    if (info.applicationInfo.debug) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
+    }
+    StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName, bundleIndex);
 
     // If it is empty, the startup failed
     if (!appRecord) {
