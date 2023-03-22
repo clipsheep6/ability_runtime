@@ -208,6 +208,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
             uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_,
                 sessionInfo->sessionToken, sessionInfo->surfaceNode);
             uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
+            uiWindow_->Connect();
         }
     }
     NativeValue *value = jsAbilityObj_->Get();
