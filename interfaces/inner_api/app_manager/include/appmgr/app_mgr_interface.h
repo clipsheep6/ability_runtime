@@ -146,6 +146,15 @@ public:
     virtual int NotifyMemoryLevel(int32_t level) = 0;
 
     /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory info.
+     *
+     * @param pidInfo, contains the pid info and malloc info.
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpHeapMemory(std::vector<int32_t> &pidInfo) = 0;
+
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -357,6 +366,7 @@ public:
         PRE_START_NWEBSPAWN_PROCESS,
         APP_GET_PROCESS_RUNNING_INFORMATION,
         IS_SHARED_BUNDLE_RUNNING,
+        DUMP_HEAP_MEMORY_PROCESS,
     };
 };
 }  // namespace AppExecFwk

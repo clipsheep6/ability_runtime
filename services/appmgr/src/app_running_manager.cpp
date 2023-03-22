@@ -575,6 +575,23 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     return ERR_OK;
 }
 
+int32_t AppRunningManager::DumpHeapMemory(std::vector<int32_t> &pidInfo)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t pid = pidInfo.front();
+    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_OK;
+    }
+    iter->second->ScheduleHeapMemory(pidInfo);
+    return ERR_OK;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRenderPid(const pid_t pid)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);

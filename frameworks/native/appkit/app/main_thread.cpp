@@ -18,6 +18,7 @@
 #include <new>
 #include <regex>
 #include <unistd.h>
+#include <malloc.h>
 
 #include "constants.h"
 #include "ability_delegator.h"
@@ -483,6 +484,27 @@ void MainThread::ScheduleMemoryLevel(const int level)
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
     HILOG_DEBUG("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
+}
+
+/**
+ *
+ * @brief Get the application's heap memory info.
+ *
+ * @param pidInfo, contains the pid info and malloc info.
+ */
+void MainThread::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
+{
+    struct mallinfo mi = mallinfo();
+    int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
+    int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
+    int fordblks = mi.fordblks; // 当前未释放的大小
+    HILOG_INFO("usmblks: %{public}i\n", usmblks);
+    HILOG_INFO("uordblks: %{public}i\n", uordblks);
+    HILOG_INFO("fordblks: %{public}i\n", fordblks);
+    pidInfo.clear();
+    pidInfo.push_back((int32_t)usmblks);
+    pidInfo.push_back((int32_t)uordblks);
+    pidInfo.push_back((int32_t)fordblks);
 }
 
 /**

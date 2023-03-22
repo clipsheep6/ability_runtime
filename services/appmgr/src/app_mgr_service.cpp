@@ -344,6 +344,14 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
     return appMgrServiceInner_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrService::DumpHeapMemory(std::vector<int32_t> &pidInfo)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpHeapMemory(pidInfo);
+}
+
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 {
     if (!IsReady()) {

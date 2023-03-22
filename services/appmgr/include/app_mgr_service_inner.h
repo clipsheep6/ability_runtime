@@ -285,6 +285,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level);
 
     /**
+     * DumpHeapMemory, get the application's memory info.
+     *
+     * @param pidInfo, contains the pid info and malloc info.
+     *
+     * @return ERR_OK, return back success，others fail.
+     */
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo);
+
+    /**
      * @brief Check whether the shared bundle is running.
      *
      * @param bundleName Shared bundle name.

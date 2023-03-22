@@ -536,6 +536,15 @@ void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
     }
 }
 
+void AppRunningRecord::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleHeapMemory(pidInfo);
+    } else {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr");
+    }
+}
+
 void AppRunningRecord::LowMemoryWarning()
 {
     if (appLifeCycleDeal_) {
