@@ -490,7 +490,7 @@ bool JsRuntime::Initialize(const Options& options)
                 return false;
             }
 
-            SetAppLibPath(options.appLibPaths);
+            SetAppLibPath(options.appLibPaths, options.isSystemApp);
             InitSourceMap(options);
 
             if (options.isUnique) {
@@ -588,12 +588,13 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths)
+void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths,
+                                const bool &isSystemApp)
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     if (moduleManager != nullptr) {
         for (const auto &appLibPath : appLibPaths) {
-            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
+            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second, isSystemApp);
         }
     }
 }

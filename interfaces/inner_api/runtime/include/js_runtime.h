@@ -124,7 +124,8 @@ private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
     void InitSourceMap(const Options& options);
-    void SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths);
+    void SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths,
+                        const bool &isSystemApp = false);
     bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
     inline bool IsUseAbilityRuntime(const Options& options) const;
 };
