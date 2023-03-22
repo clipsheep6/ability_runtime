@@ -271,6 +271,10 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
         HILOG_DEBUG("snapshot: the param isPrivate is true.");
         ssize_t dataLength = snapshot->GetWidth() * snapshot->GetHeight() * RGB888_PIXEL_BYTES;
         uint8_t* data = (uint8_t*) malloc(dataLength);
+        if (data == nullptr) {
+            HILOG_ERROR("malloc failed,  size: %{public}d.", dataLength);
+            return;
+        }
         if (memset_s(data, dataLength, 0xff, dataLength) == EOK) {
             WriteRgb888ToJpeg(filePath.c_str(), snapshot->GetWidth(), snapshot->GetHeight(), data);
         }
