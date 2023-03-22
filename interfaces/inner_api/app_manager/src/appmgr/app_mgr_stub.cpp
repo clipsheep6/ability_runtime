@@ -428,8 +428,10 @@ int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel 
     std::string renderParam = data.ReadString();
     int32_t ipcFd = data.ReadFileDescriptor();
     int32_t sharedFd = data.ReadFileDescriptor();
+    int32_t crashFd = data.ReadFileDescriptor();
     int32_t renderPid = 0;
-    int32_t result = StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
+    int32_t result =
+        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result error.");
         return ERR_INVALID_VALUE;

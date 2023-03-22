@@ -480,7 +480,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartRenderProcess_001, TestSize.Level0)
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    int ret = appMgrClient->StartRenderProcess(renderParam, INIT_VALUE, ERROR_PID, renderPid);
+    int ret = appMgrClient->StartRenderProcess(renderParam, INIT_VALUE, ERROR_PID, INIT_VALUE, renderPid);
     EXPECT_EQ(ret, ERROR_STATE);
 }
 

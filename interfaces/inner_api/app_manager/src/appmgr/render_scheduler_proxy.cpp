@@ -34,7 +34,8 @@ bool RenderSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd)
+void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
+                                           int32_t crashFd)
 {
     HILOG_DEBUG("NotifyBrowserFd start");
     MessageParcel data;
@@ -44,8 +45,11 @@ void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd)
         return;
     }
 
-    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd)) {
-        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
+    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd) ||
+        !data.WriteFileDescriptor(crashFd)) {
+        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
+                    "crashFd:%{public}d",
+                    ipcFd, sharedFd, crashFd);
         return;
     }
 
@@ -55,8 +59,8 @@ void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd)
         return;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IRenderScheduler::Message::NOTIFY_BROWSER_FD),
-        data, reply, option);
+        static_cast<uint32_t>(IRenderScheduler::Message::NOTIFY_BROWSER_FD), data,
+        reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }

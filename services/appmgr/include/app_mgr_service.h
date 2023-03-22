@@ -226,8 +226,9 @@ public:
 
     virtual int PreStartNWebSpawnProcess() override;
 
-    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override;
+    virtual int StartRenderProcess(const std::string &renderParam,
+                                   int32_t ipcFd, int32_t sharedFd,
+                                   int32_t crashFd, pid_t &renderPid) override;
 
     virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
 

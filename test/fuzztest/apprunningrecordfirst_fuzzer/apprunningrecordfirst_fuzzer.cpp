@@ -61,10 +61,13 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::string renderParam(data, size);
     int32_t ipcFd = static_cast<int32_t>(GetU32Data(data));
     int32_t sharedFd = static_cast<int32_t>(GetU32Data(data));
+    int32_t crashFd = static_cast<int32_t>(GetU32Data(data));
     std::shared_ptr<AppRunningRecord> host;
-    RenderRecord* renderRecord = new RenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+    RenderRecord *renderRecord =
+        new RenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     renderRecord->RegisterDeathRecipient();
-    renderRecord->CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+    renderRecord->CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd,
+                                     crashFd, host);
     pid_t pid = static_cast<pid_t>(GetU32Data(data));
     renderRecord->SetPid(pid);
     sptr<IRenderScheduler> scheduler;
@@ -81,6 +84,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     renderRecord->GetRenderParam();
     renderRecord->GetIpcFd();
     renderRecord->GetSharedFd();
+    renderRecord->GetCrashFd();
     renderRecord->GetHostRecord();
     renderRecord->GetScheduler();
     std::shared_ptr<ApplicationInfo> appInfo;

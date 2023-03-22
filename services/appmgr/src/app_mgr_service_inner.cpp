@@ -2907,12 +2907,14 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 }
 
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, pid_t &renderPid)
+    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
 {
     HILOG_INFO("start render process, hostPid:%{public}d", hostPid);
-    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
-        HILOG_ERROR("invalid param: hostPid:%{public}d renderParam:%{private}s ipcFd:%{public}d sharedFd:%{public}d",
-            hostPid, renderParam.c_str(), ipcFd, sharedFd);
+    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
+        crashFd <= 0) {
+        HILOG_ERROR("invalid param: hostPid:%{public}d renderParam:%{private}s "
+                    "ipcFd:%{public}d  crashFd:%{public}d sharedFd:%{public}d",
+                    hostPid, renderParam.c_str(), ipcFd, crashFd, sharedFd);
         return ERR_INVALID_VALUE;
     }
 
@@ -2934,7 +2936,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_ALREADY_EXIST_RENDER;
     }
 
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, appRecord);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
     if (!renderRecord) {
         HILOG_ERROR("create render record failed, hostPid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
@@ -2982,7 +2984,9 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
     renderRecord->RegisterDeathRecipient();
 
     // notify fd to render process
-    scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(), renderRecord->GetSharedFd());
+    scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
+                               renderRecord->GetSharedFd(),
+                               renderRecord->GetCrashFd());
 }
 
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,

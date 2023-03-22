@@ -30,24 +30,30 @@ constexpr int32_t RESTART_INTERVAL_TIME = 120000;
 int64_t AppRunningRecord::appEventId_ = 0;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
-    : hostPid_(hostPid), renderParam_(renderParam), ipcFd_(ipcFd), sharedFd_(sharedFd), host_(host)
-{}
+                           int32_t ipcFd, int32_t sharedFd, int32_t crashFd,
+                           const std::shared_ptr<AppRunningRecord> &host)
+    : hostPid_(hostPid), renderParam_(renderParam), ipcFd_(ipcFd),
+      sharedFd_(sharedFd), crashFd_(crashFd), host_(host) {}
 
 RenderRecord::~RenderRecord()
 {
     close(sharedFd_);
     close(ipcFd_);
+    close(crashFd_);
 }
 
-std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
+std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(
+    pid_t hostPid, const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, int32_t crashFd,
+    const std::shared_ptr<AppRunningRecord> &host)
 {
-    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || !host) {
+    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
+        crashFd <= 0 || !host) {
         return nullptr;
     }
 
-    auto renderRecord = std::make_shared<RenderRecord>(hostPid, renderParam, ipcFd, sharedFd, host);
+    auto renderRecord = std::make_shared<RenderRecord>(
+        hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     renderRecord->SetHostUid(host->GetUid());
     renderRecord->SetHostBundleName(host->GetBundleName());
 
@@ -102,6 +108,11 @@ int32_t RenderRecord::GetIpcFd() const
 int32_t RenderRecord::GetSharedFd() const
 {
     return sharedFd_;
+}
+
+int32_t RenderRecord::GetCrashFd() const
+{
+    return crashFd_;
 }
 
 std::shared_ptr<AppRunningRecord> RenderRecord::GetHostRecord() const
