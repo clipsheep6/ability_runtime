@@ -586,6 +586,10 @@ public:
 
     ProcessChangeReason GetProcessChangeReason() const;
 
+    bool IsUpdateStateFromService();
+
+    void SetUpdateStateFromService(bool isUpdateStateFromService);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -685,6 +689,8 @@ private:
     bool securityFlag_ = false;
     int32_t requestProcCode_ = 0;
     ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
+
+    bool isUpdateStateFromService_ = false;
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;
