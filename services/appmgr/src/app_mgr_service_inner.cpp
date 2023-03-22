@@ -853,7 +853,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     HILOG_INFO("AppMgrServiceInner start");
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->isGatewayCall();
+    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
     if (!isSaCall && !isGatewayCall) {
         HILOG_ERROR("callerToken not SA %{public}s", __func__);
         return ERR_INVALID_VALUE;

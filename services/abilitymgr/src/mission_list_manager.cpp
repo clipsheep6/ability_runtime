@@ -327,11 +327,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         }
     }
 
-    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
-        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
-    if (abilityInfoCallback != nullptr) {
-        abilityInfoCallback->NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest.want);
-    }
+    NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<StartOptions> startOptions = nullptr;
@@ -2691,11 +2687,7 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         defaultSingleList_->AddMissionToTop(targetMission);
     }
 
-    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
-        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
-    if (abilityInfoCallback != nullptr) {
-        abilityInfoCallback->NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest.want);
-    }
+    NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
 
     // new version started by call type
     auto ret = ResolveAbility(targetAbilityRecord, abilityRequest);
@@ -3265,6 +3257,15 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
 
     abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     return true;
+}
+
+void MissionListManager::NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest)
+{
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        abilityInfoCallback->NotifyAbilityToken(token, abilityRequest.want);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
