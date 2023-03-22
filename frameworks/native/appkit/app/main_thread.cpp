@@ -498,9 +498,9 @@ void MainThread::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
-    HILOG_INFO("usmblks: %{public}i\n", usmblks);
-    HILOG_INFO("uordblks: %{public}i\n", uordblks);
-    HILOG_INFO("fordblks: %{public}i\n", fordblks);
+    HILOG_DEBUG("usmblks: %{public}i\n", usmblks);
+    HILOG_DEBUG("uordblks: %{public}i\n", uordblks);
+    HILOG_DEBUG("fordblks: %{public}i\n", fordblks);
     pidInfo.clear();
     pidInfo.push_back((int32_t)usmblks);
     pidInfo.push_back((int32_t)uordblks);
