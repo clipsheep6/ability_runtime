@@ -48,7 +48,7 @@ int DataAbilityObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
 
     if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
         HILOG_ERROR("not support code:%u, BUTT:%d", code, TRANS_BUTT);
-        return -1;
+        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return (this->*HANDLES[code])(data, reply);
 }
