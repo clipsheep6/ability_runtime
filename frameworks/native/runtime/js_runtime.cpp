@@ -921,5 +921,23 @@ bool JsRuntime::IsUseAbilityRuntime(const Options& options) const
 {
     return (options.isStageModel) || (options.isTestFramework);
 }
+
+void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
+{
+    if (isBundle_) {
+        return;
+    }
+
+    auto vm = GetEcmaVm();
+    if (!vm || moduleName.empty()) {
+        HILOG_ERROR("vm is nullptr or moduleName is empty");
+        return;
+    }
+
+    moduleName_ = moduleName;
+    std::string path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+    panda::JSNApi::SetAssetPath(vm, path);
+    panda::JSNApi::SetModuleName(vm, moduleName_);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
