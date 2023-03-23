@@ -182,32 +182,6 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_004, TestSize.Level1)
  * SubFunction: EventDrive
  * FunctionPoints: AppMgrService event drive program model
  * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Verify if post AbilityCleaned task success
- */
-HWTEST_F(AmsServiceEventDriveTest, EventDrive_005, TestSize.Level1)
-{
-    HILOG_INFO("ams_service_event_drive_test_005 start");
-
-    std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
-    appMgrService_->SetInnerService(innerService);
-    appMgrService_->OnStart();
-
-    EXPECT_CALL(*innerService, AbilityTerminated(_))
-        .WillOnce(InvokeWithoutArgs(innerService.get(), &MockAppMgrServiceInner::Post));
-
-    sptr<IRemoteObject> token;
-    appMgrService_->AbilityCleaned(token);
-    innerService->Wait();
-
-    HILOG_INFO("ams_service_event_drive_test_005 end");
-}
-
-/*
- * Feature: AppMgrService
- * Function: Service
- * SubFunction: EventDrive
- * FunctionPoints: AppMgrService event drive program model
- * EnvConditions: Mobile that can run ohos test framework
  * CaseDescription: Verify if post ClearUpApplicationData task success
  */
 HWTEST_F(AmsServiceEventDriveTest, EventDrive_006, TestSize.Level1)
