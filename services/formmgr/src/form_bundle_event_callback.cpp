@@ -52,7 +52,7 @@ void FormBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eve
                 sharedThis->formEventHelper_.HandleProviderUpdated(bundleName, userId);
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostSyncTask(task);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         // uninstall module/bundle
         auto task = [weakThis, bundleName, userId]() {
@@ -63,7 +63,7 @@ void FormBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eve
                 sharedThis->formEventHelper_.HandleProviderRemoved(bundleName, userId);
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostSyncTask(task);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED) {
         // bundle data cleared
         auto task = [weakThis, bundleName, userId]() {
@@ -72,7 +72,7 @@ void FormBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eve
                 sharedThis->formEventHelper_.HandleBundleDataCleared(bundleName, userId);
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostSyncTask(task);
     }
 }
 
