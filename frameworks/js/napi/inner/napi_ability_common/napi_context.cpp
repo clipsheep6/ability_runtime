@@ -2781,7 +2781,7 @@ public:
     static void Finalizer(NativeEngine *engine, void *data, void *hint)
     {
         HILOG_DEBUG("called.");
-        std::unique_ptr<NativeEngine>(static_cast<NativeEngine*>(data));
+        std::unique_ptr<NapiJsContext>(static_cast<NapiJsContext*>(data));
     };
 
     static NativeValue* JsRequestPermissionsFromUser(NativeEngine *engine, NativeCallbackInfo *info);
