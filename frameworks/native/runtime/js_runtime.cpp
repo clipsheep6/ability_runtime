@@ -281,6 +281,23 @@ public:
         return true;
     }
 
+    void UpdateModuleNameAndAssetPath(const std::string& moduleName) override
+    {
+        if (isBundle_) {
+            return;
+        }
+
+        if (!vm_ || moduleName.empty()) {
+            HILOG_ERROR("vm is nullptr or moduleName is empty");
+            return;
+        }
+
+        moduleName_ = moduleName;
+        std::string path = BUNDLE_INSTALL_PATH + moduleName + MERGE_ABC_PATH;
+        panda::JSNApi::SetAssetPath(vm_, path);
+        panda::JSNApi::SetModuleName(vm_, moduleName_);
+    }
+
 private:
     static int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
     {

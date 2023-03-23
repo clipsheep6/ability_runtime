@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #define private public
+#define protected public
 #include "ability.h"
 #include "ability_impl.h"
 #include "abs_shared_result_set.h"
@@ -34,6 +35,7 @@
 #include "ohos_application.h"
 #include "page_ability_impl.h"
 #include "values_bucket.h"
+#undef protected
 #undef private
 
 namespace OHOS {

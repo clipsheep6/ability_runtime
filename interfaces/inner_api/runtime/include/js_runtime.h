@@ -69,6 +69,7 @@ public:
     virtual bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false) = 0;
 
     void PreloadSystemModule(const std::string& moduleName) override;
+    virtual void UpdateModuleNameAndAssetPath(const std::string& moduleName) {}
 
 protected:
     JsRuntime() = default;
