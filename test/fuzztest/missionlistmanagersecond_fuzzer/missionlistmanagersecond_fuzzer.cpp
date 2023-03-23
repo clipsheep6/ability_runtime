@@ -19,11 +19,11 @@
 #include <cstdint>
 
 #define private public
+#include "mission_info_mgr.h"
 #include "mission_list_manager.h"
 #undef private
 
 #include "ability_record.h"
-#include "mission_info_mgr.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -112,7 +112,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (!missionListManager->listenerController_) {
         missionListManager->listenerController_ = std::make_shared<MissionListenerController>();
     }
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(intParam);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->taskDataPersistenceMgr_ =
+        DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
     AbilityRequest abilityRequest;
     missionListManager->OnTimeOut(uint32Param, int64Param);
     missionListManager->HandleLoadTimeout(abilityRecord);
