@@ -27,6 +27,12 @@
 #include "runtime.h"
 #include "source_map.h"
 
+// zhuhan
+using QuickFixQueryCallBack = bool (*)(std::string baseFileName,
+                                       std::string &patchFileName,
+                                       void **patchBuffer,
+                                       size_t &patchSize);
+
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -93,6 +99,8 @@ public:
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
+
+    void RegisterQuickFixQueryFunc(QuickFixQueryCallBack callBack);
 
 private:
     void FinishPreload() override;

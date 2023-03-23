@@ -1528,15 +1528,25 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
 
-    if (runtime) {
-        std::vector<std::pair<std::string, std::string>> hqfFilePair;
-        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
-            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
-                runtime->LoadRepairPatch(it->first, it->second);
-            }
-        }
+    // if (runtime) {
+    //     std::vector<std::pair<std::string, std::string>> hqfFilePair;
+    //     if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
+    //         for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+    //             HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+    //             runtime->LoadRepairPatch(it->first, it->second);
+    //         }
+    //     }
+    // }
+
+    if (runtime && !appInfo->appQuickFix.deployedAppqfInfo.hqfInfos.empty()) {
+        runtime->RegisterQuickFixQueryFunc(callback);
     }
+}
+
+bool callback(std::string baseFileName, std::string &patchFileName,
+            void **patchBuffer, size_t &patchSize)
+{
+    return true;
 }
 
 /**

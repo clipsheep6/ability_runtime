@@ -321,6 +321,7 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
 
     HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
         patchFile.c_str(), resolvedHapPath.c_str());
+    // zhuhan
     auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
         resolvedHapPath, baseBuffer.data(), baseBuffer.size());
     if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
@@ -920,6 +921,12 @@ panda::ecmascript::EcmaVM* JsRuntime::GetEcmaVm() const
 bool JsRuntime::IsUseAbilityRuntime(const Options& options) const
 {
     return (options.isStageModel) || (options.isTestFramework);
+}
+
+void JsRuntime::RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack)
+{
+    auto vm = GetEcmaVm();
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, callBack);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
