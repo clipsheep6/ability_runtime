@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,8 @@ public:
     void InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<EventHandler> handler);
 
+    static bool Dump_SignalHandler(int sig, siginfo_t *si, void *context);
+
 private:
     void Init(pid_t pid);
     void Destroy();
@@ -46,7 +48,6 @@ private:
     void PrintNativeFrames(int fd, std::vector<OHOS::HiviewDFX::NativeFrame>& nativeFrames);
     void PrintProcessHeader(int fd, pid_t pid, uid_t uid);
 
-    static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
     static void HandleMixDumpRequest();
 
 private:
