@@ -63,6 +63,7 @@ void AbilityRecoveryUnitTest::SetUp()
     abilityRecovery_->saveMode_ = 0;
     abilityRecovery_->hasLoaded_ = false;
     abilityRecovery_->abilityInfo_ = abilityInfo_;
+    abilityRecovery_->jsAbilityPtr_ = 0;
 }
 
 void AbilityRecoveryUnitTest::TearDown()
@@ -509,6 +510,31 @@ HWTEST_F(AbilityRecoveryUnitTest, PersistAppState_002, TestSize.Level1)
     int32_t natValue32 = 0;
     abilityRecovery_->params_.SetParam("test", AAFwk::Integer::Box(natValue32));
     EXPECT_TRUE(abilityRecovery_->PersistState());
+}
+
+/**
+ * @tc.name:  IsSameAbility_001
+ * @tc.desc:  Test IsSameAbility when not set SetJsAbility.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AbilityRecoveryUnitTest, IsSameAbility_001, TestSize.Level1)
+{
+    uintptr_t jsAbility = reinterpret_cast<uintptr_t>(mockAbility_.get());
+    EXPECT_FALSE(abilityRecovery_->IsSameAbility(jsAbility));
+}
+
+/**
+ * @tc.name:  IsSameAbility_002
+ * @tc.desc:  Test IsSameAbility after set SetJsAbility.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AbilityRecoveryUnitTest, IsSameAbility_002, TestSize.Level1)
+{
+    uintptr_t jsAbility = reinterpret_cast<uintptr_t>(mockAbility_.get());
+    abilityRecovery_->SetJsAbility(jsAbility);
+    EXPECT_TRUE(abilityRecovery_->IsSameAbility(jsAbility));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
