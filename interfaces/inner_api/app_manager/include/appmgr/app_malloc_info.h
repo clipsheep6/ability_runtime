@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MALLOC_INFO_H
+#define OHOS_ABILITY_RUNTIME_APP_MALLOC_INFO_H
 
-#include <string>
+#include "parcel.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class IErrorObserver {
-public:
-    IErrorObserver() = default;
-    virtual ~IErrorObserver() = default;
-    /**
-     * Will be called when the js runtime throws an exception which doesn't caught by user.
-     *
-     * @param errMsg the message and error stacktrace about the exception.
-     */
-    virtual void OnUnhandledException(std::string errMsg) = 0;
+struct MallocInfo : public Parcelable {
+    int32_t usmblks;
+    int32_t uordblks;
+    int32_t fordblks;
+
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static MallocInfo *Unmarshalling(Parcel &parcel);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
+
+#endif  // OHOS_ABILITY_RUNTIME_APP_MALLOC_INFO_H

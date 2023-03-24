@@ -48,6 +48,7 @@
 
 #include "want.h"
 #include "window_focus_changed_listener.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -283,6 +284,17 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level);
+
+    /**
+     * DumpHeapMemory, get the application's memory info.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     *
+     * @return ERR_OK, return back success，others fail.
+     */
+    virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
      * @brief Check whether the shared bundle is running.
@@ -548,10 +560,8 @@ public:
 
     virtual int32_t PreStartNWebSpawnProcess(const pid_t hostPid);
 
-    virtual int32_t StartRenderProcess(const pid_t hostPid,
-                                       const std::string &renderParam,
-                                       int32_t ipcFd, int32_t sharedFd,
-                                       int32_t crashFd, pid_t &renderPid);
+    virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
+        int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
 
     virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 

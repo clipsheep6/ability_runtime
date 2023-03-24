@@ -13,24 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
-
-#include <string>
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class IErrorObserver {
-public:
-    IErrorObserver() = default;
-    virtual ~IErrorObserver() = default;
-    /**
-     * Will be called when the js runtime throws an exception which doesn't caught by user.
-     *
-     * @param errMsg the message and error stacktrace about the exception.
-     */
-    virtual void OnUnhandledException(std::string errMsg) = 0;
-};
+bool MallocInfo::Marshalling(Parcel &parcel) const
+{
+    return (parcel.WriteInt32(usmblks) && parcel.WriteInt32(uordblks)
+        && parcel.WriteInt32(fordblks));
+}
+
+MallocInfo *MallocInfo::Unmarshalling(Parcel &parcel)
+{
+    MallocInfo *mallocInfo = new (std::nothrow) MallocInfo();
+    if (mallocInfo == nullptr) {
+        return nullptr;
+    }
+    mallocInfo->usmblks = parcel.ReadInt32();
+    mallocInfo->uordblks = parcel.ReadInt32();
+    mallocInfo->fordblks = parcel.ReadInt32();
+    return mallocInfo;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H

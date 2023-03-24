@@ -344,6 +344,14 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
     return appMgrServiceInner_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpHeapMemory(pid, mallocInfo);
+}
+
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 {
     if (!IsReady()) {
@@ -492,7 +500,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t sharedFd, pid_t &renderPid)
 {
     if (!IsReady()) {
         HILOG_ERROR("StartRenderProcess failed, AppMgrService not ready.");
@@ -500,7 +508,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
-        renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        renderParam, ipcFd, sharedFd, renderPid);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
