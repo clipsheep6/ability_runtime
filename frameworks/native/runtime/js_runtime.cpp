@@ -939,5 +939,11 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     panda::JSNApi::SetAssetPath(vm, path);
     panda::JSNApi::SetModuleName(vm, moduleName_);
 }
+
+void JsRuntime::RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack)
+{
+    auto vm = GetEcmaVm();
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, callBack);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

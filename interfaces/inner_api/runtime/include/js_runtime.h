@@ -27,6 +27,12 @@
 #include "runtime.h"
 #include "source_map.h"
 
+namespace panda {
+using QuickFixQueryCallBack = bool (*)(std::string baseFileName,
+                                       std::string &patchFileName,
+                                       void **patchBuffer,
+                                       size_t &patchSize);
+}
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -95,6 +101,7 @@ public:
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
+    void RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack) override;
 
 private:
     void FinishPreload() override;

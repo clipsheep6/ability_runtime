@@ -27,6 +27,13 @@ struct JsFrames {
     uintptr_t *nativePointer = nullptr;
 };
 
+namespace panda {
+using QuickFixQueryCallBack = bool (*)(std::string baseFileName,
+                                       std::string &patchFileName,
+                                       void **patchBuffer,
+                                       size_t &patchSize);
+}
+
 namespace OHOS {
 namespace AppExecFwk {
 class EventRunner;
@@ -78,6 +85,7 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void UpdateExtensionType(int32_t extensionType) = 0;
+    virtual void RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack) = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

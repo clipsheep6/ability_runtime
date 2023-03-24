@@ -1476,6 +1476,17 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     return true;
 }
 
+bool callback(std::string baseFileName, std::string &patchFileName,
+            void **patchBuffer, size_t &patchSize)
+{
+    // 1.baseFileName = /data/storage/el1/bundle/${moudleName}.abc。多个moudle如何处理？
+
+    // 2.根据moudleName获取到patchFileName，补丁路径。hqfInfos：moudelName， hqfFile
+
+    //
+    return true;
+}
+
 /**
  *
  * @brief launch the ability.
@@ -1528,14 +1539,20 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
 
-    if (runtime) {
-        std::vector<std::pair<std::string, std::string>> hqfFilePair;
-        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
-            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
-                runtime->LoadRepairPatch(it->first, it->second);
-            }
-        }
+    // if (runtime) {
+    //     std::vector<std::pair<std::string, std::string>> hqfFilePair;
+    //     if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
+    //         for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+    //             HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+    //             runtime->LoadRepairPatch(it->first, it->second);
+    //         }
+    //     }
+    // }
+
+    if (runtime && !appInfo->appQuickFix.deployedAppqfInfo.hqfInfos.empty()) {
+
+        // hqfInfos：moudelName， hqfFile
+        runtime->RegisterQuickFixQueryFunc(callback);
     }
 }
 
