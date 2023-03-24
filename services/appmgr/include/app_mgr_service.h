@@ -153,6 +153,15 @@ public:
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get application's memory info.
+     *
+     * @param pidInfo, contains the pid info and malloc info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpHeapMemory(std::vector<int32_t> &pidInfo) override;
+
     // the function about system
     /**
      * CheckPermission, call CheckPermission() through proxy object, check the permission.

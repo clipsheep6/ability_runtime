@@ -113,6 +113,16 @@ void AppLifeCycleDeal::ScheduleMemoryLevel(int32_t Level)
     appThread_->ScheduleMemoryLevel(Level);
 }
 
+void AppLifeCycleDeal::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
+{
+    if (!appThread_) {
+        HILOG_ERROR("appThread_ is nullptr");
+        return;
+    }
+
+    appThread_->ScheduleHeapMemory(pidInfo);
+}
+
 void AppLifeCycleDeal::LowMemoryWarning()
 {
     if (!appThread_) {

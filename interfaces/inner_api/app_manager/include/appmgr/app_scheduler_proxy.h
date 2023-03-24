@@ -77,6 +77,16 @@ public:
     virtual void ScheduleMemoryLevel(int32_t level) override;
 
     /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory info.
+     *
+     * @param pidInfo, contains the pid info and malloc info.
+     *
+     * @return
+     */
+    virtual void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) override;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
