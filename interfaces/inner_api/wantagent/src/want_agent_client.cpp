@@ -23,6 +23,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "want_sender_proxy.h"
 
 using namespace OHOS::AbilityRuntime;
 namespace OHOS {
@@ -69,7 +70,14 @@ ErrCode WantAgentClient::GetWantSender(
         HILOG_ERROR("Send request error: %{public}d", error);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
-    wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
+
+    sptr<IRemoteObject> remoteObject = reply.ReadRemoteObject();
+    wantSender = new (std::nothrow) WantSenderProxy(remoteObject);
+    if (wantSender == nullptr) {
+        HILOG_ERROR("Failed to create IWantSender.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR;
+    }
+
     return ERR_OK;
 }
 
