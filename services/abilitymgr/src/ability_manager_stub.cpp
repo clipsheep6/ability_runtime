@@ -726,17 +726,17 @@ int AbilityManagerStub::StartAbilityByLauncherInner(MessageParcel &data, Message
         delete want;
         return ERR_INVALID_VALUE;
     }
-    sptr<IRemoteObject> callerToken = nullptr;
-    if (data.ReadBool()) {
-        callerToken = data.ReadRemoteObject();
-    }
+    // sptr<IRemoteObject> callerToken = nullptr;
+    // if (data.ReadBool()) {
+    //     callerToken = data.ReadRemoteObject();
+    // }
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityByLauncher(*want, *startOptions, callerToken, sessionInfo, userId, requestCode);
+    int32_t result = StartAbilityByLauncher(*want, *startOptions, sessionInfo, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete startOptions;

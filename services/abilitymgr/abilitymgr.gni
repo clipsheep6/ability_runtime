@@ -70,6 +70,7 @@ abilityms_files = [
   "src/remote_mission_listener_stub.cpp",
   "src/mission_list_manager.cpp",
   "src/mission_list.cpp",
+  "src/ui_ability_manager.cpp",
 
   #connection observer
   "src/connection_observer_controller.cpp",

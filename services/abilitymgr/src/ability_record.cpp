@@ -125,9 +125,11 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
+        HILOG_ERROR("ywz fail to iface_cast.");
         return nullptr;
     }
     if (theToken->GetDescriptor() != u"ohos.aafwk.AbilityToken") {
+        HILOG_ERROR("ywz fail to GetDescriptor.");
         return nullptr;
     }
 
@@ -165,7 +167,8 @@ AbilityRecord::~AbilityRecord()
     }
 }
 
-std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
+std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest,
+    sptr<SessionInfo> sessionInfo)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
@@ -173,6 +176,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->SetUid(abilityRequest.uid);
     abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
+    abilityRecord->sessionInfo_ = sessionInfo;
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;

@@ -171,16 +171,16 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const Start
 }
 
 ErrCode AbilityManagerClient::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
-    int32_t userId, int requestCode)
+    sptr<SessionInfo> sessionInfo, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("%{public}s come, abilityName=%{public}s, userId=%{public}d.",
         __func__, want.GetElement().GetAbilityName().c_str(), userId);
-    HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityByLauncher(want, startOptions, callerToken, sessionInfo, userId, requestCode);
+    // 合一服务调过来的，要么不涉及沙箱，要么沙箱已被原有的startAbility处理
+    // HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityByLauncher(want, startOptions, sessionInfo, userId, requestCode);
 }
 
 sptr<IRemoteObject> AbilityManagerClient::GetTokenBySceneSession(uint64_t persistentId)

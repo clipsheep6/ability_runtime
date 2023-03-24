@@ -17,8 +17,10 @@
 
 #include "ability_manager_service.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
+#include "session_info.h"
 #include "task_data_persistence_mgr.h"
 
 namespace OHOS {
@@ -95,7 +97,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         return -1;
     }
 
-    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD) {
+    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         // start freezing screen
         DelayedSingleton<AbilityManagerService>::GetInstance()->StartFreezingScreen();
     }
@@ -120,7 +122,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         SendSystemUserStart(userId);
     }
 
-    if (isForeground) {
+    if (isForeground && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         SendSystemUserCurrent(oldUserId, userId);
         SendReportUserSwitch(oldUserId, userId, userItem);
         SendUserSwitchTimeout(oldUserId, userId, userItem);
@@ -162,14 +164,16 @@ int32_t UserController::StopUser(int32_t userId)
         HILOG_ERROR("appScheduler is null");
         return -1;
     }
-    appScheduler->KillProcessesByUserId(userId);
+    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->KillProcessesByUserId(userId));
 
-    auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
-    if (!taskDataPersistenceMgr) {
-        HILOG_ERROR("taskDataPersistenceMgr is null");
-        return -1;
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
+        if (!taskDataPersistenceMgr) {
+            HILOG_ERROR("taskDataPersistenceMgr is null");
+            return -1;
+        }
+        taskDataPersistenceMgr->RemoveUserDir(userId);
     }
-    taskDataPersistenceMgr->RemoveUserDir(userId);
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {

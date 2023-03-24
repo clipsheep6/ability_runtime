@@ -181,6 +181,7 @@ void AbilityImpl::StopCallback()
     }
 #endif
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
+    // FA模型后面考虑是否需要适配
     ability_->DestroyInstance(); // Release window and ability.
 }
 
@@ -797,7 +798,7 @@ void AbilityImpl::Background()
         HILOG_ERROR("AbilityImpl::Background ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
-    ability_->OnLeaveForeground();
+    // ability_->OnLeaveForeground();
     ability_->OnBackground();
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {

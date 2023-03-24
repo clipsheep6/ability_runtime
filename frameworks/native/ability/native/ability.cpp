@@ -181,24 +181,14 @@ void Ability::OnStart(const Want &want, sptr<SessionInfo> sessionInfo)
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
-        auto option = GetWindowOption(want);
-        InitWindow(displayId, option);
-
-        if (abilityWindow_ != nullptr) {
-            HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
-            auto window = abilityWindow_->GetWindow();
-            if (window) {
-                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-                window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-            }
-        }
 
         // Update resMgr, Configuration
-        HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
         sptr<Rosen::Display> display = nullptr;
         if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
             display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        } else {
+            // 待合一服务提供新的拿display的方法
+            // display = Rosen::DisplayManager::GetInstance().NewMethod(displayId);
         }
         if (display) {
             float density = display->GetVirtualPixelRatio();
@@ -360,10 +350,8 @@ void Ability::OnStop()
         onSceneDestroyed();
     } else {
         if (uiWindow_) {
-            HILOG_ERROR("CHY %{public}s DoDisconnect.", __func__);
+            HILOG_INFO("UIWindow do disconnect.");
             uiWindow_->Disconnect();
-        } else {
-            HILOG_ERROR("%{public}s uiWindow_ is null.", __func__);
         }
     }
 #endif
@@ -1651,6 +1639,7 @@ void Ability::OnBackground()
                 abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
             }
         } else {
+            // FA模型待适配
             if (abilityWindow_ == nullptr) {
                 HILOG_ERROR("Ability::OnBackground error. abilityWindow_ == nullptr.");
                 return;

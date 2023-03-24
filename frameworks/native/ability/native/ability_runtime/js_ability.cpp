@@ -201,13 +201,14 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() &&
-        want.GetBundle().find("animationdesktop") == std::string::npos) {
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
         if (sessionInfo) {
             uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_, sessionInfo->sessionToken);
-            uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
-            uiWindow_->Connect();
+            if (uiWindow_ != nullptr) {
+                uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
+                uiWindow_->Connect();
+            }
         }
     }
     NativeValue *value = jsAbilityObj_->Get();
@@ -414,8 +415,7 @@ void JsAbility::OnForeground(const Want &want)
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
 
     obj->SetProperty("lastRequestWant", jsWant);
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() &&
-        want.GetBundle().find("animationdesktop") == std::string::npos) {
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         if (GetState() == AppExecFwk::AbilityLifecycleExecutor::STARTED_NEW) {
             AbilityContinuationOrRecover(want);
         }
@@ -531,12 +531,10 @@ void JsAbility::DoOnForeground(const Want &want)
     std::string testName = want.GetBundle();
     HILOG_ERROR("chy BundleName: %{public}s beforeForeground", testName.c_str());
     auto testType = Ability::GetAbilityInfo()->type;
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && testName.find("animationdesktop") == std::string::npos) {
-        HILOG_ERROR("chy ablitytype: %{public}d", static_cast<uint32_t>(testType));
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         if (uiWindow_) {
+            HILOG_ERROR("chy ablitytype: %{public}d", static_cast<uint32_t>(testType));
             uiWindow_->Foreground();
-        } else {
-            HILOG_ERROR("chy %{public}s uiWindow_ is null.", __func__);
         }
         return;
     }
@@ -599,17 +597,24 @@ void JsAbility::DoOnForeground(const Want &want)
 void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
-    if (scene_ == nullptr) {
-        return;
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        if (uiWindow_ != nullptr) {
+            // 待UIWindow提供对应的接口
+            // uiWindow_->Focus();
+        }
+    } else {
+        if (scene_ == nullptr) {
+            return;
+        }
+        auto window = scene_->GetMainWindow();
+        if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+            auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
+                AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+            window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+            HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+        }
+        scene_->GoForeground(Ability::sceneFlag_);
     }
-    auto window = scene_->GetMainWindow();
-    if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
-        auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
-            AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-        window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        HILOG_DEBUG("set window mode = %{public}d.", windowMode);
-    }
-    scene_->GoForeground(Ability::sceneFlag_);
 }
 
 void JsAbility::ContinuationRestore(const Want &want)
@@ -781,6 +786,9 @@ void JsAbility::OnNewWant(const Want &want)
 #ifdef SUPPORT_GRAPHICS
     if (scene_) {
         scene_->OnNewWant(want);
+    }
+    if (uiWindow_ != nullptr) {
+        // uiWindow_->OnNewWant(want);
     }
 #endif
 

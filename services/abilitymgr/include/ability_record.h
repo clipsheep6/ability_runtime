@@ -279,7 +279,8 @@ public:
      * @param abilityRequest,create ability record.
      * @return Returns ability record ptr.
      */
-    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest);
+    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest,
+        sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * Init ability record.

@@ -46,6 +46,7 @@
 #include "parameter.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
+#include "ui_ability_manager.h"
 #include "user_controller.h"
 #include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
@@ -89,8 +90,8 @@ public:
         const Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
 
     virtual int StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
-        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
+        sptr<SessionInfo> sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     virtual sptr<IRemoteObject> GetTokenBySceneSession(uint64_t persistentId) override;
     /**
@@ -1312,6 +1313,7 @@ private:
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
+    std::unique_ptr<UIAbilityManager> uiAbilityManager_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;

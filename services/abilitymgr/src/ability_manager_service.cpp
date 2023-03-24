@@ -282,10 +282,12 @@ bool AbilityManagerService::Init()
     amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
     amsConfigResolver_->Parse();
     HILOG_INFO("ams config parse");
-    InitMissionListManager(MAIN_USER_ID, true);
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        uiAbilityManager_ = std::make_unique<UIAbilityManager>();
+    } else {
+        InitMissionListManager(MAIN_USER_ID, true);
+    }
     SwitchManagers(U0_USER_ID, false);
-    int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
-    HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
     std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
 #ifdef SUPPORT_ASAN
@@ -918,14 +920,30 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     return ret;
 }
 
+// 1.新动效框架下UIAbilityManager不关系多用户场景
+// 2.合一服务不会启动沙箱应用？沙箱应用可以有图标吗？
+// 3.从图标点击启动，不涉及免安装、隐式启动
+// 4.加校验，只允许合一服务调用该方法
 int AbilityManagerService::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
-    int32_t userId, int requestCode)
+    sptr<SessionInfo> sessionInfo, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability options.");
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+    EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+
+    if (sessionInfo->callerToken != nullptr && !VerificationAllToken(sessionInfo->callerToken)) {
         return ERR_INVALID_CALLER;
+    }
+
+    // 合一服务起的也有可能是众测应用，要加判断
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
     }
 
     int32_t oriValidUserId = GetValidUserId(userId);
@@ -937,13 +955,14 @@ int AbilityManagerService::StartAbilityByLauncher(const Want &want, const StartO
     }
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    result = GenerateAbilityRequest(want, requestCode, abilityRequest, sessionInfo->callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
+    // singleton应用可以非常驻？
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -957,38 +976,32 @@ int AbilityManagerService::StartAbilityByLauncher(const Want &want, const StartO
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
         if (result != ERR_OK) {
             HILOG_ERROR("StartAbility: App data ability preloading failed, '%{public}s', %{public}d",
-                abilityInfo.bundleName.c_str(),
-                result);
+                abilityInfo.bundleName.c_str(), result);
             return result;
         }
     }
 
-    if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
-        return ERR_WOULD_BLOCK;
-    }
+    // if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
+    //     return ERR_WOULD_BLOCK;
+    // }
     abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
+    if (uiAbilityManager_ == nullptr) {
+        HILOG_ERROR("uiAbilityManager_ is nullptr");
         return ERR_INVALID_VALUE;
     }
 
 #ifdef SUPPORT_GRAPHICS
-    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+    if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
-    auto ret = missionListManager->StartAbility(abilityRequest, sessionInfo);
-    return ret;
+    return uiAbilityManager_->StartAbility(abilityRequest, sessionInfo);
 }
 
 sptr<IRemoteObject> AbilityManagerService::GetTokenBySceneSession(uint64_t persistentId)
 {
-    if (!currentMissionListManager_) {
-        return nullptr;
-    }
-    return currentMissionListManager_->GetTokenBySceneSession(persistentId);
+    return uiAbilityManager_->GetTokenBySceneSession(persistentId);
 }
 
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
@@ -2625,7 +2638,7 @@ int AbilityManagerService::AttachAbilityThread(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
-    if (!VerificationAllToken(token)) {
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -2659,13 +2672,17 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = dataAbilityManager->AttachAbilityThread(scheduler, token);
     } else {
-        int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-        auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-        if (!missionListManager) {
-            HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-            return ERR_INVALID_VALUE;
+        if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+            returnCode = uiAbilityManager_->AttachAbilityThread(scheduler, token);
+        } else {
+            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+            if (!missionListManager) {
+                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+                return ERR_INVALID_VALUE;
+            }
+            returnCode = missionListManager->AttachAbilityThread(scheduler, token);
         }
-        returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
     return returnCode;
 }
@@ -3202,13 +3219,17 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             break;
         }
         default: {
-            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-            if (!missionListManager) {
-                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-                return;
+            if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+                uiAbilityManager_->OnAbilityRequestDone(token, state);
+            } else {
+                int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+                auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+                if (!missionListManager) {
+                    HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+                    return;
+                }
+                missionListManager->OnAbilityRequestDone(token, state);
             }
-            missionListManager->OnAbilityRequestDone(token, state);
             break;
         }
     }
@@ -3851,14 +3872,16 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     HILOG_INFO("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     {
-        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
-        for (auto item: missionListManagers_) {
-            if (item.second && item.second->GetAbilityRecordByToken(token)) {
-                return true;
-            }
+        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
+            for (auto item: missionListManagers_) {
+                if (item.second && item.second->GetAbilityRecordByToken(token)) {
+                    return true;
+                }
 
-            if (item.second && item.second->GetAbilityFromTerminateList(token)) {
-                return true;
+                if (item.second && item.second->GetAbilityFromTerminateList(token)) {
+                    return true;
+                }
             }
         }
     }
@@ -3994,6 +4017,14 @@ void AbilityManagerService::StartResidentApps()
     }
 
     HILOG_INFO("StartResidentApps GetBundleInfos size: %{public}zu", bundleInfos.size());
+    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        for (auto iter = bundleInfos.begin(); iter != bundleInfos.end(); iter++) {
+            if (iter->name == BUNDLE_NAME_SYSTEMUI) {
+                bundleInfos.erase(iter);
+                break;
+            }
+        }
+    }
 
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
@@ -4299,6 +4330,7 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
 int AbilityManagerService::StartUser(int userId)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
+    // 判断是合一服务也放行
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
         HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
         return CHECK_PERMISSION_FAILED;
@@ -4313,6 +4345,7 @@ int AbilityManagerService::StartUser(int userId)
 int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    // 判断是合一服务也放行 
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
         HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
         return CHECK_PERMISSION_FAILED;
@@ -4420,7 +4453,9 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 {
     HILOG_DEBUG("%{public}s", __func__);
     std::unique_lock<std::shared_mutex> lock(managersMutex_);
-    missionListManagers_.erase(userId);
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        missionListManagers_.erase(userId);
+    }
     connectManagers_.erase(userId);
     dataAbilityManagers_.erase(userId);
     pendingWantManagers_.erase(userId);
@@ -4655,7 +4690,9 @@ void AbilityManagerService::UserStarted(int32_t userId)
 {
     HILOG_INFO("%{public}s", __func__);
     InitConnectManager(userId, false);
-    InitMissionListManager(userId, false);
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        InitMissionListManager(userId, false);
+    }
     InitDataAbilityManager(userId, false);
     InitPendWantManager(userId, false);
 }
@@ -4678,7 +4715,7 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 {
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----begin", __func__, userId);
     InitConnectManager(userId, switchUser);
-    if (userId != U0_USER_ID) {
+    if (userId != U0_USER_ID && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
         InitMissionListManager(userId, switchUser);
     }
     InitDataAbilityManager(userId, switchUser);
@@ -4688,8 +4725,10 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 
 void AbilityManagerService::PauseOldUser(int32_t userId)
 {
-    HILOG_INFO("%{public}s, PauseOldUser:%{public}d-----begin", __func__, userId);
-    PauseOldMissionListManager(userId);
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        HILOG_INFO("PauseOldUser:%{public}d-----begin", userId);
+        PauseOldMissionListManager(userId);
+    }
     HILOG_INFO("%{public}s, PauseOldUser:%{public}d-----end", __func__, userId);
 }
 
@@ -4737,7 +4776,8 @@ void AbilityManagerService::PauseOldConnectManager(int32_t userId)
 void AbilityManagerService::StartUserApps(int32_t userId, bool isBoot)
 {
     HILOG_INFO("StartUserApps, userId:%{public}d, currentUserId:%{public}d", userId, GetUserId());
-    if (currentMissionListManager_ && currentMissionListManager_->IsStarted()) {
+    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && currentMissionListManager_ &&
+        currentMissionListManager_->IsStarted()) {
         HILOG_INFO("missionListManager ResumeManager");
         currentMissionListManager_->ResumeManager();
     }

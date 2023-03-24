@@ -49,13 +49,13 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
         return;
     }
 #endif
-    SetLifeCycleStateInfo(targetState);
+    // SetLifeCycleStateInfo(targetState);
     if (ability_ != nullptr) {
         ability_->SetLaunchParam(targetState.launchParam);
         if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
-            ability_->SetStartAbilitySetting(targetState.setting);
+            // ability_->SetStartAbilitySetting(targetState.setting);
             Start(want, sessionInfo);
-            CheckAndRestore();
+            // CheckAndRestore();
         }
     }
 

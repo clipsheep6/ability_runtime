@@ -584,6 +584,9 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (token == nullptr) {
+        HILOG_ERROR("ywz token is nullptr");
+    }
     HILOG_DEBUG("schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);

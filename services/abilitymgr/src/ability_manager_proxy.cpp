@@ -351,8 +351,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
 }
 
 int AbilityManagerProxy::StartAbilityByLauncher(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
-    int32_t userId, int requestCode)
+    sptr<SessionInfo> sessionInfo, int32_t userId, int requestCode)
 {
     int error;
     MessageParcel data;
@@ -369,17 +368,17 @@ int AbilityManagerProxy::StartAbilityByLauncher(const Want &want, const StartOpt
         HILOG_ERROR("startOptions write failed.");
         return INNER_ERR;
     }
-    if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return INNER_ERR;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return INNER_ERR;
-        }
-    }
+    // if (callerToken) {
+    //     if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+    //         HILOG_ERROR("flag and callerToken write failed.");
+    //         return INNER_ERR;
+    //     }
+    // } else {
+    //     if (!data.WriteBool(false)) {
+    //         HILOG_ERROR("flag write failed.");
+    //         return INNER_ERR;
+    //     }
+    // }
 
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
