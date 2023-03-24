@@ -69,7 +69,14 @@ ErrCode WantAgentClient::GetWantSender(
         HILOG_ERROR("Send request error: %{public}d", error);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
-    wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
+
+    sptr<IRemoteObject> remoteObject = reply.ReadRemoteObject();
+    wantSender = new (std::nothrow) WantSenderProxy(remoteObject);
+    if (wantSender == nullptr) {
+        HILOG_ERROR("Failed to create IWantSender.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR;
+    }
+
     return ERR_OK;
 }
 
