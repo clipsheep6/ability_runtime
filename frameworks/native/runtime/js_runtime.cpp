@@ -847,5 +847,19 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
     NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
     nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
+
+void JsRuntime::UpdateExtensionType(int32_t extensionType)
+{
+    if (nativeEngine_ == nullptr) {
+        HILOG_ERROR("UpdateExtensionType error, nativeEngine_ is nullptr");
+        return;
+    }
+    NativeModuleManager* moduleManager = nativeEngine_->GetModuleManager();
+    if (moduleManager == nullptr) {
+        HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
+        return;
+    }
+    moduleManager->SetProcessExtensionType(extensionType);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

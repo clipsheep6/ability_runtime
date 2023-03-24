@@ -1105,15 +1105,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityLoader::GetInstance().RegisterExtension("FormExtension", [application = application_]() {
             return AbilityRuntime::FormExtension::Create(application->GetRuntime());
         });
+        AddExtensionBlockItem("FormExtension", static_cast<int32_t>(ExtensionAbilityType::FORM));
 #endif
         AbilityLoader::GetInstance().RegisterExtension("StaticSubscriberExtension", [application = application_]() {
             return AbilityRuntime::StaticSubscriberExtension::Create(application->GetRuntime());
         });
+        AddExtensionBlockItem("StaticSubscriberExtension",
+            static_cast<int32_t>(ExtensionAbilityType::STATICSUBSCRIBER));
 
 #ifdef APP_USE_ARM
-        LoadAllExtensions("system/lib/extensionability");
+        LoadAllExtensions(jsEngine, "system/lib/extensionability");
 #else
-        LoadAllExtensions("system/lib64/extensionability");
+        LoadAllExtensions(jsEngine, "system/lib64/extensionability");
 #endif
         std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);
         idleTime_ = std::make_shared<IdleTime>(mainHandler_, nativeEngine);
@@ -1267,13 +1270,17 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
 }
 
-void MainThread::LoadAllExtensions(const std::string &filePath)
+void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath)
 {
     HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s", filePath.c_str());
     if (application_ == nullptr) {
         HILOG_ERROR("application launch failed");
         return;
     }
+    if (!extensionConfigMgr_) {
+        return;
+    }
+
     // scan all extensions in path
     std::vector<std::string> extensionFiles;
     ScanDir(filePath, extensionFiles);
@@ -1281,6 +1288,8 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
         HILOG_ERROR("no extension files.");
         return;
     }
+
+    std::map<OHOS::AppExecFwk::ExtensionAbilityType, std::set<std::string>> extensionBlacklist;
     std::map<int32_t, std::string> extensionTypeMap;
     for (auto file : extensionFiles) {
         HILOG_DEBUG("Begin load extension file:%{public}s", file.c_str());
@@ -1312,12 +1321,15 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
         std::string extensionName = it->second;
 
         extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
+        AddExtensionBlockItem(extensionName, type);
+
         HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
         AbilityLoader::GetInstance().RegisterExtension(extensionName, [application = application_, file]() {
             return AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).Create(application->GetRuntime());
         });
     }
     application_->SetExtensionTypeMap(extensionTypeMap);
+    UpdateEngineExtensionBlockList(nativeEngine);
 }
 
 bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
@@ -1407,6 +1419,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     mainThreadState_ = MainThreadState::RUNNING;
     std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
+    UpdateProcessExtensionType(abilityRecord);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
 #else
@@ -1704,6 +1717,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
     signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
+    extensionConfigMgr_ = std::make_unique<AbilityRuntime::ExtensionConfigMgr>();
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -1719,6 +1733,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
+    extensionConfigMgr_->Init();
     HILOG_DEBUG("MainThread:Init end.");
 }
 
@@ -2212,6 +2227,42 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return NO_ERROR;
+}
+
+void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+{
+    auto &runtime = application_->GetRuntime();
+    if (!runtime) {
+        HILOG_ERROR("Get runtime failed");
+        return;
+    }
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    auto &abilityInfo = abilityRecord->GetAbilityInfo();
+    if (!abilityInfo) {
+        HILOG_ERROR("Get abilityInfo failed");
+        return;
+    }
+    runtime->UpdateExtensionType(static_cast<int32_t>(abilityInfo->extensionAbilityType));
+    HILOG_INFO("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
+}
+
+void MainThread::AddExtensionBlockItem(const std::string &extensionName, int32_t type)
+{
+    if (!extensionConfigMgr_) {
+        return;
+    }
+    extensionConfigMgr_->AddBlockListItem(extensionName, type);
+}
+
+void MainThread::UpdateEngineExtensionBlockList(NativeEngine &nativeEngine)
+{
+    if (!extensionConfigMgr_) {
+        return;
+    }
+    extensionConfigMgr_->UpdateBlockListToEngine(nativeEngine);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

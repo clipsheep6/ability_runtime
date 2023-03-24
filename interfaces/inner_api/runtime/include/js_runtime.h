@@ -70,6 +70,7 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
     virtual void UpdateModuleNameAndAssetPath(const std::string& moduleName) {}
+    void UpdateExtensionType(int32_t extensionType) override;
 
 protected:
     JsRuntime() = default;

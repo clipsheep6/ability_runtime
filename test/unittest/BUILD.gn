@@ -351,6 +351,7 @@ group("unittest") {
     "dlp_state_item_test:unittest",
     "dlp_utils_test:unittest",
     "event_report_test:unittest",
+    "extension_config_mgr_test:unittest",
     "file_path_utils_test:unittest",
     "form_extension_context_test:unittest",
     "frameworks_kits_ability_ability_runtime_test:unittest",

@@ -19,6 +19,7 @@
 #include <string>
 #include <mutex>
 #include "event_handler.h"
+#include "extension_config_mgr.h"
 #include "idle_time.h"
 #include "inner_event.h"
 #include "app_scheduler_host.h"
@@ -28,6 +29,7 @@
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
+#include "native_engine/native_engine.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER
 
@@ -438,7 +440,13 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAllExtensions(const std::string &filePath);
+    /**
+     * @brief Load all extension so
+     *
+     * @param nativeEngine nativeEngine
+     * @param filePath extension so file path
+     */
+    void LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath);
 
     /**
      *
@@ -449,6 +457,28 @@ private:
      */
     bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
         BundleInfo& bundleInfo);
+
+    /**
+     * @brief Update current process extension type
+     *
+     * @param abilityRecord current running ability record
+     */
+    void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+
+    /**
+     * @brief Add Extension block item
+     *
+     * @param extensionName extension name
+     * @param type extension type
+     */
+    void AddExtensionBlockItem(const std::string &extensionName, int32_t type);
+
+    /**
+     * @brief Update extension block list to nativeEngine
+     *
+     * @param nativeEngine nativeEngine instance
+     */
+    void UpdateEngineExtensionBlockList(NativeEngine &nativeEngine);
 
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
@@ -486,6 +516,7 @@ private:
     static std::shared_ptr<MainHandler> mainHandler_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
     std::shared_ptr<Watchdog> watchdog_ = nullptr;
+    std::unique_ptr<AbilityRuntime::ExtensionConfigMgr> extensionConfigMgr_ = nullptr;
     MainThreadState mainThreadState_ = MainThreadState::INIT;
     sptr<IAppMgr> appMgr_ = nullptr;  // appMgrService Handler
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;

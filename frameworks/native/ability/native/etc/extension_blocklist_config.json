@@ -1,0 +1,22 @@
+{
+    "blocklist": {
+        "ServiceExtension": [],
+        "FormExtension": [
+            "ability.particleAbility",
+            "resourceschedule.backgroundTaskManager",
+            "multimedia.camera",
+            "multimedia.audio",
+            "multimedia.media"
+        ],
+        "FileAccessExtension": [],
+        "BackupExtension": [],
+        "EnterpriseAdminExtension": [],
+        "WindowExtensionExtension": [],
+        "WallpaperExtension": [],
+        "StaticSubscriberExtension": [],
+        "AccessibilityExtension": [],
+        "InputMethodExtension": [],
+        "WorkSchedulerExtension": [],
+        "DataShareExtension": []
+    }
+}

@@ -236,6 +236,7 @@ ohos_unittest("application_impl_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -373,6 +374,7 @@ ohos_unittest("ability_stage_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
