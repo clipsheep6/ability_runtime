@@ -43,26 +43,6 @@ void NapiBaseContextTest::TearDown()
 {}
 
 /**
- * @tc.name: GetFAModeContextClassObject_0100
- * @tc.desc: basic function test.
- * @tc.type: FUNC
- */
-HWTEST_F(NapiBaseContextTest, GetFAModeContextClassObject_0100, TestSize.Level1)
-{
-    HILOG_INFO("GetFAModeContextClassObject start");
-
-    napi_value *object = AbilityRuntime::GetFAModeContextClassObject();
-    EXPECT_TRUE(object != nullptr);
-
-    napi_env env = nullptr;
-    napi_value instance = nullptr;
-    napi_status status = napi_new_instance(env, *object, 0, nullptr, &instance);
-    EXPECT_NE(status, napi_ok);
-
-    HILOG_INFO("GetFAModeContextClassObject end");
-}
-
-/**
  * @tc.name: IsStageContext_0100
  * @tc.desc: basic function test.
  * @tc.type: FUNC

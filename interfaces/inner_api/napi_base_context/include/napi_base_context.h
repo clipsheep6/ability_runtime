@@ -25,8 +25,6 @@ namespace AppExecFwk {
 class Ability;
 }
 namespace AbilityRuntime {
-napi_value* GetFAModeContextClassObject();
-
 napi_status IsStageContext(napi_env env, napi_value object, bool& stageMode);
 
 class Context;
