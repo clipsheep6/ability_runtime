@@ -21,6 +21,7 @@
 #include "ability_running_record.h"
 #include "hap_module_info.h"
 #include "want.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -111,6 +112,17 @@ public:
      */
     void ScheduleMemoryLevel(int32_t Level);
 
+    /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     *
+     * @return
+     */
+    void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+    
     /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
      * Notify application to low memory.

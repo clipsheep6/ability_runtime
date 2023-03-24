@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <new>
 #include <regex>
 #include <unistd.h>
+#include <malloc.h>
 
 #include "constants.h"
 #include "ability_delegator.h"
@@ -483,6 +484,27 @@ void MainThread::ScheduleMemoryLevel(const int level)
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
     HILOG_DEBUG("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
+}
+
+/**
+ *
+ * @brief Get the application's memory allocation info.
+ *
+ * @param pid, pid input.
+ * @param mallocInfo, dynamic storage information output.
+ */
+void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    struct mallinfo mi = mallinfo();
+    int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
+    int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
+    int fordblks = mi.fordblks; // 当前未释放的大小
+    HILOG_DEBUG("the application's pid: %{public}i", pid);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    pidInfo.clear();
+    pidInfo.push_back(usmblks);
+    pidInfo.push_back(uordblks);
+    pidInfo.push_back(fordblks);
 }
 
 /**
@@ -1092,15 +1114,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\n";
-            const AppExecFwk::ErrorObject errorObj = {
-                .name = errorName,
-                .message = errorMsg,
-                .stack = errorStack
-            };
-            if (obj != nullptr && obj->HasProperty("code")) {
-                std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
-                summary += "Error code:" + errorCode + "\n";
-            }
             if (appThread->application_ == nullptr) {
                 HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
                 return;
@@ -1135,8 +1148,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
-            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
-                ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj)) {
+            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
                 return;
             }
             // if app's callback has been registered, let app decide whether exit or not.

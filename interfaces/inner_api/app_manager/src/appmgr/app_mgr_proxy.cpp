@@ -309,6 +309,35 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
     return result;
 }
 
+int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    HILOG_DEBUG("AppMgrProxy::DumpHeapMemory.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    data.WriteInt32(pid);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret =
+        remote->SendRequest(
+            static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    std::unique_ptr<MallocInfo> info(reply.ReadParcelable<MallocInfo>());
+    mallocInfo = *info;
+    return ret;
+}
+
 bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply)
 {
     MessageOption option(MessageOption::TF_SYNC);
@@ -625,14 +654,12 @@ int AppMgrProxy::PreStartNWebSpawnProcess()
     return 0;
 }
 
-int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
-                                    int32_t ipcFd, int32_t sharedFd,
-                                    int32_t crashFd, pid_t &renderPid)
+int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
 {
-    if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || crashFd <= 0) {
-        HILOG_ERROR("Invalid params, renderParam:%{private}s, ipcFd:%{public}d, "
-                    "sharedFd:%{public}d, crashFd:%{public}d",
-                    renderParam.c_str(), ipcFd, sharedFd, crashFd);
+    if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
+        HILOG_ERROR("Invalid params, renderParam:%{private}s, ipcFd:%{public}d, sharedFd:%{public}d",
+            renderParam.c_str(), ipcFd, sharedFd);
         return -1;
     }
 
@@ -649,21 +676,15 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
         return -1;
     }
 
-    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd) ||
-        !data.WriteFileDescriptor(crashFd)) {
-        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
-                    "crashFd:%{public}d",
-                    ipcFd, sharedFd, crashFd);
+    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd)) {
+        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
         return -1;
     }
 
-    int32_t ret = Remote()->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS), data,
-        reply, option);
+    int32_t ret =
+        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN(
-            "StartRenderProcess SendRequest is failed, error code: %{public}d",
-            ret);
+        HILOG_WARN("StartRenderProcess SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
 
