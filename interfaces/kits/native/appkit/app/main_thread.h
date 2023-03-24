@@ -32,6 +32,7 @@
 #include "ipc_singleton.h"
 #include "native_engine/native_engine.h"
 #include "watchdog.h"
+#include "app_malloc_info.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -157,11 +158,12 @@ public:
 
     /**
      *
-     * @brief Get the application's memory info.
+     * @brief Get the application's memory allocation info.
      *
-     * @param pidInfo, contains the pid info and malloc info.
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
      */
-    void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) override;
+    void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     /**
      *

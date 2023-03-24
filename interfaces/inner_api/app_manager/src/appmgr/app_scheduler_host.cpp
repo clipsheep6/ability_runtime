@@ -19,6 +19,7 @@
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -36,8 +37,6 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleShrinkMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleLaunchAbility;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION)] =
@@ -62,6 +61,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
+        &AppSchedulerHost::HandleScheduleHeapMemory;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -133,16 +134,10 @@ int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, Message
 
 int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
-    std::vector<int32_t> mallinfo;
-    bool intVectorReadSuccess = data.ReadInt32Vector(&mallinfo);
-    if (!intVectorReadSuccess) {
-        HILOG_ERROR("failed to read Int32Vector for mallinfo");
-        return ERR_INVALID_VALUE;
-    }
-
-    HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleHeapMemory(mallinfo);
-    reply.WriteInt32Vector(mallinfo);
+    int32_t pid = data.ReadInt32();
+    struct OHOS::AppExecFwk::MallocInfo mallocInfo;
+    ScheduleHeapMemory(pid, mallocInfo);
+    reply.WriteParcelable(&mallocInfo);
     return NO_ERROR;
 }
 

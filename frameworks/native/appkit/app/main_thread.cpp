@@ -488,23 +488,23 @@ void MainThread::ScheduleMemoryLevel(const int level)
 
 /**
  *
- * @brief Get the application's heap memory info.
+ * @brief Get the application's memory allocation info.
  *
- * @param pidInfo, contains the pid info and malloc info.
+ * @param pid, pid input.
+ * @param mallocInfo, dynamic storage information output.
  */
-void MainThread::ScheduleHeapMemory(std::vector<int32_t> &pidInfo)
+void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     struct mallinfo mi = mallinfo();
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
-    HILOG_DEBUG("usmblks: %{public}i\n", usmblks);
-    HILOG_DEBUG("uordblks: %{public}i\n", uordblks);
-    HILOG_DEBUG("fordblks: %{public}i\n", fordblks);
+    HILOG_DEBUG("the application's pid: %{public}i", pid);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
     pidInfo.clear();
-    pidInfo.push_back((int32_t)usmblks);
-    pidInfo.push_back((int32_t)uordblks);
-    pidInfo.push_back((int32_t)fordblks);
+    pidInfo.push_back(usmblks);
+    pidInfo.push_back(uordblks);
+    pidInfo.push_back(fordblks);
 }
 
 /**

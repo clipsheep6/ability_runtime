@@ -23,6 +23,7 @@
 #include "hap_module_info.h"
 #include "iquick_fix_callback.h"
 #include "want.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -88,7 +89,7 @@ public:
      *
      * @return
      */
-    virtual void ScheduleHeapMemory(std::vector<int32_t> &pidInfo) = 0;
+    virtual void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
 
     /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
@@ -203,11 +204,11 @@ public:
         SCHEDULE_ABILITY_STAGE_INFO,
         SCHEDULE_ACCEPT_WANT,
         SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
-        SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
         SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
         SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
+        SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
     };
 };
 }  // namespace AppExecFwk

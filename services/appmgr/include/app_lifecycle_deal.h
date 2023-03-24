@@ -21,6 +21,7 @@
 #include "ability_running_record.h"
 #include "hap_module_info.h"
 #include "want.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -113,13 +114,14 @@ public:
 
     /**
      * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
-     * Get the application's memory info.
+     * Get the application's memory allocation info.
      *
-     * @param pidInfo, contains the pid info and malloc info.
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
      *
      * @return
      */
-    void ScheduleHeapMemory(std::vector<int32_t> &pidInfo);
+    void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
     
     /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,

@@ -32,6 +32,7 @@
 #include "iconfiguration_observer.h"
 #include "iquick_fix_callback.h"
 #include "running_process_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -147,12 +148,13 @@ public:
 
     /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
-     * Get the application's memory info.
+     * Get the application's memory allocation info.
      *
-     * @param pidInfo, contains the pid info and malloc info.
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
      * @return ERR_OK ,return back success, others fail.
      */
-    virtual int DumpHeapMemory(std::vector<int32_t> &pidInfo) = 0;
+    virtual int DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
 
     /**
      * Notify that the ability stage has been updated

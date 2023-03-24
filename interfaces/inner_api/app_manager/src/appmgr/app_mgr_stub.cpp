@@ -28,6 +28,7 @@
 #include "iapp_state_callback.h"
 #include "want.h"
 #include "bundle_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -53,8 +54,6 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL)] =
         &AppMgrStub::HandleNotifyMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS)] =
-        &AppMgrStub::HandleDumpHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -93,6 +92,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUnregisterConfigurationObserver;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION)] =
         &AppMgrStub::HandleGetProcessRunningInformation;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS)] =
+        &AppMgrStub::HandleDumpHeapMemory;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -281,19 +282,15 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("AppMgrStub::HandleDumpHeapMemory.\n");
+    HILOG_DEBUG("AppMgrStub::HandleDumpHeapMemory.");
     HITRACE_METER(HITRACE_TAG_APP);
-    std::vector<int32_t> mallocInfo;
-    bool intVectorReadSuccess = data.ReadInt32Vector(&mallocInfo);
-    if (!intVectorReadSuccess) {
-        HILOG_ERROR("app_mgr_stub: failed to read Int32Vector for mallocInfo");
-        return ERR_INVALID_VALUE;
-    }
-    auto result = DumpHeapMemory(mallocInfo);
+    int32_t pid = data.ReadInt32();
+    struct OHOS::AppExecFwk::MallocInfo mallocInfo;
+    auto result = DumpHeapMemory(pid, mallocInfo);
     if (result != NO_ERROR) {
         return result;
     }
-    reply.WriteInt32Vector(mallocInfo);
+    reply.WriteParcelable(&mallocInfo);
     return NO_ERROR;
 }
 
