@@ -79,7 +79,8 @@ bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
         if (aaJson[AA_TOOL_COMMAND_LIST][i].is_null() || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
             continue;
         }
-        commands_.emplace(aaJson[AA_TOOL_COMMAND_LIST][i]);
+        std::string cmd = aaJson[AA_TOOL_COMMAND_LIST][i].get<std::string>();
+        commands_.emplace(cmd);
     }
 
     aaJson.clear();
