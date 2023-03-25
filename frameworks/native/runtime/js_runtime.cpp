@@ -49,6 +49,7 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
+#include "commonlibrary/ets_utils/js_concurrent_module/common/plugin/console.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
@@ -441,7 +442,8 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            InitConsoleLogModule(*nativeEngine, *globalObj);
+            Commonlibrary::Concurrent::Common::Plugin::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+            //InitConsoleLogModule(*nativeEngine_, *globalObj);
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'

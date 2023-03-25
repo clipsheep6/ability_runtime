@@ -78,6 +78,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${third_party_path}/zlib:shared_libz",
     "//foundation/arkui/napi:ace_napi_ark",
+    "//commonlibrary/ets_utils/js_concurrent_module/worker:worker",
   ]
 
   external_deps = [
