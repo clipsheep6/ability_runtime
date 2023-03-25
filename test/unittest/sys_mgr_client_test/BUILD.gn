@@ -37,10 +37,9 @@ ohos_unittest("sys_mgr_client_test") {
   }
 
   deps = [
-    "//third_party/googletest:gmock_main",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-
   ]
 
   external_deps = [
@@ -48,8 +47,8 @@ ohos_unittest("sys_mgr_client_test") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "c_utils:utils",
-    "samgr:samgr_proxy",
     "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 }
 

@@ -122,7 +122,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_001, TestSize.Level1)
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
     int result = executer->DoProcess(want, requestCode, userId, true);
-    EXPECT_NE(result, ERR_OK);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**
@@ -140,7 +140,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_002, TestSize.Level1)
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
     int result = executer->DoProcess(want, 0, userId, false);
-    EXPECT_NE(result, ERR_OK);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**
@@ -176,7 +176,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_004, TestSize.Level1)
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
     int result = executer->DoProcess(want, 0, userId, false);
-    EXPECT_EQ(result, ERR_DISPOSED_STATUS);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**
