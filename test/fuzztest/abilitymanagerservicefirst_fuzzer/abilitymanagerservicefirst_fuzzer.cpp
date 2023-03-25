@@ -108,9 +108,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->TerminateAbilityWithFlag(token, intParam, want, boolParam);
     abilityms->SendResultToAbility(intParam, intParam, *want);
     abilityms->StartRemoteAbility(*want, intParam, int32Param, token);
-    abilityms->CheckIsRemote(stringParam);
     abilityms->CheckIfOperateRemote(*want);
-    abilityms->GetLocalDeviceId(stringParam);
     abilityms->AnonymizeDeviceId(stringParam);
     abilityms->TerminateAbilityByCaller(token, intParam);
     abilityms->MinimizeAbility(token, boolParam);
@@ -135,9 +133,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->UnregisterObserver(observer);
     std::vector<AbilityRuntime::DlpConnectionInfo> infos;
     abilityms->GetDlpConnectionInfos(infos);
-    sptr<IRemoteMissionListener> listener;
-    abilityms->RegisterMissionListener(stringParam, listener);
-    abilityms->UnRegisterMissionListener(stringParam, listener);
+    if (!want) {
+        delete want;
+        want = nullptr;
+    }
 
     return true;
 }
