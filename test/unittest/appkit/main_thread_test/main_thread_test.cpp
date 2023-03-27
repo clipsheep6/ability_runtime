@@ -202,7 +202,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
     {
         return 0;
     }

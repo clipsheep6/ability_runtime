@@ -172,7 +172,7 @@ private:
             std::lock_guard<std::mutex> lock(g_observerMutex);
             static int64_t serialNumber = 0;
             int64_t observerId = serialNumber;
-            observer_->AddJsObserverObject(observerId, info.argv[INDEX_ZERO]);
+            observer_->AddJsObserverObject(observerId, info.argv[INDEX_ONE]);
             if (serialNumber < INT32_MAX) {
                 serialNumber++;
             } else {

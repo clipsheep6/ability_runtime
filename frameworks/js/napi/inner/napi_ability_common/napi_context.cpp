@@ -760,12 +760,68 @@ napi_value NAPI_RequestPermissionsFromUser(napi_env env, napi_callback_info info
     return rev;
 }
 
+struct OnRequestPermissionsData {
+    int requestCode = 0;
+    std::vector<std::string> permissions;
+    std::vector<int> grantResults;
+    uv_work_t uvWork{};
+    AsyncTask *asyncTask = nullptr;
+    NativeEngine *engine = nullptr;
+
+    ~OnRequestPermissionsData()
+    {
+        if (asyncTask) {
+            delete asyncTask;
+        }
+        HILOG_INFO("%{public}s, called env", __func__);
+    }
+
+    static void WorkCallback(uv_work_t* work)
+    {
+        HILOG_INFO("%{public}s, called env", __func__);
+    }
+
+    static void AfterWorkCallback(uv_work_t* work, int status)
+    {
+        HILOG_DEBUG("OnRequestPermissionsFromUserResult called");
+        if (work == nullptr) {
+            HILOG_ERROR("%{public}s, work is nullptr.", __func__);
+            return;
+        }
+        if (work->data == nullptr) {
+            HILOG_ERROR("%{public}s, work data is nullptr.", __func__);
+            return;
+        }
+        std::unique_ptr<OnRequestPermissionsData> data{static_cast<OnRequestPermissionsData *>(work->data)};
+        auto &engine = *(data->engine);
+        NativeScopeManager* scopeManager = engine.GetScopeManager();
+        if (scopeManager == nullptr) {
+            HILOG_ERROR("Get scope manager failed");
+            return;
+        }
+        NativeScope* scope = scopeManager->Open();
+        if (scope == nullptr) {
+            HILOG_ERROR("Open scope failed");
+            return;
+        }
+
+        NativeValue *objValue = engine.CreateObject();
+        NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+        object->SetProperty("requestCode", CreateJsValue(engine, data->requestCode));
+        object->SetProperty("permissions", CreateNativeArray(engine, data->permissions));
+        object->SetProperty("authResults", CreateNativeArray(engine, data->grantResults));
+        data->asyncTask->Resolve(engine, objValue);
+
+        scopeManager->Close(scope);
+        HILOG_INFO("%{public}s, called env", __func__);
+    }
+};
+
 EXTERN_C_START
 void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<std::string> &permissions,
     const std::vector<int> &grantResults, CallbackInfo callbackInfo)
 {
     HILOG_INFO("%{public}s,called env", __func__);
-
     if (permissions.empty()) {
         HILOG_ERROR("%{public}s, the string vector permissions is empty.", __func__);
         return;
@@ -774,12 +830,10 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         HILOG_ERROR("%{public}s, the size of permissions not equal the size of grantResults.", __func__);
         return;
     }
-
     if (callbackInfo.engine == nullptr) {
         HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.engine is nullptr.");
         return;
     }
-
     if (callbackInfo.asyncTask == nullptr) {
         HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.asyncTask is nullptr.");
         return;
@@ -792,58 +846,18 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
-    OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB = new OnRequestPermissionsFromUserResultCallback;
-    onRequestPermissionCB->requestCode = requestCode;
-    onRequestPermissionCB->permissions = permissions;
-    onRequestPermissionCB->grantResults = grantResults;
-    onRequestPermissionCB->cb = callbackInfo;
+    auto reqData = std::make_unique<OnRequestPermissionsData>();
+    reqData->permissions = permissions;
+    reqData->grantResults = grantResults;
+    reqData->requestCode = requestCode;
+    reqData->engine = callbackInfo.engine;
+    reqData->asyncTask = callbackInfo.asyncTask;
+    reqData->uvWork.data = static_cast<void *>(reqData.get());
 
-    work->data = static_cast<void *>(onRequestPermissionCB);
-
-    int rev = uv_queue_work(
-        loop,
-        work,
-        [](uv_work_t *work) {},
-        [](uv_work_t *work, int status) {
-            HILOG_DEBUG("CallOnRequestPermissionsFromUserResult result called");
-            if (work == nullptr) {
-                HILOG_ERROR("%{public}s, uv_queue_work work is nullptr.", __func__);
-                return;
-            }
-            OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB =
-                (OnRequestPermissionsFromUserResultCallback *)work->data;
-            if (onRequestPermissionCB == nullptr) {
-                delete work;
-                work = nullptr;
-                return;
-            }
-            NativeValue *objValue = onRequestPermissionCB->cb.engine->CreateObject();
-            NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-
-            object->SetProperty("requestCode", CreateJsValue(*(onRequestPermissionCB->cb.engine),
-                onRequestPermissionCB->requestCode));
-            object->SetProperty("permissions", CreateNativeArray(*(onRequestPermissionCB->cb.engine),
-                onRequestPermissionCB->permissions));
-            object->SetProperty("authResults", CreateNativeArray(*(onRequestPermissionCB->cb.engine),
-                onRequestPermissionCB->grantResults));
-            onRequestPermissionCB->cb.asyncTask->Resolve(*(onRequestPermissionCB->cb.engine), objValue);
-            delete onRequestPermissionCB->cb.asyncTask;
-            onRequestPermissionCB->cb.asyncTask = nullptr;
-            delete onRequestPermissionCB;
-            onRequestPermissionCB = nullptr;
-            delete work;
-            work = nullptr;
-        });
-    if (rev != 0) {
-        if (onRequestPermissionCB != nullptr) {
-            delete onRequestPermissionCB;
-            onRequestPermissionCB = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
+    int rev = uv_queue_work(loop, &(reqData->uvWork),
+        OnRequestPermissionsData::WorkCallback, OnRequestPermissionsData::AfterWorkCallback);
+    if (rev == 0) {
+        (void)reqData.release();
     }
 }
 EXTERN_C_END
@@ -2781,7 +2795,7 @@ public:
     static void Finalizer(NativeEngine *engine, void *data, void *hint)
     {
         HILOG_DEBUG("called.");
-        std::unique_ptr<NativeEngine>(static_cast<NativeEngine*>(data));
+        std::unique_ptr<NapiJsContext>(static_cast<NapiJsContext*>(data));
     };
 
     static NativeValue* JsRequestPermissionsFromUser(NativeEngine *engine, NativeCallbackInfo *info);

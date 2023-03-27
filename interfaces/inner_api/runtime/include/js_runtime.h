@@ -94,6 +94,8 @@ public:
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 
+    void UpdateModuleNameAndAssetPath(const std::string& moduleName);
+
 private:
     void FinishPreload() override;
 

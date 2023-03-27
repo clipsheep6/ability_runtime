@@ -492,7 +492,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, pid_t &renderPid)
+    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
 {
     if (!IsReady()) {
         HILOG_ERROR("StartRenderProcess failed, AppMgrService not ready.");
@@ -500,7 +500,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
-        renderParam, ipcFd, sharedFd, renderPid);
+        renderParam, ipcFd, sharedFd, crashFd, renderPid);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)

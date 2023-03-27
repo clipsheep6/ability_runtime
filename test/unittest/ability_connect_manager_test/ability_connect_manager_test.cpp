@@ -229,7 +229,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_001, TestSize.Level1)
     service->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVATING);
     auto result2 = ConnectManager()->StartAbility(abilityRequest_);
     WaitUntilTaskDone(handler);
-    EXPECT_EQ(OHOS::AAFwk::START_SERVICE_ABILITY_ACTIVATING, result2);
+    EXPECT_EQ(OHOS::ERR_OK, result2);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 
@@ -1026,7 +1026,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_019, TestSize.Level1)
 
     ConnectManager()->MoveToTerminatingMap(abilityRecord);
     auto result2 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::INITIAL);
-    EXPECT_EQ(result2, OHOS::ERR_INVALID_VALUE);
+    EXPECT_EQ(result2, OHOS::ERR_OK);
 
     auto result3 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::TERMINATING);
     EXPECT_EQ(result3, OHOS::ERR_INVALID_VALUE);
@@ -1488,7 +1488,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbilityResultLocked
     std::string stringUri = "id/bundle/module/name";
     connectManager->serviceMap_.emplace(stringUri, abilityRecord);
     int res2 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
-    EXPECT_EQ(res2, ERR_INVALID_VALUE);
+    EXPECT_EQ(res2, TERMINATE_ABILITY_RESULT_FAILED);
 }
 
 /*
@@ -1643,7 +1643,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_AbilityTransitionDone_001, T
     state = AbilityState::INITIAL;
     connectManager->MoveToTerminatingMap(abilityRecord);
     int res2 = connectManager->AbilityTransitionDone(token, state);
-    EXPECT_EQ(res2, ERR_INVALID_VALUE);
+    EXPECT_EQ(res2, ERR_OK);
 }
 
 /*
@@ -2218,10 +2218,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_002, TestSize
     connectManager->userId_ = currentUserId;
     abilityRecord->abilityInfo_.name = "abilityName";
     abilityRecord->SetRestartCount(-1);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(0);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(1);
     connectManager->RestartAbility(abilityRecord, currentUserId);
 }
 

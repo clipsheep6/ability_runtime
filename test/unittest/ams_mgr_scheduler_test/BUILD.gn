@@ -37,6 +37,7 @@ ohos_unittest("ams_mgr_scheduler_test") {
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
   ]
 

@@ -169,6 +169,11 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
         return;
     }
 
+    if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
+        HILOG_ERROR("The caller is not system-app, can not use system-api");
+        return;
+    }
+    
     auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
     if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);

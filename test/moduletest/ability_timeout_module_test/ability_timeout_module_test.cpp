@@ -157,9 +157,7 @@ void AbilityTimeoutModuleTest::MockOnStart()
     abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
     EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
 
-    abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-    abilityMs_->amsConfigResolver_->Parse();
+    AmsConfigurationParameter::GetInstance().Parse();
 
     abilityMs_->InitMissionListManager(userId, true);
     abilityMs_->SwitchManagers(MOCK_U0_USER_ID, false);
@@ -191,7 +189,6 @@ void AbilityTimeoutModuleTest::MockOnStop()
     abilityMs_->systemDataAbilityManager_.reset();
     abilityMs_->pendingWantManagers_.clear();
     abilityMs_->pendingWantManager_.reset();
-    abilityMs_->amsConfigResolver_.reset();
     abilityMs_->missionListManagers_.clear();
     abilityMs_->currentMissionListManager_.reset();
     abilityMs_->userController_.reset();
@@ -321,13 +318,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -362,13 +358,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -408,13 +403,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -450,7 +444,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -481,7 +474,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -518,7 +510,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -562,7 +553,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -606,7 +596,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -648,7 +637,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -690,7 +678,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -727,7 +714,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -759,7 +745,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -797,7 +782,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -842,7 +826,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -887,7 +870,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -930,7 +912,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -973,7 +954,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;

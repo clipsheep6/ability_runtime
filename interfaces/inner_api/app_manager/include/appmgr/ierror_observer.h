@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,12 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+struct ErrorObject {
+    std::string name;
+    std::string message;
+    std::string stack;
+};
+
 class IErrorObserver {
 public:
     IErrorObserver() = default;
@@ -30,6 +36,13 @@ public:
      * @param errMsg the message and error stacktrace about the exception.
      */
     virtual void OnUnhandledException(std::string errMsg) = 0;
+
+    /**
+     * When an abnormal event occurs in the native layer and the JS layer needs to be notified, it will be called.
+     *
+     * @param errorObj the errorObj about the exception.
+     */
+    virtual void OnExceptionObject(const AppExecFwk::ErrorObject &errorObj) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

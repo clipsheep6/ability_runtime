@@ -35,6 +35,15 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+#ifdef SUPPORT_ASAN
+const int LOAD_TIMEOUT_MULTIPLE = 150;
+const int CONNECT_TIMEOUT_MULTIPLE = 45;
+const int COMMAND_TIMEOUT_MULTIPLE = 75;
+#else
+const int LOAD_TIMEOUT_MULTIPLE = 10;
+const int CONNECT_TIMEOUT_MULTIPLE = 3;
+const int COMMAND_TIMEOUT_MULTIPLE = 5;
+#endif
 }
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
@@ -164,8 +173,9 @@ void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRe
             }
         };
 
-        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri,
-            AbilityManagerService::CONNECT_TIMEOUT);
+        int connectTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * CONNECT_TIMEOUT_MULTIPLE;
+        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri, connectTimeout);
     }
 }
 
@@ -795,7 +805,7 @@ void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilit
     int restartIntervalTime = 0;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
-        abilityMgr->GetRestartIntervalTime(restartIntervalTime);
+        restartIntervalTime = AmsConfigurationParameter::GetInstance().GetRestartIntervalTime();
     }
     HILOG_DEBUG("PostRestartResidentTask, time:%{public}d", restartIntervalTime);
     eventHandler_->PostTask(task, taskName, restartIntervalTime);
@@ -831,19 +841,20 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
     std::string taskName;
     int resultCode;
     uint32_t delayTime;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (messageId == AbilityManagerService::LOAD_TIMEOUT_MSG) {
         // first load ability, There is at most one connect record.
         recordId = abilityRecord->GetRecordId();
         taskName = std::string("LoadTimeout_") + std::to_string(recordId);
         resultCode = LOAD_ABILITY_TIMEOUT;
-        delayTime = AbilityManagerService::LOAD_TIMEOUT;
+        delayTime = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
     } else {
         auto connectRecord = abilityRecord->GetConnectingRecord();
         CHECK_POINTER(connectRecord);
         recordId = connectRecord->GetRecordId();
         taskName = std::string("ConnectTimeout_") + std::to_string(recordId);
         resultCode = CONNECTION_TIMEOUT;
-        delayTime = AbilityManagerService::CONNECT_TIMEOUT;
+        delayTime = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * CONNECT_TIMEOUT_MULTIPLE;
     }
 
     // check libc.hook_mode
@@ -1016,7 +1027,9 @@ void AbilityConnectManager::CommandAbility(const std::shared_ptr<AbilityRecord> 
             HILOG_ERROR("Command ability timeout. %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
             connectManager->HandleCommandTimeoutTask(abilityRecord);
         };
-        eventHandler_->PostTask(timeoutTask, taskName, AbilityManagerService::COMMAND_TIMEOUT);
+        int commandTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COMMAND_TIMEOUT_MULTIPLE;
+        eventHandler_->PostTask(timeoutTask, taskName, commandTimeout);
         // scheduling command ability
         abilityRecord->CommandAbility();
     }

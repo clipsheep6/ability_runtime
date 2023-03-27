@@ -92,7 +92,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->GetWantSenderInfo(target, wantSenderInfo);
     abilityms->GetAppMemorySize();
     abilityms->IsRamConstrainedDevice();
-    abilityms->GetMissionSaveTime();
+    AmsConfigurationParameter::GetInstance().GetMissionSaveTime();
     abilityms->GetMissionIdByAbilityToken(token);
     abilityms->GetAbilityTokenByMissionId(int32Param);
     abilityms->StartRemoteAbilityByCall(*want, token, token);

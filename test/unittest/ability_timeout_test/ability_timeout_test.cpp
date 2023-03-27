@@ -152,9 +152,7 @@ void AbilityTimeoutTest::MockOnStart()
     abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
     EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
 
-    abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-    abilityMs_->amsConfigResolver_->Parse();
+    AmsConfigurationParameter::GetInstance().Parse();
 
     abilityMs_->InitMissionListManager(userId, true);
     abilityMs_->SwitchManagers(MOCK_U0_USER_ID, false);
@@ -184,7 +182,6 @@ void AbilityTimeoutTest::MockOnStop()
     abilityMs_->systemDataAbilityManager_.reset();
     abilityMs_->pendingWantManagers_.clear();
     abilityMs_->pendingWantManager_.reset();
-    abilityMs_->amsConfigResolver_.reset();
     abilityMs_->missionListManagers_.clear();
     abilityMs_->currentMissionListManager_.reset();
     abilityMs_->userController_.reset();
@@ -202,10 +199,9 @@ void AbilityTimeoutTest::MockOnStop()
 HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
 
     EXPECT_TRUE(maxRestart > -1);
 }

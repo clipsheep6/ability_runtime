@@ -576,30 +576,6 @@ HWTEST_F(AmsAppRunningRecordTest, LowMemoryWarning_001, TestSize.Level1)
  * Feature: AMS
  * Function: AppRunningRecord
  * SubFunction: NA
- * FunctionPoints: Add modules by AppRunningRecord.
- * EnvConditions: NA
- * CaseDescription: Create an AppRunningRecord and call AddModules.
- */
-HWTEST_F(AmsAppRunningRecordTest, AddModules_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest AddModules_001 start");
-    auto record = GetTestAppRunningRecord();
-    auto appInfo = std::make_shared<ApplicationInfo>();
-    appInfo->name = GetTestAppName();
-    std::vector<HapModuleInfo> moduleInfos;
-    record->AddModules(appInfo, moduleInfos);
-
-    HapModuleInfo hapModuleInfo;
-    hapModuleInfo.moduleName = "module789";
-    moduleInfos.push_back(hapModuleInfo);
-    record->AddModules(appInfo, moduleInfos);
-    HILOG_INFO("AmsAppRunningRecordTest AddModules_001 end");
-}
-
-/*
- * Feature: AMS
- * Function: AppRunningRecord
- * SubFunction: NA
  * FunctionPoints: Update application state using correct args.
  * EnvConditions: NA
  * CaseDescription: Create an AppRunningRecord and call SetState in a for-each cycle.
@@ -1824,9 +1800,10 @@ HWTEST_F(AmsAppRunningRecordTest, NewRenderRecord_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     int32_t ipcFd = 0;
     int32_t sharedFd = 0;
+    int32_t crashFd = 0;
     std::shared_ptr<AppRunningRecord> host;
-    RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+    RenderRecord *renderRecord =
+        new RenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     EXPECT_NE(renderRecord, nullptr);
     delete renderRecord;
 }
@@ -1849,6 +1826,7 @@ HWTEST_F(AmsAppRunningRecordTest, CreateRenderRecord_001, TestSize.Level1)
     int32_t ipcFd1 = 1;
     int32_t sharedFd = 0;
     int32_t sharedFd1 = 1;
+    int32_t crashFd = 0;
     std::shared_ptr<AppRunningRecord> host;
 
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -1859,18 +1837,18 @@ HWTEST_F(AmsAppRunningRecordTest, CreateRenderRecord_001, TestSize.Level1)
     std::shared_ptr<AppRunningRecord> host1 = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
     std::shared_ptr<RenderRecord> renderRecord =
-        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, host);
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
 
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam, ipcFd, sharedFd, host);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam, ipcFd, sharedFd, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd, sharedFd, host);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd, sharedFd, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd, host);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, host);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, host1);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, crashFd, host1);
     EXPECT_NE(renderRecord, nullptr);
 }
 
@@ -1888,7 +1866,7 @@ HWTEST_F(AmsAppRunningRecordTest, SetPid_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     pid_t pid = 0;
     renderRecord->SetPid(pid);
@@ -1909,7 +1887,7 @@ HWTEST_F(AmsAppRunningRecordTest, SetHostUid_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     int32_t uid = 1;
     renderRecord->SetHostUid(uid);
@@ -1930,7 +1908,7 @@ HWTEST_F(AmsAppRunningRecordTest, SetHostBundleName_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     std::string hostBundleName = "testhostBundleName";
     renderRecord->SetHostBundleName(hostBundleName);
@@ -1951,7 +1929,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetRenderParam_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     EXPECT_EQ(renderRecord->GetRenderParam(), renderParam);
 }
@@ -1970,7 +1948,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetIpcFd_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 1, 0, host);
+        new RenderRecord(hostPid, renderParam, 1, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     EXPECT_EQ(renderRecord->GetIpcFd(), 1);
 }
@@ -1989,7 +1967,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetSharedFd_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 1, host);
+        new RenderRecord(hostPid, renderParam, 0, 1, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     EXPECT_EQ(renderRecord->GetSharedFd(), 1);
 }
@@ -2008,7 +1986,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetHostRecord_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 1, host);
+        new RenderRecord(hostPid, renderParam, 0, 1, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     EXPECT_EQ(renderRecord->GetHostRecord(), host);
 }
@@ -2027,7 +2005,7 @@ HWTEST_F(AmsAppRunningRecordTest, SetScheduler_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     sptr<IRenderScheduler> scheduler;
     renderRecord->SetScheduler(scheduler);
@@ -2048,7 +2026,7 @@ HWTEST_F(AmsAppRunningRecordTest, SetDeathRecipient_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     sptr<AppDeathRecipient> recipient;
     renderRecord->SetDeathRecipient(recipient);
@@ -2069,7 +2047,7 @@ HWTEST_F(AmsAppRunningRecordTest, RegisterDeathRecipient_001, TestSize.Level1)
     std::string renderParam = "test_render_param";
     std::shared_ptr<AppRunningRecord> host;
     RenderRecord* renderRecord =
-        new RenderRecord(hostPid, renderParam, 0, 0, host);
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
     EXPECT_NE(renderRecord, nullptr);
     renderRecord->RegisterDeathRecipient();
 
@@ -2311,40 +2289,6 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
 
 /*
  * Feature: AMS
- * Function: StateChangedNotifyObserver
- * SubFunction: StateChangedNotifyObserver
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: State Changed Notify Observer
- */
-HWTEST_F(AmsAppRunningRecordTest, StateChangedNotifyObserver_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest StateChangedNotifyObserver_001 start");
-    auto record = GetTestAppRunningRecord();
-    record->StateChangedNotifyObserver(nullptr, 0, false);
-
-    sptr<IRemoteObject> token = new MockAbilityToken();
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
-        std::make_shared<AbilityRunningRecord>(abilityInfo, token);
-    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 =
-        std::make_shared<AbilityRunningRecord>(nullptr, token);
-    auto abilityInfo1 = std::make_shared<AbilityInfo>();
-    abilityInfo1->name = GetTestAbilityName();
-    abilityInfo1->type = AbilityType::EXTENSION;
-    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 =
-        std::make_shared<AbilityRunningRecord>(abilityInfo1, token);
-    record->StateChangedNotifyObserver(abilityRunningRecord, 0, false);
-    record->StateChangedNotifyObserver(abilityRunningRecord1, 0, true);
-    record->StateChangedNotifyObserver(abilityRunningRecord, 0, true);
-    record->StateChangedNotifyObserver(abilityRunningRecord2, 0, true);
-
-    HILOG_INFO("AmsAppRunningRecordTest StateChangedNotifyObserver_001 end");
-}
-
-/*
- * Feature: AMS
  * Function: GetModuleRunningRecordByToken
  * SubFunction: GetModuleRunningRecordByToken
  * FunctionPoints: check params
@@ -2494,117 +2438,6 @@ HWTEST_F(AmsAppRunningRecordTest, UpdateAbilityFocusState_001, TestSize.Level1)
 
 /*
  * Feature: AMS
- * Function: AbilityForeground
- * SubFunction: AbilityForeground
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Ability Foreground
- */
-HWTEST_F(AmsAppRunningRecordTest, AbilityForeground_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest AbilityForeground_001 start");
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    std::shared_ptr<AbilityRunningRecord> abilityRecord;
-    auto record = GetTestAppRunningRecord();
-    record->AbilityForeground(abilityRecord);
-
-    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
-    record->AbilityForeground(abilityRecord);
-
-    abilityRecord->SetState(AbilityState::ABILITY_STATE_READY);
-    record->AbilityForeground(abilityRecord);
-
-    abilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
-    record->AbilityForeground(abilityRecord);
-
-    abilityRecord->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
-    record->AbilityForeground(abilityRecord);
-
-    record->SetState(ApplicationState::APP_STATE_TERMINATED);
-    record->AbilityForeground(abilityRecord);
-
-    HILOG_INFO("AmsAppRunningRecordTest AbilityForeground_001 end");
-}
-
-/*
- * Feature: AMS
- * Function: AbilityBackground
- * SubFunction: AbilityBackground
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Ability Background
- */
-HWTEST_F(AmsAppRunningRecordTest, AbilityBackground_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest AbilityBackground_001 start");
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    std::shared_ptr<AbilityRunningRecord> abilityRecord;
-    auto record = GetTestAppRunningRecord();
-    record->AbilityBackground(abilityRecord);
-
-    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
-    record->AbilityBackground(abilityRecord);
-
-    abilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
-    record->AbilityBackground(abilityRecord);
-
-    HILOG_INFO("AmsAppRunningRecordTest AbilityBackground_001 end");
-}
-
-/*
- * Feature: AMS
- * Function: AbilityFocused
- * SubFunction: AbilityFocused
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Ability Focused
- */
-HWTEST_F(AmsAppRunningRecordTest, AbilityFocused_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest AbilityFocused_001 start");
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    std::shared_ptr<AbilityRunningRecord> abilityRecord;
-    auto record = GetTestAppRunningRecord();
-    record->AbilityFocused(abilityRecord);
-
-    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
-    record->AbilityFocused(abilityRecord);
-
-    HILOG_INFO("AmsAppRunningRecordTest AbilityFocused_001 end");
-}
-
-/*
- * Feature: AMS
- * Function: AbilityUnfocused
- * SubFunction: AbilityUnfocused
- * FunctionPoints: check params
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Ability Unfocused
- */
-HWTEST_F(AmsAppRunningRecordTest, AbilityUnfocused_001, TestSize.Level1)
-{
-    HILOG_INFO("AmsAppRunningRecordTest AbilityUnfocused_001 start");
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = GetTestAbilityName();
-    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    std::shared_ptr<AbilityRunningRecord> abilityRecord;
-    auto record = GetTestAppRunningRecord();
-    record->AbilityUnfocused(abilityRecord);
-
-    abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
-    record->AbilityUnfocused(abilityRecord);
-
-    HILOG_INFO("AmsAppRunningRecordTest AbilityUnfocused_001 end");
-}
-
-/*
- * Feature: AMS
  * Function: SetRestartTimeMillis
  * SubFunction: SetRestartTimeMillis
  * FunctionPoints: check params
@@ -2673,19 +2506,95 @@ HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_002, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_003, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 start");
-    std::shared_ptr<AppRunningRecord> record = GetTestAppRunningRecord();
-    record->restartResidentProcCount_ = -1;
+
+    auto record = GetTestAppRunningRecord();
+    record->StateChangedNotifyObserver(nullptr, 0, false);
+
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
+        std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord1 =
+        std::make_shared<AbilityRunningRecord>(nullptr, token);
+    auto abilityInfo1 = std::make_shared<AbilityInfo>();
+    abilityInfo1->name = GetTestAbilityName();
+    abilityInfo1->type = AbilityType::EXTENSION;
+    std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 =
+        std::make_shared<AbilityRunningRecord>(abilityInfo1, token);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, false);
+    record->StateChangedNotifyObserver(abilityRunningRecord1, 0, true);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, true);
+    record->StateChangedNotifyObserver(abilityRunningRecord2, 0, true);
+
+    auto abilityInfo3 = std::make_shared<AbilityInfo>();
+    abilityInfo3->name = GetTestAbilityName();
+    sptr<IRemoteObject> token3 = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord3;
+    auto record3 = GetTestAppRunningRecord();
+    record3->AbilityForeground(abilityRecord3);
+
+    abilityRecord3 = std::make_shared<AbilityRunningRecord>(abilityInfo3, token3);
+    record3->AbilityForeground(abilityRecord3);
+
+    abilityRecord3->SetState(AbilityState::ABILITY_STATE_READY);
+    record3->AbilityForeground(abilityRecord3);
+
+    abilityRecord3->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+    record3->AbilityForeground(abilityRecord3);
+
+    abilityRecord3->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
+    record3->AbilityForeground(abilityRecord3);
+
+    record3->SetState(ApplicationState::APP_STATE_TERMINATED);
+    record3->AbilityForeground(abilityRecord3);
+
+    auto abilityInfo4 = std::make_shared<AbilityInfo>();
+    abilityInfo4->name = GetTestAbilityName();
+    sptr<IRemoteObject> token4 = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord4;
+    auto record4 = GetTestAppRunningRecord();
+    record4->AbilityBackground(abilityRecord4);
+
+    abilityRecord4 = std::make_shared<AbilityRunningRecord>(abilityInfo4, token4);
+    record4->AbilityBackground(abilityRecord4);
+
+    abilityRecord4->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+    record4->AbilityBackground(abilityRecord4);
+
+    auto abilityInfo5 = std::make_shared<AbilityInfo>();
+    abilityInfo5->name = GetTestAbilityName();
+    sptr<IRemoteObject> token5 = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord5;
+    auto record5 = GetTestAppRunningRecord();
+    record5->AbilityFocused(abilityRecord5);
+
+    abilityRecord5 = std::make_shared<AbilityRunningRecord>(abilityInfo5, token5);
+    record5->AbilityFocused(abilityRecord5);
+
+    auto abilityInfo6 = std::make_shared<AbilityInfo>();
+    abilityInfo6->name = GetTestAbilityName();
+    sptr<IRemoteObject> token6 = new (std::nothrow) MockAbilityToken();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord6;
+    auto record6 = GetTestAppRunningRecord();
+    record6->AbilityUnfocused(abilityRecord6);
+
+    abilityRecord6 = std::make_shared<AbilityRunningRecord>(abilityInfo6, token6);
+    record6->AbilityUnfocused(abilityRecord6);
+
+    std::shared_ptr<AppRunningRecord> record7 = GetTestAppRunningRecord();
+    record7->restartResidentProcCount_ = -1;
     struct timespec t;
     t.tv_sec = 0;
     t.tv_nsec = 0;
     clock_gettime(CLOCK_MONOTONIC, &t);
     int64_t systemTimeMillis = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
-    record->restartTimeMillis_ = systemTimeMillis + 1000;
-    EXPECT_FALSE(record->CanRestartResidentProc());
+    record7->restartTimeMillis_ = systemTimeMillis + 1000;
+    EXPECT_FALSE(record7->CanRestartResidentProc());
 
-    record->SetState(ApplicationState::APP_STATE_FOREGROUND);
-    record->SetRestartResidentProcCount(0);
-    EXPECT_TRUE(record->CanRestartResidentProc());
+    record7->SetState(ApplicationState::APP_STATE_FOREGROUND);
+    record7->SetRestartResidentProcCount(0);
+    EXPECT_TRUE(record7->CanRestartResidentProc());
 
     HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 end");
 }

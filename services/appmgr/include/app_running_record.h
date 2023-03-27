@@ -48,13 +48,16 @@ class AppRunningRecord;
  */
 class RenderRecord {
 public:
-    RenderRecord(pid_t hostPid, const std::string &renderParam,
-        int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
+    RenderRecord(pid_t hostPid, const std::string &renderParam, int32_t ipcFd,
+                 int32_t sharedFd, int32_t crashFd,
+                 const std::shared_ptr<AppRunningRecord> &host);
 
     virtual ~RenderRecord();
 
-    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
-        int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
+    static std::shared_ptr<RenderRecord>
+    CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
+                       int32_t ipcFd, int32_t sharedFd, int32_t crashFd,
+                       const std::shared_ptr<AppRunningRecord> &host);
 
     void SetPid(pid_t pid);
     pid_t GetPid() const ;
@@ -64,6 +67,7 @@ public:
     std::string GetRenderParam() const;
     int32_t GetIpcFd() const;
     int32_t GetSharedFd() const;
+    int32_t GetCrashFd() const;
     std::shared_ptr<AppRunningRecord> GetHostRecord() const;
     sptr<IRenderScheduler> GetScheduler() const;
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
@@ -81,6 +85,7 @@ private:
     std::string renderParam_;
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
+    int32_t crashFd_ = 0;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
@@ -581,6 +586,10 @@ public:
 
     ProcessChangeReason GetProcessChangeReason() const;
 
+    bool IsUpdateStateFromService();
+
+    void SetUpdateStateFromService(bool isUpdateStateFromService);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -680,6 +689,8 @@ private:
     bool securityFlag_ = false;
     int32_t requestProcCode_ = 0;
     ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
+
+    bool isUpdateStateFromService_ = false;
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;

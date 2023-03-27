@@ -40,6 +40,7 @@ ohos_fuzztest("AmsMgrSchedulerFuzzTest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:perm_verification",
   ]
 
   external_deps = [

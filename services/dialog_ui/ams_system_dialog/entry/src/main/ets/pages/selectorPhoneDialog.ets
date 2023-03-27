@@ -99,8 +99,8 @@ struct SelectorPhoneDialog {
         return;
       }
       console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
+      globalThis.selectExtensionContext.terminateSelf();
     });
-    globalThis.selectExtensionContext.terminateSelf();
   }
 
   getHapListStyle() {
