@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_unittest("ability_manager_client_test") {
+ohos_unittest("ability_manager_client_branch_test") {
   module_out_path = "ability_runtime/ability_call_test"
 
   include_dirs = [
@@ -25,7 +25,7 @@ ohos_unittest("ability_manager_client_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]
 
-  sources = [ "ability_manager_client_test.cpp" ]
+  sources = [ "ability_manager_client_branch_test.cpp" ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
   cflags = []
@@ -66,5 +66,5 @@ ohos_unittest("ability_manager_client_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_manager_client_test" ]
+  deps = [ ":ability_manager_client_branch_test" ]
 }
