@@ -1536,6 +1536,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
     startMsg.hspList = hspList;
+    startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
