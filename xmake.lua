@@ -25,6 +25,7 @@ target("ability_runtime")
         "interfaces/kits/native/ability/native/continuation/remote_register_service",
         "interfaces/kits/native/ability/native/ability_business_error",
         "interfaces/kits/native/ability/native/dialog_request_callback",
+        "interfaces/kits/native/ability/native/ui_extension_ability",
         "interfaces/kits/native/ability/native/recovery", "interfaces/kits/native/appkit/ability_delegator",
         "tools/aa/include", "tools/fm/include")
     add_includedirs("../communication_ipc/interfaces/innerkits/ipc_core/include", "../communication_ipc/interfaces/innerkits/ipc_napi_common/include")

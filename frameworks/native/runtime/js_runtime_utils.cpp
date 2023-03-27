@@ -301,21 +301,21 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 }
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    AsyncTask::ExecuteCallback&& execute, nullptr_t, NativeValue** result)
+    AsyncTask::ExecuteCallback&& execute, std::nullptr_t, NativeValue** result)
 {
     return CreateAsyncTaskWithLastParam(
         engine, lastParam, std::make_unique<AsyncTask::ExecuteCallback>(std::move(execute)), nullptr, result);
 }
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    nullptr_t, AsyncTask::CompleteCallback&& complete, NativeValue** result)
+    std::nullptr_t, AsyncTask::CompleteCallback&& complete, NativeValue** result)
 {
     return CreateAsyncTaskWithLastParam(
         engine, lastParam, nullptr, std::make_unique<AsyncTask::CompleteCallback>(std::move(complete)), result);
 }
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    nullptr_t, nullptr_t, NativeValue** result)
+    std::nullptr_t, std::nullptr_t, NativeValue** result)
 {
     return CreateAsyncTaskWithLastParam(engine, lastParam, std::unique_ptr<AsyncTask::ExecuteCallback>(),
         std::unique_ptr<AsyncTask::CompleteCallback>(), result);
