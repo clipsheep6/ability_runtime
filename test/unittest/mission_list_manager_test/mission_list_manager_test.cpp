@@ -113,6 +113,8 @@ public:
     {
         return nullptr;
     }
+
+    virtual void NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info) {}
 };
 
 /*

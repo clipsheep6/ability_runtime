@@ -1819,6 +1819,16 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         ability->SendResultToCallers();
     };
     handler->PostTask(uriTask);
+#ifdef SUPPORT_GRAPHICS
+    // notify winddow manager service the ability died
+    handler->PostTask([ability = shared_from_this()]() {
+        if (ability->GetWMSHandler()) {
+            sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+            ability->SetAbilityTransitionInfo(info);
+            ability->GetWMSHandler()->NotifyAnimationAbilityDied(info);
+        }
+    });
+#endif
     HandleDlpClosed();
 }
 
