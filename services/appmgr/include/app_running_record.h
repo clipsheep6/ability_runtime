@@ -35,6 +35,7 @@
 #include "app_lifecycle_deal.h"
 #include "module_running_record.h"
 #include "app_spawn_msg_wrapper.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -383,6 +384,16 @@ public:
      * @return
      */
     void ScheduleMemoryLevel(int32_t level);
+
+    /**
+     * ScheduleHeapMemory, Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     *
+     * @return
+     */
+    void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
      * GetAbilityRunningRecordByToken, Obtaining the ability record through token.

@@ -37,6 +37,7 @@
 #include "app_scheduler_proxy.h"
 #include "ams_mgr_scheduler.h"
 #include "ams_mgr_scheduler.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -152,6 +153,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
+
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     // the function about system
     /**

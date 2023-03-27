@@ -60,6 +60,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
+        &AppSchedulerHost::HandleScheduleHeapMemory;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -126,6 +128,15 @@ int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, Message
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ScheduleMemoryLevel(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    struct OHOS::AppExecFwk::MallocInfo mallocInfo;
+    ScheduleHeapMemory(pid, mallocInfo);
+    reply.WriteParcelable(&mallocInfo);
     return NO_ERROR;
 }
 

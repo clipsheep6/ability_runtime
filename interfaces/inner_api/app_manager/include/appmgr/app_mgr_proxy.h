@@ -21,6 +21,7 @@
 
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -133,6 +134,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
+
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     /**
      * Notify that the ability stage has been updated
