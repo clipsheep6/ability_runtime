@@ -2211,7 +2211,9 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, uint32_
 
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
+    auto&& uriStr = want.GetUri().ToString();
     auto&& uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
+    uriVec.emplace_back(uriStr);
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
