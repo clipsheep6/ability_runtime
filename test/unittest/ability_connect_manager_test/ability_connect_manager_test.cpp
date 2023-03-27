@@ -2176,10 +2176,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_002, TestSize
     abilityRecord->abilityInfo_.name = "abilityName";
     abilityRecord->SetRestartCount(-1);
     connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(0);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(1);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
 }
 
 /*

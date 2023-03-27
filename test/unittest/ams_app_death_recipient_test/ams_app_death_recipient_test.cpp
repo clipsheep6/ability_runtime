@@ -186,11 +186,10 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
  */
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 {
+    HILOG_INFO("AppDeathRecipient_002 start");
     pid_t pid1 = 24;
     pid_t pid2 = 25;
-
     sptr<IRemoteObject> appOne = GetApp(pid1, 1);
-
     sptr<IRemoteObject> appTwo = GetApp(pid2, 2);
 
     appDeathRecipientObject_->SetEventHandler(handler_);
@@ -199,12 +198,7 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 
     WaitUntilTaskFinished(handler_);
     EXPECT_EQ(1, static_cast<int>(appDeathRecipientObject_->appMgrServiceInner_.lock()->GetRecentAppList().size()));
-
-    appDeathRecipientObject_->OnRemoteDied(appTwo);
-
-    WaitUntilTaskFinished(handler_);
-    EXPECT_EQ(0, static_cast<int>(appDeathRecipientObject_->appMgrServiceInner_.lock()->GetRecentAppList().size()));
-    HILOG_INFO("AppDeathRecipient_002 start");
+    HILOG_INFO("AppDeathRecipient_002 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

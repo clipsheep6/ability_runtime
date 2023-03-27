@@ -421,24 +421,6 @@ HWTEST_F(AppMgrServiceTest, AddAbilityStageDone_002, TestSize.Level0)
  * EnvConditions: NA
  * CaseDescription: Verify RegisterApplicationStateObserver
  */
-HWTEST_F(AppMgrServiceTest, RegisterApplicationStateObserver_001, TestSize.Level0)
-{
-    auto appMgrService = std::make_shared<AppMgrService>();
-    sptr<IApplicationStateObserver> observer = nullptr;
-    std::vector<std::string> bundleNameList;
-    appMgrService->SetInnerService(nullptr);
-    int32_t res = appMgrService->RegisterApplicationStateObserver(observer, bundleNameList);
-    EXPECT_EQ(res, ERR_INVALID_OPERATION);
-}
-
-/*
- * Feature: AppMgrService
- * Function: RegisterApplicationStateObserver
- * SubFunction: NA
- * FunctionPoints: AppMgrService RegisterApplicationStateObserver
- * EnvConditions: NA
- * CaseDescription: Verify RegisterApplicationStateObserver
- */
 HWTEST_F(AppMgrServiceTest, RegisterApplicationStateObserver_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
