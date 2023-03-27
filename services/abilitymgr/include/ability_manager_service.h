@@ -1043,6 +1043,10 @@ private:
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
 
     bool CheckIfOperateRemote(const Want &want);
+
+    bool GrantUriPermission(const Want &want);
+    int32_t GetCurrentAccountId() const;
+
     std::string AnonymizeDeviceId(const std::string& deviceId);
     bool VerificationToken(const sptr<IRemoteObject> &token);
     void RequestPermission(const Want *resultWant);

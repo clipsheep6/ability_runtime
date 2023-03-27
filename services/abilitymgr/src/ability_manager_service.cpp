@@ -108,6 +108,7 @@ const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
 const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
 const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
+const std::string PARAMS_URI = "ability.verify.uri";
 
 // White list
 const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_SERVICE_TEST,
@@ -470,7 +471,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    if (callerToken != nullptr && CheckIfOperateRemote(want)) {
+    GrantUriPermission(want);
+    if (callerToken != nullptr && CheckIfOperateRemote(want )) {
         HILOG_INFO("%{public}s: try to StartRemoteAbility", __func__);
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
@@ -593,6 +595,58 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     ReportEventToSuspendManager(abilityInfo);
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
+}
+
+void AbilityManagerService::GrantUriPermission(Want &want)
+{
+    if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
+        return;
+    }
+    auto&& uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
+    auto&& uriStr = want.GetUri().ToString();
+    uriVec.emplace_back(uriStr);
+    std::vector<std::string> uriVecPermission; 
+    HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
+    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
+    for (auto&& str : uriVec) {
+        Uri uri(str);
+        auto&& authority = uri.GetAuthority();
+        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
+        auto bms = GetBundleManager();
+        if (bms == nullptr) {
+            HILOG_WARN("Failed to get bms.");
+            return;
+        }
+        AppExecFwk::BundleInfo bundleInfo;
+        if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, bundleInfo, GetCurrentAccountId()))) {
+            HILOG_WARN("To fail to get bundle info according to uri.");
+            return;
+        }
+        Security::AccessToken::AccessTokenID fromTokenId = bundleInfo.applicationInfo.accessTokenId;
+        auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+        if (fromTokenId == callerTokenId) {
+            uriVecPermission.emplace_back(str);
+        }
+    }
+    want.SetParam(PARAMS_URI, uriVecPermission);
+    return;
+}
+
+int32_t AbilityManagerService::GetCurrentAccountId() const
+{
+    std::vector<int32_t> osActiveAccountIds;
+    ErrCode ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+            QueryActiveOsAccountIds(osActiveAccountIds);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("QueryActiveOsAccountIds failed.");
+        return 0;
+    }
+    if (osActiveAccountIds.empty()) {
+        HILOG_ERROR("QueryActiveOsAccountIds is empty, no accounts.");
+        return 0;
+    }
+
+    return osActiveAccountIds.front();
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
