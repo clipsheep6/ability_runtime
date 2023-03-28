@@ -117,7 +117,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     abilityConnectManager->GetConnectRecordListByCallback(callback);
     int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
-    abilityConnectManager->GetAbilityRecordByEventId(int64Param);
+    abilityConnectManager->GetAbilityRecordById(int64Param);
     abilityConnectManager->LoadAbility(abilityRecord);
     uint32_t uint32Param = GetU32Data(data);
     abilityConnectManager->PostTimeOutTask(abilityRecord, uint32Param);

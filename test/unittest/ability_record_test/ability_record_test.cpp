@@ -264,21 +264,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetPreNextAbilityReocrd, TestSize
  * Feature: AbilityRecord
  * Function: create AbilityRecord
  * SubFunction: NA
- * FunctionPoints: SetEventId GetEventId
- * EnvConditions: NA
- * CaseDescription: SetEventId GetEventId UT.
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetEventId, TestSize.Level1)
-{
-    int64_t eventId = 1;
-    abilityRecord_->SetEventId(eventId);
-    EXPECT_EQ(eventId, abilityRecord_->GetEventId());
-}
-
-/*
- * Feature: AbilityRecord
- * Function: create AbilityRecord
- * SubFunction: NA
  * FunctionPoints: IsReady
  * EnvConditions: NA
  * CaseDescription: IsReady UT.

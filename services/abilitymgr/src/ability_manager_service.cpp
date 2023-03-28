@@ -3688,63 +3688,52 @@ bool AbilityManagerService::IsSystemUI(const std::string &bundleName) const
     return bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME;
 }
 
-void AbilityManagerService::HandleLoadTimeOut(int64_t eventId)
+void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle load timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
         }
     }
 }
 
-void AbilityManagerService::HandleActiveTimeOut(int64_t eventId)
+void AbilityManagerService::HandleActiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle active timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, abilityRecordId);
         }
     }
 }
 
-void AbilityManagerService::HandleInactiveTimeOut(int64_t eventId)
+void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle inactive timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
         }
     }
 
     for (auto& item : connectManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
         }
     }
 }
 
-void AbilityManagerService::HandleForegroundTimeOut(int64_t eventId)
+void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle foreground timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, eventId);
-        }
-    }
-}
-
-void AbilityManagerService::HandleBackgroundTimeOut(int64_t eventId)
-{
-    HILOG_DEBUG("Handle background timeout.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
-    for (auto& item : missionListManagers_) {
-        if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::BACKGROUND_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
         }
     }
 }

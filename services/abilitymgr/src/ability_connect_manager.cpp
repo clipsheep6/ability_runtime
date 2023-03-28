@@ -417,7 +417,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("LoadTimeout_") + std::to_string(recordId);
         eventHandler_->RemoveTask(taskName);
-        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetEventId());
+        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     }
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
@@ -745,14 +745,14 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityConnectManager::GetConnectRe
     return connectList;
 }
 
-std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAbilityRecordByEventId(int64_t eventId)
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAbilityRecordById(int64_t abilityRecordId)
 {
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto IsMatch = [eventId](auto service) {
+    auto IsMatch = [abilityRecordId](auto service) {
         if (!service.second) {
             return false;
         }
-        return eventId == service.second->GetEventId();
+        return abilityRecordId == service.second->GetAbilityRecordId();
     };
     auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
     if (serviceRecord != serviceMap_.end()) {
@@ -982,7 +982,7 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
             state);
         return ERR_INVALID_VALUE;
     }
-    eventHandler_->RemoveEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecord->GetEventId());
+    eventHandler_->RemoveEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
 
     // complete inactive
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
@@ -999,7 +999,7 @@ int AbilityConnectManager::DispatchTerminate(const std::shared_ptr<AbilityRecord
 {
     // remove terminate timeout task
     if (eventHandler_ != nullptr) {
-        eventHandler_->RemoveTask(std::to_string(abilityRecord->GetEventId()));
+        eventHandler_->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     }
     // complete terminate
     TerminateDone(abilityRecord);
@@ -1175,11 +1175,11 @@ void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &
     }
 }
 
-void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t eventId)
+void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
     HILOG_DEBUG("On timeout, msgId is %{public}d", msgId);
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto abilityRecord = GetAbilityRecordByEventId(eventId);
+    auto abilityRecord = GetAbilityRecordById(abilityRecordId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("AbilityConnectManager on time out event: ability record is nullptr.");
         return;

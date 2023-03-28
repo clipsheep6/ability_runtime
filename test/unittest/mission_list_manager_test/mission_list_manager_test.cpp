@@ -3531,14 +3531,13 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_002, TestSize.Level1)
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
     uint32_t msgId = 1;
-    int64_t eventId = 0;
-    abilityRecord->SetEventId(eventId);
+    int64_t abilityRecordId = 0;
     abilityRecord->SetStartingWindow(true);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
-    missionListManager->OnTimeOut(msgId, eventId);
+    missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
 
@@ -3557,14 +3556,13 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_003, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     uint32_t msgId = 2;
-    int64_t eventId = 0;
-    abilityRecord->SetEventId(eventId);
+    int64_t abilityRecordId = 0;
     abilityRecord->SetStartingWindow(false);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
-    missionListManager->OnTimeOut(msgId, eventId);
+    missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
 
@@ -3583,14 +3581,13 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_004, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     uint32_t msgId = 3;
-    int64_t eventId = 0;
-    abilityRecord->SetEventId(eventId);
+    int64_t abilityRecordId = 0;
     abilityRecord->SetStartingWindow(false);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
-    missionListManager->OnTimeOut(msgId, eventId);
+    missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
 
@@ -3862,48 +3859,47 @@ HWTEST_F(MissionListManagerTest, GetAbilityRecordByCaller_002, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
- * Function: GetAbilityRecordByEventId
+ * Function: GetAbilityRecordById
  * SubFunction: NA
- * FunctionPoints: MissionListManager GetAbilityRecordByEventId
+ * FunctionPoints: MissionListManager GetAbilityRecordById
  * EnvConditions: NA
- * CaseDescription: Verify GetAbilityRecordByEventId
+ * CaseDescription: Verify GetAbilityRecordById
  */
-HWTEST_F(MissionListManagerTest, GetAbilityRecordByEventId_001, TestSize.Level1)
+HWTEST_F(MissionListManagerTest, GetAbilityRecordById_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    abilityRecord->SetEventId(0);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     std::shared_ptr<MissionList> missionList1 = std::make_shared<MissionList>();
     std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
-    int64_t eventId = 0;
+    int64_t abilityRecordId = 0;
     missionList2->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList1);
     missionListManager->defaultSingleList_ = missionList2;
-    auto res = missionListManager->GetAbilityRecordByEventId(eventId);
+    auto res = missionListManager->GetAbilityRecordById(abilityRecordId);
     EXPECT_NE(res, nullptr);
     missionListManager.reset();
 }
 
 /*
  * Feature: MissionListManager
- * Function: GetAbilityRecordByEventId
+ * Function: GetAbilityRecordById
  * SubFunction: NA
- * FunctionPoints: MissionListManager GetAbilityRecordByEventId
+ * FunctionPoints: MissionListManager GetAbilityRecordById
  * EnvConditions: NA
- * CaseDescription: Verify GetAbilityRecordByEventId
+ * CaseDescription: Verify GetAbilityRecordById
  */
-HWTEST_F(MissionListManagerTest, GetAbilityRecordByEventId_002, TestSize.Level1)
+HWTEST_F(MissionListManagerTest, GetAbilityRecordById_002, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    int64_t eventId = 0;
+    int64_t abilityRecordId = 0;
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
     missionListManager->defaultStandardList_ = missionList;
-    auto res = missionListManager->GetAbilityRecordByEventId(eventId);
+    auto res = missionListManager->GetAbilityRecordById(abilityRecordId);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }

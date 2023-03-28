@@ -135,7 +135,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
         if (state == FOREGROUNDING) {
-            HILOG_INFO("Top ability is foregrounding, so enqueue ability for waiting.");
+            HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
             EnqueueWaitingAbility(abilityRequest);
             return START_ABILITY_WAITING;
         }
@@ -883,7 +883,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     std::shared_ptr<AbilityEventHandler> handler =
         DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-    handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetEventId());
+    handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
 
     abilityRecord->SetScheduler(scheduler);
 
@@ -1106,7 +1106,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         return ERR_INVALID_VALUE;
     }
 
-    handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetEventId());
+    handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     auto self(weak_from_this());
     if (success) {
 #ifdef SUPPORT_GRAPHICS
@@ -1241,7 +1241,7 @@ int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> 
     }
 
     // remove background timeout task.
-    handler->RemoveTask(std::to_string(abilityRecord->GetEventId()));
+    handler->RemoveTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
     handler->PostTask(task);
@@ -1507,7 +1507,7 @@ int MissionListManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &
     // remove terminate timeout task.
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-    handler->RemoveTask(std::to_string(abilityRecord->GetEventId()));
+    handler->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
     handler->PostTask(task);
@@ -1870,17 +1870,16 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
 }
 
-void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
+void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
     HILOG_DEBUG("On timeout, msgId is %{public}d", msgId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    auto abilityRecord = GetAbilityRecordByEventId(eventId);
+    auto abilityRecord = GetAbilityRecordById(abilityRecordId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId,
-        abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_DEBUG("Ability timeout,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RemoveUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
@@ -2110,20 +2109,20 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByCaller(
     return defaultStandardList_->GetAbilityRecordByCaller(caller, requestCode);
 }
 
-std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByEventId(int64_t eventId) const
+std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordById(int64_t abilityRecordId) const
 {
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     for (auto missionList : currentMissionLists_) {
-        if (missionList && (abilityRecord = missionList->GetAbilityRecordById(eventId)) != nullptr) {
+        if (missionList && (abilityRecord = missionList->GetAbilityRecordById(abilityRecordId)) != nullptr) {
             return abilityRecord;
         }
     }
 
-    if ((abilityRecord = defaultSingleList_->GetAbilityRecordById(eventId)) != nullptr) {
+    if ((abilityRecord = defaultSingleList_->GetAbilityRecordById(abilityRecordId)) != nullptr) {
         return abilityRecord;
     }
 
-    return defaultStandardList_->GetAbilityRecordById(eventId);
+    return defaultStandardList_->GetAbilityRecordById(abilityRecordId);
 }
 
 void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord, int32_t currentUserId)

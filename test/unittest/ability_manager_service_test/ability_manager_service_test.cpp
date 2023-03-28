@@ -1851,19 +1851,6 @@ HWTEST_F(AbilityManagerServiceTest, HandleInactiveTimeOut_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: HandleBackgroundTimeOut
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService HandleBackgroundTimeOut
- */
-HWTEST_F(AbilityManagerServiceTest, HandleBackgroundTimeOut_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 start");
-    abilityMs_->HandleBackgroundTimeOut(100);
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: VerificationToken
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService VerificationToken

@@ -231,7 +231,7 @@ public:
     void StopAllExtensions();
 
     void StartRootLauncher(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void OnTimeOut(uint32_t msgId, int64_t eventId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
 
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
@@ -443,7 +443,7 @@ private:
 
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
 
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
 

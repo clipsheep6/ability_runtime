@@ -219,9 +219,9 @@ public:
      * @brief handle time out event
      *
      * @param msgId the msg id in ability record
-     * @param eventId the event id in ability record
+     * @param abilityRecordId the id of ability record
      */
-    void OnTimeOut(uint32_t msgId, int64_t eventId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
 
     /**
      * @brief handle when ability died
@@ -424,7 +424,7 @@ private:
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);

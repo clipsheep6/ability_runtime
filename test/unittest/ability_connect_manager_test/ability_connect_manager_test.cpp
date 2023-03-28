@@ -1791,21 +1791,20 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetConnectRecordListByCallba
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetAbilityRecordByEventId
- * SubFunction: GetAbilityRecordByEventId
+ * Function: GetAbilityRecordById
+ * SubFunction: GetAbilityRecordById
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager GetAbilityRecordByEventId
+ * CaseDescription: Verify AbilityConnectManager GetAbilityRecordById
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordByEventId_001, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordById_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int64_t eventId = 0;
-    abilityRecord->SetEventId(eventId);
+    int64_t abilityRecordId = 0;
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->serviceMap_.emplace("second", nullptr);
-    auto res = connectManager->GetAbilityRecordByEventId(eventId);
+    auto res = connectManager->GetAbilityRecordById(abilityRecordId);
     EXPECT_NE(res, nullptr);
 }
 
@@ -2139,12 +2138,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnTimeOut_001, TestSize.Leve
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     uint32_t msgId = 2;
-    int64_t eventId = 1;
-    abilityRecord->SetEventId(eventId);
     connectManager->serviceMap_.emplace("first", abilityRecord);
-    connectManager->OnTimeOut(msgId, eventId);
+    int64_t abilityRecordId = 1;
+    connectManager->OnTimeOut(msgId, abilityRecordId);
     msgId = 0;
-    connectManager->OnTimeOut(msgId, eventId);
+    connectManager->OnTimeOut(msgId, abilityRecordId);
 }
 
 /*
