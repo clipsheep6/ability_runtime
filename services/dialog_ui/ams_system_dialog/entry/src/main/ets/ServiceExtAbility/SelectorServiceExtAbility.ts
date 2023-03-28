@@ -119,8 +119,14 @@ export default class SelectorServiceExtensionAbility extends extension {
 
     private async createWindow(name: string, windowType: number, rect) {
         console.info(TAG, "create window");
+        console.info(TAG, "create window token: " + globalThis.abilityWant.parameters['ohos.aafwk.param.callerToken']);
         try {
             win = await window.create(globalThis.selectExtensionContext, name, windowType);
+            await win.bindDialogTarget(globalThis.abilityWant.parameters['ohos.aafwk.param.callerToken'], () => {
+                win.destroyWindow();
+                winNum--;
+                if(winNum == 0) globalThis.selectExtensionContext.terminateSelf();
+            });
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
             if (globalThis.params.deviceType == "phone") {
@@ -130,8 +136,8 @@ export default class SelectorServiceExtensionAbility extends extension {
             }
             await win.setBackgroundColor("#00000000");
             await win.show();
-        } catch {
-            console.error(TAG, "window create failed!");
+        } catch (e) {
+            console.error(TAG, "window create failed: " + JSON.stringify(e));
         }
     }
 };
