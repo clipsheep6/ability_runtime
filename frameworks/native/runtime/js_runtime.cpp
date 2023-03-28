@@ -39,6 +39,7 @@
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
+#include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_utils.h"
@@ -317,6 +318,12 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     auto position = hapPath.find(".hap");
     if (position != std::string::npos) {
         resolvedHapPath = hapPath.substr(0, position) + MERGE_ABC_PATH;
+    }
+
+    auto hspPosition = hapPath.find(".hsp");
+    if (hspPosition != std::string::npos) {
+        HILOG_INFO("zhuhan=====hsp.");
+        resolvedHapPath = hapPath.substr(0, hspPosition) + MERGE_ABC_PATH;
     }
 
     HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
@@ -940,10 +947,10 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     panda::JSNApi::SetModuleName(vm, moduleName_);
 }
 
-void JsRuntime::RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack)
+void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath)
 {
     auto vm = GetEcmaVm();
-    panda::JSNApi::RegisterQuickFixQueryFunc(vm, callBack);
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

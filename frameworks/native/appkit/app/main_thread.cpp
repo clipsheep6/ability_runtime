@@ -68,6 +68,13 @@
 #include <dlfcn.h>
 #endif
 
+// namespace panda {
+// using QuickFixQueryCallBack = bool (*)(std::string baseFileName,
+//                                        std::string &patchFileName,
+//                                        void **patchBuffer,
+//                                        size_t &patchSize);
+// }
+
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
@@ -76,6 +83,7 @@ std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
+static std::map<std::string, std::string> moduleAndPath_;
 namespace {
 #ifdef APP_USE_ARM64
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
@@ -1476,17 +1484,6 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     return true;
 }
 
-bool callback(std::string baseFileName, std::string &patchFileName,
-            void **patchBuffer, size_t &patchSize)
-{
-    // 1.baseFileName = /data/storage/el1/bundle/${moudleName}.abc。多个moudle如何处理？
-
-    // 2.根据moudleName获取到patchFileName，补丁路径。hqfInfos：moudelName， hqfFile
-
-    //
-    return true;
-}
-
 /**
  *
  * @brief launch the ability.
@@ -1549,10 +1546,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     //     }
     // }
 
-    if (runtime && !appInfo->appQuickFix.deployedAppqfInfo.hqfInfos.empty()) {
-
+    std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
+    if (runtime && !hqfInfos.empty()) {
         // hqfInfos：moudelName， hqfFile
-        runtime->RegisterQuickFixQueryFunc(callback);
+        for(auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
+            HILOG_INFO("zhuhan===moudelName: %{private}s, hqfFilePath: %{private}s.",
+                it->moduleName.c_str(), it->hqfFilePath.c_str());
+            moduleAndPath_.insert(std::make_pair(it->moduleName, it->hqfFilePath));
+        }
+        runtime->RegisterQuickFixQueryFunc(moduleAndPath_);
     }
 }
 
