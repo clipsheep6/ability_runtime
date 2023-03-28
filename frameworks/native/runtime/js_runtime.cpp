@@ -940,10 +940,43 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     panda::JSNApi::SetModuleName(vm, moduleName_);
 }
 
-void JsRuntime::RegisterQuickFixQueryFunc(panda::QuickFixQueryCallBack callBack)
+void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath)
 {
+    panda::QuickFixQueryCallBack callback = 
+        [runtime](std::string baseFileName, std::string &patchFileName,
+        void **patchBuffer, size_t &patchSize) {
+
+        // 1.baseFileName = /data/storage/el1/bundle/${moduleName}/ets/modules.abc.
+        HILOG_DEBUG("zhuhan====baseFileName: %{public}s", baseFileName.c_str());
+        int baseFileNameLen = baseFileName.length();
+        int prefixLen = strlen(BUNDLE_INSTALL_PATH);
+        int suffixLen = strlen(MERGE_ABC_PATH);
+        std::string moduleName = baseFileName.substr(prefixLen, baseFileNameLen - prefixLen - suffixLen);
+
+        HILOG_DEBUG("zhuhan====moduleName: %{public}s", moduleName.c_str());
+
+        // 2.根据moudleName获取到patchFileName，补丁路径。hqfInfos：moudelName， hqfFile
+        std::map<std::string, std::string>::iterator it = moduleAndPath.find(moduleName);
+        if(it == moduleAndPath.end()) {
+            HILOG_ERROR("zhuhan====moduleName: %{public}s", moduleName.c_str());
+            return false;
+        }
+        std::string hqfFile = it->second;
+        HILOG_DEBUG("zhuhan====hqfFile: %{public}s", hqfFile.c_str());
+
+        std::vector<uint8_t> newpatchBuffer;
+        if (GetFileBuffer(hqfFile, patchFileName, &newpatchBuffer)) {
+            HILOG_ERROR("zhuhan====GetFileBuffer failed");
+            return false;
+        }
+        void *bufferData = reinterpret_cast<void *>(newpatchBuffer);
+        HILOG_DEBUG("zhuhan====patchFileName: %{public}s", patchFileName.c_str());
+        *patchBuffer = &bufferData;
+        patchSize = newpatchBuffer.size();
+        return true;
+    };
     auto vm = GetEcmaVm();
-    panda::JSNApi::RegisterQuickFixQueryFunc(vm, callBack);
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, callback);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
