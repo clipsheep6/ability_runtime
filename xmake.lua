@@ -16,6 +16,7 @@ target("ability_runtime")
         "interfaces/inner_api/dataobs_manager/include",
         "interfaces/kits/native/appkit/ability_runtime",
         "interfaces/kits/native/appkit/ability_runtime/context",
+        "interfaces/kits/native/appkit/ability_runtime/app",
         "interfaces/kits/native/appkit/app",
         "interfaces/kits/native/ability/ability_runtime",
         "interfaces/kits/native/ability/native",

@@ -15,7 +15,7 @@
 
 #include "js_ability_stage_context.h"
 
-#include "ability_runtime/context/context.h"
+#include "context.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
