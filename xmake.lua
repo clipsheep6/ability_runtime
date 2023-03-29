@@ -29,6 +29,7 @@ target("ability_runtime")
         "interfaces/kits/native/ability/native/ui_extension_ability",
         "interfaces/kits/native/ability/native/recovery", "interfaces/kits/native/appkit/ability_delegator",
         "tools/aa/include", "tools/fm/include")
+    add_includedirs("js_environment/interfaces/inner_api")
     add_includedirs("../communication_ipc/interfaces/innerkits/ipc_core/include", "../communication_ipc/interfaces/innerkits/ipc_napi_common/include")
     add_includedirs("../commonlibrary_c_utils/base/include")
     add_includedirs("D:/cache/include")

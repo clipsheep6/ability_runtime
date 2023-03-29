@@ -95,5 +95,5 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#include "extension_base.inl"
+// #include "extension_base.inl"
 #endif  // OHOS_ABILITY_RUNTIME_EXTENSION_BASE_H

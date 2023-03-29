@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "extension_base.h"
+
 #include "context.h"
 #include "application_context.h"
 #include "hilog_wrapper.h"
