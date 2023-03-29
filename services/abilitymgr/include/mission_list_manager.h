@@ -71,8 +71,8 @@ public:
 
     int MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions = nullptr);
 
-    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher,
-        std::shared_ptr<StartOptions> startOptions = nullptr);
+    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher, bool isRecent,
+        std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr);
 
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.

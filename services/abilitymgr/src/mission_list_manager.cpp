@@ -219,11 +219,11 @@ int MissionListManager::GetMissionInfo(int32_t missionId, MissionInfo &missionIn
 int MissionListManager::MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    return MoveMissionToFront(missionId, true, startOptions);
+    return MoveMissionToFront(missionId, true, true, nullptr, startOptions);
 }
 
-int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher,
-    std::shared_ptr<StartOptions> startOptions)
+int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher, bool isRecent,
+    std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions)
 {
     HILOG_INFO("move mission to front:%{public}d.", missionId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
@@ -250,7 +250,7 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
 
 #ifdef SUPPORT_GRAPHICS
     AbilityRequest abilityRequest;
-    targetAbilityRecord->ProcessForegroundAbility(true, abilityRequest, startOptions, nullptr);
+    targetAbilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility);
 #else
     targetAbilityRecord->ProcessForegroundAbility();
 #endif
@@ -2039,7 +2039,7 @@ void MissionListManager::BackToCaller(const std::shared_ptr<AbilityRecord> &call
     }
 
     // other , resume caller ability to top and foreground.
-    MoveMissionToFront(callerAbility->GetMissionId(), false);
+    MoveMissionToFront(callerAbility->GetMissionId(), false, false, nullptr);
 }
 
 void MissionListManager::MoveToTerminateList(const std::shared_ptr<AbilityRecord>& abilityRecord)
@@ -2886,8 +2886,11 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
             ability->SetWant(abilityRequest.want);
             ability->SetIsNewWant(true);
             UpdateAbilityRecordLaunchReason(abilityRequest, ability);
+            if (callerAbility == nullptr) {
+                callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+            }
             auto isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
-            MoveMissionToFront(mission->GetMissionId(), isCallerFromLauncher);
+            MoveMissionToFront(mission->GetMissionId(), isCallerFromLauncher, false, callerAbility);
             NotifyRestartSpecifiedAbility(abilityRequest, ability->GetToken());
             return;
         }

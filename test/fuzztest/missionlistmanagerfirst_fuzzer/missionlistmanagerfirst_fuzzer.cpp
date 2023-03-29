@@ -107,7 +107,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->GetMissionInfo(int32Param, missionInfo);
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
     missionListManager->MoveMissionToFront(int32Param, startOptions);
-    missionListManager->MoveMissionToFront(int32Param, boolParam, startOptions);
+    missionListManager->MoveMissionToFront(int32Param, boolParam, boolParam, abilityRecord, startOptions);
     missionListManager->EnqueueWaitingAbility(abilityRequest);
     missionListManager->EnqueueWaitingAbilityToFront(abilityRequest);
     missionListManager->StartWaitingAbility();
