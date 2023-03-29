@@ -20,7 +20,7 @@
 #include <map>
 
 #include "bundlemgr/bundle_mgr_interface.h"
-#include "foundation/filemanagement/storage_service/services/storage_manager/include/ipc/storage_manager_proxy.h"
+#include "storage_manager_proxy.h"
 #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
