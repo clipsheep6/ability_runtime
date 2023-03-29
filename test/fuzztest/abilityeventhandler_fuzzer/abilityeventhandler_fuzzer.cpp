@@ -88,7 +88,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityEventHandler->ProcessActiveTimeOut(int64Param);
     abilityEventHandler->ProcessInactiveTimeOut(int64Param);
     abilityEventHandler->ProcessForegroundTimeOut(int64Param);
-    abilityEventHandler->ProcessBackgroundTimeOut(int64Param);
 
     // fuzz for AbilityInterceptorExecuter
     auto abilityInterceptorExecuter = std::make_shared<AbilityInterceptorExecuter>();

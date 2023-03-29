@@ -366,26 +366,6 @@ HWTEST_F(AbilityRecordModuleTest, PreNextAbilities_001, TestSize.Level1)
 
 /*
  * Feature: AbilityRecord
- * Function: EventId
- * SubFunction: SetEventId/GetEventId
- * FunctionPoints: Event id getter and setter
- * CaseDescription: Check ability record event id getter and setter.
- */
-HWTEST_F(AbilityRecordModuleTest, EventId_001, TestSize.Level1)
-{
-    auto& abilityRequest = MakeDefaultAbilityRequest();
-
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    EXPECT_TRUE(abilityRecord);
-
-    for (int i = 0; i < COUNT; ++i) {
-        abilityRecord->SetEventId(i);
-        EXPECT_EQ(abilityRecord->GetEventId(), i);
-    }
-}
-
-/*
- * Feature: AbilityRecord
  * Function: AbilityState
  * SubFunction: SetAbilityState/GetAbilityState
  * FunctionPoints: Ability state getter and setter

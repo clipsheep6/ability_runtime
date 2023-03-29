@@ -42,6 +42,8 @@ public:
 
     virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken) = 0;
 
+    virtual void NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info) = 0;
+
     enum WMSCmd {
         // ipc id for NotifyWindowTransition
         ON_NOTIFY_WINDOW_TRANSITION,
@@ -57,6 +59,9 @@ public:
 
         // ipc id for CancelStartingWindow
         ON_CANCEL_STARTING_WINDOW,
+
+        // ipc id for NotifyAnimationAbilityDied
+        ON_NOTIFY_ANIMATION_ABILITY_DIED,
     };
 };
 }  // namespace AAFwk

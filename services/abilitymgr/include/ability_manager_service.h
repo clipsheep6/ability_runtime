@@ -625,11 +625,10 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
-    void HandleLoadTimeOut(int64_t eventId);
-    void HandleActiveTimeOut(int64_t eventId);
-    void HandleInactiveTimeOut(int64_t eventId);
-    void HandleForegroundTimeOut(int64_t eventId);
-    void HandleBackgroundTimeOut(int64_t eventId);
+    void HandleLoadTimeOut(int64_t abilityRecordId);
+    void HandleActiveTimeOut(int64_t abilityRecordId);
+    void HandleInactiveTimeOut(int64_t abilityRecordId);
+    void HandleForegroundTimeOut(int64_t abilityRecordId);
 
     int StartAbilityInner(
         const Want &want,

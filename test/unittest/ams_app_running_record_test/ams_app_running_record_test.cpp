@@ -1826,7 +1826,7 @@ HWTEST_F(AmsAppRunningRecordTest, CreateRenderRecord_001, TestSize.Level1)
     int32_t ipcFd1 = 1;
     int32_t sharedFd = 0;
     int32_t sharedFd1 = 1;
-    int32_t crashFd = 0;
+    int32_t crashFd = 1;
     std::shared_ptr<AppRunningRecord> host;
 
     auto appInfo = std::make_shared<ApplicationInfo>();

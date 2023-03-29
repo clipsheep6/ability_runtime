@@ -62,7 +62,6 @@ const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 int64_t AbilityRecord::abilityRecordId = 0;
-int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
@@ -974,12 +973,9 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false)) {
-            g_abilityRecordEventId_++;
-            eventId_ = g_abilityRecordEventId_;
-            // eventId_ is a unique id of the task.
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
-            handler->PostTask(task, std::to_string(eventId_), backgroundTimeout);
+            handler->PostTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1114,16 +1110,6 @@ std::shared_ptr<AbilityRecord> AbilityRecord::GetNextAbilityRecord() const
     return nextAbilityRecord_.lock();
 }
 
-void AbilityRecord::SetEventId(int64_t eventId)
-{
-    eventId_ = eventId;
-}
-
-int64_t AbilityRecord::GetEventId() const
-{
-    return eventId_;
-}
-
 bool AbilityRecord::IsReady() const
 {
     return isReady_;
@@ -1218,12 +1204,9 @@ void AbilityRecord::Terminate(const Closure &task)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false)) {
-            g_abilityRecordEventId_++;
-            eventId_ = g_abilityRecordEventId_;
-            // eventId_ is a unique id of the task.
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
-            handler->PostTask(task, std::to_string(eventId_), terminateTimeout);
+            handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1819,6 +1802,16 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         ability->SendResultToCallers();
     };
     handler->PostTask(uriTask);
+#ifdef SUPPORT_GRAPHICS
+    // notify winddow manager service the ability died
+    handler->PostTask([ability = shared_from_this()]() {
+        if (ability->GetWMSHandler()) {
+            sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+            ability->SetAbilityTransitionInfo(info);
+            ability->GetWMSHandler()->NotifyAnimationAbilityDied(info);
+        }
+    });
+#endif
     HandleDlpClosed();
 }
 
@@ -1882,9 +1875,7 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
 
-    g_abilityRecordEventId_++;
-    eventId_ = g_abilityRecordEventId_;
-    handler->SendEvent(msg, eventId_, timeOut);
+    handler->SendEvent(msg, recordId_, timeOut);
 }
 
 void AbilityRecord::SetStartSetting(const std::shared_ptr<AbilityStartSetting> &setting)

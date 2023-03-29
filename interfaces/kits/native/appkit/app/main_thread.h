@@ -32,6 +32,7 @@
 #include "ipc_singleton.h"
 #include "native_engine/native_engine.h"
 #include "watchdog.h"
+#include "app_malloc_info.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -154,6 +155,15 @@ public:
      * @param level Indicates the memory trim level, which shows the current memory usage status.
      */
     void ScheduleMemoryLevel(const int level) override;
+
+    /**
+     *
+     * @brief Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     */
+    void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     /**
      *

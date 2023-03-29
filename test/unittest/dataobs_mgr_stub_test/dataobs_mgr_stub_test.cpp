@@ -67,7 +67,7 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_OnRemoteRequest_01
 
     const int retval = dataobs->OnRemoteRequest(code, data, reply, option);
 
-    EXPECT_EQ(-1, retval);
+    EXPECT_EQ(TEST_RETVAL_ONREMOTEREQUEST, retval);
     GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_OnRemoteRequest_0100 end";
 }
 

@@ -32,6 +32,7 @@
 #include "iconfiguration_observer.h"
 #include "iquick_fix_callback.h"
 #include "running_process_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -144,6 +145,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
 
     /**
      * Notify that the ability stage has been updated
@@ -359,6 +370,7 @@ public:
         PRE_START_NWEBSPAWN_PROCESS,
         APP_GET_PROCESS_RUNNING_INFORMATION,
         IS_SHARED_BUNDLE_RUNNING,
+        DUMP_HEAP_MEMORY_PROCESS,
     };
 };
 }  // namespace AppExecFwk

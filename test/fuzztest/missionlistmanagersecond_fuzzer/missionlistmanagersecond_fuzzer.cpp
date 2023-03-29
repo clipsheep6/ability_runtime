@@ -124,7 +124,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->BackToCaller(abilityRecord);
     missionListManager->MoveToTerminateList(abilityRecord);
     missionListManager->GetAbilityRecordByCaller(abilityRecord, intParam);
-    missionListManager->GetAbilityRecordByEventId(int64Param);
+    missionListManager->GetAbilityRecordById(int64Param);
     missionListManager->OnAbilityDied(abilityRecord, int32Param);
     missionListManager->GetTargetMissionList(intParam, mission);
     missionListManager->GetMissionIdByAbilityToken(token);

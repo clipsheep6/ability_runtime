@@ -413,20 +413,6 @@ public:
     std::shared_ptr<AbilityRecord> GetNextAbilityRecord() const;
 
     /**
-     * set event id.
-     *
-     * @param eventId
-     */
-    void SetEventId(int64_t eventId);
-
-    /**
-     * get event id.
-     *
-     * @return eventId
-     */
-    int64_t GetEventId() const;
-
-    /**
      * check whether the ability is ready.
      *
      * @return true : ready ,false: not ready
@@ -837,6 +823,10 @@ public:
     bool CanRestartResident();
 
     std::string GetLabel();
+    inline int64_t GetAbilityRecordId() const
+    {
+        return recordId_;
+    }
 
     void SetPendingState(AbilityState state);
     AbilityState GetPendingState() const;
@@ -854,8 +844,6 @@ protected:
     std::unique_ptr<LifecycleDeal> lifecycleDeal_ = {};    // life manager used to schedule life
     AbilityState currentState_ = AbilityState::INITIAL;    // current life state
     Want want_ = {};                                       // want to start this ability
-    static int64_t g_abilityRecordEventId_;
-    int64_t eventId_ = 0;                                  // post event id
 
 private:
     /**

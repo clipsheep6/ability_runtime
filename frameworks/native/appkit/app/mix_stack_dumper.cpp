@@ -58,7 +58,7 @@ typedef struct ProcInfo {
 typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
 static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
-static struct ProcInfo g_procInfo;
+static struct ProcInfo g_procInfo = {0};
 
 static std::string PrintJsFrame(const JsFrames& jsFrame)
 {
@@ -111,6 +111,10 @@ static bool HasNameSpace()
 
 static int GetProcStatus(struct ProcInfo* procInfo)
 {
+    if (procInfo->pid >= 1) {
+        return 0;
+    }
+
     procInfo->pid = getpid();
     procInfo->tid = gettid();
     procInfo->ppid = getppid();
@@ -459,6 +463,7 @@ void MixStackDumper::HandleMixDumpRequest()
     int dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_ESUCCESS;
     std::unique_lock<std::mutex> lock(g_mutex);
     HILOG_INFO("Current process is ready to dump stack trace.");
+    (void)GetProcStatus(&g_procInfo);
     do {
         fd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
         resFd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
@@ -502,11 +507,10 @@ std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
     if (fd < 0) {
         outputStr_.clear();
     }
-    (void)memset_s(&g_procInfo, sizeof(g_procInfo), 0, sizeof(g_procInfo));
-    (void)GetProcStatus(&g_procInfo);
+
     Init(GetPid());
     PrintProcessHeader(fd, GetPid(), getuid());
-    if (requestTid >= 0) {
+    if (requestTid > 0) {
         pid_t targetNsTid = requestTid;
         pid_t targetTid = requestTid;
         if (HasNameSpace()) {
@@ -534,6 +538,7 @@ std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
 std::string MixStackDumper::GetMixStack(bool onlyMainThread)
 {
     std::unique_lock<std::mutex> lock(g_mutex);
+    (void)GetProcStatus(&g_procInfo);
     MixStackDumper mixDumper;
     return mixDumper.DumpMixStackLocked(-1, onlyMainThread ? GetPid() : -1);
 }

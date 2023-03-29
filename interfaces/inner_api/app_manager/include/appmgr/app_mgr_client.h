@@ -31,6 +31,7 @@
 #include "istart_specified_ability_response.h"
 #include "iconfiguration_observer.h"
 #include "app_mem_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -198,6 +199,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode NotifyMemoryLevel(MemoryLevel level);
+
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
      * GetConfiguration

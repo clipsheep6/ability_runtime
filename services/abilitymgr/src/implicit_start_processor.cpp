@@ -100,7 +100,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want);
+    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
