@@ -332,7 +332,7 @@ std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
     std::string path = "/proc/self/task/" + std::to_string(tid) + "/comm";
     std::string threadComm;
     if (LoadStringFromFile(path, threadComm)) {
-        result << " comm:" << threadComm;
+        result << " Name:" << threadComm;
     } else {
         result << std::endl;
     }
