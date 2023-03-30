@@ -124,7 +124,7 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc,
         AttachStaticSubscriberExtensionContext, workContext, nullptr);
     HILOG_INFO("JsStaticSubscriberExtension::Init Bind.");
-    context->Bind(jsRuntime_, shellContextRef.release());
+    context->Bind<NativeReference, true>(jsRuntime_, shellContextRef.release());
     HILOG_INFO("JsStaticSubscriberExtension::SetProperty.");
     obj->SetProperty("context", contextObj);
 
