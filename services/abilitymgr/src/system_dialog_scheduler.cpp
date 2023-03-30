@@ -181,6 +181,77 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     return jsonObject.dump();
 }
 
+Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
+    const std::vector<DialogAppInfo> &dialogOtherAppInfos, Want &targetWant, const std::string &type, int32_t userId)
+{
+    HILOG_DEBUG("GetPcSelectorDialogWant start");
+    DialogPosition position;
+    if (dialogAppInfos.size() == 0) {
+        GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogOtherAppInfos.size()));
+    } else {
+        GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
+    }
+    std::string params = GetPcSelectorParams(dialogAppInfos, dialogOtherAppInfos, type, userId);
+
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    targetWant.SetParam(DIALOG_PARAMS, params);
+
+    return targetWant;
+}
+
+const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
+    const std::vector<DialogAppInfo> &otherInfos, const std::string &type, int32_t userId) const
+{
+    HILOG_DEBUG("GetPcSelectorParams start");
+    nlohmann::json jsonObject;
+    jsonObject[DEVICE_TYPE] = deviceType_;
+
+    if (infos.empty()) {
+        nlohmann::json otherhapListObj = nlohmann::json::array();
+        for (const auto &otherInfo : otherInfos) {
+            nlohmann::json atherObj;
+            atherObj["label"] = std::to_string(otherInfo.labelId);
+            atherObj["icon"] = std::to_string(otherInfo.iconId);
+            atherObj["bundle"] = otherInfo.bundleName;
+            atherObj["ability"] = otherInfo.abilityName;
+            atherObj["module"] = otherInfo.moduleName;
+            otherhapListObj.emplace_back(atherObj);
+        }
+        jsonObject["otherhapList"] = otherhapListObj;
+
+        return jsonObject.dump();
+    }
+
+    nlohmann::json hapListObj = nlohmann::json::array();
+    for (const auto &aInfo : infos) {
+        nlohmann::json aObj;
+        aObj["label"] = std::to_string(aInfo.labelId);
+        aObj["icon"] = std::to_string(aInfo.iconId);
+        aObj["bundle"] = aInfo.bundleName;
+        aObj["ability"] = aInfo.abilityName;
+        aObj["module"] = aInfo.moduleName;
+        aObj["type"] = type;
+        aObj["userId"] = std::to_string(userId);
+        hapListObj.emplace_back(aObj);
+    }
+    jsonObject["hapList"] = hapListObj;
+
+    nlohmann::json otherhapListObj = nlohmann::json::array();
+    for (const auto &otherInfo : otherInfos) {
+        nlohmann::json atherObj;
+        atherObj["label"] = std::to_string(otherInfo.labelId);
+        atherObj["icon"] = std::to_string(otherInfo.iconId);
+        atherObj["bundle"] = otherInfo.bundleName;
+        atherObj["ability"] = otherInfo.abilityName;
+        atherObj["module"] = otherInfo.moduleName;
+        otherhapListObj.emplace_back(atherObj);
+    }
+    jsonObject["otherhapList"] = otherhapListObj;
+
+    return jsonObject.dump();
+}
+
 const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPosition position) const
 {
     nlohmann::json dialogPositionData;

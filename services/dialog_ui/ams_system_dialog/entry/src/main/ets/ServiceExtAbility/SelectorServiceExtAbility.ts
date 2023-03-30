@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@ import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import deviceInfo from '@ohos.deviceInfo';
+import defaultAppManager from '@ohos.bundle.defaultAppManager';
 
 const TAG = "SelectorDialog_Service";
 
@@ -27,6 +28,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     onCreate(want) {
         console.debug(TAG, "onCreate, want: " + JSON.stringify(want));
         globalThis.selectExtensionContext = this.context;
+        globalThis.defaultAppManager = defaultAppManager;
     }
 
     async getPhoneShowHapList() {
@@ -54,6 +56,13 @@ export default class SelectorServiceExtensionAbility extends extension {
         }
         globalThis.pcShowHapList = pcShowHapList;
         console.debug(TAG, "pcShowHapList: " + JSON.stringify(pcShowHapList));
+
+        let pcShowOtherHapList = [];
+        for (let i = 0; i < globalThis.params.otherhapList.length; i++) {
+            await this.getHapResource(globalThis.params.otherhapList[i], pcShowOtherHapList);
+        }
+        globalThis.pcShowOtherHapList = pcShowOtherHapList;
+        console.debug(TAG, "pcShowOtherHapList: " + JSON.stringify(pcShowOtherHapList));
     }
 
     async getHapResource(hap, showHapList) {
@@ -63,6 +72,8 @@ export default class SelectorServiceExtensionAbility extends extension {
         let appName = "";
         let appIcon = "";
         let lableId = Number(hap.label);
+        let type = hap.type;
+        let userId = Number(hap.userId);
         let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
         await moduleContext.resourceManager.getString(lableId).then(value => {
             appName = value;
@@ -76,7 +87,8 @@ export default class SelectorServiceExtensionAbility extends extension {
         }).catch(error => {
             console.error(TAG, "getMediaBase64 error:" + JSON.stringify(error));
         });
-        showHapList.push(bundleName + "#" + abilityName + "#" + appName + "#" + appIcon + "#" + moduleName);
+        showHapList.push(bundleName + "#" + abilityName + "#" + appName +
+            "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
     }
 
     async onRequest(want, startId) {
@@ -130,7 +142,7 @@ export default class SelectorServiceExtensionAbility extends extension {
                 }
             });
             await win.moveTo(rect.left, rect.top);
-            await win.resetSize(rect.width, rect.height);
+            await win.resetSize(rect.width, 1000);
             if (globalThis.params.deviceType == "phone") {
                 await win.loadContent('pages/selectorPhoneDialog');
             } else {
