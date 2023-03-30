@@ -490,7 +490,6 @@ bool JsRuntime::Initialize(const Options& options)
                 return false;
             }
 
-            SetAppLibPath(options.appLibPaths);
             InitSourceMap(options);
 
             if (options.isUnique) {
@@ -588,13 +587,23 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths)
+void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
 {
+    HILOG_DEBUG("Set library path.");
+
+    if (appLibPaths.size() == 0) {
+        HILOG_WARN("There's no library path need to set.");
+        return;
+    }
+
     auto moduleManager = NativeModuleManager::GetInstance();
-    if (moduleManager != nullptr) {
-        for (const auto &appLibPath : appLibPaths) {
-            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
-        }
+    if (moduleManager == nullptr) {
+        HILOG_ERROR("Get module manager failed.");
+        return;
+    }
+
+    for (const auto &appLibPath : appLibPaths) {
+        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
     }
 }
 

@@ -100,9 +100,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeTest_0200, TestSize.Level0)
 {
     std::string appLibPathKey = TEST_BUNDLE_NAME + TEST_MODULE_NAME;
     std::string libPath = TEST_LIB_PATH;
-    options_.appLibPaths[appLibPathKey].emplace_back(libPath);
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
+
+    AppLibPathMap appLibPaths {};
+    JsRuntime::SetAppLibPath(appLibPaths);
+
+    appLibPaths[appLibPathKey].emplace_back(libPath);
+    EXPECT_NE(appLibPaths.size(), 0);
+    JsRuntime::SetAppLibPath(appLibPaths);
 }
 
 /**
