@@ -28,6 +28,7 @@
 #include "iapp_state_callback.h"
 #include "want.h"
 #include "bundle_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -91,6 +92,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUnregisterConfigurationObserver;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION)] =
         &AppMgrStub::HandleGetProcessRunningInformation;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS)] =
+        &AppMgrStub::HandleDumpHeapMemory;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -277,6 +280,20 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("AppMgrStub::HandleDumpHeapMemory.");
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t pid = data.ReadInt32();
+    struct OHOS::AppExecFwk::MallocInfo mallocInfo;
+    auto result = DumpHeapMemory(pid, mallocInfo);
+    if (result != NO_ERROR) {
+        return result;
+    }
+    reply.WriteParcelable(&mallocInfo);
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -428,8 +445,10 @@ int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel 
     std::string renderParam = data.ReadString();
     int32_t ipcFd = data.ReadFileDescriptor();
     int32_t sharedFd = data.ReadFileDescriptor();
+    int32_t crashFd = data.ReadFileDescriptor();
     int32_t renderPid = 0;
-    int32_t result = StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
+    int32_t result =
+        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result error.");
         return ERR_INVALID_VALUE;

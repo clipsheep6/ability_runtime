@@ -679,7 +679,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
 
     abilityMs_->freeInstallManager_ = temp;
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), INVALID_PARAMETERS_ERR);
 
     // GetBoolParam
     want.SetFlags(0);
@@ -1273,7 +1273,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfos_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 start");
     std::vector<MissionInfo> missionInfos;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 end");
 }
 
@@ -1301,7 +1301,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 start");
     MissionInfo missionInfo;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 end");
 }
 
@@ -1734,7 +1734,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
     int max = 0;
-    abilityMs_->GetMaxRestartNum(max, true);
+    max = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
 
@@ -1847,19 +1847,6 @@ HWTEST_F(AbilityManagerServiceTest, HandleInactiveTimeOut_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 start");
     abilityMs_->HandleInactiveTimeOut(100);
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: HandleBackgroundTimeOut
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService HandleBackgroundTimeOut
- */
-HWTEST_F(AbilityManagerServiceTest, HandleBackgroundTimeOut_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 start");
-    abilityMs_->HandleBackgroundTimeOut(100);
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 end");
 }
 
 /*
@@ -2038,12 +2025,7 @@ HWTEST_F(AbilityManagerServiceTest, IsRamConstrainedDevice_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, GetMissionSaveTime_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 start");
-    EXPECT_NE(abilityMs_->GetMissionSaveTime(), 0);
-
-    auto temp = abilityMs_->amsConfigResolver_;
-    abilityMs_->amsConfigResolver_.reset();
-    EXPECT_EQ(abilityMs_->GetMissionSaveTime(), 0);
-    abilityMs_->amsConfigResolver_ = temp;
+    EXPECT_NE(AmsConfigurationParameter::GetInstance().GetMissionSaveTime(), 0);
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 end");
 }
 
@@ -2901,6 +2883,7 @@ HWTEST_F(AbilityManagerServiceTest, CreateVerificationInfo_001, TestSize.Level1)
     abilityMs_->whiteListassociatedWakeUpFlag_ = false;
     EXPECT_FALSE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
 
+    abilityMs_->whiteListassociatedWakeUpFlag_ = true;
     abilityRequest.appInfo.bundleName = "com.ohos.settingsdata";
     EXPECT_TRUE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
 
@@ -3149,7 +3132,7 @@ HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1
 HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_002, TestSize.Level1)
 {
     Want want;
-    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100, 
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100,
         AppExecFwk::ExtensionAbilityType::UI), CHECK_PERMISSION_FAILED);
 }
 

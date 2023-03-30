@@ -181,7 +181,9 @@ void CallContainer::AddConnectDeathRecipient(const sptr<IAbilityConnection> &con
                     callContainer->OnConnectionDied(remote);
                 }
             });
-        connect->AsObject()->AddDeathRecipient(deathRecipient);
+        if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
         deathRecipientMap_.emplace(connect->AsObject(), deathRecipient);
     }
 }

@@ -88,9 +88,9 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
                 }
             });
     }
-    if (token != nullptr) {
-        HILOG_INFO("Add death recipient.");
-        token->AddDeathRecipient(callerDeathRecipient_);
+    HILOG_INFO("Add death recipient.");
+    if (token == nullptr || !token->AddDeathRecipient(callerDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 }
 

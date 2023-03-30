@@ -264,6 +264,18 @@ RState GetRawFileList(const std::string rawDirPath, std::vector<std::string>& ra
 {
     return SUCCESS;
 }
+
+RState GetDrawableInfoById(uint32_t id, std::string &type, size_t &len,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t density = 0)
+{
+    return SUCCESS;
+}
+
+RState GetDrawableInfoByName(const char *name, std::string &type, size_t &len,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t density = 0)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global

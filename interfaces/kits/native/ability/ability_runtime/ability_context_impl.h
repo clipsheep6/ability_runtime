@@ -216,6 +216,7 @@ private:
 
     static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
+    void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
     void StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,
         const std::vector<int>& permissionsState, int requestCode, PermissionRequestTask &&task);
 

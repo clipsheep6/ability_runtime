@@ -229,7 +229,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_001, TestSize.Level1)
     service->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVATING);
     auto result2 = ConnectManager()->StartAbility(abilityRequest_);
     WaitUntilTaskDone(handler);
-    EXPECT_EQ(OHOS::AAFwk::START_SERVICE_ABILITY_ACTIVATING, result2);
+    EXPECT_EQ(OHOS::ERR_OK, result2);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 
@@ -1024,8 +1024,9 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_019, TestSize.Level1)
     auto result1 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::INACTIVE);
     EXPECT_EQ(result1, OHOS::ERR_INVALID_VALUE);
 
+    ConnectManager()->MoveToTerminatingMap(abilityRecord);
     auto result2 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::INITIAL);
-    EXPECT_EQ(result2, OHOS::ERR_INVALID_VALUE);
+    EXPECT_EQ(result2, OHOS::ERR_OK);
 
     auto result3 = ConnectManager()->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::TERMINATING);
     EXPECT_EQ(result3, OHOS::ERR_INVALID_VALUE);
@@ -1484,8 +1485,10 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbilityResultLocked
     int res1 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
     EXPECT_NE(res1, TERMINATE_ABILITY_RESULT_FAILED);
     abilityRecord->AddStartId();
+    std::string stringUri = "id/bundle/module/name";
+    connectManager->serviceMap_.emplace(stringUri, abilityRecord);
     int res2 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
-    EXPECT_EQ(res2, ERR_INVALID_VALUE);
+    EXPECT_EQ(res2, TERMINATE_ABILITY_RESULT_FAILED);
 }
 
 /*
@@ -1638,8 +1641,9 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_AbilityTransitionDone_001, T
     int res1 = connectManager->AbilityTransitionDone(token, state);
     EXPECT_EQ(res1, ERR_INVALID_VALUE);
     state = AbilityState::INITIAL;
+    connectManager->MoveToTerminatingMap(abilityRecord);
     int res2 = connectManager->AbilityTransitionDone(token, state);
-    EXPECT_EQ(res2, ERR_INVALID_VALUE);
+    EXPECT_EQ(res2, ERR_OK);
 }
 
 /*
@@ -1787,21 +1791,20 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetConnectRecordListByCallba
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetAbilityRecordByEventId
- * SubFunction: GetAbilityRecordByEventId
+ * Function: GetAbilityRecordById
+ * SubFunction: GetAbilityRecordById
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager GetAbilityRecordByEventId
+ * CaseDescription: Verify AbilityConnectManager GetAbilityRecordById
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordByEventId_001, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordById_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int64_t eventId = 0;
-    abilityRecord->SetEventId(eventId);
+    int64_t abilityRecordId = 0;
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->serviceMap_.emplace("second", nullptr);
-    auto res = connectManager->GetAbilityRecordByEventId(eventId);
+    auto res = connectManager->GetAbilityRecordById(abilityRecordId);
     EXPECT_NE(res, nullptr);
 }
 
@@ -2135,12 +2138,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnTimeOut_001, TestSize.Leve
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     uint32_t msgId = 2;
-    int64_t eventId = 1;
-    abilityRecord->SetEventId(eventId);
     connectManager->serviceMap_.emplace("first", abilityRecord);
-    connectManager->OnTimeOut(msgId, eventId);
+    int64_t abilityRecordId = 1;
+    connectManager->OnTimeOut(msgId, abilityRecordId);
     msgId = 0;
-    connectManager->OnTimeOut(msgId, eventId);
+    connectManager->OnTimeOut(msgId, abilityRecordId);
 }
 
 /*
@@ -2214,10 +2216,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_002, TestSize
     connectManager->userId_ = currentUserId;
     abilityRecord->abilityInfo_.name = "abilityName";
     abilityRecord->SetRestartCount(-1);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(0);
-    connectManager->RestartAbility(abilityRecord, currentUserId);
-    abilityRecord->SetRestartCount(1);
     connectManager->RestartAbility(abilityRecord, currentUserId);
 }
 

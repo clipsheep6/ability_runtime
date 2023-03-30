@@ -723,7 +723,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_002, TestSize.Level1)
         appInfo->name, GetTestAppName(), appInfo->uid, bundleInfo);
     EXPECT_EQ(record2, record);
     const auto& abilityMap2 = record2->GetAbilities();
-    EXPECT_EQ(abilityMap2.size(), (uint32_t)1);
+    EXPECT_EQ(abilityMap2.size(), (uint32_t)2);
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LaunchMode_002 end");
 }
 

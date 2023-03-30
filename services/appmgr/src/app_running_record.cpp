@@ -30,24 +30,30 @@ constexpr int32_t RESTART_INTERVAL_TIME = 120000;
 int64_t AppRunningRecord::appEventId_ = 0;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
-    : hostPid_(hostPid), renderParam_(renderParam), ipcFd_(ipcFd), sharedFd_(sharedFd), host_(host)
-{}
+                           int32_t ipcFd, int32_t sharedFd, int32_t crashFd,
+                           const std::shared_ptr<AppRunningRecord> &host)
+    : hostPid_(hostPid), renderParam_(renderParam), ipcFd_(ipcFd),
+      sharedFd_(sharedFd), crashFd_(crashFd), host_(host) {}
 
 RenderRecord::~RenderRecord()
 {
     close(sharedFd_);
     close(ipcFd_);
+    close(crashFd_);
 }
 
-std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
+std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(
+    pid_t hostPid, const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, int32_t crashFd,
+    const std::shared_ptr<AppRunningRecord> &host)
 {
-    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || !host) {
+    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
+        crashFd <= 0 || !host) {
         return nullptr;
     }
 
-    auto renderRecord = std::make_shared<RenderRecord>(hostPid, renderParam, ipcFd, sharedFd, host);
+    auto renderRecord = std::make_shared<RenderRecord>(
+        hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     renderRecord->SetHostUid(host->GetUid());
     renderRecord->SetHostBundleName(host->GetBundleName());
 
@@ -104,6 +110,11 @@ int32_t RenderRecord::GetSharedFd() const
     return sharedFd_;
 }
 
+int32_t RenderRecord::GetCrashFd() const
+{
+    return crashFd_;
+}
+
 std::shared_ptr<AppRunningRecord> RenderRecord::GetHostRecord() const
 {
     return host_.lock();
@@ -128,8 +139,8 @@ void RenderRecord::RegisterDeathRecipient()
 {
     if (renderScheduler_ && deathRecipient_) {
         auto obj = renderScheduler_->AsObject();
-        if (obj) {
-            obj->AddDeathRecipient(deathRecipient_);
+        if (!obj || !obj->AddDeathRecipient(deathRecipient_)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
         }
     }
 }
@@ -533,6 +544,13 @@ void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
 {
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleMemoryLevel(level);
+    }
+}
+
+void AppRunningRecord::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleHeapMemory(pid, mallocInfo);
     }
 }
 
@@ -958,8 +976,8 @@ void AppRunningRecord::RegisterAppDeathRecipient() const
         return;
     }
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
-    if (object) {
-        object->AddDeathRecipient(appDeathRecipient_);
+    if (!object || !object->AddDeathRecipient(appDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 }
 
@@ -1399,6 +1417,16 @@ void AppRunningRecord::SetProcessChangeReason(ProcessChangeReason reason)
 ProcessChangeReason AppRunningRecord::GetProcessChangeReason() const
 {
     return processChangeReason_;
+}
+
+bool AppRunningRecord::IsUpdateStateFromService()
+{
+    return isUpdateStateFromService_;
+}
+
+void AppRunningRecord::SetUpdateStateFromService(bool isUpdateStateFromService)
+{
+    isUpdateStateFromService_ = isUpdateStateFromService;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

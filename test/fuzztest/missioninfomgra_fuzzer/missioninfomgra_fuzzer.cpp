@@ -48,7 +48,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for MissionInfoMgr
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
     missionInfoMgr->GenerateMissionId(int32Param);
-    missionInfoMgr->Init(intParam);
+    missionInfoMgr->taskDataPersistenceMgr_ = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
     missionInfoMgr->AddMissionInfo(innerMissionInfo);
     missionInfoMgr->UpdateMissionInfo(innerMissionInfo);
     missionInfoMgr->DeleteMissionInfo(intParam);

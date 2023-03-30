@@ -64,10 +64,8 @@ void FreeInstallTest::TearDownTestCase(void)
 void FreeInstallTest::SetUp(void)
 {
     freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
-    // runner_ = EventRunner::Create("AppkitNativeModuleTestMockHandlerFirst");
     abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
     abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
-    // abilityMs_->handler_ = std::make_shared<MockHandler>(runner_);
 }
 
 void FreeInstallTest::TearDown(void)
@@ -219,7 +217,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, false);
 
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
@@ -232,7 +231,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
 }
 
 /**
- * @tc.number: FreeInstall_StartFreeInstall_004
+ * @tc.number: FreeInstall_OnInstallFinished_002
  * @tc.name: OnInstallFinished
  * @tc.desc: Test OnInstallFinished failed.
  */
@@ -250,7 +249,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_002, TestSize.Level1)
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(1, want, userId, false);
 
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
@@ -279,6 +279,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_003, TestSize.Level1)
     FreeInstallInfo info = freeInstallManager_->BuildFreeInstallInfo(want, userId, requestCode, nullptr, false);
     info.isInstalled = true;
     freeInstallManager_->freeInstallList_.resize(0);
+    info.promise.reset();
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnInstallFinished(0, want, userId, false);
 
@@ -322,7 +323,8 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnRemoteInstallFinished_001, TestSize.Leve
     freeInstallManager_->freeInstallList_.emplace_back(info);
     freeInstallManager_->OnRemoteInstallFinished(0, want, userId);
 
-    for (auto it = freeInstallManager_->freeInstallList_.begin(); it != freeInstallManager_->freeInstallList_.end(); it++) {
+    for (auto it = freeInstallManager_->freeInstallList_.begin();
+        it != freeInstallManager_->freeInstallList_.end(); it++) {
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
         std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);

@@ -109,10 +109,10 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         return;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel
-        && abilityContext_ != nullptr) {
+    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel &&
+        abilityContext_ != nullptr) {
             AppExecFwk::AppRecovery::GetInstance().AddAbility(shared_from_this(), abilityContext_->GetAbilityInfo(),
-            abilityContext_->GetToken());
+                abilityContext_->GetToken());
     }
 #endif
     std::string srcPath(abilityInfo->package);
@@ -391,6 +391,10 @@ void JsAbility::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnForeground begin, ability is %{public}s.", GetAbilityName().c_str());
+    if (abilityInfo_) {
+        jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
+    }
+
     Ability::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);

@@ -88,7 +88,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityEventHandler->ProcessActiveTimeOut(int64Param);
     abilityEventHandler->ProcessInactiveTimeOut(int64Param);
     abilityEventHandler->ProcessForegroundTimeOut(int64Param);
-    abilityEventHandler->ProcessBackgroundTimeOut(int64Param);
 
     // fuzz for AbilityInterceptorExecuter
     auto abilityInterceptorExecuter = std::make_shared<AbilityInterceptorExecuter>();
@@ -155,20 +154,19 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilitySchedulerProxy->BlockAbility();
 #endif
     // fuzz for AmsConfigurationParameter
-    auto amsConfigurationParameter = std::make_shared<AmsConfigurationParameter>();
-    amsConfigurationParameter->Parse();
-    amsConfigurationParameter->NonConfigFile();
-    amsConfigurationParameter->GetMissionSaveTime();
-    amsConfigurationParameter->GetOrientation();
-    amsConfigurationParameter->GetANRTimeOutTime();
-    amsConfigurationParameter->GetAMSTimeOutTime();
-    amsConfigurationParameter->GetMaxRestartNum(true);
-    amsConfigurationParameter->GetDeviceType();
-    amsConfigurationParameter->GetBootAnimationTimeoutTime();
+    AmsConfigurationParameter::GetInstance().Parse();
+    AmsConfigurationParameter::GetInstance().NonConfigFile();
+    AmsConfigurationParameter::GetInstance().GetMissionSaveTime();
+    AmsConfigurationParameter::GetInstance().GetOrientation();
+    AmsConfigurationParameter::GetInstance().GetANRTimeOutTime();
+    AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
+    AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
+    AmsConfigurationParameter::GetInstance().GetDeviceType();
+    AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime();
     nlohmann::json Object;
-    amsConfigurationParameter->LoadAppConfigurationForStartUpService(Object);
-    amsConfigurationParameter->LoadAppConfigurationForMemoryThreshold(Object);
-    amsConfigurationParameter->LoadSystemConfiguration(Object);
+    AmsConfigurationParameter::GetInstance().LoadAppConfigurationForStartUpService(Object);
+    AmsConfigurationParameter::GetInstance().LoadAppConfigurationForMemoryThreshold(Object);
+    AmsConfigurationParameter::GetInstance().LoadSystemConfiguration(Object);
 
     return true;
 }

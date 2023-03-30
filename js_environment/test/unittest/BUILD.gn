@@ -17,5 +17,8 @@ import("../../js_environment.gni")
 group("unittest") {
   testonly = true
 
-  deps = [ "js_env_log_unit_test:unittest" ]
+  deps = [
+    "js_env_log_unit_test:unittest",
+    "js_environment_test:unittest",
+  ]
 }

@@ -43,6 +43,7 @@ const int PROFILE_CHANGED_SCHEDULED = 1 << 8;
 const int SCHEDULE_CONFIGURATION_UPDATED = 1 << 9;
 const int ABILITY_RUNNING_RECORD_NUM = 1000;
 const int MEMORY_LEVEL_SCHEDULED = 1 << 10;
+const int HEAP_MEMORY_SCHEDULED = 1 << 11;
 }  // namespace
 class MockedSchedulerBase {
 public:
@@ -93,6 +94,10 @@ public:
     void ScheduleMemoryLevel(const int) override
     {
         scheduled_ |= MEMORY_LEVEL_SCHEDULED;
+    }
+    void ScheduleHeapMemory(const int, OHOS::AppExecFwk::MallocInfo&) override
+    {
+        scheduled_ |= HEAP_MEMORY_SCHEDULED;
     }
     void ScheduleLaunchApplication(const AppLaunchData&, const Configuration&) override
     {

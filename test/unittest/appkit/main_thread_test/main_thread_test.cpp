@@ -202,7 +202,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
     {
         return 0;
     }
@@ -966,7 +966,7 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
     AbilityInfo abilityInfo;
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
-    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1820,6 +1820,7 @@ HWTEST_F(MainThreadTest, HandleLaunchAbility_0200, TestSize.Level1)
     mainThread_->HandleLaunchAbility(abilityRecord3);
 
     abilityRecord3->token_ = mainThread_;
+    abilityRecord3->abilityInfo_ = nullptr;
     AbilityRuntime::Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     mainThread_->application_->SetRuntime(std::move(runtime));

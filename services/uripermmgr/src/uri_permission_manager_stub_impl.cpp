@@ -197,7 +197,9 @@ sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager(
             }
         };
         sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
-        bundleManager_->AsObject()->AddDeathRecipient(recipient);
+        if (!bundleManager_->AsObject()->AddDeathRecipient(recipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
     }
     HILOG_DEBUG("%{public}s end.", __func__);
     return bundleManager_;
@@ -226,7 +228,9 @@ sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStora
             }
         };
         sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
-        storageManager_->AsObject()->AddDeathRecipient(recipient);
+        if (!storageManager_->AsObject()->AddDeathRecipient(recipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
     }
     HILOG_DEBUG("%{public}s end.", __func__);
     return storageManager_;

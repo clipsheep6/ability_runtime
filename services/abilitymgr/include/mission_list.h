@@ -148,10 +148,10 @@ public:
     /**
      * @brief get ability record by id
      *
-     * @param eventId event id
+     * @param abilityRecordId ability record id
      * @return std::shared_ptr<AbilityRecord> return ability record
      */
-    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t eventId) const;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
 
     /**
      * @brief Get the Ability Record By Caller object
@@ -210,6 +210,8 @@ public:
     #endif
 
     int32_t GetMissionCountByUid(int32_t targetUid) const;
+    void FindEarliestMission(std::shared_ptr<Mission>& targetMission) const;
+    int32_t GetMissionCount() const;
 
 private:
     std::string GetTypeName();

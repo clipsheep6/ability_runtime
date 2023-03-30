@@ -16,6 +16,7 @@
 #include "ability_connect_manager.h"
 
 #include <algorithm>
+#include <mutex>
 
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
@@ -34,6 +35,15 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+#ifdef SUPPORT_ASAN
+const int LOAD_TIMEOUT_MULTIPLE = 150;
+const int CONNECT_TIMEOUT_MULTIPLE = 45;
+const int COMMAND_TIMEOUT_MULTIPLE = 75;
+#else
+const int LOAD_TIMEOUT_MULTIPLE = 10;
+const int CONNECT_TIMEOUT_MULTIPLE = 3;
+const int COMMAND_TIMEOUT_MULTIPLE = 5;
+#endif
 }
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
@@ -129,8 +139,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         CommandAbility(targetService);
     } else {
-        HILOG_ERROR("Target service is already activating.");
-        return START_SERVICE_ABILITY_ACTIVATING;
+        HILOG_INFO("Target service is already activating.");
+        EnqueStartServiceReq(abilityRequest);
+        return ERR_OK;
     }
 
     sptr<Token> token = targetService->GetToken();
@@ -140,6 +151,32 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ERR_OK;
+}
+
+void AbilityConnectManager::EnqueStartServiceReq(const AbilityRequest &abilityRequest)
+{
+    std::lock_guard guard(startServiceReqListLock_);
+    auto abilityUri = abilityRequest.want.GetElement().GetURI();
+    auto reqListIt = startServiceReqList_.find(abilityUri);
+    if (reqListIt != startServiceReqList_.end()) {
+        reqListIt->second->push_back(abilityRequest);
+    } else {
+        auto reqList = std::make_shared<std::list<AbilityRequest>>();
+        reqList->push_back(abilityRequest);
+        startServiceReqList_.emplace(abilityUri, reqList);
+
+        auto callback = [abilityUri, connectManager = shared_from_this()]() {
+            std::lock_guard guard{connectManager->startServiceReqListLock_};
+            auto exist = connectManager->startServiceReqList_.erase(abilityUri);
+            if (exist) {
+                HILOG_ERROR("Target service %{public}s start timeout", abilityUri.c_str());
+            }
+        };
+
+        int connectTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * CONNECT_TIMEOUT_MULTIPLE;
+        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri, connectTimeout);
+    }
 }
 
 int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &token)
@@ -380,7 +417,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("LoadTimeout_") + std::to_string(recordId);
         eventHandler_->RemoveTask(taskName);
-        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetEventId());
+        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     }
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
@@ -590,6 +627,32 @@ void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord
     }
 
     abilityRecord->SetAbilityState(AbilityState::ACTIVE);
+
+    // manage queued request
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
+                                    abilityInfo.name, abilityInfo.moduleName);
+    CompleteStartServiceReq(element.GetURI());
+}
+
+void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri)
+{
+    std::shared_ptr<std::list<OHOS::AAFwk::AbilityRequest>> reqList;
+    {
+        std::lock_guard<std::mutex> guard(startServiceReqListLock_);
+        auto it = startServiceReqList_.find(serviceUri);
+        if (it != startServiceReqList_.end()) {
+            reqList = it->second;
+            startServiceReqList_.erase(it);
+        }
+    }
+
+    if (reqList) {
+        HILOG_INFO("Target service is already activating : %{public}zu", reqList->size());
+        for (const auto &req: *reqList) {
+            StartAbilityLocked(req);
+        }
+    }
 }
 
 std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordByElementName(const std::string &element)
@@ -682,14 +745,14 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityConnectManager::GetConnectRe
     return connectList;
 }
 
-std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAbilityRecordByEventId(int64_t eventId)
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAbilityRecordById(int64_t abilityRecordId)
 {
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto IsMatch = [eventId](auto service) {
+    auto IsMatch = [abilityRecordId](auto service) {
         if (!service.second) {
             return false;
         }
-        return eventId == service.second->GetEventId();
+        return abilityRecordId == service.second->GetAbilityRecordId();
     };
     auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
     if (serviceRecord != serviceMap_.end()) {
@@ -742,7 +805,7 @@ void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilit
     int restartIntervalTime = 0;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
-        abilityMgr->GetRestartIntervalTime(restartIntervalTime);
+        restartIntervalTime = AmsConfigurationParameter::GetInstance().GetRestartIntervalTime();
     }
     HILOG_DEBUG("PostRestartResidentTask, time:%{public}d", restartIntervalTime);
     eventHandler_->PostTask(task, taskName, restartIntervalTime);
@@ -778,19 +841,20 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
     std::string taskName;
     int resultCode;
     uint32_t delayTime;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (messageId == AbilityManagerService::LOAD_TIMEOUT_MSG) {
         // first load ability, There is at most one connect record.
         recordId = abilityRecord->GetRecordId();
         taskName = std::string("LoadTimeout_") + std::to_string(recordId);
         resultCode = LOAD_ABILITY_TIMEOUT;
-        delayTime = AbilityManagerService::LOAD_TIMEOUT;
+        delayTime = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
     } else {
         auto connectRecord = abilityRecord->GetConnectingRecord();
         CHECK_POINTER(connectRecord);
         recordId = connectRecord->GetRecordId();
         taskName = std::string("ConnectTimeout_") + std::to_string(recordId);
         resultCode = CONNECTION_TIMEOUT;
-        delayTime = AbilityManagerService::CONNECT_TIMEOUT;
+        delayTime = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * CONNECT_TIMEOUT_MULTIPLE;
     }
 
     // check libc.hook_mode
@@ -918,7 +982,7 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
             state);
         return ERR_INVALID_VALUE;
     }
-    eventHandler_->RemoveEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecord->GetEventId());
+    eventHandler_->RemoveEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
 
     // complete inactive
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
@@ -935,7 +999,7 @@ int AbilityConnectManager::DispatchTerminate(const std::shared_ptr<AbilityRecord
 {
     // remove terminate timeout task
     if (eventHandler_ != nullptr) {
-        eventHandler_->RemoveTask(std::to_string(abilityRecord->GetEventId()));
+        eventHandler_->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     }
     // complete terminate
     TerminateDone(abilityRecord);
@@ -963,7 +1027,9 @@ void AbilityConnectManager::CommandAbility(const std::shared_ptr<AbilityRecord> 
             HILOG_ERROR("Command ability timeout. %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
             connectManager->HandleCommandTimeoutTask(abilityRecord);
         };
-        eventHandler_->PostTask(timeoutTask, taskName, AbilityManagerService::COMMAND_TIMEOUT);
+        int commandTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COMMAND_TIMEOUT_MULTIPLE;
+        eventHandler_->PostTask(timeoutTask, taskName, commandTimeout);
         // scheduling command ability
         abilityRecord->CommandAbility();
     }
@@ -1044,7 +1110,9 @@ void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnecti
                     abilityConnectManager->OnCallBackDied(remote);
                 }
             });
-        connect->AsObject()->AddDeathRecipient(deathRecipient);
+        if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
         recipientMap_.emplace(connect->AsObject(), deathRecipient);
     }
 }
@@ -1107,11 +1175,11 @@ void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &
     }
 }
 
-void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t eventId)
+void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
     HILOG_DEBUG("On timeout, msgId is %{public}d", msgId);
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto abilityRecord = GetAbilityRecordByEventId(eventId);
+    auto abilityRecord = GetAbilityRecordById(abilityRecordId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("AbilityConnectManager on time out event: ability record is nullptr.");
         return;
@@ -1143,6 +1211,12 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
 
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
+    if ((abilityRecord->GetApplicationInfo().bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME &&
+            abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME) ||
+        (abilityRecord->GetApplicationInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
+            abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME)) {
+        return true;
+    }
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
@@ -1191,9 +1265,7 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
 
     auto findKeepAliveAbility = [abilityRecord](const std::pair<std::string, std::string> &keepAlivePair) {
         return ((abilityRecord->GetAbilityInfo().bundleName == keepAlivePair.first &&
-                abilityRecord->GetAbilityInfo().name == keepAlivePair.second) ||
-                abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME ||
-                abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME);
+                abilityRecord->GetAbilityInfo().name == keepAlivePair.second));
     };
 
     std::vector<std::pair<std::string, std::string>> keepAliveAbilities;

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-var ExtensionAbility = requireNapi("app.ability.ExtensionAbility")
+let ExtensionAbility = requireNapi('app.ability.ExtensionAbility');
 
 class UIExtensionAbility extends ExtensionAbility {
     onCreate(want) {
@@ -37,4 +37,4 @@ class UIExtensionAbility extends ExtensionAbility {
     }
 }
 
-export default UIExtensionAbility
+export default UIExtensionAbility;

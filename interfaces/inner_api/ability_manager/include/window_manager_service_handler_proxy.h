@@ -39,6 +39,8 @@ public:
 
     virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken) override;
 
+    virtual void NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info) override;
+
 private:
     static inline BrokerDelegator<WindowManagerServiceHandlerProxy> delegator_;
 };

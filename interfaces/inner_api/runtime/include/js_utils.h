@@ -16,54 +16,25 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_UTILS_H
 #define OHOS_ABILITY_RUNTIME_JS_UTILS_H
 
-#include "native_engine/native_engine.h"
-
-#include "js_runtime.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class HandleScope final {
-public:
-    explicit HandleScope(JsRuntime& jsRuntime)
-    {
-        scopeManager_ = jsRuntime.GetNativeEngine().GetScopeManager();
-        if (scopeManager_ != nullptr) {
-            nativeScope_ = scopeManager_->OpenEscape();
-        }
-    }
+#define CHECK_POINTER(object)                   \
+    do {                                        \
+        if ((object) == nullptr) {              \
+            HILOG_ERROR("pointer is nullptr."); \
+            return;                             \
+        }                                       \
+    } while (0)
 
-    ~HandleScope()
-    {
-        if (nativeScope_ != nullptr) {
-            scopeManager_->CloseEscape(nativeScope_);
-            nativeScope_ = nullptr;
-        }
-        scopeManager_ = nullptr;
-    }
-
-    HandleScope& Escape(NativeValue* value)
-    {
-        if (nativeScope_ != nullptr) {
-            scopeManager_->Escape(nativeScope_, value);
-        }
-        return *this;
-    }
-
-    HandleScope(const HandleScope&) = delete;
-    HandleScope(HandleScope&&) = delete;
-    HandleScope& operator=(const HandleScope&) = delete;
-    HandleScope& operator=(HandleScope&&) = delete;
-
-private:
-    NativeScopeManager* scopeManager_ = nullptr;
-    NativeScope* nativeScope_ = nullptr;
-};
-
-template<class T>
-inline T* ConvertNativeValueTo(NativeValue* value)
-{
-    return (value != nullptr) ? static_cast<T*>(value->GetInterface(T::INTERFACE_ID)) : nullptr;
-}
+#define CHECK_POINTER_AND_RETURN(object, value) \
+    do {                                        \
+        if ((object) == nullptr) {              \
+            HILOG_ERROR("pointer is nullptr."); \
+            return value;                       \
+        }                                       \
+    } while (0)
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 

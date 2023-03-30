@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,7 +62,7 @@ void JsRuntimeTest::SetUp()
     options_.bundleName = TEST_BUNDLE_NAME;
     options_.codePath = TEST_CODE_PATH;
     options_.hapPath = TEST_HAP_PATH;
-    options_.loadAce = true;
+    options_.loadAce = false;
     options_.isBundle = true;
     options_.preload = false;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner = AppExecFwk::EventRunner::Create(TEST_ABILITY_NAME);
@@ -210,19 +210,19 @@ HWTEST_F(JsRuntimeTest, JsRuntimeGetLanguageTest_0100, TestSize.Level0)
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeBuildJsStackInfoListTest_0100, TestSize.Level0)
 {
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    HILOG_INFO("Test BuildJsStackInfoList start");
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::vector<JsFrames> frames;
     bool ret = jsRuntime->BuildJsStackInfoList(gettid(), frames);
-    EXPECT_TRUE(ret);
+    EXPECT_FALSE(ret);
+    HILOG_INFO("Test BuildJsStackInfoList end");
 }
 
 /**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0100
- * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine_ is nullptr.
+ * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is nullptr.
  * @tc.type: FUNC
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level0)
@@ -232,8 +232,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level
     std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
     EXPECT_TRUE(jsRuntime != nullptr);
 
-    jsRuntime->nativeEngine_ = nullptr;
-
     bool isBackground = false;
     jsRuntime->NotifyApplicationState(isBackground);
 
@@ -242,17 +240,15 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0100, TestSize.Level
 
 /**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0200
- * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine_ is not nullptr.
+ * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is not nullptr.
  * @tc.type: FUNC
  */
 HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0200, TestSize.Level0)
 {
     HILOG_INFO("NotifyApplicationState start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     bool isBackground = true;
     jsRuntime->NotifyApplicationState(isBackground);
@@ -269,10 +265,8 @@ HWTEST_F(JsRuntimeTest, JsRuntimeDumpHeapSnapshotTest_0100, TestSize.Level0)
 {
     HILOG_INFO("DumpHeapSnapshot start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     bool isPrivate = true;
     jsRuntime->DumpHeapSnapshot(isPrivate);
@@ -289,10 +283,8 @@ HWTEST_F(JsRuntimeTest, JsRuntimePreloadSystemModuleTest_0100, TestSize.Level0)
 {
     HILOG_INFO("PreloadSystemModule start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string moduleName = "PreloadSystemModuleTest";
     jsRuntime->PreloadSystemModule(moduleName);
@@ -309,15 +301,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunSandboxScriptTest_0100, TestSize.Level0)
 {
     HILOG_INFO("RunSandboxScript start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string path = "";
     std::string hapPath = "";
-    bool ret = jsRuntime->RunSandboxScript(path, hapPath);
-    EXPECT_TRUE(ret);
+    bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunSandboxScript(path, hapPath);
+    EXPECT_FALSE(ret);
 
     HILOG_INFO("RunSandboxScript end");
 }
@@ -350,16 +340,15 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadModuleTest_0100, TestSize.Level0)
 {
     HILOG_INFO("LoadModule start");
 
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
     EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->nativeEngine_ = std::make_unique<MockJsNativeEngine>();
 
     std::string moduleName = TEST_MODULE_NAME;
     std::string modulePath = TEST_MODULE_PATH;
     std::string hapPath = TEST_HAP_PATH;
     bool esmodule = true;
-    std::unique_ptr<NativeReference> ref = jsRuntime->LoadModule(moduleName, modulePath, hapPath, esmodule);
+    std::unique_ptr<NativeReference> ref = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).LoadModule(moduleName,
+        modulePath, hapPath, esmodule);
     EXPECT_EQ(ref, nullptr);
 
     HILOG_INFO("LoadModule end");
@@ -456,6 +445,136 @@ HWTEST_F(JsRuntimeTest, JsRuntimeDetachCallbackFuncTest_0100, TestSize.Level0)
     EXPECT_EQ(result, &value);
 
     HILOG_INFO("DetachCallbackFunc end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadSystemModulesTest_0100
+ * @tc.desc: JsRuntime test for LoadSystemModule.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModulesTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("LoadSystemModule start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string moduleName = "PreloadSystemModuleTest";
+    std::unique_ptr<NativeReference> ref = jsRuntime->LoadSystemModule(moduleName, nullptr, 0);
+    EXPECT_EQ(ref, nullptr);
+
+    HILOG_INFO("LoadSystemModule end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateExtensionTypeTest_0100
+ * @tc.desc: JsRuntime test for UpdateExtensionType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateExtensionTypeTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UpdateExtensionType start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    int32_t extensionType = 1;
+    jsRuntime->UpdateExtensionType(extensionType);
+
+    HILOG_INFO("UpdateExtensionType end");
+}
+
+/**
+ * @tc.name: JsRuntimeStartDebugModeTest_0100
+ * @tc.desc: JsRuntime test for StartDebugMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("StartDebugMode start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    bool needBreakPoint = true;
+    jsRuntime->StartDebugMode(needBreakPoint);
+
+    HILOG_INFO("StartDebugMode end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadRepairPatchTest_0100
+ * @tc.desc: JsRuntime test for LoadRepairPatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadRepairPatchTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("LoadRepairPatch start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string hqfFile = "<hqfFile>";
+    std::string hapPath = "<hapPath>";
+    bool lrp = jsRuntime->LoadRepairPatch(hqfFile, hapPath);
+    EXPECT_EQ(lrp, false);
+
+    HILOG_INFO("LoadRepairPatch end");
+}
+
+/**
+ * @tc.name: JsRuntimeUnLoadRepairPatchTest_0100
+ * @tc.desc: JsRuntime test for UnLoadRepairPatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUnLoadRepairPatchTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UnLoadRepairPatch start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string hqfFile = "<hqfFile>";
+    bool lrp = jsRuntime->UnLoadRepairPatch(hqfFile);
+    EXPECT_EQ(lrp, false);
+
+    HILOG_INFO("UnLoadRepairPatch end");
+}
+
+/**
+ * @tc.name: JsRuntimeNotifyHotReloadPageTest_0100
+ * @tc.desc: JsRuntime test for NotifyHotReloadPage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeNotifyHotReloadPageTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("NotifyHotReloadPage start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    bool lrp = jsRuntime->NotifyHotReloadPage();
+    EXPECT_EQ(lrp, true);
+
+    HILOG_INFO("NotifyHotReloadPage end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateModuleNameAndAssetPathTest_0100
+ * @tc.desc: JsRuntime test for UpdateModuleNameAndAssetPath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateModuleNameAndAssetPathTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UpdateModuleNameAndAssetPath start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string moduleName = "moduleName";
+    jsRuntime->UpdateModuleNameAndAssetPath(moduleName);
+
+    HILOG_INFO("UpdateModuleNameAndAssetPath end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

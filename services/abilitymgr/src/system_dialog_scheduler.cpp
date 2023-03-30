@@ -76,6 +76,7 @@ const std::string DIALOG_POSITION = "position";
 const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
+const std::string CALLER_TOKEN = "callerToken";
 
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
@@ -139,7 +140,8 @@ Want SystemDialogScheduler::GetTipsDialogWant()
     return want;
 }
 
-Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant)
+Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetSelectorDialogWant start");
     DialogPosition position;
@@ -149,6 +151,7 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
+    targetWant.SetParam(CALLER_TOKEN, callerToken);
 
     return targetWant;
 }

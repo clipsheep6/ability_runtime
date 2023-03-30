@@ -808,6 +808,18 @@ public:
     virtual int32_t IsValidMissionIds(
         const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) = 0;
 
+    /**
+     * Query whether the application of the specified PID and UID has been granted a certain permission
+     * @param permission
+     * @param pid Process id
+     * @param uid
+     * @return Returns ERR_OK if the current process has the permission, others on failure.
+     */
+    virtual int VerifyPermission(const std::string &permission, int pid, int uid)
+    {
+        return 0;
+    }
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1128,6 +1140,8 @@ public:
         ABILITY_RECOVERY_ENABLE = 3011,
 
         QUERY_MISSION_VAILD = 3012,
+        
+        VERIFY_PERMISSION = 3013,
     };
 };
 }  // namespace AAFwk

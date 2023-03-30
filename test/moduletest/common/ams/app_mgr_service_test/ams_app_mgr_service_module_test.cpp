@@ -54,6 +54,8 @@ public:
     {}
     void ScheduleMemoryLevel(const int) override
     {}
+    void ScheduleHeapMemory(const int, OHOS::AppExecFwk::MallocInfo&) override
+    {}
     void ScheduleLaunchApplication(const AppLaunchData&, const Configuration&) override
     {}
     void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
@@ -272,40 +274,6 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationTerminated(_)).Times(1).WillOnce(Invoke(mockHandler));
 
         appMgrService_->ApplicationTerminated(testRecordId);
-
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
-    }
-}
-
-/*
- * Feature: AppMgrService
- * Function: AbilityCleaned
- * SubFunction: NA
- * FunctionPoints: AppMgrService => AppMgrServiceInner: AbilityCleaned
- * CaseDescription: Check event loop AbilityCleaned task post from AppMgrService to AppMgrServiceInner.
- */
-HWTEST_F(AppMgrServiceModuleTest, AbilityCleaned_001, TestSize.Level1)
-{
-    EXPECT_TRUE(appMgrService_);
-    EXPECT_TRUE(mockAppMgrServiceInner_);
-    EXPECT_TRUE(testRemoteObject_);
-
-    bool testResult = false;
-    Semaphore sem(0);
-
-    auto mockHandler = [&testResult, &sem](const sptr<IRemoteObject>& token) {
-        testResult = (token == testRemoteObject_);
-        sem.Post();
-    };
-
-    for (int i = 0; i < COUNT; ++i) {
-        testResult = false;
-
-        EXPECT_CALL(*mockAppMgrServiceInner_, AbilityTerminated(_)).Times(1).WillOnce(Invoke(mockHandler));
-
-        appMgrService_->AbilityCleaned(testRemoteObject_);
 
         sem.Wait();
 

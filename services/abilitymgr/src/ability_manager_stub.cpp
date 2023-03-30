@@ -161,6 +161,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
+    requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1784,6 +1785,21 @@ int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageP
         if (!reply.WriteParcelable(&item)) {
             return ERR_INVALID_VALUE;
         }
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("VerifyPermission call.");
+    std::string permission = data.ReadString();
+    int32_t pid = data.ReadInt32();
+    int32_t uid = data.ReadInt32();
+
+    auto result = VerifyPermission(permission, pid, uid);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("VerifyPermission failed.");
+        return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
 }

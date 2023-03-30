@@ -200,6 +200,8 @@ private:
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
+
+    int VerifyPermissionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

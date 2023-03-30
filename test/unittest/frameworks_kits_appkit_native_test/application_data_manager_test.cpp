@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,7 @@ public:
 
 class MyObserver : public IErrorObserver {
     void OnUnhandledException(std::string errMsg) override;
+    void OnExceptionObject(const AppExecFwk::ErrorObject &errorObj) override;
 };
 
 bool ApplicationDataManagerTest::Flag = false;
@@ -64,6 +65,15 @@ void MyObserver::OnUnhandledException(std::string errMsg)
 {
     GTEST_LOG_(INFO) << "OnUnhandledException come, errMsg is" << errMsg;
     ApplicationDataManagerTest::Flag = true;
+}
+
+void MyObserver::OnExceptionObject(const AppExecFwk::ErrorObject &errorObj)
+{
+    GTEST_LOG_(INFO) << "OnExceptionObject come, errorObj.name is " << errorObj.name <<
+                        " errorObj.message is " << errorObj.message << " errorObj.stack is " << errorObj.stack;
+    EXPECT_STREQ("errorName", errorObj.name.c_str());
+    EXPECT_STREQ("errorMessage", errorObj.message.c_str());
+    EXPECT_STREQ("errorStack", errorObj.stack.c_str());
 }
 
 /**
@@ -99,5 +109,43 @@ HWTEST_F(ApplicationDataManagerTest, ApplicationDataManager_RemoveErrorObserver_
     GTEST_LOG_(INFO) << "ApplicationDataManager_RemoveErrorObserver_001 end";
 }
 
+/**
+ * @tc.number: ApplicationDataManager_NotifyExceptionObject_001
+ * @tc.name: ApplicationDataManager NotifyExceptionObject
+ * @tc.desc: Test whether NotifyExceptionObject are called normally.
+ */
+HWTEST_F(ApplicationDataManagerTest, ApplicationDataManager_NotifyExceptionObject_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "ApplicationDataManager_NotifyExceptionObject_001 start";
+    AppExecFwk::ErrorObject errorObj;
+    errorObj.name = "errorName";
+    errorObj.message = "errorMessage";
+    errorObj.stack = "errorStack";
+    std::shared_ptr<MyObserver> observer = std::make_shared<MyObserver>();
+    ApplicationDataManager::GetInstance().AddErrorObserver(observer);
+    EXPECT_NE(nullptr, ApplicationDataManager::GetInstance().errorObserver_);
+    EXPECT_TRUE(ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj));
+    ApplicationDataManager::GetInstance().RemoveErrorObserver();
+    EXPECT_EQ(nullptr, ApplicationDataManager::GetInstance().errorObserver_);
+    GTEST_LOG_(INFO) << "ApplicationDataManager_NotifyExceptionObject_001 end";
+}
+
+/**
+ * @tc.number: ApplicationDataManager_NotifyExceptionObject_002
+ * @tc.name: ApplicationDataManager NotifyExceptionObject
+ * @tc.desc: Test whether NotifyExceptionObject are called normally.
+ */
+HWTEST_F(ApplicationDataManagerTest, ApplicationDataManager_NotifyExceptionObject_002, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "ApplicationDataManager_NotifyExceptionObject_002 start";
+    AppExecFwk::ErrorObject errorObj;
+    errorObj.name = "errorName";
+    errorObj.message = "errorMessage";
+    errorObj.stack = "errorStack";
+    ApplicationDataManager::GetInstance().RemoveErrorObserver();
+    EXPECT_EQ(nullptr, ApplicationDataManager::GetInstance().errorObserver_);
+    EXPECT_FALSE(ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj));
+    GTEST_LOG_(INFO) << "ApplicationDataManager_NotifyExceptionObject_002 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
