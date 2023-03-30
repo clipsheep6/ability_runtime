@@ -834,7 +834,7 @@ public:
     void SetNeedBackToOtherMissionStack(bool isNeedBackToOtherMissionStack);
     std::shared_ptr<AbilityRecord> GetOtherMissionStackAbilityRecord() const;
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void RemoveUriPermission();
+    void RevokeUriPermission();
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
@@ -851,7 +851,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(const Want &want, int32_t userId, uint32_t targetTokenId);
+    void GrantUriPermission(const Want &want, int32_t userId, std::string targetBundleName);
     int32_t GetCurrentAccountId() const;
 
     /**

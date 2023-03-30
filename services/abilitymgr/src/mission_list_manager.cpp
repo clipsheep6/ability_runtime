@@ -1558,7 +1558,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     for (auto it : terminateAbilityList_) {
         if (it == abilityRecord) {
-            abilityRecord->RemoveUriPermission();
+            abilityRecord->RevokeUriPermission();
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;
@@ -1880,7 +1880,7 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
         return;
     }
     HILOG_DEBUG("Ability timeout,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
-    abilityRecord->RemoveUriPermission();
+    abilityRecord->RevokeUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
     if (abilityRecord->IsStartingWindow()) {

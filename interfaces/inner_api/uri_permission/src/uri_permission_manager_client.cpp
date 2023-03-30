@@ -15,6 +15,7 @@
 
 #include "uri_permission_manager_client.h"
 
+#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -22,35 +23,35 @@
 
 namespace OHOS {
 namespace AAFwk {
-bool UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
+int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
+    const std::string targetBundleName, int autoremove)
 {
     HILOG_DEBUG("UriPermissionManagerClient::GrantUriPermission is called.");
+    HILOG_DEBUG("targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
+        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, autoremove);
     }
-    return false;
+    return INNER_ERR;
 }
 
-bool UriPermissionManagerClient::VerifyUriPermission(const Uri &uri, unsigned int flag,
-    const Security::AccessToken::AccessTokenID tokenId)
+void UriPermissionManagerClient::RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerClient::VerifyUriPermission is called.");
+    HILOG_DEBUG("UriPermissionManagerClient::RevokeUriPermission is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->VerifyUriPermission(uri, flag, tokenId);
+        return uriPermMgr->RevokeUriPermission(tokenId);
     }
-    return false;
 }
 
-void UriPermissionManagerClient::RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId)
+int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
 {
-    HILOG_DEBUG("UriPermissionManagerClient::RemoveUriPermission is called.");
+    HILOG_DEBUG("UriPermissionManagerClient::RevokeUriPermissionManually is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        uriPermMgr->RemoveUriPermission(tokenId);
+        return uriPermMgr->RevokeUriPermissionManually(uri, bundleName);
     }
+    return INNER_ERR;
 }
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()

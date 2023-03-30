@@ -36,30 +36,27 @@ int UriPermissionManagerStub::OnRemoteRequest(
                 break;
             }
             auto flag = data.ReadInt32();
-            auto fromTokenId = data.ReadInt32();
-            auto targetTokenId = data.ReadInt32();
-            auto ret = GrantUriPermission(*uri, flag, fromTokenId, targetTokenId);
-            reply.WriteBool(ret);
+            auto targetBundleName = data.ReadString();
+            auto autoremove = data.ReadInt32();
+            int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove);
+            reply.WriteInt32(result);
             break;
         }
-        case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
+        case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION : {
+            auto tokenId = data.ReadInt32();
+            RevokeUriPermission(tokenId);
+            break;
+        }
+        case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY : {
             std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
             if (!uri) {
                 errCode = ERR_DEAD_OBJECT;
                 HILOG_ERROR("To read uri failed.");
                 break;
             }
-            auto flag = data.ReadInt32();
-            auto tokenId = data.ReadInt32();
-            if (!VerifyUriPermission(*uri, flag, tokenId)) {
-                errCode = ERR_INVALID_OPERATION;
-                HILOG_ERROR("To check uri permission failed.");
-            }
-            break;
-        }
-        case UriPermMgrCmd::ON_REMOVE_URI_PERMISSION : {
-            auto tokenId = data.ReadInt32();
-            RemoveUriPermission(tokenId);
+            auto bundleName = data.ReadString();
+            int result = RevokeUriPermissionManually(*uri, bundleName);
+            reply.WriteInt32(result);
             break;
         }
         default:
