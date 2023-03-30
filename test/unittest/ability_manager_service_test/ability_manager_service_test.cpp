@@ -32,6 +32,7 @@
 #include "connection_observer_errors.h"
 #include "hilog_wrapper.h"
 #include "sa_mgr_client.h"
+#include "softbus_bus_center.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
@@ -43,6 +44,16 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 using OHOS::AppExecFwk::AbilityType;
 using OHOS::AppExecFwk::ExtensionAbilityType;
+bool testFlag = false;
+int32_t GetLocalNodeDeviceInfo(const char *pkgName, NodeBasicInfo *info)
+{
+    constexpr int32_t retError = -1;
+    constexpr int32_t retOK = 0;
+    if (testFlag) {
+        return retOK;
+    }
+    return retError;
+}
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -3165,6 +3176,124 @@ HWTEST_F(AbilityManagerServiceTest, MinimizeUIExtensionAbility_001, TestSize.Lev
     EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), true), ERR_INVALID_VALUE);
     EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), false), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_002 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        ERR_INVALID_CALLER);
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_003 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    testFlag = true;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        INVALID_PARAMETERS_ERR);
+    MyFlag::flag_ = 0;
+    testFlag = false;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_004, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    testFlag = true;
+    auto missionListManager = abilityMs_->missionListManagers_.begin()->second;
+    auto userId = abilityMs_->missionListManagers_.begin()->first;
+    missionListManager->terminateAbilityList_.insert(
+        missionListManager->terminateAbilityList_.begin(), abilityRecord);
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 userId is %{public}d", userId);
+    EXPECT_EQ(
+        abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), userId, ExtensionAbilityType::SERVICE),
+        INVALID_PARAMETERS_ERR);
+    MyFlag::flag_ = 0;
+    testFlag = false;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_005, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_005 start");
+    Want want{};
+    ElementName element("", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, nullptr, -1, ExtensionAbilityType::SERVICE),
+        RESOLVE_ABILITY_ERR);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_005 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_006, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_006 start");
+    Want want{};
+    ElementName element("", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        RESOLVE_ABILITY_ERR);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_006 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS
