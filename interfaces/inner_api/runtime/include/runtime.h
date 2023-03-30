@@ -57,6 +57,7 @@ public:
         // ArkTsCard start
         bool isUnique = false;
         // ArkTsCard end
+        bool isSystemApp = false;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
