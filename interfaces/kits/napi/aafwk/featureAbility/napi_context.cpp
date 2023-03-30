@@ -617,7 +617,14 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
                 }
                 return;
             }
-
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(onRequestPermissionCB->cb.env, &scope);
+            if (scope == nullptr) {
+                HILOG_ERROR("napi_open_handle_scope failed");
+                delete work;
+                delete onRequestPermissionCB;
+                return;
+            }
             napi_value result[ARGS_ONE] = {0};
             napi_create_object(onRequestPermissionCB->cb.env, &result[PARAM0]);
 
@@ -663,6 +670,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
             if (onRequestPermissionCB->cb.callback != nullptr) {
                 napi_delete_reference(onRequestPermissionCB->cb.env, onRequestPermissionCB->cb.callback);
             }
+            napi_close_handle_scope(onRequestPermissionCB->cb.env, scope);
             if (onRequestPermissionCB != nullptr) {
                 delete onRequestPermissionCB;
                 onRequestPermissionCB = nullptr;
