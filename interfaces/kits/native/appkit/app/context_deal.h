@@ -660,7 +660,7 @@ private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     std::shared_ptr<Profile> profile_ = nullptr;
     std::shared_ptr<Context> appContext_ = nullptr;
-    std::shared_ptr<Context> abilityContext_ = nullptr;
+    std::weak_ptr<Context> abilityContext_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
     std::string path_ = "";
     std::string uriString_ = "";

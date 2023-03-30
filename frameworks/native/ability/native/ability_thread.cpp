@@ -72,7 +72,17 @@ AbilityThread::AbilityThread()
 
 AbilityThread::~AbilityThread()
 {
-    DelayedSingleton<AbilityImplFactory>::DestroyInstance();
+    auto task = [this]() {
+        HILOG_INFO("Destroy ability in main-thread");
+        if (isExtension_) {
+            currentExtension_.reset();
+        } else {
+            currentAbility_.reset();
+        }
+        DelayedSingleton<AbilityImplFactory>::DestroyInstance();
+    };
+
+    abilityHandler_->PostSyncTask(task);
 }
 
 std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
