@@ -49,6 +49,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     std::shared_ptr<CallRecord> callRecord;
     abilityms->OnCallConnectDied(callRecord);
     abilityms->GetMaxRestartNum(intParam, true);

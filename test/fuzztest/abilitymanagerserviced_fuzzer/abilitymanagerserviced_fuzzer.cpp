@@ -54,6 +54,7 @@ std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::string stringParam(data, size);
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     Parcel wantParcel;
     Want *want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
@@ -65,6 +66,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->IsNeedTimeoutForTest(stringParam, stringParam);
     abilityms->GetValidDataAbilityUri(stringParam, stringParam);
 

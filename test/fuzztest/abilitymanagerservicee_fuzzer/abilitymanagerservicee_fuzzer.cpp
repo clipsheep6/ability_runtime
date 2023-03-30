@@ -58,12 +58,15 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int intParam = static_cast<int>(GetU32Data(data));
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     std::vector<std::string> info;
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->GetTopAbility();
     std::vector<std::u16string> args;
     abilityms->Dump(intParam, args);

@@ -59,10 +59,13 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
+    std::string stringParam(data, size);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->HandleLoadTimeOut(int64Param);
     abilityms->HandleActiveTimeOut(int64Param);
     abilityms->HandleInactiveTimeOut(int64Param);

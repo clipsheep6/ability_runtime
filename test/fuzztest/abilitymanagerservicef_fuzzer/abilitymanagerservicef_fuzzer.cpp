@@ -58,6 +58,7 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    std::string stringParam(data, size);
     Parcel wantParcel;
     Want *want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
@@ -70,6 +71,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->GetWMSHandler();
     abilityms->CompleteFirstFrameDrawing(token);
     abilityms->ShowPickerDialog(*want, int32Param, token);

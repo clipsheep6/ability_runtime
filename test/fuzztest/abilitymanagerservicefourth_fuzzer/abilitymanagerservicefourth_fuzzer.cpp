@@ -44,6 +44,7 @@ uint32_t GetU32Data(const char* ptr)
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     int intParam = static_cast<int>(GetU32Data(data));
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
     Parcel wantParcel;
     Want *want = nullptr;
@@ -56,6 +57,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms->JudgeAbilityVisibleControl(abilityInfo, intParam);
     abilityms->CheckCallerEligibility(abilityInfo, intParam);

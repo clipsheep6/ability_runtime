@@ -59,6 +59,7 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     bool boolParam = *data % ENABLE;
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
     std::string stringParam(data, size);
     Parcel wantParcel;
     Want *want = nullptr;
@@ -73,6 +74,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->CheckCallAbilityPermission(abilityRequest);
     abilityms->CheckStartByCallPermission(abilityRequest);
     abilityms->IsCallFromBackground(abilityRequest, boolParam);

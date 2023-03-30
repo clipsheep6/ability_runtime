@@ -75,6 +75,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    MissionSnapshot missionSnapshot;
+    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->PauseOldConnectManager(int32Param);
     abilityms->InitConnectManager(int32Param, boolParam);
     abilityms->InitDataAbilityManager(int32Param, boolParam);
