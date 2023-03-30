@@ -160,9 +160,7 @@ ohos_shared_library("appkit_native") {
   }
 
   defines = []
-  if (is_asan) {
-    defines += [ "SUPPORT_ASAN" ]
-  }
+  defines += [ "SUPPORT_ASAN" ]
 
   if (defined(global_parts_info.web_webview)) {
     public_deps += [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
