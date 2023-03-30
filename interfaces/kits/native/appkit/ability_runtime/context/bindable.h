@@ -22,10 +22,14 @@ namespace OHOS {
 namespace AbilityRuntime {
 class Runtime;
 
+using BindObjWrapType = std::unique_ptr<void, void(*)(void*)>;
 class BindingObject final {
 public:
-    template<class T>
-    BindingObject(Runtime& runtime, T* ptr) : runtime_(runtime), object_(ptr, SimpleRelease<T>) {}
+    template<class T, bool ownObj = false>
+    static std::unique_ptr<BindingObject> CreateBindingObject(Runtime& runtime, T* ptr)
+    {
+        return std::make_unique<BindingObject>(runtime, BindObjWrapType(ptr, SimpleRelease<T, ownObj>));
+    }
     ~BindingObject() = default;
 
     template<class T>
@@ -44,35 +48,48 @@ public:
         return runtime_;
     }
 
+    BindingObject(Runtime& runtime, BindObjWrapType &other) : runtime_(runtime), object_(std::move(other)) {}
+    BindingObject(Runtime& runtime, BindObjWrapType &&other) : runtime_(runtime), object_(std::move(other)) {}
+
     BindingObject(const BindingObject&) = delete;
     BindingObject& operator=(const BindingObject&) = delete;
     BindingObject(BindingObject&&) = delete;
     BindingObject& operator=(BindingObject&&) = delete;
 
 private:
-    template<class T>
+    template<class T, bool ownObj>
     static void SimpleRelease(void* ptr)
     {
-        delete static_cast<T*>(ptr);
+        if (ownObj) {
+            delete static_cast<T*>(ptr);
+        }
     }
 
     Runtime& runtime_;
-    std::unique_ptr<void, void(*)(void*)> object_;
+    BindObjWrapType object_;
 };
 
+/**
+ * If the bind object is onwed by outer, the user has to make sure the  validity of the object
+ */
 class Bindable {
 public:
     virtual ~Bindable() = default;
 
-    template<class T>
+    template<class T, bool ownObj = false>
     void Bind(Runtime& runtime, T* object)
     {
-        object_ = std::make_unique<BindingObject>(runtime, object);
+        object_ = BindingObject::CreateBindingObject<T, ownObj>(runtime, object);
     }
-
     const std::unique_ptr<BindingObject>& GetBindingObject() const
     {
         return object_;
+    }
+    void ResetBind()
+    {
+        if (object_) {
+            object_.reset();
+        }
     }
 
 protected:
