@@ -56,6 +56,9 @@ struct ProcessData : public Parcelable {
     bool isFocused = false;
     int32_t requestProcCode = 0;
     int32_t processChangeReason = 0;
+    std::string processName;
+    ProcessType processType = ProcessType::NORMAL;
+    ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

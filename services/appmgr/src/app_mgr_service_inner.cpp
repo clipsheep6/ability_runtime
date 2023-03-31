@@ -917,6 +917,8 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     info.isFocused = appRecord->GetFocusFlag();
     info.startTimeMillis_ = appRecord->GetAppStartTime();
     appRecord->GetBundleNames(info.bundleNames);
+    info.processType_ = appRecord->GetProcessType();
+    info.extensionType_ = appRecord->GetExtensionType();
 }
 
 int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
@@ -1033,6 +1035,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         return nullptr;
     }
 
+    appRecord->SetProcessAndExtensionType(abilityInfo);
     bool isKeepAlive = bundleInfo.isKeepAlive && bundleInfo.singleton;
     appRecord->SetKeepAliveAppState(isKeepAlive, false);
     appRecord->SetEventHandler(eventHandler_);
@@ -2497,6 +2500,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             appRecord->SetCallerUid(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
             appRecord->SetCallerTokenId(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
         }
+        appRecord->SetProcessAndExtensionType(abilityInfoPtr);
         appRecord->SetEventHandler(eventHandler_);
         appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
@@ -3025,7 +3029,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 
     auto renderRecord = appRecord->GetRenderRecord();
     if (renderRecord) {
-        HILOG_WARN("already exit render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
+        HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
         renderPid = renderRecord->GetPid();
         return ERR_ALREADY_EXIST_RENDER;
     }
