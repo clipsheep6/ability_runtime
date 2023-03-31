@@ -136,6 +136,17 @@ int AbilityConnectionStub::OnRemoteRequest(
             delete element;
             return NO_ERROR;
         }
+        case IAbilityConnection::ON_REMOTE_STATE_CHANGED: {
+            HILOG_INFO("ON_REMOTE_STATE_CHANGED called");
+            if (element == nullptr) {
+                HILOG_ERROR("callback stub receive element is nullptr");
+                return ERR_INVALID_VALUE;
+            }
+            int32_t abilityState = data.ReadInt32();
+            OnRemoteStateChanged(*element, abilityState);
+            delete element;
+            return NO_ERROR;
+        }
         default: {
             if (element != nullptr) {
                 delete element;

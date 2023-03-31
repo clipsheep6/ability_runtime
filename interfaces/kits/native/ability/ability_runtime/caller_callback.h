@@ -31,6 +31,7 @@ public:
     /* Caller's callback object */
     using CallBackClosure = std::function<void(const sptr<IRemoteObject> &)>;
     using OnReleaseClosure = std::function<void(const std::string &)>;
+    using OnRemoteStateChangedClosure = std::function<void(const std::string &)>;
 
     CallerCallBack() = default;
     virtual ~CallerCallBack() = default;
@@ -42,6 +43,10 @@ public:
     void SetOnRelease(OnReleaseClosure onRelease)
     {
         onRelease_ = onRelease;
+    };
+    void SetOnRemoteStateChanged(OnRemoteStateChangedClosure onRemoteStateChanged)
+    {
+        onRemoteStateChanged_ = onRemoteStateChanged;
     };
     void InvokeCallBack(const sptr<IRemoteObject> &remoteObject)
     {
@@ -56,6 +61,12 @@ public:
             onRelease_(key);
         }
     };
+    void InvokeOnNotify(const std::string &state)
+    {
+        if (onRemoteStateChanged_) {
+            onRemoteStateChanged_(state);
+        }
+    };
     bool IsCallBack() const
     {
         return isCallBack_;
@@ -64,6 +75,7 @@ public:
 private:
     CallBackClosure callback_ = {};
     OnReleaseClosure onRelease_ = {};
+    OnRemoteStateChangedClosure onRemoteStateChanged_ = {};
     bool isCallBack_ = false;
 };
 } // namespace AbilityRuntime

@@ -54,7 +54,9 @@ public:
         ON_ABILITY_CONNECT_DONE = 1,
 
         // ipc id for OnAbilityDisConnectDone
-        ON_ABILITY_DISCONNECT_DONE
+        ON_ABILITY_DISCONNECT_DONE,
+
+        ON_REMOTE_STATE_CHANGED
     };
 };
 }  // namespace AAFwk

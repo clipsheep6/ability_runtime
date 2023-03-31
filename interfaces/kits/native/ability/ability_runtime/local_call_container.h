@@ -42,6 +42,8 @@ public:
 
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
 
+    void OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState) override;
+
 private:
     bool GetCallLocalRecord(
         const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord);

@@ -21,6 +21,7 @@
 
 #include "ability_connect_callback_interface.h"
 #include "nocopyable.h"
+// #include "remote_ability_state_changed_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -35,6 +36,10 @@ public:
 
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+    virtual void OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState)
+    {
+    }
 
 private:
     DISALLOW_COPY_AND_MOVE(AbilityConnectionStub);
