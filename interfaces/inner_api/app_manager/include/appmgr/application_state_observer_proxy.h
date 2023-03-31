@@ -81,6 +81,20 @@ public:
 
     virtual void OnProcessReused(const ProcessData &processData) override;
 
+    /**
+     * Will be called when the application start.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStarted(const AppStateData &appStateData) override;
+
+    /**
+     * Will be called when the application stop.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStopped(const AppStateData &appStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;

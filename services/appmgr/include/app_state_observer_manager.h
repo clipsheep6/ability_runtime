@@ -42,6 +42,8 @@ public:
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
+    void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
@@ -51,6 +53,8 @@ public:
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
+    void HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);

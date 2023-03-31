@@ -92,6 +92,45 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
     return ERR_INVALID_VALUE;
 }
 
+void AppStateObserverManager::OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnAppStarted failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnAppStarted failed.");
+            return;
+        }
+        HILOG_INFO("OnAppStarted come.");
+        self->HandleOnAppStarted(appRecord);
+    };
+    handler_->PostTask(task);
+}
+
+void AppStateObserverManager::OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnAppStopped failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnAppStopped failed.");
+            return;
+        }
+        HILOG_INFO("OnAppStopped come.");
+        self->HandleOnAppStopped(appRecord);
+    };
+    handler_->PostTask(task);
+}
+
+
 void AppStateObserverManager::OnAppStateChanged(
     const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
@@ -243,6 +282,46 @@ void AppStateObserverManager::StateChangedNotifyObserver(const AbilityStateData 
         self->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
     };
     handler_->PostTask(task);
+}
+
+void AppStateObserverManager::HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+
+    AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_CREATE);
+    HILOG_DEBUG("HandleOnAppStarted, bundle:%{public}s, uid:%{public}d, state:%{public}d",
+        data.bundleName.c_str(), data.uid, data.state);
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnAppStarted(data);
+        }
+    }
+}
+
+void AppStateObserverManager::HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+
+    AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_TERMINATED);
+    HILOG_DEBUG("HandleOnAppStopped, bundle:%{public}s, uid:%{public}d, state:%{public}d",
+        data.bundleName.c_str(), data.uid, data.state);
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnAppStopped(data);
+        }
+    }
 }
 
 void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,

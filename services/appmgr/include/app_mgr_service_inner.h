@@ -471,6 +471,10 @@ public:
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
 
+    void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
+
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
     void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
@@ -659,7 +663,7 @@ private:
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
-                      const std::string &bundleName, const int32_t bundleIndex);
+                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.

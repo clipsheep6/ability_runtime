@@ -175,6 +175,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (!appRecord) {
+        bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
         appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
             processName, bundleInfo, hapModuleInfo, want);
         if (!appRecord) {
@@ -184,7 +185,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-            appInfo->uid, appInfo->bundleName, bundleIndex);
+            appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
     } else {
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
         if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
@@ -483,6 +484,9 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
+    if (!appRunningManager_->CheckAppRunningRecordIsExistByBundleName(appRecord->GetBundleName())) {
+        OnAppStopped(appRecord);
     }
 
     HILOG_INFO("application is terminated");
@@ -1435,6 +1439,45 @@ void AppMgrServiceInner::OnAppStateChanged(
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(appRecord, state, needNotifyApp);
 }
 
+void AppMgrServiceInner::OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (!appRecord) {
+        HILOG_ERROR("OnAppStarted come, app record is null");
+        return;
+    }
+
+    if (appRecord->GetPriorityObject() == nullptr) {
+        HILOG_ERROR("OnAppStarted come, appRecord's priorityobject is null");
+        return;
+    }
+
+    HILOG_DEBUG("OnAppStarted begin, bundleName is %{public}s, pid:%{public}d",
+        appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStarted(appRecord);
+}
+
+
+void AppMgrServiceInner::OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (!appRecord) {
+        HILOG_ERROR("OnAppStopped come, app record is null");
+        return;
+    }
+
+    if (appRecord->GetPriorityObject() == nullptr) {
+        HILOG_ERROR("OnAppStarted come, appRecord's priorityObject is null");
+        return;
+    }
+
+    HILOG_DEBUG("OnAppStopped begin, bundleName is %{public}s, pid:%{public}d",
+        appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStopped(appRecord);
+}
+
 AppProcessData AppMgrServiceInner::WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state)
 {
@@ -1474,17 +1517,24 @@ void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abili
 
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
-                                      const std::string &bundleName, const int32_t bundleIndex)
+                                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!remoteClientManager_->GetSpawnClient() || !appRecord) {
-        HILOG_ERROR("appSpawnClient or appRecord is null");
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is null");
+        return;
+    }
+
+    if (!remoteClientManager_->GetSpawnClient()) {
+        HILOG_ERROR("appSpawnClient is null");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
 
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
 
@@ -1503,6 +1553,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
 
@@ -1510,6 +1561,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     ErrCode ret = bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetBaseSharedBundleInfos failed: %d", ret);
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
 
@@ -1565,6 +1617,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleGids is fail");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
 
@@ -1588,6 +1641,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false);
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
+    if (!appExistFlag) {
+        OnAppStarted(appRecord);
+    }
     PerfProfile::GetInstance().SetAppForkEndTime(GetTickCount());
     SendProcessStartEvent(appRecord);
 }
@@ -1764,6 +1820,10 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
     }
 
+    if (!appRunningManager_->CheckAppRunningRecordIsExistByBundleName(appRecord->GetBundleName())) {
+        OnAppStopped(appRecord);
+    }
+
     if (appRecord->IsKeepAliveApp()) {
         auto restartProcess = [appRecord, innerService = shared_from_this()]() {
             innerService->RestartResidentProcess(appRecord);
@@ -1932,6 +1992,9 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
     }
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
+    if (!appRunningManager_->CheckAppRunningRecordIsExistByBundleName(appRecord->GetBundleName())) {
+        OnAppStopped(appRecord);
+    }
 }
 
 void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
@@ -2040,6 +2103,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         return;
     }
 
+    bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(info.name);
     auto appInfo = std::make_shared<ApplicationInfo>(info.applicationInfo);
     auto appRecord = appRunningManager_->CreateAppRunningRecord(appInfo, processName, info);
     if (!appRecord) {
@@ -2047,7 +2111,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         return;
     }
 
-    StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, appInfo->bundleName, 0);
+    StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, appInfo->bundleName, 0, appExistFlag);
 
     // If it is empty, the startup failed
     if (!appRecord) {
@@ -2287,6 +2351,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
         return ERR_INVALID_VALUE;
     }
 
+    bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(info.name);
     auto appInfo = std::make_shared<ApplicationInfo>(info.applicationInfo);
     auto appRecord = appRunningManager_->CreateAppRunningRecord(appInfo, processName, info);
     if (!appRecord) {
@@ -2317,7 +2382,8 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     if (info.applicationInfo.debug) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
-    StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName, bundleIndex);
+    StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
+        bundleIndex, appExistFlag);
 
     // If it is empty, the startup failed
     if (!appRecord) {
@@ -2418,6 +2484,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     std::shared_ptr<AppRunningRecord> appRecord;
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (!appRecord) {
+        bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
         // new app record
         appRecord = appRunningManager_->CreateAppRunningRecord(appInfo, processName, bundleInfo);
         if (!appRecord) {
@@ -2436,7 +2503,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         uint32_t startFlags = BuildStartFlags(want, abilityInfo);
         int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
-            bundleIndex);
+            bundleIndex, appExistFlag);
 
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
         appRecord->AddModules(appInfo, hapModules);
