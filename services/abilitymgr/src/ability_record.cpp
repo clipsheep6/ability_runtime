@@ -1804,13 +1804,21 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     handler->PostTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
     // notify winddow manager service the ability died
-    handler->PostTask([ability = shared_from_this()]() {
-        if (ability->GetWMSHandler()) {
-            sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
-            ability->SetAbilityTransitionInfo(info);
-            ability->GetWMSHandler()->NotifyAnimationAbilityDied(info);
-        }
-    });
+    if (missionId_ != -1) {
+        auto task = [me = weak_from_this()]() {
+            auto self = me.lock();
+            if (self == nullptr) {
+                HILOG_ERROR("Ability is invalid.");
+                return;
+            }
+            if (self->GetWMSHandler()) {
+                sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+                self->SetAbilityTransitionInfo(info);
+                self->GetWMSHandler()->NotifyAnimationAbilityDied(info);
+            }
+        };
+        handler->PostTask(task);
+    }
 #endif
     HandleDlpClosed();
 }
