@@ -347,6 +347,18 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
+     * Connect ui extension ability.
+     *
+     * @param want, special want for the ui extension ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param sessionInfo the extension session info of the ability to connect.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
      * DisconnectAbility, disconnect session with service ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.

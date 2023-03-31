@@ -410,6 +410,8 @@ int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<Se
         return INNER_ERR;
     }
 
+    CHECK_POINTER_AND_RETURN_LOG(extensionSessionInfo, ERR_INVALID_VALUE,
+        "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
             HILOG_ERROR("flag and extensionSessionInfo write failed.");
@@ -554,6 +556,8 @@ int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &ex
         return INNER_ERR;
     }
 
+    CHECK_POINTER_AND_RETURN_LOG(extensionSessionInfo, ERR_INVALID_VALUE,
+        "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
             HILOG_ERROR("flag and extensionSessionInfo write failed.");
@@ -715,6 +719,57 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     int error = Remote()->SendRequest(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<SessionInfo> &sessionInfo, int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect ability fail, connect is nullptr");
+    if (connect->AsObject()) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(connect->AsObject())) {
+            HILOG_ERROR("flag and connect write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    CHECK_POINTER_AND_RETURN_LOG(sessionInfo, ERR_INVALID_VALUE, "connect ability fail, sessionInfo is nullptr");
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("UserId write failed.");
+        return INNER_ERR;
+    }
+    CHECK_POINTER_AND_RETURN_LOG(Remote(), INNER_ERR, "connect ability fail, remote is nullptr");
+    int error = Remote()->SendRequest(IAbilityManager::CONNECT_UI_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1115,6 +1170,8 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
+    CHECK_POINTER_AND_RETURN_LOG(extensionSessionInfo, ERR_INVALID_VALUE,
+        "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
             HILOG_ERROR("flag and extensionSessionInfo write failed.");

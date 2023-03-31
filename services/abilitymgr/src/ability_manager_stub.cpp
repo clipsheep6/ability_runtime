@@ -157,6 +157,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
     requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
     requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
+    requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
@@ -592,6 +593,30 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
     int32_t userId = data.ReadInt32();
     AppExecFwk::ExtensionAbilityType extensionType = static_cast<AppExecFwk::ExtensionAbilityType>(data.ReadInt32());
     int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId);
+    reply.WriteInt32(result);
+    if (want != nullptr) {
+        delete want;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("%{public}s, want is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IAbilityConnection> callback = nullptr;
+    if (data.ReadBool()) {
+        callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    }
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t userId = data.ReadInt32();
+    int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
     reply.WriteInt32(result);
     if (want != nullptr) {
         delete want;

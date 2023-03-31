@@ -303,7 +303,7 @@ void AbilityConnectManager::GetConnectRecordListFromMap(
 }
 
 int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
-    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Connect ability called, callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
@@ -330,6 +330,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     connectRecord->AttachCallerInfo();
     connectRecord->SetConnectState(ConnectionState::CONNECTING);
     targetService->AddConnectRecordToList(connectRecord);
+    targetService->SetSessionInfo(sessionInfo);
     connectRecordList.push_back(connectRecord);
     if (isCallbackConnected) {
         RemoveConnectDeathRecipient(connect);

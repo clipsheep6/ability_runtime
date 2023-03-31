@@ -307,6 +307,12 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
+    virtual int ConnectUIExtensionAbility(
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     /**
      * ContinueMission, continue ability from mission center.
      *
@@ -1034,7 +1040,8 @@ private:
         const int32_t userId,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
-        AppExecFwk::ExtensionAbilityType extensionType);
+        AppExecFwk::ExtensionAbilityType extensionType,
+        const sptr<SessionInfo> &sessionInfo = nullptr);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);

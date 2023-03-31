@@ -347,6 +347,21 @@ public:
     }
 
     /**
+     * Connect ui extension ability.
+     *
+     * @param want, special want for the ui extension ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param sessionInfo the extension session info of the ability to connect.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
      * DisconnectAbility, disconnect session with service ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -1089,6 +1104,9 @@ public:
 
         // ipc id for terminating ui extension ability
         TERMINATE_UI_EXTENSION_ABILITY,
+
+        // ipc id for connect ui extension ability
+        CONNECT_UI_EXTENSION_ABILITY,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
