@@ -244,6 +244,10 @@ void AppMgrServiceInner::MakeProcessName(
     // check after abilityInfo, because abilityInfo contains extension process.
     if (hapModuleInfo.isStageBasedModel && !hapModuleInfo.process.empty()) {
         processName = hapModuleInfo.process;
+        if (processName == "com.example.myapplication") {
+            HILOG_INFO("sleep here");
+            sleep(7);
+        }
         HILOG_INFO("Stage mode, Make processName:%{public}s", processName.c_str());
         return;
     }
