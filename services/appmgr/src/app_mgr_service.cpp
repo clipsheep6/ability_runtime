@@ -679,5 +679,23 @@ bool AppMgrService::IsSharedBundleRunning(const std::string &bundleName, uint32_
     }
     return appMgrServiceInner_->IsSharedBundleRunning(bundleName, versionCode);
 }
+
+int32_t AppMgrService::StartNativeProcessForDebugger(const AAFwk::Want &want)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isShellCall) {
+        HILOG_ERROR("permission denied, only called by shell.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto ret = appMgrServiceInner_->StartNativeProcessForDebugger(want);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("debuggablePipe fail to start native process.");
+    }
+    return ret;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

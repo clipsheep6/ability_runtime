@@ -82,6 +82,11 @@ public:
         return 0;
     }
 
+    virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
+    {
+        return 0;
+    }
+
     virtual int FinishUserTest(const std::string& msg, const int64_t& resultCode, const std::string& bundleName)
     {
         return 0;

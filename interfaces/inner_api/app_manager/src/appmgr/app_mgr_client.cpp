@@ -589,6 +589,16 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return amsService->GetApplicationInfoByProcessID(pid, application, debug);
 }
 
+int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) const
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->StartNativeProcessForDebugger(want);
+}
+
 int AppMgrClient::PreStartNWebSpawnProcess()
 {
     HILOG_INFO("PreStartNWebSpawnProcess");
