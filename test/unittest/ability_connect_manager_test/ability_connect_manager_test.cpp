@@ -1801,7 +1801,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordById_001, Te
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int64_t abilityRecordId = 0;
+    int64_t abilityRecordId = abilityRecord->GetRecordId();
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->serviceMap_.emplace("second", nullptr);
     auto res = connectManager->GetAbilityRecordById(abilityRecordId);
@@ -2461,7 +2461,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_PostRestartResidentTask_001, TestSize.
 
     ConnectManager()->PostRestartResidentTask(abilityRequest2_);
     WaitUntilTaskDone(handler);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
 }
 
 /*

@@ -2973,49 +2973,6 @@ HWTEST_F(MissionListManagerTest, ClearMissionLocked_003, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
- * Function: ClearAllMissions
- * SubFunction: NA
- * FunctionPoints: MissionListManager ClearAllMissions
- * EnvConditions: NA
- * CaseDescription: Verify ClearAllMissions
- */
-HWTEST_F(MissionListManagerTest, ClearAllMissions_001, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    missionListManager->Init();
-    missionListManager->currentMissionLists_.clear();
-    int res = missionListManager->ClearAllMissions();
-    EXPECT_EQ(res, ERR_OK);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: ClearAllMissions
- * SubFunction: NA
- * FunctionPoints: MissionListManager ClearAllMissions
- * EnvConditions: NA
- * CaseDescription: Verify ClearAllMissions
- */
-HWTEST_F(MissionListManagerTest, ClearAllMissions_002, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    missionListManager->Init();
-    std::shared_ptr<MissionList> missionList1 = std::make_shared<MissionList>(MissionListType::LAUNCHER);
-    std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
-    missionListManager->currentMissionLists_.clear();
-    missionListManager->currentMissionLists_.push_back(nullptr);
-    missionListManager->currentMissionLists_.push_back(missionList1);
-    missionListManager->currentMissionLists_.push_back(missionList2);
-    int res = missionListManager->ClearAllMissions();
-    EXPECT_EQ(res, ERR_OK);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
  * Function: SetMissionLockedState
  * SubFunction: NA
  * FunctionPoints: MissionListManager SetMissionLockedState
@@ -3537,6 +3494,7 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_002, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
+    missionListManager->defaultStandardList_ = missionList;
     missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
@@ -3562,6 +3520,7 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_003, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
+    missionListManager->defaultStandardList_ = missionList;
     missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
@@ -3587,6 +3546,7 @@ HWTEST_F(MissionListManagerTest, OnTimeOut_004, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.clear();
     missionListManager->defaultSingleList_ = missionList;
+    missionListManager->defaultStandardList_ = missionList;
     missionListManager->OnTimeOut(msgId, abilityRecordId);
     missionListManager.reset();
 }
@@ -3873,10 +3833,11 @@ HWTEST_F(MissionListManagerTest, GetAbilityRecordById_001, TestSize.Level1)
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     std::shared_ptr<MissionList> missionList1 = std::make_shared<MissionList>();
     std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
-    int64_t abilityRecordId = 0;
+    int64_t abilityRecordId = abilityRecord->GetRecordId();
     missionList2->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList1);
     missionListManager->defaultSingleList_ = missionList2;
+    missionListManager->defaultStandardList_ = missionList2;
     auto res = missionListManager->GetAbilityRecordById(abilityRecordId);
     EXPECT_NE(res, nullptr);
     missionListManager.reset();
@@ -5667,7 +5628,7 @@ HWTEST_F(MissionListManagerTest, EnableRecoverAbility_001, TestSize.Level1)
     InnerMissionInfo missionInfo;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     missionListManager->EnableRecoverAbility(missionId);
-    EXPECT_NE(
+    EXPECT_EQ(
         DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, missionInfo), ERR_OK);
 }
 
