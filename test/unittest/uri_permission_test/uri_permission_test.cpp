@@ -51,9 +51,9 @@ HWTEST_F(UriPermissionTest, Upms_GrantUriPermission_001, TestSize.Level1)
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 1;
-    uint32_t fromTokenId = 2;
-    uint32_t targetTokenId = 3;
-    upms->GrantUriPermission(uri, flag, fromTokenId, targetTokenId);
+    std::string targetBundleName = "name2";
+    int autoremove = 1;
+    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
 }
 
 /*
@@ -82,21 +82,22 @@ HWTEST_F(UriPermissionTest, Upms_ConnectStorageManager_001, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
- * Function: RemoveUriPermission
+ * Function: RevokeUriPermission
  * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService RemoveUriPermission
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermission
  */
-HWTEST_F(UriPermissionTest, Upms_RemoveUriPermission_001, TestSize.Level1)
+HWTEST_F(UriPermissionTest, Upms_RevokeUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
-    GrantInfo info = { tmpFlag, fromTokenId, targetTokenId };
+    int autoremove = 1;
+    GrantInfo info = { tmpFlag, fromTokenId, targetTokenId, autoremove };
     std::list<GrantInfo> infoList = { info };
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     upms->uriMap_.emplace(uriStr, infoList);
-    upms->RemoveUriPermission(targetTokenId);
+    upms->RevokeUriPermission(targetTokenId);
 }
 
 /*

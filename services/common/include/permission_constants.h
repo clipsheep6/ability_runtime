@@ -35,6 +35,7 @@ constexpr const char* PERMISSION_START_ABILITIES_FROM_BACKGROUND = "ohos.permiss
 constexpr const char* PERMISSION_START_ABILIIES_FROM_BACKGROUND = "ohos.permission.START_ABILIIES_FROM_BACKGROUND";
 constexpr const char* PERMISSION_ABILITY_BACKGROUND_COMMUNICATION = "ohos.permission.ABILITY_BACKGROUND_COMMUNICATION";
 constexpr const char* PERMISSION_MANAGER_ABILITY_FROM_GATEWAY = "ohos.permission.MANAGER_ABILITY_FROM_GATEWAY";
+constexpr const char* PERMISSION_PROXY_AUTHORIZATION_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 } // namespace PermissionConstants
 } // namespace AAFwk
 } // namespace OHOS

@@ -69,7 +69,7 @@ static void SigQuitHandler(int signal)
 static bool BlockMainThreadLocked()
 {
     struct sigaction action;
-    memset(&action, 0, sizeof(action));
+    (void)memset_s(&action, sizeof(action), 0, sizeof(action));
     sigfillset(&action.sa_mask);
     action.sa_handler = SigQuitHandler;
     action.sa_flags = 0;

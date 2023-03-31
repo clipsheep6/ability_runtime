@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -649,4 +649,26 @@ HWTEST_F(DistributedClientTest, WriteInfosToParcel_0100, TestSize.Level3)
     auto result = client->WriteInfosToParcel(data , want , callback);
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "DistributedClientTest WriteInfosToParcel_0100 end";
+}
+
+/**
+ * @tc.number: StopRemoteExtensionAbility_0100
+ * @tc.name: StopRemoteExtensionAbility
+ * @tc.desc: StopRemoteExtensionAbility Test.
+ */
+HWTEST_F(DistributedClientTest, StopRemoteExtensionAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest StopRemoteExtensionAbility_0100 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    OHOS::AAFwk::Want want;
+    constexpr int32_t callerUid = 0;
+    constexpr uint32_t accessToken = 0;
+    constexpr int32_t extensionType = 3;
+    auto result = client->StopRemoteExtensionAbility(want, callerUid, accessToken, extensionType);
+    if (client->GetDmsProxy() != nullptr) {
+        EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
+    } else {
+        EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
+    }
+    GTEST_LOG_(INFO) << "DistributedClientTest StopRemoteExtensionAbility_0100 end";
 }

@@ -2087,8 +2087,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     Want want;
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, "name");
 }
 
 /*
@@ -2106,8 +2106,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level
     want.SetFlags(1);
     want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2125,8 +2125,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level
     want.SetFlags(1);
     want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2144,8 +2144,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2159,27 +2159,26 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    uint32_t targetTokenId = 56;
-    abilityRecord->SetCallerAccessTokenId(targetTokenId);
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
  * Feature: AbilityRecord
- * Function: RemoveUriPermission
- * SubFunction: RemoveUriPermission
+ * Function: RevokeUriPermission
+ * SubFunction: RevokeUriPermission
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord RemoveUriPermission
+ * CaseDescription: Verify AbilityRecord RevokeUriPermission
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveUriPermission_001, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_RevokeUriPermission_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    abilityRecord->RemoveUriPermission();
+    abilityRecord->RevokeUriPermission();
 }
 
 /*
