@@ -27,7 +27,7 @@ class JsEnvironmentImpl;
 class JsEnvironment final {
 public:
     JsEnvironment() {}
-    explicit JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl);
+    explicit JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl);
     ~JsEnvironment();
 
     bool Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine);
@@ -57,8 +57,10 @@ public:
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
 
     void RemoveTask(const std::string& name);
+
+    bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 private:
-    std::shared_ptr<JsEnvironmentImpl> impl_ = nullptr;
+    std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };

@@ -32,6 +32,7 @@ ohos_unittest("static_subscriber_extension_test") {
     "${ability_runtime_native_path}/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_runtime_test",
   ]
 
   sources = [
@@ -40,9 +41,6 @@ ohos_unittest("static_subscriber_extension_test") {
     "${ability_runtime_native_path}/ability/native/static_subscriber_extension.cpp",
     "${ability_runtime_native_path}/ability/native/static_subscriber_stub_imp.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/static_subscriber_extension_context.cpp",
-
-    #"${subscriber_extension_path}/static_subscriber_extension.cpp",
-    #"remote_register_service_proxy_test.cpp",
     "static_subscriber_extension_test.cpp",
   ]
 

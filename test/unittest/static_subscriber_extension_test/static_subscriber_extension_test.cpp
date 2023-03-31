@@ -19,6 +19,7 @@
 
 #define private public
 #define protected public
+#include "mock_runtime.h"
 #include "runtime.h"
 #include "static_subscriber_extension.h"
 #include "static_subscriber_extension_context.h"
@@ -51,57 +52,6 @@ void StaticSubscriberExtensionTest::SetUp(void)
 
 void StaticSubscriberExtensionTest::TearDown(void)
 {}
-
-class MockRuntime : public Runtime {
-public:
-    MockRuntime() {};
-    virtual ~MockRuntime() {};
-
-    Language GetLanguage() const
-    {
-        return language;
-    };
-
-    void StartDebugMode(bool needBreakPoint) override
-    {};
-
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override
-    {
-        return true;
-    };
-
-    void DumpHeapSnapshot(bool isPrivate) override
-    {};
-
-    void NotifyApplicationState(bool isBackground) override
-    {};
-
-    void PreloadSystemModule(const std::string& moduleName) override
-    {};
-
-    void FinishPreload() override
-    {};
-
-    bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override
-    {
-        return true;
-    };
-
-    bool NotifyHotReloadPage() override
-    {
-        return true;
-    };
-
-    bool UnLoadRepairPatch(const std::string& patchFile) override
-    {
-        return true;
-    };
-
-    void UpdateExtensionType(int32_t extensionType) override
-    {};
-
-    Language language;
-};
 
 class MockStaticSubscriberExtension : public StaticSubscriberExtension
 {

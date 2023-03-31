@@ -21,7 +21,8 @@
 
 namespace OHOS {
 namespace JsEnv {
-JsEnvironment::JsEnvironment(std::shared_ptr<JsEnvironmentImpl> impl) : impl_(impl)
+
+JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
 {
     JSENV_LOG_D("Js environment costructor.");
 }
@@ -103,6 +104,20 @@ void JsEnvironment::RemoveTask(const std::string& name)
     if (impl_ != nullptr) {
         impl_->RemoveTask(name);
     }
+}
+
+bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return false;
+    }
+
+    if (buffer == nullptr) {
+        return engine_->RunScriptPath(path.c_str()) != nullptr;
+    }
+
+    return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 } // namespace JsEnv
 } // namespace OHOS

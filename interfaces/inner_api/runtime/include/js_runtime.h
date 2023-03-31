@@ -53,7 +53,7 @@ inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
 
 class JsRuntime : public Runtime {
 public:
-    static std::unique_ptr<Runtime> Create(const Options& options);
+    static std::unique_ptr<JsRuntime> Create(const Options& options);
 
     static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
         const std::string& moduleName, NativeValue* const* argv, size_t argc);
@@ -94,6 +94,7 @@ public:
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
     bool NotifyHotReloadPage() override;
+    bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
