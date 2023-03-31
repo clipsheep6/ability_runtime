@@ -217,6 +217,9 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRenderProcessTerminationStatus_001, T
 
     appMgrClient->GetRenderProcessTerminationStatus(ERROR_PID, status);
     EXPECT_EQ(status, ERROR_STATE);
+
+    int res = appMgrClient->GetRenderProcessTerminationStatus(0, status);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 
 /**
@@ -477,7 +480,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartRenderProcess_001, TestSize.Level0)
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    int ret = appMgrClient->StartRenderProcess(renderParam, INIT_VALUE, ERROR_PID, renderPid);
+    int ret = appMgrClient->StartRenderProcess(renderParam, INIT_VALUE, ERROR_PID, INIT_VALUE, renderPid);
     EXPECT_EQ(ret, ERROR_STATE);
 }
 

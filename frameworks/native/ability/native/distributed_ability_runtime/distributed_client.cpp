@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "distributed_client.h"
 
+#include "ability_manager_errors.h"
 #include "distributed_parcel_helper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -33,7 +34,7 @@ sptr<IRemoteObject> DistributedClient::GetDmsProxy()
         HILOG_ERROR("fail to get samgr.");
         return nullptr;
     }
-    return samgrProxy->GetSystemAbility(DISTRIBUTED_SCHED_SA_ID);
+    return samgrProxy->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID);
 }
 
 int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
@@ -42,7 +43,7 @@ int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -67,7 +68,7 @@ int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, c
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("ConnectRemoteAbility remote is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!WriteInfosToParcel(data, want, connect)) {
@@ -89,7 +90,7 @@ int32_t DistributedClient::DisconnectRemoteAbility(const sptr<IRemoteObject>& co
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("DisconnectRemoteAbility remote is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -113,7 +114,7 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("ContinueMission remote service null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -135,7 +136,7 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("StartContinuation remote service null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -157,7 +158,7 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("NotifyCompleteContinuation remote service null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
 
     MessageParcel data;
@@ -192,7 +193,7 @@ int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, boo
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
 
     MessageParcel data;
@@ -212,7 +213,7 @@ int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -230,7 +231,7 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system ablity is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -249,7 +250,7 @@ int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -268,7 +269,7 @@ int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
 
     MessageParcel data;
@@ -297,7 +298,7 @@ int32_t DistributedClient::GetRemoteMissionSnapshotInfo(const std::string& devic
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -358,7 +359,7 @@ int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& wan
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("StartRemoteAbilityByCall remote is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!WriteInfosToParcel(data, want, connect)) {
@@ -380,7 +381,7 @@ int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& conne
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("ReleaseRemoteAbility remote is null");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
@@ -407,7 +408,7 @@ int32_t DistributedClient::StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("[%{public}s] remote == nullptr", __FUNCTION__);
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
 
     MessageParcel data;
@@ -440,6 +441,28 @@ bool DistributedClient::WriteInfosToParcel(MessageParcel& data, const OHOS::AAFw
     PARCEL_WRITE_HELPER(data, Int32, callerPid);
     PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     return true;
+}
+
+int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
+    uint32_t accessToken, int32_t extensionType)
+{
+    HILOG_DEBUG("StopRemoteExtensionAbility enter");
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("StopRemoteExtensionAbility remote service null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("StopRemoteExtensionAbility WriteInterfaceToken failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
+    PARCEL_WRITE_HELPER(data, Int32, extensionType);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, STOP_REMOTE_EXTERNSION_ABILITY, data, reply);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

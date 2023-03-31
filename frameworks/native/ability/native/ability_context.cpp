@@ -339,37 +339,11 @@ int AbilityContext::VerifyPermission(const std::string &permission, int pid, int
         permission.c_str(),
         pid,
         uid);
-    if (permission.empty()) {
-        HILOG_ERROR("VerifyPermission permission invalid");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->VerifyPermission(permission, pid, uid);
+    HILOG_DEBUG("End calling VerifyPermission. ret=%{public}d", err);
+    if (err != ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
-
-    sptr<IBundleMgr> ptr = GetBundleManager();
-    if (ptr == nullptr) {
-        HILOG_ERROR("VerifyPermission failed to get bundle manager service");
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    }
-
-    std::string bundleName;
-    if (!ptr->GetBundleNameForUid(uid, bundleName)) {
-        HILOG_ERROR("VerifyPermission failed to get bundle name by uid");
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    }
-
-    int account = -1;
-    DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(uid, account);
-    AppExecFwk::ApplicationInfo appInfo;
-    if (!ptr->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, account, appInfo)) {
-        HILOG_ERROR("VerifyPermission failed to get application info");
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    }
-
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
-        HILOG_ERROR("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    }
-
     return 0;
 }
 

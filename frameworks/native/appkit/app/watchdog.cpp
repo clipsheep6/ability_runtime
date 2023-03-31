@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "app_recovery.h"
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
+#include "mix_stack_dumper.h"
 #include "xcollie/watchdog.h"
 
 namespace OHOS {
@@ -31,7 +32,9 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr char EVENT_KEY_STACK[] = "STACK";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
+constexpr int RESET_RATIO = 2;
 
 #ifdef SUPPORT_ASAN
 constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
@@ -148,19 +151,21 @@ void Watchdog::Timer()
     if (appMainHandler_ != nullptr) {
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
-    lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
+    if ((now - lastWatchTime_) >= (CHECK_INTERVAL_TIME / RESET_RATIO)) {
+        lastWatchTime_ = now;
+    }
 }
 
 void Watchdog::ReportEvent()
 {
-    int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
-    constexpr int RESET_RATIO = 2;
-    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
+    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
+        (now - lastWatchTime_) < (CHECK_INTERVAL_TIME / RESET_RATIO)) {
         HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
             static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
-        lastWatchTime_ = now;
         return;
     }
 
@@ -174,26 +179,30 @@ void Watchdog::ReportEvent()
     }
 
     std::string eventType;
+    std::string stack = "";
     if (isSixSecondEvent_) {
         eventType = "THREAD_BLOCK_6S";
         needReport_.store(false);
+        stack = MixStackDumper::GetMixStack(true);
     } else {
         eventType = "THREAD_BLOCK_3S";
         isSixSecondEvent_.store(true);
+        stack = MixStackDumper::GetMixStack(false);
     }
+
+    HILOG_DEBUG("Start dump message.");
     std::string msgContent = "App main thread is not response!";
     MainHandlerDumper handlerDumper;
     appMainHandler_->Dump(handlerDumper);
     msgContent += handlerDumper.GetDumpInfo();
-
+    HILOG_DEBUG("msgContent is %{public}s", msgContent.c_str());
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
         EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
-        EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent);
+        EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent, EVENT_KEY_STACK, stack);
     HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
-
     // should call error manager-> appRecovery
-    if (isSixSecondEvent_) {
+    if (eventType == "THREAD_BLOCK_6S") {
         AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
         AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
     }
@@ -201,7 +210,6 @@ void Watchdog::ReportEvent()
 
 void MainHandlerDumper::Dump(const std::string &message)
 {
-    HILOG_DEBUG("message is %{public}s", message.c_str());
     dumpInfo += message;
 }
 

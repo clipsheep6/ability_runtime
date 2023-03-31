@@ -203,32 +203,6 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
  * Feature: Ams
  * Function: AppRecentList
  * SubFunction: update
- * FunctionPoints: Remove app from RecentAppList when app terminated.
- * EnvConditions: AppRecentList has application.
- * CaseDescription: Verity ams can remove app from AppRecentList when app terminated.
- */
-HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_001, TestSize.Level1)
-{
-    HILOG_INFO("Update_Recent_List_001 start");
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_10);
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-
-    auto appRecord = CreateAppRunningRecordByIndex(INDEX_NUM_10 - INDEX_NUM_1);
-    appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-    auto p = appRecord->GetRecordId();
-    sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
-    sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-    appRecord->SetApplicationClient(client);
-    serviceInner_->ApplicationTerminated(p);
-    EXPECT_EQ(INDEX_NUM_10 - INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    HILOG_INFO("Update_Recent_List_001 end");
-}
-
-/*
- * Feature: Ams
- * Function: AppRecentList
- * SubFunction: update
  * FunctionPoints: Remove app from AppRecentList when app died.
  * EnvConditions: AppRecentList has application.
  * CaseDescription: Verity ams can remove app from AppRecentList when app died.

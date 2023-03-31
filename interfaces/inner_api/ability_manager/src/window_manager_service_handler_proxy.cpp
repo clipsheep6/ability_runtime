@@ -157,6 +157,26 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
     }
 }
+
+void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    if (!data.WriteParcelable(info.GetRefPtr())) {
+        HILOG_ERROR("Write info failed.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int error = Remote()->SendRequest(WMSCmd::ON_NOTIFY_ANIMATION_ABILITY_DIED, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif

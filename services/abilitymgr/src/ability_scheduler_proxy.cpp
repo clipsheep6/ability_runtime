@@ -23,6 +23,7 @@
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"
+#include "session_info.h"
 #include "values_bucket.h"
 #include "want.h"
 
@@ -37,7 +38,8 @@ bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo)
+void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -47,6 +49,15 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
     }
     data.WriteParcelable(&want);
     data.WriteParcelable(&stateInfo);
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            return;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            return;
+        }
+    }
     int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_TRANSACTION, data, reply, option);
     if (err != NO_ERROR) {
         HILOG_ERROR("ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);

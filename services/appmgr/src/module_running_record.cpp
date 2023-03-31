@@ -130,41 +130,6 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
     return nullptr;
 }
 
-void ModuleRunningRecord::ClearAbility(const std::shared_ptr<AbilityRunningRecord> &record)
-{
-    HILOG_INFO("Clear ability.");
-    if (!record) {
-        HILOG_ERROR("Param record is null");
-        return;
-    }
-    if (!GetAbilityRunningRecordByToken(record->GetToken())) {
-        HILOG_ERROR("Param record is not exist");
-        return;
-    }
-    abilities_.erase(record->GetToken());
-}
-
-std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(
-    const std::string &abilityName, int32_t ownerUserId) const
-{
-    HILOG_INFO("Get ability running record by ability name.");
-    const auto &it = std::find_if(abilities_.begin(), abilities_.end(), [&abilityName, ownerUserId](const auto &pair) {
-        auto ability = pair.second;
-        if (!ability) {
-            return false;
-        }
-
-        bool flag = ability->GetName() == abilityName;
-        if (ability->GetAbilityInfo() && ability->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE &&
-            ability->GetAbilityInfo()->launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-            flag = flag && (ability->GetOwnerUserId() == ownerUserId) && !ability->IsTerminating();
-        }
-        return flag;
-    });
-
-    return ((it == abilities_.end()) ? nullptr : it->second);
-}
-
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
     HILOG_INFO("Get ability running record by eventId.");

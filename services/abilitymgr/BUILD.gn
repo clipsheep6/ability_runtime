@@ -122,6 +122,7 @@ ohos_shared_library("abilityms") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
@@ -176,6 +177,7 @@ ohos_shared_library("abilityms") {
     public_deps =
         [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
     external_deps += [
+      "ability_base:session_info",
       "i18n:intl_util",
       "input:libmmi-client",
       "multimedia_image_framework:image_native",

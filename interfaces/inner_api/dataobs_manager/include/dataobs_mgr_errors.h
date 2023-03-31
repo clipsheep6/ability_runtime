@@ -30,10 +30,11 @@ enum {
 // offset of aafwk error, only be used in this file.
 constexpr ErrCode AAFWK_DATAOBS_SERVICE_ERR_OFFSET = ErrCodeOffset(SUBSYS_AAFWK, DATAOBS_MODULE_TYPE_SERVICE);
 
-enum {
+enum Status : int32_t {
     /**
      * Result(2228224)
      */
+    SUCCESS = NO_ERROR,
     DATAOBS_SERVICE_NOT_CONNECTED = AAFWK_DATAOBS_SERVICE_ERR_OFFSET,
     GET_DATAOBS_SERVICE_FAILED,
     DATAOBS_PROXY_INNER_ERR,
@@ -46,6 +47,9 @@ enum {
     NO_OBS_FOR_URI,
     OBS_EXIST,
     DATAOBS_HIDUMP_ERROR,
+    IPC_PARCEL_ERROR,
+    IPC_ERROR,
+    INVALID_PARAM,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

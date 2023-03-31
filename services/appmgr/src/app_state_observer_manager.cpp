@@ -476,7 +476,9 @@ void AppStateObserverManager::AddObserverDeathRecipient(const sptr<IApplicationS
                     appStateObserverManager->OnObserverDied(remote);
                 }
             });
-        observer->AsObject()->AddDeathRecipient(deathRecipient);
+        if (!observer->AsObject()->AddDeathRecipient(deathRecipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
         recipientMap_.emplace(observer->AsObject(), deathRecipient);
     }
 }

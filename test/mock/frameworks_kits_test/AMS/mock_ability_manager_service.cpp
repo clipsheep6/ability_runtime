@@ -21,6 +21,8 @@
 #include <string>
 #include <unistd.h>
 
+#include "session_info.h"
+
 using OHOS::AppExecFwk::ElementName;
 
 namespace OHOS {
@@ -66,6 +68,12 @@ int MockAbilityManagerService::StartAbility(const Want& want, int32_t userId, in
 }
 
 int MockAbilityManagerService::StartAbility(const Want& want, const sptr<IRemoteObject>& callerToken,
+    int32_t userId, int requestCode)
+{
+    return 0;
+}
+
+int MockAbilityManagerService::StartAbilityAsCaller(const Want& want, const sptr<IRemoteObject>& callerToken,
     int32_t userId, int requestCode)
 {
     return 0;

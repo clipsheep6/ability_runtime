@@ -30,6 +30,7 @@
 #include "record_query_result.h"
 #include "running_process_info.h"
 #include "bundle_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -140,6 +141,16 @@ public:
     * @return Returns ERR_OK on success, others on failure.
     */
     int32_t NotifyMemoryLevel(int32_t level);
+
+    /*
+    * Get the application's memory allocation info.
+    *
+    * @param pid, pid input.
+    * @param mallocInfo, dynamic storage information output.
+    *
+    * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     void HandleTerminateTimeOut(int64_t eventId);
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);

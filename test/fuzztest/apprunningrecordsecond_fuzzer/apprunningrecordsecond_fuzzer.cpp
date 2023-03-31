@@ -127,9 +127,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->GetProcessName();
     appRecord->GetAppInfoList();
     appRecord->GetAbilities();
-    std::string abilityName(data, size);
-    int32_t ownerUserId = static_cast<int32_t>(GetU32Data(data));
-    appRecord->GetAbilityRunningRecord(abilityName, moduleName, ownerUserId);
     int64_t eventId = static_cast<int64_t>(GetU32Data(data));
     appRecord->GetAbilityRunningRecord(eventId);
     appRecord->GetModuleRecordByModuleName(bundleName, moduleName);
@@ -158,7 +155,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->AbilityTerminated(token);
     appRecord->ScheduleTerminate();
     appRecord->ApplicationTerminated();
-    appRecord->ClearAbility(ability);
     appRecord->RemoveTerminateAbilityTimeoutTask(token);
     sptr<IQuickFixCallback> callback;
     appRecord->NotifyLoadRepairPatch(bundleName, callback, recordId);

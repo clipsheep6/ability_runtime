@@ -22,6 +22,7 @@
 #include "uri.h"
 #include "want.h"
 #include "semaphore_ex.h"
+#include "session_info.h"
 #include "ability_scheduler_stub.h"
 #include "ability_scheduler_proxy.h"
 #include "mock_ability_scheduler_stub.h"
@@ -85,13 +86,14 @@ HWTEST_F(IpcAbilitySchedulerModuleTest, ScheduleAbilityTransaction_001, TestSize
         Want::ClearWant(&stubState.want);
         stubState.lifeCycleStateInfo.isNewWant = false;
 
-        auto stubHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo) {
+        auto stubHandler = [&](const Want& want, const LifeCycleStateInfo& lifeCycleStateInfo,
+            sptr<SessionInfo> sessionInfo) {
             stubState.want.SetAction(want.GetAction());
             stubState.lifeCycleStateInfo.isNewWant = lifeCycleStateInfo.isNewWant;
             sem.Post();
         };
 
-        EXPECT_CALL(*stub, ScheduleAbilityTransaction(_, _)).Times(1).WillOnce(Invoke(stubHandler));
+        EXPECT_CALL(*stub, ScheduleAbilityTransaction(_, _, _)).Times(1).WillOnce(Invoke(stubHandler));
 
         proxy->ScheduleAbilityTransaction(proxyState.want, proxyState.lifeCycleStateInfo);
 

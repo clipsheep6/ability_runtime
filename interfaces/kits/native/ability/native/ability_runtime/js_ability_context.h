@@ -22,6 +22,7 @@
 
 #include "ability_connect_callback.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "js_free_install_observer.h"
 #include "js_runtime.h"
 #include "event_handler.h"
 
@@ -39,6 +40,7 @@ public:
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
 
     static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* StartAbilityAsCaller(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info);
@@ -78,6 +80,7 @@ private:
 
 private:
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
+    NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
@@ -104,9 +107,12 @@ private:
         const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
     static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
+    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
+        bool isAbilityResult = false);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);

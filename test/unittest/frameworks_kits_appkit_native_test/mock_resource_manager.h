@@ -38,6 +38,11 @@ bool AddResource(const std::string &path, const std::vector<std::string> &overla
     return true;
 }
 
+bool RemoveResource(const std::string &path, const std::vector<std::string> &overlayPaths)
+{
+    return true;
+}
+
 RState UpdateResConfig(ResConfig &resConfig)
 {
     return SUCCESS;
@@ -187,22 +192,12 @@ RState GetProfileByName(const char *name, std::string &outValue)
     return SUCCESS;
 }
 
-RState GetMediaById(uint32_t id, std::string &outValue)
+RState GetMediaById(uint32_t id, std::string &outValue, uint32_t density)
 {
     return SUCCESS;
 }
 
-RState GetMediaById(uint32_t id, uint32_t density, std::string &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaByName(const char *name, std::string &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaByName(const char *name, uint32_t density, std::string &outValue)
+RState GetMediaByName(const char *name, std::string &outValue, uint32_t density)
 {
     return SUCCESS;
 }
@@ -222,54 +217,24 @@ RState CloseRawFileDescriptor(const std::string &name)
     return SUCCESS;
 }
 
-RState GetMediaBase64ByIdData(uint32_t id, uint32_t density, std::string &base64Data)
+RState GetMediaDataById(uint32_t id, size_t &len, std::unique_ptr<uint8_t[]> &outValue,
+    uint32_t density)
 {
     return SUCCESS;
 }
 
-RState GetMediaBase64ByNameData(const char *name, uint32_t density, std::string &base64Data)
+RState GetMediaDataByName(const char *name, size_t &len, std::unique_ptr<uint8_t[]> &outValue,
+    uint32_t density)
 {
     return SUCCESS;
 }
 
-RState GetMediaDataById(uint32_t id, size_t &len, std::unique_ptr<uint8_t[]> &outValue)
+RState GetMediaBase64DataById(uint32_t id, std::string &outValue, uint32_t density)
 {
     return SUCCESS;
 }
 
-RState GetMediaDataByName(const char *name, size_t &len, std::unique_ptr<uint8_t[]> &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaDataById(uint32_t id, uint32_t density, size_t &len,
-    std::unique_ptr<uint8_t[]> &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaDataByName(const char *name, uint32_t density, size_t &len,
-    std::unique_ptr<uint8_t[]> &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaBase64DataById(uint32_t id, std::string &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaBase64DataByName(const char *name, std::string &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaBase64DataById(uint32_t id, uint32_t density, std::string &outValue)
-{
-    return SUCCESS;
-}
-
-RState GetMediaBase64DataByName(const char *name, uint32_t density, std::string &outValue)
+RState GetMediaBase64DataByName(const char *name, std::string &outValue,  uint32_t density)
 {
     return SUCCESS;
 }
@@ -301,6 +266,18 @@ RState IsLoadHap(std::string& hapPath)
 }
 
 RState GetRawFileList(const std::string rawDirPath, std::vector<std::string>& rawfileList)
+{
+    return SUCCESS;
+}
+
+RState GetDrawableInfoById(uint32_t id, std::string &type, size_t &len,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t density = 0)
+{
+    return SUCCESS;
+}
+
+RState GetDrawableInfoByName(const char *name, std::string &type, size_t &len,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t density = 0)
 {
     return SUCCESS;
 }

@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "image_source.h"
 #include "media_errors.h"
+#include "mission_info_mgr.h"
 #ifdef SUPPORT_GRAPHICS
 #include <cstdio>
 #include <setjmp.h>
@@ -245,6 +246,7 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const MissionSnapsh
 {
     SaveSnapshotFile(missionId, missionSnapshot.snapshot, missionSnapshot.isPrivate, false);
     SaveSnapshotFile(missionId, GetReducedPixelMap(missionSnapshot.snapshot), missionSnapshot.isPrivate, true);
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->CompleteSaveSnapshot(missionId);
 }
 
 void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& snapshot,
@@ -269,6 +271,10 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
         HILOG_DEBUG("snapshot: the param isPrivate is true.");
         ssize_t dataLength = snapshot->GetWidth() * snapshot->GetHeight() * RGB888_PIXEL_BYTES;
         uint8_t* data = (uint8_t*) malloc(dataLength);
+        if (data == nullptr) {
+            HILOG_ERROR("malloc failed.");
+            return;
+        }
         if (memset_s(data, dataLength, 0xff, dataLength) == EOK) {
             WriteRgb888ToJpeg(filePath.c_str(), snapshot->GetWidth(), snapshot->GetHeight(), data);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <new>
 #include <regex>
 #include <unistd.h>
+#include <malloc.h>
 
 #include "constants.h"
 #include "ability_delegator.h"
@@ -71,11 +72,18 @@
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
+using HspList = std::vector<BaseSharedBundleInfo>;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
+#ifdef APP_USE_ARM64
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
+#else
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#endif
+
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
@@ -98,7 +106,7 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
 
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
-void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Options &options)
+void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths)
 {
     std::string patchNativeLibraryPath = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath;
     if (!patchNativeLibraryPath.empty()) {
@@ -106,7 +114,7 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Opt
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
         HILOG_INFO("napi patch lib path = %{private}s", patchLibPath.c_str());
-        options.appLibPaths["default"].emplace_back(patchLibPath);
+        appLibPaths["default"].emplace_back(patchLibPath);
     }
 
     std::string nativeLibraryPath = bundleInfo.applicationInfo.nativeLibraryPath;
@@ -117,7 +125,7 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Opt
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
         HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
-        options.appLibPaths["default"].emplace_back(libPath);
+        appLibPaths["default"].emplace_back(libPath);
     }
 
     for (auto &hapInfo : bundleInfo.hapModuleInfos) {
@@ -134,12 +142,28 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, AbilityRuntime::Runtime::Opt
             std::string patchLibPath = LOCAL_CODE_PATH;
             patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
             HILOG_INFO("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
-            options.appLibPaths[appLibPathKey].emplace_back(patchLibPath);
+            appLibPaths[appLibPathKey].emplace_back(patchLibPath);
         }
 
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-        options.appLibPaths[appLibPathKey].emplace_back(libPath);
+        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+        appLibPaths[appLibPathKey].emplace_back(libPath);
+    }
+
+    for (auto &hspInfo : hspList) {
+        HILOG_DEBUG("bundle:%s, module:%s, nativeLibraryPath:%s", hspInfo.bundleName.c_str(),
+            hspInfo.moduleName.c_str(), hspInfo.nativeLibraryPath.c_str());
+        if (hspInfo.nativeLibraryPath.empty()) {
+            continue;
+        }
+
+        std::string appLibPathKey = hspInfo.bundleName + "/" + hspInfo.moduleName;
+        std::string libPath = LOCAL_CODE_PATH;
+        libPath = libPath.back() == '/' ? libPath : libPath + "/";
+        libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
+        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+        appLibPaths[appLibPathKey].emplace_back(libPath);
     }
 }
 } // namespace
@@ -462,6 +486,26 @@ void MainThread::ScheduleMemoryLevel(const int level)
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
     HILOG_DEBUG("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
+}
+
+/**
+ *
+ * @brief Get the application's memory allocation info.
+ *
+ * @param pid, pid input.
+ * @param mallocInfo, dynamic storage information output.
+ */
+void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    struct mallinfo mi = mallinfo();
+    int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
+    int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
+    int fordblks = mi.fordblks; // 当前未释放的大小
+    HILOG_DEBUG("The pid of the app we want to dump memory allocation information is: %{public}i", pid);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    mallocInfo.usmblks = usmblks;
+    mallocInfo.uordblks = uordblks;
+    mallocInfo.fordblks = fordblks;
 }
 
 /**
@@ -984,8 +1028,14 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
         HILOG_INFO("GetBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
-        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO,
-            bundleInfo, UNSPECIFIED_USERID);
+        queryResult = (bundleMgr->GetBundleInfoForSelf(
+            (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) == ERR_OK);
     }
 
     if (!queryResult) {
@@ -1026,6 +1076,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     application_->SetApplicationContext(applicationContext);
     std::string bundleCodeDir = applicationContext->GetBundleCodeDir();
+
+    HspList hspList;
+    ErrCode ret = bundleMgr->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetBaseSharedBundleInfos failed: %{public}d", ret);
+    }
+    AppLibPathMap appLibPaths {};
+    GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths);
+
     if (isStageBased) {
         // Create runtime
         auto hapPath = entryHapModuleInfo.hapPath;
@@ -1039,7 +1099,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
-        SetNativeLibPath(bundleInfo, options);
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1062,6 +1121,15 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\n";
+            const AppExecFwk::ErrorObject errorObj = {
+                .name = errorName,
+                .message = errorMsg,
+                .stack = errorStack
+            };
+            if (obj != nullptr && obj->HasProperty("code")) {
+                std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
+                summary += "Error code:" + errorCode + "\n";
+            }
             if (appThread->application_ == nullptr) {
                 HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
                 return;
@@ -1096,7 +1164,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
-            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
+            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
+                ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj)) {
                 return;
             }
             // if app's callback has been registered, let app decide whether exit or not.
@@ -1124,9 +1193,26 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
 #endif
         }
-        std::shared_ptr<NativeEngine> nativeEngine(&jsEngine);
-        idleTime_ = std::make_shared<IdleTime>(mainHandler_, nativeEngine);
+
+        IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
+            auto app = wpApplication.lock();
+            if (app == nullptr) {
+                HILOG_ERROR("app is nullptr.");
+                return;
+            }
+            auto &runtime = app->GetRuntime();
+            if (runtime == nullptr) {
+                HILOG_ERROR("runtime is nullptr.");
+                return;
+            }
+            auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+            nativeEngine.NotifyIdleTime(idleTime);
+        };
+        idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
         idleTime_->Start();
+
+        IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
+        jsEngine.NotifyIdleStatusControl(cb);
     }
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
@@ -1232,16 +1318,28 @@ void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
 
     void *handleAbilityLib = nullptr;
     for (auto fileEntry : nativeFileEntries_) {
-        if (!fileEntry.empty()) {
-            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
-            if (handleAbilityLib == nullptr) {
+        if (fileEntry.empty()) {
+            continue;
+        }
+        handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (handleAbilityLib == nullptr) {
+            if (fileEntry.find("libformrender.z.so") == std::string::npos) {
                 HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
                     __func__, fileEntry.c_str(), dlerror());
                 exit(-1);
+            } else {
+                HILOG_DEBUG("Load libformrender.z.so from native lib path.");
+                handleAbilityLib = dlopen(FORM_RENDER_LIB_PATH, RTLD_NOW | RTLD_GLOBAL);
+                if (handleAbilityLib == nullptr) {
+                    HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
+                        __func__, FORM_RENDER_LIB_PATH, dlerror());
+                    exit(-1);
+                }
+                fileEntry = FORM_RENDER_LIB_PATH;
             }
-            HILOG_DEBUG("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
-            handleAbilityLib_.emplace_back(handleAbilityLib);
         }
+        HILOG_DEBUG("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
+        handleAbilityLib_.emplace_back(handleAbilityLib);
     }
 #endif
 }
@@ -1383,6 +1481,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.hapPath = entryHapModuleInfo.hapPath;
         options.loadAce = false;
         options.isStageModel = false;
+        options.isTestFramework = true;
         if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
@@ -1548,6 +1647,12 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
         HILOG_ERROR("record->GetAbilityInfo() failed");
         return;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        AppRecovery::GetInstance().RemoveAbility(token);
+    }
+#endif
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
@@ -2197,7 +2302,14 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo)) {
+    if (bundleMgr->GetBundleInfoForSelf(
+        (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) != ERR_OK) {
         HILOG_ERROR("Get bundle info of %{public}s failed.", bundleName.c_str());
         return false;
     }
@@ -2205,12 +2317,7 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     for (auto hapInfo : bundleInfo.hapModuleInfos) {
         if ((processInfo_ != nullptr) && (processInfo_->GetProcessName() == hapInfo.process) &&
             (!hapInfo.hqfInfo.hqfFilePath.empty())) {
-            std::string resolvedHapPath;
-            std::string hapPath = AbilityBase::GetLoadPath(hapInfo.hapPath);
-            auto position = hapPath.rfind('/');
-            if (position != std::string::npos) {
-                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + hapInfo.moduleName;
-            }
+            std::string resolvedHapPath(AbilityBase::GetLoadPath(hapInfo.hapPath));
             std::string resolvedHqfFile(AbilityBase::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
             HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
                 "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),

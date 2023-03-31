@@ -111,8 +111,10 @@ public:
      * @description:  Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
      * @param lifeCycleStateInfo Indicates the lifecycle state.
+     * @param lifeCycleStateInfo Indicates the session info.
      */
-    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState);
+    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
+        sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @description:  Provide operating system ConnectAbility information to the observer
@@ -436,8 +438,10 @@ private:
      * @description:  Handle the life cycle of Extension.
      * @param want  Indicates the structure containing lifecycle information about the extension.
      * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
+    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+        sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @description:  Handle the current connection of Ability.

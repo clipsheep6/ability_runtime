@@ -141,11 +141,6 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest001, Function | MediumTest | Leve
     mixDumper.Destroy();
     EXPECT_FALSE(ret);
     close(fd);
-    std::string keywords[] = {
-        "Tid:" + std::to_string(pid), "Failed", "dumpNativeFrame",
-    };
-    int length = sizeof(keywords) / sizeof(keywords[0]);
-    EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
 }
 
 /**
@@ -172,8 +167,7 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest002, Function | MediumTest | Leve
     EXPECT_TRUE(ret);
     close(fd);
     std::string keywords[] = {
-        "Tid:-1", "Failed", "dumpNativeFrame", "Tid:" + std::to_string(getpid()), "#00", "pc",
-        "mix_stack_dumper_test",
+        "Tid:" + std::to_string(getpid()), "#00", "pc", "mix_stack_dumper_test",
     };
     int length = sizeof(keywords) / sizeof(keywords[0]);
     EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
@@ -449,6 +443,20 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest015, Function | MediumTest | Leve
     EXPECT_TRUE(handler);
     mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
     mixDumper.signalHandler_.reset();
+}
+
+/**
+ * @tc.number: MixStackDumperTest016
+ * @tc.name: Call GetMixStack
+ * @tc.desc: test GetMixStack Func
+ */
+HWTEST_F(MixStackDumperTest, MixStackDumperTest016, Function | MediumTest | Level1)
+{
+    std::string stack0 = MixStackDumper::GetMixStack(false);
+    EXPECT_TRUE(stack0.size() > ZERO);
+
+    std::string stack1 = MixStackDumper::GetMixStack(true);
+    EXPECT_TRUE(stack1.size() > ZERO);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

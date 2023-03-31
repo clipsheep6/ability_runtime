@@ -218,10 +218,10 @@ std::shared_ptr<AbilityRecord> MissionList::GetLauncherRoot() const
     return nullptr;
 }
 
-std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordById(int64_t eventId) const
+std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordById(int64_t abilityRecordId) const
 {
     for (std::shared_ptr<Mission> mission : missions_) {
-        if (mission && mission->GetAbilityRecord()->GetEventId() == eventId) {
+        if (mission && mission->GetAbilityRecord()->GetAbilityRecordId() == abilityRecordId) {
             return mission->GetAbilityRecord();
         }
     }
@@ -419,6 +419,29 @@ int32_t MissionList::GetMissionCountByUid(int32_t targetUid) const
         }
     }
     return count;
+}
+
+void MissionList::FindEarliestMission(std::shared_ptr<Mission>& targetMission) const
+{
+    for (const auto& mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+        if (!abilityRecord->IsAbilityState(AbilityState::BACKGROUND) ||
+            (targetMission && targetMission->GetMissionTime() < mission->GetMissionTime())) {
+            continue;
+        }
+        targetMission = mission;
+    }
+}
+
+int32_t MissionList::GetMissionCount() const
+{
+    return static_cast<int32_t>(missions_.size());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

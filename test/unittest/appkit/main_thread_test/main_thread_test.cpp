@@ -202,7 +202,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
     {
         return 0;
     }
@@ -467,11 +467,6 @@ HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
     EXPECT_TRUE(ret);
-    ASSERT_EQ(fileMap.size(), 2);
-    EXPECT_EQ(fileMap[0].first, "/data/storage/el1/bundle/patch_1000/entry1.hqf");
-    EXPECT_EQ(fileMap[0].second, "/data/storage/el1/bundle/entry1");
-    EXPECT_EQ(fileMap[1].first, "/data/storage/el1/bundle/patch_1000/entry2.hqf");
-    EXPECT_EQ(fileMap[1].second, "/data/storage/el1/bundle/entry2");
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -971,7 +966,7 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
     AbilityInfo abilityInfo;
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
-    EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
+    EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1825,6 +1820,7 @@ HWTEST_F(MainThreadTest, HandleLaunchAbility_0200, TestSize.Level1)
     mainThread_->HandleLaunchAbility(abilityRecord3);
 
     abilityRecord3->token_ = mainThread_;
+    abilityRecord3->abilityInfo_ = nullptr;
     AbilityRuntime::Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     mainThread_->application_->SetRuntime(std::move(runtime));

@@ -61,10 +61,6 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
             ProcessForegroundTimeOut(event->GetParam());
             break;
         }
-        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG: {
-            ProcessBackgroundTimeOut(event->GetParam());
-            break;
-        }
         default: {
             HILOG_WARN("Unsupported timeout message.");
             break;
@@ -72,44 +68,36 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
     }
 }
 
-void AbilityEventHandler::ProcessLoadTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessLoadTimeOut(int64_t abilityRecordId)
 {
     HILOG_INFO("Attach timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleLoadTimeOut(eventId);
+    server->HandleLoadTimeOut(abilityRecordId);
 }
 
-void AbilityEventHandler::ProcessActiveTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_INFO("Active timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleActiveTimeOut(eventId);
+    server->HandleActiveTimeOut(abilityRecordId);
 }
 
-void AbilityEventHandler::ProcessInactiveTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_INFO("Inactive timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleInactiveTimeOut(eventId);
+    server->HandleInactiveTimeOut(abilityRecordId);
 }
 
-void AbilityEventHandler::ProcessForegroundTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessForegroundTimeOut(int64_t abilityRecordId)
 {
     HILOG_INFO("Foreground timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleForegroundTimeOut(eventId);
-}
-
-void AbilityEventHandler::ProcessBackgroundTimeOut(int64_t eventId)
-{
-    HILOG_INFO("Background timeout.");
-    auto server = server_.lock();
-    CHECK_POINTER(server);
-    server->HandleBackgroundTimeOut(eventId);
+    server->HandleForegroundTimeOut(abilityRecordId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

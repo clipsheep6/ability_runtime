@@ -74,7 +74,6 @@ ErrCode ContainerManagerClient::Connect()
     uint32_t waitCnt = 0;
     while (waitCnt < MAX_RETRY_TIME && remoteObject_ == nullptr) {
         usleep(RETRY_INTERVAL);  // 100ms
-        HILOG_ERROR("Fail to connect container manager service.");
         remoteObject_ = systemManager->GetSystemAbility(CONTAINER_MANAGER_ABILITY_ID);
         waitCnt++;
     }

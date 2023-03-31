@@ -171,6 +171,9 @@ bool BundleMgrService::GetApplicationInfo(
     if (appName.compare("com.test.control") == 0) {
         isAppControlProxyNull_ = true;
     }
+    if (appName.compare("com.test.atomicservice") == 0) {
+        appInfo.bundleType = AppExecFwk::BundleType::ATOMIC_SERVICE;
+    }
     return true;
 }
 

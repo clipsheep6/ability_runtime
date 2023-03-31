@@ -38,14 +38,16 @@ public:
     void EnableAppRecovery(uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
     bool InitApplicationInfo(const std::shared_ptr<AppExecFwk::EventHandler>& mainHandler,
         const std::shared_ptr<ApplicationInfo>& applicationInfo);
-    bool AddAbility(const std::shared_ptr<Ability>& ability,
+    bool AddAbility(std::shared_ptr<Ability> ability,
         const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
+    bool RemoveAbility(const sptr<IRemoteObject>& tokenId);
 
     bool IsEnabled() const;
     bool ScheduleRecoverApp(StateReason reason);
-    bool ScheduleSaveAppState(StateReason reason);
+    bool ScheduleSaveAppState(StateReason reason, uintptr_t ability = 0);
     bool TryRecoverApp(StateReason reason);
     bool PersistAppState();
+    void SetRestartWant(std::shared_ptr<AAFwk::Want> want);
 
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
@@ -58,7 +60,10 @@ private:
     bool ShouldRecoverApp(StateReason reason);
 
     void DoRecoverApp(StateReason reason);
-    void DoSaveAppState(StateReason reason);
+    void DoSaveAppState(StateReason reason, uintptr_t ability = 0);
+    void DeleteInValidMissionFiles();
+    void DeleteInValidMissionFileById(std::string path, int32_t missionId);
+    bool GetMissionIds(std::string path, std::vector<int32_t> &missionIds);
 
     bool isEnable_;
     uint16_t restartFlag_;
@@ -66,7 +71,9 @@ private:
     uint16_t saveMode_;
     std::weak_ptr<AppExecFwk::EventHandler> mainHandler_;
     std::weak_ptr<AppExecFwk::ApplicationInfo> applicationInfo_;
+    std::weak_ptr<AppExecFwk::Ability> ability_;
     std::vector<std::shared_ptr<AbilityRecovery>> abilityRecoverys_;
+    std::shared_ptr<AAFwk::Want> want_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

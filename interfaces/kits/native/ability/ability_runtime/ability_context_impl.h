@@ -55,6 +55,9 @@ public:
     ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
     ErrCode StartAbilityWithAccount(const AAFwk::Want &want, int accountId, int requestCode) override;
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode) override;
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want, int requestCode) override;
+    ErrCode StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+        int requestCode) override;
     ErrCode StartAbilityWithAccount(
         const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task) override;
@@ -213,6 +216,7 @@ private:
 
     static void ResultCallbackJSThreadWorker(uv_work_t* work, int status);
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
+    void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
     void StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,
         const std::vector<int>& permissionsState, int requestCode, PermissionRequestTask &&task);
 

@@ -282,7 +282,7 @@ NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj)
     HILOG_DEBUG("JsParticleAbility BindNativeFunction called");
     const char *moduleName = "JsParticleAbility";
     BindNativeFunction(*engine, *object, "connectAbility", moduleName, JsParticleAbility::PAConnectAbility);
-    BindNativeFunction(*engine, *object, "disConnectAbility", moduleName, JsParticleAbility::PADisConnectAbility);
+    BindNativeFunction(*engine, *object, "disconnectAbility", moduleName, JsParticleAbility::PADisConnectAbility);
     BindNativeFunction(*engine, *object, "startAbility", moduleName, JsParticleAbility::PAStartAbility);
     BindNativeFunction(*engine, *object, "terminateSelf", moduleName, JsParticleAbility::PATerminateAbility);
 

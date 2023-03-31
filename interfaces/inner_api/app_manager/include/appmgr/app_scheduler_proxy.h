@@ -18,6 +18,7 @@
 
 #include "iremote_proxy.h"
 #include "app_scheduler_interface.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -75,6 +76,17 @@ public:
      * @return
      */
     virtual void ScheduleMemoryLevel(int32_t level) override;
+
+    /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     *
+     * @return
+     */
+    virtual void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,

@@ -48,9 +48,9 @@ public:
      * The system is trying to move ability to foreground/background.
      *
      * @param abilityToken Ability token.
-     * @param code the code of the ability to move.
+     * @param opCode the operation code of the ability.
      */
-    virtual void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code) = 0;
+    virtual void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode) = 0;
 
     enum class Message {
         TRANSACT_ON_ALLOW_COMPONENT_START = 1,

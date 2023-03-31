@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
 #include "extension_running_info.h"
+#include "free_install_observer_interface.h"
 #include "iability_controller.h"
 #include "icomponent_interception.h"
 #include "mission_listener_interface.h"
@@ -124,6 +125,44 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -135,6 +174,24 @@ public:
     virtual int StartExtensionAbility(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED)
+    {
+        return 0;
+    }
+
+    /**
+     * Start ui extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param extensionSessionInfo the extension session info of the ability to start.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIExtensionAbility(
+        const Want &want,
+        const sptr<SessionInfo> &extensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED)
     {
@@ -186,6 +243,20 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
 
     /**
+     * TerminateUIExtensionAbility, terminate the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to terminate.
+     * @param resultCode, the resultCode of the ui extension ability to terminate.
+     * @param resultWant, the Want of the ui extension ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        int resultCode, const Want *resultWant = nullptr)
+    {
+        return 0;
+    }
+
+    /**
      * SendResultToAbility, send the result to ability.
      *
      * @param requestCode, the requestCode of the ability to terminate.
@@ -226,6 +297,19 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) = 0;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        bool fromUser = false)
+    {
+        return 0;
+    };
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -696,12 +780,46 @@ public:
     }
 
     /**
+     * Add free install observer.
+     *
+     * @param observer, the observer of the ability to free install start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+    {
+        return 0;
+    }
+
+    /**
      * Called to update mission snapshot.
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
-    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) {};
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
+        const Want *want = nullptr) {};
+
+    /**
+     * Called to verify that the MissionId is valid.
+     * @param missionIds Query mission list.
+     * @param results Output parameters, return results up to 20 query results.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t IsValidMissionIds(
+        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) = 0;
+
+    /**
+     * Query whether the application of the specified PID and UID has been granted a certain permission
+     * @param permission
+     * @param pid Process id
+     * @param uid
+     * @return Returns ERR_OK if the current process has the permission, others on failure.
+     */
+    virtual int VerifyPermission(const std::string &permission, int pid, int uid)
+    {
+        return 0;
+    }
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -957,7 +1075,20 @@ public:
 
         CONNECT_ABILITY_WITH_TYPE,
 
+        // start ui extension ability
+        START_UI_EXTENSION_ABILITY,
+
         CALL_REQUEST_DONE,
+
+        START_ABILITY_AS_CALLER_BY_TOKEN,
+
+        START_ABILITY_AS_CALLER_FOR_OPTIONS,
+
+        // ipc id for minimize ui extension ability
+        MINIMIZE_UI_EXTENSION_ABILITY,
+
+        // ipc id for terminating ui extension ability
+        TERMINATE_UI_EXTENSION_ABILITY,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
@@ -1002,10 +1133,15 @@ public:
 
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
+        ADD_FREE_INSTALL_OBSERVER = 3002,
 
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,
         ABILITY_RECOVERY_ENABLE = 3011,
+
+        QUERY_MISSION_VAILD = 3012,
+        
+        VERIFY_PERMISSION = 3013,
     };
 };
 }  // namespace AAFwk

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -71,8 +71,8 @@ public:
 
     int MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions = nullptr);
 
-    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher,
-        std::shared_ptr<StartOptions> startOptions = nullptr);
+    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher, bool isRecent,
+        std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr);
 
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -219,9 +219,9 @@ public:
      * @brief handle time out event
      *
      * @param msgId the msg id in ability record
-     * @param eventId the event id in ability record
+     * @param abilityRecordId the id of ability record
      */
-    void OnTimeOut(uint32_t msgId, int64_t eventId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
 
     /**
      * @brief handle when ability died
@@ -331,6 +331,8 @@ public:
      */
     void UpdateSnapShot(const sptr<IRemoteObject>& token);
 
+    void EnableRecoverAbility(int32_t missionId);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
@@ -348,6 +350,8 @@ public:
     void ResumeManager();
 
     void SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens);
+
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
 
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -420,7 +424,7 @@ private:
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
@@ -435,6 +439,8 @@ private:
         std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const AAFwk::Want &want, const std::string &flag) const;
     bool IsReachToLimitLocked(const AbilityRequest &abilityRequest);
+    std::shared_ptr<Mission> FindEarliestMission() const;
+    int32_t GetMissionCount() const;
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
@@ -463,6 +469,10 @@ private:
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
+    bool UpdateAbilityRecordLaunchReason(
+        const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
+    std::shared_ptr<AbilityRecord> GetAliveAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
+    void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

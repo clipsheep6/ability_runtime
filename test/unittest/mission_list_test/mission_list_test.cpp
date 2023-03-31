@@ -727,7 +727,6 @@ HWTEST_F(MissionListTest, mission_list_get_ability_record_by_id_001, TestSize.Le
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     abilityRecord->Init();
-    abilityRecord->SetEventId(1);
     auto mission = std::make_shared<Mission>(1, abilityRecord, "name");
     auto missionList = std::make_shared<MissionList>();
     missionList->missions_.push_front(mission);

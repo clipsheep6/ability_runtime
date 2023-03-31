@@ -37,15 +37,17 @@ private:
     /**
      * @brief Called back to notify that the data being observed has changed.
      *
-     * @param uri Indicates the path of the data to operate.
-     *
-     * @return Returns 0 on success, others on failure.
+     */
+    int32_t OnChangeInner(MessageParcel &data, MessageParcel &reply);
+
+    /**
+     * @brief Called back to notify that the data being observed has changed.
      *
      */
-    int OnChangeInner(MessageParcel &data, MessageParcel &reply);
+    int32_t OnChangeExtInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (DataAbilityObserverStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
+    static const RequestFuncType HANDLES[TRANS_BUTT];
 
     DISALLOW_COPY_AND_MOVE(DataAbilityObserverStub);
 };

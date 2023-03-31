@@ -24,6 +24,7 @@
 #include "ability_runtime/js_ability_context.h"
 #include "ability_recovery.h"
 #include "ability_start_setting.h"
+#include "app_recovery.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
@@ -107,7 +108,13 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
-
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel &&
+        abilityContext_ != nullptr) {
+            AppExecFwk::AppRecovery::GetInstance().AddAbility(shared_from_this(), abilityContext_->GetAbilityInfo(),
+                abilityContext_->GetToken());
+    }
+#endif
     std::string srcPath(abilityInfo->package);
     if (!abilityInfo->isModuleJson) {
         /* temporary compatibility api8 + config.json */
@@ -163,6 +170,10 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
     HILOG_DEBUG("Set ability context");
+
+    if (abilityRecovery_ != nullptr) {
+        abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
+    }
 
     nativeObj->SetNativePointer(
         workContext,
@@ -380,6 +391,10 @@ void JsAbility::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnForeground begin, ability is %{public}s.", GetAbilityName().c_str());
+    if (abilityInfo_) {
+        jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
+    }
+
     Ability::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);
@@ -593,6 +608,12 @@ std::shared_ptr<NativeReference> JsAbility::GetJsWindowStage()
     }
     return jsWindowStageObj_;
 }
+
+const JsRuntime& JsAbility::GetJsRuntime()
+{
+    return jsRuntime_;
+}
+
 #endif
 
 int32_t JsAbility::OnContinue(WantParams &wantParams)

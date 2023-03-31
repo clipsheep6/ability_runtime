@@ -21,6 +21,7 @@
 
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -135,6 +136,16 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
     /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -214,11 +225,13 @@ public:
      * @param renderParam, params passed to renderprocess.
      * @param ipcFd, ipc file descriptior for web browser and render process.
      * @param sharedFd, shared memory file descriptior.
+     * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override;
+    virtual int StartRenderProcess(const std::string &renderParam,
+                                   int32_t ipcFd, int32_t sharedFd,
+                                   int32_t crashFd, pid_t &renderPid) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -264,6 +277,15 @@ public:
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;
 #endif
+
+    /**
+     * @brief Check whether the shared bundle is running.
+     *
+     * @param bundleName Shared bundle name.
+     * @param versionCode Shared bundle version code.
+     * @return Returns the shared bundle running result. The result is true if running, false otherwise.
+     */
+    virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) override;
 
 private:
     bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -55,6 +56,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[UNINSTALL_APP] = &AbilityManagerStub::UninstallAppInner;
     requestFuncMap_[START_ABILITY] = &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[START_ABILITY_ADD_CALLER] = &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[START_ABILITY_AS_CALLER_BY_TOKEN] = &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
+    requestFuncMap_[START_ABILITY_AS_CALLER_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
     requestFuncMap_[CONNECT_ABILITY] = &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
     requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
@@ -76,6 +79,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[FORCE_TIMEOUT] = &AbilityManagerStub::ForceTimeoutForTestInner;
 #endif
     requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
+    requestFuncMap_[ADD_FREE_INSTALL_OBSERVER] = &AbilityManagerStub::AddFreeInstallObserverInner;
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
     requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
@@ -150,9 +154,14 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
+    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
+    requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
+    requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
+    requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
+    requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -160,7 +169,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     std::u16string descriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -207,6 +216,22 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
+int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    int32_t result = TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     int requestCode = data.ReadInt32();
@@ -241,6 +266,18 @@ int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel 
     auto token = data.ReadRemoteObject();
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeAbility(token, fromUser);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    auto fromUser = data.ReadBool();
+    int32_t result = MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -402,6 +439,29 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     return NO_ERROR;
 }
 
+int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int32_t extensionType = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(*want, extensionSessionInfo, userId,
+        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
     Want* want = data.ReadParcelable<Want>();
@@ -440,6 +500,53 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
     int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityAsCaller(*want, callerToken, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        delete want;
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    delete startOptions;
     return NO_ERROR;
 }
 
@@ -1482,6 +1589,18 @@ int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, M
     return NO_ERROR;
 }
 
+int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityRuntime::IFreeInstallObserver> observer =
+        iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
+    int32_t result = AddFreeInstallObserver(observer);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     std::vector<std::string> infos;
@@ -1526,7 +1645,11 @@ int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, Message
     }
 
     int reason = data.ReadInt32();
-    ScheduleRecoverAbility(token, reason);
+    Want *want = data.ReadParcelable<Want>();
+    ScheduleRecoverAbility(token, reason, want);
+    if (want != nullptr) {
+        delete want;
+    }
     return NO_ERROR;
 }
 
@@ -1640,5 +1763,45 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
     return 0;
 }
 #endif
+
+int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+
+    data.ReadInt32Vector(&missionIds);
+    auto err = IsValidMissionIds(missionIds, results);
+    if (err != ERR_OK) {
+        results.clear();
+    }
+
+    if (!reply.WriteInt32(err)) {
+        return ERR_INVALID_VALUE;
+    }
+
+    reply.WriteInt32(static_cast<int32_t>(results.size()));
+    for (auto &item : results) {
+        if (!reply.WriteParcelable(&item)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("VerifyPermission call.");
+    std::string permission = data.ReadString();
+    int32_t pid = data.ReadInt32();
+    int32_t uid = data.ReadInt32();
+
+    auto result = VerifyPermission(permission, pid, uid);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("VerifyPermission failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,7 @@
 #include "ipc_skeleton.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
+#include "session_info.h"
 #include "uri.h"
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
@@ -188,6 +189,14 @@ enum AbilityCallType {
     START_SETTINGS_TYPE,
     START_EXTENSION_TYPE,
 };
+
+struct ComponentRequest {
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    int componentStatus = 0;
+    int requestResult = 0;
+};
+
 struct AbilityRequest {
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;
@@ -362,6 +371,11 @@ public:
         return scheduler_;
     }
 
+    inline sptr<SessionInfo> GetSessionInfo() const
+    {
+        return sessionInfo_;
+    }
+
     /**
      * get ability's token.
      *
@@ -398,25 +412,15 @@ public:
     std::shared_ptr<AbilityRecord> GetNextAbilityRecord() const;
 
     /**
-     * set event id.
-     *
-     * @param eventId
-     */
-    void SetEventId(int64_t eventId);
-
-    /**
-     * get event id.
-     *
-     * @return eventId
-     */
-    int64_t GetEventId() const;
-
-    /**
      * check whether the ability is ready.
      *
      * @return true : ready ,false: not ready
      */
     bool IsReady() const;
+
+    void UpdateRecoveryInfo(bool hasRecoverInfo);
+
+    bool GetRecoveryInfo();
 
 #ifdef SUPPORT_GRAPHICS
     /**
@@ -792,12 +796,13 @@ public:
     bool IsNeedToCallRequest() const;
     bool IsStartedByCall() const;
     void SetStartedByCall(const bool isFlag);
-    void CallRequest() const;
+    void CallRequest();
     bool CallRequestDone(const sptr<IRemoteObject> &callStub) const;
     bool IsStartToBackground() const;
     void SetStartToBackground(const bool flag);
     bool IsStartToForeground() const;
     void SetStartToForeground(const bool flag);
+    void SetSessionInfo(sptr<SessionInfo> sessionInfo);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -817,6 +822,10 @@ public:
     bool CanRestartResident();
 
     std::string GetLabel();
+    inline int64_t GetAbilityRecordId() const
+    {
+        return recordId_;
+    }
 
     void SetPendingState(AbilityState state);
     AbilityState GetPendingState() const;
@@ -825,7 +834,7 @@ public:
     void SetNeedBackToOtherMissionStack(bool isNeedBackToOtherMissionStack);
     std::shared_ptr<AbilityRecord> GetOtherMissionStackAbilityRecord() const;
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void RemoveUriPermission() const;
+    void RevokeUriPermission();
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
@@ -834,8 +843,6 @@ protected:
     std::unique_ptr<LifecycleDeal> lifecycleDeal_ = {};    // life manager used to schedule life
     AbilityState currentState_ = AbilityState::INITIAL;    // current life state
     Want want_ = {};                                       // want to start this ability
-    static int64_t g_abilityRecordEventId_;
-    int64_t eventId_ = 0;                                  // post event id
 
 private:
     /**
@@ -844,7 +851,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(const Want &want, int32_t userId, uint32_t targetTokenId) const;
+    void GrantUriPermission(const Want &want, int32_t userId, std::string targetBundleName);
     int32_t GetCurrentAccountId() const;
 
     /**
@@ -979,12 +986,16 @@ private:
     std::vector<std::string> dumpInfos_;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
 
+    // scene session
+    sptr<SessionInfo> sessionInfo_ = nullptr;
+
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
     uint32_t bgColor_ = 0;
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 #endif
 
+    bool isGrantedUriPermission_ = false;
     uint32_t callerAccessTokenId_ = -1;
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA

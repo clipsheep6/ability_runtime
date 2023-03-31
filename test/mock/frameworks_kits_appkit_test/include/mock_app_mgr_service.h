@@ -22,6 +22,7 @@
 #include "app_scheduler_interface.h"
 #include "app_mgr_stub.h"
 #include "hilog_wrapper.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -38,6 +39,7 @@ public:
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(NotifyMemoryLevel, int(int32_t level));
+    MOCK_METHOD2(DumpHeapMemory, int(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
     MOCK_METHOD4(StartUserTestProcess, int(const AAFwk::Want& want, const sptr<IRemoteObject>& observer,
         const BundleInfo& bundleInfo, int32_t userId));
@@ -50,8 +52,9 @@ public:
     MOCK_METHOD0(BlockAppService, int());
 #endif
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD4(StartRenderProcess, int(const std::string& renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t& renderPid));
+    MOCK_METHOD5(StartRenderProcess,
+                 int(const std::string &renderParam, int32_t ipcFd,
+                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
@@ -64,6 +67,7 @@ public:
     MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string& bundleName, const sptr<IQuickFixCallback>& callback));
     MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback));
+    MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
 
     void AttachApplication(const sptr<IRemoteObject>& app)
     {

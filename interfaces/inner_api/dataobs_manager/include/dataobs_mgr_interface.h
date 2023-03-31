@@ -22,6 +22,7 @@
 #include <iremote_broker.h>
 
 #include "data_ability_observer_interface.h"
+#include "dataobs_mgr_errors.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -36,6 +37,17 @@ class IDataObsMgr : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.DataObsMgr")
 
+    enum {
+        TRANS_HEAD,
+        REGISTER_OBSERVER = TRANS_HEAD,
+        UNREGISTER_OBSERVER,
+        NOTIFY_CHANGE,
+        REGISTER_OBSERVER_EXT,
+        UNREGISTER_OBSERVER_EXT,
+        UNREGISTER_OBSERVER_ALL_EXT,
+        NOTIFY_CHANGE_EXT,
+        TRANS_BUTT,
+    };
     /**
      * Registers an observer to DataObsMgr specified by the given Uri.
      *
@@ -44,7 +56,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int RegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) = 0;
+    virtual int RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) = 0;
 
     /**
      * Deregisters an observer used for DataObsMgr specified by the given Uri.
@@ -54,7 +66,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) = 0;
+    virtual int UnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) = 0;
 
     /**
      * Notifies the registered observers of a change to the data resource specified by Uri.
@@ -65,17 +77,44 @@ public:
      */
     virtual int NotifyChange(const Uri &uri) = 0;
 
-    enum {
-        // ipc id 1-1000 for kit
-        // ipc id for RegisterObserver (1)
-        REGISTER_OBSERVER = 1,
+    /**
+     * Registers an observer to DataObsMgr specified by the given Uri.
+     *
+     * @param uri, Indicates the path of the data to operate.
+     * @param dataObserver, Indicates the IDataAbilityObserver object.
+     * @param isDescendants, Indicates the Whether to note the change of descendants.
+     *
+     * @return Returns SUCCESS on success, others on failure.
+     */
+    virtual Status RegisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver, bool isDescendants) = 0;
 
-        // ipc id for UnregisterObserver (2)
-        UNREGISTER_OBSERVER,
+    /**
+     * Deregisters an observer used for DataObsMgr specified by the given Uri.
+     *
+     * @param uri, Indicates the path of the data to operate.
+     * @param dataObserver, Indicates the IDataAbilityObserver object.
+     *
+     * @return Returns SUCCESS on success, others on failure.
+     */
+    virtual Status UnregisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) = 0;
 
-        // ipc id for NotifyChange (3)
-        NOTIFY_CHANGE,
-    };
+    /**
+     * Deregisters dataObserver used for DataObsMgr specified
+     *
+     * @param dataObserver, Indicates the IDataAbilityObserver object.
+     *
+     * @return Returns SUCCESS on success, others on failure.
+     */
+    virtual Status UnregisterObserverExt(sptr<IDataAbilityObserver> dataObserver) = 0;
+
+    /**
+     * Notifies the registered observers of a change to the data resource specified by Uris.
+     *
+     * @param changeInfo Indicates the info of the data to operate.
+     *
+     * @return Returns SUCCESS on success, others on failure.
+     */
+    virtual Status NotifyChangeExt(const ChangeInfo &changeInfo) = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

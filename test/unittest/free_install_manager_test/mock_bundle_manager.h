@@ -65,6 +65,11 @@ public:
     {
         return true;
     }
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+    {
+        return ERR_OK;
+    }
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -105,6 +110,11 @@ public:
         }
         sptr<IAppControlMgr> appControlMgr = new (std::nothrow) AppControlProxy(nullptr);
         return appControlMgr;
+    }
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+    {
+        return ERR_OK;
     }
 public:
     using QueryAbilityInfoFunType =

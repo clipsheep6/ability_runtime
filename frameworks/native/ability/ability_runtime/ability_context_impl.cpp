@@ -134,6 +134,15 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
     return err;
 }
 
+ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Start calling StartAbilityAsCaller.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, requestCode);
+    HILOG_INFO("AbilityContextImpl::StartAbilityAsCaller. End calling StartAbilityAsCaller. ret=%{public}d", err);
+    return err;
+}
+
 ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int accountId, int requestCode)
 {
     HILOG_DEBUG("AbilityContextImpl::StartAbilityWithAccount. Start calling StartAbility.");
@@ -149,6 +158,17 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, const AAFwk::S
     HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
+    return err;
+}
+
+ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+    int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("AbilityContextImpl::StartAbilityAsCaller. Start calling StartAbilityAsCaller.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want,
+        startOptions, token_, requestCode);
+    HILOG_INFO("AbilityContextImpl::StartAbilityAsCaller. End calling StartAbilityAsCaller. ret=%{public}d", err);
     return err;
 }
 
@@ -169,6 +189,9 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int r
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     HILOG_INFO("%{public}s. End calling StartAbilityForResult. ret=%{public}d", __func__, err);
+    if (err != ERR_OK) {
+        OnAbilityResultInner(requestCode, err, want);
+    }
     return err;
 }
 
@@ -179,6 +202,9 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, accountId);
     HILOG_INFO("%{public}s end. ret=%{public}d", __func__, err);
+    if (err != ERR_OK) {
+        OnAbilityResultInner(requestCode, err, want);
+    }
     return err;
 }
 
@@ -189,6 +215,9 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, const
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("%{public}s. End calling StartAbilityForResult. ret=%{public}d", __func__, err);
+    if (err != ERR_OK) {
+        OnAbilityResultInner(requestCode, err, want);
+    }
     return err;
 }
 
@@ -201,6 +230,9 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, startOptions, token_, requestCode, accountId);
     HILOG_INFO("%{public}s. End calling StartAbilityForResultWithAccount. ret=%{public}d", __func__, err);
+    if (err != ERR_OK) {
+        OnAbilityResultInner(requestCode, err, want);
+    }
     return err;
 }
 
@@ -243,7 +275,20 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {
-            callback->second(resultCode, resultData);
+            callback->second(resultCode, resultData, false);
+        }
+        resultCallbacks_.erase(requestCode);
+    }
+    HILOG_INFO("%{public}s. End calling OnAbilityResult.", __func__);
+}
+
+void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want& resultData)
+{
+    HILOG_DEBUG("%{public}s. Start calling OnAbilityResult.", __func__);
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, true);
         }
         resultCallbacks_.erase(requestCode);
     }

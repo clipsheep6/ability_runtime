@@ -36,9 +36,14 @@ namespace OHOS {
 namespace AAFwk {
 class MockDataObsMgrStub : public DataObsManagerStub {
 public:
-    MOCK_METHOD2(RegisterObserver, int(const Uri&, const sptr<IDataAbilityObserver>&));
-    MOCK_METHOD2(UnregisterObserver, int(const Uri&, const sptr<IDataAbilityObserver>&));
+    MOCK_METHOD2(RegisterObserver, int(const Uri&, sptr<IDataAbilityObserver>));
+    MOCK_METHOD2(UnregisterObserver, int(const Uri&, sptr<IDataAbilityObserver>));
     MOCK_METHOD1(NotifyChange, int(const Uri&));
+
+    MOCK_METHOD3(RegisterObserverExt, Status(const Uri&, sptr<IDataAbilityObserver>, bool));
+    MOCK_METHOD2(UnregisterObserverExt, Status(const Uri&, sptr<IDataAbilityObserver>));
+    MOCK_METHOD1(UnregisterObserverExt, Status(sptr<IDataAbilityObserver>));
+    MOCK_METHOD1(NotifyChangeExt, Status(const ChangeInfo&));
 };
 
 class MockDataAbilityObserverStub : public AAFwk::DataAbilityObserverStub {
@@ -46,6 +51,7 @@ public:
     MockDataAbilityObserverStub() = default;
     virtual ~MockDataAbilityObserverStub() = default;
     MOCK_METHOD0(OnChange, void(void));
+    MOCK_METHOD1(OnChangeExt, void(const ChangeInfo&));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

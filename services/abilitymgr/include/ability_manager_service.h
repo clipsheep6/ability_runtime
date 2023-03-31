@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -123,14 +123,46 @@ public:
     /**
      * Starts a new ability with specific start options.
      *
-     * @param want, the want of the ability to start.
+     * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken, caller ability token.
-     * @param userId, Designation User ID.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
+            const Want &want,
+            const sptr<IRemoteObject> &callerToken,
+            int32_t userId = DEFAULT_INVAL_VALUE,
+            int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Starts a new ability using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityAsCaller(
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
@@ -149,6 +181,21 @@ public:
     virtual int StartExtensionAbility(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * Start ui extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param extensionSessionInfo the extension session info of the ability to start.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIExtensionAbility(
+        const Want &want,
+        const sptr<SessionInfo> &extensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
@@ -177,6 +224,17 @@ public:
      */
     virtual int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override;
+
+    /**
+     * TerminateAbility, terminate the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to terminate.
+     * @param resultCode, the resultCode of the ui extension ability to terminate.
+     * @param resultWant, the Want of the ui extension ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr) override;
 
     /**
      * SendResultToAbility with want, return want from ability manager service.
@@ -216,6 +274,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param extensionSessionInfo the extension session info of the ability to minimize.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+        bool fromUser = false) override;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -450,13 +518,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
-
-    /**
-     * remove all service record.
-     *
-     */
-    void RemoveAllServiceRecord();
-
     /**
      * InitMissionListManager, set the user id of mission list manager.
      *
@@ -564,20 +625,26 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
-    void GetMaxRestartNum(int &max, bool isRootLauncher);
-    void GetRestartIntervalTime(int &restartIntervalTime);
-    void HandleLoadTimeOut(int64_t eventId);
-    void HandleActiveTimeOut(int64_t eventId);
-    void HandleInactiveTimeOut(int64_t eventId);
-    void HandleForegroundTimeOut(int64_t eventId);
-    void HandleBackgroundTimeOut(int64_t eventId);
+    void HandleLoadTimeOut(int64_t abilityRecordId);
+    void HandleActiveTimeOut(int64_t abilityRecordId);
+    void HandleInactiveTimeOut(int64_t abilityRecordId);
+    void HandleForegroundTimeOut(int64_t abilityRecordId);
 
     int StartAbilityInner(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode,
         int callerUid = DEFAULT_INVAL_VALUE,
-        int32_t userId = DEFAULT_INVAL_VALUE);
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
+
+    int StartAbilityForOptionInner(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
 
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 
@@ -591,8 +658,6 @@ public:
     void GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info, std::shared_ptr<AbilityRecord> &abilityRecord);
     void GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord, const int32_t userId,
         std::vector<ExtensionRunningInfo> &info);
-
-    int GetMissionSaveTime() const;
 
     /**
      * generate ability request.
@@ -733,10 +798,9 @@ public:
 
     bool IsAbilityControllerStartById(int32_t missionId);
 
-    bool IsComponentInterceptionStart(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int requestCode, int componentStatus, AbilityRequest &request);
+    bool IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest, AbilityRequest &request);
 
-    void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code);
+    void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode);
 
     /**
      * Send not response process ID to ability manager service.
@@ -812,6 +876,14 @@ public:
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Add FreeInstall Observer
+     *
+     * @param observer the observer of ability free install start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+
+    /**
      * Check the uid is background task uid.
      *
      * @param uid userId.
@@ -829,11 +901,30 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
-    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason) override;
+    virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
+        const Want *want = nullptr) override;
+
+    /**
+     * Called to verify that the MissionId is valid.
+     * @param missionIds Query mission list.
+     * @param results Output parameters, return results up to 20 query results.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t IsValidMissionIds(
+        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
 
     bool GetStartUpNewRuleFlag() const;
 
     std::shared_ptr<AbilityRecord> GetFocusAbility();
+
+    /**
+     * Query whether the application of the specified PID and UID has been granted a certain permission
+     * @param permission
+     * @param pid Process id
+     * @param uid
+     * @return Returns ERR_OK if the current process has the permission, others on failure.
+     */
+    virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -844,35 +935,13 @@ public:
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
 #ifdef SUPPORT_ASAN
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 150000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 150000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 75000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 7500;         // ms
-    static constexpr uint32_t TERMINATE_TIMEOUT = 150000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 45000;         // ms
-    static constexpr uint32_t DISCONNECT_TIMEOUT = 7500;       // ms
-    static constexpr uint32_t COMMAND_TIMEOUT = 75000;         // ms
-    static constexpr uint32_t RESTART_TIMEOUT = 75000;         // ms
-    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 7500;  // ms
-    static constexpr uint32_t FOREGROUND_TIMEOUT = 75000;   // ms
-    static constexpr uint32_t BACKGROUND_TIMEOUT = 45000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 15000;            // ms
-    static constexpr uint32_t KILL_TIMEOUT = 45000;           // ms
 #else
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
-    static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 3000;         // ms
-    static constexpr uint32_t DISCONNECT_TIMEOUT = 500;       // ms
-    static constexpr uint32_t COMMAND_TIMEOUT = 5000;         // ms
-    static constexpr uint32_t RESTART_TIMEOUT = 5000;         // ms
-    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 500;  // ms
-    static constexpr uint32_t FOREGROUND_TIMEOUT = 5000;   // ms
-    static constexpr uint32_t BACKGROUND_TIMEOUT = 3000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 1000;            // ms
-    static constexpr uint32_t KILL_TIMEOUT = 3000;           // ms
 #endif
 
     static constexpr uint32_t MIN_DUMP_ARGUMENT_NUM = 2;
@@ -902,6 +971,12 @@ public:
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
         KEY_DUMPSYS_DATA,
+    };
+
+    enum {
+        ABILITY_MOVE_TO_FOREGROUND_CODE = 0,
+        ABILITY_MOVE_TO_BACKGROUND_CODE,
+        TERMINATE_ABILITY_CODE
     };
 
     friend class UserController;
@@ -964,7 +1039,7 @@ private:
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
-    void UpdateCallerInfo(Want& want);
+    void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
 
     bool CheckIfOperateRemote(const Want &want);
     std::string AnonymizeDeviceId(const std::string& deviceId);
@@ -1042,6 +1117,7 @@ private:
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityConnectManager> GetConnectManagerBySessionInfo(const sptr<SessionInfo> &sessionInfo);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
     bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
@@ -1064,7 +1140,8 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
-    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
+    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
+        uint32_t callerTokenId);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1078,6 +1155,9 @@ private:
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
+
+    void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
+        const std::string& abilityName, const std::string& result);
 
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -1146,6 +1226,8 @@ private:
      */
     int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
 
+    bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
+
     /**
      *  Temporary, use old rule to check permission.
      *
@@ -1187,6 +1269,9 @@ private:
 
     void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
 
+    ComponentRequest initComponentRequest(const sptr<IRemoteObject> &callerToken = nullptr,
+        const int requestCode = -1, const int componentStatus = 0);
+
     inline bool IsCrossUserCall(int32_t userId)
     {
         return (userId != INVALID_USER_ID && userId != U0_USER_ID && userId != GetUserId());
@@ -1206,7 +1291,6 @@ private:
     std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
-    std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
     const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;

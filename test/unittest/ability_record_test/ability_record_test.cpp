@@ -264,21 +264,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetPreNextAbilityReocrd, TestSize
  * Feature: AbilityRecord
  * Function: create AbilityRecord
  * SubFunction: NA
- * FunctionPoints: SetEventId GetEventId
- * EnvConditions: NA
- * CaseDescription: SetEventId GetEventId UT.
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetEventId, TestSize.Level1)
-{
-    int64_t eventId = 1;
-    abilityRecord_->SetEventId(eventId);
-    EXPECT_EQ(eventId, abilityRecord_->GetEventId());
-}
-
-/*
- * Feature: AbilityRecord
- * Function: create AbilityRecord
- * SubFunction: NA
  * FunctionPoints: IsReady
  * EnvConditions: NA
  * CaseDescription: IsReady UT.
@@ -2102,8 +2087,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     Want want;
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, "name");
 }
 
 /*
@@ -2121,8 +2106,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level
     want.SetFlags(1);
     want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2140,8 +2125,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level
     want.SetFlags(1);
     want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2159,8 +2144,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2174,27 +2159,26 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    uint32_t targetTokenId = 56;
-    abilityRecord->SetCallerAccessTokenId(targetTokenId);
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
  * Feature: AbilityRecord
- * Function: RemoveUriPermission
- * SubFunction: RemoveUriPermission
+ * Function: RevokeUriPermission
+ * SubFunction: RevokeUriPermission
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord RemoveUriPermission
+ * CaseDescription: Verify AbilityRecord RevokeUriPermission
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveUriPermission_001, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_RevokeUriPermission_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    abilityRecord->RemoveUriPermission();
+    abilityRecord->RevokeUriPermission();
 }
 
 /*
@@ -2276,6 +2260,47 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_002, TestSize.Level
     EXPECT_EQ(abilityRecord_->restartTime_, 0);
 
     EXPECT_TRUE(abilityRecord_->CanRestartResident());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: UpdateRecoveryInfo
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify whether the UpdateRecoveryInfo interface calls normally.
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_UpdateRecoveryInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->UpdateRecoveryInfo(false);
+    EXPECT_FALSE(abilityRecord->want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: UpdateRecoveryInfo
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify whether the UpdateRecoveryInfo interface calls normally.
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_UpdateRecoveryInfo_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->UpdateRecoveryInfo(true);
+    EXPECT_TRUE(abilityRecord->want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetRecoveryInfo
+ * FunctionPoints: CanRestartResident
+ * EnvConditions: NA
+ * CaseDescription: Verify whether the GetRecoveryInfo interface calls normally.
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetRecoveryInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_FALSE(abilityRecord->GetRecoveryInfo());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

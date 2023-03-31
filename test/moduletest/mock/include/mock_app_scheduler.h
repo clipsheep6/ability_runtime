@@ -22,6 +22,7 @@
 #include "app_scheduler.h"
 #include "app_launch_data.h"
 #include "configuration.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -41,6 +42,7 @@ public:
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const AppExecFwk::Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
+    MOCK_METHOD2(ScheduleHeapMemory, void(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD0(ScheduleLowMemory, void());
 };
 }  // namespace AAFwk

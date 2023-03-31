@@ -66,6 +66,11 @@ public:
 
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+    {
+        return ERR_OK;
+    }
     bool GetAllFormsInfo(std::vector<FormInfo>& formInfo) override;
     bool GetFormsInfoByApp(const std::string& bundleName, std::vector<FormInfo>& formInfo) override;
     bool GetFormsInfoByModule(
@@ -108,6 +113,11 @@ public:
         const std::string& bundleName,
         const std::string& moduleName,
         std::vector<FormInfo>& formInfo) override;
+    ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+    {
+        return ERR_OK;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

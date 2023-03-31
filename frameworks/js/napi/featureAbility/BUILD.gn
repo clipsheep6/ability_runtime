@@ -29,7 +29,6 @@ ohos_shared_library("featureability") {
     "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     "feature_ability.cpp",
     "feature_ability_constant.cpp",
-    "napi_context.cpp",
     "napi_data_ability_helper.cpp",
     "napi_data_ability_operation.cpp",
     "native_module.cpp",
@@ -37,6 +36,7 @@ ohos_shared_library("featureability") {
 
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_napi_path}/inner/napi_ability_common:napi_ability_common",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/libuv:uv",

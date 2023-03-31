@@ -30,6 +30,7 @@ public:
     {}
     MOCK_METHOD3(OnInstallFinished, void(int resultCode, const Want &want, int32_t userId));
     MOCK_METHOD3(OnRemoteInstallFinished, void(int resultCode, const Want &want, int32_t userId));
+    MOCK_METHOD1(OnRemoveTimeoutTask, void(const Want &want));
 
     void Wait()
     {

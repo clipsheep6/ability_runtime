@@ -15,6 +15,7 @@
 
 #include "uri_permission_manager_stub_impl.h"
 
+#include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -22,6 +23,8 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
+#include "permission_constants.h"
+#include "permission_verification.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
 #include "want.h"
@@ -29,20 +32,28 @@
 namespace OHOS {
 namespace AAFwk {
 const int32_t DEFAULT_USER_ID = 0;
+const int32_t ERR_OK = 0;
 using TokenId = Security::AccessToken::AccessTokenID;
 
-void UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const TokenId fromTokenId, const TokenId targetTokenId)
+int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
+    const std::string targetBundleName, int autoremove)
 {
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        HILOG_DEBUG("caller tokenType is not native, verify failure.");
-        return;
-    }
-
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
-        return;
+        return INNER_ERR;
+    }
+    Uri uri_inner = uri;
+    auto&& authority = uri_inner.GetAuthority();
+    Security::AccessToken::AccessTokenID fromTokenId = GetTokenIdByBundleName(authority);
+    Security::AccessToken::AccessTokenID targetTokenId = GetTokenIdByBundleName(targetBundleName);
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
+    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE &&
+        !permission && (fromTokenId != callerTokenId)) {
+        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
+        return CHECK_PERMISSION_FAILED;
     }
     unsigned int tmpFlag = 0;
     if (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) {
@@ -50,103 +61,77 @@ void UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned i
     } else {
         tmpFlag = Want::FLAG_AUTH_READ_URI_PERMISSION;
     }
+    auto&& scheme = uri_inner.GetScheme();
+    if (scheme != "file") {
+        HILOG_WARN("only support file uri.");
+        return INNER_ERR;
+    }
+    // auto remove URI permission for clipboard
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
+    if (nativeInfo.processName == "pasteboard_serv") {
+        autoremove = 1;
+    }
+    return GrantUriPermissionImpl(uri, tmpFlag, fromTokenId, targetTokenId, autoremove);
+}
 
+int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
+    Security::AccessToken::AccessTokenID fromTokenId,
+    Security::AccessToken::AccessTokenID targetTokenId, int autoremove)
+{
     auto storageMgrProxy = ConnectStorageManager();
     if (storageMgrProxy == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
-        return;
+        return INNER_ERR;
     }
     auto uriStr = uri.ToString();
-    auto ret = storageMgrProxy->CreateShareFile(uriStr, targetTokenId, tmpFlag);
+    auto ret = storageMgrProxy->CreateShareFile(uriStr, targetTokenId, flag);
     if (ret != 0 && ret != -EEXIST) {
         HILOG_ERROR("storageMgrProxy failed to CreateShareFile.");
-        return;
+        return INNER_ERR;
     }
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uriStr);
-    GrantInfo info = { tmpFlag, fromTokenId, targetTokenId };
+    GrantInfo info = { flag, fromTokenId, targetTokenId, autoremove };
     if (search == uriMap_.end()) {
         std::list<GrantInfo> infoList = { info };
         uriMap_.emplace(uriStr, infoList);
-        return;
+        return ERR_OK;
     }
     auto& infoList = search->second;
     for (auto& item : infoList) {
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
-            if ((tmpFlag & item.flag) == 0) {
+            if ((flag & item.flag) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
-                item.flag = tmpFlag;
+                item.flag = flag;
             }
             HILOG_INFO("uri permission has granted, not to grant again.");
-            return;
+            return ERR_OK;
         }
     }
     infoList.emplace_back(info);
+    return ERR_OK;
 }
 
-bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, unsigned int flag,
-    const Security::AccessToken::AccessTokenID tokenId)
-{
-    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("UriPermissionManagerStubImpl:::VerifyUriPermission: The param flag is invalid.");
-        return false;
-    }
-
-    auto bms = ConnectBundleManager();
-    auto uriStr = uri.ToString();
-    if (bms) {
-        AppExecFwk::ExtensionAbilityInfo info;
-        if (!IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uriStr, GetCurrentAccountId(), info))) {
-            HILOG_DEBUG("%{public}s, Fail to get extension info from bundle manager.", __func__);
-            return false;
-        }
-        if (info.type != AppExecFwk::ExtensionAbilityType::FILESHARE) {
-            HILOG_DEBUG("%{public}s, The upms only open to FILESHARE. The type is %{public}u.", __func__, info.type);
-            return false;
-        }
-
-        if (tokenId == info.applicationInfo.accessTokenId) {
-            HILOG_DEBUG("The uri belongs to this application.");
-            return true;
-        }
-    }
-
-    std::lock_guard<std::mutex> guard(mutex_);
-    auto search = uriMap_.find(uriStr);
-    if (search == uriMap_.end()) {
-        HILOG_DEBUG("This tokenID does not have permission for this uri.");
-        return false;
-    }
-
-    unsigned int tmpFlag = 0;
-    if (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) {
-        tmpFlag = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
-    } else {
-        tmpFlag = Want::FLAG_AUTH_READ_URI_PERMISSION;
-    }
-
-    for (const auto& item : search->second) {
-        if (item.targetTokenId == tokenId &&
-            (item.flag == Want::FLAG_AUTH_WRITE_URI_PERMISSION || item.flag == tmpFlag)) {
-            HILOG_DEBUG("This tokenID have permission for this uri.");
-            return true;
-        }
-    }
-
-    HILOG_DEBUG("The application does not have permission for this URI.");
-    return false;
-}
-
-void UriPermissionManagerStubImpl::RemoveUriPermission(const TokenId tokenId)
+void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 {
     HILOG_DEBUG("Start to remove uri permission.");
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
+    if (nativeInfo.processName != "fodundation") {
+        HILOG_ERROR("RevokeUriPermission can only be called by foundation");
+        return;
+    }
     std::vector<std::string> uriList;
     {
         std::lock_guard<std::mutex> guard(mutex_);
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end(); it++) {
-                if (it->targetTokenId == tokenId) {
+                if (it->targetTokenId == tokenId && it->autoremove) {
                     HILOG_INFO("Erase an info form list.");
                     list.erase(it);
                     uriList.emplace_back(iter->first);
@@ -170,6 +155,54 @@ void UriPermissionManagerStubImpl::RemoveUriPermission(const TokenId tokenId)
     if (!uriList.empty()) {
         storageMgrProxy->DeleteShareFile(tokenId, uriList);
     }
+}
+
+int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+{
+    HILOG_DEBUG("Start to remove uri permission manually.");
+    Uri uri_inner = uri;
+    auto&& authority = uri_inner.GetAuthority();
+    Security::AccessToken::AccessTokenID uriTokenId = GetTokenIdByBundleName(authority);
+    Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    if (!permission && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
+        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::vector<std::string> uriList;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+
+        auto uriStr = uri.ToString();
+        auto search = uriMap_.find(uriStr);
+        if (search == uriMap_.end()) {
+            HILOG_ERROR("URI does not exist on uri map.");
+            return INNER_ERR;
+        }
+        auto& list = search->second;
+        for (auto it = list.begin(); it != list.end(); it++) {
+            if (it->targetTokenId == tokenId) {
+                HILOG_INFO("Erase an info form list.");
+                auto storageMgrProxy = ConnectStorageManager();
+                if (storageMgrProxy == nullptr) {
+                    HILOG_ERROR("ConnectStorageManager failed");
+                    return INNER_ERR;
+                }
+                uriList.emplace_back(search->first);
+                if (storageMgrProxy->DeleteShareFile(tokenId, uriList) == ERR_OK) {
+                    list.erase(it);
+                    break;
+                } else {
+                    HILOG_ERROR("DeleteShareFile failed");
+                    return INNER_ERR;
+                }
+            }
+        }
+    }
+    return ERR_OK;
 }
 
 sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager()
@@ -196,10 +229,28 @@ sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager(
             }
         };
         sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
-        bundleManager_->AsObject()->AddDeathRecipient(recipient);
+        if (!bundleManager_->AsObject()->AddDeathRecipient(recipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
     }
     HILOG_DEBUG("%{public}s end.", __func__);
     return bundleManager_;
+}
+
+Security::AccessToken::AccessTokenID UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string bundleName)
+{
+    auto bms = ConnectBundleManager();
+    if (bms == nullptr) {
+        HILOG_WARN("Failed to get bms.");
+        return GET_BUNDLE_MANAGER_SERVICE_FAILED;
+    }
+    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!IN_PROCESS_CALL(bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetCurrentAccountId()))) {
+        HILOG_WARN("To fail to get bundle info according to uri.");
+        return GET_BUNDLE_INFO_FAILED;
+    }
+    return bundleInfo.applicationInfo.accessTokenId;
 }
 
 sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStorageManager()
@@ -225,7 +276,9 @@ sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStora
             }
         };
         sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
-        storageManager_->AsObject()->AddDeathRecipient(recipient);
+        if (!storageManager_->AsObject()->AddDeathRecipient(recipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
     }
     HILOG_DEBUG("%{public}s end.", __func__);
     return storageManager_;

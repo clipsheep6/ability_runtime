@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -411,15 +411,22 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
 }
 
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot, bool isLowResolution) const
+    MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return false;
+        }
+        missionSnapshot.topAbility = it->missionInfo.want.GetElement();
+    }
+    if (!taskDataPersistenceMgr_) {
+        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
         return false;
     }
     if (!snapshotHandler_) {
@@ -432,10 +439,6 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
         HILOG_ERROR("snapshot: get WMS snapshot failed, result = %{public}d", result);
         return false;
     }
-    if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
-        return false;
-    }
 
 #ifdef SUPPORT_GRAPHICS
     if (missionSnapshot.isPrivate) {
@@ -444,30 +447,58 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     missionSnapshot.snapshot = isLowResolution ?
         MissionDataStorage::GetReducedPixelMap(snapshot.GetPixelMap()) : snapshot.GetPixelMap();
 #endif
-    missionSnapshot.topAbility = it->missionInfo.want.GetElement();
 
     MissionSnapshot savedSnapshot = missionSnapshot;
 #ifdef SUPPORT_GRAPHICS
     savedSnapshot.snapshot = snapshot.GetPixelMap();
 #endif
+    {
+        std::lock_guard<std::mutex> lock(savingSnapshotLock_);
+        auto search = savingSnapshot_.find(missionId);
+        if (search == savingSnapshot_.end()) {
+            savingSnapshot_[missionId] = 1;
+        } else {
+            auto savingCount = search->second + 1;
+            savingSnapshot_.insert_or_assign(missionId, savingCount);
+        }
+    }
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
         HILOG_ERROR("snapshot: save mission snapshot failed");
+        CompleteSaveSnapshot(missionId);
         return false;
     }
     HILOG_INFO("snapshot: update mission snapshot success");
     return true;
 }
 
+void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
+{
+    std::unique_lock<std::mutex> lock(savingSnapshotLock_);
+    auto search = savingSnapshot_.find(missionId);
+    if (search != savingSnapshot_.end()) {
+        auto savingCount = search->second - 1;
+        if (savingCount == 0) {
+            savingSnapshot_.erase(search);
+            waitSavingCondition_.notify_one();
+        } else {
+            savingSnapshot_.insert_or_assign(missionId, savingCount);
+        }
+    }
+}
+
 #ifdef SUPPORT_GRAPHICS
 std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
     HILOG_INFO("mission_list_info GetSnapshot, missionId:%{public}d", missionId);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
-        return nullptr;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return nullptr;
+        }
     }
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
@@ -479,7 +510,7 @@ std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) 
 #endif
 
 bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot, bool isLowResolution, bool force) const
+    MissionSnapshot& missionSnapshot, bool isLowResolution, bool force)
 {
     HILOG_INFO("mission_list_info GetMissionSnapshot, missionId:%{public}d, force:%{public}d", missionId, force);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -498,6 +529,25 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     if (force) {
         HILOG_INFO("force to get snapshot");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(savingSnapshotLock_);
+        auto search = savingSnapshot_.find(missionId);
+        if (search != savingSnapshot_.end()) {
+            auto savingSnapshotTimeout = 100; // ms
+            std::chrono::milliseconds timeout { savingSnapshotTimeout };
+            auto waitingCount = 5;
+            auto waitingNum = 0;
+            while (waitSavingCondition_.wait_for(lock, timeout) == std::cv_status::no_timeout) {
+                ++waitingNum;
+                auto iter = savingSnapshot_.find(missionId);
+                if (iter == savingSnapshot_.end() || waitingNum == waitingCount) {
+                    HILOG_INFO("Saved successfully or waiting failed.");
+                    break;
+                }
+            }
+        }
     }
 
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot, isLowResolution)) {

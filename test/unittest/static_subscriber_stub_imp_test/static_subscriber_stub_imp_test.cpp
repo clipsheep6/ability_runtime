@@ -59,8 +59,11 @@ void StaticSubscriberStubImpTest::TearDown(void)
 HWTEST_F(StaticSubscriberStubImpTest, StaticSubscriberStubImp_OnReceiveEvent_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StaticSubscriberStubImp_OnReceiveEvent_001 start.";
-    AbilityRuntime::MockRuntime jsRuntime;
-    std::shared_ptr<JsStaticSubscriberExtension> extension = std::make_shared<JsStaticSubscriberExtension>(jsRuntime);
+    AbilityRuntime::Runtime::Options options;
+    std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+
+    std::shared_ptr<JsStaticSubscriberExtension> extension = std::make_shared<JsStaticSubscriberExtension>(
+        static_cast<AbilityRuntime::JsRuntime&>(*runtime));
     sptr<StaticSubscriberStubImp> object = new (std::nothrow) StaticSubscriberStubImp(extension);
     EXPECT_TRUE(object != nullptr);
     CommonEventData* data = nullptr;

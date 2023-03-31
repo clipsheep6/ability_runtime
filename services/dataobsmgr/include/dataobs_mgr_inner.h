@@ -18,16 +18,12 @@
 
 #include <atomic>
 #include <list>
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
 #include <mutex>
-
-#include "iremote_object.h"
-#include "refbase.h"
+#include <string>
 
 #include "data_ability_observer_interface.h"
-
 #include "event_handler.h"
 
 namespace OHOS {
@@ -36,37 +32,26 @@ using EventHandler = OHOS::AppExecFwk::EventHandler;
 class DataObsMgrInner : public std::enable_shared_from_this<DataObsMgrInner> {
 public:
     using ObsMapType = std::map<std::string, std::list<sptr<IDataAbilityObserver>>>;
-    using ObsListType = std::list<sptr<IDataAbilityObserver>>;
     using ObsRecipientMapType = std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>;
 
     DataObsMgrInner();
     virtual ~DataObsMgrInner();
 
-    void SetHandler(const std::shared_ptr<EventHandler> &handler);
-    int HandleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver);
-    int HandleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver);
+    int HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver);
+    int HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver);
     int HandleNotifyChange(const Uri &uri);
-    bool CheckNeedLimmit();
-    bool CheckRegisteFull(const Uri &uri);
-    void AtomicAddTaskCount();
-    void AtomicSubTaskCount();
     void OnCallBackDied(const wptr<IRemoteObject> &remote);
 
 private:
-    bool GetObsListFromMap(const Uri &uri, ObsListType &obslist);
-    void AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dataObserver);
-    void RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver);
-    void HandleCallBackDiedTask(const sptr<IRemoteObject> &dataObserver);
-    void RemoveObsFromMap(const sptr<IRemoteObject> &dataObserver);
-    bool ObsExistInMap(const sptr<IDataAbilityObserver> &dataObserver);
+    void AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserver);
+    void RemoveObsDeathRecipient(sptr<IRemoteObject> dataObserver);
+    void RemoveObs(sptr<IRemoteObject> dataObserver);
+    bool HaveRegistered(sptr<IDataAbilityObserver> dataObserver);
 
-    std::atomic_int taskCount_;
-    const int taskCount_max_ = 50;
-    const unsigned int obs_max_ = 50;
-    static std::mutex innerMutex_;
-    std::shared_ptr<EventHandler> handler_ = nullptr;
-    ObsMapType obsmap_;
-    ObsRecipientMapType recipientMap_;
+    static constexpr uint32_t OBS_NUM_MAX = 50;
+    std::mutex innerMutex_;
+    ObsMapType observers_;
+    ObsRecipientMapType obsRecipient_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

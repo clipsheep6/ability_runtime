@@ -144,6 +144,7 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_UnregisterObserver_0
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
 
+    EXPECT_EQ(testVal, dataObsMgrServer->RegisterObserver(*uri, dataobsAbility));
     EXPECT_EQ(testVal, dataObsMgrServer->UnregisterObserver(*uri, dataobsAbility));
 
     GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_UnregisterObserver_0100 end";
@@ -168,6 +169,91 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_NotifyChange_0100, T
     EXPECT_EQ(testVal, dataObsMgrServer->NotifyChange(*uri));
 
     GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_NotifyChange_0100 end";
+}
+
+/*
+ * Feature: DataObsMgrService
+ * Function: RegisterObserverExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsMgrService RegisterObserverExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsMgrService RegisterObserver is normal.
+ */
+HWTEST_F(DataObsMgrServiceTest, DataObsMgrServiceTest_RegisterObserverExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_RegisterObserverExt_0100 start";
+    const int testVal = static_cast<int>(NO_ERROR);
+    const sptr<MockDataAbilityObserverStub> dataobsAbility(new (std::nothrow) MockDataAbilityObserverStub());
+    Uri uri("dataobs://authority/com.domainname.dataability.persondata/ person/10");
+    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
+
+    EXPECT_EQ(testVal, dataObsMgrServer->RegisterObserverExt(uri, dataobsAbility, false));
+    EXPECT_EQ(testVal, dataObsMgrServer->RegisterObserverExt(uri, dataobsAbility, true));
+
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_RegisterObserverExt_0100 end";
+}
+
+/*
+ * Feature: DataObsMgrService
+ * Function: UnregisterObserverExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsMgrService UnregisterObserverExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsMgrService UnregisterObserverExt is normal.
+ */
+HWTEST_F(DataObsMgrServiceTest, DataObsMgrServiceTest_UnregisterObserverExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_UnregisterObserverExt_0100 start";
+    const int testVal = static_cast<int>(NO_ERROR);
+    const sptr<MockDataAbilityObserverStub> dataobsAbility(new (std::nothrow) MockDataAbilityObserverStub());
+    Uri uri("dataobs://authority/com.domainname.dataability.persondata/ person/10");
+    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
+
+    EXPECT_EQ(testVal, dataObsMgrServer->RegisterObserverExt(uri, dataobsAbility, true));
+    EXPECT_EQ(testVal, dataObsMgrServer->UnregisterObserverExt(uri, dataobsAbility));
+
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_UnregisterObserverExt_0100 end";
+}
+
+/*
+ * Feature: DataObsMgrService
+ * Function: UnregisterObserverExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsMgrService UnregisterObserverExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsMgrService UnregisterObserverExt is normal.
+ */
+HWTEST_F(DataObsMgrServiceTest, DataObsMgrServiceTest_UnregisterObserverExt_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_UnregisterObserverExt_0200 start";
+    const int testVal = static_cast<int>(NO_ERROR);
+    const sptr<MockDataAbilityObserverStub> dataobsAbility(new (std::nothrow) MockDataAbilityObserverStub());
+    Uri uri("dataobs://authority/com.domainname.dataability.persondata/ person/10");
+    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
+
+    EXPECT_EQ(testVal, dataObsMgrServer->RegisterObserverExt(uri, dataobsAbility, true));
+    EXPECT_EQ(testVal, dataObsMgrServer->UnregisterObserverExt(dataobsAbility));
+
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_UnregisterObserverExt_0200 end";
+}
+
+/*
+ * Feature: DataObsMgrService
+ * Function: NotifyChangeExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsMgrService NotifyChangeExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsMgrService NotifyChangeExt is normal.
+ */
+HWTEST_F(DataObsMgrServiceTest, DataObsMgrServiceTest_NotifyChangeExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_NotifyChangeExt_0100 start";
+    const int testVal = static_cast<int>(NO_ERROR);
+    Uri uri("dataobs://authority/com.domainname.dataability.persondata/ person/10");
+    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
+
+    EXPECT_EQ(testVal, dataObsMgrServer->NotifyChangeExt({ ChangeInfo::ChangeType::UPDATE, { uri } }));
+    GTEST_LOG_(INFO) << "DataObsMgrServiceTest_NotifyChangeExt_0100 end";
 }
 
 /*

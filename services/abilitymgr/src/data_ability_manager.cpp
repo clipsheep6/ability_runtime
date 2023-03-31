@@ -35,18 +35,18 @@ constexpr system_clock::duration DATA_ABILITY_LOAD_TIMEOUT = 11000ms;
 
 DataAbilityManager::DataAbilityManager()
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 }
 
 DataAbilityManager::~DataAbilityManager()
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 }
 
 sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 
     if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Data ability manager acquire: not a data ability.");
@@ -123,7 +123,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
 int DataAbilityManager::Release(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isNotHap)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(client, ERR_NULL_OBJECT);
@@ -156,7 +156,7 @@ int DataAbilityManager::Release(
     CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
     int result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        HILOG_ERROR("JudgeAbilityVisibleControl error.");
         return result;
     }
 
@@ -178,7 +178,7 @@ int DataAbilityManager::Release(
 
 bool DataAbilityManager::ContainsDataAbility(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
 
@@ -195,7 +195,7 @@ bool DataAbilityManager::ContainsDataAbility(const sptr<IAbilityScheduler> &sche
 
 int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
@@ -245,7 +245,7 @@ int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
 
 int DataAbilityManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call");
 
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
 
@@ -291,7 +291,7 @@ void DataAbilityManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
 
 void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_INFO("Call");
     CHECK_POINTER(abilityRecord);
 
     {
@@ -373,7 +373,7 @@ void DataAbilityManager::OnAppStateChanged(const AppInfo &info)
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordById(int64_t id)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call.");
 
     std::lock_guard<std::mutex> locker(mutex_);
 
@@ -392,7 +392,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordById(int64_t 
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call.");
 
     CHECK_POINTER_AND_RETURN(token, nullptr);
 
@@ -420,7 +420,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call.");
 
     CHECK_POINTER_AND_RETURN(scheduler, nullptr);
 
@@ -438,7 +438,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByScheduler(c
 
 void DataAbilityManager::Dump(const char *func, int line)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    HILOG_DEBUG("Call.");
 
     std::lock_guard<std::mutex> locker(mutex_);
 
@@ -448,7 +448,7 @@ void DataAbilityManager::Dump(const char *func, int line)
 DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
     const std::string &name, const AbilityRequest &req)
 {
-    HILOG_DEBUG("%{public}s(%{public}d) name '%{public}s'", __PRETTY_FUNCTION__, __LINE__, name.c_str());
+    HILOG_DEBUG("name '%{public}s'", name.c_str());
 
     DataAbilityRecordPtr dataAbilityRecord;
 

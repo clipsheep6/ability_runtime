@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -72,7 +72,22 @@ public:
         return 0;
     }
 
+    virtual int StartAbilityAsCaller(
+        const Want& want,
+        const StartOptions& startOptions,
+        const sptr<IRemoteObject>& callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant = nullptr)
+    {
+        return 0;
+    }
+    virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
+        const Want* resultWant = nullptr)
     {
         return 0;
     }
@@ -83,6 +98,10 @@ public:
         return 0;
     }
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser) override
+    {
+        return 0;
+    }
+    int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser) override
     {
         return 0;
     }
@@ -258,6 +277,8 @@ public:
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+            int32_t userId, int requestCode));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
@@ -357,6 +378,7 @@ public:
         return 0;
     }
 #endif
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

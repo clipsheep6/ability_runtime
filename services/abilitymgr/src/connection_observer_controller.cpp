@@ -48,8 +48,8 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
             });
     }
     auto observerObj = observer->AsObject();
-    if (observerObj) {
-        observerObj->AddDeathRecipient(observerDeathRecipient_);
+    if (!observerObj || !observerObj->AddDeathRecipient(observerDeathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
     observers_.emplace_back(observer);
 

@@ -29,6 +29,8 @@ AtomicServiceStatusCallbackStub::AtomicServiceStatusCallbackStub()
         &AtomicServiceStatusCallbackStub::OnInstallFinishedInner;
     vecMemberFunc_[IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE] =
         &AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner;
+    vecMemberFunc_[IAtomicServiceStatusCallbackCmd::ON_REMOVE_TIMEOUT_TASK] =
+        &AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner;
 }
 
 int AtomicServiceStatusCallbackStub::OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply)
@@ -57,6 +59,18 @@ int AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner(MessageParcel 
     want->SetParam(FROM_REMOTE_KEY, true);
     auto userId = data.ReadInt32();
     OnRemoteInstallFinished(resultCode, *want, userId);
+    return NO_ERROR;
+}
+
+int AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("AtomicServiceStatusCallbackStub want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    OnRemoveTimeoutTask(*want);
     return NO_ERROR;
 }
 

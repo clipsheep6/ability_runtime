@@ -41,8 +41,10 @@
       *ConnectionManagerClient*;
       *ControlInterceptor*;
       *CrowdTestInterceptor*;
+      *EcologicalRuleInterceptor*;
       *DataAbilityManager*;
       *FreeInstallManager*;
+      *FreeInstallObserverManager*;
       *ImplicitStartProcessor*;
       *InnerMissionInfo*;
       *LaunchParam*;

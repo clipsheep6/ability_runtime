@@ -25,7 +25,8 @@ AbilityScheduler::AbilityScheduler()
 AbilityScheduler::~AbilityScheduler()
 {}
 
-void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState)
+void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
+    sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("AbilityScheduler ScheduleAbilityTransaction %d", targetState.state);
     (void)want;

@@ -43,7 +43,6 @@ public:
         std::string bundleName;
         std::string codePath;
         std::string bundleCodeDir;
-        std::map<std::string, std::vector<std::string>> appLibPaths {};
         std::string hapPath;
         std::string arkNativeFilePath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
@@ -52,6 +51,7 @@ public:
         bool isBundle = true;
         bool isDebugVersion = false;
         bool isStageModel = true;
+        bool isTestFramework = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;

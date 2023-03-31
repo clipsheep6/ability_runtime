@@ -27,44 +27,42 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.ability.UriPermissionManager");
 
     /**
-     * @brief Authorize the uri permission of fromTokenId to targetTokenId.
+     * @brief Authorize the uri permission to targetBundleName.
      *
      * @param uri The file uri.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param fromTokenId The owner of uri.
-     * @param targetTokenId The user of uri.
+     * @param targetBundleName The user of uri.
+     * @param autoremove the uri is temperarily or not
+     * @return Returns true if the authorization is successful, otherwise returns false.
      */
-    virtual void GrantUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID fromTokenId,
-        const Security::AccessToken::AccessTokenID targetTokenId) = 0;
+    virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove) = 0;
 
     /**
-     * @brief Check whether the tokenId has URI permissions.
+     * @brief Clear user's uri authorization record with autoremove flag.
      *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param tokenId The user of uri.
-     * @return Returns true if the verification is successful, otherwise returns false.
+     * @param tokenId A tokenId of an application.
+     * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual bool VerifyUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) = 0;
 
     /**
      * @brief Clear user's uri authorization record.
      *
-     * @param tokenId A tokenId of an application.
+     * @param uri The file uri.
+     * @param bundleName bundleName of an application.
+     * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) = 0;
 
     enum UriPermMgrCmd {
         // ipc id for GrantUriPermission
         ON_GRANT_URI_PERMISSION = 0,
 
-        // ipc id for VerifyUriPermission
-        ON_VERIFY_URI_PERMISSION,
+        // ipc id for RevokeUriPermission
+        ON_REVOKE_URI_PERMISSION,
 
-        // ipc id for RemoveUriPermission
-        ON_REMOVE_URI_PERMISSION,
+        ON_REVOKE_URI_PERMISSION_MANUALLY,
     };
 };
 }  // namespace AAFwk

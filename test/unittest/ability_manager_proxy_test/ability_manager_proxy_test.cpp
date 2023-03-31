@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1949,6 +1949,47 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbility_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto res = proxy_->StartAbilityAsCaller(want, callerToken);
+    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    StartOptions startOptions;
+    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken);
+    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CallRequestDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CallRequestDone
@@ -1961,6 +2002,147 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CallRequestDone_001, TestS
     sptr<IRemoteObject> callStub = nullptr;
     proxy_->CallRequestDone(token, callStub);
     EXPECT_TRUE(true);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_001, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
+        constexpr int32_t size = 10;
+        constexpr int32_t errorCode = ERR_OK;
+        reply.WriteInt32(errorCode);
+        reply.WriteInt32(size);
+        for (auto i = 0;  i < size; ++i) {
+            MissionVaildResult results;
+            results.missionId = i;
+            reply.WriteParcelable(&results);
+        }
+        return NO_ERROR;
+    };
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_OK);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_002, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
+        constexpr int32_t size = 30;
+        constexpr int32_t errorCode = ERR_OK;
+        MissionVaildResult results;
+        reply.WriteInt32(errorCode);
+        reply.WriteInt32(size);
+        for (auto i = 0;  i < size; ++i) {
+            MissionVaildResult results;
+            results.missionId = i;
+            reply.WriteParcelable(&results);
+        }
+        return NO_ERROR;
+    };
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_OK);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_003, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
+        constexpr int32_t size = 1;
+        constexpr int32_t errorCode = ERR_OK;
+        reply.WriteInt32(errorCode);
+        reply.WriteInt32(size);
+        return NO_ERROR;
+    };
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), INNER_ERR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_004, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
+        constexpr int32_t size = 0;
+        constexpr int32_t errorCode = ERR_OK;
+        reply.WriteInt32(errorCode);
+        reply.WriteInt32(size);
+        return NO_ERROR;
+    };
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_005, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    for (auto i = 0; i < 30; ++i) {
+        missionIds.push_back(i);
+    }
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(ERR_INVALID_VALUE));
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_006, TestSize.Level1)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    for (auto i = 0; i < 10; ++i) {
+        missionIds.push_back(i);
+    }
+    proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
+    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), INNER_ERR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

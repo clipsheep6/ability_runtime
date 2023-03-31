@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_MISSION_INFO_MGR_H
 #define OHOS_ABILITY_RUNTIME_MISSION_INFO_MGR_H
 
+#include <condition_variable>
 #include <list>
 #include <mutex>
 #include <string>
@@ -136,7 +137,7 @@ public:
      * @return return true if update mission snapshot success, else false
      */
     bool UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-        MissionSnapshot& missionSnapshot, bool isLowResolution = false) const;
+        MissionSnapshot& missionSnapshot, bool isLowResolution = false);
 
 #ifdef SUPPORT_GRAPHICS
     /**
@@ -157,7 +158,7 @@ public:
      * @return true return true if get mission snapshot success, else false
      */
     bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-        MissionSnapshot& missionSnapshot, bool isLowResolution, bool force = false) const;
+        MissionSnapshot& missionSnapshot, bool isLowResolution, bool force = false);
 
     /**
      * @brief register snapshotHandler
@@ -166,6 +167,8 @@ public:
     void RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
     void HandleUnInstallApp(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
+
+    void CompleteSaveSnapshot(int32_t missionId);
 private:
     /**
      * @brief Boot query mission info.
@@ -185,6 +188,9 @@ private:
     std::shared_ptr<TaskDataPersistenceMgr> taskDataPersistenceMgr_;
     sptr<ISnapshotHandler> snapshotHandler_;
     mutable std::recursive_mutex mutex_;
+    std::unordered_map<int32_t, uint32_t> savingSnapshot_;
+    std::mutex savingSnapshotLock_;
+    std::condition_variable waitSavingCondition_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

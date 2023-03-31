@@ -41,14 +41,14 @@ public:
      */
     virtual bool AllowComponentStart(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int componentStatus, sptr<Want> &extraParam) override;
-    
+
     /**
      * The system is trying to move ability to foreground/background.
      *
      * @param abilityToken Ability token.
-     * @param code the code of the ability to move.
+     * @param opCode the operation code of the ability.
      */
-    virtual void NotifyHandleMoveAbility(const sptr<IRemoteObject> &abilityToken, int code) override;
+    virtual void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

@@ -37,17 +37,20 @@ public:
     UriPermissionManagerStubFuzzTest() = default;
     virtual ~UriPermissionManagerStubFuzzTest()
     {}
-    void GrantUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID fromTokenId,
-        const Security::AccessToken::AccessTokenID targetTokenId) override
-    {}
-    bool VerifyUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID tokenId) override
+    int GrantUriPermission(const Uri &uri, unsigned int flag,
+        std::string targetBundleName,
+        int autoremove) override
     {
-        return true;
+        return 0;
     }
-    void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId) override
-    {}
+    void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override
+    {
+        return;
+    }
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override
+    {
+        return 0;
+    }
 };
 
 uint32_t GetU32Data(const char* ptr)

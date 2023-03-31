@@ -19,6 +19,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 
 #include "ability_connect_callback_interface.h"
 #include "ability_event_handler.h"
@@ -54,7 +55,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(const AbilityRequest &abilityRequest);
+    int StartAbility(const AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * TerminateAbility with token and result want.
@@ -121,14 +122,6 @@ public:
      */
     int AttachAbilityThreadLocked(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
 
-    /**
-     * OnAbilityRequestDone, app manager service call this interface after ability request done.
-     *
-     * @param token, ability's token.
-     * @param state, the state of ability lift cycle.
-     */
-    void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
-
     void OnAppStateChanged(const AppInfo &info);
 
     /**
@@ -174,14 +167,16 @@ public:
     std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
 
     /**
-     * GetServiceRecordByToken.
+     * GetServiceRecordBySessionInfo.
      *
-     * @param token, service ability's token.
+     * @param sessionToken, service ability's session token.
      * @return Returns AbilityRecord shared_ptr.
      */
-    std::shared_ptr<AbilityRecord> GetServiceRecordByToken(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetServiceRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
+
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromSeriveMap(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);
     ConnectListType GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
-    void RemoveAll();
 
     void GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info,
         const int32_t userId, bool isPerm);
@@ -236,7 +231,23 @@ public:
     void StopAllExtensions();
 
     void StartRootLauncher(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void OnTimeOut(uint32_t msgId, int64_t eventId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+
+    /**
+     * MinimizeUIExtensionAbility, minimize the special ui extension ability.
+     *
+     * @param token, ability token.
+     * @param fromUser mark the minimize operation source.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int MinimizeUIExtensionAbility(const sptr<IRemoteObject> &token, bool fromUser);
+
+    /**
+     * @brief schedule to background
+     *
+     * @param abilityRecord the ability to move
+     */
+    void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -249,7 +260,7 @@ private:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbilityLocked(const AbilityRequest &abilityRequest);
+    int StartAbilityLocked(const AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * TerminateAbilityLocked with token and result want.
@@ -422,14 +433,28 @@ private:
      */
     void PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t messageId);
 
+    int MinimizeUIExtensionAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser);
+    void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
+
     void PostRestartResidentTask(const AbilityRequest &abilityRequest);
 
     bool IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
 
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
+
+    /**
+     * When a service is under starting, enque the request and handle it after the service starting completes
+     */
+    void EnqueStartServiceReq(const AbilityRequest &abilityRequest);
+    /**
+     * After the service starting completes, complete the request list
+     */
+    void CompleteStartServiceReq(const std::string &serviceUri);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
@@ -438,11 +463,14 @@ private:
     std::recursive_mutex Lock_;
     ConnectMapType connectMap_;
     ServiceMapType serviceMap_;
+    ServiceMapType terminatingExtensionMap_;
     RecipientMapType recipientMap_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     int userId_;
     std::vector<AbilityRequest> restartResidentTaskList_;
-
+    std::unordered_map<std::string, std::shared_ptr<std::list<AbilityRequest>>> startServiceReqList_;
+    std::mutex startServiceReqListLock_;
+    
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
 }  // namespace AAFwk

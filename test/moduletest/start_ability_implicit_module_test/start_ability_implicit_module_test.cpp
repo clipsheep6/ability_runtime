@@ -100,9 +100,7 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
         abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
         abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
         EXPECT_TRUE(abilityMs_->dataAbilityManager_);
-        abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-        EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-        abilityMs_->amsConfigResolver_->Parse();
+        AmsConfigurationParameter::GetInstance().Parse();
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs_->pendingWantManager_);
         abilityMs_->iBundleManager_ = new BundleMgrService();

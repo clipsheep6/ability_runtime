@@ -40,6 +40,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AbilityBase::Constants;
 
+const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE_SEPARATOR;
+
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
 const mode_t MODE = 0770;
@@ -195,36 +197,47 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
-    AppExecFwk::BundleInfo bundleInfo;
+    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
+        (size_t)bundleName.length(), bundleName.c_str());
+
     int accountId = GetCurrentAccountId();
     if (accountId == 0) {
         accountId = GetCurrentActiveAccountId();
     }
-    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
-        (size_t)bundleName.length(), bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (bundleName == GetBundleName()) {
+        bundleMgr->GetBundleInfoForSelf(
+            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
+    } else {
+        bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+    }
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
-        return nullptr;
+        ErrCode ret = bundleMgr->GetDependentBundleInfo(bundleName, bundleInfo);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
+            return nullptr;
+        }
     }
 
-    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    bool hasModule = false;
     auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
         [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
             return hapModuleInfo.moduleName == moduleName;
         });
-    if (info != bundleInfo.hapModuleInfos.end()) {
-        hasModule = true;
-        appContext->InitHapModuleInfo(*info);
-    }
-
-    if (!hasModule) {
+    if (info == bundleInfo.hapModuleInfos.end()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
         return nullptr;
     }
-
+    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
+    appContext->InitHapModuleInfo(*info);
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(GetApplicationInfo());
@@ -359,6 +372,8 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         HILOG_DEBUG("InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
         std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
         std::regex outer_pattern(ABS_CODE_PATH);
+        std::regex hsp_pattern(std::string(ABS_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + PATTERN_VERSION);
+        std::string hsp_sandbox = std::string(LOCAL_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + FILE_SEPARATOR;
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
@@ -369,6 +384,8 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
             if (currentBundle) {
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+            } else if (bundleInfo.applicationInfo.compatiblePolicy != AppExecFwk::CompatiblePolicy::NORMAL) {
+                loadPath = std::regex_replace(loadPath, hsp_pattern, hsp_sandbox);
             } else {
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
             }

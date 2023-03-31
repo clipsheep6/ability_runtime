@@ -25,7 +25,7 @@ void DialogRequestCallbackProxy::SendResult(int32_t resultCode)
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     HILOG_INFO("DialogRequestCallbackProxy, send result");
     if (!data.WriteInterfaceToken(IDialogRequestCallback::GetDescriptor())) {

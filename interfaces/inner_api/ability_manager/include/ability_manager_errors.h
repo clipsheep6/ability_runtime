@@ -308,6 +308,11 @@ enum {
      * Result(2097209) for non-system-app use system-api.
      */
     ERR_NOT_SYSTEM_APP,
+
+    /**
+     * Result(2097210) for ecological rule control.
+     */
+    ERR_ECOLOGICAL_CONTROL_STATUS,
 };
 
 enum {

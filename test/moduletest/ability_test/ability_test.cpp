@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "ability_impl_factory.h"
 #include "data_ability_helper.h"
 #include "context_deal.h"
+#include "erms_mgr_interface.h"
 #include "ohos_application.h"
 #include "sys_mgr_client.h"
 #include "ability_manager_interface.h"
@@ -1018,6 +1019,393 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0400, Function | MediumTe
         usleep(AbilityBaseTest::TEST_WAIT_TIME);
     }
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Start_0400";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_StartAbilityAsCaller_0100
+ * @tc.name: StartAbilityAsCaller
+ * @tc.desc: test StartAbilityAsCaller function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartAbilityAsCaller_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    Want want;
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_StartAbilityAsCaller_0200
+ * @tc.name: StartAbilityAsCaller
+ * @tc.desc: test StartAbilityAsCaller function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartAbilityAsCaller_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0200";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    Want want;
+    StartOptions startOptions;
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, startOptions, nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0200";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_StartUIExtensionAbility_0100
+ * @tc.name: StartUIExtensionAbility
+ * @tc.desc: test StartUIExtensionAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartUIExtensionAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartUIExtensionAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    Want want;
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartUIExtensionAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_TerminateUIExtensionAbility_0100
+ * @tc.name: TerminateUIExtensionAbility
+ * @tc.desc: test TerminateUIExtensionAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_TerminateUIExtensionAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_TerminateUIExtensionAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    int resultCode = 1;
+    EXPECT_EQ(0, abms->TerminateUIExtensionAbility(nullptr, resultCode));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_TerminateUIExtensionAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_SendResultToAbility_0100
+ * @tc.name: SendResultToAbility
+ * @tc.desc: test SendResultToAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_SendResultToAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    int requestCode = 1;
+    int resultCode = 2;
+    Want resultWant;
+    EXPECT_EQ(0, abms->SendResultToAbility(requestCode, resultCode, resultWant));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_MinimizeUIExtensionAbility_0100
+ * @tc.name: MinimizeUIExtensionAbility
+ * @tc.desc: test MinimizeUIExtensionAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_MinimizeUIExtensionAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_MinimizeUIExtensionAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    EXPECT_EQ(0, abms->MinimizeUIExtensionAbility(nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_MinimizeUIExtensionAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_CallRequestDone_0100
+ * @tc.name: CallRequestDone
+ * @tc.desc: test CallRequestDone function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_CallRequestDone_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_CallRequestDone_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    abms->CallRequestDone(nullptr, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_CallRequestDone_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_SetComponentInterception_0100
+ * @tc.name: SetComponentInterception
+ * @tc.desc: test SetComponentInterception function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_SetComponentInterception_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SetComponentInterception_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    EXPECT_EQ(0, abms->SetComponentInterception(nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SetComponentInterception_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_SendResultToAbilityByToken_0100
+ * @tc.name: SendResultToAbilityByToken
+ * @tc.desc: test SendResultToAbilityByToken function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_SendResultToAbilityByToken_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbilityByToken_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    Want want;
+    int32_t requestCode = 1;
+    int32_t resultCode = 1;
+    int32_t userId = 1;
+    EXPECT_EQ(0, abms->SendResultToAbilityByToken(want, nullptr, requestCode, resultCode, userId));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbilityByToken_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_AddFreeInstallObserver_0100
+ * @tc.name: AddFreeInstallObserver
+ * @tc.desc: test AddFreeInstallObserver function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_AddFreeInstallObserver_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_AddFreeInstallObserver_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    EXPECT_EQ(0, abms->AddFreeInstallObserver(nullptr));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_AddFreeInstallObserver_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_EnableRecoverAbility_0100
+ * @tc.name: EnableRecoverAbility
+ * @tc.desc: test EnableRecoverAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_EnableRecoverAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_EnableRecoverAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    abms->EnableRecoverAbility(nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_EnableRecoverAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_ScheduleRecoverAbility_0100
+ * @tc.name: ScheduleRecoverAbility
+ * @tc.desc: test ScheduleRecoverAbility function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_ScheduleRecoverAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_ScheduleRecoverAbility_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    int32_t reason = 1;
+    abms->ScheduleRecoverAbility(nullptr, reason);
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_ScheduleRecoverAbility_0100";
+}
+
+/**
+ * @tc.number: AaFwk_IAbilityManager_VerifyPermission_0100
+ * @tc.name: VerifyPermission
+ * @tc.desc: test VerifyPermission function
+ */
+HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_VerifyPermission_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
+    EXPECT_NE(abms, nullptr);
+    std::string permission = "<permission>";
+    int pid = 1;
+    int uid = 1;
+    EXPECT_EQ(0, abms->VerifyPermission(permission, pid, uid));
+    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_VerifyPermission_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100
+ * @tc.name: QueryFreeInstallExperience
+ * @tc.desc: test QueryFreeInstallExperience function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    Want want;
+    ErmsParams::CallerInfo callerInfo;
+    ErmsParams::ExperienceRule rule;
+    EXPECT_EQ(0, erms->QueryFreeInstallExperience(want, callerInfo, rule));
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100
+ * @tc.name: EvaluateResolveInfos
+ * @tc.desc: test EvaluateResolveInfos function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    Want want;
+    ErmsParams::CallerInfo callerInfo;
+    int32_t type = 1;
+    std::vector<AbilityInfo> abilityInfos;
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    EXPECT_EQ(0, erms->EvaluateResolveInfos(want, callerInfo, type, abilityInfos, extensionInfos));
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100
+ * @tc.name: QueryStartExperience
+ * @tc.desc: test QueryStartExperience function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    Want want;
+    ErmsParams::CallerInfo callerInfo;
+    ErmsParams::ExperienceRule rule;
+    EXPECT_EQ(0, erms->QueryStartExperience(want, callerInfo, rule));
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100
+ * @tc.name: QueryPublishFormExperience
+ * @tc.desc: test QueryPublishFormExperience function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    Want want;
+    ErmsParams::ExperienceRule rule;
+    EXPECT_EQ(0, erms->QueryPublishFormExperience(want, rule));
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100
+ * @tc.name: IsSupportPublishForm
+ * @tc.desc: test IsSupportPublishForm function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    Want want;
+    ErmsParams::CallerInfo callerInfo;
+    ErmsParams::ExperienceRule rule;
+    EXPECT_EQ(0, erms->IsSupportPublishForm(want, callerInfo, rule));
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100
+ * @tc.name: QueryLastSyncTime
+ * @tc.desc: test QueryLastSyncTime function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
+    sptr<IRemoteObject> remoteObject_ =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    EXPECT_NE(erms, nullptr);
+    EXPECT_EQ(0, erms->QueryLastSyncTime());
+    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_ExperienceRule_ReadFromParcel_0100
+ * @tc.name: ReadFromParcel
+ * @tc.desc: test ReadFromParcel function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_ExperienceRule_ReadFromParcel_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_ReadFromParcel_0100";
+    ErmsParams::ExperienceRule rule;
+    Parcel parcel;
+    EXPECT_EQ(true, rule.ReadFromParcel(parcel));
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_ReadFromParcel_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_ExperienceRule_Marshalling_0100
+ * @tc.name: Marshalling
+ * @tc.desc: test Marshalling function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_ExperienceRule_Marshalling_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_Marshalling_0100";
+    ErmsParams::ExperienceRule rule;
+    Parcel parcel;
+    EXPECT_EQ(true, rule.Marshalling(parcel));
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_Marshalling_0100";
+}
+
+/**
+ * @tc.number: AppExecFwk_ExperienceRule_Unmarshalling_0100
+ * @tc.name: Unmarshalling
+ * @tc.desc: test Unmarshalling function
+ */
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_ExperienceRule_Unmarshalling_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_Unmarshalling_0100";
+    ErmsParams::ExperienceRule rule;
+    Parcel parcel;
+    EXPECT_NE(nullptr, rule.Unmarshalling(parcel));
+    GTEST_LOG_(INFO) << "AppExecFwk_ExperienceRule_Unmarshalling_0100";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

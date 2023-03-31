@@ -20,12 +20,18 @@
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
+namespace Rosen {
+class VSyncReceiver;
+}
 namespace AppExecFwk {
+using IdleTimeCallback = std::function<void(int32_t)>;
+using IdleNotifyStatusCallback = std::function<void(bool)>;
 class IdleTime : public std::enable_shared_from_this<IdleTime> {
 public:
-    IdleTime(const std::shared_ptr<EventHandler> &eventHandler, const std::shared_ptr<NativeEngine> &nativeEngine);
+    IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback);
     ~IdleTime() = default;
     void Start();
+    IdleNotifyStatusCallback GetIdleNotifyFunc();
 
 private:
     int64_t GetSysTimeNs();
@@ -33,13 +39,17 @@ private:
     void RequestVSync();
     void EventTask();
     void PostTask();
+    void SetNeedStop(bool needStop);
+    bool GetNeedStop();
 
     int64_t firstVSyncTime_ = 0;
     int64_t period_ = 0;
     int32_t continueFailCount_ = 0;
+    bool needStop_ {false};
     int32_t successCount_ = 0;
     std::shared_ptr<EventHandler> eventHandler_;
-    std::shared_ptr<NativeEngine> nativeEngine_;
+    IdleTimeCallback callback_ = nullptr;
+    std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

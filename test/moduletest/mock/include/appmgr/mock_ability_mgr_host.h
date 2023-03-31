@@ -50,6 +50,17 @@ public:
     {
         return 0;
     }
+    virtual int StartAbilityAsCaller(const Want& want, const sptr<IRemoteObject>& callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1) override
+    {
+        return 0;
+    }
+    virtual int StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
+        const sptr<IRemoteObject>& callerToken, int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override
+    {
+        return 0;
+    }
     virtual int TerminateAbility(
         const sptr<IRemoteObject>& token, int resultCode, const AAFwk::Want* resultWant = nullptr) override
     {

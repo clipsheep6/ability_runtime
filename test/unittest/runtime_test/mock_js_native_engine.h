@@ -353,6 +353,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::NotifyApplicationState called";
     }
 
+    void NotifyIdleStatusControl(std::function<void(bool)> callback) override
+    {}
+
     void NotifyIdleTime(int idleMicroSec) override
     {}
 
@@ -402,6 +405,9 @@ public:
         GTEST_LOG_(INFO) << "MockJsNativeEngine::GetScopeManager called";
         return nullptr;
     }
+
+    void AllowCrossThreadExecution() const override
+    {}
 };
 
 #endif /* MOCK_JS_NATIVE_ENGINE_H */

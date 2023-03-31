@@ -34,7 +34,7 @@ public:
      *
      * @return Returns the created DataAbilityHelper instance where Uri is not specified.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<Context> &context);
+    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<Context> context);
 
     /**
      * @brief Creates a DataAbilityHelper instance with the Uri specified based on the given Context.
@@ -45,7 +45,7 @@ public:
      * @return Returns the created DataAbilityHelper instance with a specified Uri.
      */
     static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri);
+        const std::shared_ptr<Context> context, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief Creates a DataAbilityHelper instance with the Uri specified based on the given Context.
@@ -56,7 +56,7 @@ public:
      * @return Returns the created DataAbilityHelper instance with a specified Uri.
      */
     static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri);
+        const std::shared_ptr<OHOS::AbilityRuntime::Context> context, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
@@ -71,7 +71,7 @@ public:
      * @return Returns the created DataAbilityHelper instance.
      */
     static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind);
+        const std::shared_ptr<Context> context, const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
@@ -85,7 +85,7 @@ public:
      *
      * @return Returns the created DataAbilityHelper instance.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> context,
         const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
@@ -95,7 +95,7 @@ public:
      *
      * @return Returns the created DataAbilityHelper instance where Uri is not specified.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const sptr<IRemoteObject> &token);
+    static std::shared_ptr<DataAbilityHelper> Creator(const sptr<IRemoteObject> token);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
@@ -108,7 +108,7 @@ public:
      * @return Returns the created DataAbilityHelper instance.
      */
     static std::shared_ptr<DataAbilityHelper> Creator(
-        const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri);
+        const sptr<IRemoteObject> token, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief Releases the client resource of the Data ability.

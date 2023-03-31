@@ -25,13 +25,12 @@ constexpr int64_t PERIOD = 16666666; // ns
 constexpr int64_t MS_PER_NS = 1000000;
 constexpr int32_t TRY_COUNT_MAX = 6;
 constexpr int32_t DEVIATION_MIN = 1000; // ns
-std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;
 }
 
-IdleTime::IdleTime(const std::shared_ptr<EventHandler> &eventHandler, const std::shared_ptr<NativeEngine> &nativeEngine)
+IdleTime::IdleTime(const std::shared_ptr<EventHandler> &eventHandler, IdleTimeCallback idleTimeCallback)
 {
     eventHandler_ = eventHandler;
-    nativeEngine_ = nativeEngine;
+    callback_ = idleTimeCallback;
 }
 
 int64_t IdleTime::GetSysTimeNs()
@@ -88,9 +87,13 @@ void IdleTime::OnVSync(int64_t timestamp, void* client)
 
 void IdleTime::RequestVSync()
 {
+    if (needStop_) {
+        return;
+    }
+
     if (receiver_ == nullptr) {
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
-        receiver_ = rsClient.CreateVSyncReceiver("ABILITY");
+        receiver_ = rsClient.CreateVSyncReceiver("ABILITY", eventHandler_);
         if (receiver_ == nullptr) {
             HILOG_ERROR("Create VSync receiver failed.");
             return;
@@ -127,17 +130,18 @@ void IdleTime::EventTask()
     int64_t lastVSyncTime = numPeriod * period + firstVSyncTime_;
     int64_t elapsedTime = occurTimestamp - lastVSyncTime;
     int64_t idleTime = period - elapsedTime;
-    // set runtime
-    if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("nativeEngine_ is nullptr.");
-        return;
+    if (callback_ != nullptr) {
+        callback_(idleTime / MS_PER_NS);
+        PostTask();
     }
-    nativeEngine_->NotifyIdleTime(idleTime / MS_PER_NS);
-    PostTask();
 }
 
 void IdleTime::PostTask()
 {
+    if (needStop_) {
+        return;
+    }
+
     if (continueFailCount_ > TRY_COUNT_MAX) {
         HILOG_ERROR("Only support 60HZ.");
         return;
@@ -163,6 +167,31 @@ void IdleTime::Start()
 {
     RequestVSync();
     PostTask();
+}
+
+void IdleTime::SetNeedStop(bool needStop)
+{
+    needStop_ = needStop;
+}
+
+bool IdleTime::GetNeedStop()
+{
+    return needStop_;
+}
+
+IdleNotifyStatusCallback IdleTime::GetIdleNotifyFunc()
+{
+    IdleNotifyStatusCallback cb = [this](bool needStop) {
+        if (this->GetNeedStop() == needStop) {
+            return;
+        }
+
+        this->SetNeedStop(needStop);
+        if (needStop == false) {
+            this->Start();
+        }
+    };
+    return cb;
 }
 } // AppExecFwk
 } // namespace OHOS

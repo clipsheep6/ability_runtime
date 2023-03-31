@@ -474,6 +474,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isContinuousTask = appRecord->IsContinuousTask();
     info.isKeepAlive = appRecord->IsKeepAliveApp();
     info.isFocused = appRecord->GetFocusFlag();
+    info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
 }
 
@@ -571,6 +572,27 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
         HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
         appRecord->ScheduleMemoryLevel(level);
     }
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_INVALID_VALUE;
+    }
+    auto appRecord = iter->second;
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appRecord->ScheduleHeapMemory(pid, mallocInfo);
     return ERR_OK;
 }
 

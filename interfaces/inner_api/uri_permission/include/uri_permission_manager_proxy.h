@@ -26,14 +26,11 @@ public:
     explicit UriPermissionManagerProxy(const sptr<IRemoteObject> &impl);
     virtual ~UriPermissionManagerProxy() = default;
 
-    virtual void GrantUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID fromTokenId,
-        const Security::AccessToken::AccessTokenID targetTokenId) override;
+    virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove) override;
 
-    virtual bool VerifyUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID tokenId) override;
-
-    virtual void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
+    virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
 private:
     static inline BrokerDelegator<UriPermissionManagerProxy> delegator_;

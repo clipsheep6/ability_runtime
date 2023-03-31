@@ -40,6 +40,7 @@ private:
     DISALLOW_COPY_AND_MOVE(AtomicServiceStatusCallbackStub);
     int OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
     int OnRemoteInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
+    int OnRemoveTimeoutTaskInner(MessageParcel &data, MessageParcel &replay);
     using AtomicServiceStatusCallbackFunc = int (AtomicServiceStatusCallbackStub::*)(MessageParcel &data,
         MessageParcel &reply);
     std::vector<AtomicServiceStatusCallbackFunc> vecMemberFunc_;

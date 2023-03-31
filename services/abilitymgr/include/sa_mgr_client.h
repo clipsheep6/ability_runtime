@@ -35,6 +35,7 @@ class SaMgrClient {
     DECLARE_DELAYED_SINGLETON(SaMgrClient)
 public:
     sptr<IRemoteObject> GetSystemAbility(const int32_t systemAbilityId);
+    sptr<IRemoteObject> CheckSystemAbility(const int32_t systemAbilityId);
     void RegisterSystemAbility(const int32_t systemAbilityId, sptr<IRemoteObject> broker);
 
 private:

@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class MockRuntime : public JsRuntime {
+class MockRuntime : public Runtime {
 public:
     MockRuntime() = default;
     ~MockRuntime() = default;
@@ -51,24 +51,45 @@ public:
     {
         return true;
     }
-    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false) override
+    void DumpHeapSnapshot(bool isPrivate) override
+    {
+        return;
+    }
+    void NotifyApplicationState(bool isBackground) override
+    {
+        return;
+    }
+    void PreloadSystemModule(const std::string& moduleName) override
+    {
+        return;
+    }
+    void UpdateExtensionType(int32_t extensionType) override
+    {
+        return;
+    }
+    bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return true;
     }
-    bool Initialize(const Options& options) override
+    bool Initialize(const Options& options)
     {
         return true;
     }
     void Deinitialize() {}
-    NativeValue* LoadJsBundle(
-        const std::string& path, const std::string& hapPath, bool useCommonChunk = false) override
+    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return nullptr;
     }
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
+    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath)
     {
         return nullptr;
     }
+    bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false)
+    {
+        return true;
+    }
+public:
+    Language language;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

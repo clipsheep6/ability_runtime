@@ -32,6 +32,7 @@
 #include "iconfiguration_observer.h"
 #include "iquick_fix_callback.h"
 #include "running_process_info.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -146,6 +147,16 @@ public:
     virtual int NotifyMemoryLevel(int32_t level) = 0;
 
     /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
+
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -231,11 +242,13 @@ public:
      * @param renderParam, params passed to renderprocess.
      * @param ipcFd, ipc file descriptior for web browser and render process.
      * @param sharedFd, shared memory file descriptior.
+     * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) = 0;
+    virtual int StartRenderProcess(const std::string &renderParam,
+                                   int32_t ipcFd, int32_t sharedFd,
+                                   int32_t crashFd, pid_t &renderPid) = 0;
 
     /**
      * Render process call this to attach app manager service.
@@ -310,6 +323,15 @@ public:
     };
 #endif
 
+    /**
+     * @brief Check whether the shared bundle is running.
+     *
+     * @param bundleName Shared bundle name.
+     * @param versionCode Shared bundle version code.
+     * @return Returns the shared bundle running result. The result is true if running, false otherwise.
+     */
+    virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -347,6 +369,8 @@ public:
         NOTIFY_UNLOAD_REPAIR_PATCH,
         PRE_START_NWEBSPAWN_PROCESS,
         APP_GET_PROCESS_RUNNING_INFORMATION,
+        IS_SHARED_BUNDLE_RUNNING,
+        DUMP_HEAP_MEMORY_PROCESS,
     };
 };
 }  // namespace AppExecFwk

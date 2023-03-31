@@ -15,7 +15,6 @@
 
 #include "form_extension.h"
 
-#include "ability_loader.h"
 #include "configuration_utils.h"
 #include "form_extension_context.h"
 #include "form_runtime/js_form_extension.h"

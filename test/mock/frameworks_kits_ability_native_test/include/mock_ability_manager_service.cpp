@@ -21,6 +21,8 @@
 #include <string>
 #include <unistd.h>
 
+#include "session_info.h"
+
 using OHOS::AppExecFwk::ElementName;
 
 namespace OHOS {

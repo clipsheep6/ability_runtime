@@ -52,6 +52,13 @@ public:
      */
     void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId) override;
 
+    /**
+     * OnRemoveTimeoutTask, BMS has connected AG.
+     *
+     * @param want, installed ability
+     */
+    void OnRemoveTimeoutTask(const Want &want) override;
+
 private:
     void SendRequestCommon(int errcode, IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd cmd);
     static inline BrokerDelegator<AtomicServiceStatusCallbackProxy> delegator_;

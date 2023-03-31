@@ -82,10 +82,13 @@
           "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
           "//foundation/ability/ability_runtime/services/quickfixmgr:quick_fix.cfg",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
+          "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
+          "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension_module",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
+          "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc"
@@ -137,6 +140,8 @@
                 "ability_manager_errors.h",
                 "ability_manager_interface.h",
                 "ability_scheduler_interface.h",
+                "erms_mgr_interface.h",
+                "erms_mgr_param.h",
                 "stop_user_callback.h",
                 "stop_user_callback_stub.h"
               ]
@@ -151,6 +156,16 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/js_environment/interfaces/inner_api",
+              "header_files": [
+                "js_environment.h",
+                "js_environment_impl.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
           },
           {
             "header": {
@@ -170,6 +185,18 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/napi_base_context:napi_base_context"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common",
+              "header_files": [
+                "napi_common_configuration.h",
+                "napi_common_start_options.h",
+                "napi_common_util.h",
+                "napi_common_want.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common"
           },
           {
             "header": {
@@ -210,9 +237,18 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
+                "service_extension.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension"
           },
           {
             "header": {
@@ -228,8 +264,15 @@
               "header_files": [
                 "extension.h",
                 "extension_base.h",
-                "service_extension.h",
                 "extension_module_loader.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:extensionkit_native"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:abilitykit_native"
@@ -253,9 +296,9 @@
           },
           {
             "header": {
-              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/",
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context",
               "header_files": [
-                "extension_context.h"
+                "application_context.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context"
@@ -282,7 +325,8 @@
           "//foundation/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
           "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
-          "//foundation/ability/ability_runtime/test/unittest:unittest"
+          "//foundation/ability/ability_runtime/test/unittest:unittest",
+          "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest"
         ]
       }
   }

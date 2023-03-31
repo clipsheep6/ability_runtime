@@ -29,80 +29,51 @@ public:
     MockDataObsMgrService() = default;
     virtual ~MockDataObsMgrService() = default;
 
-    MOCK_METHOD2(RegisterObserverCall, int(const Uri&, const sptr<IDataAbilityObserver>&));
-    MOCK_METHOD2(UnregisterObserverCall, int(const Uri&, const sptr<IDataAbilityObserver>&));
-    MOCK_METHOD1(NotifyChangeCall, int(const Uri&));
-
-    int RegisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
+    int RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override
     {
-        RegisterObserverCall(uri, dataObserver);
-        return 1;
+        onChangeCall_++;
+        return NO_ERROR;
     }
-    int UnregisterObserver(const Uri& uri, const sptr<IDataAbilityObserver>& dataObserver)
+    int UnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override
     {
-        UnregisterObserverCall(uri, dataObserver);
-        return 1;
+        onChangeCall_++;
+        return NO_ERROR;
     }
-    int NotifyChange(const Uri& uri)
+    int NotifyChange(const Uri &uri) override
     {
-        NotifyChangeCall(uri);
-        return 1;
+        onChangeCall_++;
+        return NO_ERROR;
     }
 
-    void OnStart()
+    Status RegisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver, bool isDe) override
     {
-        if (state_ == DataObsServiceRunningState::STATE_RUNNING) {
-            HILOG_INFO("Dataobs Manager Service has already started.");
-            return;
-        }
-        HILOG_INFO("Dataobs Manager Service started.");
-        if (!Init()) {
-            HILOG_ERROR("failed to init service.");
-            return;
-        }
-        state_ = DataObsServiceRunningState::STATE_RUNNING;
-        eventLoop_->Run();
+        onChangeCall_++;
+        return SUCCESS;
+    }
 
-        HILOG_INFO("Ability Manager Service start success.");
-    }
-    void OnStop()
+    Status UnregisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver) override
     {
-        HILOG_INFO("stop service");
-        eventLoop_.reset();
-        handler_.reset();
-        state_ = DataObsServiceRunningState::STATE_NOT_START;
+        onChangeCall_++;
+        return SUCCESS;
     }
-    /**
-     * GetEventHandler, get the dataobs manager service's handler.
-     * @return Returns EventHandler ptr.
-     */
-    std::shared_ptr<EventHandler> GetEventHandler()
+
+    Status UnregisterObserverExt(sptr<IDataAbilityObserver> dataObserver) override
     {
-        return handler_;
+        onChangeCall_++;
+        return SUCCESS;
     }
+
+    Status NotifyChangeExt(const ChangeInfo &changeInfo) override
+    {
+        onChangeCall_++;
+        return SUCCESS;
+    }
+
+    void OnStart() {}
+    void OnStop() {}
 
 private:
-    bool Init()
-    {
-        eventLoop_ = AppExecFwk::EventRunner::Create("DataObsMgrService");
-        if (eventLoop_ == nullptr) {
-            return false;
-        }
-
-        handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
-        if (handler_ == nullptr) {
-            return false;
-        }
-
-        HILOG_INFO("init success");
-        return true;
-    }
-
-    std::shared_ptr<EventRunner> eventLoop_;
-    std::shared_ptr<EventHandler> handler_;
-    DataObsServiceRunningState state_;
-    std::shared_ptr<DataObsMgrInner> dataObsMgrInner_;
-    const int taskMax_ = 50;
+    std::atomic_int onChangeCall_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

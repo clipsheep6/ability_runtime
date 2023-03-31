@@ -15,12 +15,19 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <thread>
+#include "file_ex.h"
+
 #define private public
 #include "app_recovery.h"
 #undef private
 #include "ability.h"
 #include "ability_info.h"
+#include "ability_runtime/js_ability.h"
 #include "event_handler.h"
+#include "js_runtime.h"
+#include "mock_ability_context.h"
 #include "mock_ability_token.h"
 #include "recovery_param.h"
 
@@ -38,6 +45,8 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppExecFwk::EventHandler> testHandler_ = std::make_shared<EventHandler>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();
+    std::shared_ptr<AbilityRuntime::MockAbilityContext> context_ =
+        std::make_shared<AbilityRuntime::MockAbilityContext>();
 };
 
 void AppRecoveryUnitTest::SetUpTestCase()
@@ -56,6 +65,7 @@ void AppRecoveryUnitTest::SetUp()
     AppRecovery::GetInstance().abilityRecoverys_.clear();
     AppRecovery::GetInstance().mainHandler_ = testHandler_;
     AppRecovery::GetInstance().applicationInfo_ = applicationInfo_;
+    AppRecovery::GetInstance().want_ = nullptr;
 }
 
 void AppRecoveryUnitTest::TearDown()
@@ -197,6 +207,32 @@ HWTEST_F(AppRecoveryUnitTest, AddAbility_003, TestSize.Level1)
 }
 
 /**
+ * @tc.name:  RemoveAbility_001
+ * @tc.desc: RemoveAbility check the ret as expected.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, RemoveAbility_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = true;
+    bool ret = AppRecovery::GetInstance().RemoveAbility(token_);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name:  RemoveAbility_002
+ * @tc.desc: RemoveAbility when enable flag is false.
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, RemoveAbility_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = false;
+    bool ret = AppRecovery::GetInstance().RemoveAbility(token_);
+    EXPECT_FALSE(ret);
+}
+
+/**
  * @tc.name:  ShouldSaveAppState_001
  * @tc.desc:  ShouldSaveAppState when state is support save.
  * @tc.type: FUNC
@@ -270,7 +306,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_002, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_003
- * @tc.desc:  ScheduleSaveAppState when reason == StateReason::APP_FREEZE.
+ * @tc.desc:  ScheduleSaveAppState when APP_FREEZE.
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -278,8 +314,23 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
-    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
-    EXPECT_FALSE(ret);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
+    auto constContext = std::static_pointer_cast<AbilityRuntime::AbilityContext>(context_);
+    // create js runtime for calling AllowCrossThreadExecution
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::JsRuntime::Create(options);
+    auto jsRuntime = static_cast<AbilityRuntime::JsRuntime*>(runtime.get());
+    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<AbilityRuntime::JsAbility>(*jsRuntime);
+    ability->AttachAbilityContext(constContext);
+    AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
+    // this call will block main thread, thus call it in new thread
+    std::thread watchdog([&] {
+        bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
+        EXPECT_TRUE(ret);
+    });
+    watchdog.join();
+
 }
 
 /**
@@ -299,7 +350,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_004, TestSize.Level1)
 
 /**
  * @tc.name:  ScheduleSaveAppState_005
- * @tc.desc:  ScheduleSaveAppState should be return false.
+ * @tc.desc:  ScheduleSaveAppState when CPP_CRASH
  * @tc.type: FUNC
  * @tc.require: I5UL6H
  */
@@ -307,8 +358,43 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_005, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
     bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::CPP_CRASH);
-    EXPECT_FALSE(ret);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name:  ScheduleSaveAppState_006
+ * @tc.desc:  ScheduleSaveAppState with ability address
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_006, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+        SaveModeFlag::SAVE_WITH_FILE);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
+    uintptr_t abilityPtr = reinterpret_cast<uintptr_t>(ability_.get());
+    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::JS_ERROR, abilityPtr);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name:  ScheduleSaveAppState_007
+ * @tc.desc:  ScheduleSaveAppState with ability address 0
+ * @tc.type: FUNC
+ * @tc.require: I5UL6H
+ */
+HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_007, TestSize.Level1)
+{
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+        SaveModeFlag::SAVE_WITH_FILE);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    AppRecovery::GetInstance().mainHandler_ = handler;
+    bool ret = AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::JS_ERROR, 0);
+    EXPECT_TRUE(ret);
 }
 
 /**
@@ -361,8 +447,8 @@ HWTEST_F(AppRecoveryUnitTest, ShouldRecoverApp_003, TestSize.Level1)
         SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::JS_ERROR);
     EXPECT_TRUE(ret);
-    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE, SaveOccasionFlag::SAVE_WHEN_ERROR,
-        SaveModeFlag::SAVE_WITH_FILE);
+    AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::RESTART_WHEN_APP_FREEZE,
+        SaveOccasionFlag::SAVE_WHEN_ERROR, SaveModeFlag::SAVE_WITH_FILE);
     ret = AppRecovery::GetInstance().ShouldRecoverApp(StateReason::APP_FREEZE);
     EXPECT_TRUE(ret);
 }
@@ -528,8 +614,75 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
 {
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
-    AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_);
+    auto constContext = std::static_pointer_cast<AbilityRuntime::AbilityContext>(context_);
+    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<Ability>();
+    ability->AttachAbilityContext(constContext);
+    AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
     EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());
+}
+
+/**
+ * @tc.name:  SetRestartWant_001
+ * @tc.desc:  Test SetRestartWant when enable flag is false.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, SetRestartWant_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = false;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    const std::string START_ABILITY = "RestartAbility";
+    want->SetParam(START_ABILITY, std::string("com.ohos.recovery.TestRecoveryAbility"));
+    AppRecovery::GetInstance().SetRestartWant(want);
+    EXPECT_EQ(AppRecovery::GetInstance().want_, nullptr);
+}
+
+/**
+ * @tc.name:  SetRestartWant_002
+ * @tc.desc:  Test SetRestartWant when enable flag is true.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, SetRestartWant_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = true;
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    const std::string START_ABILITY = "RestartAbility";
+    want->SetParam(START_ABILITY, std::string("com.ohos.recovery.TestRecoveryAbility"));
+    AppRecovery::GetInstance().SetRestartWant(want);
+    EXPECT_EQ(AppRecovery::GetInstance().want_, want);
+}
+
+/**
+ * @tc.name:  GetMissionIds_001
+ * @tc.desc:  Test get mission ids when the path is valid.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, GetMissionIds_001, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = true;
+    std::vector<int32_t> missionIds;
+    std::string path = "data/app/el2/100/base/ohos.samples.recovery/files/";
+    if (OHOS::FileExists(path)) {
+        EXPECT_TRUE(AppRecovery::GetInstance().GetMissionIds(path, missionIds));
+    } else {
+        EXPECT_FALSE(AppRecovery::GetInstance().GetMissionIds(path, missionIds));
+    }
+}
+
+/**
+ * @tc.name:  GetMissionIds_002
+ * @tc.desc:  Test get mission ids when the file path is invalid.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, GetMissionIds_002, TestSize.Level1)
+{
+    AppRecovery::GetInstance().isEnable_ = true;
+    std::vector<int32_t> missionIds;
+    std::string invalid_path = "data/apps/ohos.samples.recovery/files/";
+    EXPECT_FALSE(AppRecovery::GetInstance().GetMissionIds(invalid_path, missionIds));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

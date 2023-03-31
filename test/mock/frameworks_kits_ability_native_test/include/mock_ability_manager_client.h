@@ -49,7 +49,8 @@ public:
 
 class MockAbilityThread : public IRemoteStub<AAFwk::IAbilityScheduler> {
 public:
-    virtual void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState) {};
+    virtual void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
+        sptr<SessionInfo> sessionInfo = nullptr) {};
     virtual void SendResult(int requestCode, int resultCode, const Want& resultWant) {};
     virtual void ScheduleConnectAbility(const Want& want) {};
     virtual void ScheduleDisconnectAbility(const Want& want) {};

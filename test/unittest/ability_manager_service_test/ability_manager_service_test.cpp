@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "connection_observer_errors.h"
 #include "hilog_wrapper.h"
 #include "sa_mgr_client.h"
+#include "softbus_bus_center.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
@@ -43,6 +44,16 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 using OHOS::AppExecFwk::AbilityType;
 using OHOS::AppExecFwk::ExtensionAbilityType;
+bool testFlag = false;
+int32_t GetLocalNodeDeviceInfo(const char *pkgName, NodeBasicInfo *info)
+{
+    constexpr int32_t retError = -1;
+    constexpr int32_t retOK = 0;
+    if (testFlag) {
+        return retOK;
+    }
+    return retError;
+}
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -76,6 +87,7 @@ public:
     void TearDown();
     std::shared_ptr<AbilityRecord> MockAbilityRecord(AbilityType);
     sptr<Token> MockToken(AbilityType);
+    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
 
     AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
         const std::string& appName, const std::string& bundleName, const std::string& moduleName);
@@ -102,6 +114,17 @@ sptr<Token> AbilityManagerServiceTest::MockToken(AbilityType abilityType)
         return nullptr;
     }
     return abilityRecord->GetToken();
+}
+
+sptr<SessionInfo> AbilityManagerServiceTest::MockSessionInfo(uint64_t persistentId)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    if (!sessionInfo) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return nullptr;
+    }
+    sessionInfo->persistentId = persistentId;
+    return sessionInfo;
 }
 
 AbilityRequest AbilityManagerServiceTest::GenerateAbilityRequest(const std::string& deviceName,
@@ -492,6 +515,44 @@ HWTEST_F(AbilityManagerServiceTest, StartAbility_002, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityAsCaller_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityAsCaller_001 start");
+    Want want;
+    int requestCode = 0;
+    sptr<IRemoteObject> callerToken = nullptr;
+    EXPECT_EQ(abilityMs_->StartAbility(want, callerToken, USER_ID_U100, requestCode), CHECK_PERMISSION_FAILED);
+
+    want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
+    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, callerToken, USER_ID_U100, requestCode),
+        ERR_INVALID_CONTINUATION_FLAG);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityAsCaller_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityAsCaller
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityAsCaller_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityAsCaller_002 start");
+    Want want;
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, startOptions, callerToken, USER_ID_U100, requestCode),
+    CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityAsCaller_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: IsBackgroundTaskUid
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService IsBackgroundTaskUid
@@ -629,7 +690,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
 
     abilityMs_->freeInstallManager_ = temp;
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), INVALID_PARAMETERS_ERR);
 
     // GetBoolParam
     want.SetFlags(0);
@@ -999,19 +1060,6 @@ HWTEST_F(AbilityManagerServiceTest, UnRegisterMissionListener_002, TestSize.Leve
 
 /*
  * Feature: AbilityManagerService
- * Function: RemoveAllServiceRecord
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RemoveAllServiceRecord
- */
-HWTEST_F(AbilityManagerServiceTest, RemoveAllServiceRecord_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest RemoveAllServiceRecord_001 start");
-    abilityMs_->RemoveAllServiceRecord();
-    HILOG_INFO("AbilityManagerServiceTest RemoveAllServiceRecord_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetWantSender
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetWantSender
@@ -1236,7 +1284,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfos_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 start");
     std::vector<MissionInfo> missionInfos;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfos_001 end");
 }
 
@@ -1264,7 +1312,7 @@ HWTEST_F(AbilityManagerServiceTest, GetRemoteMissionInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 start");
     MissionInfo missionInfo;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), DMS_PERMISSION_DENIED);
+    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), INVALID_PARAMETERS_ERR);
     HILOG_INFO("AbilityManagerServiceTest GetRemoteMissionInfo_001 end");
 }
 
@@ -1572,7 +1620,6 @@ HWTEST_F(AbilityManagerServiceTest, OnAbilityRequestDone_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest OnAbilityRequestDone_001 start");
     abilityMs_->OnAbilityRequestDone(nullptr, 1);
-    abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::SERVICE), 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::DATA), 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::UNKNOWN), 1);
     HILOG_INFO("AbilityManagerServiceTest OnAbilityRequestDone_001 end");
@@ -1698,7 +1745,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
     int max = 0;
-    abilityMs_->GetMaxRestartNum(max, true);
+    max = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
 
@@ -1811,19 +1858,6 @@ HWTEST_F(AbilityManagerServiceTest, HandleInactiveTimeOut_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 start");
     abilityMs_->HandleInactiveTimeOut(100);
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: HandleBackgroundTimeOut
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService HandleBackgroundTimeOut
- */
-HWTEST_F(AbilityManagerServiceTest, HandleBackgroundTimeOut_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 start");
-    abilityMs_->HandleBackgroundTimeOut(100);
-    HILOG_INFO("AbilityManagerServiceTest HandleBackgroundTimeOut_001 end");
 }
 
 /*
@@ -2002,12 +2036,7 @@ HWTEST_F(AbilityManagerServiceTest, IsRamConstrainedDevice_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, GetMissionSaveTime_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 start");
-    EXPECT_NE(abilityMs_->GetMissionSaveTime(), 0);
-
-    auto temp = abilityMs_->amsConfigResolver_;
-    abilityMs_->amsConfigResolver_.reset();
-    EXPECT_EQ(abilityMs_->GetMissionSaveTime(), 0);
-    abilityMs_->amsConfigResolver_ = temp;
+    EXPECT_NE(AmsConfigurationParameter::GetInstance().GetMissionSaveTime(), 0);
     HILOG_INFO("AbilityManagerServiceTest GetMissionSaveTime_001 end");
 }
 
@@ -2628,7 +2657,8 @@ HWTEST_F(AbilityManagerServiceTest, UpdateCallerInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest UpdateCallerInfo_001 start");
     Want want;
-    abilityMs_->UpdateCallerInfo(want);
+    sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
+    abilityMs_->UpdateCallerInfo(want, callerToken);
     HILOG_INFO("AbilityManagerServiceTest UpdateCallerInfo_001 end");
 }
 
@@ -2666,31 +2696,31 @@ HWTEST_F(AbilityManagerServiceTest, CheckStaticCfgPermission_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 start");
     AppExecFwk::AbilityInfo abilityInfo;
     MyFlag::flag_ = 1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     MyFlag::flag_ = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     abilityInfo.applicationInfo.accessTokenId = 0;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), ERR_OK);
 
     // abilityInfo.permissions is empty
     abilityInfo.applicationInfo.accessTokenId = -1;
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_GRANTED);
 
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;
     abilityInfo.readPermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 
     abilityInfo.readPermission.clear();
     abilityInfo.writePermission = "test";
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
     HILOG_INFO("AbilityManagerServiceTest CheckStaticCfgPermission_001 end");
 }
 
@@ -2864,11 +2894,8 @@ HWTEST_F(AbilityManagerServiceTest, CreateVerificationInfo_001, TestSize.Level1)
     abilityMs_->whiteListassociatedWakeUpFlag_ = false;
     EXPECT_FALSE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
 
-    abilityRequest.appInfo.bundleName = "com.ohos.settingsdata";
-    EXPECT_TRUE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
-
     abilityMs_->whiteListassociatedWakeUpFlag_ = true;
-    abilityRequest.appInfo.bundleName = "com.ohos.contactsdataability";
+    abilityRequest.appInfo.bundleName = "com.ohos.settingsdata";
     EXPECT_TRUE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
 
     abilityRequest.appInfo.bundleName = "test";
@@ -2958,7 +2985,7 @@ HWTEST_F(AbilityManagerServiceTest, IsCallFromBackground_001, TestSize.Level1)
 
     abilityRequest.callerToken = nullptr;
     abilityRequest.want.SetParam("isDelegatorCall", true);
-    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_OK);
+    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest IsCallFromBackground_001 end");
 }
 
@@ -3061,6 +3088,212 @@ HWTEST_F(AbilityManagerServiceTest, IsCrossUserCall_003, TestSize.Level1)
     int32_t userId = 10;
     EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), true);
     HILOG_INFO("AbilityManagerServiceTest IsCrossUserCall_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 start");
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsValidMissionIds
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsValidMissionIds
+ */
+HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 start");
+    std::vector<int32_t> missionIds;
+    std::vector<MissionVaildResult> results;
+    abilityMs_->InitMissionListManager(IPCSkeleton::GetCallingUid() / BASE_USER_RANGE, false);
+    EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_OK);
+    HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+        ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_002, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100,
+        AppExecFwk::ExtensionAbilityType::UI), CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: TerminateUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService TerminateUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, TerminateUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 start");
+    Want* resultWant = nullptr;
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->TerminateUIExtensionAbility(MockSessionInfo(0), 1, resultWant), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest TerminateUIExtensionAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, MinimizeUIExtensionAbility_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 start");
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(nullptr, false), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), true), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->MinimizeUIExtensionAbility(MockSessionInfo(0), false), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIExtensionAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_002 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        ERR_INVALID_CALLER);
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_003 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    testFlag = true;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        INVALID_PARAMETERS_ERR);
+    MyFlag::flag_ = 0;
+    testFlag = false;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_004, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 start");
+    Want want{};
+    ElementName element("device", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    testFlag = true;
+    auto missionListManager = abilityMs_->missionListManagers_.begin()->second;
+    auto userId = abilityMs_->missionListManagers_.begin()->first;
+    missionListManager->terminateAbilityList_.insert(
+        missionListManager->terminateAbilityList_.begin(), abilityRecord);
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 userId is %{public}d", userId);
+    EXPECT_EQ(
+        abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), userId, ExtensionAbilityType::SERVICE),
+        INVALID_PARAMETERS_ERR);
+    MyFlag::flag_ = 0;
+    testFlag = false;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_004 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_005, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_005 start");
+    Want want{};
+    ElementName element("", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, nullptr, -1, ExtensionAbilityType::SERVICE),
+        RESOLVE_ABILITY_ERR);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_005 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopExtensionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_006, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_006 start");
+    Want want{};
+    ElementName element("", "com.ix.hiservcie", "ServiceAbility", "entry");
+    want.SetElement(element);
+    auto abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->appIndex_ = -1;
+    abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
+    MyFlag::flag_ = 1;
+    EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
+        RESOLVE_ABILITY_ERR);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_006 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -352,6 +352,9 @@ public:
     void NotifyApplicationState(bool inBackground) override
     {}
 
+    void NotifyIdleStatusControl(std::function<void(bool)> callback) override
+    {}
+
     void NotifyIdleTime(int idleMicroSec) override
     {}
 
@@ -394,6 +397,9 @@ public:
     {
         return 0;
     }
+
+    void AllowCrossThreadExecution() const override
+    {}
 };
 
 #endif /* FOUNDATION_ABILITY_RUNTIME_MOCK_NATIVE_ENGINE_H */

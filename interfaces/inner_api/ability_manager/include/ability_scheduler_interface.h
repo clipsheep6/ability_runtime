@@ -34,6 +34,7 @@ class DataAbilityOperation;
 namespace AAFwk {
 using OHOS::AppExecFwk::PacMap;
 class IDataAbilityObserver;
+class SessionInfo;
 
 /**
  * @class IAbilityScheduler
@@ -48,8 +49,10 @@ public:
      *
      * @param Want, Special Want for service type's ability.
      * @param targetState, The lifecycle state to be transformed
+     * @param sessionInfo, The session info
      */
-    virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState) = 0;
+    virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
+        sptr<SessionInfo> sessionInfo = nullptr) = 0;
 
     /*
      * SendResult, Send result to app when ability is terminated with result want.

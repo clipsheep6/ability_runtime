@@ -15,7 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
-#include "../inner/napi_common/feature_ability_common.h"
+#include "feature_ability_common.h"
 using Want = OHOS::AAFwk::Want;
 
 namespace OHOS {

@@ -48,6 +48,16 @@ void Extension::OnStart(const AAFwk::Want &want)
     HILOG_INFO("OnStart end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
+void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("OnStart begin, extension:%{public}s.", abilityInfo_->name.c_str());
+    SetLaunchWant(want);
+    SetLastRequestWant(want);
+    SetSessionInfo(sessionInfo);
+    HILOG_INFO("OnStart end, extension:%{public}s.", abilityInfo_->name.c_str());
+}
+
 void Extension::OnStop()
 {
     HILOG_INFO("OnStop begin, extension:%{public}s.", abilityInfo_->name.c_str());
@@ -93,9 +103,28 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
+void Extension::OnForeground(const AAFwk::Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("OnForeground begin, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_INFO("OnForeground end, extension:%{public}s.", abilityInfo_->name.c_str());
+}
+
+void Extension::OnBackground()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("OnBackground begin, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_INFO("OnBackground end, extension:%{public}s.", abilityInfo_->name.c_str());
+}
+
 void Extension::SetLaunchWant(const AAFwk::Want &want)
 {
     launchWant_ = std::make_shared<AAFwk::Want>(want);
+}
+
+std::shared_ptr<AAFwk::Want> Extension::GetLaunchWant()
+{
+    return launchWant_;
 }
 
 void Extension::SetLastRequestWant(const AAFwk::Want &want)
@@ -126,6 +155,21 @@ void Extension::OnMemoryLevel(int level)
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_INFO("%{public}s called.", __func__);
+}
+
+void Extension::SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
+}
+
+sptr<AAFwk::SessionInfo> Extension::GetSessionInfo()
+{
+    return sessionInfo_;
+}
+
+void Extension::SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener)
+{
+    sceneSessionStageListener_ = listener;
 }
 }
 }
