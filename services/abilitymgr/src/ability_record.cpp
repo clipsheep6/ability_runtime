@@ -1009,6 +1009,18 @@ int AbilityRecord::TerminateAbility()
     return eventInfo.errCode;
 }
 
+int AbilityRecord::PrepareTerminateAbility()
+{
+    HILOG_INFO("luc,004,prepare terminate ability.");
+    if (lifecycleDeal_ == nullptr) {
+        HILOG_ERROR("Prepare terminate the ability fail, lifecycleDeal_ is null.");
+        return -1;
+    }
+    int ret = lifecycleDeal_->PrepareTerminateAbility();
+    HILOG_INFO("luc,004.1,ret=%{public}d.", ret);
+    return ret;
+}
+
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
 {
     return abilityInfo_;

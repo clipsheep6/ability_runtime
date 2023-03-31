@@ -330,6 +330,12 @@ public:
     int TerminateAbility();
 
     /**
+     * prepare terminate ability.
+     *
+     */
+    int PrepareTerminateAbility();
+
+    /**
      * get ability's info.
      *
      * @return ability info.

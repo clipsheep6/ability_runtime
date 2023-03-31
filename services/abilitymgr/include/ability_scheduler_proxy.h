@@ -72,6 +72,11 @@ public:
     void ScheduleDisconnectAbility(const Want &want) override;
 
     /*
+     * SchedulePrepareTerminateAbility, schedule service ability to disconnect.
+     */
+    int SchedulePrepareTerminateAbility() override;
+
+    /*
      * ScheduleCommandAbility, schedule service ability to command.
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;

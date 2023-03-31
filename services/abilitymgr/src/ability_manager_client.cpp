@@ -207,6 +207,25 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<
     return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
 }
 
+ErrCode AbilityManagerClient::PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("luc,002,Prepare terminate ability come.");
+
+    int32_t prepareTerminateResult = -1;
+    prepareTerminateResult = abms->PrepareTerminateAbility(token, resultCode, resultWant);
+    HILOG_INFO("luc,002.1,UIAbility,prepareTerminateResult=%{public}d.", prepareTerminateResult);
+
+    if (prepareTerminateResult == -7) {//UIAbility no deal
+        HILOG_INFO("luc,UIAbility return terminate.");
+        return abms->TerminateAbility(token, resultCode, resultWant);
+    }
+    HILOG_INFO("luc,002.2,UIAbility return no need terminate");
+
+    return ERR_OK;
+}
+
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     auto abms = GetAbilityManager();

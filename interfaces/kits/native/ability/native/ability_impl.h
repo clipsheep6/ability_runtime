@@ -73,6 +73,13 @@ public:
     void CommandAbility(const Want &want, bool restart, int startId);
 
     /**
+     * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_BACKGROUND. And notifies the
+     * application that it belongs to of the lifecycle status.
+     *
+     */
+    int PrepareTerminateAbility();
+
+    /**
      * @brief Gets the current Ability status.
      *
      */

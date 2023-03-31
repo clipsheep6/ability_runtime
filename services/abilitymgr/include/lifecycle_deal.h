@@ -50,6 +50,7 @@ public:
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);
+    int PrepareTerminateAbility();
     void Terminate(const Want &want, LifeCycleStateInfo &stateInfo);
     void CommandAbility(const Want &want, bool reStart, int startId);
     void SaveAbilityState();
