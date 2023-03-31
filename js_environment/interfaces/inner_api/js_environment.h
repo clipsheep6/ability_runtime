@@ -26,6 +26,8 @@ namespace JsEnv {
 class JsEnvironmentImpl;
 class JsEnvironment final {
 public:
+    using VMDestroyCallback = std::function<void()>;
+
     JsEnvironment() {}
     explicit JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl);
     ~JsEnvironment();
@@ -59,10 +61,16 @@ public:
     void RemoveTask(const std::string& name);
 
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
+
+    void RegisterVMDestroyCallback(const VMDestroyCallback &callback)
+    {
+        vmDestroyCallback_ = callback;
+    }
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
+    VMDestroyCallback vmDestroyCallback_;
 };
 } // namespace JsEnv
 } // namespace OHOS
