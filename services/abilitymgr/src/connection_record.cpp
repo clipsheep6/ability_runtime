@@ -126,10 +126,11 @@ void ConnectionRecord::CompleteConnect(int resultCode)
         abilityInfo.name, abilityInfo.moduleName);
     auto remoteObject = targetService_->GetConnRemoteObject();
     if (connCallback_) {
+        HILOG_DEBUG("OnAbilityConnectDone");
         connCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
@@ -142,10 +143,11 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
     if (connCallback_) {
+        HILOG_DEBUG("OnAbilityDisconnectDone");
         connCallback_->OnAbilityDisconnectDone(element, isDied ? (resultCode - 1) : resultCode);
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isDied);
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::ScheduleDisconnectAbilityDone()
