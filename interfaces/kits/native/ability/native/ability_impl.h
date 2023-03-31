@@ -77,7 +77,7 @@ public:
      * application that it belongs to of the lifecycle status.
      *
      */
-    int PrepareTerminateAbility();
+    void PrepareTerminateAbility();//luc
 
     /**
      * @brief Gets the current Ability status.

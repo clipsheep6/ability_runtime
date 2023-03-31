@@ -228,7 +228,7 @@ public:
      * @param Want Ability want returned.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
+    ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);//luc
 
     /**
      * TerminateAbility with want, return want from ability manager service.

@@ -37,7 +37,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SEND_RESULT] = &AbilitySchedulerStub::SendResultInner;
     requestFuncMap_[SCHEDULE_ABILITY_CONNECT] = &AbilitySchedulerStub::ConnectAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;
+    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;//luc
     requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
     requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
     requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
@@ -149,12 +149,8 @@ int AbilitySchedulerStub::DisconnectAbilityInner(MessageParcel &data, MessagePar
 }
 
 int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
-{
-    int ret = SchedulePrepareTerminateAbility();
-    if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
-        return ERR_INVALID_VALUE;
-    }
+{//luc
+    SchedulePrepareTerminateAbility();
     return NO_ERROR;
 }
 

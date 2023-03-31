@@ -240,7 +240,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbility(
-        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
+        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;//luc
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -1154,7 +1154,7 @@ public:
         
         VERIFY_PERMISSION = 3013,
 
-        PREPARE_TERMINATE_ABILITY,
+        PREPARE_TERMINATE_ABILITY,//luc
     };
 };
 }  // namespace AAFwk

@@ -203,7 +203,7 @@ public:
 
     virtual ErrCode CloseAbility() = 0;
 
-    virtual ErrCode PrepareTerminateSelf() = 0;
+    virtual ErrCode PrepareTerminateSelf() = 0;//luc
 
     /**
      * @brief Requests certain permissions from the system.

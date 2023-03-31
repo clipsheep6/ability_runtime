@@ -74,7 +74,7 @@ public:
     /*
      * SchedulePrepareTerminateAbility, schedule service ability to disconnect.
      */
-    int SchedulePrepareTerminateAbility() override;
+    void SchedulePrepareTerminateAbility() override;//luc
 
     /*
      * ScheduleCommandAbility, schedule service ability to command.

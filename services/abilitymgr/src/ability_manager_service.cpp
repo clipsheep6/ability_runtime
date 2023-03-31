@@ -1415,7 +1415,7 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE.c_str(), "false", value, NEW_RULE_VALUE_SIZE);
     HILOG_INFO("luc,PrepareTerminateAbility, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE.c_str(), value);
     if (retSysParam > 0 && !std::strcmp(value, "false")) {
-        return -7;
+        return TerminateAbility(token, resultCode, resultWant);
     }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_ERROR("luc,003,debug,Terminate ability begin.");
@@ -1429,9 +1429,9 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
-    resultCode = abilityRecord->PrepareTerminateAbility();
-    HILOG_ERROR("luc,003.1,debug,Terminate ability end,resultCode=%{public}d.", resultCode);
-    return resultCode;
+    abilityRecord->PrepareTerminateAbility();
+    HILOG_ERROR("luc,003.1,debug,Terminate ability end.");
+    return ERR_OK;
 }
 
 int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)

@@ -83,7 +83,7 @@ public:
     /**
      * @brief Provide operating system PrepareTerminateAbility information to the observer
      */
-    virtual int SchedulePrepareTerminateAbility() = 0;
+    virtual void SchedulePrepareTerminateAbility() = 0;//luc
 
     /*
      * ScheduleSaveAbilityState, scheduling save ability state.
@@ -359,7 +359,7 @@ public:
         SCHEDULE_EXECUTEBATCH,
 
         // ipc id for scheduling service ability to prepare terminate
-        SCHEDULE_ABILITY_PREPARE_TERMINATE,
+        SCHEDULE_ABILITY_PREPARE_TERMINATE,//luc
 
         // ipc id for notify continuation result
         NOTIFY_CONTINUATION_RESULT,

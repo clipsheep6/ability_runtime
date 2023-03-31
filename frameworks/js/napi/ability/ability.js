@@ -27,7 +27,6 @@ class Ability {
     onBackground() {}
     onPrepareTerminate() {
         this.context.terminateSelf();
-        return -7;
     }
     onMemoryLevel(level) {}
     onWindowStageRestore(windowStage) {}

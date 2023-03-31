@@ -181,7 +181,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbility(
-        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
+        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;//luc
 
     /**
      * TerminateAbility, terminate the special ability.

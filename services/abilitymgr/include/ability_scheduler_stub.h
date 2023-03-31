@@ -41,7 +41,7 @@ private:
     int SendResultInner(MessageParcel &data, MessageParcel &reply);
     int ConnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);//luc
     int CommandAbilityInner(MessageParcel &data, MessageParcel &reply);
     int SaveAbilityStateInner(MessageParcel &data, MessageParcel &reply);
     int RestoreAbilityStateInner(MessageParcel &data, MessageParcel &reply);

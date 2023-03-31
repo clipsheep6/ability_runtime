@@ -161,7 +161,7 @@ public:
     /**
      * @brief Provide operating system PrepareTerminateAbility information to the observer
      */
-    int SchedulePrepareTerminateAbility();
+    void SchedulePrepareTerminateAbility();//luc
 
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.

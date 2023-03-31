@@ -78,7 +78,7 @@ public:
     void OnForeground(const Want &want) override;
     void OnBackground() override;
 
-    int OnPrepareTerminate() override;
+    void OnPrepareTerminate() override;//luc
 
     std::shared_ptr<NativeReference> GetJsWindowStage();
     const JsRuntime& GetJsRuntime();

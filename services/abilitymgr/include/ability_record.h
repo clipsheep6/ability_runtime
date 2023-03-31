@@ -333,7 +333,7 @@ public:
      * prepare terminate ability.
      *
      */
-    int PrepareTerminateAbility();
+    void PrepareTerminateAbility();//luc
 
     /**
      * get ability's info.

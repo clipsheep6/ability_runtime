@@ -245,7 +245,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr) override;
+        const Want *resultWant = nullptr) override;//luc
 
     /**
      * SendResultToAbility with want, return want from ability manager service.

@@ -85,7 +85,7 @@ public:
 
     ErrCode CloseAbility() override;
 
-    ErrCode PrepareTerminateSelf() override;
+    ErrCode PrepareTerminateSelf() override;//luc
 
     sptr<IRemoteObject> GetToken() override;
 

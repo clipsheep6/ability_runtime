@@ -875,18 +875,17 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
     HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
 }
 
-int AbilityThread::SchedulePrepareTerminateAbility()
+void AbilityThread::SchedulePrepareTerminateAbility()
 {
     //HILOG_DEBUG("AbilityThread::SchedulePrepareTerminateAbility begin");
     HILOG_ERROR("luc,006,debug,AbilityThread::SchedulePrepareTerminateAbility begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::SchedulePrepareTerminateAbility abilityImpl_ == nullptr");
-        return -1;
+        return;
     }
 
-    int ret = abilityImpl_->PrepareTerminateAbility();
-    HILOG_ERROR("luc,006.1,debug,AbilityThread::SchedulePrepareTerminateAbility end, ret=%{public}d", ret);
-    return ret;
+    abilityImpl_->PrepareTerminateAbility();
+    HILOG_ERROR("luc,006.1,debug,AbilityThread::SchedulePrepareTerminateAbility end");
 }
 
 /**

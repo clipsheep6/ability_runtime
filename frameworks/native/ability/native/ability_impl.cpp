@@ -723,16 +723,15 @@ void AbilityImpl::Background()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-int AbilityImpl::PrepareTerminateAbility()
+void AbilityImpl::PrepareTerminateAbility()
 {
     HILOG_ERROR("luc,007,AbilityImpl::PrepareTerminateAbility");
     if (ability_ == nullptr) {
         HILOG_ERROR("AbilityImpl::PrepareTerminateAbility ability_ is nullptr");
-        return -1;
+        return;
     }
-    int ret = ability_->OnPrepareTerminate();
-    HILOG_ERROR("luc,007.1,OnPrepareTerminate,ret=%{public}d", ret);
-    return ret;
+    ability_->OnPrepareTerminate();
+    HILOG_ERROR("luc,007.1,OnPrepareTerminate end");
 }
 
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)

@@ -874,7 +874,7 @@ public:
      *
      * You can override this function to implement your own processing logic.
      */
-    virtual int OnPrepareTerminate();
+    virtual void OnPrepareTerminate();//luc
 
     /**
      * @brief Called when a key is pressed. When any component in the Ability gains focus, the key-down event for

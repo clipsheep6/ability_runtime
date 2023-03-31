@@ -495,11 +495,11 @@ int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemo
 }
 
 int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
-{
+{//luc
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
