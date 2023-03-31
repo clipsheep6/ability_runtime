@@ -16,12 +16,14 @@
 #include "uri_permission_manager_stub.h"
 
 #include "hilog_wrapper.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AAFwk {
 int UriPermissionManagerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    MemoryGuard cacheGuard;
     if (data.ReadInterfaceToken() != IUriPermissionManager::GetDescriptor()) {
         HILOG_ERROR("InterfaceToken not equal IUriPermissionManager's descriptor.");
         return ERR_INVALID_VALUE;

@@ -14,9 +14,11 @@
  */
 
 #include "task_data_persistence_mgr.h"
+
 #include "ability_util.h"
 #include "directory_ex.h"
 #include "hilog_wrapper.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -42,6 +44,7 @@ bool TaskDataPersistenceMgr::Init(int userId)
     if (!handler_) {
         handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
         CHECK_POINTER_RETURN_BOOL(handler_);
+        handler_->PostTask([]() { MemoryGuard cacheGuard; }, AppExecFwk::EventQueue::Priority::IMMEDIATE);
     }
 
     std::lock_guard<std::mutex> lock(mutex_);

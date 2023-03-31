@@ -62,6 +62,8 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
+  deps = [ "${ability_runtime_services_path}/common:disable_jemalloc_cache" ]
+
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",

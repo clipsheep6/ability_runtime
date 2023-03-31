@@ -18,6 +18,7 @@
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
+#include "memory_guard.h"
 #include "message_parcel.h"
 
 namespace OHOS {
@@ -77,6 +78,7 @@ int AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner(MessageParcel &dat
 int AtomicServiceStatusCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    MemoryGuard cacheGuard;
     std::u16string descriptor = AtomicServiceStatusCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

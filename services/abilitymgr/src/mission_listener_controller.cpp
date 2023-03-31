@@ -16,6 +16,7 @@
 #include "mission_listener_controller.h"
 
 #include "hilog_wrapper.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -36,6 +37,7 @@ void MissionListenerController::Init()
 {
     if (!handler_) {
         handler_ = std::make_shared<EventHandler>(EventRunner::Create(THREAD_NAME));
+        handler_->PostTask([]() { MemoryGuard cacheGuard; }, AppExecFwk::EventQueue::Priority::IMMEDIATE);
     }
 }
 

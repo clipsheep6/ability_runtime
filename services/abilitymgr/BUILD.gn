@@ -115,6 +115,7 @@ ohos_shared_library("abilityms") {
   ]
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:disable_jemalloc_cache",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "//third_party/icu/icu4c:shared_icuuc",

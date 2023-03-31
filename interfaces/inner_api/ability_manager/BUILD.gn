@@ -95,7 +95,10 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "${ability_runtime_services_path}/common:disable_jemalloc_cache",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
     "ability_base:want",

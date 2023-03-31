@@ -14,8 +14,10 @@
  */
 
 #include "app_state_observer_manager.h"
+
 #include "application_state_observer_stub.h"
 #include "hilog_wrapper.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -37,6 +39,7 @@ void AppStateObserverManager::Init()
 {
     if (!handler_) {
         handler_ = std::make_shared<EventHandler>(EventRunner::Create(THREAD_NAME));
+        handler_->PostTask([]() { AAFwk::MemoryGuard cacheGuard; }, EventQueue::Priority::IMMEDIATE);
     }
 }
 

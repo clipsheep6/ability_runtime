@@ -28,6 +28,7 @@
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#include "memory_guard.h"
 #include "perf_profile.h"
 #include "xcollie/watchdog.h"
 
@@ -158,6 +159,7 @@ ErrCode AppMgrService::Init()
     if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
+    handler_->PostTask([]() { AAFwk::MemoryGuard cacheGuard; }, EventQueue::Priority::IMMEDIATE);
     HILOG_INFO("init success");
     return ERR_OK;
 }

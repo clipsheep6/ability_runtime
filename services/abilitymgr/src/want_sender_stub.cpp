@@ -17,6 +17,7 @@
 
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
+#include "memory_guard.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -32,6 +33,7 @@ WantSenderStub::~WantSenderStub()
 
 int WantSenderStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    MemoryGuard cacheGuard;
     HILOG_DEBUG("WantSendStub::OnRemoteRequest, cmd = %d, flags= %d", code, option.GetFlags());
     std::u16string descriptor = WantSenderStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
