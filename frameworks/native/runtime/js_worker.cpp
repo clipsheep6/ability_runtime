@@ -24,9 +24,7 @@
 
 #include "connect_server_manager.h"
 #include "commonlibrary/c_utils/base/include/refbase.h"
-#ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
-#endif
 #include "extractor.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
@@ -38,9 +36,7 @@
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 
-#ifdef SUPPORT_GRAPHICS
 using OHOS::Ace::ContainerScope;
-#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -306,25 +302,18 @@ struct AssetHelper final {
 
 int32_t GetContainerId()
 {
-#ifdef SUPPORT_GRAPHICS
     int32_t scopeId = ContainerScope::CurrentId();
     return scopeId;
-#else
-    constexpr int32_t containerScopeDefaultId = 0;
-    return containerScopeDefaultId;
-#endif
 }
 void UpdateContainerScope(int32_t id)
 {
-#ifdef SUPPORT_GRAPHICS
-ContainerScope::UpdateCurrent(id);
-#endif
+    HILOG_INFO("wzy call UpdateContainerScope id:%{public}d", id);
+    ContainerScope::UpdateCurrent(id);
 }
 void RestoreContainerScope(int32_t id)
 {
-#ifdef SUPPORT_GRAPHICS
-ContainerScope::UpdateCurrent(-1);
-#endif
+    HILOG_INFO("wzy call RestoreContainerScope id:%{public}d", id);
+    ContainerScope::UpdateCurrent(-1);
 }
 }
 
