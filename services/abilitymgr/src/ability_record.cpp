@@ -80,6 +80,7 @@ const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
 const int ACTIVE_TIMEOUT_MULTIPLE = 5;
 const int INACTIVE_TIMEOUT_MULTIPLE = 1;
 const int DUMP_TIMEOUT_MULTIPLE = 1;
+const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
 #endif
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
@@ -1217,6 +1218,16 @@ void AbilityRecord::Terminate(const Closure &task)
     lifecycleDeal_->Terminate(want_, lifeCycleStateInfo_);
 }
 
+void AbilityRecord::ShareData(const int32_t &uniqueId)
+{
+    HILOG_INFO("targetAbility start to share data with OriginAbility, ability:%{public}s.", abilityInfo_.name.c_str());
+    CHECK_POINTER(lifecycleDeal_);
+    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::SHAREDATA_TIMEOUT_MSG, loadTimeout, uniqueId);
+    HILOG_INFO("sendEvent.");
+    lifecycleDeal_->ShareData(uniqueId);
+}
+
 void AbilityRecord::ConnectAbility()
 {
     HILOG_INFO("Connect ability.");
@@ -1874,7 +1885,7 @@ bool AbilityRecord::IsActiveState() const
             IsAbilityState(AbilityState::FOREGROUNDING));
 }
 
-void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut)
+void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 {
     if (want_.GetBoolParam(DEBUG_APP, false)) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
@@ -1882,8 +1893,8 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut)
     }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
-
-    handler->SendEvent(msg, recordId_, timeOut);
+    param = (param == -1) ? recordId_ : param;
+    handler->SendEvent(msg, param, timeOut);
 }
 
 void AbilityRecord::SetStartSetting(const std::shared_ptr<AbilityStartSetting> &setting)

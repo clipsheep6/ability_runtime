@@ -203,6 +203,9 @@ private:
     int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
 
     int VerifyPermissionInner(MessageParcel &data, MessageParcel &reply);
+
+    int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
+    int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

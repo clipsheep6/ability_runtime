@@ -32,6 +32,9 @@ void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCy
     (void)want;
 }
 
+void AbilityScheduler::ScheduleShareData(const int32_t &uniqueId)
+{}
+
 void AbilityScheduler::SendResult(int requestCode, int resultCode, const Want& resultWant)
 {
     HILOG_INFO("AbilityScheduler SendResult %d resultCode %d", requestCode, resultCode);

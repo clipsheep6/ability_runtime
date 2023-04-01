@@ -63,6 +63,12 @@ public:
      *
      */
     bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    
+    /**
+     * @description:  Provide operating system ShareData information to the observer
+     * @param requestCode Indicates the requestCode
+     */
+    void HandleShareData(const int32_t &requestCode) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

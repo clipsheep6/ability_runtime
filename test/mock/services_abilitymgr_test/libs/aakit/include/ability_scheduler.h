@@ -33,6 +33,8 @@ public:
     void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
         sptr<SessionInfo> sessionInfo = nullptr) override;
 
+    void ScheduleShareData(const int32_t &uniqueId) override;
+
     void SendResult(int requestCode, int resultCode, const Want& resultWant) override;
 
     const AbilityResult& GetResult() const;

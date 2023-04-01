@@ -229,6 +229,34 @@ void JsAbility::OnStart(const Want &want)
     HILOG_DEBUG("OnStart end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
+int32_t JsAbility::OnShare(WantParams &wantParam)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return ERR_INVALID_VALUE;
+    }
+    NativeValue *value = jsAbilityObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get Ability object");
+        return ERR_INVALID_VALUE;
+    }
+
+    napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParam);
+    NativeValue *jsWantParams = reinterpret_cast<NativeValue *>(napiWantParams);
+    NativeValue *argv[] = {
+        jsWantParams,
+    };
+    CallObjectMethod("onShare", argv, ArraySize(argv));
+    napi_value new_napiWantParams = reinterpret_cast<napi_value>(jsWantParams);
+    OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), new_napiWantParams, wantParam);
+    HILOG_DEBUG("%{public}s end", __func__);
+    return ERR_OK;
+}
+
 void JsAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

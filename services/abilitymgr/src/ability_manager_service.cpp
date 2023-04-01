@@ -3840,6 +3840,40 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
     }
 }
 
+void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
+{
+    HILOG_DEBUG("handle shareData timeout.");
+    WantParams wantParam;
+    int32_t ret = GetShareDataPairAndReturnData(nullptr, uniqueId, ERR_TIMED_OUT, wantParam);
+    if (ret) {
+        HILOG_ERROR("acqurieShareData failed.");
+    }
+}
+
+int32_t AbilityManagerService::GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
+    const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    HILOG_INFO("getShareDataPairAndReturnData enter.");
+    auto it = iAcquireShareDataMap_.find(uniqueId);
+    if (it != iAcquireShareDataMap_.end()) {
+        auto shareDataPair = it->second;
+        if (!abilityRecord || shareDataPair.first != abilityRecord->GetAbilityRecordId()) {
+            HILOG_ERROR("abilityRecord is not the abilityRecord from request.");
+            return ERR_INVALID_VALUE;
+        }
+        auto callback = shareDataPair.second;
+        if (!callback) {
+            HILOG_ERROR("callback object is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        auto ret = callback->AcquireShareDataDone(resultCode, wantParam);
+        iAcquireShareDataMap_.erase(it);
+        return ret;
+    }
+    HILOG_ERROR("iAcquireShareData is null.");
+    return ERR_INVALID_VALUE;
+}
+
 bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("Verification token.");
@@ -6315,5 +6349,48 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
 
     return ERR_OK;
 }
+
+int32_t AbilityManagerService::AcquireShareData(
+    const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+{
+    HILOG_DEBUG("missionId is %{public}d.", missionId);
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionId);
+    if (!mission) {
+        HILOG_ERROR("mission is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is null.");
+        return ERR_INVALID_VALUE;
+    }
+    uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
+    std::pair<int64_t, const sptr<IAcquireShareDataCallback>&> shareDataPair =
+        std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
+    iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
+    abilityRecord->ShareData(uniqueId_);
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::ShareDataDone(
+    const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    if (!VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
+    handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
+    return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
 }  // namespace AAFwk
 }  // namespace OHOS
+}

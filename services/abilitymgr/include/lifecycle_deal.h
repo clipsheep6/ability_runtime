@@ -60,6 +60,7 @@ public:
         sptr<SessionInfo> sessionInfo = nullptr);
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
+    void ShareData(const int32_t &uniqueId);
 
 private:
     sptr<IAbilityScheduler> GetScheduler();

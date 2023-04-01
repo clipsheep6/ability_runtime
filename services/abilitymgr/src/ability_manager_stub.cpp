@@ -124,6 +124,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
     requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
+    requestFuncMap_[ACQUIRE_SHARE_DATA] = &AbilityManagerStub::AcquireShareDataInner;
+    requestFuncMap_[SHARE_DATA_DONE] = &AbilityManagerStub::ShareDataDoneInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
     requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
@@ -1658,6 +1660,40 @@ int AbilityManagerStub::EnableRecoverAbilityInner(MessageParcel &data, MessagePa
         return ERR_NULL_OBJECT;
     }
     EnableRecoverAbility(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::AcquireShareDataInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    sptr<IAcquireShareDataCallback> shareData = iface_cast<IAcquireShareDataCallback>(data.ReadRemoteObject());
+    if (!shareData) {
+        HILOG_ERROR("shareData read failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = AcquireShareData(missionId, shareData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ShareDataDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("ShareDataDone read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t resultCode = data.ReadInt32();
+    int32_t uniqueId = data.ReadInt32();
+    std::shared_ptr<WantParams> wantParam(data.ReadParcelable<WantParams>());
+    int32_t result = ShareDataDone(token, resultCode, uniqueId, *wantParam);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

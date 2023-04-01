@@ -3532,5 +3532,91 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
 
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::AcquireShareData(
+    const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+{
+    HILOG_INFO("AbilityManagerProxy::AcquireShareData start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("missionId write failed.");
+        return INNER_ERR;
+    }
+
+    if (shareData == nullptr || !data.WriteRemoteObject(shareData->AsObject())) {
+        HILOG_ERROR("shareData write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote object is nullptr.");
+        return INNER_ERR;
+    }
+
+    int32_t error = remote->SendRequest(IAbilityManager::ACQUIRE_SHARE_DATA, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AcquireShareData fail to Send request, err: %{public}d.", error);
+        return INNER_ERR;
+    }
+    HILOG_INFO("AbilityManagerProxy::AcquireShareData end.");
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::ShareDataDone(
+    const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    HILOG_INFO("AbilityManagerProxy::ShareDataDone start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("token write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(resultCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(uniqueId)) {
+        HILOG_ERROR("uniqueId write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&wantParam)) {
+        HILOG_ERROR("wantParam write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote object is nullptr.");
+        return INNER_ERR;
+    }
+
+    int32_t error = remote->SendRequest(IAbilityManager::SHARE_DATA_DONE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("ShareDataDone fail to SendRequest, err: %{public}d.", error);
+        return error;
+    }
+    HILOG_INFO("AbilityManagerProxy::ShareDataDone end.");
+    return reply.ReadInt32();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

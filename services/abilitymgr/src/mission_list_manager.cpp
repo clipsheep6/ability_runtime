@@ -3315,6 +3315,11 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
         return true;
     }
 
+    if (abilityRequest.IsAcquireShareData()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_SHARE);
+        return true;
+    }
+
     abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     return true;
 }

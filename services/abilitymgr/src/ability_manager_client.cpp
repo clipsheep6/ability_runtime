@@ -1097,5 +1097,24 @@ ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, in
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->VerifyPermission(permission, pid, uid);
 }
+
+ErrCode AbilityManagerClient::AcquireShareData(
+    const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+{
+    HILOG_INFO("AcquireShareData begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AcquireShareData(missionId, shareData);
+}
+
+ErrCode AbilityManagerClient::ShareDataDone(
+    const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    HILOG_INFO("ShareDataDone begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

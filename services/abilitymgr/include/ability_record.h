@@ -230,6 +230,11 @@ struct AbilityRequest {
         return false;
     }
 
+    bool IsAcquireShareData() const
+    {
+        return want.GetBoolParam(Want::PARAM_ABILITY_ACQUIRE_SHARE_DATA, false);
+    }
+
     bool IsAppRecovery() const
     {
         return want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
@@ -748,10 +753,9 @@ public:
      * @return true: uninstalled false: installed
      */
     bool IsUninstallAbility() const;
-
+    void ShareData(const int32_t &uniqueId);
     void SetLauncherRoot();
     bool IsLauncherRoot() const;
-
     bool IsAbilityState(const AbilityState &state) const;
     bool IsActiveState() const;
 
@@ -837,7 +841,7 @@ public:
     void RevokeUriPermission();
 
 protected:
-    void SendEvent(uint32_t msg, uint32_t timeOut);
+    void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
     sptr<Token> token_ = {};                               // used to interact with kit and wms
     std::unique_ptr<LifecycleDeal> lifecycleDeal_ = {};    // life manager used to schedule life

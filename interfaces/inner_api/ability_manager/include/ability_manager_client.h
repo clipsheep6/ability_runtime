@@ -876,7 +876,7 @@ public:
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
     void EnableRecoverAbility(const sptr<IRemoteObject>& token);
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
-    
+
     ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
 
     /**
@@ -896,6 +896,24 @@ public:
      */
     ErrCode VerifyPermission(const std::string &permission, int pid, int uid);
 
+    /**
+     * Acquire the shared data.
+     * @param missionId The missionId of Target ability.
+     * @param The IAcquireShareDataCallback object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode AcquireShareData(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData);
+    
+    /**
+     * Notify sharing data finished.
+     * @param resultCode The result of sharing data.
+     * @param uniqueId The uniqueId from request object.
+     * @param wantParam The params of acquiring sharing data from target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ShareDataDone(
+        const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
+    
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
