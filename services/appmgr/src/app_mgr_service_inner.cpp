@@ -45,6 +45,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#include "os_account_manager_wrapper.h"
 #include "parameter.h"
 #include "parameters.h"
 #include "perf_profile.h"
@@ -79,6 +80,9 @@ const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
+const std::string PERF_CMD = "perfCmd";
+const std::string DEBUG_CMD = "debugCmd";
+const std::string ENTER_SANBOX = "sanboxApp";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
@@ -117,6 +121,7 @@ const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
+constexpr int32_t DEFAULT_USER_ID = 0;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -186,6 +191,9 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
+        std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
+        bool isSanboxApp = want->GetBoolParam(ENTER_SANBOX, false);
+        (void)StartPerfProcess(appRecord, perfCmd, "", isSanboxApp);
     } else {
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
         if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
@@ -220,7 +228,7 @@ bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &t
 
 void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
-    std::string &processName)
+    std::string &processName) const
 {
     if (!abilityInfo || !appInfo) {
         HILOG_ERROR("param error");
@@ -237,7 +245,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
 }
 
 void AppMgrServiceInner::MakeProcessName(
-    const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName)
+    const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName) const
 {
     if (!appInfo) {
         return;
@@ -257,7 +265,7 @@ void AppMgrServiceInner::MakeProcessName(
 
 bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
-    int32_t appIndex)
+    int32_t appIndex) const
 {
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
@@ -1516,6 +1524,39 @@ void AppMgrServiceInner::OnAbilityStateChanged(
 void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
 {
     DelayedSingleton<AppStateObserverManager>::GetInstance()->StateChangedNotifyObserver(abilityStateData, isAbility);
+}
+
+int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord,
+    const std::string& perfCmd, const std::string& debugCmd, bool isSanboxApp) const
+{
+    if (!remoteClientManager_->GetSpawnClient() || !appRecord) {
+        HILOG_ERROR("appSpawnClient or appRecord is null");
+        return ERR_INVALID_OPERATION;
+    }
+    if (perfCmd.empty() && debugCmd.empty()) {
+        HILOG_ERROR("perfCmd is empty");
+        return ERR_INVALID_OPERATION;
+    }
+
+    AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    if (!perfCmd.empty()) {
+        startMsg.renderParam = perfCmd;
+        HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
+    } else {
+        HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
+    }
+    if (isSanboxApp) {
+        HILOG_INFO("debuggablePipe sandbox: true");
+    }
+    pid_t pid = 0;
+    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    if (FAILED(errCode)) {
+        HILOG_ERROR("failed to spawn perf process, errCode %{public}08x", errCode);
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
+        return errCode;
+    }
+    HILOG_INFO("Start perf process success, pid is %{public}d", pid);
+    return ERR_OK;
 }
 
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
@@ -3404,6 +3445,75 @@ bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, ui
         }
     }
     return false;
+}
+
+int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &want) const
+{
+    auto&& bundleMgr = remoteClientManager_->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleManager fail");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (appRunningManager_ == nullptr) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    HILOG_INFO("debuggablePipe bundleName:%{public}s", want.GetElement().GetBundleName().c_str());
+    HILOG_INFO("debuggablePipe moduleName:%{public}s", want.GetElement().GetModuleName().c_str());
+    HILOG_INFO("debuggablePipe abilityName:%{public}s", want.GetElement().GetAbilityName().c_str());
+
+    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    AbilityInfo abilityInfo;
+    auto userId = GetCurrentAccountId();
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgr->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
+
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
+    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, 0)) {
+        HILOG_ERROR("GetBundleAndHapInfo failed");
+        return ERR_INVALID_OPERATION;
+    }
+
+    std::string processName;
+    auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
+    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, 0, processName);
+
+    auto&& appRecord =
+        appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
+    if (appRecord == nullptr) {
+        HILOG_ERROR("The appRecord not found.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    bool isSanboxApp = want.GetBoolParam(ENTER_SANBOX, false);
+    auto&& cmd = want.GetStringParam(PERF_CMD);
+    if (cmd.size() == 0) {
+        cmd = want.GetStringParam(DEBUG_CMD);
+        return StartPerfProcess(appRecord, "", cmd, isSanboxApp);
+    } else {
+        return StartPerfProcess(appRecord, cmd, "", isSanboxApp);
+    }
+}
+
+int32_t AppMgrServiceInner::GetCurrentAccountId() const
+{
+    std::vector<int32_t> osActiveAccountIds;
+    ErrCode ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        QueryActiveOsAccountIds(osActiveAccountIds);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("QueryActiveOsAccountIds failed.");
+        return DEFAULT_USER_ID;
+    }
+    if (osActiveAccountIds.empty()) {
+        HILOG_ERROR("%{public}s, QueryActiveOsAccountIds is empty, no accounts.", __func__);
+        return DEFAULT_USER_ID;
+    }
+
+    return osActiveAccountIds.front();
 }
 
 void AppMgrServiceInner::SetRunningSharedBundleList(const std::string &bundleName,
