@@ -181,6 +181,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
+    HILOG_ERROR("[DongLin]CreateModuleContext");
     if (bundleName.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
         return nullptr;
@@ -321,6 +322,7 @@ int ContextImpl::GetCurrentActiveAccountId() const
 
 std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
 {
+    HILOG_ERROR("[DongLin]CreateBundleContext");
     if (parentContext_ != nullptr) {
         return parentContext_->CreateBundleContext(bundleName);
     }
@@ -363,6 +365,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName) const
 {
+    HILOG_ERROR("DongLin currentBundle:%{public}d, %{public}s, %{public}s", currentBundle, bundleInfo.name.c_str(), moduleName.c_str());
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
         HILOG_ERROR("InitResourceManager create resourceManager failed");
