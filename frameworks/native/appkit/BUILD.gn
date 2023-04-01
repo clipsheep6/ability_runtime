@@ -113,7 +113,6 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/mix_stack_dumper.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "${ability_runtime_native_path}/appkit/app/overlay_event_subscriber.cpp",
     "${ability_runtime_native_path}/appkit/app/watchdog.cpp",
   ]
   cflags = []
@@ -199,6 +198,7 @@ ohos_shared_library("app_context") {
     "${ability_runtime_native_path}/appkit/ability_runtime/context/application_context.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/context_impl.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/environment_callback.cpp",
+    "${ability_runtime_native_path}/appkit/app/overlay_event_subscriber.cpp",
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
   ]
   cflags = []
@@ -212,12 +212,14 @@ ohos_shared_library("app_context") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
