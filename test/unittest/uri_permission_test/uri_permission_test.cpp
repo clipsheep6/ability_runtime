@@ -48,6 +48,7 @@ void UriPermissionTest::TearDown() {}
 HWTEST_F(UriPermissionTest, Upms_GrantUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 1;
@@ -65,6 +66,7 @@ HWTEST_F(UriPermissionTest, Upms_GrantUriPermission_001, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_ConnectBundleManager_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     (void)upms->ConnectBundleManager();
 }
 
@@ -77,6 +79,7 @@ HWTEST_F(UriPermissionTest, Upms_ConnectBundleManager_001, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_ConnectStorageManager_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     (void)upms->ConnectStorageManager();
 }
 
@@ -89,6 +92,7 @@ HWTEST_F(UriPermissionTest, Upms_ConnectStorageManager_001, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_RevokeUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -109,6 +113,7 @@ HWTEST_F(UriPermissionTest, Upms_RevokeUriPermission_001, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     upms->ClearBMSProxy();
 }
 
@@ -121,6 +126,7 @@ HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_001, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_002, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    EXPECT_NE(upms, nullptr);
     upms->ClearSMProxy();
 }
 
@@ -135,6 +141,7 @@ HWTEST_F(UriPermissionTest, Upms_OnRemoteDied_001, TestSize.Level1)
     const auto& onClearProxyCallback = [](const wptr<IRemoteObject>& remote) {};
     sptr<UriPermissionManagerStubImpl::BMSOrSMDeathRecipient> object =
         new UriPermissionManagerStubImpl::BMSOrSMDeathRecipient(onClearProxyCallback);
+    EXPECT_NE(object, nullptr);
     object->OnRemoteDied(nullptr);
 }
 
@@ -148,6 +155,7 @@ HWTEST_F(UriPermissionTest, Upms_OnRemoteDied_002, TestSize.Level1)
 {
     sptr<UriPermissionManagerStubImpl::BMSOrSMDeathRecipient> object =
         new UriPermissionManagerStubImpl::BMSOrSMDeathRecipient(nullptr);
+    EXPECT_NE(object, nullptr);
     object->OnRemoteDied(nullptr);
 }
 }  // namespace AAFwk
