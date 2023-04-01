@@ -905,8 +905,9 @@ HWTEST_F(DataAbilityOperationTest, DataAbilityOperationTest_0600, Level1)
 {
     GTEST_LOG_(INFO) << "DataAbilityOperationTest_0600 start";
     Parcel parcel;
-    DataAbilityOperation dataAbilityOperation;
-    dataAbilityOperation.PutMap(parcel);
+    std::shared_ptr<DataAbilityOperation> dataAbilityOperation = std::make_shared<DataAbilityOperation>();
+    ASSERT_NE(dataAbilityOperation, nullptr);
+    dataAbilityOperation->PutMap(parcel);
     GTEST_LOG_(INFO) << "DataAbilityOperationTest_0600 end";
 }
 }  // namespace AppExecFwk

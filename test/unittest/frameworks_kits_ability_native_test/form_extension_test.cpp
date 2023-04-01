@@ -179,6 +179,7 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_0700, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_0700 start";
     AbilityRuntime::Runtime::Options options;
     std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     int64_t formId = 0;
     formExtension->OnDestroy(formId);
@@ -195,6 +196,7 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_0800, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_0800 start";
     AbilityRuntime::Runtime::Options options;
     std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     int64_t formId = 0;
     std::string message;
@@ -212,6 +214,7 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_0900, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_0900 start";
     AbilityRuntime::Runtime::Options options;
     std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     int64_t formId = 0;
     formExtension->OnUpdate(formId);
@@ -228,6 +231,7 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_1000, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_1000 start";
     AbilityRuntime::Runtime::Options options;
     std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     int64_t formId = 0;
     formExtension->OnCastToNormal(formId);
@@ -244,6 +248,7 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_1100, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_1100 start";
     AbilityRuntime::Runtime::Options options;
     std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     std::map<int64_t, int32_t> formEventsMap;
     formExtension->OnVisibilityChange(formEventsMap);

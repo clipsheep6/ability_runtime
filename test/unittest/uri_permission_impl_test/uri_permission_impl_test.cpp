@@ -55,6 +55,7 @@ void UriPermissionImplTest::TearDown() {}
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 0;
@@ -72,6 +73,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_001, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_002, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 1;
@@ -89,6 +91,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_002, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_003, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 2;
@@ -108,6 +111,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_003, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_004, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     Uri uri(uriStr);
     unsigned int flag = 2;
@@ -129,6 +133,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_004, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_005, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -153,6 +158,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_005, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_006, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -178,6 +184,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_006, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_007, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -203,6 +210,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_007, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -222,6 +230,7 @@ HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_001, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_002, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     unsigned int tmpFlag = 1;
     uint32_t fromTokenId = 2;
     uint32_t targetTokenId = 3;
@@ -242,6 +251,7 @@ HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_002, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     SystemAbilityManagerClient::nullptrFlag = true;
     (void)upms->ConnectBundleManager();
     SystemAbilityManagerClient::nullptrFlag = false;
@@ -256,6 +266,7 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_001, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_002, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     (void)upms->ConnectBundleManager();
 }
 
@@ -268,6 +279,7 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_002, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_ConnectStorageManager_001, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     SystemAbilityManagerClient::nullptrFlag = true;
     (void)upms->ConnectStorageManager();
     SystemAbilityManagerClient::nullptrFlag = false;
@@ -282,6 +294,7 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectStorageManager_001, TestSize.Level1)
 HWTEST_F(UriPermissionImplTest, Upms_ConnectStorageManager_002, TestSize.Level1)
 {
     auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
     (void)upms->ConnectStorageManager();
 }
 }  // namespace AAFwk

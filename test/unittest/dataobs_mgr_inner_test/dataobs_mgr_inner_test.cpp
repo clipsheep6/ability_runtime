@@ -326,6 +326,7 @@ HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_AddRemove_ObsDeathRecipient_0100, 
 HWTEST_F(DataObsMgrInnerTest, DataObsMgrInner_RemoveObs_0100, TestSize.Level1)
 {
     std::shared_ptr<DataObsMgrInner> dataObsMgrInner = std::make_shared<DataObsMgrInner>();
+    ASSERT_NE(dataObsMgrInner, nullptr);
     std::string uri1 = "uri1";
     std::string uri2 = "uri2";
     sptr<MockDataAbilityObserverStub> observer(new (std::nothrow) MockDataAbilityObserverStub());

@@ -904,6 +904,7 @@ HWTEST_F(AbilityManagerServiceTest, NotifyCompleteContinuation_001, TestSize.Lev
 {
     HILOG_INFO("AbilityManagerServiceTest NotifyCompleteContinuation_001 start");
     std::string deviceId = "test";
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->NotifyCompleteContinuation(deviceId, 1, true);
     HILOG_INFO("AbilityManagerServiceTest NotifyCompleteContinuation_001 end");
 }
@@ -1105,6 +1106,7 @@ HWTEST_F(AbilityManagerServiceTest, SendWantSender_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, CancelWantSender_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest CancelWantSender_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->CancelWantSender(nullptr);
     HILOG_INFO("AbilityManagerServiceTest CancelWantSender_001 end");
 }
@@ -1203,6 +1205,7 @@ HWTEST_F(AbilityManagerServiceTest, GetPendingWantType_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, RegisterCancelListener_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest RegisterCancelListener_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->RegisterCancelListener(nullptr, nullptr);
     HILOG_INFO("AbilityManagerServiceTest RegisterCancelListener_001 end");
 }
@@ -1216,6 +1219,7 @@ HWTEST_F(AbilityManagerServiceTest, RegisterCancelListener_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, UnregisterCancelListener_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest UnregisterCancelListener_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->UnregisterCancelListener(nullptr, nullptr);
     HILOG_INFO("AbilityManagerServiceTest UnregisterCancelListener_001 end");
 }
@@ -1466,6 +1470,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpInner_001 end");
 }
@@ -1480,6 +1485,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpMissionListInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpMissionListInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionListInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpMissionListInner_001 end");
 }
@@ -1494,6 +1500,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpMissionInfosInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpMissionInfosInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInfosInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpMissionInfosInner_001 end");
 }
@@ -1508,6 +1515,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpMissionInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpMissionInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpMissionInner_001 end");
 }
@@ -1522,6 +1530,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpStateInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpStateInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpStateInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpStateInner_001 end");
 }
@@ -1536,6 +1545,7 @@ HWTEST_F(AbilityManagerServiceTest, DataDumpStateInner_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DataDumpStateInner_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DataDumpStateInner("", info);
     HILOG_INFO("AbilityManagerServiceTest DataDumpStateInner_001 end");
 }
@@ -1550,6 +1560,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpState_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpState_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpState("", info);
     HILOG_INFO("AbilityManagerServiceTest DumpState_001 end");
 }
@@ -1564,6 +1575,7 @@ HWTEST_F(AbilityManagerServiceTest, DumpSysState_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest DumpSysState_001 start");
     std::vector<std::string> info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpSysState("", info, true, true, 100);
     HILOG_INFO("AbilityManagerServiceTest DumpSysState_001 end");
 }
@@ -1619,6 +1631,7 @@ HWTEST_F(AbilityManagerServiceTest, ScheduleCommandAbilityDone_001, TestSize.Lev
 HWTEST_F(AbilityManagerServiceTest, OnAbilityRequestDone_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest OnAbilityRequestDone_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAbilityRequestDone(nullptr, 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::DATA), 1);
     abilityMs_->OnAbilityRequestDone(MockToken(AbilityType::UNKNOWN), 1);
@@ -1635,6 +1648,7 @@ HWTEST_F(AbilityManagerServiceTest, OnAppStateChanged_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest OnAppStateChanged_001 start");
     AppInfo info;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAppStateChanged(info);
     HILOG_INFO("AbilityManagerServiceTest OnAppStateChanged_001 end");
 }
@@ -1648,6 +1662,7 @@ HWTEST_F(AbilityManagerServiceTest, OnAppStateChanged_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, GetEventHandler_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetEventHandler_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     EXPECT_NE(abilityMs_->GetEventHandler(), nullptr);
     HILOG_INFO("AbilityManagerServiceTest GetEventHandler_001 end");
 }
@@ -1661,6 +1676,7 @@ HWTEST_F(AbilityManagerServiceTest, GetEventHandler_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, InitMissionListManager_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest InitMissionListManager_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->InitMissionListManager(100, false);
     HILOG_INFO("AbilityManagerServiceTest InitMissionListManager_001 end");
 }
@@ -1745,6 +1761,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
     int max = 0;
+    ASSERT_NE(abilityMs_, nullptr);
     max = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
@@ -1843,6 +1860,7 @@ HWTEST_F(AbilityManagerServiceTest, IsSystemUI_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, HandleActiveTimeOut_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest HandleActiveTimeOut_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->HandleActiveTimeOut(100);
     HILOG_INFO("AbilityManagerServiceTest HandleActiveTimeOut_001 end");
 }
@@ -1856,6 +1874,7 @@ HWTEST_F(AbilityManagerServiceTest, HandleActiveTimeOut_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, HandleInactiveTimeOut_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->HandleInactiveTimeOut(100);
     HILOG_INFO("AbilityManagerServiceTest HandleInactiveTimeOut_001 end");
 }
@@ -1970,6 +1989,7 @@ HWTEST_F(AbilityManagerServiceTest, GetDataAbilityManagerByToken_001, TestSize.L
 HWTEST_F(AbilityManagerServiceTest, StartResidentApps_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StartResidentApps_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->StartResidentApps();
     HILOG_INFO("AbilityManagerServiceTest StartResidentApps_001 end");
 }
@@ -1983,6 +2003,7 @@ HWTEST_F(AbilityManagerServiceTest, StartResidentApps_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, ConnectBmsService_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest ConnectBmsService_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->ConnectBmsService();
     HILOG_INFO("AbilityManagerServiceTest ConnectBmsService_001 end");
 }
@@ -2144,6 +2165,7 @@ HWTEST_F(AbilityManagerServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest OnAcceptWantResponse_001 start");
     AAFwk::Want want;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAcceptWantResponse(want, "test");
 
     auto temp = abilityMs_->currentMissionListManager_;
@@ -2163,6 +2185,7 @@ HWTEST_F(AbilityManagerServiceTest, OnStartSpecifiedAbilityTimeoutResponse_001, 
 {
     HILOG_INFO("AbilityManagerServiceTest OnStartSpecifiedAbilityTimeoutResponse_001 start");
     AAFwk::Want want;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnStartSpecifiedAbilityTimeoutResponse(want);
 
     auto temp = abilityMs_->currentMissionListManager_;
@@ -2257,6 +2280,7 @@ HWTEST_F(AbilityManagerServiceTest, GetProcessRunningInfosByUserId_001, TestSize
 HWTEST_F(AbilityManagerServiceTest, ClearUserData_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest ClearUserData_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->ClearUserData(100);
     HILOG_INFO("AbilityManagerServiceTest ClearUserData_001 end");
 }
@@ -2296,6 +2320,7 @@ HWTEST_F(AbilityManagerServiceTest, CallRequestDone_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest CallRequestDone_001 start");
     sptr<IRemoteObject> token = nullptr;
     sptr<IRemoteObject> callStub = nullptr;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->CallRequestDone(token, callStub);
     HILOG_INFO("AbilityManagerServiceTest CallRequestDone_001 end");
 }
@@ -2333,6 +2358,7 @@ HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 start");
     MissionSnapshot missionSnapshot;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->UpdateMissionSnapShot(nullptr);
 
     MyFlag::flag_ = 1;
@@ -2350,6 +2376,7 @@ HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, EnableRecoverAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest EnableRecoverAbility_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->EnableRecoverAbility(nullptr);
     abilityMs_->EnableRecoverAbility(MockToken(AbilityType::PAGE));
     HILOG_INFO("AbilityManagerServiceTest EnableRecoverAbility_001 end");
@@ -2365,6 +2392,7 @@ HWTEST_F(AbilityManagerServiceTest, RecoverAbilityRestart_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest RecoverAbilityRestart_001 start");
     Want want;
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->RecoverAbilityRestart(want);
     HILOG_INFO("AbilityManagerServiceTest RecoverAbilityRestart_001 end");
 }
@@ -2378,6 +2406,7 @@ HWTEST_F(AbilityManagerServiceTest, RecoverAbilityRestart_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, ScheduleRecoverAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest ScheduleRecoverAbility_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->ScheduleRecoverAbility(nullptr, 1);
     sptr<IRemoteObject> token = MockToken(AbilityType::SERVICE);
     abilityMs_->ScheduleRecoverAbility(token, 1);
@@ -2658,6 +2687,7 @@ HWTEST_F(AbilityManagerServiceTest, UpdateCallerInfo_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest UpdateCallerInfo_001 start");
     Want want;
     sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
+    ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->UpdateCallerInfo(want, callerToken);
     HILOG_INFO("AbilityManagerServiceTest UpdateCallerInfo_001 end");
 }

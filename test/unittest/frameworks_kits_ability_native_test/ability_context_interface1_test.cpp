@@ -175,6 +175,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_SetTheme_0100, Functi
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
+    ASSERT_NE(abilityContext, nullptr);
     resourceManager->SetThemeById(testValue, testList);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -194,6 +195,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_SetTheme_0200, Functi
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
+    ASSERT_NE(abilityContext, nullptr);
     abilityContext->SetTheme(testValue);
     abilityContext->AttachBaseContext(contextDeal);
     abilityContext->SetTheme(testValue);
@@ -280,6 +282,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetTheme_0100, Functi
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
+    ASSERT_NE(abilityContext, nullptr);
     resourceManager->SetThemeById(testValue, testList);
     contextDeal->initResourceManager(resourceManager);
     abilityContext->AttachBaseContext(contextDeal);
@@ -318,6 +321,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetString_ByIdAndForm
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
+    ASSERT_NE(abilityContext, nullptr);
     std::string testByName = "";
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_GetString_ByIdAndFormat_0100 end";
 }
@@ -458,6 +462,7 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetThemeId_0100, Func
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_GetThemeId_0100 start";
     std::shared_ptr<MockAbilityContextDeal> contextDeal = std::make_shared<MockAbilityContextDeal>();
     std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
+    ASSERT_NE(abilityContext, nullptr);
     abilityContext->AttachBaseContext(contextDeal);
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_GetThemeId_0100 end";
 }

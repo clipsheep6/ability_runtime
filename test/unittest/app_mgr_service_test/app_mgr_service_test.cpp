@@ -59,6 +59,7 @@ void AppMgrServiceTest::TearDown()
 HWTEST_F(AppMgrServiceTest, OnStop_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     appMgrService->appMgrServiceInner_ = nullptr;
     appMgrService->OnStop();
 }
@@ -107,6 +108,7 @@ HWTEST_F(AppMgrServiceTest, Init_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AttachApplication_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     sptr<IRemoteObject> app = nullptr;
     appMgrService->SetInnerService(nullptr);
     appMgrService->AttachApplication(app);
@@ -123,6 +125,7 @@ HWTEST_F(AppMgrServiceTest, AttachApplication_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AttachApplication_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     sptr<IRemoteObject> app = nullptr;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
@@ -140,6 +143,7 @@ HWTEST_F(AppMgrServiceTest, AttachApplication_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, ApplicationForegrounded_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->ApplicationForegrounded(recordId);
@@ -156,6 +160,7 @@ HWTEST_F(AppMgrServiceTest, ApplicationForegrounded_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, ApplicationBackgrounded_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->ApplicationBackgrounded(recordId);
@@ -172,6 +177,7 @@ HWTEST_F(AppMgrServiceTest, ApplicationBackgrounded_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, ApplicationTerminated_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->ApplicationTerminated(recordId);
@@ -188,6 +194,7 @@ HWTEST_F(AppMgrServiceTest, ApplicationTerminated_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AbilityCleaned_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     appMgrService->SetInnerService(nullptr);
     appMgrService->AbilityCleaned(nullptr);
 }
@@ -203,6 +210,7 @@ HWTEST_F(AppMgrServiceTest, AbilityCleaned_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AbilityCleaned_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
     appMgrService->AbilityCleaned(nullptr);
@@ -219,6 +227,7 @@ HWTEST_F(AppMgrServiceTest, AbilityCleaned_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     pid_t pid = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->AddAppDeathRecipient(pid);
@@ -235,6 +244,7 @@ HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     pid_t pid = 1;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
@@ -252,6 +262,7 @@ HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, StartupResidentProcess_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     appMgrService->SetInnerService(nullptr);
     appMgrService->StartupResidentProcess(bundleInfos);
@@ -268,6 +279,7 @@ HWTEST_F(AppMgrServiceTest, StartupResidentProcess_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, StartupResidentProcess_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
@@ -391,6 +403,7 @@ HWTEST_F(AppMgrServiceTest, NotifyMemoryLevel_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AddAbilityStageDone_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->AddAbilityStageDone(recordId);
@@ -407,6 +420,7 @@ HWTEST_F(AppMgrServiceTest, AddAbilityStageDone_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AddAbilityStageDone_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
@@ -575,6 +589,7 @@ HWTEST_F(AppMgrServiceTest, FinishUserTest_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, ScheduleAcceptWantDone_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     Want want;
     std::string flag = "flag";
@@ -593,6 +608,7 @@ HWTEST_F(AppMgrServiceTest, ScheduleAcceptWantDone_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, ScheduleAcceptWantDone_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     int32_t recordId = 1;
     Want want;
     std::string flag = "flag";
@@ -724,6 +740,7 @@ HWTEST_F(AppMgrServiceTest, StartRenderProcess_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AttachRenderProcess_001, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     sptr<IRemoteObject> scheduler = nullptr;
     appMgrService->SetInnerService(nullptr);
     appMgrService->AttachRenderProcess(scheduler);
@@ -740,6 +757,7 @@ HWTEST_F(AppMgrServiceTest, AttachRenderProcess_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceTest, AttachRenderProcess_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
     sptr<IRemoteObject> scheduler = nullptr;
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
