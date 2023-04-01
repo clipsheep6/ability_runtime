@@ -723,6 +723,17 @@ void AbilityImpl::Background()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
+void AbilityImpl::PrepareTerminateAbility()
+{
+    HILOG_ERROR("luc,007,AbilityImpl::PrepareTerminateAbility");
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::PrepareTerminateAbility ability_ is nullptr");
+        return;
+    }
+    ability_->OnPrepareTerminate();
+    HILOG_ERROR("luc,007.1,OnPrepareTerminate end");
+}
+
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_DEBUG("AbilityImpl::DoKeyDown called");

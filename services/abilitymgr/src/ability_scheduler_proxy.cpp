@@ -121,6 +121,22 @@ void AbilitySchedulerProxy::ScheduleDisconnectAbility(const Want &want)
     }
 }
 
+void AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_PREPARE_TERMINATE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("luc,SchedulePrepareTerminateAbility fail to SendRequest. err: %{public}d", err);
+    }
+    HILOG_ERROR("luc,SchedulePrepareTerminateAbility end");
+}
+
 void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
     MessageParcel data;

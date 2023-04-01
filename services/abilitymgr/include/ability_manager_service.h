@@ -237,6 +237,17 @@ public:
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr) override;
 
     /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to prepare terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+        const Want *resultWant = nullptr) override;//luc
+
+    /**
      * SendResultToAbility with want, return want from ability manager service.
      *
      * @param requestCode, request code.

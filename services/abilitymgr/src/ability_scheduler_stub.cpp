@@ -37,6 +37,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SEND_RESULT] = &AbilitySchedulerStub::SendResultInner;
     requestFuncMap_[SCHEDULE_ABILITY_CONNECT] = &AbilitySchedulerStub::ConnectAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
+    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;//luc
     requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
     requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
     requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
@@ -144,6 +145,12 @@ int AbilitySchedulerStub::DisconnectAbilityInner(MessageParcel &data, MessagePar
         return ERR_INVALID_VALUE;
     }
     ScheduleDisconnectAbility(*want);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
+{//luc
+    SchedulePrepareTerminateAbility();
     return NO_ERROR;
 }
 

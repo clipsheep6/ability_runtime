@@ -25,6 +25,9 @@ class Ability {
     onWindowStageDestroy() {}
     onForeground(want) {}
     onBackground() {}
+    onPrepareTerminate() {
+        this.context.terminateSelf();
+    }
     onMemoryLevel(level) {}
     onWindowStageRestore(windowStage) {}
     onCallRequest() {

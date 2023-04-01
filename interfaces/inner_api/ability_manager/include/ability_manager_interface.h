@@ -232,6 +232,17 @@ public:
     }
 
     /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(
+        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;//luc
+
+    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -1160,6 +1171,8 @@ public:
         QUERY_MISSION_VAILD = 3012,
         
         VERIFY_PERMISSION = 3013,
+
+        PREPARE_TERMINATE_ABILITY,//luc
     };
 };
 }  // namespace AAFwk

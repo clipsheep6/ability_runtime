@@ -86,6 +86,20 @@ void LifecycleDeal::DisconnectAbility(const Want &want)
     abilityScheduler->ScheduleDisconnectAbility(want);
 }
 
+void LifecycleDeal::PrepareTerminateAbility()
+{
+    HILOG_INFO("luc,005,Prepare terminate ability.");
+    auto abilityScheduler = GetScheduler();
+    HILOG_INFO("luc,005.1,Prepare terminate ability.");
+    if (abilityScheduler == nullptr) {
+        HILOG_INFO("luc,005',abilityScheduler==nullptr.");
+        return;
+    }
+    HILOG_INFO("luc,005.2,Prepare terminate ability.");
+    abilityScheduler->SchedulePrepareTerminateAbility();
+    HILOG_INFO("luc,005.3,Prepare terminate ability end");
+}
+
 void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("Terminate, send ipc request.");

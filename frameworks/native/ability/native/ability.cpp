@@ -1568,6 +1568,11 @@ void Ability::OnBackground()
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
+void Ability::OnPrepareTerminate()
+{
+    HILOG_DEBUG("luc,008,Ability::OnPrepareTerminate called.");
+}
+
 void Ability::OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_DEBUG("Ability::OnKeyDown called");

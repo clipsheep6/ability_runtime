@@ -159,6 +159,11 @@ public:
     void ScheduleUpdateConfiguration(const Configuration &config);
 
     /**
+     * @brief Provide operating system PrepareTerminateAbility information to the observer
+     */
+    void SchedulePrepareTerminateAbility();//luc
+
+    /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
      * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
      * receive the result set in the current method. This method can be called only after the ability has been

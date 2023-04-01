@@ -1420,6 +1420,32 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     return eventInfo.errCode;
 }
 
+int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+{
+    const std::string PREPARE_TERMINATE_ENABLE = "ohos.param.preterminateability.enable";
+    char value[NEW_RULE_VALUE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE.c_str(), "false", value, NEW_RULE_VALUE_SIZE);
+    HILOG_INFO("luc,PrepareTerminateAbility, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE.c_str(), value);
+    if (retSysParam > 0 && !std::strcmp(value, "false")) {
+        return TerminateAbility(token, resultCode, resultWant);
+    }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_ERROR("luc,003,debug,Terminate ability begin.");
+    if (!VerificationAllToken(token)) {
+        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    abilityRecord->PrepareTerminateAbility();
+    HILOG_ERROR("luc,003.1,debug,Terminate ability end.");
+    return ERR_OK;
+}
+
 int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)
 {
     HILOG_INFO("%{public}s", __func__);
