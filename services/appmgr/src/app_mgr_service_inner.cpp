@@ -123,6 +123,10 @@ constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 
+constexpr int32_t APP_SPAWN_FLAG_DEFAULT = 0;
+constexpr int32_t APP_SPAWN_FLAG_GET_RENDER_TERMINATION_STATUS = 1;
+constexpr int32_t APP_SPAWN_FLAG_OVERLAY = 2;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -1668,6 +1672,15 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.procName = processName;
     startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
 
+    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
+    if (overlayMgrProxy !=  nullptr) {
+        std::vector<OverlayModuleInfo> overlayModuleInfo;
+        auto ret = IN_PROCESS_CALL(overlayMgrProxy->GetAllOverlayModuleInfo(bundleName, overlayModuleInfo));
+        if (ret == ERR_OK) {
+            startMsg.code = APP_SPAWN_FLAG_OVERLAY;
+        }
+    }
+
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
     ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
@@ -3144,7 +3157,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     startMsg.renderParam = renderRecord->GetRenderParam();
-    startMsg.code = 0; // 0: DEFAULT
+    startMsg.code = APP_SPAWN_FLAG_DEFAULT;
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
@@ -3174,7 +3187,7 @@ int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &
 
     AppSpawnStartMsg startMsg;
     startMsg.pid = renderPid;
-    startMsg.code = 1; // 1: GET_RENDER_TERMINATION_STATUS
+    startMsg.code = APP_SPAWN_FLAG_GET_RENDER_TERMINATION_STATUS;
     ErrCode errCode = nwebSpawnClient->GetRenderProcessTerminationStatus(startMsg, status);
     if (FAILED(errCode)) {
         HILOG_ERROR("failed to get render process termination status, errCode %{public}08x", errCode);
