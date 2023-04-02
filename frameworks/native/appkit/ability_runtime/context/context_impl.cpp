@@ -20,6 +20,7 @@
 
 #include "app_mgr_client.h"
 #include "bundle_mgr_proxy.h"
+#include "common_event_manager.h"
 #include "configuration_convertor.h"
 #include "constants.h"
 #include "directory_ex.h"
@@ -31,6 +32,8 @@
 #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
+#include "overlay_event_subscriber.h"
+#include "overlay_module_info.h"
 #include "parameters.h"
 #include "running_process_info.h"
 #include "sys_mgr_client.h"
@@ -62,6 +65,7 @@ const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
+const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -181,6 +185,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
+    HILOG_DEBUG("CreateModuleContext begin.");
     if (bundleName.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
         return nullptr;
@@ -321,6 +326,7 @@ int ContextImpl::GetCurrentActiveAccountId() const
 
 std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
 {
+    HILOG_DEBUG("CreateBundleContext begin.");
     if (parentContext_ != nullptr) {
         return parentContext_->CreateBundleContext(bundleName);
     }
@@ -361,8 +367,10 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 }
 
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName) const
+    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName)
 {
+    HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, moduleName:%{public}s",
+        bundleInfo.name.c_str(), moduleName.c_str());
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
         HILOG_ERROR("InitResourceManager create resourceManager failed");
@@ -391,8 +399,49 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
 
             HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
-            if (!resourceManager->AddResource(loadPath.c_str())) {
-                HILOG_ERROR("InitResourceManager AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+            // getOverlayPath
+            std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
+            auto res = GetOverlayModuleInfos(bundleInfo.name, hapModuleInfo.moduleName, overlayModuleInfos);
+            if (res != ERR_OK) {
+                HILOG_DEBUG("Get overlay paths from bms failed.");
+            }
+            if (overlayModuleInfos.size() == 0) {
+                if (!resourceManager->AddResource(loadPath.c_str())) {
+                    HILOG_ERROR("InitResourceManager AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+                }
+            } else {
+                std::vector<std::string> overlayPaths;
+                for (auto it : overlayModuleInfos) {
+                    if (std::regex_search(it.hapPath, std::regex(GetBundleName()))) {
+                        it.hapPath = std::regex_replace(it.hapPath, inner_pattern, LOCAL_CODE_PATH);
+                    } else {
+                        it.hapPath = std::regex_replace(it.hapPath, outer_pattern, LOCAL_BUNDLES);
+                    }
+                    if (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE) {
+                        HILOG_DEBUG("ContextImpl::InitResourceManager hapPath: %{public}s", it.hapPath.c_str());
+                        overlayPaths.emplace_back(it.hapPath);
+                    }
+                }
+                HILOG_DEBUG("OverlayPaths size:%{public}d.", overlayPaths.size());
+                if (!resourceManager->AddResource(loadPath, overlayPaths)) {
+                    HILOG_ERROR("AddResource failed");
+                }
+
+                if (currentBundle) {
+                    // add listen overlay change
+                    overlayModuleInfos_ = overlayModuleInfos;
+                    EventFwk::MatchingSkills matchingSkills;
+                    matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
+                    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+                    auto callback = [this, bundleName = bundleInfo.name, moduleName = hapModuleInfo.moduleName, loadPath]
+                        (const EventFwk::CommonEventData &data) {
+                        HILOG_INFO("On overlay changed.");
+                        this->OnOverlayChanged(data, bundleName, moduleName, loadPath);
+                    };
+                    auto subscriber = std::make_shared<AppExecFwk::OverlayEventSubscriber>(subscribeInfo, callback);
+                    bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
+                    HILOG_INFO("Overlay event subscriber register result is %{public}d", subResult);
+                }
             }
         }
     }
@@ -603,6 +652,137 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
     }
     HILOG_DEBUG("deviceType is %{public}d.", deviceType_);
     return deviceType_;
+}
+
+int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
+    std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
+{
+    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
+    if (overlayMgrProxy ==  nullptr) {
+        HILOG_ERROR("GetOverlayManagerProxy failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto ret = overlayMgrProxy->GetTargetOverlayModuleInfo(moduleName, overlayModuleInfos);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("GetOverlayModuleInfo form bms failed.");
+        return ret;
+    }
+    std::sort(overlayModuleInfos.begin(), overlayModuleInfos.end(),
+        [](const AppExecFwk::OverlayModuleInfo& lhs, const AppExecFwk::OverlayModuleInfo& rhs) -> bool
+    {
+        return lhs.priority > rhs.priority;
+    });
+    HILOG_DEBUG("GetOverlayPath end, the size of overlay is: %{public}d", overlayModuleInfos.size());
+    return ERR_OK;
+}
+
+std::vector<std::string> ContextImpl::GetAddOverlayPaths(
+    const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
+{
+    std::vector<std::string> addPaths;
+    for (auto it : overlayModuleInfos) {
+        auto iter = std::find_if(
+            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](AppExecFwk::OverlayModuleInfo item){
+                return it.moduleName == item.moduleName;
+            });
+        if ((iter != overlayModuleInfos_.end()) && (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
+            iter->state = it.state;
+            ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
+            HILOG_DEBUG("add path:%{public}s.", iter->hapPath.c_str());
+            addPaths.emplace_back(iter->hapPath);
+        }
+    }
+
+    return addPaths;
+}
+
+std::vector<std::string> ContextImpl::GetRemoveOverlayPaths(
+    const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
+{
+    std::vector<std::string> removePaths;
+    for (auto it : overlayModuleInfos) {
+        auto iter = std::find_if(
+            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](AppExecFwk::OverlayModuleInfo item){
+                return it.moduleName == item.moduleName;
+            });
+        if ((iter != overlayModuleInfos_.end()) && (it.state != AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
+            iter->state = it.state;
+            ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
+            HILOG_DEBUG("remove path:%{public}s.", iter->hapPath.c_str());
+            removePaths.emplace_back(iter->hapPath);
+        }
+    }
+
+    return removePaths;
+}
+
+void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data, const std::string &bundleName,
+    const std::string &moduleName, const std::string &loadPath)
+{
+    HILOG_DEBUG("OnOverlayChanged begin.");
+    auto want = data.GetWant();
+    std::string action = want.GetAction();
+    if (action != OVERLAY_STATE_CHANGED) {
+        HILOG_DEBUG("Not this subscribe, action: %{public}s.", action.c_str());
+        return;
+    }
+    if (want.GetElement().GetBundleName() != bundleName || GetBundleName() != bundleName) {
+        HILOG_DEBUG("Not this app, bundleName: %{public}s.", want.GetElement().GetBundleName().c_str());
+        return;
+    }
+    bool isEnable = data.GetWant().GetBoolParam(AppExecFwk::Constants::OVERLAY_STATE, false);
+    // 1.get overlay hapPath
+    if (GetResourceManager() == nullptr) {
+        HILOG_ERROR("resourceManager is nullptr.");
+        return;
+    }
+    if (overlayModuleInfos_.size() == 0) {
+        HILOG_ERROR("overlayModuleInfos is empty.");
+        return;
+    }
+    std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
+    auto res = GetOverlayModuleInfos(bundleName, moduleName, overlayModuleInfos);
+    if (res != ERR_OK) {
+        return;
+    }
+    
+    // 2.add/remove overlay hapPath
+    if (loadPath.empty() || overlayModuleInfos.size() == 0) {
+        HILOG_WARN("There is not any hapPath in overlayModuleInfo");
+    } else {
+        if (isEnable) {
+            std::vector<std::string> overlayPaths = GetAddOverlayPaths(overlayModuleInfos);
+            if (!GetResourceManager()->AddResource(loadPath, overlayPaths)) {
+                HILOG_ERROR("AddResource failed");
+            }
+        } else {
+            std::vector<std::string> overlayPaths = GetRemoveOverlayPaths(overlayModuleInfos);
+            if (!GetResourceManager()->RemoveResource(loadPath, overlayPaths)) {
+                HILOG_ERROR("RemoveResource failed");
+            }
+        }
+    }
+}
+
+void ContextImpl::ChangeToLocalPath(const std::string &bundleName,
+    const std::string &sourceDir, std::string &localPath)
+{
+    std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName);
+    if (sourceDir.empty()) {
+        return;
+    }
+    if (std::regex_search(localPath, std::regex(bundleName))) {
+        localPath = std::regex_replace(localPath, pattern, std::string(LOCAL_CODE_PATH));
+    } else {
+        localPath = std::regex_replace(localPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
