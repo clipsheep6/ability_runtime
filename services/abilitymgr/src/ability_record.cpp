@@ -65,19 +65,24 @@ int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
+const int LOAD_TIMEOUT_ASANENABLED = 150;
+const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+#ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 150;
-const int TERMINATE_TIMEOUT_MULTIPLE = 150;
-const int LOAD_TIMEOUT_MULTIPLE = 50;
-#if SUPPORT_ASAN
+const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int FOREGROUND_TIMEOUT_MULTIPLE = 75;
 const int BACKGROUND_TIMEOUT_MULTIPLE = 45;
 const int ACTIVE_TIMEOUT_MULTIPLE = 75;
+const int TERMINATE_TIMEOUT_MULTIPLE = 150;
 const int INACTIVE_TIMEOUT_MULTIPLE = 8;
 const int DUMP_TIMEOUT_MULTIPLE = 15;
 #else
+const int COLDSTART_TIMEOUT_MULTIPLE = 10;
+const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int FOREGROUND_TIMEOUT_MULTIPLE = 5;
 const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
 const int ACTIVE_TIMEOUT_MULTIPLE = 5;
+const int TERMINATE_TIMEOUT_MULTIPLE = 10;
 const int INACTIVE_TIMEOUT_MULTIPLE = 1;
 const int DUMP_TIMEOUT_MULTIPLE = 1;
 const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
@@ -240,7 +245,9 @@ int AbilityRecord::LoadAbility()
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
     if (applicationInfo_.asanEnabled) {
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, coldStartTimeout);
+        loadTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout);
     } else if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
         auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
         SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime);
@@ -1207,6 +1214,10 @@ void AbilityRecord::Terminate(const Closure &task)
         if (!want_.GetBoolParam(DEBUG_APP, false)) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
+        } else if (applicationInfo_.asanEnabled) {
+            int terminateTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_ASANENABLED;
             handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
