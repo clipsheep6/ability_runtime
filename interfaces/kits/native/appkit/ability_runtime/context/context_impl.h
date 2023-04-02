@@ -304,12 +304,27 @@ private:
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
-                             bool currentBundle = false, const std::string &moduleName = "") const;
+                             bool currentBundle = false, const std::string &moduleName = "");
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
     int GetCurrentActiveAccountId() const;
     void CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const;
+
+    int GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
+        std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
+
+    void OnOverlayChanged(const EventFwk::CommonEventData &data, const std::string &bundleName,
+        const std::string &moduleName, const std::string &loadPath);
+    
+    std::vector<std::string> GetAddOverlayPaths(
+        const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
+
+    std::vector<std::string> GetRemoveOverlayPaths(
+        const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
+
+    void ChangeToLocalPath(const std::string &bundleName,
+        const std::string &sourcDir, std::string &localPath);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
@@ -318,6 +333,7 @@ private:
     std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::string currArea_ = "el2";
+    std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
