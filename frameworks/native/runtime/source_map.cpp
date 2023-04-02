@@ -405,16 +405,16 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         uint32_t q = s;
         uint32_t jj = j;
         value = curSourceMap.substr(q + 1, jj - q + INDEX_TWO);
-        uint32_t sources = value.find("\"sources\": [");
-        uint32_t names = value.find("],");
+        size_t sources = value.find("\"sources\": [");
+        size_t names = value.find("],");
         key = value.substr(sources + NUM_TWENTY, names - sources - NUM_TWENTYSIX);
         MapData.insert(std::pair<std::string, std::string>(key, value));
     }
 
     for (; i < res.size(); i++) {
         std::string temp = res[i];
-        uint32_t start = temp.find("(");
-        uint32_t end  = temp.find(":");
+        size_t start = temp.find("(");
+        size_t end  = temp.find(":");
         std::string key = temp.substr(start + 1, end - start - 1);
         int32_t closeBracePos = static_cast<int32_t>(temp.find(closeBrace));
         int32_t openBracePos = static_cast<int32_t>(temp.find(openBrace));

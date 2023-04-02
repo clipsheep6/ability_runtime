@@ -42,12 +42,11 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
 
 private:
-    void ProcessLoadTimeOut(int64_t eventId);
-    void ProcessActiveTimeOut(int64_t eventId);
-    void ProcessInactiveTimeOut(int64_t eventId);
-    void ProcessForegroundTimeOut(int64_t eventId);
-    void ProcessBackgroundTimeOut(int64_t eventId);
-
+    void ProcessLoadTimeOut(int64_t abilityRecordId);
+    void ProcessActiveTimeOut(int64_t abilityRecordId);
+    void ProcessInactiveTimeOut(int64_t abilityRecordId);
+    void ProcessForegroundTimeOut(int64_t abilityRecordId);
+    void ProcessShareDataTimeOut(int64_t uniqueId);
 private:
     std::weak_ptr<AbilityManagerService> server_;
 };

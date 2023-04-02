@@ -911,6 +911,7 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_InnerPutObject_0100, Function | MediumTes
     std::shared_ptr<UserObjectBase> value = nullptr;
     PacMapList mapList;
     std::string key = "this is key";
+    ASSERT_NE(pacmap_, nullptr);
     pacmap_->InnerPutObject(mapList, key, value);
 
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_InnerPutObject_0100 end";
@@ -1108,6 +1109,7 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_GetPacMap_0100, Function | MediumTest | L
     GTEST_LOG_(INFO) << "AppExecFwk_PacMap_GetPacMap_0100 start";
 
     std::string key = "this is key";
+    ASSERT_NE(pacmap_, nullptr);
     pacmap_->GetPacMap(key);
     std::string key1 = "";
     pacmap_->GetPacMap(key1);

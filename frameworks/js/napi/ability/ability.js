@@ -39,6 +39,7 @@ class Ability {
     onDump(params) {}
 
     onSaveState(state, wantParams) {}
+    onShare(wantParams) {}
 }
 
 export default Ability

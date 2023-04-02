@@ -185,9 +185,23 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     // should remove when AG SA online
     int32_t ECOLOGICAL_RULE_SA_ID = 9999;
     auto remoteObject =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(ECOLOGICAL_RULE_SA_ID);
+        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(ECOLOGICAL_RULE_SA_ID);
     if (remoteObject == nullptr) {
         HILOG_ERROR("%{public}s error, failed to get ecological rule manager service.", __func__);
+        return nullptr;
+    }
+
+    return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
+}
+
+[[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> CheckEcologicalRuleMgr()
+{
+    // should remove when AG SA online
+    int32_t ECOLOGICAL_RULE_SA_ID = 9999;
+    auto remoteObject =
+            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->CheckSystemAbility(ECOLOGICAL_RULE_SA_ID);
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("%{public}s error, failed to check ecological rule manager service.", __func__);
         return nullptr;
     }
 

@@ -844,6 +844,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyInvisibleForms_0100, Function | Me
 {
     GTEST_LOG_(INFO) << "AaFwk_Ability_NotifyInvisibleForms_0100 start";
     std::vector<int64_t> formIds;
+    ASSERT_NE(ability_, nullptr);
     ability_->NotifyInvisibleForms(formIds);
     GTEST_LOG_(INFO) << "AaFwk_Ability_NotifyInvisibleForms_0100 end";
 }
@@ -859,6 +860,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyInvisibleForms_0200, Function | Me
     std::vector<int64_t> formIds;
     formIds.push_back(1);
     FormMgr::SetRecoverStatus(Constants::IN_RECOVERING);
+    ASSERT_NE(ability_, nullptr);
     ability_->NotifyInvisibleForms(formIds);
     GTEST_LOG_(INFO) << "AaFwk_Ability_NotifyInvisibleForms_0200 end";
 }
@@ -874,6 +876,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyInvisibleForms_0300, Function | Me
     std::vector<int64_t> formIds;
     formIds.push_back(1);
     FormMgr::SetRecoverStatus(Constants::NOT_IN_RECOVERY);
+    ASSERT_NE(ability_, nullptr);
     ability_->NotifyInvisibleForms(formIds);
     GTEST_LOG_(INFO) << "AaFwk_Ability_NotifyInvisibleForms_0300 end";
 }
@@ -890,6 +893,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyInvisibleForms_0400, Function | Me
     formIds.push_back(1);
     formIds.push_back(2);
     FormMgr::SetRecoverStatus(Constants::NOT_IN_RECOVERY);
+    ASSERT_NE(ability_, nullptr);
     ability_->NotifyInvisibleForms(formIds);
     GTEST_LOG_(INFO) << "AaFwk_Ability_NotifyInvisibleForms_0400 end";
 }
@@ -907,6 +911,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0100, Function | Medi
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    ASSERT_NE(ability_, nullptr);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -931,6 +936,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0200, Function | Medi
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    ASSERT_NE(ability_, nullptr);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -952,6 +958,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0300, Function | Medi
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    ASSERT_NE(ability_, nullptr);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -977,6 +984,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0400, Function | Medi
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    ASSERT_NE(ability_, nullptr);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -1002,6 +1010,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_FmsDeathCallback_OnDeathReceived_0100, F
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    ASSERT_NE(ability_, nullptr);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 

@@ -38,6 +38,8 @@ void WindowManagerServiceHandlerStub::Init()
     requestFuncMap_[ON_COLD_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowCold;
     requestFuncMap_[ON_HOT_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowHot;
     requestFuncMap_[ON_CANCEL_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
+    requestFuncMap_[ON_NOTIFY_ANIMATION_ABILITY_DIED] =
+        &WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner;
 }
 
 int WindowManagerServiceHandlerStub::OnRemoteRequest(
@@ -149,6 +151,18 @@ int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &da
         abilityToken = data.ReadObject<IRemoteObject>();
     }
     CancelStartingWindow(abilityToken);
+    return ERR_OK;
+}
+
+int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
+    if (!info) {
+        HILOG_ERROR("To read info failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    NotifyAnimationAbilityDied(info);
     return ERR_OK;
 }
 }  // namespace AAFwk

@@ -37,6 +37,7 @@ public:
     MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
+
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD3(ConnectAbility,
         int(const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken));
@@ -71,7 +72,9 @@ public:
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
 
     MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender>& target));
-
+    MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
+    MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override
     {

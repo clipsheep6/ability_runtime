@@ -202,7 +202,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
     {
         return 0;
     }
@@ -720,6 +720,7 @@ HWTEST_F(MainThreadTest, CheckAbilityItem_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleTerminateApplicationLocal();
     HILOG_INFO("%{public}s end.", __func__);
@@ -734,6 +735,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
     HILOG_INFO("%{public}s end.", __func__);
@@ -748,6 +750,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->mainHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
     HILOG_INFO("%{public}s end.", __func__);
@@ -762,6 +765,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0400, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->watchdog_ = nullptr;
     mainThread_->HandleTerminateApplicationLocal();
     HILOG_INFO("%{public}s end.", __func__);
@@ -776,6 +780,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0400, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->abilityRecordMgr_ = nullptr;
     mainThread_->HandleProcessSecurityExit();
 
@@ -797,6 +802,7 @@ HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleProcessSecurityExit();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -869,6 +875,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleAbilityStage_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
     HILOG_INFO("%{public}s end.", __func__);
@@ -883,6 +890,7 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleAbilityStage_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
@@ -898,6 +906,7 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleAbilityStage_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
@@ -913,6 +922,7 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleAbilityStage_0400, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
@@ -997,6 +1007,7 @@ HWTEST_F(MainThreadTest, HandleLaunchAbility_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(nullptr, nullptr);
+    ASSERT_NE(abilityRecord, nullptr);
     mainThread_->HandleLaunchAbility(abilityRecord);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1010,6 +1021,7 @@ HWTEST_F(MainThreadTest, HandleLaunchAbility_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleCleanAbilityLocal(nullptr);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1024,6 +1036,7 @@ HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleCleanAbilityLocal(nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1037,6 +1050,7 @@ HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleForegroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1050,6 +1064,7 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleForegroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1064,6 +1079,7 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleForegroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1078,6 +1094,7 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleBackgroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1091,6 +1108,7 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleBackgroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1105,6 +1123,7 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleBackgroundApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1119,6 +1138,7 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1132,6 +1152,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1146,6 +1167,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1160,6 +1182,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0300, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1174,6 +1197,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0500, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->mainHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1188,6 +1212,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0500, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0600, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->watchdog_ = nullptr;
     mainThread_->HandleTerminateApplication();
     HILOG_INFO("%{public}s end.", __func__);
@@ -1202,6 +1227,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0600, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleShrinkMemory_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleShrinkMemory(1);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1215,6 +1241,7 @@ HWTEST_F(MainThreadTest, HandleShrinkMemory_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleShrinkMemory_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     mainThread_->HandleShrinkMemory(1);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1229,6 +1256,7 @@ HWTEST_F(MainThreadTest, HandleShrinkMemory_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleMemoryLevel_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleMemoryLevel(1);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1242,6 +1270,7 @@ HWTEST_F(MainThreadTest, HandleMemoryLevel_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleMemoryLevel_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleMemoryLevel(1);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1256,6 +1285,7 @@ HWTEST_F(MainThreadTest, HandleMemoryLevel_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     Configuration config;
     mainThread_->HandleConfigurationUpdated(config);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1270,6 +1300,7 @@ HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     Configuration config;
     mainThread_->HandleConfigurationUpdated(config);
@@ -1285,6 +1316,7 @@ HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     constexpr int SIGNAL_JS_HEAP = 39;
     mainThread_->HandleSignal(SIGNAL_JS_HEAP);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1299,6 +1331,7 @@ HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     constexpr int SIGNAL_JS_HEAP_PRIV = 40;
     mainThread_->HandleSignal(SIGNAL_JS_HEAP_PRIV);
     HILOG_INFO("%{public}s end.", __func__);
@@ -1313,6 +1346,7 @@ HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
 HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleSignal(-1);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1418,6 +1452,7 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     Want want;
     std::string moduleName;
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1434,6 +1469,7 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0200, TestSize.Level1)
     mainThread_->application_ = nullptr;
     Want want;
     std::string moduleName;
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1450,6 +1486,7 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0300, TestSize.Level1)
     mainThread_->appMgr_ = nullptr;
     Want want;
     std::string moduleName;
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1466,6 +1503,7 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0400, TestSize.Level1)
     mainThread_->applicationImpl_ = nullptr;
     Want want;
     std::string moduleName;
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1483,6 +1521,7 @@ HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::string nativeLibraryPath = "";
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->LoadNativeLiabrary(nativeLibraryPath);
 
     nativeLibraryPath = "test/";
@@ -1502,6 +1541,7 @@ HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, TaskTimeoutDetected_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->TaskTimeoutDetected(nullptr);
 
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
@@ -1524,6 +1564,7 @@ HWTEST_F(MainThreadTest, HandleDumpHeap_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     bool isPrivate = false;
+    ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleDumpHeap(isPrivate);
 
     mainThread_->mainHandler_ = nullptr;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,6 +52,8 @@ public:
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
     int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
         int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback);
+    int32_t StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
+        uint32_t accessToken, int32_t extensionType);
     enum {
         START_REMOTE_ABILITY = 1,
         CONNECT_REMOTE_ABILITY = 6,
@@ -68,6 +70,7 @@ public:
         START_REMOTE_ABILITY_BY_CALL = 150,
         RELEASE_REMOTE_ABILITY = 151,
         START_REMOTE_FREE_INSTALL = 200,
+        STOP_REMOTE_EXTERNSION_ABILITY = 225
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();

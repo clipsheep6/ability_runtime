@@ -360,6 +360,16 @@ AppMgrResultCode AppMgrClient::NotifyMemoryLevel(MemoryLevel level)
     return AppMgrResultCode(service->NotifyMemoryLevel(level));
 }
 
+AppMgrResultCode AppMgrClient::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("DumpHeapMemory: service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return AppMgrResultCode(service->DumpHeapMemory(pid, mallocInfo));
+}
+
 AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
@@ -579,6 +589,16 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return amsService->GetApplicationInfoByProcessID(pid, application, debug);
 }
 
+int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) const
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->StartNativeProcessForDebugger(want);
+}
+
 int AppMgrClient::PreStartNWebSpawnProcess()
 {
     HILOG_INFO("PreStartNWebSpawnProcess");
@@ -590,12 +610,14 @@ int AppMgrClient::PreStartNWebSpawnProcess()
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-int AppMgrClient::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, pid_t &renderPid)
+int AppMgrClient::StartRenderProcess(const std::string &renderParam,
+                                     int32_t ipcFd, int32_t sharedFd,
+                                     int32_t crashFd, pid_t &renderPid)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        return service->StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
+        return service->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd,
+                                           renderPid);
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }

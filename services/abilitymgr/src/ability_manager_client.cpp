@@ -320,6 +320,24 @@ ErrCode AbilityManagerClient::ConnectExtensionAbility(const Want &want, const sp
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId);
 }
 
+ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<SessionInfo> &sessionInfo, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("Connect failed, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
+            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
+            want.GetUriString().c_str());
+        return ABILITY_SERVICE_NOT_CONNECTED;
+    }
+
+    HILOG_INFO("Connect called, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
+        want.GetUriString().c_str());
+    return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+}
+
 ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection> &connect)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1079,5 +1097,24 @@ ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, in
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->VerifyPermission(permission, pid, uid);
 }
+
+ErrCode AbilityManagerClient::AcquireShareData(
+    const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+{
+    HILOG_INFO("AcquireShareData begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AcquireShareData(missionId, shareData);
+}
+
+ErrCode AbilityManagerClient::ShareDataDone(
+    const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    HILOG_INFO("ShareDataDone begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

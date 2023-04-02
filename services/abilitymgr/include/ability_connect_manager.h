@@ -100,10 +100,11 @@ public:
      * @param abilityRequest, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
+     * @param sessionInfo the extension session info of the ability to connect.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectAbilityLocked(const AbilityRequest &abilityRequest, const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
@@ -231,7 +232,7 @@ public:
     void StopAllExtensions();
 
     void StartRootLauncher(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void OnTimeOut(uint32_t msgId, int64_t eventId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
 
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
@@ -443,7 +444,7 @@ private:
 
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
 
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
 

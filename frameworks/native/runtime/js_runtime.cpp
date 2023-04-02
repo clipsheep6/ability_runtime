@@ -214,7 +214,7 @@ JsRuntime::~JsRuntime()
     }
 }
 
-std::unique_ptr<Runtime> JsRuntime::Create(const Options& options)
+std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
     std::unique_ptr<JsRuntime> instance;
 
@@ -230,7 +230,7 @@ std::unique_ptr<Runtime> JsRuntime::Create(const Options& options)
     }
 
     if (!instance->Initialize(options)) {
-        return std::unique_ptr<Runtime>();
+        return std::unique_ptr<JsRuntime>();
     }
     return instance;
 }
@@ -301,14 +301,14 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
-    if(!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
         HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
         return false;
     }
 
     std::string baseFile;
     std::vector<uint8_t> baseBuffer;
-    if(!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
         HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
         return false;
     }
@@ -320,9 +320,9 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     }
 
     HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
-            patchFile.c_str(), resolvedHapPath.c_str());
+        patchFile.c_str(), resolvedHapPath.c_str());
     auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
-                                        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
     if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
         HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
         return false;
@@ -371,6 +371,13 @@ bool JsRuntime::NotifyHotReloadPage()
     return true;
 }
 
+bool JsRuntime::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
+{
+    HILOG_DEBUG("function called.");
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->LoadScript(path, buffer, isBundle);
+}
+
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
@@ -415,17 +422,31 @@ bool JsRuntime::Initialize(const Options& options)
         }
     }
 
-    HandleScope handleScope(*this);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
-
-    auto vm = GetEcmaVm();
-    CHECK_POINTER_AND_RETURN(vm, false);
-
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
-    CHECK_POINTER_AND_RETURN(globalObj, false);
-
     if (IsUseAbilityRuntime(options)) {
+        HandleScope handleScope(*this);
+        auto nativeEngine = GetNativeEnginePointer();
+        CHECK_POINTER_AND_RETURN(nativeEngine, false);
+
+        auto vm = GetEcmaVm();
+        CHECK_POINTER_AND_RETURN(vm, false);
+
+        if (preloaded_) {
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
+            }
+            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            postOption.SetEnableProfile(profileEnabled);
+            panda::JSNApi::PostFork(vm, postOption);
+            nativeEngine->ReinitUVLoop();
+            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
+        }
+
+        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+        CHECK_POINTER_AND_RETURN(globalObj, false);
+
         if (!preloaded_) {
             InitConsoleLogModule(*nativeEngine, *globalObj);
             InitSyscapModule(*nativeEngine, *globalObj);
@@ -445,18 +466,6 @@ bool JsRuntime::Initialize(const Options& options)
 
             PreloadAce(options);
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
-        } else {
-            panda::RuntimeOption postOption;
-            postOption.SetBundleName(options.bundleName);
-            if (!options.arkNativeFilePath.empty()) {
-                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
-                postOption.SetAnDir(sandBoxAnFilePath);
-            }
-            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
-            postOption.SetEnableProfile(profileEnabled);
-            panda::JSNApi::PostFork(vm, postOption);
-            nativeEngine->ReinitUVLoop();
-            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
         }
 
         if (!options.preload) {
@@ -488,7 +497,6 @@ bool JsRuntime::Initialize(const Options& options)
                 return false;
             }
 
-            SetAppLibPath(options.appLibPaths);
             InitSourceMap(options);
 
             if (options.isUnique) {
@@ -536,8 +544,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     }
 
     OHOSJsEnvLogger::RegisterJsEnvLogger();
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
-    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(jsEnvImpl);
+    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>());
     if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
         HILOG_ERROR("Initialize js environment failed.");
         return false;
@@ -586,13 +593,23 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths)
+void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
 {
+    HILOG_DEBUG("Set library path.");
+
+    if (appLibPaths.size() == 0) {
+        HILOG_WARN("There's no library path need to set.");
+        return;
+    }
+
     auto moduleManager = NativeModuleManager::GetInstance();
-    if (moduleManager != nullptr) {
-        for (const auto &appLibPath : appLibPaths) {
-            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
-        }
+    if (moduleManager == nullptr) {
+        HILOG_ERROR("Get module manager failed.");
+        return;
+    }
+
+    for (const auto &appLibPath : appLibPaths) {
+        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
     }
 }
 
@@ -752,10 +769,10 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
     if (hapPath.empty()) {
         if (useCommonChunk) {
-            (void)nativeEngine->RunScriptPath(commonsPath.c_str());
-            (void)nativeEngine->RunScriptPath(vendorsPath.c_str());
+            (void)LoadScript(commonsPath);
+            (void)LoadScript(vendorsPath);
         }
-        return nativeEngine->RunScriptPath(srcPath.c_str()) != nullptr;
+        return LoadScript(srcPath);
     }
 
     bool newCreate = false;
@@ -786,7 +803,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
 
-        return nativeEngine->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
+        return LoadScript(abcPath, &buffer, isBundle_);
     };
 
     if (useCommonChunk) {
@@ -917,7 +934,25 @@ panda::ecmascript::EcmaVM* JsRuntime::GetEcmaVm() const
 
 bool JsRuntime::IsUseAbilityRuntime(const Options& options) const
 {
-    return (options.isStageModel) || ((!options.isStageModel) && (options.isTestFramework));
+    return (options.isStageModel) || (options.isTestFramework);
+}
+
+void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
+{
+    if (isBundle_) {
+        return;
+    }
+
+    auto vm = GetEcmaVm();
+    if (!vm || moduleName.empty()) {
+        HILOG_ERROR("vm is nullptr or moduleName is empty");
+        return;
+    }
+
+    moduleName_ = moduleName;
+    std::string path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
+    panda::JSNApi::SetAssetPath(vm, path);
+    panda::JSNApi::SetModuleName(vm, moduleName_);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

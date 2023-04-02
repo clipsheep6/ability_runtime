@@ -23,6 +23,7 @@
 #include "hap_module_info.h"
 #include "iquick_fix_callback.h"
 #include "want.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -79,6 +80,17 @@ public:
      * @return
      */
     virtual void ScheduleMemoryLevel(int32_t level) = 0;
+
+    /**
+     * ScheduleHeapMemory, call ScheduleHeapMemory() through proxy project,
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     *
+     * @return
+     */
+    virtual void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
 
     /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
@@ -197,6 +209,7 @@ public:
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
         SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
+        SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
     };
 };
 }  // namespace AppExecFwk

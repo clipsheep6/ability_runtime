@@ -22,7 +22,7 @@ config("module_private_config") {
   visibility = [ ":*" ]
 }
 
-ohos_unittest("ability_context_impl_ut_test") {
+ohos_unittest("ability_context_impl_test") {
   module_out_path = module_out_path
 
   include_dirs = [
@@ -35,7 +35,7 @@ ohos_unittest("ability_context_impl_ut_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_serviceability_manager_service.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/unittest/frameworks_kits_ability_ability_runtime_test/mock_context.cpp",
-    "ability_context_impl_ut_test.cpp",
+    "ability_context_impl_test.cpp",
   ]
 
   deps = [
@@ -138,7 +138,7 @@ group("unittest") {
   deps = []
 
   deps += [
-    ":ability_context_impl_ut_test",
+    ":ability_context_impl_test",
     ":caller_call_back_ut_test",
     ":local_call_container_ut_test",
     ":local_call_record_ut_test",

@@ -48,6 +48,7 @@ struct AppSpawnStartMsg {
     uint8_t reserved1;
     uint8_t reserved2;
     uint64_t accessTokenIdEx;
+    uint32_t hapFlags = 0; // whether is pre installed hap
     HspList hspList; // list of harmony shared package
 };
 

@@ -414,12 +414,19 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return false;
+        }
+        missionSnapshot.topAbility = it->missionInfo.want.GetElement();
+    }
+    if (!taskDataPersistenceMgr_) {
+        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
         return false;
     }
     if (!snapshotHandler_) {
@@ -432,10 +439,6 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
         HILOG_ERROR("snapshot: get WMS snapshot failed, result = %{public}d", result);
         return false;
     }
-    if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
-        return false;
-    }
 
 #ifdef SUPPORT_GRAPHICS
     if (missionSnapshot.isPrivate) {
@@ -444,7 +447,6 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     missionSnapshot.snapshot = isLowResolution ?
         MissionDataStorage::GetReducedPixelMap(snapshot.GetPixelMap()) : snapshot.GetPixelMap();
 #endif
-    missionSnapshot.topAbility = it->missionInfo.want.GetElement();
 
     MissionSnapshot savedSnapshot = missionSnapshot;
 #ifdef SUPPORT_GRAPHICS
@@ -488,12 +490,15 @@ void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
 std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
     HILOG_INFO("mission_list_info GetSnapshot, missionId:%{public}d", missionId);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
-        return nullptr;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return nullptr;
+        }
     }
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");

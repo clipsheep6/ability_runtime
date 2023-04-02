@@ -148,10 +148,10 @@ public:
     /**
      * @brief get ability record by id
      *
-     * @param eventId event id
+     * @param abilityRecordId ability record id
      * @return std::shared_ptr<AbilityRecord> return ability record
      */
-    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t eventId) const;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
 
     /**
      * @brief Get the Ability Record By Caller object

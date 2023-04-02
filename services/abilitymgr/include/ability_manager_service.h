@@ -53,6 +53,7 @@
 #include "system_dialog_scheduler.h"
 #endif
 #include "event_report.h"
+#include "iacquire_share_data_callback_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -305,6 +306,12 @@ public:
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    virtual int ConnectUIExtensionAbility(
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
@@ -625,13 +632,13 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
-    void GetMaxRestartNum(int &max, bool isRootLauncher);
-    void GetRestartIntervalTime(int &restartIntervalTime);
-    void HandleLoadTimeOut(int64_t eventId);
-    void HandleActiveTimeOut(int64_t eventId);
-    void HandleInactiveTimeOut(int64_t eventId);
-    void HandleForegroundTimeOut(int64_t eventId);
-    void HandleBackgroundTimeOut(int64_t eventId);
+    void HandleLoadTimeOut(int64_t abilityRecordId);
+    void HandleActiveTimeOut(int64_t abilityRecordId);
+    void HandleInactiveTimeOut(int64_t abilityRecordId);
+    void HandleForegroundTimeOut(int64_t abilityRecordId);
+    void HandleShareDataTimeOut(int64_t uniqueId);
+    int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
 
     int StartAbilityInner(
         const Want &want,
@@ -918,6 +925,11 @@ public:
     int32_t IsValidMissionIds(
         const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
 
+    virtual int32_t AcquireShareData(
+        const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
+    virtual int32_t ShareDataDone(const sptr<IRemoteObject>& token,
+        const int32_t &requestCode, const int32_t &uniqueId, WantParams &wantParam) override;
+
     bool GetStartUpNewRuleFlag() const;
 
     std::shared_ptr<AbilityRecord> GetFocusAbility();
@@ -938,37 +950,16 @@ public:
     static constexpr uint32_t TERMINATE_TIMEOUT_MSG = 4;
     static constexpr uint32_t FOREGROUND_TIMEOUT_MSG = 5;
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
+    static constexpr uint32_t SHAREDATA_TIMEOUT_MSG = 7;
 
 #ifdef SUPPORT_ASAN
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 150000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 150000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 75000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 7500;         // ms
-    static constexpr uint32_t TERMINATE_TIMEOUT = 150000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 45000;         // ms
-    static constexpr uint32_t DISCONNECT_TIMEOUT = 7500;       // ms
-    static constexpr uint32_t COMMAND_TIMEOUT = 75000;         // ms
-    static constexpr uint32_t RESTART_TIMEOUT = 75000;         // ms
-    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 7500;  // ms
-    static constexpr uint32_t FOREGROUND_TIMEOUT = 75000;   // ms
-    static constexpr uint32_t BACKGROUND_TIMEOUT = 45000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 15000;            // ms
-    static constexpr uint32_t KILL_TIMEOUT = 45000;           // ms
 #else
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
-    static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 3000;         // ms
-    static constexpr uint32_t DISCONNECT_TIMEOUT = 500;       // ms
-    static constexpr uint32_t COMMAND_TIMEOUT = 5000;         // ms
-    static constexpr uint32_t RESTART_TIMEOUT = 5000;         // ms
-    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 500;  // ms
-    static constexpr uint32_t FOREGROUND_TIMEOUT = 5000;   // ms
-    static constexpr uint32_t BACKGROUND_TIMEOUT = 3000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 1000;            // ms
-    static constexpr uint32_t KILL_TIMEOUT = 3000;           // ms
 #endif
 
     static constexpr uint32_t MIN_DUMP_ARGUMENT_NUM = 2;
@@ -1061,7 +1052,8 @@ private:
         const int32_t userId,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
-        AppExecFwk::ExtensionAbilityType extensionType);
+        AppExecFwk::ExtensionAbilityType extensionType,
+        const sptr<SessionInfo> &sessionInfo = nullptr);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
@@ -1318,7 +1310,6 @@ private:
     std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
-    std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
     const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
@@ -1338,6 +1329,8 @@ private:
     std::multimap<std::string, std::string> timeoutMap_;
 
     static sptr<AbilityManagerService> instance_;
+    int32_t uniqueId_ = 0;
+    std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>&>> iAcquireShareDataMap_;
 
     // Component StartUp rule switch
     bool startUpNewRule_ = true;

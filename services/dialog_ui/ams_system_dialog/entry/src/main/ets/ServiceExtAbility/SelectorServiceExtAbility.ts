@@ -80,10 +80,11 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
 
     async onRequest(want, startId) {
+        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
         globalThis.abilityWant = want;
         globalThis.params = JSON.parse(want["parameters"]["params"]);
         globalThis.position = JSON.parse(want["parameters"]["position"]);
-        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
+        globalThis.callerToken = want["parameters"]["callerToken"];
         console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
         console.debug(TAG, "onRequest, position: " + JSON.stringify(globalThis.position));
 
@@ -107,7 +108,7 @@ export default class SelectorServiceExtensionAbility extends extension {
             if (deviceInfo.deviceType == "phone") {
                 this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             }
             winNum++;
         })
@@ -121,6 +122,13 @@ export default class SelectorServiceExtensionAbility extends extension {
         console.info(TAG, "create window");
         try {
             win = await window.create(globalThis.selectExtensionContext, name, windowType);
+            await win.bindDialogTarget(globalThis.callerToken.value, () => {
+                win.destroyWindow();
+                winNum--;
+                if(winNum === 0) {
+                    globalThis.selectExtensionContext.terminateSelf();
+                }
+            });
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
             if (globalThis.params.deviceType == "phone") {
@@ -130,8 +138,8 @@ export default class SelectorServiceExtensionAbility extends extension {
             }
             await win.setBackgroundColor("#00000000");
             await win.show();
-        } catch {
-            console.error(TAG, "window create failed!");
+        } catch (e) {
+            console.error(TAG, "window create failed: " + JSON.stringify(e));
         }
     }
 };

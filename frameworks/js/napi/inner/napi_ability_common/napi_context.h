@@ -32,13 +32,6 @@ struct CallAbilityPermissionParam {
     int syncOption = false;
 };
 
-struct OnRequestPermissionsFromUserResultCallback {
-    int requestCode = 0;
-    std::vector<std::string> permissions;
-    std::vector<int> grantResults;
-    CallbackInfo cb;
-};
-
 /**
  * @brief Context NAPI module registration.
  *

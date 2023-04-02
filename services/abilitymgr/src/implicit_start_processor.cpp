@@ -100,7 +100,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want);
+    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
@@ -254,7 +254,7 @@ sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
 bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
     std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos)
 {
-    auto erms = AbilityUtil::GetEcologicalRuleMgr();
+    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
     if (!erms) {
         HILOG_ERROR("get ecological rule mgr failed.");
         return false;

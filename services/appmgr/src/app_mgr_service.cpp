@@ -344,6 +344,14 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
     return appMgrServiceInner_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpHeapMemory(pid, mallocInfo);
+}
+
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 {
     if (!IsReady()) {
@@ -492,7 +500,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, pid_t &renderPid)
+    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
 {
     if (!IsReady()) {
         HILOG_ERROR("StartRenderProcess failed, AppMgrService not ready.");
@@ -500,7 +508,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
-        renderParam, ipcFd, sharedFd, renderPid);
+        renderParam, ipcFd, sharedFd, crashFd, renderPid);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
@@ -670,6 +678,24 @@ bool AppMgrService::IsSharedBundleRunning(const std::string &bundleName, uint32_
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->IsSharedBundleRunning(bundleName, versionCode);
+}
+
+int32_t AppMgrService::StartNativeProcessForDebugger(const AAFwk::Want &want)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isShellCall) {
+        HILOG_ERROR("permission denied, only called by shell.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto ret = appMgrServiceInner_->StartNativeProcessForDebugger(want);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("debuggablePipe fail to start native process.");
+    }
+    return ret;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

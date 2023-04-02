@@ -118,8 +118,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::string renderParam(data, size);
     int32_t ipcFd = static_cast<int32_t>(GetU32Data(data));
     int32_t sharedFd = static_cast<int32_t>(GetU32Data(data));
+    int32_t crashFd = static_cast<int32_t>(GetU32Data(data));
     pid_t renderPid = static_cast<pid_t>(GetU32Data(data));
-    appMgrServiceInner->StartRenderProcess(hostPid, renderParam, ipcFd, sharedFd, renderPid);
+    appMgrServiceInner->StartRenderProcess(hostPid, renderParam, ipcFd,
+                                           sharedFd, crashFd, renderPid);
     sptr<IRenderScheduler> scheduler;
     appMgrServiceInner->AttachRenderProcess(pid, scheduler);
     std::shared_ptr<RenderRecord> renderRecord;

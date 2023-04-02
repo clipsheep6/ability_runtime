@@ -35,8 +35,7 @@ public:
 void UserControllerTest::SetUpTestCase()
 {
     auto abilityMs = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    abilityMs->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-    abilityMs->amsConfigResolver_->Parse();
+    AmsConfigurationParameter::GetInstance().Parse();
 }
 
 void UserControllerTest::TearDownTestCase()

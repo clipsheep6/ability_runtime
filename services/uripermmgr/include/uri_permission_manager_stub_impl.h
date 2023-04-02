@@ -20,7 +20,7 @@
 #include <map>
 
 #include "bundlemgr/bundle_mgr_interface.h"
-#include "foundation/filemanagement/storage_service/services/storage_manager/include/ipc/storage_manager_proxy.h"
+#include "storage_manager_proxy.h"
 #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
@@ -33,6 +33,7 @@ struct GrantInfo {
     unsigned int flag;
     const unsigned int fromTokenId;
     const unsigned int targetTokenId;
+    int autoremove;
 };
 class UriPermissionManagerStubImpl : public UriPermissionManagerStub,
                                      public std::enable_shared_from_this<UriPermissionManagerStubImpl> {
@@ -40,13 +41,11 @@ public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
 
-    bool GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
-        const Security::AccessToken::AccessTokenID targetTokenId) override;
+    int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove) override;
 
-    bool VerifyUriPermission(const Uri &uri, unsigned int flag,
-        const Security::AccessToken::AccessTokenID tokenId) override;
-
-    void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
+    void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
 private:
     sptr<AppExecFwk::IBundleMgr> ConnectBundleManager();
@@ -54,6 +53,10 @@ private:
     int GetCurrentAccountId();
     void ClearBMSProxy();
     void ClearSMProxy();
+    int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
+        Security::AccessToken::AccessTokenID fromTokenId,
+        Security::AccessToken::AccessTokenID targetTokenId, int autoremove);
+    Security::AccessToken::AccessTokenID GetTokenIdByBundleName(const std::string bundleName);
 
     class BMSOrSMDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

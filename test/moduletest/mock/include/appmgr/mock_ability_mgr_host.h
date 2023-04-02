@@ -304,6 +304,16 @@ public:
     {
         return 0;
     }
+    int32_t AcquireShareData(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override
+    {
+        return 0;
+    }
+
+    int32_t ShareDataDone(const sptr<IRemoteObject> &token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam) override
+    {
+        return 0;
+    }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override

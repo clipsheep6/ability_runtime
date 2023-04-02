@@ -73,8 +73,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         }
     }
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    std::vector<std::string> info;
-    AbilityRequest abilityRequest;
 
     // fuzz for PendingWantKey
     auto pendingWantKey = std::make_shared<PendingWantKey>();
@@ -114,8 +112,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     pendingWantManager->SendWantSender(wantSenderPtr, senderInfo);
     pendingWantManager->CancelWantSender(stringParam, wantSenderPtr);
     pendingWantManager->CancelWantSenderLocked(pendingWantRecord, boolParam);
-    pendingWantManager->DeviceIdDetermine(*want, token, int32Param, int32Param);
-    pendingWantManager->PendingWantStartAbility(*want, token, int32Param, int32Param);
     pendingWantManager->PendingWantStartAbilitys(allWantsInfos, token, int32Param, int32Param);
     pendingWantManager->PendingWantPublishCommonEvent(*want, senderInfo, int32Param, int32Param);
     pendingWantManager->PendingRecordIdCreate();
@@ -134,8 +130,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     pendingWantManager->GetWantSenderInfo(wantSenderPtr, wantSenderInfoPtr);
     pendingWantManager->ClearPendingWantRecord(stringParam, int32Param);
     pendingWantManager->ClearPendingWantRecordTask(stringParam, int32Param);
-    pendingWantManager->Dump(info);
-    pendingWantManager->DumpByRecordId(info, stringParam);
 
     // fuzz for ResidentProcessManager
     auto residentProcessManager = std::make_shared<ResidentProcessManager>();

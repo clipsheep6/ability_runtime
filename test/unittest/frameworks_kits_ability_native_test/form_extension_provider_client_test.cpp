@@ -97,8 +97,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0100, Func
 
     int64_t formId = 723L;
     const sptr<IRemoteObject> callerToken = nullptr;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.NotifyFormExtensionDelete(formId, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->NotifyFormExtensionDelete(formId, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0100 end";
 }
@@ -120,8 +122,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0200, Func
     want.SetParam(Constants::PARAM_FORM_HOST_TOKEN, callerToken);
 
     int64_t formId = 723L;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.NotifyFormExtensionDelete(formId, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->NotifyFormExtensionDelete(formId, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0200 end";
 }
@@ -141,8 +145,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0300, Func
 
     int64_t formId = 723L;
     const sptr<IRemoteObject> callerToken = nullptr;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.NotifyFormExtensionUpdate(formId, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->NotifyFormExtensionUpdate(formId, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0300 end";
 }
@@ -162,8 +168,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0400, Func
 
     int64_t formId = 723L;
     const sptr<IRemoteObject> callerToken = nullptr;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.NotifyFormExtensionUpdate(formId, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->NotifyFormExtensionUpdate(formId, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0400 end";
 }
@@ -184,8 +192,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0500, Func
     int64_t formId = 723L;
     std::string message = "event message";
     const sptr<IRemoteObject> callerToken = nullptr;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.FireFormExtensionEvent(formId, message, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->FireFormExtensionEvent(formId, message, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0500 end";
 }
@@ -206,8 +216,10 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0600, Func
     int64_t formId = 723L;
     std::string message = "event message";
     const sptr<IRemoteObject> callerToken = nullptr;
-    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
-    formExtensionProviderClient.FireFormExtensionEvent(formId, message, want, callerToken);
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+    formExtensionProviderClient->FireFormExtensionEvent(formId, message, want, callerToken);
 
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0600 end";
 }

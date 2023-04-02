@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <new>
 #include <regex>
 #include <unistd.h>
+#include <malloc.h>
 
 #include "constants.h"
 #include "ability_delegator.h"
@@ -110,7 +111,7 @@ constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 
-void SetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AbilityRuntime::Runtime::Options &options)
+void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths)
 {
     std::string patchNativeLibraryPath = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath;
     if (!patchNativeLibraryPath.empty()) {
@@ -118,7 +119,7 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, Abil
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
         HILOG_INFO("napi patch lib path = %{private}s", patchLibPath.c_str());
-        options.appLibPaths["default"].emplace_back(patchLibPath);
+        appLibPaths["default"].emplace_back(patchLibPath);
     }
 
     std::string nativeLibraryPath = bundleInfo.applicationInfo.nativeLibraryPath;
@@ -129,7 +130,7 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, Abil
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
         HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
-        options.appLibPaths["default"].emplace_back(libPath);
+        appLibPaths["default"].emplace_back(libPath);
     }
 
     for (auto &hapInfo : bundleInfo.hapModuleInfos) {
@@ -146,12 +147,13 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, Abil
             std::string patchLibPath = LOCAL_CODE_PATH;
             patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
             HILOG_INFO("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
-            options.appLibPaths[appLibPathKey].emplace_back(patchLibPath);
+            appLibPaths[appLibPathKey].emplace_back(patchLibPath);
         }
 
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-        options.appLibPaths[appLibPathKey].emplace_back(libPath);
+        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+        appLibPaths[appLibPathKey].emplace_back(libPath);
     }
 
     for (auto &hspInfo : hspList) {
@@ -165,7 +167,8 @@ void SetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, Abil
         std::string libPath = LOCAL_CODE_PATH;
         libPath = libPath.back() == '/' ? libPath : libPath + "/";
         libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
-        options.appLibPaths[appLibPathKey].emplace_back(libPath);
+        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+        appLibPaths[appLibPathKey].emplace_back(libPath);
     }
 }
 } // namespace
@@ -488,6 +491,26 @@ void MainThread::ScheduleMemoryLevel(const int level)
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
     HILOG_DEBUG("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
+}
+
+/**
+ *
+ * @brief Get the application's memory allocation info.
+ *
+ * @param pid, pid input.
+ * @param mallocInfo, dynamic storage information output.
+ */
+void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    struct mallinfo mi = mallinfo();
+    int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
+    int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
+    int fordblks = mi.fordblks; // 当前未释放的大小
+    HILOG_DEBUG("The pid of the app we want to dump memory allocation information is: %{public}i", pid);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    mallocInfo.usmblks = usmblks;
+    mallocInfo.uordblks = uordblks;
+    mallocInfo.fordblks = fordblks;
 }
 
 /**
@@ -1167,12 +1190,17 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
     application_->SetApplicationContext(applicationContext);
+
+    HspList hspList;
+    ErrCode ret = bundleMgr->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetBaseSharedBundleInfos failed: %{public}d", ret);
+    }
+    AppLibPathMap appLibPaths {};
+    GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths);
+
     if (isStageBased) {
-        HspList hspList;
-        ErrCode ret = bundleMgr->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("MainThread::HandleLaunchApplication GetBaseSharedBundleInfos failed: %d", ret);
-        }
         // Create runtime
         auto hapPath = entryHapModuleInfo.hapPath;
         AbilityRuntime::Runtime::Options options;
@@ -1185,7 +1213,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
-        SetNativeLibPath(bundleInfo, hspList, options);
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1207,6 +1234,15 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\n";
+            const AppExecFwk::ErrorObject errorObj = {
+                .name = errorName,
+                .message = errorMsg,
+                .stack = errorStack
+            };
+            if (obj != nullptr && obj->HasProperty("code")) {
+                std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
+                summary += "Error code:" + errorCode + "\n";
+            }
             if (appThread->application_ == nullptr) {
                 HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
                 return;
@@ -1241,7 +1277,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
-            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
+            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
+                ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj)) {
                 return;
             }
             // if app's callback has been registered, let app decide whether exit or not.

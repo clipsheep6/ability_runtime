@@ -157,9 +157,7 @@ void AbilityTimeoutModuleTest::MockOnStart()
     abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
     EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
 
-    abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
-    abilityMs_->amsConfigResolver_->Parse();
+    AmsConfigurationParameter::GetInstance().Parse();
 
     abilityMs_->InitMissionListManager(userId, true);
     abilityMs_->SwitchManagers(MOCK_U0_USER_ID, false);
@@ -191,7 +189,6 @@ void AbilityTimeoutModuleTest::MockOnStop()
     abilityMs_->systemDataAbilityManager_.reset();
     abilityMs_->pendingWantManagers_.clear();
     abilityMs_->pendingWantManager_.reset();
-    abilityMs_->amsConfigResolver_.reset();
     abilityMs_->missionListManagers_.clear();
     abilityMs_->currentMissionListManager_.reset();
     abilityMs_->userController_.reset();
@@ -216,7 +213,6 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateRootLauncher()
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(lauList);
     abilityRecord->SetLauncherRoot();
-    abilityRecord->eventId_ = (AbilityRecord::g_abilityRecordEventId_++);
     lauList->AddMissionToTop(mission);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
@@ -239,7 +235,6 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateLauncherAbility()
     auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(lauList);
-    abilityRecord->eventId_ = (AbilityRecord::g_abilityRecordEventId_++);
     lauList->AddMissionToTop(mission);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
@@ -299,7 +294,6 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateCommonAbility()
     EXPECT_TRUE(abilityRecord != nullptr);
     EXPECT_TRUE(mission != nullptr);
     abilityRecord->SetMission(mission);
-    abilityRecord->eventId_ = (AbilityRecord::g_abilityRecordEventId_++);
     auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
     abilityRecord->SetMissionList(missionList);
     missionList->AddMissionToTop(mission);
@@ -321,13 +315,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -362,13 +355,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -408,13 +400,12 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
-    abilityMs_->GetMaxRestartNum(maxRestart, true);
+    maxRestart = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     EXPECT_TRUE(maxRestart > -1);
 
     // add rootlauncher to abilityMs.
@@ -450,7 +441,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -464,7 +454,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_001, TestSize.Level1)
     EXPECT_TRUE(rootLauncher->IsLauncherRoot());
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(rootLauncher->eventId_);
+    abilityMs_->HandleLoadTimeOut(rootLauncher->GetAbilityRecordId());
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
     EXPECT_EQ(rootLauncher, topAbility);
@@ -481,7 +471,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -500,7 +489,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_002, TestSize.Level1)
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -518,7 +507,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -544,7 +532,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_003, TestSize.Level1)
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -562,7 +550,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -588,7 +575,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_004, TestSize.Level1)
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -606,7 +593,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -630,7 +616,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_005, TestSize.Level1)
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -648,7 +634,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -672,7 +657,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_006, TestSize.Level1)
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -690,7 +675,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -709,7 +693,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
     EXPECT_EQ(topAbility, commonLauncherAbility);
 
     // rootlauncher load timeout
-    abilityMs_->HandleLoadTimeOut(commonLauncherAbility->eventId_);
+    abilityMs_->HandleLoadTimeOut(commonLauncherAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncherAbility->GetToken()) == nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -727,7 +711,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -742,7 +725,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_001, TestSize.Level1)
     rootLauncher->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(rootLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(rootLauncher->GetAbilityRecordId());
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
     EXPECT_EQ(rootLauncher, topAbility);
@@ -759,7 +742,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -779,7 +761,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -797,7 +779,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -824,7 +805,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -842,7 +823,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -869,7 +849,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -887,7 +867,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -912,7 +891,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -930,7 +909,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -955,7 +933,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -973,7 +951,6 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->amsConfigResolver_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
     auto curListManager = abilityMs_->currentMissionListManager_;
@@ -993,7 +970,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
     commonLauncherAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundTimeOut(commonLauncherAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncherAbility->GetAbilityRecordId());
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncherAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();

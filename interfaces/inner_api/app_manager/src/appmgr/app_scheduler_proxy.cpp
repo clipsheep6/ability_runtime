@@ -126,6 +126,36 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
     ScheduleMemoryCommon(level, operation);
 }
 
+void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
+        return;
+    }
+    data.WriteInt32(pid);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(operation, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return;
+    }
+
+    std::unique_ptr<MallocInfo> info(reply.ReadParcelable<MallocInfo>());
+    if (info == nullptr) {
+        HILOG_ERROR("MallocInfo ReadParcelable nullptr");
+        return;
+    }
+    mallocInfo = *info;
+}
+
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
 {
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);

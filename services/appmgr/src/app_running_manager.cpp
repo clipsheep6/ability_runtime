@@ -115,6 +115,21 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
+bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    if (appRunningRecordMap_.empty()) {
+        return false;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(const pid_t pid)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
@@ -247,7 +262,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("On remot died.");
+    HILOG_INFO("On remote died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -572,6 +587,27 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
         HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
         appRecord->ScheduleMemoryLevel(level);
     }
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_INVALID_VALUE;
+    }
+    auto appRecord = iter->second;
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appRecord->ScheduleHeapMemory(pid, mallocInfo);
     return ERR_OK;
 }
 

@@ -31,7 +31,7 @@
       "OHOS::AppExecFwk::GetCallbackErrorValue(napi_env__*, int)";
       "OHOS::AppExecFwk::GetContinueAbilityOptionsInfoCommon(napi_env__* const&, napi_value__* const&, OHOS::AppExecFwk::ContinueAbilityOptionsInfo&)";
       "OHOS::AppExecFwk::GetDataAbilityHelperStatus()";
-      "OHOS::AppExecFwk::GetGlobalClassContext()";
+      "OHOS::AppExecFwk::GetGlobalClassContext(napi_env__*)";
       "OHOS::AppExecFwk::GetGlobalDataAbilityHelper(napi_env__*)";
       "OHOS::AppExecFwk::GetPropertyValueByPropertyName(napi_env__*, napi_value__*, char const*, napi_valuetype)";
       "OHOS::AppExecFwk::GetStartAbilityErrorCode(int)";
@@ -39,6 +39,7 @@
       "OHOS::AppExecFwk::IsTypeForNapiValue(napi_env__*, napi_value__*, napi_valuetype)";
       *OHOS::AppExecFwk::NAPI*;
       "OHOS::AppExecFwk::SaveGlobalDataAbilityHelper(napi_env__*, napi_value__*)";
+      "OHOS::AppExecFwk::SetGlobalClassContext(napi_env__*, napi_value__*)";
       "OHOS::AppExecFwk::SetPropertyValueByPropertyName(napi_env__*, napi_value__*, char const*, napi_value__*)";
       *OHOS::AppExecFwk::Unwrap*;
       *OHOS::AppExecFwk::Wrap*;

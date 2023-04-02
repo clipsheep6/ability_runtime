@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,9 +100,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeTest_0200, TestSize.Level0)
 {
     std::string appLibPathKey = TEST_BUNDLE_NAME + TEST_MODULE_NAME;
     std::string libPath = TEST_LIB_PATH;
-    options_.appLibPaths[appLibPathKey].emplace_back(libPath);
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
+
+    AppLibPathMap appLibPaths {};
+    JsRuntime::SetAppLibPath(appLibPaths);
+
+    appLibPaths[appLibPathKey].emplace_back(libPath);
+    EXPECT_NE(appLibPaths.size(), 0);
+    JsRuntime::SetAppLibPath(appLibPaths);
 }
 
 /**
@@ -445,6 +449,136 @@ HWTEST_F(JsRuntimeTest, JsRuntimeDetachCallbackFuncTest_0100, TestSize.Level0)
     EXPECT_EQ(result, &value);
 
     HILOG_INFO("DetachCallbackFunc end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadSystemModulesTest_0100
+ * @tc.desc: JsRuntime test for LoadSystemModule.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModulesTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("LoadSystemModule start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string moduleName = "PreloadSystemModuleTest";
+    std::unique_ptr<NativeReference> ref = jsRuntime->LoadSystemModule(moduleName, nullptr, 0);
+    EXPECT_EQ(ref, nullptr);
+
+    HILOG_INFO("LoadSystemModule end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateExtensionTypeTest_0100
+ * @tc.desc: JsRuntime test for UpdateExtensionType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateExtensionTypeTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UpdateExtensionType start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    int32_t extensionType = 1;
+    jsRuntime->UpdateExtensionType(extensionType);
+
+    HILOG_INFO("UpdateExtensionType end");
+}
+
+/**
+ * @tc.name: JsRuntimeStartDebugModeTest_0100
+ * @tc.desc: JsRuntime test for StartDebugMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("StartDebugMode start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    bool needBreakPoint = true;
+    jsRuntime->StartDebugMode(needBreakPoint);
+
+    HILOG_INFO("StartDebugMode end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadRepairPatchTest_0100
+ * @tc.desc: JsRuntime test for LoadRepairPatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadRepairPatchTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("LoadRepairPatch start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string hqfFile = "<hqfFile>";
+    std::string hapPath = "<hapPath>";
+    bool lrp = jsRuntime->LoadRepairPatch(hqfFile, hapPath);
+    EXPECT_EQ(lrp, false);
+
+    HILOG_INFO("LoadRepairPatch end");
+}
+
+/**
+ * @tc.name: JsRuntimeUnLoadRepairPatchTest_0100
+ * @tc.desc: JsRuntime test for UnLoadRepairPatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUnLoadRepairPatchTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UnLoadRepairPatch start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string hqfFile = "<hqfFile>";
+    bool lrp = jsRuntime->UnLoadRepairPatch(hqfFile);
+    EXPECT_EQ(lrp, false);
+
+    HILOG_INFO("UnLoadRepairPatch end");
+}
+
+/**
+ * @tc.name: JsRuntimeNotifyHotReloadPageTest_0100
+ * @tc.desc: JsRuntime test for NotifyHotReloadPage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeNotifyHotReloadPageTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("NotifyHotReloadPage start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    bool lrp = jsRuntime->NotifyHotReloadPage();
+    EXPECT_EQ(lrp, true);
+
+    HILOG_INFO("NotifyHotReloadPage end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateModuleNameAndAssetPathTest_0100
+ * @tc.desc: JsRuntime test for UpdateModuleNameAndAssetPath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateModuleNameAndAssetPathTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("UpdateModuleNameAndAssetPath start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string moduleName = "moduleName";
+    jsRuntime->UpdateModuleNameAndAssetPath(moduleName);
+
+    HILOG_INFO("UpdateModuleNameAndAssetPath end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

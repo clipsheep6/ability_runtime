@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,7 @@ public:
     ~MixStackDumper() = default;
     void InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<EventHandler> handler);
+    static std::string GetMixStack(bool onlyMainThread);
 
 private:
     void Init(pid_t pid);
@@ -45,6 +46,8 @@ private:
     std::string GetThreadStackTraceLabel(pid_t tid);
     void PrintNativeFrames(int fd, std::vector<OHOS::HiviewDFX::NativeFrame>& nativeFrames);
     void PrintProcessHeader(int fd, pid_t pid, uid_t uid);
+    void Write(int fd, const std::string& outStr);
+    std::string DumpMixStackLocked(int fd, pid_t tid);
 
     static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
     static void HandleMixDumpRequest();
@@ -53,6 +56,7 @@ private:
     static std::weak_ptr<EventHandler> signalHandler_;
     static std::weak_ptr<OHOSApplication> application_;
     std::unique_ptr<OHOS::HiviewDFX::DfxDumpCatcher> catcher_{nullptr};
+    std::string outputStr_;
 };
 } // AppExecFwk
 } // OHOS

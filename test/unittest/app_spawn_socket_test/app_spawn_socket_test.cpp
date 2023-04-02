@@ -61,19 +61,7 @@ HWTEST_F(AppSpawnSocketTest, OpenAppSpawnConnection_001, TestSize.Level0)
     appSpawnSocket->clientSocket_ = nullptr;
     ErrCode res2 = appSpawnSocket->OpenAppSpawnConnection();
     EXPECT_EQ(res2, ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET);
-}
 
-/*
- * Feature: AppSpawnSocket
- * Function: CloseAppSpawnConnection
- * SubFunction: NA
- * FunctionPoints: AppSpawnSocket CloseAppSpawnConnection
- * EnvConditions: NA
- * CaseDescription: Verify CloseAppSpawnConnection
- */
-HWTEST_F(AppSpawnSocketTest, CloseAppSpawnConnection_001, TestSize.Level0)
-{
-    auto appSpawnSocket = std::make_shared<AppSpawnSocket>(true);
     appSpawnSocket->CloseAppSpawnConnection();
     appSpawnSocket->clientSocket_ = nullptr;
     appSpawnSocket->CloseAppSpawnConnection();

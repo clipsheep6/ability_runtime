@@ -218,10 +218,10 @@ std::shared_ptr<AbilityRecord> MissionList::GetLauncherRoot() const
     return nullptr;
 }
 
-std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordById(int64_t eventId) const
+std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordById(int64_t abilityRecordId) const
 {
     for (std::shared_ptr<Mission> mission : missions_) {
-        if (mission && mission->GetAbilityRecord()->GetEventId() == eventId) {
+        if (mission && mission->GetAbilityRecord()->GetAbilityRecordId() == abilityRecordId) {
             return mission->GetAbilityRecord();
         }
     }

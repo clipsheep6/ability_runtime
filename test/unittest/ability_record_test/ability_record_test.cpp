@@ -264,21 +264,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetPreNextAbilityReocrd, TestSize
  * Feature: AbilityRecord
  * Function: create AbilityRecord
  * SubFunction: NA
- * FunctionPoints: SetEventId GetEventId
- * EnvConditions: NA
- * CaseDescription: SetEventId GetEventId UT.
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetEventId, TestSize.Level1)
-{
-    int64_t eventId = 1;
-    abilityRecord_->SetEventId(eventId);
-    EXPECT_EQ(eventId, abilityRecord_->GetEventId());
-}
-
-/*
- * Feature: AbilityRecord
- * Function: create AbilityRecord
- * SubFunction: NA
  * FunctionPoints: IsReady
  * EnvConditions: NA
  * CaseDescription: IsReady UT.
@@ -1055,6 +1040,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetWantFromMission_002, TestSize.Lev
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_AnimationTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     bool isRecent = true;
     AbilityRequest abilityRequest;
     std::shared_ptr<StartOptions> startOptions = nullptr ;
@@ -1073,6 +1059,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_AnimationTask_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetShowWhenLocked_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     AbilityInfo abilityInfo;
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     CustomizeData data1;
@@ -1096,6 +1083,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetShowWhenLocked_001, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<AbilityRecord> callerAbility = nullptr;
     AbilityRequest abilityRequest;
     abilityRecord->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
@@ -1112,6 +1100,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_NotifyAnimationFromStartingAbility_0
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_StartingWindowTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     bool isRecent = true;
     AbilityRequest abilityRequest;
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
@@ -1130,6 +1119,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_StartingWindowTask_001, TestSize.Lev
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     sptr<AbilityTransitionInfo> info = nullptr;
     std::shared_ptr<Want> want = nullptr;
     abilityRecord->SetWindowModeAndDisplayId(info, want);
@@ -1146,6 +1136,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_001, TestS
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     want->SetParam(Want::PARAM_RESV_WINDOW_MODE, 1);
@@ -1164,6 +1155,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_002, TestS
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     want->SetParam(Want::PARAM_RESV_WINDOW_MODE, -1);
@@ -1182,6 +1174,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetWindowModeAndDisplayId_003, TestS
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<StartOptions> startOptions = nullptr;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     abilityRecord->CreateAbilityTransitionInfo(startOptions, want);
@@ -1198,6 +1191,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_001, Tes
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     startOptions->SetWindowMode(1);
@@ -1216,6 +1210,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_002, Tes
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.startSetting = nullptr;
     abilityRecord->CreateAbilityTransitionInfo(abilityRequest);
@@ -1232,6 +1227,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_003, Tes
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_004, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     AbilityRequest abilityRequest;
     std::shared_ptr<AbilityStartSetting> startSetting = std::make_shared<AbilityStartSetting>();
     startSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY, "windowMode");
@@ -1251,6 +1247,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_004, Tes
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<StartOptions> startOptions = nullptr;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     AbilityRequest abilityRequest;
@@ -1272,6 +1269,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_005, Tes
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_006, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     AbilityRequest abilityRequest;
@@ -1339,6 +1337,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_002, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_StartingWindowHot_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<StartOptions> startOptions = std::make_shared<StartOptions>();
     std::shared_ptr<Want> want = std::make_shared<Want>();
     AbilityRequest abilityRequest;
@@ -1356,6 +1355,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_StartingWindowHot_001, TestSize.Level1
 HWTEST_F(AbilityRecordTest, AbilityRecord_GetColdStartingWindowResource_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<Media::PixelMap> bg;
     uint32_t bgColor = 0;
     abilityRecord->startingWindowBg_ = std::make_shared<Media::PixelMap>();
@@ -1375,6 +1375,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetColdStartingWindowResource_001, Tes
 HWTEST_F(AbilityRecordTest, AbilityRecord_InitColdStartingWindowResource_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     abilityRecord->InitColdStartingWindowResource(nullptr);
     abilityRecord->InitColdStartingWindowResource(resourceMgr);
@@ -1695,6 +1696,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SendResultToCallers_003, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     int resultCode = 0;
     Want *resultWant;
     abilityRecord->callerList_.clear();
@@ -1712,6 +1714,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_001, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
     std::shared_ptr<CallerRecord> caller1 = std::make_shared<CallerRecord>(0, callerAbilityRecord);
     std::shared_ptr<CallerRecord> caller2 = std::make_shared<CallerRecord>();
@@ -1734,6 +1737,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResultToCallers_002, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = GetAbilityRecord();
     std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, callerAbilityRecord);
     int resultCode = 0;
@@ -1753,6 +1757,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, nullptr);
     std::string srcAbilityId = "id";
     int resultCode = 0;
@@ -1772,6 +1777,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SaveResult_002, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, SystemAbilityCallerRecord_SetResultToSystemAbility_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::string srcAbilityId = "srcAbility_id";
     std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
         std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
@@ -1856,6 +1862,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_IsSystemAbilityCall_001, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
     int requestCode = 0;
     std::string srcAbilityId = "srcAbility_id";
@@ -1874,6 +1881,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_001, Test
 HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
     int requestCode = 0;
     std::string srcAbilityId = "srcAbility_id";
@@ -1918,6 +1926,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetConnectingRecordList_001, TestSize.
 HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityState_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     std::vector<std::string> params;
@@ -1937,6 +1946,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityState_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_SetStartTime_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     abilityRecord->startTime_ = 1;
     abilityRecord->SetStartTime();
 }
@@ -1952,6 +1962,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SetStartTime_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_DumpService_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::vector<std::string> info;
     std::vector<std::string> params;
     bool isClient = false;
@@ -1993,6 +2004,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SendEvent_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestarting_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     bool isRestart = false;
     abilityRecord->isLauncherRoot_ = true;
     abilityRecord->isLauncherAbility_ = true;
@@ -2014,6 +2026,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestarting_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestarting_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     bool isRestart = false;
     int32_t canReStartCount = 1;
     abilityRecord->isLauncherRoot_ = true;
@@ -2056,6 +2069,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CallRequestDone_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_DumpClientInfo_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::vector<std::string> info;
     const std::vector<std::string> params;
     bool isClient = true;
@@ -2082,6 +2096,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_DumpClientInfo_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityInfoDone_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     std::vector<std::string> infos;
     abilityRecord->isDumpTimeout_ = true;
     abilityRecord->DumpAbilityInfoDone(infos);
@@ -2100,10 +2115,11 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_DumpAbilityInfoDone_001, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     Want want;
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, "name");
 }
 
 /*
@@ -2117,12 +2133,13 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     Want want;
     want.SetFlags(1);
     want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2136,12 +2153,13 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     Want want;
     want.SetFlags(1);
     want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2155,12 +2173,13 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    uint32_t targetTokenId = 1;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
@@ -2174,27 +2193,28 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
 HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    uint32_t targetTokenId = 56;
-    abilityRecord->SetCallerAccessTokenId(targetTokenId);
+    EXPECT_NE(abilityRecord, nullptr);
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     int32_t userId = 100;
-    abilityRecord->GrantUriPermission(want, userId, targetTokenId);
+    std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
 }
 
 /*
  * Feature: AbilityRecord
- * Function: RemoveUriPermission
- * SubFunction: RemoveUriPermission
+ * Function: RevokeUriPermission
+ * SubFunction: RevokeUriPermission
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord RemoveUriPermission
+ * CaseDescription: Verify AbilityRecord RevokeUriPermission
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveUriPermission_001, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_RevokeUriPermission_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    abilityRecord->RemoveUriPermission();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->RevokeUriPermission();
 }
 
 /*
@@ -2208,6 +2228,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveUriPermission_001, TestSize.Leve
 HWTEST_F(AbilityRecordTest, AbilityRecord_HandleDlpClosed_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     abilityRecord->abilityInfo_.bundleName = DLP_BUNDLE_NAME;
     abilityRecord->appIndex_ = 1;
     abilityRecord->HandleDlpClosed();
@@ -2224,6 +2245,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_HandleDlpClosed_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     abilityRecord->GetCurrentAccountId();
 }
 

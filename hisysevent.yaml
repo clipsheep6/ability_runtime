@@ -46,6 +46,7 @@ THREAD_BLOCK_3S:
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: stacktrace of current process}
 
 THREAD_BLOCK_6S:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
@@ -54,6 +55,7 @@ THREAD_BLOCK_6S:
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
 
 # fault event
 

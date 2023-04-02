@@ -182,6 +182,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_020
     info->permissions.push_back(std::string("abc"));
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, record);
     ohosApplication_->DumpApplication();
+    EXPECT_TRUE(record != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0200 end.";
 }
 
@@ -800,43 +801,6 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnStart_0100
-* @tc.name: OnStart
-* @tc.desc: Verify function OnStart called
-*/
-HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnStart_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnStart_0100 start.";
-    ohosApplication_->OnStart();
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnStart_0100 end.";
-}
-
-/*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnTerminate_0100
-* @tc.name: OnTerminate
-* @tc.desc: Verify function OnTerminate called
-*/
-HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnTerminate_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnTerminate_0100 start.";
-    ohosApplication_->OnTerminate();
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnTerminate_0100 end.";
-}
-
-/*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilitySaveState_0100
-* @tc.name: OnAbilitySaveState
-* @tc.desc: Verify function OnAbilitySaveState called
-*/
-HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilitySaveState_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilitySaveState_0100 start.";
-    const PacMap outState;
-    ohosApplication_->OnAbilitySaveState(outState);
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilitySaveState_0100 end.";
-}
-
-/*
 * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100
 * @tc.name: AddAbilityStage
 * @tc.desc: Verify function AddAbilityStage pointer abilityRecord empty
@@ -844,9 +808,13 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilitySaveState_
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100 start.";
+    ohosApplication_->OnStart();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
     ohosApplication_->AddAbilityStage(abilityRecord);
     EXPECT_TRUE(abilityRecord == nullptr);
+    const PacMap outState;
+    ohosApplication_->OnAbilitySaveState(outState);
+    ohosApplication_->OnTerminate();
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100 end.";
 }
 

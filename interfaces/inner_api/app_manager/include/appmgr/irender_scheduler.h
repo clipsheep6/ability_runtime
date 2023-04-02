@@ -33,8 +33,10 @@ public:
      *
      * @param ipcFd, ipc file descriptior for web browser and render process.
      * @param sharedFd, shared memory file descriptior.
+     * @param crashFd, crash signal file descriptior.
      */
-    virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd) = 0;
+    virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
+                                 int32_t crashFd) = 0;
 
     enum class Message {
         NOTIFY_BROWSER_FD = 1,

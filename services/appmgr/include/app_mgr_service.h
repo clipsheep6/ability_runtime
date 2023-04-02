@@ -37,6 +37,7 @@
 #include "app_scheduler_proxy.h"
 #include "ams_mgr_scheduler.h"
 #include "ams_mgr_scheduler.h"
+#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -153,6 +154,16 @@ public:
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
+    /**
+     * DumpHeapMemory, call DumpHeapMemory() through proxy project.
+     * Get the application's memory allocation info.
+     *
+     * @param pid, pid input.
+     * @param mallocInfo, dynamic storage information output.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
     // the function about system
     /**
      * CheckPermission, call CheckPermission() through proxy object, check the permission.
@@ -226,8 +237,9 @@ public:
 
     virtual int PreStartNWebSpawnProcess() override;
 
-    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid) override;
+    virtual int StartRenderProcess(const std::string &renderParam,
+                                   int32_t ipcFd, int32_t sharedFd,
+                                   int32_t crashFd, pid_t &renderPid) override;
 
     virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
 
@@ -270,6 +282,8 @@ public:
      * @return Returns the shared bundle running result. The result is true if running, false otherwise.
      */
     virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) override;
+
+    virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override;
 
 private:
     /**
