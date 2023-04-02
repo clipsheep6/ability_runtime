@@ -922,7 +922,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                         overlayPaths.emplace_back(it.hapPath);
                     }
                 }
-                HILOG_DEBUG("OverlayPaths size:%{public}d.", overlayPaths.size());
+                HILOG_DEBUG("OverlayPaths size:%{public}zu.", overlayPaths.size());
                 if (!resourceManager->AddResource(loadPath, overlayPaths)) {
                     HILOG_ERROR("AddResource failed");
                 }
@@ -2551,7 +2551,7 @@ int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::
     {
         return lhs.priority > rhs.priority;
     });
-    HILOG_DEBUG("GetOverlayPath end, the size of overlay is: %{public}d", overlayModuleInfos.size());
+    HILOG_DEBUG("GetOverlayPath end, the size of overlay is: %{public}zu", overlayModuleInfos.size());
     return ERR_OK;
 }
 
