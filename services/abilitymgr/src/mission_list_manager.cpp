@@ -39,6 +39,7 @@ constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
+constexpr int64_t MAX_FOREGROUNDING_TIME = 60 * 1000; // 1 minute
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
@@ -135,9 +136,16 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
         if (state == FOREGROUNDING) {
-            HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
-            EnqueueWaitingAbility(abilityRequest);
-            return START_ABILITY_WAITING;
+            auto foregroundingTime = currentTopAbility->GetForegroundingTime();
+            auto currentTime = AbilityUtil::SystemTimeMillis();
+            if (currentTime - foregroundingTime > MAX_FOREGROUNDING_TIME) {
+                HILOG_INFO("Top ability:%{public}s is foregrounding and more than one minute.", element.c_str());
+                OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, currentTopAbility->GetAbilityRecordId());
+            } else {
+                HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
+                EnqueueWaitingAbility(abilityRequest);
+                return START_ABILITY_WAITING;
+            }
         }
     }
 
@@ -1872,14 +1880,14 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
 
 void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
-    HILOG_DEBUG("On timeout, msgId is %{public}d", msgId);
+    HILOG_INFO("On timeout, msgId is %{public}d", msgId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordById(abilityRecordId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_INFO("Ability timeout, name:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RevokeUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
@@ -1932,6 +1940,11 @@ void MissionListManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRe
 
     if (ability->GetMission()) {
         ability->GetMission()->SetMovingState(false);
+    }
+
+    if (!ability->IsAbilityState(AbilityState::FOREGROUNDING)) {
+        HILOG_ERROR("this ability is not foregrounding state.");
+        return;
     }
 
     // root launcher load timeout, notify appMs force terminate the ability and restart immediately.
