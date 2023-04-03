@@ -170,6 +170,19 @@ void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName& 
 {
 }
 
+void LocalCallContainer::OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState)
+{
+    HILOG_DEBUG("LocalCallContainer::OnRemoteStateChanged start %{public}s .", element.GetURI().c_str());
+    std::shared_ptr<LocalCallRecord> localCallRecord;
+    if (GetCallLocalRecord(element, localCallRecord)) {
+        localCallRecord->NotifyRemoteStateChanged(abilityState);
+        HILOG_DEBUG("call NotifyRemoteStateChanged.");
+    }
+
+    HILOG_DEBUG("LocalCallContainer::OnRemoteStateChanged end. abilityState:%{public}d.", abilityState);
+    return;
+}
+
 bool LocalCallContainer::GetCallLocalRecord(
     const AppExecFwk::ElementName& elementName, std::shared_ptr<LocalCallRecord>& localCallRecord)
 {

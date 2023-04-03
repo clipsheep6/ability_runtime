@@ -52,8 +52,8 @@ public:
     explicit JsCallerComplex(
         NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
         std::shared_ptr<CallerCallBack> callerCallBack) : releaseCallFunc_(releaseCallFunc),
-        callee_(callee), releaseCallBackEngine_(engine),
-        callerCallBackObj_(callerCallBack), jsReleaseCallBackObj_(nullptr)
+        callee_(callee), releaseCallBackEngine_(engine), remoteStateChanegdEngine_(engine),
+        callerCallBackObj_(callerCallBack), jsReleaseCallBackObj_(nullptr), jsRemoteStateChangedObj_(nullptr)
     {
         AddJsCallerComplex(this);
         handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
@@ -148,6 +148,24 @@ public:
         }
 
         return object->SetOnReleaseCallBackInner(*engine, *info);
+    }
+
+    static NativeValue* JsSetOnRemoteStateChanged(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        if (engine == nullptr || info == nullptr) {
+            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
+                __func__,
+                ((engine == nullptr) ? "engine" : "info"));
+            return nullptr;
+        }
+
+        auto object = CheckParamsAndGetThis<JsCallerComplex>(engine, info);
+        if (object == nullptr) {
+            HILOG_ERROR("JsCallerComplex::%{public}s is called, CheckParamsAndGetThis return nullptr", __func__);
+            return nullptr;
+        }
+
+        return object->SetOnRemoteStateChangedInner(*engine, *info);
     }
 
     static bool AddJsCallerComplex(JsCallerComplex* ptr)
@@ -309,6 +327,42 @@ private:
         StateReset();
         HILOG_DEBUG("OnReleaseNotifyTask end");
     }
+    
+    void OnRemoteStateChangedNotify(const std::string &str)
+    {
+        HILOG_DEBUG("OnRemoteStateChangedNotify begin");
+        if (handler_ == nullptr) {
+            HILOG_ERROR("handler parameters error");
+            return;
+        }
+
+        auto task = [notify = this, &str] () {
+            if (!FindJsCallerComplex(notify)) {
+                HILOG_ERROR("ptr not found, address error");
+                return;
+            }
+            notify->OnRemoteStateChangedNotifyTask(str);
+        };
+        handler_->PostSyncTask(task, "OnRemoteStateChangedNotify");
+        HILOG_DEBUG("OnRemoteStateChangedNotify end");
+    }
+
+    void OnRemoteStateChangedNotifyTask(const std::string &str)
+    {
+        HILOG_DEBUG("OnRemoteStateChangedNotifyTask begin");
+        if (jsRemoteStateChangedObj_ == nullptr) {
+            HILOG_ERROR("JsCallerComplex::%{public}s, jsreleaseObj is nullptr", __func__);
+            return;
+        }
+
+        NativeValue* value = jsRemoteStateChangedObj_->Get();
+        NativeValue* callback = jsRemoteStateChangedObj_->Get();
+        NativeValue* args[] = { CreateJsValue(remoteStateChanegdEngine_, str) };
+        remoteStateChanegdEngine_.CallFunction(value, callback, args, 1);
+        HILOG_DEBUG("OnRemoteStateChangedNotifyTask CallFunction call done");
+        StateReset();
+        HILOG_DEBUG("OnRemoteStateChangedNotifyTask end");
+    }
 
     NativeValue* ReleaseCallInner(NativeEngine& engine, NativeCallbackInfo& info)
     {
@@ -369,13 +423,54 @@ private:
         HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
         return engine.CreateUndefined();
     }
+    
+    NativeValue* SetOnRemoteStateChangedInner(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
+        constexpr size_t argcOne = 1;
+        if (info.argc < argcOne) {
+            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
+            ThrowTooFewParametersError(engine);
+        }
+        if (!info.argv[0]->IsCallable()) {
+            HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
+                __func__, ((info.argv[0]->IsCallable()) ? "true" : "false"));
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (callerCallBackObj_ == nullptr) {
+            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        }
+
+        auto param1 = info.argv[0];
+        if (param1 == nullptr) {
+            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        }
+
+        jsRemoteStateChangedObj_.reset(remoteStateChanegdEngine_.CreateReference(param1, 1));
+        auto task = [notify = this] (const std::string &str) {
+            HILOG_INFO("state changed");
+            if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
+                HILOG_ERROR("ptr not found, address error");
+                return;
+            }
+            notify->OnRemoteStateChangedNotify(str);
+        };
+        callerCallBackObj_->SetOnRemoteStateChanged(task);
+        HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
+        return engine.CreateUndefined();
+    }
 
 private:
     ReleaseCallFunc releaseCallFunc_;
     sptr<IRemoteObject> callee_;
     NativeEngine& releaseCallBackEngine_;
+    NativeEngine& remoteStateChanegdEngine_;
     std::shared_ptr<CallerCallBack> callerCallBackObj_;
     std::unique_ptr<NativeReference> jsReleaseCallBackObj_;
+    std::unique_ptr<NativeReference> jsRemoteStateChangedObj_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::mutex stateMechanismMutex_;
     OBJSTATE currentState_;
@@ -415,6 +510,7 @@ NativeValue* CreateJsCallerComplex(
     const char *moduleName = "JsCallerComplex";
     BindNativeFunction(engine, *object, "release", moduleName, JsCallerComplex::JsReleaseCall);
     BindNativeFunction(engine, *object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
+    BindNativeFunction(engine, *object, "onRemoteStateChanged", moduleName, JsCallerComplex::JsSetOnRemoteStateChanged);
 
     HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
     return objValue;

@@ -18,6 +18,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+constexpr int32_t FOREGROUND = 2;
+constexpr int32_t BACKGROUND = 4;
+}
 int64_t LocalCallRecord::callRecordId = 0;
 LocalCallRecord::LocalCallRecord(const AppExecFwk::ElementName& elementName)
 {
@@ -118,6 +122,29 @@ void LocalCallRecord::InvokeCallBack() const
         }
     }
     HILOG_DEBUG("finish callback with remote object.");
+}
+
+void LocalCallRecord::NotifyRemoteStateChanged(int32_t abilityState)
+{
+    if (remoteObject_ == nullptr) {
+        HILOG_ERROR("remote object is nullptr, can't notify.");
+        return;
+    }
+    std::string state = "";
+    if (abilityState == FOREGROUND) {
+        state = "foreground";
+    } else if (abilityState == BACKGROUND) {
+        state = "background";
+    }
+    HILOG_DEBUG("NotifyRemoteStateChanged, state = %{public}s.", state.c_str());
+
+    for (auto& callBack : callers_) {
+        if (callBack != nullptr && callBack->IsCallBack()) {
+            HILOG_INFO("callback is not nullptr, and is callbcak ");
+            callBack->InvokeOnNotify(state);
+        }
+    }
+    HILOG_DEBUG("finish notify remote state changed.");
 }
 
 sptr<IRemoteObject> LocalCallRecord::GetRemoteObject() const

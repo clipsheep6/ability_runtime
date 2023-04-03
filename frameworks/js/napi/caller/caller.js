@@ -235,6 +235,21 @@ class Caller {
         this.__call_obj__.onRelease(callback);
     }
 
+    onRemoteStateChanged(callback) {
+        console.log("Caller onRemoteStateChanged jscallback called.");
+        if (typeof callback !== 'function') {
+            console.log("Caller onRemoteStateChanged " + typeof callback);
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (this.releaseState == true) {
+            console.log("Caller onRemoteStateChanged remoteObj releaseState is true");
+            throw new BusinessError(ERROR_CODE_CALLER_RELEASED);
+        }
+
+        this.__call_obj__.onRemoteStateChanged(callback);
+    }
+
     on(type, callback) {
         console.log("Caller onRelease jscallback called.");
         if (typeof type !== 'string' || type !== "release") {
