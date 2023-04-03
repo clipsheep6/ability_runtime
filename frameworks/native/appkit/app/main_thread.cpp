@@ -72,6 +72,13 @@
 #include <dlfcn.h>
 #endif
 
+// namespace panda {
+// using QuickFixQueryCallBack = bool (*)(std::string baseFileName,
+//                                        std::string &patchFileName,
+//                                        void **patchBuffer,
+//                                        size_t &patchSize);
+// }
+
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
@@ -80,6 +87,7 @@ std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
+static std::map<std::string, std::string> moduleAndPath_;
 namespace {
 #ifdef APP_USE_ARM64
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
@@ -1632,6 +1640,41 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     return true;
 }
 
+// bool callback(std::string baseFileName, std::string &patchFileName,
+//             void **patchBuffer, size_t &patchSize)
+// {
+//     // 1.baseFileName = /data/storage/el1/bundle/${moduleName}/ets/modules.abc.
+//     HILOG_DEBUG("zhuhan====baseFileName: %{public}s", baseFileName.c_str());
+//     int baseFileNameLen = baseFileName.length();
+//     int prefixLen = strlen(BUNDLE_INSTALL_PATH);
+//     int suffixLen = strlen(MERGE_ABC_PATH);
+//     std::string moduleName = baseFileName.substr(prefixLen, baseFileNameLen - prefixLen - suffixLen);
+
+//     HILOG_DEBUG("zhuhan====moduleName: %{public}s", moduleName.c_str());
+
+//     // 2.根据moudleName获取到patchFileName，补丁路径。hqfInfos：moudelName， hqfFile
+//     std::map<std::string, std::string>::iterator it = moduleAndPath_.find(moduleName);
+//     if(it == moduleAndPath_.end()) {
+//         HILOG_ERROR("zhuhan====moduleName: %{public}s", moduleName.c_str());
+//         return false;
+//     }
+//     std::string hqfFile = it->second;
+//     HILOG_DEBUG("zhuhan====hqfFile: %{public}s", hqfFile.c_str());
+//     auto& runtime = application_->GetRuntime();
+
+//     std::vector<uint8_t> newpatchBuffer;
+//     *patchBuffer = &bufferData;
+//     if (!runtime || !runtime->GetFileBuffer(hqfFile, patchFileName, &newpatchBuffer)) {
+//         HILOG_ERROR("zhuhan====GetFileBuffer failed");
+//         return false;
+//     }
+//     void *bufferData = reinterpret_cast<void *>(newpatchBuffer);
+//     HILOG_DEBUG("zhuhan====patchFileName: %{public}s", patchFileName.c_str());
+//     *patchBuffer = &bufferData;
+//     patchSize = newpatchBuffer.size();
+//     return true;
+// }
+
 /**
  *
  * @brief launch the ability.
@@ -1684,14 +1727,61 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
 
-    if (runtime) {
-        std::vector<std::pair<std::string, std::string>> hqfFilePair;
-        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
-            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
-                runtime->LoadRepairPatch(it->first, it->second);
-            }
+    // if (runtime) {
+    //     std::vector<std::pair<std::string, std::string>> hqfFilePair;
+    //     if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
+    //         for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+    //             HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+    //             runtime->LoadRepairPatch(it->first, it->second);
+    //         }
+    //     }
+    // }
+
+
+    // panda::QuickFixQueryCallBack callback = 
+    //     [runtime](std::string baseFileName, std::string &patchFileName,
+    //     void **patchBuffer, size_t &patchSize) {
+
+    //     // 1.baseFileName = /data/storage/el1/bundle/${moduleName}/ets/modules.abc.
+    //     HILOG_DEBUG("zhuhan====baseFileName: %{public}s", baseFileName.c_str());
+    //     int baseFileNameLen = baseFileName.length();
+    //     int prefixLen = strlen(BUNDLE_INSTALL_PATH);
+    //     int suffixLen = strlen(MERGE_ABC_PATH);
+    //     std::string moduleName = baseFileName.substr(prefixLen, baseFileNameLen - prefixLen - suffixLen);
+
+    //     HILOG_DEBUG("zhuhan====moduleName: %{public}s", moduleName.c_str());
+
+    //     // 2.根据moudleName获取到patchFileName，补丁路径。hqfInfos：moudelName， hqfFile
+    //     std::map<std::string, std::string>::iterator it = moduleAndPath_.find(moduleName);
+    //     if(it == moduleAndPath_.end()) {
+    //         HILOG_ERROR("zhuhan====moduleName: %{public}s", moduleName.c_str());
+    //         return false;
+    //     }
+    //     std::string hqfFile = it->second;
+    //     HILOG_DEBUG("zhuhan====hqfFile: %{public}s", hqfFile.c_str());
+
+    //     std::vector<uint8_t> newpatchBuffer;
+    //     if (!runtime || !runtime->GetFileBuffer(hqfFile, patchFileName, &newpatchBuffer)) {
+    //         HILOG_ERROR("zhuhan====GetFileBuffer failed");
+    //         return false;
+    //     }
+    //     void *bufferData = reinterpret_cast<void *>(newpatchBuffer);
+    //     HILOG_DEBUG("zhuhan====patchFileName: %{public}s", patchFileName.c_str());
+    //     *patchBuffer = &bufferData;
+    //     patchSize = newpatchBuffer.size();
+    //     return true;
+    // };
+
+
+    std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
+    if (runtime && !hqfInfos.empty()) {
+        // hqfInfos：moudelName， hqfFile
+        for(auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
+            HILOG_INFO("zhuhan===moudelName: %{private}s, hqfFilePath: %{private}s.",
+                it->moduleName.c_str(), it->hqfFilePath.c_str());
+            moduleAndPath_.insert(std::make_pair(it->moduleName, it->hqfFilePath));
         }
+        runtime->RegisterQuickFixQueryFunc(moduleAndPath_);
     }
 }
 
