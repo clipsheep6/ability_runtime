@@ -2265,7 +2265,7 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, std::string targetBundleName)
+void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, uint32_t targetTokenId)
 {
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
@@ -2274,13 +2274,23 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, std::st
 
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
-    auto&& uriStr = want.GetUri().ToString();
-    auto&& uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
-    uriVec.emplace_back(uriStr);
+    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(fromTokenId, nativeInfo);
+    HILOG_DEBUG("callerprocessName: %{public}s", nativeInfo.processName.c_str());
+    std::vector<std::string> uriVec;
+    if (nativeInfo.processName == "distributedsched") {
+        uriVec = want.GetStringArrayParam(PARAMS_URI);
+        GrantDmsUriPermission(want, targetTokenId, uriVec);
+        return;
+    } else {
+        std::string uriStr = want.GetUri().ToString();
+        uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
+        uriVec.emplace_back(uriStr);
+    }
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2302,13 +2312,35 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, std::st
             HILOG_ERROR("the uri does not belong to caller.");
             continue;
         }
-        int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
-            targetBundleName, autoremove));
+            callerAccessTokenId_, targetTokenId));
         if (ret) {
             isGrantedUriPermission_ = true;
         }
     }
+}
+
+void AbilityRecord::GrantDmsUriPermission(Want &want, uint32_t targetTokenId, std::vector<std::string> &uriVec)
+{
+    HILOG_DEBUG("GrantDmsUriPermission uriVec size: %{public}zu", uriVec.size());
+    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    for (auto&& str : uriVec) {
+        Uri uri(str);
+        auto&& scheme = uri.GetScheme();
+        HILOG_INFO("uri scheme is %{public}s.", scheme.c_str());
+        // only support file scheme
+        if (scheme != "file") {
+            HILOG_WARN("only support file uri.");
+            continue;
+        }
+        auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
+            callerAccessTokenId_, targetTokenId));
+        if (ret) {
+            isGrantedUriPermission_ = true;
+        }
+    }
+    uriVec.clear();
+    want.SetParam(PARAMS_URI, uriVec);
 }
 
 void AbilityRecord::RevokeUriPermission()

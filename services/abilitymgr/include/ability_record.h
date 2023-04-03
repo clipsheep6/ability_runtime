@@ -855,7 +855,8 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(const Want &want, int32_t userId, std::string targetBundleName);
+    void GrantUriPermission(Want &want, int32_t userId, uint32_t targetTokenId);
+    void GrantDmsUriPermission(Want &want, uint32_t targetTokenId, std::vector<std::string> &uriVec);
     int32_t GetCurrentAccountId() const;
 
     /**
