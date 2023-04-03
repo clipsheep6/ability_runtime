@@ -1690,6 +1690,10 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
     HILOG_INFO("Start process success, pid is %{public}d, processName is %{public}s.", pid, processName.c_str());
+    if (processName == "com.example.myapplication") {
+            HILOG_INFO("sleep here");
+            sleep(7);
+    }
     SetRunningSharedBundleList(bundleName, hspList);
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
