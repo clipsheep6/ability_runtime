@@ -1330,7 +1330,7 @@ private:
 
     static sptr<AbilityManagerService> instance_;
     int32_t uniqueId_ = 0;
-    std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>&>> iAcquireShareDataMap_;
+    std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>>> iAcquireShareDataMap_;
 
     // Component StartUp rule switch
     bool startUpNewRule_ = true;

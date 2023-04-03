@@ -3857,7 +3857,7 @@ int32_t AbilityManagerService::GetShareDataPairAndReturnData(std::shared_ptr<Abi
     auto it = iAcquireShareDataMap_.find(uniqueId);
     if (it != iAcquireShareDataMap_.end()) {
         auto shareDataPair = it->second;
-        if (!abilityRecord || shareDataPair.first != abilityRecord->GetAbilityRecordId()) {
+        if (abilityRecord && shareDataPair.first != abilityRecord->GetAbilityRecordId()) {
             HILOG_ERROR("abilityRecord is not the abilityRecord from request.");
             return ERR_INVALID_VALUE;
         }
@@ -6370,7 +6370,7 @@ int32_t AbilityManagerService::AcquireShareData(
         return ERR_INVALID_VALUE;
     }
     uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
-    std::pair<int64_t, const sptr<IAcquireShareDataCallback>&> shareDataPair =
+    std::pair<int64_t, const sptr<IAcquireShareDataCallback>> shareDataPair =
         std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
     iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
     abilityRecord->ShareData(uniqueId_);
