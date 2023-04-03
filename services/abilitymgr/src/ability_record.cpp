@@ -60,6 +60,7 @@ const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
+const std::string PARAMS_URI = "ability.verify.uri";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -2265,17 +2266,21 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, std::string targetBundleName)
+void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName)
 {
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
     }
-
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
-    auto&& uriStr = want.GetUri().ToString();
-    auto&& uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
+    if (IsDmsCall()) {
+        GrantDmsUriPermission(want, targetBundleName);
+        return;
+    }
+    std::vector<std::string> uriVec;
+    std::string uriStr = want.GetUri().ToString();
+    uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
     uriVec.emplace_back(uriStr);
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
@@ -2309,6 +2314,49 @@ void AbilityRecord::GrantUriPermission(const Want &want, int32_t userId, std::st
             isGrantedUriPermission_ = true;
         }
     }
+}
+
+bool AbilityRecord::IsDmsCall()
+{
+    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(fromTokenId);
+    bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
+    if (!isNativeCall) {
+        HILOG_INFO("Is not native call.");
+        return false;
+    }
+    AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenInfo(fromTokenId, nativeTokenInfo);
+    if (result == ERR_OK && nativeTokenInfo.processName == DMS_PROCESS_NAME) {
+        HILOG_INFO("Is dms ability call.");
+        return true;
+    }
+    return false;
+}
+
+void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleName)
+{
+    std::vector<std::string> uriVec = want.GetStringArrayParam(PARAMS_URI);
+    HILOG_DEBUG("GrantDmsUriPermission uriVec size: %{public}zu", uriVec.size());
+    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    for (auto&& str : uriVec) {
+        Uri uri(str);
+        auto&& scheme = uri.GetScheme();
+        HILOG_INFO("uri scheme is %{public}s.", scheme.c_str());
+        // only support file scheme
+        if (scheme != "file") {
+            HILOG_WARN("only support file uri.");
+            continue;
+        }
+        int autoremove = 1;
+        auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
+            targetBundleName, autoremove));
+        if (ret) {
+            isGrantedUriPermission_ = true;
+        }
+    }
+    uriVec.clear();
+    want.SetParam(PARAMS_URI, uriVec);
 }
 
 void AbilityRecord::RevokeUriPermission()
