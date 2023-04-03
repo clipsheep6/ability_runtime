@@ -1190,6 +1190,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
     application_->SetApplicationContext(applicationContext);
+    std::string bundleCodeDir = applicationContext->GetBundleCodeDir();
 
     HspList hspList;
     ErrCode ret = bundleMgr->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
@@ -1222,7 +1223,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode, hapPath](NativeValue* v) {
+        auto path = hapPath.empty() ? bundleCodeDir : hapPath;
+        auto uncaughtTask = [weak, bundleName, versionCode, path](NativeValue* v) {
             HILOG_INFO("Js uncaught exception callback come.");
             auto appThread = weak.promote();
             if (appThread == nullptr) {
@@ -1265,7 +1267,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 }
             }
             summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
-                bindSourceMaps, hapPath);
+                bindSourceMaps, path);
             time_t timet;
             time(&timet);
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",

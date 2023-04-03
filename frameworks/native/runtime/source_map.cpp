@@ -42,8 +42,10 @@ constexpr char DELIMITER_SEMICOLON = ';';
 constexpr char DOUBLE_SLASH = '\\';
 constexpr char WEBPACK[] = "webpack:///";
 const std::string REALPATH_FLAG = "/temprary/";
+const std::string ABILITYPATH_FLAG = "/entry/ets/";
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
+constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * (1 << 20);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_THREE = 3;
 constexpr int32_t INDEX_FOUR = 4;
@@ -52,27 +54,50 @@ constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
 
-bool ModSourceMap::ReadSourceMapData(const std::string& hapPath, std::string& content)
+bool ModSourceMap::ReadSourceMapData(const std::string& path, std::string& content)
 {
-    if (hapPath.empty()) {
-        HILOG_ERROR("hapPath is empty");
+    if (path.empty()) {
+        HILOG_ERROR("path is empty");
         return false;
     }
-    bool newCreate = false;
-    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
-        ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
-    if (extractor == nullptr) {
-        HILOG_ERROR("hapPath %{public}s GetExtractor failed", hapPath.c_str());
-        return false;
+    if (path.find(".hap") == std::string::npos) {
+        std::string filePath = path + ABILITYPATH_FLAG + "sourceMaps.map";
+        char path[PATH_MAX] ;
+        if (realpath(filePath.c_str(), path) == nullptr) {
+            HILOG_ERROR("ModSourceMap::ReadSourceMapData realpath(%{public}s) failed, errno = %{public}d",
+                            filePath.c_str(), errno);
+        }
+        std::ifstream stream(path, std::ios::binary | std::ios::ate);
+        if (!stream.is_open()) {
+                HILOG_ERROR("ModSourceMap::ReadSourceMapData failed to open file %{public}s", path);
+        }     
+        int64_t fileLen = stream.tellg();
+        if (fileLen > ASSET_FILE_MAX_SIZE) {
+            char buffer[fileLen];
+            buffer[fileLen - 1] = '\0';
+            stream.seekg(0);
+            stream.read(buffer, fileLen);
+            content = buffer;
+            return true;
+        }
+    } else {
+        bool newCreate = false;
+        std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
+        ExtractorUtil::GetLoadFilePath(path), newCreate);
+        if (extractor == nullptr) {
+            HILOG_ERROR("hapPath %{public}s GetExtractor failed", path.c_str());
+            return false;
+        }
+        std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+        size_t len = 0;
+        if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
+            HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
+            return false;
+        }
+        content = reinterpret_cast<char *>(dataPtr.get());
+        return true;
     }
-    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-    size_t len = 0;
-    if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
-        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
-        return false;
-    }
-    content = reinterpret_cast<char *>(dataPtr.get());
-    return true;
+    return false;
 }
 
 MappingInfo ModSourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap, const std::string& key)
@@ -354,7 +379,7 @@ bool ModSourceMap::VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans
 };
 
 std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModSourceMap& bindSourceMaps,
-    const std::string& hapPath)
+    const std::string& path)
 {
     const std::string closeBrace = ")";
     const std::string openBrace = "(";
@@ -391,7 +416,7 @@ std::string ModSourceMap::TranslateBySourceMap(const std::string& stackStr, ModS
         }
     }
     std::string curSourceMap;
-    if (!ReadSourceMapData(hapPath, curSourceMap)) {
+    if (!ReadSourceMapData(path, curSourceMap)) {
         HILOG_ERROR("ReadSourceMapData fail");
         return stackStr;
     }
