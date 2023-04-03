@@ -1011,10 +1011,6 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
         HILOG_DEBUG("Not this subscribe, action: %{public}s.", action.c_str());
         return;
     }
-    if (want.GetElement().GetBundleName() != bundleName) {
-        HILOG_DEBUG("Not this app, bundleName: %{public}s.", want.GetElement().GetBundleName().c_str());
-        return;
-    }
     bool isEnable = data.GetWant().GetBoolParam(Constants::OVERLAY_STATE, false);
     // 1.get overlay hapPath
     if (resourceManager == nullptr) {

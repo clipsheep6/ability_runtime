@@ -733,8 +733,8 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data, const 
         HILOG_DEBUG("Not this subscribe, action: %{public}s.", action.c_str());
         return;
     }
-    if (want.GetElement().GetBundleName() != bundleName || GetBundleName() != bundleName) {
-        HILOG_DEBUG("Not this app, bundleName: %{public}s.", want.GetElement().GetBundleName().c_str());
+    if (GetBundleName() != bundleName) {
+        HILOG_DEBUG("Not this app, bundleName: %{public}s.", bundleName.c_str());
         return;
     }
     bool isEnable = data.GetWant().GetBoolParam(AppExecFwk::Constants::OVERLAY_STATE, false);
