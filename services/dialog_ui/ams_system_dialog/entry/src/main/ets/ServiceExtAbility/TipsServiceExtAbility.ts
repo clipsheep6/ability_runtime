@@ -30,9 +30,11 @@ export default class TipsServiceExtensionAbility extends extension {
     }
 
     onRequest(want, startId) {
+        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
         globalThis.abilityWant = want;
         globalThis.params = JSON.parse(want["parameters"]["params"]);
         globalThis.position = JSON.parse(want["parameters"]["position"]);
+        globalThis.callerToken = want["parameters"]["callerToken"];
 
         display.getDefaultDisplay().then(dis => {
             let navigationBarRect = {
@@ -48,7 +50,7 @@ export default class TipsServiceExtensionAbility extends extension {
             if (deviceInfo.deviceType == "phone") {
                 this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+                this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             }
             winNum++;
         })
@@ -62,6 +64,13 @@ export default class TipsServiceExtensionAbility extends extension {
         console.info(TAG, "create window");
         try {
             win = await window.create(globalThis.tipsExtensionContext, name, windowType);
+            await win.bindDialogTarget(globalThis.callerToken.value, () => {
+                win.destroyWindow();
+                winNum--;
+                if(winNum === 0) {
+                    globalThis.tipsExtensionContext.terminateSelf();
+                }
+            });
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
             await win.loadContent('pages/tipsDialog');
