@@ -96,7 +96,13 @@ Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 
 JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {}
-JsAbility::~JsAbility() = default;
+JsAbility::~JsAbility()
+{
+    auto context = GetAbilityContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
@@ -348,6 +354,8 @@ void JsAbility::OnSceneCreated()
         HILOG_ERROR("Failed to create jsAppWindowStage object by LoadSystemModule");
         return;
     }
+
+    HandleScope handleScope(jsRuntime_);
     NativeValue *argv[] = {jsAppWindowStage->Get()};
     CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
 

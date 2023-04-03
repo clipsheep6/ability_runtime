@@ -59,7 +59,7 @@ NativeValue *AttachUIExtensionContext(NativeEngine *engine, void *value, void *)
     }
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachUIExtensionContext, value, nullptr);
-    
+
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
@@ -75,7 +75,13 @@ JsUIExtension* JsUIExtension::Create(const std::unique_ptr<Runtime>& runtime)
 }
 
 JsUIExtension::JsUIExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsUIExtension::~JsUIExtension() = default;
+JsUIExtension::~JsUIExtension()
+{
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsUIExtension::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
