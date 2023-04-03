@@ -1934,11 +1934,6 @@ void MissionListManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRe
         ability->GetMission()->SetMovingState(false);
     }
 
-    if (!ability->IsAbilityState(AbilityState::FOREGROUNDING)) {
-        HILOG_ERROR("this ability is not foregrounding state.");
-        return;
-    }
-
     // root launcher load timeout, notify appMs force terminate the ability and restart immediately.
     if (ability->IsLauncherAbility() && ability->IsLauncherRoot()) {
         DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
