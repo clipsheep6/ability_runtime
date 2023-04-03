@@ -181,11 +181,11 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
 #ifdef SUPPORT_GRAPHICS
     if (isForeground && (rule.replaceWant != nullptr)) {
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
+        int result = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
             userId, requestCode));
-        if (ret != ERR_OK) {
+        if (result != ERR_OK) {
             HILOG_ERROR("ecological start replace want failed.");
-            return ret;
+            return result;
         }
     }
 #endif

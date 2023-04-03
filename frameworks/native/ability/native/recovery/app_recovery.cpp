@@ -464,10 +464,6 @@ bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionI
     }
     struct dirent *ptr;
     while ((ptr = readdir(dir)) != nullptr) {
-        if (ptr == nullptr) {
-            HILOG_ERROR("AppRecovery GetMissionIds read dir error.");
-            return false;
-        }
         if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) {
             continue;
         } else if (ptr->d_type == DT_REG) {

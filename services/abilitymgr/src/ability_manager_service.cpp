@@ -4675,8 +4675,8 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 }
                 bool isRestartPage = false;
                 auto abilityName = want->GetElement().GetAbilityName();
-                for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
-                    if ((abilityName.compare(it->name) == 0) && it->type == AppExecFwk::AbilityType::PAGE) {
+                for (auto info = bundleInfo.abilityInfos.begin(); info != bundleInfo.abilityInfos.end(); ++info) {
+                    if ((abilityName.compare(info->name) == 0) && info->type == AppExecFwk::AbilityType::PAGE) {
                         isRestartPage = true;
                         break;
                     }
