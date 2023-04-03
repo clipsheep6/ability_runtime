@@ -179,6 +179,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/",
+              "header_files": [
+                "source_map.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime:source_map"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/napi_base_context/include",
               "header_files": [
                 "napi_base_context.h"

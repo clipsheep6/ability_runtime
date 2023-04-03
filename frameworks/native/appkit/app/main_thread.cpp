@@ -56,6 +56,7 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
+#include "uncaught_exception_callback.h"
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
@@ -1043,8 +1044,7 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
         }
     }
 }
-
-static std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key)
+[[maybe_unused]] static std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key)
 {
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get value from key:%{public}s, Null NativeObject", key);
@@ -1221,51 +1221,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
+        JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
+        uncaughtExceptionInfo.hapPath = hapPath;
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode, hapPath](NativeValue* v) {
-            HILOG_INFO("Js uncaught exception callback come.");
+        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode]
+            (std::string summary, const JsEnv::ErrorObject errorObj) {
             auto appThread = weak.promote();
             if (appThread == nullptr) {
-                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failed.");
+                HILOG_ERROR("appThread is nullptr.");
                 return;
             }
-            NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
-            std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
-            std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
-            std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-            std::string summary = "Error message:" + errorMsg + "\n";
-            const AppExecFwk::ErrorObject errorObj = {
-                .name = errorName,
-                .message = errorMsg,
-                .stack = errorStack
-            };
-            if (obj != nullptr && obj->HasProperty("code")) {
-                std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
-                summary += "Error code:" + errorCode + "\n";
-            }
-            if (appThread->application_ == nullptr) {
-                HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failde.");
-                return;
-            }
-            auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*
-                (appThread->application_->GetRuntime()))).GetSourceMap();
-            // bindRuntime.bindSourceMaps lazy loading
-            if (errorStack.empty()) {
-                HILOG_ERROR("errorStack is empty");
-                return;
-            }
-            HILOG_INFO("JS Stack:\n%{public}s", errorStack.c_str());
-            auto errorPos = ModSourceMap::GetErrorPos(errorStack);
-            std::string error;
-            if (obj != nullptr) {
-                NativeValue* value = obj->GetProperty("errorfunc");
-                NativeFunction* fuc = AbilityRuntime::ConvertNativeValueTo<NativeFunction>(value);
-                if (fuc != nullptr) {
-                    error = fuc->GetSourceCodeInfo(errorPos);
-                }
-            }
-            summary += error + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack,
-                bindSourceMaps, hapPath);
             time_t timet;
             time(&timet);
             HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
@@ -1274,19 +1239,24 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_VERSION, std::to_string(versionCode),
                 EVENT_KEY_TYPE, JSCRASH_TYPE,
                 EVENT_KEY_HAPPEN_TIME, timet,
-                EVENT_KEY_REASON, errorName,
+                EVENT_KEY_REASON, errorObj.name,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
+            ErrorObject appExecErrorObj = {
+                .name = errorObj.name,
+                .message = errorObj.message,
+                .stack = errorObj.stack
+            };
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
-                ApplicationDataManager::GetInstance().NotifyExceptionObject(errorObj)) {
+                ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
             }
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
-                bundleName.c_str(), errorName.c_str(), summary.c_str());
+                bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
             appThread->ScheduleProcessSecurityExit();
         };
-        jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
+        (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
