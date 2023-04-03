@@ -25,6 +25,7 @@
 
 #include "native_engine/native_engine.h"
 #include "runtime.h"
+#include "source_map.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -32,6 +33,7 @@ class EventHandler;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class TimerTask;
+class ModSourceMap;
 class RuntimeExtractor;
 
 void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
@@ -48,6 +50,11 @@ public:
     NativeEngine& GetNativeEngine() const
     {
         return *nativeEngine_;
+    }
+
+    ModSourceMap& GetSourceMap() const
+    {
+        return *bindSourceMaps_;
     }
 
     Language GetLanguage() const override
@@ -86,6 +93,7 @@ protected:
     bool preloaded_ = false;
     bool isBundle_ = true;
     std::unique_ptr<NativeEngine> nativeEngine_;
+    std::unique_ptr<ModSourceMap> bindSourceMaps_;
     std::string codePath_;
     std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
