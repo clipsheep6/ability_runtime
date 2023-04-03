@@ -220,7 +220,10 @@ int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start load ability, name is %{public}s.", abilityInfo_.name.c_str());
-    if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
+    if (applicationInfo_.asanEnabled) {
+        auto loadTimeOut = AbilityManagerService::LOAD_TIMEOUT_ASANENABLED;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeOut);
+    } else if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
         auto loadTimeOut = want_.GetBoolParam("coldStart", false) ?
             AbilityManagerService::COLDSTART_LOAD_TIMEOUT : AbilityManagerService::LOAD_TIMEOUT;
         SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeOut);
@@ -1189,6 +1192,10 @@ void AbilityRecord::Terminate(const Closure &task)
             eventId_ = g_abilityRecordEventId_;
             // eventId_ is a unique id of the task.
             handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::TERMINATE_TIMEOUT);
+        } else if (applicationInfo_.asanEnabled) {
+            g_abilityRecordEventId_++;
+            eventId_ = g_abilityRecordEventId_;
+            handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::TERMINATE_TIMEOUT_ASANENABLED);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }

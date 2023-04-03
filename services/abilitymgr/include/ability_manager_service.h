@@ -834,6 +834,8 @@ public:
     static constexpr uint32_t FOREGROUND_TIMEOUT_MSG = 5;
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
+    static constexpr uint32_t LOAD_TIMEOUT_ASANENABLED = 150000;  //ms
+    static constexpr uint32_t TERMINATE_TIMEOUT_ASANENABLED = 150000; //ms
 #ifdef SUPPORT_ASAN
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 150000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 150000;            // ms
