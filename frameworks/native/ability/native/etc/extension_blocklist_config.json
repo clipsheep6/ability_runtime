@@ -17,6 +17,15 @@
         "AccessibilityExtension": [],
         "InputMethodExtension": [],
         "WorkSchedulerExtension": [],
-        "DataShareExtension": []
+        "DataShareExtension": [],
+        "PushExtension": [
+            "notification",
+            "notificationManager",
+            "app.form.formProvider",
+            "app.form.formInfo",
+            "app.form.formHost",
+            "app.form.formBindingData",
+            "app.form.FormExtensionAbility"
+        ]
     }
 }
