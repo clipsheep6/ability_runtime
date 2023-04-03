@@ -38,6 +38,10 @@ JsEnvironment::~JsEnvironment()
     }
 
     if (vm_ != nullptr) {
+        if (vmDestroyCallback_) {
+            JSENV_LOG_I("VM destroy callback start");
+            vmDestroyCallback_();
+        }
         panda::JSNApi::DestroyJSVM(vm_);
         vm_ = nullptr;
     }

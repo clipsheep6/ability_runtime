@@ -34,6 +34,8 @@ class EventRunner;
 namespace AbilityRuntime {
 class Runtime {
 public:
+    using VMDestroyCallback = std::function<void()>;
+
     enum class Language {
         JS = 0,
     };
@@ -77,6 +79,7 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void UpdateExtensionType(int32_t extensionType) = 0;
+    virtual void RegisterVMDestroyCallback(const VMDestroyCallback &callback) {};
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

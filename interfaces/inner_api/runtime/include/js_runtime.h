@@ -100,6 +100,7 @@ public:
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
+    void RegisterVMDestroyCallback(const VMDestroyCallback &callback) override;
 
 private:
     void FinishPreload() override;

@@ -954,5 +954,12 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     panda::JSNApi::SetAssetPath(vm, path);
     panda::JSNApi::SetModuleName(vm, moduleName_);
 }
+
+void JsRuntime::RegisterVMDestroyCallback(const VMDestroyCallback &callback)
+{
+    CHECK_POINTER(jsEnv_);
+    HILOG_INFO("Register VMDestroyCallback success");
+    jsEnv_->RegisterVMDestroyCallback(callback);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
