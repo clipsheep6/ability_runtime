@@ -1546,6 +1546,7 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
         HILOG_ERROR("%{public}s, ability is not terminating.", __func__);
         return;
     }
+    abilityRecord->RemoveAbilityDeathRecipient();
 
     // notify AppMS terminate
     if (abilityRecord->TerminateAbility() != ERR_OK) {

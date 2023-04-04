@@ -1781,6 +1781,25 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     DumpClientInfo(info, params, isClient);
 }
 
+void AbilityRecord::RemoveAbilityDeathRecipient() const
+{
+    if (scheduler_ == nullptr) {
+        HILOG_WARN("scheduler_ is invalid.");
+        return;
+    }
+
+    if (schedulerDeathRecipient_ == nullptr) {
+        HILOG_WARN("schedulerDeathRecipient_ is invalid.");
+        return;
+    }
+
+    auto schedulerObject = scheduler_->AsObject();
+    if (schedulerObject != nullptr) {
+        HILOG_INFO("RemoveDeathRecipient");
+        schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
+    }
+}
+
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_WARN("On scheduler died.");
@@ -1839,6 +1858,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             if (self->GetWMSHandler()) {
                 sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
                 self->SetAbilityTransitionInfo(info);
+                HILOG_INFO("Notification WMS UIAbiltiy abnormal death.");
                 self->GetWMSHandler()->NotifyAnimationAbilityDied(info);
             }
         };
