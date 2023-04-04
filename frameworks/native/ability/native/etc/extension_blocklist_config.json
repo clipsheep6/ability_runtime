@@ -54,7 +54,11 @@
             "app.form.formInfo",
             "app.form.formHost",
             "app.form.formBindingData",
-            "app.form.FormExtensionAbility"
+            "app.form.FormExtensionAbility",
+            "application.formBindingData",
+            "application.formHost",
+            "application.formInfo",
+            "application.formProvider"
         ]
     }
 }
