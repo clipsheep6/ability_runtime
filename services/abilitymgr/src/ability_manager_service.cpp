@@ -995,7 +995,13 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
 void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     HILOG_INFO("systemAbilityId: %{public}d remove", systemAbilityId);
-    UnsubscribeBackgroundTask();
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+            UnsubscribeBackgroundTask();
+            break;
+        default:
+            break;
+    }
 }
 
 void AbilityManagerService::SubscribeBackgroundTask()
