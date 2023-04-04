@@ -197,7 +197,7 @@ void ContextDeal::SetAbilityInfo(const std::shared_ptr<AbilityInfo> &info)
  */
 std::shared_ptr<Context> ContextDeal::GetContext()
 {
-    return abilityContext_;
+    return abilityContext_.lock();
 }
 
 /**
