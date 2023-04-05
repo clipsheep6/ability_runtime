@@ -91,7 +91,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     auto deviceType = sysDialogScheduler->GetDeviceType();
     if (dialogAppInfos.size() == 0 && deviceType != STR_PC) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
-        want = sysDialogScheduler->GetTipsDialogWant();
+        want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
