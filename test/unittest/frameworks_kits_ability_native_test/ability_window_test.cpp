@@ -123,6 +123,7 @@ HWTEST_F(AbilityWindowTest, Ability_Window_InitWindow_0200, TestSize.Level1)
 HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "Ability_Window_OnPostAbilityBackground_0100 start";
+    ASSERT_NE(abilityWindow_, nullptr);
     abilityWindow_->windowScene_ = std::make_shared<WindowScene>();
     uint32_t sceneFlag = 0;
     abilityWindow_->OnPostAbilityBackground(sceneFlag);
@@ -137,6 +138,7 @@ HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityBackground_0100, TestSiz
 HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityBackground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "Ability_Window_OnPostAbilityBackground_0200 start";
+    ASSERT_NE(abilityWindow_, nullptr);
     abilityWindow_->isWindowAttached = true;
     uint32_t sceneFlag = 0;
     abilityWindow_->OnPostAbilityBackground(sceneFlag);
@@ -153,6 +155,7 @@ HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityBackground_0200, TestSiz
 HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "Ability_Window_OnPostAbilityForeground_0100 start";
+    ASSERT_NE(abilityWindow_, nullptr);
     abilityWindow_->windowScene_ = std::make_shared<WindowScene>();
     uint32_t sceneFlag = 0;
     abilityWindow_->OnPostAbilityForeground(sceneFlag);
@@ -167,6 +170,7 @@ HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityForeground_0100, TestSiz
 HWTEST_F(AbilityWindowTest, Ability_Window_OnPostAbilityForeground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "Ability_Window_OnPostAbilityForeground_0200 start";
+    ASSERT_NE(abilityWindow_, nullptr);
     abilityWindow_->isWindowAttached = true;
     uint32_t sceneFlag = 0;
     abilityWindow_->OnPostAbilityForeground(sceneFlag);

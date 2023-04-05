@@ -211,6 +211,17 @@ void AbilityImpl::Inactive()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
+
+int32_t AbilityImpl::Share(WantParams &wantParam)
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::OnShare ability_ is nullptr ");
+        return ERR_INVALID_VALUE;
+    }
+    return ability_->OnShare(wantParam);
+}
+
 bool AbilityImpl::IsStageBasedModel() const
 {
     return isStageBasedModel_;
@@ -242,6 +253,9 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 }
 
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+{}
+
+void AbilityImpl::HandleShareData(const int32_t &requestCode)
 {}
 
 void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)

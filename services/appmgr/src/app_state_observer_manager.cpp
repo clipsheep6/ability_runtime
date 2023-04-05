@@ -92,6 +92,45 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
     return ERR_INVALID_VALUE;
 }
 
+void AppStateObserverManager::OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnAppStarted failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnAppStarted failed.");
+            return;
+        }
+        HILOG_INFO("OnAppStarted come.");
+        self->HandleOnAppStarted(appRecord);
+    };
+    handler_->PostTask(task);
+}
+
+void AppStateObserverManager::OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnAppStopped failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnAppStopped failed.");
+            return;
+        }
+        HILOG_INFO("OnAppStopped come.");
+        self->HandleOnAppStopped(appRecord);
+    };
+    handler_->PostTask(task);
+}
+
+
 void AppStateObserverManager::OnAppStateChanged(
     const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
@@ -245,6 +284,46 @@ void AppStateObserverManager::StateChangedNotifyObserver(const AbilityStateData 
     handler_->PostTask(task);
 }
 
+void AppStateObserverManager::HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+
+    AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_CREATE);
+    HILOG_DEBUG("HandleOnAppStarted, bundle:%{public}s, uid:%{public}d, state:%{public}d",
+        data.bundleName.c_str(), data.uid, data.state);
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnAppStarted(data);
+        }
+    }
+}
+
+void AppStateObserverManager::HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+
+    AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_TERMINATED);
+    HILOG_DEBUG("HandleOnAppStopped, bundle:%{public}s, uid:%{public}d, state:%{public}d",
+        data.bundleName.c_str(), data.uid, data.state);
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnAppStopped(data);
+        }
+    }
+}
+
 void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state, bool needNotifyApp)
 {
@@ -313,8 +392,9 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid);
+    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, processType:%{public}d, "
+        "extensionType:%{public}d, processName:%{public}s",
+        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.extensionType, data.processName.c_str());
     HandleOnProcessCreated(data);
 }
 
@@ -345,8 +425,9 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid);
+    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, processType:%{public}d, "
+        "processName:%{public}s",
+        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.processName.c_str());
     HandleOnProcessCreated(data);
 }
 
@@ -429,6 +510,9 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.isFocused = appRecord->GetFocusFlag();
     processData.requestProcCode = appRecord->GetRequestProcCode();
     processData.processChangeReason = static_cast<int32_t>(appRecord->GetProcessChangeReason());
+    processData.processName = appRecord->GetProcessName();
+    processData.extensionType = appRecord->GetExtensionType();
+    processData.processType = appRecord->GetProcessType();
     return processData;
 }
 
@@ -438,6 +522,8 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.bundleName = renderRecord->GetHostBundleName();
     processData.pid = renderRecord->GetPid();
     processData.uid = renderRecord->GetHostUid();
+    processData.processName = renderRecord->GetHostRecord()->GetProcessName();
+    processData.processType = renderRecord->GetProcessType();
     return processData;
 }
 

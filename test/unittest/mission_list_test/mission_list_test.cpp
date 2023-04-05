@@ -837,6 +837,7 @@ HWTEST_F(MissionListTest, mission_list_handle_uninstall_app_001, TestSize.Level1
     abilityRecord->SetAbilityState(AbilityState::INITIAL);
     auto mission = std::make_shared<Mission>(1, abilityRecord, "name");
     auto missionList = std::make_shared<MissionList>();
+    ASSERT_NE(missionList, nullptr);
     missionList->missions_.push_front(mission);
     missionList->HandleUnInstallApp("bundle", 0);
 }
@@ -919,6 +920,7 @@ HWTEST_F(MissionListTest, mission_list_dump_state_by_record_id_001, TestSize.Lev
     auto mission1 = std::make_shared<Mission>(1, abilityRecord, "name");
     auto mission2 = std::make_shared<Mission>(1, nullptr, "name");
     auto missionList = std::make_shared<MissionList>();
+    ASSERT_NE(missionList, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     int32_t abilityRecordId = 1;
@@ -941,6 +943,7 @@ HWTEST_F(MissionListTest, mission_list_dump_list_001, TestSize.Level1)
 {
     auto mission = std::make_shared<Mission>(1, nullptr, "name");
     auto missionList = std::make_shared<MissionList>();
+    ASSERT_NE(missionList, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     missionList->missions_.push_front(nullptr);
@@ -967,6 +970,7 @@ HWTEST_F(MissionListTest, mission_block_ability_by_record_id_001, TestSize.Level
     auto mission1 = std::make_shared<Mission>(1, abilityRecord, "name");
     auto mission2 = std::make_shared<Mission>(1, nullptr, "name");
     auto missionList = std::make_shared<MissionList>();
+    ASSERT_NE(missionList, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     std::vector<std::string> params;

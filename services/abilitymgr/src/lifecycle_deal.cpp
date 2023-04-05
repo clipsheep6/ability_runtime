@@ -159,5 +159,14 @@ void LifecycleDeal::NotifyContinuationResult(int32_t result)
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->NotifyContinuationResult(result);
 }
+
+void LifecycleDeal::ShareData(const int32_t &uniqueId)
+{
+    HILOG_INFO("uniqueId is %{public}d.", uniqueId);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleShareData(uniqueId);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

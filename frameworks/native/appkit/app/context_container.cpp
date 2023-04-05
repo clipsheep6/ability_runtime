@@ -43,6 +43,14 @@ void ContextContainer::AttachBaseContext(const std::shared_ptr<Context> &base)
     baseContext_ = base;
 }
 
+void ContextContainer::DetachBaseContext()
+{
+    if (baseContext_ != nullptr) {
+        baseContext_.reset();
+    }
+    baseContext_ = nullptr;
+}
+
 /**
  * Called when getting the ProcessInfo
  *

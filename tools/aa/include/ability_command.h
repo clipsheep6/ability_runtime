@@ -31,6 +31,7 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  stop-service                stop service with options\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
+    "  process                     debug ability with options\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
     "  test                        start the test framework with options\n"
     "  ApplicationNotResponding     Pass in pid with options\n"
@@ -57,7 +58,7 @@ const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-D] "
+    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-D] [-S] "
     "  start ability with an element name\n";
 
 const std::string HELP_MSG_STOP_SERVICE =
@@ -83,6 +84,12 @@ const std::string HELP_MSG_DUMPSYS = "usage: aa dump <options>\n"
     "  -c, -u are auxiliary parameters and cannot be used alone\n"
     "  The original -s parameter is invalid\n"
     "  The original -m parameter is invalid\n";
+
+const std::string HELP_MSG_PROCESS = "usage: aa process <options>\n"
+    "options list:\n"
+    "  -h, --help                   list available commands\n"
+    "  -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-d <debug-cmd>] [-S] "
+    "  debug ability with an element name\n";
 
 const std::string HELP_MSG_TEST =
     "usage: aa test <options>\n"
@@ -134,6 +141,9 @@ const std::string STRING_BLOCK_AMS_SERVICE_NG = "error: failed to block ams serv
 const std::string STRING_BLOCK_APP_SERVICE_OK = "block app service successfully.";
 const std::string STRING_BLOCK_APP_SERVICE_NG = "error: failed to block app service.";
 
+const std::string STRING_START_NATIVE_PROCESS_OK = "start native process successfully.";
+const std::string STRING_START_NATIVE_PROCESS_NG = "error: failed to start native process.";
+
 const int USER_TEST_COMMAND_START_INDEX = 2;
 const int USER_TEST_COMMAND_PARAMS_NUM = 2;
 const int TIME_RATE_MS = 1000;
@@ -168,6 +178,7 @@ private:
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    ErrCode RunAsProcessCommand();
 #ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
     ErrCode RunAsSendAppNotRespondingProcessID();
@@ -180,6 +191,7 @@ private:
     sptr<IAbilityManager> GetAbilityManagerService();
 
     ErrCode MakeWantFromCmd(Want& want, std::string& windowMode);
+    ErrCode MakeWantForProcess(Want& want);
     ErrCode RunAsTestCommand();
     ErrCode TestCommandError(const std::string& info);
 };

@@ -63,6 +63,9 @@ public:
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
     MOCK_METHOD3(StartAbilityByCall, int(const Want&, const sptr<IAbilityConnection>&, const sptr<IRemoteObject>&));
+    MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
+    MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
 #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     MOCK_METHOD0(BlockAmsService, int());

@@ -14,7 +14,9 @@
  */
 
 #include <gtest/gtest.h>
+#define private public
 #include "event_report.h"
+#undef private
 
 using namespace testing;
 using namespace testing::ext;
@@ -47,6 +49,8 @@ void EventReportTest::TearDown()
 HWTEST_F(EventReportTest, SendAbilityEvent_0100, TestSize.Level0)
 {
     EventName eventName = EventName::ABILITY_ONACTIVE;
+    std::string name  = "ABILITY_ONACTIVE";
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), name);
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
     EventReport::SendAbilityEvent(eventName, type, eventInfo);
@@ -61,6 +65,8 @@ HWTEST_F(EventReportTest, SendAbilityEvent_0100, TestSize.Level0)
 HWTEST_F(EventReportTest, SendAbilityEvent_0200, TestSize.Level0)
 {
     EventName eventName = EventName::ABILITY_ONINACTIVE;
+    std::string name  = "ABILITY_ONINACTIVE";
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), name);
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
     EventReport::SendAbilityEvent(eventName, type, eventInfo);

@@ -65,6 +65,12 @@ enum class ProcessChangeReason {
     REASON_APP_TERMINATED,
     REASON_APP_TERMINATED_TIMEOUT,
 };
+
+enum class ProcessType {
+    NORMAL = 0,
+    EXTENSION,
+    RENDER,
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_CONSTANTS_H

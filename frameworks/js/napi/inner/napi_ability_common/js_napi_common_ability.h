@@ -125,9 +125,12 @@ public:
     bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
     bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options);
     std::string ConvertErrorCode(int32_t errCode);
-    sptr<NAPIAbilityConnection> BuildWant(const Want &want, int64_t &id);
-    void ChangeAbilityConnection(napi_ref *callbackArray, const napi_env env, const napi_value &arg1);
     void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
+    void GenerateCallback(const napi_env &env, const napi_value &arg1, ConnectionCallback &callback);
+    sptr<NAPIAbilityConnection> FindConnectionLocked(const Want &want, int64_t &id);
+    bool CreateConnectionAndConnectAbilityLocked(
+        const ConnectionCallback &callback, const Want &want, int64_t &id);
+    void RemoveConnectionLocked(const Want &want);
     Ability *ability_;
     sptr<AbilityRuntime::JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };

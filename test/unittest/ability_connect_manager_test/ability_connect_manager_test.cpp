@@ -1502,6 +1502,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbilityResultLocked
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetOrCreateServiceRecord_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     AbilityRequest abilityRequest;
     bool isCreatedByConnect = false;
     std::shared_ptr<AbilityRecord> targetService = nullptr;
@@ -1522,6 +1523,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetOrCreateServiceRecord_001
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_ConnectAbilityLocked_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     auto handler = std::make_shared<EventHandler>(EventRunner::Create());
     connectManager->SetEventHandler(handler);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
@@ -1581,6 +1583,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_AttachAbilityThreadLocked_00
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnAppStateChanged_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     AppInfo info;
     std::string bundleName = "bundleName";
@@ -1606,6 +1609,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnAppStateChanged_001, TestS
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnAppStateChanged_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     AppInfo info;
     std::string bundleName = "bundleName";
@@ -1801,7 +1805,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetAbilityRecordById_001, Te
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int64_t abilityRecordId = 0;
+    int64_t abilityRecordId = abilityRecord->GetRecordId();
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->serviceMap_.emplace("second", nullptr);
     auto res = connectManager->GetAbilityRecordById(abilityRecordId);
@@ -1864,6 +1868,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_LoadAbility_002, TestSize.Le
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_PostTimeOutTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     uint32_t messageId = 2;
     connectManager->PostTimeOutTask(abilityRecord, messageId);
@@ -1880,6 +1885,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_PostTimeOutTask_001, TestSiz
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = "abilityName";
@@ -1897,6 +1903,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_001, 
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
@@ -1914,6 +1921,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_002, 
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int resultCode = CONNECTION_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
@@ -1931,6 +1939,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_003, 
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleCommandTimeoutTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
     connectManager->HandleCommandTimeoutTask(abilityRecord);
@@ -1949,6 +1958,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleCommandTimeoutTask_001
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleTerminateDisconnectTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     std::shared_ptr<ConnectionRecord> connection =
         std::make_shared<ConnectionRecord>(nullptr, nullptr, callback);
@@ -2008,6 +2018,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DispatchTerminate_001, TestS
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_CommandAbility_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     connectManager->SetEventHandler(nullptr);
     connectManager->CommandAbility(abilityRecord);
@@ -2024,6 +2035,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_CommandAbility_001, TestSize
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateDone_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     abilityRecord->SetAbilityState(AbilityState::TERMINATING);
     connectManager->TerminateDone(abilityRecord);
@@ -2064,6 +2076,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_IsAbilityConnected_001, Test
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RemoveServiceAbility_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     AbilityInfo abilityInfo;
     abilityRecord->abilityInfo_ = abilityInfo;
@@ -2082,6 +2095,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RemoveServiceAbility_001, Te
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnCallBackDied_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     wptr<IRemoteObject> remote{ abilityRecord->GetToken() };
     connectManager->SetEventHandler(nullptr);
@@ -2099,6 +2113,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnCallBackDied_001, TestSize
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleCallBackDiedTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     sptr<IRemoteObject> connect = abilityRecord->GetToken();
     connectManager->connectMap_.clear();
@@ -2116,6 +2131,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleCallBackDiedTask_001, 
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnAbilityDied_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int32_t currentUserId = 0;
     abilityRecord->abilityInfo_.type = AbilityType::PAGE;
@@ -2136,6 +2152,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnAbilityDied_001, TestSize.
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnTimeOut_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     uint32_t msgId = 2;
     connectManager->serviceMap_.emplace("first", abilityRecord);
@@ -2156,6 +2173,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_OnTimeOut_001, TestSize.Leve
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleInactiveTimeout_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
     connectManager->HandleInactiveTimeout(abilityRecord);
@@ -2174,6 +2192,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleInactiveTimeout_001, T
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleAbilityDiedTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int32_t currentUserId = 0;
     connectManager->serviceMap_.clear();
@@ -2191,6 +2210,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleAbilityDiedTask_001, T
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int32_t currentUserId = 0;
     connectManager->userId_ = 1;
@@ -2211,6 +2231,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_001, TestSize
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int32_t currentUserId = 0;
     connectManager->userId_ = currentUserId;
@@ -2230,6 +2251,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_RestartAbility_002, TestSize
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DumpState_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     std::vector<std::string> info;
     bool isClient = false;
@@ -2253,6 +2275,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DumpState_001, TestSize.Leve
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DumpStateByUri_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     std::vector<std::string> info;
     bool isClient = false;
@@ -2275,6 +2298,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DumpStateByUri_001, TestSize
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfos_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     int upperLimit = 1;
     std::vector<ExtensionRunningInfo> info;
@@ -2297,6 +2321,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfos_001
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfo_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     std::shared_ptr<ConnectionRecord> connection =
@@ -2324,6 +2349,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfo_001,
 HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord1 = serviceRecord_;
     std::shared_ptr<AbilityRecord> abilityRecord2 = serviceRecord_;
     abilityRecord1->abilityInfo_.type = AbilityType::EXTENSION;
@@ -2461,7 +2487,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_PostRestartResidentTask_001, TestSize.
 
     ConnectManager()->PostRestartResidentTask(abilityRequest2_);
     WaitUntilTaskDone(handler);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
 }
 
 /*
@@ -2599,6 +2625,7 @@ HWTEST_F(AbilityConnectManagerTest, MinimizeUIExtensionAbilityLocked_003, TestSi
 HWTEST_F(AbilityConnectManagerTest, MoveToBackground_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord;
     connectManager->MoveToBackground(abilityRecord);
     connectManager.reset();
@@ -2615,6 +2642,7 @@ HWTEST_F(AbilityConnectManagerTest, MoveToBackground_001, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, MoveToBackground_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->lifeCycleStateInfo_.sceneFlag = 1;
     connectManager->MoveToBackground(abilityRecord);
@@ -2632,6 +2660,7 @@ HWTEST_F(AbilityConnectManagerTest, MoveToBackground_002, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, MoveToBackground_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->lifeCycleStateInfo_.sceneFlag = 2;
     abilityRecord->SetClearMissionFlag(true);
@@ -2651,6 +2680,7 @@ HWTEST_F(AbilityConnectManagerTest, MoveToBackground_003, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::FOREGROUND;
     connectManager->CompleteBackground(abilityRecord);
@@ -2668,6 +2698,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_001, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
     abilityRecord->SetPendingState(AbilityState::FOREGROUND);
@@ -2687,6 +2718,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_002, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
     abilityRecord->SetPendingState(AbilityState::BACKGROUND);
@@ -2709,6 +2741,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_003, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_004, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
@@ -2733,6 +2766,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_004, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
@@ -2757,6 +2791,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_005, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, CompleteBackground_006, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
     abilityRecord->currentState_ = AbilityState::BACKGROUNDING;
@@ -2781,6 +2816,7 @@ HWTEST_F(AbilityConnectManagerTest, CompleteBackground_006, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     uint32_t msgId = 0;
     connectManager->PrintTimeOutLog(nullptr, msgId);
     connectManager.reset();
@@ -2797,6 +2833,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_001, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 0;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2814,6 +2851,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_002, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_003, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 1;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2831,6 +2869,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_003, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_004, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 2;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2848,6 +2887,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_004, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_005, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 4;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2865,6 +2905,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_005, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_006, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 5;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2882,6 +2923,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_006, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_007, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 6;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
@@ -2899,6 +2941,7 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_007, TestSize.Level1)
 HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_008, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     uint32_t msgId = 3;
     connectManager->PrintTimeOutLog(abilityRecord, msgId);

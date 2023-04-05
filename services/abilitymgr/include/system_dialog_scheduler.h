@@ -70,7 +70,7 @@ public:
         const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken);
     Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
-    Want GetTipsDialogWant();
+    Want GetTipsDialogWant(const sptr<IRemoteObject> &callerToken);
 
     void SetDeviceType(const std::string &deviceType)
     {

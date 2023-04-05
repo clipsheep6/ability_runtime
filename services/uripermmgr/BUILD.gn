@@ -36,8 +36,10 @@ ohos_shared_library("libupms") {
 
   sources = libupms_sources
 
-  deps =
-      [ "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:perm_verification",
+  ]
 
   external_deps = [
     "ability_base:want",
@@ -65,8 +67,10 @@ ohos_static_library("libupms_static") {
 
   sources = libupms_sources
 
-  deps =
-      [ "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:perm_verification",
+  ]
 
   external_deps = [
     "ability_base:want",

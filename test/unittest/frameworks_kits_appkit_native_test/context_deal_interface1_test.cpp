@@ -128,6 +128,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_SetTheme_0100, Functio
         {"Pattern1", "PatternA"}, {"Pattern2", "PatternB"}, {"Pattern3", "PatternC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     resourceManager->SetThemeById(testValue, testList);
     contextDeal->initResourceManager(resourceManager);
     contextDeal->SetTheme(testValue);
@@ -144,6 +145,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_SetTheme_0200, Functio
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_SetTheme_0200 start";
     int testValue = 1;
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetTheme(testValue);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_SetTheme_0200 end";
 }
@@ -243,6 +245,7 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetTheme_0100, Functio
     std::map<std::string, std::string> testList = { {"Theme1", "ThemeA"}, {"Theme2", "ThemeB"}, {"Theme3", "ThemeC"} };
     std::shared_ptr<Global::Resource::ResourceManager2> resourceManager(Global::Resource::CreateResourceManager2());
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     resourceManager->SetThemeById(testValue, testList);
     contextDeal->initResourceManager(resourceManager);
     std::map<std::string, std::string> retVal = contextDeal->GetTheme();
@@ -266,17 +269,6 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetString_ById_0100, F
     contextDeal->initResourceManager(resourceManager);
     EXPECT_STREQ(testValue.c_str(), contextDeal->GetString(testCount).c_str());
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetString_ById_0100 end";
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetString_ByIdAndFormat_0100
- * @tc.name: GetString
- * @tc.desc: Test the attachbasecontext call to verify that the return value of GetString is correct.
- */
-HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetString_ByIdAndFormat_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetString_ByIdAndFormat_0100 start";
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetString_ByIdAndFormat_0100 end";
 }
 
 /**
@@ -391,17 +383,6 @@ HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetColor_0200, Functio
     contextDeal->initResourceManager(resourceManager);
     EXPECT_NE(testVal, contextDeal->GetColor(testCount));
     GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetColor_0200 end";
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetThemeId_0100
- * @tc.name: GetThemeId
- * @tc.desc: Test the attachbasecontext call to verify that the return value of GetThemeId is correct.
- */
-HWTEST_F(ContextDealInterfaceTest, AppExecFwk_ContextDeal_GetThemeId_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetThemeId_0100 start";
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_GetThemeId_0100 end";
 }
 
 /**

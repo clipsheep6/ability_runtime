@@ -60,6 +60,7 @@ ohos_shared_library("ability_context_native") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_callback_sdk",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "faultloggerd:libdfx_dumpcatcher",
     "hichecker_native:libhichecker",
     "hitrace_native:hitrace_meter",

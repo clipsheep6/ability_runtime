@@ -337,6 +337,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_008, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
 
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 }
@@ -360,6 +361,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_009, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
 
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 }
@@ -383,6 +385,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_010, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
 
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(token);
 }
@@ -467,6 +470,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_014, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
     const int32_t visibility = 1;
     const int32_t perceptibility = 1;
     const int32_t connectionState = 1;
@@ -510,6 +514,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_015, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
     const int32_t visibility = 0;
     const int32_t perceptibility = 1;
     const int32_t connectionState = 1;
@@ -537,6 +542,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_016, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
 
     DelayedSingleton<AppScheduler>::GetInstance()->KillProcessByAbilityToken(token);
 }
@@ -560,6 +566,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_017, TestSize.Level1)
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
+    ASSERT_NE(token, nullptr);
 
     DelayedSingleton<AppScheduler>::GetInstance()->KillProcessByAbilityToken(token);
 }
@@ -575,6 +582,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_017, TestSize.Level1)
 HWTEST_F(AppSchedulerTest, AppScheduler_UpdateAbilityState_001, TestSize.Level1)
 {
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     sptr<IRemoteObject> token = nullptr;
     AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
     DelayedSingleton<AppScheduler>::GetInstance()->UpdateAbilityState(token, state);
@@ -593,6 +601,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_UpdateExtensionState_001, TestSize.Level
     EXPECT_CALL(*clientMock_, UpdateExtensionState(_, _)).Times(1)
         .WillOnce(Return(AppMgrResultCode::RESULT_OK));
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     sptr<IRemoteObject> token = nullptr;
     AppExecFwk::ExtensionState state = AppExecFwk::ExtensionState::EXTENSION_STATE_READY;
     DelayedSingleton<AppScheduler>::GetInstance()->UpdateExtensionState(token, state);
@@ -609,6 +618,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_UpdateExtensionState_001, TestSize.Level
 HWTEST_F(AppSchedulerTest, AppScheduler_KillProcessesByUserId_001, TestSize.Level1)
 {
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     int32_t userId = 0;
     DelayedSingleton<AppScheduler>::GetInstance()->KillProcessesByUserId(userId);
 }
@@ -625,6 +635,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_OnAbilityRequestDone_001, TestSize.Level
 {
     sptr<IRemoteObject> token = nullptr;
     AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_CREATE;
+    ASSERT_NE(appStateMock_, nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->callback_ = appStateMock_;
     DelayedSingleton<AppScheduler>::GetInstance()->OnAbilityRequestDone(token, state);
 }
@@ -751,6 +762,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_PrepareTerminate_001, TestSize.Level1)
 {
     sptr<IRemoteObject> token = nullptr;
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(token);
 }
 
@@ -765,6 +777,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_PrepareTerminate_001, TestSize.Level1)
 HWTEST_F(AppSchedulerTest, AppScheduler_OnAppStateChanged_001, TestSize.Level1)
 {
     AppExecFwk::AppProcessData appData;
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance(), nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->OnAppStateChanged(appData);
 }
 
@@ -780,6 +793,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_GetRunningProcessInfoByToken_001, TestSi
 {
     sptr<IRemoteObject> token;
     AppExecFwk::RunningProcessInfo info;
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance(), nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, info);
 }
 
@@ -795,6 +809,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_GetRunningProcessInfoByPid_001, TestSize
 {
     pid_t pid = 0;
     AppExecFwk::RunningProcessInfo info;
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance(), nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(pid, info);
 }
 
@@ -810,6 +825,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_StartupResidentProcess_001, TestSize.Lev
 {
     EXPECT_CALL(*clientMock_, StartupResidentProcess(_)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess(bundleInfos);
 }
@@ -826,6 +842,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_StartSpecifiedAbility_001, TestSize.Leve
 {
     EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     AAFwk::Want want;
     AppExecFwk::AbilityInfo abilityInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(want, abilityInfo);
@@ -843,6 +860,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_GetProcessRunningInfos_001, TestSize.Lev
 {
     EXPECT_CALL(*clientMock_, GetAllRunningProcesses(_)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     std::vector<AppExecFwk::RunningProcessInfo> info;
     DelayedSingleton<AppScheduler>::GetInstance()->GetProcessRunningInfos(info);
 }
@@ -859,6 +877,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_GetProcessRunningInfosByUserId_001, Test
 {
     EXPECT_CALL(*clientMock_, GetProcessRunningInfosByUserId(_, _)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     std::vector<AppExecFwk::RunningProcessInfo> info;
     int32_t userId = 0;
     DelayedSingleton<AppScheduler>::GetInstance()->GetProcessRunningInfosByUserId(info, userId);
@@ -875,6 +894,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_GetProcessRunningInfosByUserId_001, Test
 HWTEST_F(AppSchedulerTest, AppScheduler_ConvertAppState_001, TestSize.Level1)
 {
     AppState state = AppState::BEGIN;
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance(), nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->ConvertAppState(state);
 }
 

@@ -88,6 +88,20 @@ public:
 
     virtual void OnProcessReused(const ProcessData &processData) override;
 
+    /**
+     * Will be called when the application start.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStarted(const AppStateData &appStateData) override;
+
+    /**
+     * Will be called when the application stop.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStopped(const AppStateData &appStateData) override;
+
 private:
     int32_t HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply);
 
@@ -106,6 +120,10 @@ private:
     int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessReused(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnAppStarted(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnAppStopped(MessageParcel &data, MessageParcel &reply);
 
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);

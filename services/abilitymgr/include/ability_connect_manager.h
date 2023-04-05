@@ -100,10 +100,11 @@ public:
      * @param abilityRequest, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
+     * @param sessionInfo the extension session info of the ability to connect.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectAbilityLocked(const AbilityRequest &abilityRequest, const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * DisconnectAbilityLocked, disconnect session with callback.

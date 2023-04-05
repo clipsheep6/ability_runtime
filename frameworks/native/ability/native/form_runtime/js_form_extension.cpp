@@ -68,7 +68,13 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 }
 
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsFormExtension::~JsFormExtension() = default;
+JsFormExtension::~JsFormExtension()
+{
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application,

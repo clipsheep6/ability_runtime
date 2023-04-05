@@ -19,6 +19,7 @@
 
 #include "ability_business_error.h"
 #include "ability_manager_client.h"
+#include "acquire_share_data_callback_stub.h"
 #include "app_mgr_interface.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -33,6 +34,8 @@
 #include "js_ability_manager_utils.h"
 #include "event_runner.h"
 #include "napi_common_configuration.h"
+#include "napi_common_util.h"
+#include "napi_common_want.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -46,6 +49,12 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
     OHOS::sptr<OHOS::IRemoteObject> appObject = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
+
+
+constexpr size_t ARGC_ONE = 1;
+constexpr size_t INDEX_ZERO = 0;
+constexpr size_t INDEX_ONE = 1;
+static std::shared_ptr<AppExecFwk::EventHandler> mainHandler_ = nullptr;
 
 class JsAbilityManager final {
 public:
@@ -80,6 +89,12 @@ public:
     {
         JsAbilityManager* me = CheckParamsAndGetThis<JsAbilityManager>(engine, info);
         return (me != nullptr) ? me->OnGetTopAbility(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* AcquireShareData(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAbilityManager* me = CheckParamsAndGetThis<JsAbilityManager>(engine, info);
+        return (me != nullptr) ? me->OnAcquireShareData(*engine, *info) : nullptr;
     }
 
 private:
@@ -238,6 +253,48 @@ private:
             lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    NativeValue* OnAcquireShareData(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        if (info.argc < ARGC_ONE) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        }
+
+        int32_t missionId = -1;
+        if (!AppExecFwk::UnwrapInt32FromJS2(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), missionId)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        }
+
+        NativeValue* lastParam = info.argc > ARGC_ONE  ? info.argv[INDEX_ONE] : nullptr;
+        NativeValue *result = nullptr;
+        std::unique_ptr<AsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(
+            engine, lastParam, nullptr, nullptr, &result);
+        std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
+
+        AAFwk::ShareRuntimeTask task = [&engine, asyncTask](int32_t resultCode, const AAFwk::WantParams &wantParam) {
+            if (resultCode != 0) {
+                asyncTask->Reject(engine, CreateJsError(engine,  GetJsErrorCodeByNativeError(resultCode)));
+                return;
+            }
+            NativeValue* abilityResult = AppExecFwk::CreateJsWantParams(engine, wantParam);
+            if (abilityResult == nullptr) {
+                asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            } else {
+                asyncTask->ResolveWithNoError(engine, abilityResult);
+            }
+        };
+        sptr<AAFwk::AcquireShareDataCallbackStub> shareDataCallbackStub = new AAFwk::AcquireShareDataCallbackStub();
+        mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+        shareDataCallbackStub->SetHandler(mainHandler_);
+        shareDataCallbackStub->SetShareRuntimeTask(task);
+        auto err = AbilityManagerClient::GetInstance()->AcquireShareData(missionId, shareDataCallbackStub);
+        if (err != 0) {
+            asyncTask->Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(err)));
+        }
+        return result;
+    }
 };
 } // namespace
 
@@ -269,6 +326,7 @@ NativeValue* JsAbilityManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAbilityManager::GetExtensionRunningInfos);
     BindNativeFunction(*engine, *object, "updateConfiguration", moduleName, JsAbilityManager::UpdateConfiguration);
     BindNativeFunction(*engine, *object, "getTopAbility", moduleName, JsAbilityManager::GetTopAbility);
+    BindNativeFunction(*engine, *object, "acquireShareData", moduleName, JsAbilityManager::AcquireShareData);
     HILOG_INFO("JsAbilityManagerInit end");
     return engine->CreateUndefined();
 }

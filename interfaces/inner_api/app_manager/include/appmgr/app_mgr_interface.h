@@ -332,6 +332,8 @@ public:
      */
     virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) = 0;
 
+    virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -371,6 +373,7 @@ public:
         APP_GET_PROCESS_RUNNING_INFORMATION,
         IS_SHARED_BUNDLE_RUNNING,
         DUMP_HEAP_MEMORY_PROCESS,
+        START_NATIVE_PROCESS_FOR_DEBUGGER,
     };
 };
 }  // namespace AppExecFwk

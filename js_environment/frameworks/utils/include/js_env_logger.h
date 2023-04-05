@@ -31,9 +31,6 @@ struct JsEnvLogger final {
         const char* fmt, ...);
 };
 
-void(*JsEnvLogger::logger)(JsEnvLogLevel level, const char* fileName, const char* functionName, int line,
-        const char* fmt, ...) = nullptr;
-
 #define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define JSENV_LOG_D(fmt, ...) \

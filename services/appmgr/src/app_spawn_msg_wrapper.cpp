@@ -63,6 +63,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
     }
     msg_->code = static_cast<AppSpawn::ClientSocket::AppOperateCode>(startMsg.code);
     if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
+        // || msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         msg_->uid = startMsg.uid;
         msg_->gid = startMsg.gid;
         msg_->gidCount = startMsg.gids.size();
@@ -116,7 +117,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
 
 bool AppSpawnMsgWrapper::VerifyMsg(const AppSpawnStartMsg &startMsg) const
 {
-    if (startMsg.code == 0) { // 0: DEFAULT
+    if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
         if (startMsg.uid < 0) {
             HILOG_ERROR("invalid uid! [%{public}d]", startMsg.uid);
             return false;
@@ -143,7 +144,7 @@ bool AppSpawnMsgWrapper::VerifyMsg(const AppSpawnStartMsg &startMsg) const
             HILOG_ERROR("invalid procName!");
             return false;
         }
-    } else if (startMsg.code == 1) { // 1:GET_RENDER_TERMINATION_STATUS
+    } else if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         if (startMsg.pid < 0) {
             HILOG_ERROR("invalid pid!");
             return false;
