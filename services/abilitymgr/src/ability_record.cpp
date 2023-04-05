@@ -480,6 +480,7 @@ void AbilityRecord::SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) 
     info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
     info->minWindowHeight_ = abilityInfo_.minWindowHeight;
     info->orientation_ = abilityInfo_.orientation;
+    info->apiCompatibleVersion_ = abilityInfo_.applicationInfo.apiCompatibleVersion;
 }
 
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo()
@@ -600,6 +601,7 @@ void AbilityRecord::SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abil
     info->bundleName_ = abilityInfo.bundleName;
     info->windowModes_ = abilityInfo.windowModes;
     info->orientation_ = abilityInfo.orientation;
+    info->apiCompatibleVersion_ = abilityInfo.applicationInfo.apiCompatibleVersion;
     SetShowWhenLocked(abilityInfo, info);
 }
 
