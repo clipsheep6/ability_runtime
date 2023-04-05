@@ -56,18 +56,17 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
 
     sptr<AbilityConnection> abilityConnection;
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
-    auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
-        [&connectCaller, &connectReceiver](const std::map<ConnectionInfo,
-            std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
-                return connectCaller == obj.first.connectCaller &&
-                    connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
-        });
+    auto connectionIter = abilityConnections_.begin();
+    for (; connectionIter != abilityConnections_.end(); ++connectionIter) {
+        if (MatchConnection(connectCaller, want, *connectionIter)) {
+            break;
+        }
+    }
     HILOG_DEBUG("abilityConnectionsSize: %{public}zu.", abilityConnections_.size());
-    if (item != abilityConnections_.end()) {
-        std::vector<sptr<AbilityConnectCallback>>& callbacks = item->second;
+    if (connectionIter != abilityConnections_.end()) {
+        std::vector<sptr<AbilityConnectCallback>>& callbacks = connectionIter->second;
         callbacks.push_back(connectCallback);
-        abilityConnection = item->first.abilityConnection;
+        abilityConnection = connectionIter->first.abilityConnection;
         abilityConnection->AddConnectCallback(connectCallback);
         HILOG_INFO("find abilityConnection exist, callbackSize:%{public}zu.", callbacks.size());
         if (abilityConnection->GetConnectionState() == CONNECTION_STATE_CONNECTED) {
@@ -78,17 +77,32 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
             return ERR_OK;
         } else {
             HILOG_ERROR("AbilityConnection has disconnected, erase it.");
-            abilityConnections_.erase(item);
+            abilityConnections_.erase(connectionIter);
             return AAFwk::INVALID_CONNECTION_STATE;
         }
     } else {
-        return CreateConnection(connectCaller, want, accountId, connectCallback, connectReceiver);
+        return CreateConnection(connectCaller, want, accountId, connectCallback);
+    }
+}
+
+bool ConnectionManager::MatchConnection(
+    const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver,
+    const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection)
+{
+    if (!connectReceiver.GetElement().GetAbilityName().empty()) {
+        return connectCaller == connection.first.connectCaller &&
+            connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
+            connectReceiver.GetElement().GetAbilityName() == connection.first.connectReceiver.GetAbilityName();
+    } else {
+        // ImplicitConnect
+        return connectCaller == connection.first.connectCaller &&
+            connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
+            connectReceiver.GetOperation() == connection.first.connectReceiver;
     }
 }
 
 ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCaller,
-    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback,
-    const AppExecFwk::ElementName& connectReceiver)
+    const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback)
 {
     HILOG_INFO("Can not find connection, CreateConnection");
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
@@ -102,7 +116,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
         want, abilityConnection, connectCaller, accountId);
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     if (ret == ERR_OK) {
-        ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
+        ConnectionInfo connectionInfo(connectCaller, want.GetOperation(), abilityConnection);
         std::vector<sptr<AbilityConnectCallback>> callbacks;
         callbacks.push_back(connectCallback);
         abilityConnections_[connectionInfo] = callbacks;
@@ -242,7 +256,7 @@ bool ConnectionManager::IsConnectCallerEqual(const sptr<IRemoteObject>& connectC
     return connectCaller == connectCallerOther;
 }
 
-bool ConnectionManager::IsConnectReceiverEqual(const AppExecFwk::ElementName& connectReceiver,
+bool ConnectionManager::IsConnectReceiverEqual(AAFwk::Operation& connectReceiver,
     const AppExecFwk::ElementName& connectReceiverOther)
 {
     return connectReceiver.GetBundleName() == connectReceiverOther.GetBundleName() &&

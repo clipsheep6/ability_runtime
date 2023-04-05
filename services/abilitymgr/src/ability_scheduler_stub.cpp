@@ -61,6 +61,8 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
+    requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
+    
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
 #endif
@@ -109,6 +111,14 @@ int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessagePa
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     ScheduleAbilityTransaction(*want, *stateInfo, sessionInfo);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::ShareDataInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t requestCode = data.ReadInt32();
+    HILOG_INFO("requestCode:%{public}d.", requestCode);
+    ScheduleShareData(requestCode);
     return NO_ERROR;
 }
 

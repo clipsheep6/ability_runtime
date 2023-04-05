@@ -65,6 +65,15 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     }
 }
 
+void NewAbilityImpl::HandleShareData(const int32_t &uniqueId)
+{
+    HILOG_INFO("handleShareData begin sourceState:%{public}d.", lifecycleState_);
+    WantParams wantParam;
+    int32_t resultCode = Share(wantParam);
+    HILOG_INFO("wantParam size: %{public}d.", wantParam.Size());
+    AbilityManagerClient::GetInstance()->ShareDataDone(token_, resultCode, uniqueId, wantParam);
+}
+
 void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
     HILOG_INFO("Handle ability transaction done, notify ability manager service.");

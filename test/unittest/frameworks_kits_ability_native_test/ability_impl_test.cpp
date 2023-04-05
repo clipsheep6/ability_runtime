@@ -1097,6 +1097,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DoKeyDown_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoKeyDown_001 start";
     auto keyEvent = MMI::KeyEvent::Create();
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->DoKeyDown(keyEvent);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoKeyDown_001 end";
 }
@@ -1113,6 +1114,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DoKeyUp_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoKeyUp_001 start";
     auto keyEvent = MMI::KeyEvent::Create();
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->DoKeyUp(keyEvent);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoKeyUp_001 end";
 }
@@ -1129,6 +1131,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DoTouchEvent_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoTouchEvent_001 start";
     auto pointerEvent = MMI::PointerEvent::Create();
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->DoPointerEvent(pointerEvent);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoTouchEvent_001 end";
 }
@@ -2181,6 +2184,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_HandleAbilityTransaction_0100, TestS
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_HandleAbilityTransaction_0100 start";
     Want want;
     AAFwk::LifeCycleStateInfo targetState;
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->HandleAbilityTransaction(want, targetState);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_HandleAbilityTransaction_0100 end";
 }
@@ -2194,6 +2198,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AbilityTransactionCallback_0100, Tes
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AbilityTransactionCallback_0100 start";
     AAFwk::AbilityLifeCycleState state = AAFwk::ABILITY_STATE_INITIAL;
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->AbilityTransactionCallback(state);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AbilityTransactionCallback_0100 end";
 }
@@ -2222,6 +2227,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ConnectAbility_0100, TestSize.Level1
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DisconnectAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DisconnectAbility_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     Want want;
     AbilityImpl_->DisconnectAbility(want);
@@ -2240,6 +2246,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DisconnectAbility_0200, TestSize.Lev
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2275,6 +2282,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CommandAbility_0100, TestSize.Level1
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SendResult_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     int32_t requestCode = 0;
     int32_t resultCode = 0;
@@ -2291,6 +2299,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_0100, TestSize.Level1)
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NewWant_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NewWant_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     Want want;
     AbilityImpl_->NewWant(want);
@@ -2405,6 +2414,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SerUriString_0100, TestSize.Level1)
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SerUriString_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SerUriString_0200 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->contextDeal_ = nullptr;
     std::string uri = "abc";
     AbilityImpl_->SerUriString(uri);
@@ -2444,6 +2454,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SetLifeCycleStateInfo_0100, TestSize
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SetLifeCycleStateInfo_0200 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->contextDeal_ = nullptr;
     AAFwk::LifeCycleStateInfo info;
     info.isNewWant = true;
@@ -2593,6 +2604,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DenormalizeUri_0100, TestSize.Level1
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     Configuration config;
     AbilityImpl_->ScheduleUpdateConfiguration(config);
@@ -2638,6 +2650,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ExecuteBatch_0100, TestSize.Level1)
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ContinueAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ContinueAbility_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     std::string deviceId = "deviceId";
     uint32_t versionCode = 0;
@@ -2657,6 +2670,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ContinueAbility_0200, TestSize.Level
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2675,6 +2689,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ContinueAbility_0200, TestSize.Level
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyContinuationResult_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyContinuationResult_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     int32_t result = 0;
     AbilityImpl_->NotifyContinuationResult(result);
@@ -2693,6 +2708,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyContinuationResult_0200, TestS
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2710,6 +2726,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyContinuationResult_0200, TestS
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyMemoryLevel_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NotifyMemoryLevel_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->ability_ = nullptr;
     int32_t level = 0;
     AbilityImpl_->NotifyMemoryLevel(level);
@@ -2728,6 +2745,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyMemoryLevel_0200, TestSize.Lev
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2745,6 +2763,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NotifyMemoryLevel_0200, TestSize.Lev
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnFocused_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnFocused_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->AfterUnFocused();
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnFocused_0100 end";
 }
@@ -2757,6 +2776,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnFocused_0100, TestSize.Level1
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocused_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocused_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->AfterFocused();
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocused_0100 end";
 }
@@ -2769,6 +2789,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocused_0100, TestSize.Level1)
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0100 start";
+    ASSERT_NE(AbilityImpl_, nullptr);
     AbilityImpl_->AfterFocusedCommon(true);
     AbilityImpl_->AfterFocusedCommon(false);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0100 end";
@@ -2784,6 +2805,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0200, TestSize.Le
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0200 start";
     std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
     std::shared_ptr<Ability> ability = pMocKPageAbility;
+    ASSERT_NE(ability, nullptr);
     AbilityImpl_->ability_ = ability;
     AbilityImpl_->AfterFocusedCommon(true);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterFocusedCommon_0200 end";
@@ -2801,6 +2823,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0300, TestSize.Le
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2820,6 +2843,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0400, TestSize.Le
     std::shared_ptr<Ability> ability = pMocKPageAbility;
     auto abilityInfo = std::make_shared<AbilityInfo>();
     auto contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2842,6 +2866,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0500, TestSize.Le
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->isStageBasedModel = true;
     auto contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2868,6 +2893,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterFocusedCommon_0600, TestSize.Le
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->isStageBasedModel = false;
     auto contextDeal = std::make_shared<ContextDeal>();
+    ASSERT_NE(contextDeal, nullptr);
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
     AbilityImpl_->ability_ = ability;
@@ -2931,6 +2957,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterForeground_0300, TestSize.Level
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    ASSERT_NE(impl, nullptr);
     impl->AfterForeground();
 
     auto abilityImpl = std::make_shared<AbilityImpl>();
@@ -2955,6 +2982,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterBackground_0100, TestSize.Level
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
     impl->AfterBackground();
+    ASSERT_NE(impl, nullptr);
 
     auto abilityImpl = std::make_shared<AbilityImpl>();
     abilityImpl->isStageBasedModel_ = false;
@@ -2976,6 +3004,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterBackground_0200, TestSize.Level
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterBackground_0200 start";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto abilityImpl = std::make_shared<AbilityImpl>();
+    ASSERT_NE(abilityImpl, nullptr);
     abilityImpl->isStageBasedModel_ = true;
     abilityImpl->notifyForegroundByAbility_ = false;
     abilityImpl->notifyForegroundByWindow_ = false;
@@ -2995,6 +3024,7 @@ HWTEST_F(AbilityImplTest, AaFwk_WindowLifeCycleImpl_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0100 start";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto abilityImpl = std::make_shared<AbilityImpl>();
+    ASSERT_NE(abilityImpl, nullptr);
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
     impl->AfterFocused();
@@ -3012,6 +3042,7 @@ HWTEST_F(AbilityImplTest, AaFwk_WindowLifeCycleImpl_0200, TestSize.Level1)
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    ASSERT_NE(impl, nullptr);
     impl->AfterFocused();
     GTEST_LOG_(INFO) << "AaFwk_WindowLifeCycleImpl_0200 end";
 }
@@ -3027,6 +3058,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnfocused_0100, TestSize.Level1
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    ASSERT_NE(impl, nullptr);
     impl->AfterUnfocused();
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0100 end";
 }
@@ -3043,6 +3075,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_AfterUnfocused_0200, TestSize.Level1
     auto abilityImpl = std::make_shared<AbilityImpl>();
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    ASSERT_NE(impl, nullptr);
     impl->AfterUnfocused();
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_AfterUnfocused_0200 end";
 }
@@ -3059,6 +3092,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0100, TestSize.Leve
     auto abilityImpl = std::make_shared<AbilityImpl>();
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    ASSERT_NE(impl, nullptr);
     auto wmErrNoMem = 2;
     impl->ForegroundFailed(wmErrNoMem);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0100 end";
@@ -3075,6 +3109,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0200, TestSize.Leve
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, nullptr);
+    ASSERT_NE(impl, nullptr);
     auto wmErrInvalidWindowModeOrSize = 5;
     impl->ForegroundFailed(wmErrInvalidWindowModeOrSize);
 
@@ -3099,6 +3134,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ForegroundFailed_0300, TestSize.Leve
     abilityImpl->isStageBasedModel_ = true;
     sptr<AbilityImpl::WindowLifeCycleImpl> impl =
         new (std::nothrow) AbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    ASSERT_NE(impl, nullptr);
     auto wmErrInvalidWindowModeOrSize = 5;
     impl->ForegroundFailed(wmErrInvalidWindowModeOrSize);
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ForegroundFailed_0300 end";
@@ -3114,6 +3150,7 @@ HWTEST_F(AbilityImplTest, AaFwk_InputEventConsumerImpl_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0100 start";
     auto abilityImpl = std::make_shared<AbilityImpl>();
     auto impl = std::make_shared<AbilityImpl::InputEventConsumerImpl>(abilityImpl);
+    ASSERT_NE(impl, nullptr);
     auto keyEvent = MMI::KeyEvent::Create();
     impl->OnInputEvent(keyEvent);
     GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0100 end";
@@ -3129,6 +3166,7 @@ HWTEST_F(AbilityImplTest, AaFwk_InputEventConsumerImpl_0200, TestSize.Level1)
     GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0200 start";
     auto abilityImpl = std::make_shared<AbilityImpl>();
     auto impl = std::make_shared<AbilityImpl::InputEventConsumerImpl>(abilityImpl);
+    ASSERT_NE(impl, nullptr);
     std::shared_ptr<MMI::PointerEvent> pointerEvent;
     impl->OnInputEvent(pointerEvent);
     GTEST_LOG_(INFO) << "AaFwk_InputEventConsumerImpl_0200 end";

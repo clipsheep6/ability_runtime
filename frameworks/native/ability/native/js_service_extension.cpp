@@ -106,7 +106,13 @@ JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& r
 }
 
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsServiceExtension::~JsServiceExtension() = default;
+JsServiceExtension::~JsServiceExtension()
+{
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,

@@ -61,6 +61,10 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
             ProcessForegroundTimeOut(event->GetParam());
             break;
         }
+        case AbilityManagerService::SHAREDATA_TIMEOUT_MSG: {
+            ProcessShareDataTimeOut(event->GetParam());
+            break;
+        }
         default: {
             HILOG_WARN("Unsupported timeout message.");
             break;
@@ -99,5 +103,14 @@ void AbilityEventHandler::ProcessForegroundTimeOut(int64_t abilityRecordId)
     CHECK_POINTER(server);
     server->HandleForegroundTimeOut(abilityRecordId);
 }
+
+void AbilityEventHandler::ProcessShareDataTimeOut(int64_t uniqueId)
+{
+    HILOG_INFO("ShareData timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleShareDataTimeOut(uniqueId);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -86,6 +86,7 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0300, TestSize.Le
 {
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0300 start";
     std::shared_ptr<AppExecFwk::EventHandler> handler_ = std::make_shared<AppExecFwk::EventHandler>();
+    ASSERT_NE(handler_, nullptr);
     auto task = []() { GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0300 task called"; };
     handler_->PostTask(task, 1000);
     Command_->cmd_ = CMD;
@@ -102,6 +103,7 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0400, TestSize.Le
 {
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0400 start";
     std::shared_ptr<AppExecFwk::EventHandler> handler_ = std::make_shared<AppExecFwk::EventHandler>();
+    ASSERT_NE(handler_, nullptr);
     auto task = []() { GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0400 task called"; };
     handler_->PostTask(task, 1000);
     Command_->cmd_ = "CMD12";

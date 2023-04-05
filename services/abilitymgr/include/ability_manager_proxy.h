@@ -264,6 +264,12 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
+    virtual int ConnectUIExtensionAbility(
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     /**
      * DisconnectAbility, connect session with service ability.
      *
@@ -702,7 +708,11 @@ public:
      * @return Returns ERR_OK if the current process has the permission, others on failure.
      */
     virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
-
+    virtual int32_t AcquireShareData(
+        const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
+    virtual int32_t ShareDataDone(const sptr<IRemoteObject> &token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam) override;
+    
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

@@ -214,7 +214,7 @@ JsRuntime::~JsRuntime()
     }
 }
 
-std::unique_ptr<Runtime> JsRuntime::Create(const Options& options)
+std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
     std::unique_ptr<JsRuntime> instance;
 
@@ -230,7 +230,7 @@ std::unique_ptr<Runtime> JsRuntime::Create(const Options& options)
     }
 
     if (!instance->Initialize(options)) {
-        return std::unique_ptr<Runtime>();
+        return std::unique_ptr<JsRuntime>();
     }
     return instance;
 }
@@ -371,6 +371,13 @@ bool JsRuntime::NotifyHotReloadPage()
     return true;
 }
 
+bool JsRuntime::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
+{
+    HILOG_DEBUG("function called.");
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->LoadScript(path, buffer, isBundle);
+}
+
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
@@ -490,7 +497,6 @@ bool JsRuntime::Initialize(const Options& options)
                 return false;
             }
 
-            SetAppLibPath(options.appLibPaths);
             InitSourceMap(options);
 
             if (options.isUnique) {
@@ -538,8 +544,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     }
 
     OHOSJsEnvLogger::RegisterJsEnvLogger();
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
-    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(jsEnvImpl);
+    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>());
     if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
         HILOG_ERROR("Initialize js environment failed.");
         return false;
@@ -588,19 +593,30 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const std::map<std::string, std::vector<std::string>>& appLibPaths)
+void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
 {
+    HILOG_DEBUG("Set library path.");
+
+    if (appLibPaths.size() == 0) {
+        HILOG_WARN("There's no library path need to set.");
+        return;
+    }
+
     auto moduleManager = NativeModuleManager::GetInstance();
-    if (moduleManager != nullptr) {
-        for (const auto &appLibPath : appLibPaths) {
-            moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
-        }
+    if (moduleManager == nullptr) {
+        HILOG_ERROR("Get module manager failed.");
+        return;
+    }
+
+    for (const auto &appLibPath : appLibPaths) {
+        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
     }
 }
 
 void JsRuntime::InitSourceMap(const Options& options)
 {
-    bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitSourceMap(options.bundleCodeDir, options.isStageModel);
 }
 
 void JsRuntime::Deinitialize()
@@ -754,10 +770,10 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
     if (hapPath.empty()) {
         if (useCommonChunk) {
-            (void)nativeEngine->RunScriptPath(commonsPath.c_str());
-            (void)nativeEngine->RunScriptPath(vendorsPath.c_str());
+            (void)LoadScript(commonsPath);
+            (void)LoadScript(vendorsPath);
         }
-        return nativeEngine->RunScriptPath(srcPath.c_str()) != nullptr;
+        return LoadScript(srcPath);
     }
 
     bool newCreate = false;
@@ -788,7 +804,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
 
-        return nativeEngine->RunScriptBuffer(abcPath.c_str(), buffer, isBundle_) != nullptr;
+        return LoadScript(abcPath, &buffer, isBundle_);
     };
 
     if (useCommonChunk) {
@@ -938,6 +954,12 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     std::string path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
     panda::JSNApi::SetAssetPath(vm, path);
     panda::JSNApi::SetModuleName(vm, moduleName_);
+}
+
+void JsRuntime::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

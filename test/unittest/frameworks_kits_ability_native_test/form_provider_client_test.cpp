@@ -83,6 +83,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0100 start";
 
     const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
     instance_->SetOwner(ability);
 
     const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
@@ -111,6 +112,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
     instance_->SetOwner(nullptr);
 
     const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    ASSERT_NE(callerToken, nullptr);
     Want want;
     want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
         .SetParam(Constants::ACQUIRE_TYPE, 200)
@@ -135,6 +137,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0300 start";
 
     const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
     instance_->SetOwner(ability);
 
     const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
@@ -161,6 +164,7 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0400 start";
 
     const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
     instance_->SetOwner(ability);
     instance_->ClearOwner(ability);
 

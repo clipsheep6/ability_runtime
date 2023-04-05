@@ -22,6 +22,7 @@
 #include "ability_connection.h"
 #include "element_name.h"
 #include "errors.h"
+#include "operation.h"
 #include "want.h"
 
 namespace OHOS {
@@ -30,11 +31,11 @@ struct ConnectionInfo {
     // connection caller
     sptr<IRemoteObject> connectCaller;
     // connection receiver
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
     // connection
     sptr<AbilityConnection> abilityConnection;
 
-    ConnectionInfo(const sptr<IRemoteObject> &connectCaller, AppExecFwk::ElementName connectReceiver,
+    ConnectionInfo(const sptr<IRemoteObject> &connectCaller, const AAFwk::Operation &connectReceiver,
         const sptr<AbilityConnection> &abilityConnection) : connectCaller(connectCaller),
         connectReceiver(connectReceiver), abilityConnection(abilityConnection)
     {
@@ -58,6 +59,13 @@ struct ConnectionInfo {
             connectReceiver.GetBundleName() == that.connectReceiver.GetBundleName() &&
             connectReceiver.GetModuleName() == that.connectReceiver.GetModuleName() &&
             connectReceiver.GetAbilityName() < that.connectReceiver.GetAbilityName()) {
+            return true;
+        }
+        if (connectCaller == that.connectCaller &&
+            connectReceiver.GetBundleName() == that.connectReceiver.GetBundleName() &&
+            connectReceiver.GetModuleName() == that.connectReceiver.GetModuleName() &&
+            connectReceiver.GetAbilityName() == that.connectReceiver.GetAbilityName() &&
+            !(connectReceiver == that.connectReceiver)) {
             return true;
         }
         return false;
@@ -138,15 +146,17 @@ public:
 private:
     ConnectionManager() = default;
     bool IsConnectCallerEqual(const sptr<IRemoteObject> &connectCaller, const sptr<IRemoteObject> &connectCallerOther);
-    bool IsConnectReceiverEqual(const AppExecFwk::ElementName &connectReceiver,
+    bool IsConnectReceiverEqual(AAFwk::Operation &connectReceiver,
         const AppExecFwk::ElementName &connectReceiverOther);
+    bool MatchConnection(
+        const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver,
+        const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection);
     std::recursive_mutex connectionsLock_;
     std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections_;
     ErrCode ConnectAbilityInner(const sptr<IRemoteObject> &connectCaller,
         const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback);
     ErrCode CreateConnection(const sptr<IRemoteObject> &connectCaller,
-        const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback,
-        const AppExecFwk::ElementName &connectReceiver);
+        const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

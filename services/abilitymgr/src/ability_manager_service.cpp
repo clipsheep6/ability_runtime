@@ -1143,7 +1143,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &extensionSessionInfo,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
-    HILOG_INFO("Start ui extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
+    HILOG_INFO("Start ui extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{pravite}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     EventInfo eventInfo = BuildEventInfo(want, userId);
@@ -1250,16 +1250,28 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-        eventInfo.errCode = ERR_INVALID_VALUE;
-        EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_CALLER;
+        if (!AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission()) {
+            HILOG_ERROR("VerificationAllToken failed.");
+            eventInfo.errCode = ERR_INVALID_VALUE;
+            EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+            return ERR_INVALID_CALLER;
+        }
+        HILOG_DEBUG("Caller is specific system ability.");
     }
+
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         eventInfo.errCode = ERR_INVALID_VALUE;
         EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_CROSS_USER;
+    }
+
+    if (callerToken != nullptr && CheckIfOperateRemote(want)) {
+        auto callerUid = IPCSkeleton::GetCallingUid();
+        uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+        DistributedClient dmsClient;
+        return dmsClient.StopRemoteExtensionAbility(want, callerUid, accessToken, eventInfo.extensionType);
     }
 
     AbilityRequest abilityRequest;
@@ -1656,7 +1668,7 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
 
     auto extensionAbilityType = abilityRecord->GetAbilityInfo().extensionAbilityType;
     if (extensionAbilityType != AppExecFwk::ExtensionAbilityType::UI) {
-        HILOG_ERROR("Cannot minimize except extension ability.");
+        HILOG_ERROR("Cannot minimize except ui extension ability.");
         return ERR_WRONG_INTERFACE_CALL;
     }
 
@@ -1774,6 +1786,96 @@ int AbilityManagerService::ConnectAbilityCommon(
     return eventInfo.errCode;
 }
 
+int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<SessionInfo> &sessionInfo, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Connect ui extension called, bundlename: %{public}s, ability is %{public}s, userId is %{pravite}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+
+    if (IsCrossUserCall(userId)) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
+
+    EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+    sptr<IRemoteObject> callerToken = sessionInfo->callerToken;
+
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+        HILOG_ERROR("ConnectUIExtensionAbility VerificationAllToken failed.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CALLER;
+    }
+
+    auto result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::CONNECT_SERVICE_ERROR);
+    if (result != ERR_OK) {
+        HILOG_ERROR("CheckDlpForExtension error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
+    result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
+    int32_t validUserId = GetValidUserId(userId);
+
+    Want abilityWant = want;
+    std::string uri = abilityWant.GetUri().ToString();
+    if (!uri.empty()) {
+        // if the want include uri, it may only has uri information.
+        HILOG_INFO("%{public}s called. uri:%{public}s, userId %{public}d", __func__, uri.c_str(), validUserId);
+        AppExecFwk::ExtensionAbilityInfo extensionInfo;
+        auto bms = GetBundleManager();
+        CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+
+        AbilityRequest abilityRequest;
+        abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
+        ComponentRequest componentRequest = initComponentRequest(callerToken);
+        if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
+            return componentRequest.requestResult;
+        }
+        abilityWant.RemoveParam("abilityConnectionObj");
+
+        bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
+        if (!queryResult || extensionInfo.name.empty() || extensionInfo.bundleName.empty()) {
+            HILOG_ERROR("Invalid extension ability info.");
+            eventInfo.errCode = ERR_INVALID_VALUE;
+            EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+            return ERR_INVALID_VALUE;
+        }
+        abilityWant.SetElementName(extensionInfo.bundleName, extensionInfo.name);
+    }
+
+    UpdateCallerInfo(abilityWant, callerToken);
+
+    if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
+        HILOG_INFO("%{public}s invalid Token.", __func__);
+        eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, nullptr,
+            AppExecFwk::ExtensionAbilityType::UI, sessionInfo);
+        if (eventInfo.errCode != ERR_OK) {
+            EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+        }
+        return eventInfo.errCode;
+    }
+    eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, callerToken,
+        AppExecFwk::ExtensionAbilityType::UI, sessionInfo);
+    if (eventInfo.errCode != ERR_OK) {
+        EventReport::SendExtensionEvent(EventName::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return eventInfo.errCode;
+}
+
 EventInfo AbilityManagerService::BuildEventInfo(const Want &want, int32_t userId)
 {
     EventInfo eventInfo;
@@ -1803,7 +1905,7 @@ int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &con
 
 int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t userId,
     const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
-    AppExecFwk::ExtensionAbilityType extensionType)
+    AppExecFwk::ExtensionAbilityType extensionType, const sptr<SessionInfo> &sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect local ability begin.");
@@ -1870,7 +1972,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     ReportEventToSuspendManager(abilityInfo);
-    return connectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken);
+    return connectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken, sessionInfo);
 }
 
 int AbilityManagerService::ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken,
@@ -3736,6 +3838,40 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
             item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
         }
     }
+}
+
+void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
+{
+    HILOG_DEBUG("handle shareData timeout.");
+    WantParams wantParam;
+    int32_t ret = GetShareDataPairAndReturnData(nullptr, uniqueId, ERR_TIMED_OUT, wantParam);
+    if (ret) {
+        HILOG_ERROR("acqurieShareData failed.");
+    }
+}
+
+int32_t AbilityManagerService::GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
+    const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    HILOG_INFO("getShareDataPairAndReturnData enter.");
+    auto it = iAcquireShareDataMap_.find(uniqueId);
+    if (it != iAcquireShareDataMap_.end()) {
+        auto shareDataPair = it->second;
+        if (abilityRecord && shareDataPair.first != abilityRecord->GetAbilityRecordId()) {
+            HILOG_ERROR("abilityRecord is not the abilityRecord from request.");
+            return ERR_INVALID_VALUE;
+        }
+        auto callback = shareDataPair.second;
+        if (!callback) {
+            HILOG_ERROR("callback object is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        auto ret = callback->AcquireShareDataDone(resultCode, wantParam);
+        iAcquireShareDataMap_.erase(it);
+        return ret;
+    }
+    HILOG_ERROR("iAcquireShareData is null.");
+    return ERR_INVALID_VALUE;
 }
 
 bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
@@ -6213,5 +6349,48 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
 
     return ERR_OK;
 }
+
+int32_t AbilityManagerService::AcquireShareData(
+    const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+{
+    HILOG_DEBUG("missionId is %{public}d.", missionId);
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionId);
+    if (!mission) {
+        HILOG_ERROR("mission is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is null.");
+        return ERR_INVALID_VALUE;
+    }
+    uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
+    std::pair<int64_t, const sptr<IAcquireShareDataCallback>> shareDataPair =
+        std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
+    iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
+    abilityRecord->ShareData(uniqueId_);
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::ShareDataDone(
+    const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+{
+    if (!VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
+    handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
+    return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
 }  // namespace AAFwk
 }  // namespace OHOS
+}

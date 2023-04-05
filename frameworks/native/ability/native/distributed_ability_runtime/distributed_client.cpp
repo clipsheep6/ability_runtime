@@ -442,5 +442,27 @@ bool DistributedClient::WriteInfosToParcel(MessageParcel& data, const OHOS::AAFw
     PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     return true;
 }
+
+int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
+    uint32_t accessToken, int32_t extensionType)
+{
+    HILOG_DEBUG("StopRemoteExtensionAbility enter");
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("StopRemoteExtensionAbility remote service null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("StopRemoteExtensionAbility WriteInterfaceToken failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
+    PARCEL_WRITE_HELPER(data, Int32, extensionType);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, STOP_REMOTE_EXTERNSION_ABILITY, data, reply);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

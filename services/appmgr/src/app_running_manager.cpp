@@ -115,6 +115,21 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
+bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    if (appRunningRecordMap_.empty()) {
+        return false;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(const pid_t pid)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
@@ -247,7 +262,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("On remot died.");
+    HILOG_INFO("On remote died.");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;

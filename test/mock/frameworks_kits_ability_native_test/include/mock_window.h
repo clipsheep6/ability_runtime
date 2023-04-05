@@ -156,6 +156,7 @@ public:
     virtual WmErrorCode RaiseToAppTop() {return WmErrorCode::WM_OK;}
     virtual WMError SetAspectRatio(float ratio) {return WMError::WM_OK;}
     virtual WMError ResetAspectRatio() {return WMError::WM_OK;}
+    virtual WMError SetWindowGravity(WindowGravity gravity, uint32_t percent) {return WMError::WM_OK;}
 };
 }
 }

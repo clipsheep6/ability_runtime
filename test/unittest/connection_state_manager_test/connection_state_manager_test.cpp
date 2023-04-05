@@ -389,6 +389,7 @@ HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityDied_003, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityCallerDied_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     int32_t callerPid = 0;
     manager_->HandleDataAbilityCallerDied(callerPid);
 }
@@ -403,6 +404,7 @@ HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityCallerDied_001, TestSize.L
  */
 HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityCallerDied_002, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     int32_t callerPid = 1;
     manager_->HandleDataAbilityCallerDied(callerPid);
 }
@@ -417,6 +419,7 @@ HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityCallerDied_002, TestSize.L
  */
 HWTEST_F(ConnectionStateManagerTest, AddDlpManager_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<AbilityRecord> dlpManger = nullptr;
     manager_->AddDlpManager(dlpManger);
 }
@@ -431,6 +434,7 @@ HWTEST_F(ConnectionStateManagerTest, AddDlpManager_001, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, AddDlpManager_002, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     manager_->AddDlpManager(abilityRecord_);
 }
 
@@ -444,6 +448,7 @@ HWTEST_F(ConnectionStateManagerTest, AddDlpManager_002, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, AddDlpManager_003, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     auto abilityRecord = abilityRecord_;
     abilityRecord->ownerMissionUserId_ = 1;
     manager_->dlpItems_[abilityRecord->ownerMissionUserId_] = nullptr;
@@ -460,6 +465,7 @@ HWTEST_F(ConnectionStateManagerTest, AddDlpManager_003, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, RemoveDlpManager_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     manager_->RemoveDlpManager(abilityRecord);
 }
@@ -474,6 +480,7 @@ HWTEST_F(ConnectionStateManagerTest, RemoveDlpManager_001, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, RemoveDlpManager_002, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     manager_->RemoveDlpManager(abilityRecord_);
 }
 
@@ -487,6 +494,7 @@ HWTEST_F(ConnectionStateManagerTest, RemoveDlpManager_002, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, AddDlpAbility_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     manager_->AddDlpAbility(abilityRecord);
 }
@@ -516,6 +524,7 @@ HWTEST_F(ConnectionStateManagerTest, AddDlpAbility_002, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, RemoveDlpAbility_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     manager_->RemoveDlpAbility(abilityRecord);
 }
@@ -530,6 +539,7 @@ HWTEST_F(ConnectionStateManagerTest, RemoveDlpAbility_001, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, RemoveDlpAbility_002, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     manager_->Init();
     manager_->RemoveDlpAbility(abilityRecord);
@@ -545,6 +555,7 @@ HWTEST_F(ConnectionStateManagerTest, RemoveDlpAbility_002, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, HandleAppDied_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     int32_t pid = 0;
     manager_->HandleAppDied(pid);
 }
@@ -559,6 +570,7 @@ HWTEST_F(ConnectionStateManagerTest, HandleAppDied_001, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, GetDlpConnectionInfos_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::vector<DlpConnectionInfo> infos;
     manager_->dlpItems_[0] = nullptr;
     manager_->dlpItems_[1] = nullptr;
@@ -613,8 +625,10 @@ HWTEST_F(ConnectionStateManagerTest, RemoveConnectionInner_001, TestSize.Level1)
  */
 HWTEST_F(ConnectionStateManagerTest, HandleCallerDied_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     std::shared_ptr<ConnectionRecord> connectionRecord =
         ConnectionRecord::CreateConnectionRecord(abilityRecord_->GetToken(), abilityRecord_, callback_);
+    EXPECT_NE(connectionRecord, nullptr);
     int32_t callerUid = 0;
     int32_t callerPid = 0;
     std::string callerName = "callerName";
@@ -668,6 +682,7 @@ HWTEST_F(ConnectionStateManagerTest, RemoveDataAbilityConnectionInner_001, TestS
  */
 HWTEST_F(ConnectionStateManagerTest, HandleDataAbilityDiedInner_001, TestSize.Level1)
 {
+    EXPECT_NE(manager_, nullptr);
     sptr<IRemoteObject> abilityToken;
     std::vector<AbilityRuntime::ConnectionData> allData;
     manager_->connectionStates_[0] = nullptr;

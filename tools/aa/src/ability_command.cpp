@@ -19,6 +19,7 @@
 #include <getopt.h>
 #include <regex>
 #include "ability_manager_client.h"
+#include "app_mgr_client.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
@@ -32,13 +33,13 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CD";
+const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDS";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
     {"ability", required_argument, nullptr, 'a'},
     {"bundle", required_argument, nullptr, 'b'},
-    {"power", required_argument, nullptr, 'p'},
+    {"perf", required_argument, nullptr, 'p'},
     {"setting", required_argument, nullptr, 's'},
     {"module", required_argument, nullptr, 'm'},
     {"cold-start", no_argument, nullptr, 'C'},
@@ -67,6 +68,16 @@ constexpr struct option LONG_OPTIONS_DUMPSYS[] = {
     {"client", no_argument, nullptr, 'c'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_PROCESS = "ha:b:p:m:D:S";
+constexpr struct option LONG_OPTIONS_PROCESS[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"ability", required_argument, nullptr, 'a'},
+    {"bundle", required_argument, nullptr, 'b'},
+    {"perf", required_argument, nullptr, 'p'},
+    {"module", required_argument, nullptr, 'm'},
+    {"debug", required_argument, nullptr, 'D'},
+    {nullptr, 0, nullptr, 0},
+};
 }  // namespace
 
 AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char* argv[]) : ShellCommand(argc, argv, TOOL_NAME)
@@ -86,6 +97,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
+        {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
         {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
@@ -642,6 +654,243 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
     return result;
 }
 
+ErrCode AbilityManagerShellCommand::RunAsProcessCommand()
+{
+    Want want;
+    ErrCode result = MakeWantForProcess(want);
+    if (result == OHOS::ERR_OK) {
+        auto appMgrClient = std::make_shared<AppMgrClient>();
+        result = appMgrClient->StartNativeProcessForDebugger(want);
+        if (result == OHOS::ERR_OK) {
+            HILOG_INFO("%{public}s", STRING_START_NATIVE_PROCESS_OK.c_str());
+            resultReceiver_ = STRING_START_NATIVE_PROCESS_OK;
+        } else {
+            HILOG_INFO("%{public}s result = %{public}d", STRING_START_NATIVE_PROCESS_NG.c_str(), result);
+            resultReceiver_ = STRING_START_NATIVE_PROCESS_NG;
+        }
+    } else {
+        resultReceiver_.append(HELP_MSG_PROCESS);
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
+{
+    int result = OHOS::ERR_OK;
+    int option = -1;
+    int counter = 0;
+    std::string deviceId = "";
+    std::string bundleName = "";
+    std::string abilityName = "";
+    std::string moduleName = "";
+    std::string perfCmd = "";
+    std::string debugCmd = "";
+    bool isPerf = false;
+    bool isSanboxApp = false;
+
+    while (true) {
+        counter++;
+
+        option = getopt_long(argc_, argv_, SHORT_OPTIONS_PROCESS.c_str(), LONG_OPTIONS_PROCESS, nullptr);
+
+        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+        if (optind < 0 || optind > argc_) {
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            // When scanning the first argument
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                // 'aa process' with no option: aa process
+                // 'aa process' with a wrong argument: aa process xxx
+                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+
+        if (option == '?') {
+            switch (optopt) {
+                case 'a': {
+                    // 'aa process -a' with no argument
+                    HILOG_INFO("'aa %{public}s -a' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 'b': {
+                    // 'aa process -b' with no argument
+                    HILOG_INFO("'aa %{public}s -b' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 'm': {
+                    // 'aa process -m' with no argument
+                    HILOG_INFO("'aa %{public}s -m' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 'p': {
+                    // 'aa process -p' with no argument
+                    HILOG_INFO("'aa %{public}s -p' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 'D': {
+                    // 'aa process -D' with no argument
+                    HILOG_INFO("'aa %{public}s -D' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 0: {
+                    // 'aa process' with an unknown option: aa process --x
+                    // 'aa process' with an unknown option: aa process --xxx
+                    std::string unknownOption = "";
+                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+                    HILOG_INFO("'aa %{public}s' with an unknown option.", cmd_.c_str());
+
+                    resultReceiver_.append(unknownOptionMsg);
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                default: {
+                    // 'aa process' with an unknown option: aa process -x
+                    // 'aa process' with an unknown option: aa process -xxx
+                    std::string unknownOption = "";
+                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+                    HILOG_INFO("'aa %{public}s' with an unknown option.", cmd_.c_str());
+
+                    resultReceiver_.append(unknownOptionMsg);
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+            }
+            break;
+        }
+
+        size_t paramLength = 1024;
+        switch (option) {
+            case 'h': {
+                // 'aa process -h'
+                // 'aa process --help'
+                result = OHOS::ERR_INVALID_VALUE;
+                break;
+            }
+            case 'a': {
+                // 'aa process -a xxx'
+                // save ability name
+                abilityName = optarg;
+                break;
+            }
+            case 'b': {
+                // 'aa process -b xxx'
+                // save bundle name
+                bundleName = optarg;
+                break;
+            }
+            case 'm': {
+                // 'aa process -m xxx'
+                // save module name
+                moduleName = optarg;
+                break;
+            }
+            case 'p': {
+                // 'aa process -p xxx'
+                // save perf cmd
+                if (strlen(optarg) < paramLength) {
+                    perfCmd = optarg;
+                    isPerf = true;
+                }
+                break;
+            }
+            case 'D': {
+                // 'aa process -D xxx'
+                // save debug cmd
+                if (!isPerf && strlen(optarg) < paramLength) {
+                    HILOG_INFO("debug cmd.");
+                    debugCmd = optarg;
+                }
+                break;
+            }
+            case 'S': {
+                // 'aa process -S'
+                // enter sanbox to perform app
+                isSanboxApp = true;
+                break;
+            }
+            case 0: {
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+
+    if (perfCmd.empty() && debugCmd.empty()) {
+        HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    if (result == OHOS::ERR_OK) {
+        if (abilityName.size() == 0 || bundleName.size() == 0) {
+            // 'aa process -a <ability-name> -b <bundle-name> [-D]'
+            HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
+
+            if (abilityName.size() == 0) {
+                resultReceiver_.append(HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
+            }
+
+            if (bundleName.size() == 0) {
+                resultReceiver_.append(HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n");
+            }
+
+            result = OHOS::ERR_INVALID_VALUE;
+        } else {
+            ElementName element(deviceId, bundleName, abilityName, moduleName);
+            want.SetElement(element);
+
+            if (!perfCmd.empty()) {
+                want.SetParam("perfCmd", perfCmd);
+            }
+            if (!debugCmd.empty()) {
+                want.SetParam("debugCmd", debugCmd);
+            }
+            if (isSanboxApp) {
+                want.SetParam("sanboxApp", isSanboxApp);
+            }
+        }
+    }
+
+    return result;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerShellCommand::RunForceTimeoutForTest()
 {
@@ -685,9 +934,11 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     std::string bundleName = "";
     std::string abilityName = "";
     std::string moduleName;
+    std::string perfCmd;
     bool isColdStart = false;
     bool isDebugApp = false;
     bool isContinuation = false;
+    bool isSanboxApp = false;
 
     while (true) {
         counter++;
@@ -779,6 +1030,17 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
+                case 'p': {
+                    // 'aa start -p' with no argument
+                    // 'aa stop-service -p' with no argument
+                    HILOG_INFO("'aa %{public}s -p' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
                 case 0: {
                     // 'aa start' with an unknown option: aa start --x
                     // 'aa start' with an unknown option: aa start --xxx
@@ -860,6 +1122,14 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 moduleName = optarg;
                 break;
             }
+            case 'p': {
+                // 'aa start -p xxx'
+                // 'aa stop-service -p xxx'
+
+                // save module name
+                perfCmd = optarg;
+                break;
+            }
             case 'C': {
                 // 'aa start -C'
                 // cold start app
@@ -870,6 +1140,12 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa start -D'
                 // debug app
                 isDebugApp = true;
+                break;
+            }
+            case 'S': {
+                // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
+                // enter sanbox to perform app
+                isSanboxApp = true;
                 break;
             }
             case 'c': {
@@ -914,6 +1190,12 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isContinuation) {
                 want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
+            }
+            if (!perfCmd.empty()) {
+                want.SetParam("perfCmd", perfCmd);
+            }
+            if (isSanboxApp) {
+                want.SetParam("sanboxApp", isSanboxApp);
             }
         }
     }

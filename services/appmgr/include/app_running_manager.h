@@ -66,6 +66,15 @@ public:
         const std::string &processName, const int uid, const BundleInfo &bundleInfo);
 
     /**
+     * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
+     *
+     * @param bundleName, the bundle name.
+     *
+     * @return, Return true if exist.
+     */
+    bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
+
+    /**
      * GetAppRunningRecordByPid, Get process record by application pid.
      *
      * @param pid, the application pid.

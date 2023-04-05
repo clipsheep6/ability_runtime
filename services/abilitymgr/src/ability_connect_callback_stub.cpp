@@ -36,6 +36,7 @@ bool AbilityConnectionProxy::WriteInterfaceToken(MessageParcel &data)
 void AbilityConnectionProxy::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
+    HILOG_INFO("OnAbilityConnectDone resultCode: %{public}d", resultCode);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -70,6 +71,7 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
 
 void AbilityConnectionProxy::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
+    HILOG_INFO("OnAbilityDisconnectDone resultCode: %{public}d", resultCode);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -100,11 +102,11 @@ AbilityConnectionStub::~AbilityConnectionStub()
 int AbilityConnectionStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("AbilityConnectionStub::OnRemoteRequest OnAbilityConnectDone called.");
+    HILOG_INFO("AbilityConnectionStub::OnRemoteRequest code: %{public}ud", code);
     std::u16string descriptor = AbilityConnectionStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("Local descriptor is not equal to remote");
+        HILOG_ERROR("Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 

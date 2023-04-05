@@ -84,6 +84,12 @@ public:
     {
         return nullptr;
     }
+    bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false)
+    {
+        return true;
+    }
+public:
+    Language language;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
