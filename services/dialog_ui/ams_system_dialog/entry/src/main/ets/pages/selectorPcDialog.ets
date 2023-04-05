@@ -31,6 +31,7 @@ interface HapInfo {
 struct SelectorPcDialog {
   @State private pcSelectorlist: SelectorPc = { width: "100%", height: "240vp"};
   @State private hapList: HapInfo[] = [];
+  @State private pcShowMoreHapList: HapInfo[] = [];
   private TAG = "SelectorDialog_Pc_Page";
   @State private moreOpenModeVisiable: number = 0;
   @State private moreOpenModeAreaHigh: number = 54;
@@ -38,16 +39,38 @@ struct SelectorPcDialog {
   @State private moreAppsAreaHigh: number = 0;
   @State private recommendAppsVisiable: number = 0;
   @State private checkboxVisiable: number = 0;
-  @State private secondListVisiable:number = 2;
+  @State private moreHapListVisibility:number = 2;
   @State private totalHigh: number = 0;
-  @State private selectFlag: boolean = true;
-  @State private isCheckSelected: boolean = true;
+  @State private isCheckSelected: boolean = false;
+  @State private scrollbarCtrl: number = 0;
+  @State private action: string = "";
+  @State public hapListBackGround: number[] = [0xffffff];
+  @State public hapListPngVisibility: number[] = [];
+  @State public moreHapListBackGround: number[] = [0xffffff];
+  @State public moreHapListPngVisibility: number[] = [];
+  // @State public checkBoxValue: boolean = false;
   private selectItem;
 
   aboutToAppear(): void {
-    console.log(this.TAG, "dialog page appears");
+    console.debug(this.TAG, "dialog page appears");
     this.hapList = globalThis.params.hapList;
+    this.action = globalThis.params.action;
     this.getHapListStyle();
+    this.cleanFirstListColorAndVisibility()
+  }
+
+  cleanFirstListColorAndVisibility() {
+    for(let n = 0; n <= globalThis.pcShowHapList.length; n++) {
+      this.hapListBackGround[n] = 0xffffff;
+      this.hapListPngVisibility[n] = 1;
+    }
+  }
+
+  cleanSecondListColorAndVisibility() {
+    for(let n = 0; n <= this.pcShowMoreHapList.length; n++) {
+      this.moreHapListBackGround[n] = 0xffffff;
+      this.moreHapListPngVisibility[n] = 1
+    }
   }
 
   onSelectApp(item) {
@@ -60,7 +83,6 @@ struct SelectorPcDialog {
         return;
       }
       console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
-      globalThis.selectExtensionContext.terminateSelf();
     });
     let type = item.split("#")[5];
     let userId = item.split("#")[6];
@@ -70,36 +92,104 @@ struct SelectorPcDialog {
       abilityName: globalThis.abilityWant.abilityName,
     }
     if (this.isCheckSelected) {
-      globalThis.defaultAppManager.setDefaultApplication(type, elementName, userId);
+      console.log(this.TAG + "setDefaultApplication type:" + JSON.stringify(type));
+      globalThis.defaultAppManager.setDefaultApplication(type, elementName);
     }
     globalThis.selectExtensionContext.terminateSelf();
   }
+
+  onClickMoreApp() {
+    globalThis.bundleManager.queryAbilityInfo({
+        action: this.action,
+        type : "*/*"
+    }, 0, (err, data) =>{
+      for (let i = 0; i < data.length; i++) {
+        this.getHapResource(data[i], this.pcShowMoreHapList, i);
+      }
+      console.debug("pcShowMoreHapList: " + JSON.stringify(this.pcShowMoreHapList));
+    });
+  }
+
+  getHapResource(hap, showHapList, n) {
+    this.moreHapListBackGround[n] = 0xffffff;
+    this.moreHapListPngVisibility[n] = 1
+    let bundleName = hap.bundleName;
+    let moduleName = hap.moduleName;
+    let abilityName = hap.name;
+    let appName = "";
+    let appIcon = "";
+    let lableId = Number(hap.labelId);
+    let type = hap.uri;
+    let userId = Number(hap.userId);
+    let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
+    moduleContext.resourceManager.getString(lableId).then(value => {
+        appName = value;
+        let iconId = Number(hap.iconId);
+        moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
+            appIcon = value;
+            let moreHapList = ""
+            moreHapList = bundleName + abilityName + moduleName
+            if (globalThis.params.hapList.find(item => String(item.bundleName + item.ability + item.moduleName) ==
+              String(moreHapList)) == undefined) {
+                showHapList.push(bundleName + "#" + abilityName + "#" + appName +
+                      "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
+            }
+          }).catch(error => {
+              console.error("getMediaBase64 error:" + JSON.stringify(error));
+        });
+      }).catch(error => {
+          console.error("getString error:" + JSON.stringify(error));
+      });
+    }
 
   getHapListStyle() {
     let heightTotalVp = 0;
     let heightVal = 64;
     let recommendAppAreaHigh = 48;
     let openModeHigh = 54;
-    if (this.hapList.length == 2) {
-        this.totalHigh = 415;
-        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-    } else if (this.hapList.length == 3) {
-        this.totalHigh = 479;
-        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-    } else if (this.hapList.length == 4) {
-        this.totalHigh = 543;
-        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-    } else if (this.hapList.length > 4) {
-        this.totalHigh = 543;
-        heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh;
-    } else if (this.hapList.length == 0) {
+    let titleAreaHigh = 56;
+    let buttonAreaHigh = 81;
+    if (globalThis.modelFlag == true) {
         this.recommendAppsVisiable = 2;
         this.moreOpenModeVisiable = 2;
         this.checkboxVisiable = 2;
-        heightTotalVp = 406;
-        this.totalHigh = 543;
-    } else {
-      ;
+        heightTotalVp = this.hapList.length * heightVal;
+        this.totalHigh = this.hapList.length * heightVal + titleAreaHigh + buttonAreaHigh;
+        if(this.hapList.length > 6) {
+            heightTotalVp = 6 * heightVal;
+            this.totalHigh = 6 * heightVal + titleAreaHigh + buttonAreaHigh;
+            this.scrollbarCtrl = 1;
+        }
+    }
+    if(globalThis.modelFlag == false) {
+        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
+        if (this.hapList.length == 2) {
+            this.totalHigh = 415;
+            if(this.pcShowMoreHapList.length == 1) {
+               this.totalHigh = 479; 
+               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64;
+               this.scrollbarCtrl = 1;
+            }
+            if(this.pcShowMoreHapList.length >= 2) {
+               this.totalHigh = 543; 
+               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64 + 64;
+               this.scrollbarCtrl = 1;
+            }
+        } else if (this.hapList.length == 3) {
+            this.totalHigh = 479;
+            if(this.pcShowMoreHapList.length >= 1) {
+               this.totalHigh = 543; 
+               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64 + 64;
+               this.scrollbarCtrl = 1;
+            }
+        } else if (this.hapList.length == 4) {
+            this.totalHigh = 543;
+        } else if (this.hapList.length > 4) {
+            this.totalHigh = 543;
+            heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
+            this.scrollbarCtrl = 1;
+        } else {
+        }
     }
     this.pcSelectorlist = {
       width: "100%",
@@ -125,8 +215,7 @@ struct SelectorPcDialog {
               .height(48)
               .visibility(this.recommendAppsVisiable)
           }
-          .selectable(false)
-          ForEach(globalThis.pcShowHapList, (item: any) => {
+        ForEach(globalThis.pcShowHapList, (item: any, current) => {
             ListItem() {
               Flex({ direction: FlexDirection.Row }) {
                 if (item.split("#")[3] != "") {
@@ -135,17 +224,19 @@ struct SelectorPcDialog {
                     .width(48)
                     .alignSelf(ItemAlign.Center)
                     .margin({ left : 16 })
+                    .borderRadius(12)
                 } else {
                   Image($r("app.media.app_icon"))
                     .height(48)
                     .width(48)
                     .alignSelf(ItemAlign.Center)
                     .margin({ left : 16 })
+                    .borderRadius(12)
                 }
                 if (item.split("#")[2] != "") {
                   Text(item.split("#")[2])
                     .fontSize(16)
-                    .width("80%")
+                    .width("60%")
                     .height(64)
                     .alignSelf(ItemAlign.Center)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -153,24 +244,31 @@ struct SelectorPcDialog {
                 } else {
                   Text(item.split("#")[0])
                     .fontSize(16)
-                    .width("80%")
+                    .width("60%")
                     .height(64)
                     .alignSelf(ItemAlign.Center)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                     .margin({ left : 16 })
                 }
+                Image($r("app.media.selectedMark"))
+                    .height(24)
+                    .width(24)
+                    .alignSelf(ItemAlign.Center)
+                    .margin({ right : 16 })
+                    .visibility(this.hapListPngVisibility[current])
               }
               .onClick(() => {
-                this.selectItem = item
-                this.selectFlag = true
+                this.cleanFirstListColorAndVisibility();
+                this.cleanSecondListColorAndVisibility();
+                this.selectItem = item;
+                this.hapListBackGround[current] = 0x1A0A59F7;
+                this.hapListPngVisibility[current] = 0;
               })
             }
+            .backgroundColor(this.hapListBackGround[current])
+            .borderRadius(12)
             .height(64)
             .width(346)
-            .selectable(this.selectFlag)
-            .onSelect(() => {
-                this.selectFlag = false;
-            })
           }, item => item)
           ListItem() {
             Button($r("app.string.message_moreOpenMode_selector"),{ type: ButtonType.Capsule })
@@ -182,14 +280,14 @@ struct SelectorPcDialog {
               .fontColor('#0A59F7')
               .margin({ right : 218 })
               .onClick(() => {
+                this.onClickMoreApp()
                 this.moreOpenModeVisiable = 2
                 this.moreOpenModeAreaHigh = 0
-                this.secondListVisiable = 0
+                this.moreHapListVisibility = 0
                 this.moreAppsVisiable = 0
                 this.moreAppsAreaHigh = 48
             })
           }
-          .selectable(false)
           .visibility(this.moreOpenModeVisiable)
           .width(346)
           .height(this.moreOpenModeAreaHigh)
@@ -201,9 +299,8 @@ struct SelectorPcDialog {
               .margin({ right : 234 })
           }
           .width(346)
-          .selectable(false)
           .height(this.moreAppsAreaHigh)
-          ForEach(globalThis.pcShowOtherHapList, (item) => {
+          ForEach(this.pcShowMoreHapList, (item: any, current) => {
             ListItem() {
               Flex({ direction: FlexDirection.Row }) {
                 if (item.split("#")[3] != "") {
@@ -212,17 +309,19 @@ struct SelectorPcDialog {
                     .width(48)
                     .alignSelf(ItemAlign.Center)
                     .margin({ left : 16 })
+                    .borderRadius(12)
                 } else {
                   Image($r("app.media.app_icon"))
                     .height(48)
                     .width(48)
                     .alignSelf(ItemAlign.Center)
                     .margin({ left : 16 })
+                    .borderRadius(12)
                 }
                 if (item.split("#")[2] != "") {
                   Text(item.split("#")[2])
                     .fontSize(16)
-                    .width("80%")
+                    .width("60%")
                     .height(64)
                     .alignSelf(ItemAlign.Center)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -230,40 +329,46 @@ struct SelectorPcDialog {
                 } else {
                   Text(item.split("#")[0])
                     .fontSize(16)
-                    .width("80%")
+                    .width("60%")
                     .height(64)
-                    .alignSelf(ItemAlign.Center)      
+                    .alignSelf(ItemAlign.Center)
                     .height(56)
                     .width(394)
                 }
+                Image($r("app.media.selectedMark"))
+                    .height(24)
+                    .width(24)
+                    .alignSelf(ItemAlign.Center)
+                    .margin({ right : 16 })
+                    .visibility(this.moreHapListPngVisibility[current])
               }
               .onClick(() => {
-                this.selectItem = item
-                this.selectFlag = true
+                this.cleanFirstListColorAndVisibility();
+                this.cleanSecondListColorAndVisibility();
+                this.selectItem = item;
+                this.moreHapListBackGround[current] = 0x1A0A59F7;
+                this.moreHapListPngVisibility[current] = 0;
               })
             }
+            .backgroundColor(this.moreHapListBackGround[current])
+            .borderRadius(12)
             .height(64)
             .width(346)
-            .onSelect(() => {
-                this.selectFlag = false;
-            })
-            .selectable(this.selectFlag)
-            .visibility(this.secondListVisiable)
+            .visibility(this.moreHapListVisibility)
           }, item => item)
         }
         .edgeEffect(EdgeEffect.None)
         .height(this.pcSelectorlist.height)
-        .multiSelectable(true)
         .backgroundColor("#ffffff")
-        .scrollBar(globalThis.pcShowHapList.length > 4 ? BarState.Auto : BarState.Off)
+        .scrollBar(this.scrollbarCtrl)
         .width(346)
         Flex({ direction: FlexDirection.Row }) {
           Checkbox({name: 'checkbox'})
-           .select(true)
+           .select(this.isCheckSelected)
            .selectedColor(0x39a2db)
            .margin({ left : 8 })
            .onChange((value: boolean) => {
-            this.isCheckSelected = value;
+              this.isCheckSelected = value;
            })
           Text($r("app.string.message_openThisWay_selector"))
             .fontSize(14)

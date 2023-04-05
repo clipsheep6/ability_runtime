@@ -31,17 +31,17 @@
 namespace OHOS {
 namespace AAFwk {
 const int32_t UI_SELECTOR_DIALOG_WIDTH = 328 * 2;
-const int32_t UI_SELECTOR_DIALOG_HEIGHT = 350 * 2;
+const int32_t UI_SELECTOR_DIALOG_HEIGHT = 340 * 2;
 const int32_t UI_SELECTOR_DIALOG_HEIGHT_NARROW = 350 * 2;
 const int32_t UI_SELECTOR_DIALOG_WIDTH_NARROW = 328 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H1 = 240 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H2 = 340 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H3 = 350 * 2;
 const int32_t UI_SELECTOR_DIALOG_PC_H0 = 1;
-const int32_t UI_SELECTOR_DIALOG_PC_H2 = (70 * 2 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H3 = (70 * 3 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H4 = (70 * 4 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H5 = (70 * 4 + 85 + 38) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H2 = (64 * 2 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;;
 
 const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
@@ -56,8 +56,11 @@ const std::string OFF_SET_X = "offsetX";
 const std::string OFF_SET_Y = "offsetY";
 const std::string WIDTH = "width";
 const std::string HEIGHT = "height";
+const std::string MODEL_FLAG = "modelFlag";
+const std::string ACRION = "action";
 
 const int32_t UI_HALF = 2;
+const int32_t UI_TRISECT = 3;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
 const int32_t UI_DEFAULT_WIDTH = 2560;
@@ -182,72 +185,52 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
 }
 
 Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
-    const std::vector<DialogAppInfo> &dialogOtherAppInfos, Want &targetWant, const std::string &type, int32_t userId)
+    Want &targetWant, const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetPcSelectorDialogWant start");
     DialogPosition position;
-    if (dialogAppInfos.size() == 0) {
-        GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogOtherAppInfos.size()));
-    } else {
-        GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
-    }
-    std::string params = GetPcSelectorParams(dialogAppInfos, dialogOtherAppInfos, type, userId);
+    GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
 
+    std::string params = GetPcSelectorParams(dialogAppInfos, type, userId, targetWant.GetAction());
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
+    targetWant.SetParam(CALLER_TOKEN, callerToken);
 
     return targetWant;
 }
 
 const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
-    const std::vector<DialogAppInfo> &otherInfos, const std::string &type, int32_t userId) const
+    const std::string &type, int32_t userId, const std::string &action) const
 {
     HILOG_DEBUG("GetPcSelectorParams start");
+    if (infos.empty()) {
+        HILOG_WARN("Invalid abilityInfos.");
+        return {};
+    }
+
     nlohmann::json jsonObject;
     jsonObject[DEVICE_TYPE] = deviceType_;
-
-    if (infos.empty()) {
-        nlohmann::json otherhapListObj = nlohmann::json::array();
-        for (const auto &otherInfo : otherInfos) {
-            nlohmann::json atherObj;
-            atherObj["label"] = std::to_string(otherInfo.labelId);
-            atherObj["icon"] = std::to_string(otherInfo.iconId);
-            atherObj["bundle"] = otherInfo.bundleName;
-            atherObj["ability"] = otherInfo.abilityName;
-            atherObj["module"] = otherInfo.moduleName;
-            otherhapListObj.emplace_back(atherObj);
-        }
-        jsonObject["otherhapList"] = otherhapListObj;
-
-        return jsonObject.dump();
+    jsonObject[ACRION] = action;
+    if (type == "*/*") {
+        jsonObject[MODEL_FLAG] = true;
+    } else {
+        jsonObject[MODEL_FLAG] = false;
     }
 
     nlohmann::json hapListObj = nlohmann::json::array();
-    for (const auto &aInfo : infos) {
+    for (const auto &info : infos) {
         nlohmann::json aObj;
-        aObj["label"] = std::to_string(aInfo.labelId);
-        aObj["icon"] = std::to_string(aInfo.iconId);
-        aObj["bundle"] = aInfo.bundleName;
-        aObj["ability"] = aInfo.abilityName;
-        aObj["module"] = aInfo.moduleName;
+        aObj["labelId"] = std::to_string(info.labelId);
+        aObj["iconId"] = std::to_string(info.iconId);
+        aObj["bundleName"] = info.bundleName;
+        aObj["ability"] = info.abilityName;
+        aObj["moduleName"] = info.moduleName;
         aObj["type"] = type;
         aObj["userId"] = std::to_string(userId);
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;
-
-    nlohmann::json otherhapListObj = nlohmann::json::array();
-    for (const auto &otherInfo : otherInfos) {
-        nlohmann::json atherObj;
-        atherObj["label"] = std::to_string(otherInfo.labelId);
-        atherObj["icon"] = std::to_string(otherInfo.iconId);
-        atherObj["bundle"] = otherInfo.bundleName;
-        atherObj["ability"] = otherInfo.abilityName;
-        atherObj["module"] = otherInfo.moduleName;
-        otherhapListObj.emplace_back(atherObj);
-    }
-    jsonObject["otherhapList"] = otherhapListObj;
 
     return jsonObject.dump();
 }
@@ -310,7 +293,7 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
 void SystemDialogScheduler::DialogPositionAdaptive(DialogPosition &position, int lineNums) const
 {
     if (position.wideScreen) {
-        if (lineNums == LINE_NUMS_TWO) {
+        if (lineNums <= LINE_NUMS_TWO) {
             position.height = UI_SELECTOR_DIALOG_PC_H2;
         } else if (lineNums == LINE_NUMS_THREE) {
             position.height = UI_SELECTOR_DIALOG_PC_H3;
@@ -351,8 +334,12 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
         switch (position.align) {
             case DialogAlign::CENTER:
                 if (position.wideScreen) {
-                    position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
-                    position.offsetY = (display->GetHeight() - position.height) / UI_HALF;
+                    HILOG_INFO("display screen width: %{public}d, position width: %{public}d",
+                        display->GetWidth(), position.width);
+                    position.offsetX = (display->GetWidth() - position.width);
+                    HILOG_INFO("display screen height: %{public}d, position height: %{public}d",
+                        display->GetHeight(), position.height);
+                    position.offsetY = (display->GetHeight() - position.height / UI_HALF) / UI_TRISECT;
                 } else {
                     position.window_width = position.window_width / UI_HALF;
                     position.window_height = position.window_height / UI_HALF;

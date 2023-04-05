@@ -66,9 +66,8 @@ public:
     virtual ~SystemDialogScheduler() = default;
 
     bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
-    Want GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
-        const std::vector<DialogAppInfo> &dialogOtherAppInfos, Want &targetWant,
-        const std::string &type, int32_t userId);
+    Want GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+        const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken);
     Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
     Want GetTipsDialogWant();
@@ -87,7 +86,7 @@ private:
     const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
     const std::string GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
-        const std::vector<DialogAppInfo> &otherInfos, const std::string &type, int32_t userId) const;
+        const std::string &type, int32_t userId, const std::string &action) const;
     const std::string GetDialogPositionParams(const DialogPosition position) const;
 
     void InitDialogPosition(DialogType type, DialogPosition &position) const;

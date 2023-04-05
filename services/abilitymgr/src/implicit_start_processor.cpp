@@ -86,13 +86,27 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return imp->CallStartAbilityInner(userId, targetWant, callBack, request.callType);
     };
 
+    AAFwk::Want want;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     auto deviceType = sysDialogScheduler->GetDeviceType();
     if (dialogAppInfos.size() == 0 && deviceType != STR_PC) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
-        Want want = sysDialogScheduler->GetTipsDialogWant();
-        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        want = sysDialogScheduler->GetTipsDialogWant();
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
+    } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
+        std::vector<DialogAppInfo> dialogAllAppInfos;
+        request.want.SetType("*/*");
+        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("generate ability request by action failed.");
+            return ret;
+        }
+        auto type = request.want.GetType();
+        want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
+            type, userId, request.callerToken);
+        IPCSkeleton::SetCallingIdentity(identity);
+        return abilityMgr->StartAbility(want, request.callerToken);
     }
 
     //There is a default opening method or Only one application supports
@@ -102,8 +116,6 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
-    Want want;
-    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (deviceType != STR_PC) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
@@ -112,28 +124,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return abilityMgr->StartAbility(want, request.callerToken);
     }
 
-    auto type = request.want.GetType();
-    std::vector<DialogAppInfo> dialogAllAppInfos;
-    request.want.SetType("*/*");
-    ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("generate ability request by action failed.");
-        return ret;
-    }
-
-    if (dialogAppInfos.size() != 0) {
-        for (auto &appInfo : dialogAppInfos) {
-            auto findAppInfo = [appInfo](const DialogAppInfo &info) {
-                return (appInfo.abilityName == info.abilityName && appInfo.bundleName == info.bundleName &&
-                    appInfo.moduleName == info.moduleName && appInfo.iconId == info.iconId &&
-                    appInfo.labelId == info.labelId);
-            };
-            dialogAllAppInfos.erase(find_if(dialogAllAppInfos.begin(), dialogAllAppInfos.end(), findAppInfo));
-        }
-    }
-
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
-    want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, dialogAllAppInfos, request.want, type, userId);
+    auto type = request.want.GetType();
+    want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return abilityMgr->StartAbility(want, request.callerToken);
