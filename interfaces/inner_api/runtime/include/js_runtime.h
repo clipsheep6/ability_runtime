@@ -26,7 +26,6 @@
 #include "native_engine/native_engine.h"
 #include "runtime.h"
 #include "source_map.h"
-
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -102,6 +101,8 @@ public:
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
+    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
+    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 
 private:
     void FinishPreload() override;
@@ -129,7 +130,6 @@ private:
     static std::atomic<bool> hasInstance;
 
 private:
-    bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
     void InitSourceMap(const Options& options);

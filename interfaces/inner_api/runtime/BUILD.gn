@@ -55,6 +55,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_error_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_module_reader.cpp",
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+    "${ability_runtime_native_path}/runtime/js_quickfix_callback.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_timer.cpp",
