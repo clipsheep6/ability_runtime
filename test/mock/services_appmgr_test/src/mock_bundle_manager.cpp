@@ -95,7 +95,7 @@ bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& 
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -147,7 +147,7 @@ bool BundleMgrService::QueryAbilityInfoByUri(const std::string& uri, AbilityInfo
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -187,7 +187,7 @@ bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t us
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     int32_t userUid = 10001;
     int32_t userGid = 10001;
@@ -249,7 +249,7 @@ bool BundleMgrService::GetBundleGids(const std::string& bundleName, std::vector<
 }
 
 bool BundleMgrService::GetBundleInfos(
-    const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId)
+    int32_t flag, std::vector<BundleInfo>& bundleInfos, int32_t userId)
 {
     bundleInfos = bundleInfos_;
     return true;

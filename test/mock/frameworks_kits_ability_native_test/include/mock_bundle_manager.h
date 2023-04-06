@@ -35,10 +35,10 @@ public:
     ~BundleMgrProxy() = default;
 
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
 
     bool GetBundleInfo(const std::string& bundleName,
-        const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override
+        int32_t flag, BundleInfo& bundleInfo, int32_t userId) override
     {
         return true;
     }
@@ -72,9 +72,9 @@ public:
 class BundleMgrService : public BundleMgrStub {
 public:
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(const std::string& bundleName,
-        const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override
+        int32_t flag, BundleInfo& bundleInfo, int32_t userId) override
     {
         if (bundleName == "test_contextImpl") {
             bundleInfo.name = "test_contextImpl";

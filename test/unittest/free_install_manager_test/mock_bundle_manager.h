@@ -55,10 +55,10 @@ public:
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
 
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
 
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
 
     virtual bool ImplicitQueryInfoByPriority(const Want& want, int32_t flags, int32_t userId,
         AbilityInfo& abilityInfo, ExtensionAbilityInfo& extensionInfo) override
@@ -87,9 +87,9 @@ public:
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
     bool QueryAbilityInfo(const Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo) override;
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     int GetUidByBundleName(const std::string& bundleName, const int userId) override;
 
     bool CheckWantEntity(const AAFwk::Want&, AbilityInfo&);

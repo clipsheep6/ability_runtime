@@ -303,9 +303,9 @@ public:
     int QueryWantAbility(const AAFwk::Want& want, std::vector<AbilityInfo>& abilityInfos);
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
         std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
     {
@@ -322,12 +322,12 @@ public:
 class BundleMgrService : public BundleMgrStub {
 public:
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
     bool QueryAbilityInfo(const AAFwk::Want& want, int32_t flags, int32_t userId, AbilityInfo& abilityInfo) override;
 
     bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     virtual bool GetBundleGidsByUid(const std::string& bundleName, const int& uid, std::vector<int>& gids) override
     {
         return true;

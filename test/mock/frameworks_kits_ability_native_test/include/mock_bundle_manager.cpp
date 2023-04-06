@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AppExecFwk {
 const long int UNEXPIRED_TIME = 1860000000;
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -72,7 +72,7 @@ int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessagePa
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
