@@ -487,6 +487,14 @@ void JsAbility::OnBackground()
     HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
+void JsAbility::OnPrepareTerminate()
+{
+    HILOG_DEBUG("OnPrepareTerminate begin, ability is %{public}s.", GetAbilityName().c_str());
+    Ability::OnPrepareTerminate();
+    CallObjectMethod("onPrepareTerminate");
+    HILOG_DEBUG("OnPrepareTerminate end, ability is %{public}s.", GetAbilityName().c_str());
+}
+
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
     HandleScope handleScope(jsRuntime_);

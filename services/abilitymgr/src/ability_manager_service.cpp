@@ -105,6 +105,8 @@ const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 
+const std::string PREPARE_TERMINATE_ENABLE_FLAG = "ohos.param.preterminateability.enable";
+
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 } // namespace
 
@@ -337,6 +339,7 @@ void AbilityManagerService::InitStartupFlag()
     newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
     backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
     whiteListassociatedWakeUpFlag_ = CheckNewRuleSwitchState(WHITE_LIST_ASS_WAKEUP_FLAG);
+    prepareTerminateEnableFlag_ = CheckNewRuleSwitchState(PREPARE_TERMINATE_ENABLE_FLAG);
 }
 
 void AbilityManagerService::OnStop()
@@ -1409,6 +1412,30 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
         EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return eventInfo.errCode;
+}
+
+int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+{
+    HILOG_DEBUG("Prepare terminate ability begin.");
+    if (!prepareTerminateEnableFlag_) {
+        HILOG_DEBUG("Get prepare terminate parameter value is false.");
+        return TerminateAbility(token, resultCode, resultWant);
+    }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!VerificationAllToken(token)) {
+        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    abilityRecord->PrepareTerminateAbility();
+    HILOG_DEBUG("Prepare terminate ability end.");
+    return ERR_OK;
 }
 
 int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)

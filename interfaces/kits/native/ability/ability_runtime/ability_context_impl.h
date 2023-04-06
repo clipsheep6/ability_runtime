@@ -85,6 +85,8 @@ public:
 
     ErrCode CloseAbility() override;
 
+    ErrCode PrepareTerminateSelf() override;
+
     sptr<IRemoteObject> GetToken() override;
 
     void RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions, int requestCode,
