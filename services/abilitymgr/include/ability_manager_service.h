@@ -943,6 +943,10 @@ public:
      */
     virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
 
+    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
+    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1168,10 +1172,6 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
-
-    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-
-    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
     void SubscribeBackgroundTask();
 
