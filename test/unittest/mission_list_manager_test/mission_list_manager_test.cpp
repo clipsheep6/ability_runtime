@@ -5282,6 +5282,7 @@ HWTEST_F(MissionListManagerTest, EraseWaitingAbility_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
@@ -5407,6 +5408,7 @@ HWTEST_F(MissionListManagerTest, GetAllForegroundAbilities_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::list<std::shared_ptr<AbilityRecord>> foregroundList;
     missionList->missions_.clear();
@@ -5429,6 +5431,7 @@ HWTEST_F(MissionListManagerTest, GetForegroundAbilities_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::list<std::shared_ptr<AbilityRecord>> foregroundList;
     missionList->missions_.clear();
@@ -5611,6 +5614,7 @@ HWTEST_F(MissionListManagerTest, SetMissionANRStateByTokens_003, TestSize.Level1
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::vector<sptr<IRemoteObject>> tokens;

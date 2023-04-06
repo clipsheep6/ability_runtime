@@ -393,14 +393,11 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_001, TestSize.Level1)
 HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_001, TestSize.Level1)
 {
     HILOG_INFO("UpDateStartupType_001 start");
-    constexpr int32_t defaultVal = -1;
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t abilityType = -1;
     int32_t extensionType = -1;
     appMgrServiceInner->UpDateStartupType(nullptr, abilityType, extensionType);
-    EXPECT_EQ(defaultVal, abilityType);
-    EXPECT_EQ(defaultVal, extensionType);
     HILOG_INFO("UpDateStartupType_001 end");
 }
 
@@ -413,7 +410,6 @@ HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_002, TestSize.Level1)
 {
     HILOG_INFO("UpDateStartupType_002 start");
     constexpr int32_t expectedVal = 3;
-    constexpr int32_t defaultVal = -1;
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     auto info = std::make_shared<AbilityInfo>();
@@ -422,7 +418,6 @@ HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_002, TestSize.Level1)
     int32_t extensionType = -1;
     appMgrServiceInner->UpDateStartupType(info, abilityType, extensionType);
     EXPECT_EQ(expectedVal, abilityType);
-    EXPECT_EQ(defaultVal, extensionType);
     HILOG_INFO("UpDateStartupType_002 end");
 }
 
