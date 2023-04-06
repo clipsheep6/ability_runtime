@@ -144,6 +144,7 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0200, TestSize.Level1)
 {
     HILOG_INFO("Test_Observer_Proxy_Test_0200 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
+    ASSERT_NE(object, nullptr);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestStatus(CMD.c_str(), 0);
     HILOG_INFO("Test_Observer_Proxy_Test_0200 end");
@@ -158,6 +159,7 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0300, TestSize.Level1)
 {
     HILOG_INFO("Test_Observer_Proxy_Test_0300 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
+    ASSERT_NE(object, nullptr);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestFinished(CMD.c_str(), 0);
     HILOG_INFO("Test_Observer_Proxy_Test_0300 end");

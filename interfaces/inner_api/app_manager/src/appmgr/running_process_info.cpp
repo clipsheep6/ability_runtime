@@ -49,6 +49,12 @@ bool RunningProcessInfo::ReadFromParcel(Parcel &parcel)
         HILOG_ERROR("read bundleNames failed.");
         return false;
     }
+    int32_t processType;
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, processType);
+    processType_ = static_cast<ProcessType>(processType);
+    int32_t extensionType;
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, extensionType);
+    extensionType_ = static_cast<ExtensionAbilityType>(extensionType);
     return true;
 }
 
@@ -77,6 +83,8 @@ bool RunningProcessInfo::Marshalling(Parcel &parcel) const
         HILOG_ERROR("write bundleNames failed.");
         return false;
     }
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(processType_));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(extensionType_));
     return true;
 }
 }  // namespace AppExecFwk

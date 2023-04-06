@@ -70,6 +70,7 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
     std::shared_ptr<NativeReference> GetJsAbility();
+    int32_t OnShare(WantParams &wantParams) override;
 
 #ifdef SUPPORT_GRAPHICS
 public:

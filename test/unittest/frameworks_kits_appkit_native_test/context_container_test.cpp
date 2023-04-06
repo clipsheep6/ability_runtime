@@ -765,6 +765,7 @@ HWTEST_F(ContextContainerTest, VerifySelfPermission_0200, Function | MediumTest 
  */
 HWTEST_F(ContextContainerTest, UnauthUriPermission_0100, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(contextDeal_);
     std::string permission = "test_permission";
     Uri uri("");
@@ -779,6 +780,7 @@ HWTEST_F(ContextContainerTest, UnauthUriPermission_0100, Function | MediumTest |
  */
 HWTEST_F(ContextContainerTest, UnauthUriPermission_0200, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(nullptr);
     std::string permission = "test_permission";
     Uri uri("");
@@ -843,6 +845,7 @@ HWTEST_F(ContextContainerTest, GetDistributedDir_0200, Function | MediumTest | L
  */
 HWTEST_F(ContextContainerTest, SetPattern_0100, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(contextDeal_);
     int patternId = 0;
     context_->SetPattern(patternId);
@@ -855,6 +858,7 @@ HWTEST_F(ContextContainerTest, SetPattern_0100, Function | MediumTest | Level1)
  */
 HWTEST_F(ContextContainerTest, SetPattern_0200, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(nullptr);
     int patternId = 0;
     context_->SetPattern(patternId);
@@ -889,6 +893,7 @@ HWTEST_F(ContextContainerTest, GetAbilityPackageContext_0200, Function | MediumT
  */
 HWTEST_F(ContextContainerTest, RequestPermissionsFromUser_0100, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(contextDeal_);
     std::vector<std::string> permissions;
     std::vector<int> permissionsState;
@@ -903,6 +908,7 @@ HWTEST_F(ContextContainerTest, RequestPermissionsFromUser_0100, Function | Mediu
  */
 HWTEST_F(ContextContainerTest, RequestPermissionsFromUser_0200, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(nullptr);
     std::vector<std::string> permissions;
     std::vector<int> permissionsState;
@@ -1047,6 +1053,7 @@ HWTEST_F(ContextContainerTest, GetTheme_0200, Function | MediumTest | Level1)
  */
 HWTEST_F(ContextContainerTest, SetTheme_0100, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(contextDeal_);
     context_->SetTheme(1);
 }
@@ -1058,6 +1065,7 @@ HWTEST_F(ContextContainerTest, SetTheme_0100, Function | MediumTest | Level1)
  */
 HWTEST_F(ContextContainerTest, SetTheme_0200, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(nullptr);
     context_->SetTheme(1);
 }
@@ -1157,6 +1165,7 @@ HWTEST_F(ContextContainerTest, GetPreferencesDir_0200, Function | MediumTest | L
  */
 HWTEST_F(ContextContainerTest, SetColorMode_0100, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(contextDeal_);
     context_->SetColorMode(1);
 }
@@ -1168,6 +1177,7 @@ HWTEST_F(ContextContainerTest, SetColorMode_0100, Function | MediumTest | Level1
  */
 HWTEST_F(ContextContainerTest, SetColorMode_0200, Function | MediumTest | Level1)
 {
+    ASSERT_NE(context_, nullptr);
     context_->AttachBaseContext(nullptr);
     context_->SetColorMode(1);
 }
@@ -1406,6 +1416,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
+    ASSERT_NE(context, nullptr);
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 
@@ -1420,6 +1431,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0200, Function | MediumTest | Level3)
 {
+    ASSERT_NE(context_, nullptr);
     Uri urivalue("");
     context_->UnauthUriPermission("permission", urivalue, 0);
 }
@@ -1658,6 +1670,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0100, Functi
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
+    ASSERT_NE(context, nullptr);
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
     context_->SetTheme(0);
@@ -1670,6 +1683,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0100, Functi
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0200, Function | MediumTest | Level3)
 {
+    ASSERT_NE(context_, nullptr);
     context_->SetTheme(0);
 }
 
@@ -1711,6 +1725,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0100, Func
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
+    ASSERT_NE(context, nullptr);
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 
@@ -1724,6 +1739,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0100, Func
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0200, Function | MediumTest | Level3)
 {
+    ASSERT_NE(context_, nullptr);
     context_->SetPattern(0);
 }
 
@@ -1737,6 +1753,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColor_0100, Functi
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
+    ASSERT_NE(context, nullptr);
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 
@@ -1764,6 +1781,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetThemeId_0100, Func
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
+    ASSERT_NE(context, nullptr);
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 

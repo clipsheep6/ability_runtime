@@ -161,6 +161,7 @@ struct DataAbilityHelperCB {
     napi_value result = nullptr;
 };
 
+struct ConnectionCallback;
 class NAPIAbilityConnection;
 struct AbilityConnectionCB {
     napi_env env;

@@ -53,6 +53,7 @@ void MissionDataStorageTest::TearDown(void)
 HWTEST_F(MissionDataStorageTest, SetEventHandler_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     auto handler = std::make_shared<EventHandler>(EventRunner::Create());
     missionDataStorage->SetEventHandler(handler);
 }
@@ -68,6 +69,7 @@ HWTEST_F(MissionDataStorageTest, SetEventHandler_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveMissionInfo_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 0;
     missionDataStorage->SaveMissionInfo(missionInfo);
@@ -84,6 +86,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionInfo_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveMissionInfo_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     missionDataStorage->userId_ = 10;
     InnerMissionInfo missionInfo;
     missionInfo.missionInfo.id = 1;
@@ -101,6 +104,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionInfo_002, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, DeleteMissionInfo_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int missionId = 0;
     missionDataStorage->DeleteMissionInfo(missionId);
     missionId = 1;
@@ -118,6 +122,7 @@ HWTEST_F(MissionDataStorageTest, DeleteMissionInfo_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveMissionSnapshot_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int missionId = 0;
     MissionSnapshot missionSnapshot;
     missionDataStorage->SaveMissionSnapshot(missionId, missionSnapshot);
@@ -134,6 +139,7 @@ HWTEST_F(MissionDataStorageTest, SaveMissionSnapshot_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, DeleteMissionSnapshot_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int missionId = 0;
     missionDataStorage->DeleteMissionSnapshot(missionId);
 }
@@ -149,6 +155,7 @@ HWTEST_F(MissionDataStorageTest, DeleteMissionSnapshot_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, DeleteMissionSnapshot_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionDataStorage->SaveMissionSnapshot(missionId, missionSnapshot);
@@ -272,6 +279,7 @@ HWTEST_F(MissionDataStorageTest, GetMissionSnapshotPath_002, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionDataStorage->SaveSnapshotFile(missionId, missionSnapshot);
@@ -288,6 +296,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 1;
     MissionSnapshot missionSnapshot;
     missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
@@ -305,6 +314,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_002, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_003, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionSnapshot.isPrivate = true;
@@ -323,6 +333,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_003, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_004, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
@@ -341,6 +352,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_004, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_005, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
@@ -359,6 +371,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_005, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_006, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
@@ -377,6 +390,7 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_006, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_007, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 0;
     MissionSnapshot missionSnapshot;
     missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
@@ -564,6 +578,7 @@ HWTEST_F(MissionDataStorageTest, GetPixelMap_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, GetPixelMap_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     int32_t missionId = 100;
     bool isLowResolution = false;
     std::unique_ptr<Media::PixelMap> res = missionDataStorage->GetPixelMap(missionId, isLowResolution);
@@ -581,6 +596,7 @@ HWTEST_F(MissionDataStorageTest, GetPixelMap_002, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, WriteRgb888ToJpeg_001, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     char* fileName;
     uint32_t width = 0;
     uint32_t height = 0;
@@ -599,6 +615,7 @@ HWTEST_F(MissionDataStorageTest, WriteRgb888ToJpeg_001, TestSize.Level1)
 HWTEST_F(MissionDataStorageTest, WriteRgb888ToJpeg_002, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();
+    EXPECT_NE(missionDataStorage, nullptr);
     char* fileName;
     uint32_t width = 0;
     uint32_t height = 1;

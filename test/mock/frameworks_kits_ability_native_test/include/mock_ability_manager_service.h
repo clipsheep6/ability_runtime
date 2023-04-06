@@ -135,6 +135,9 @@ public:
         int32_t userId, int requestCode));
     MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
+    MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
 #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     MOCK_METHOD0(BlockAmsService, int());

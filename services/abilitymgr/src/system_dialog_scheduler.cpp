@@ -122,7 +122,7 @@ const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition posit
     return anrData.dump();
 }
 
-Want SystemDialogScheduler::GetTipsDialogWant()
+Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetTipsDialogWant start");
 
@@ -137,6 +137,7 @@ Want SystemDialogScheduler::GetTipsDialogWant()
     want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_TIPS_DIALOG);
     want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     want.SetParam(DIALOG_PARAMS, params);
+    want.SetParam(CALLER_TOKEN, callerToken);
     return want;
 }
 

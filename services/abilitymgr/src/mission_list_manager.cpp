@@ -39,6 +39,7 @@ constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
+constexpr int64_t MAX_FOREGROUNDING_TIME = 60 * 1000; // 1 minute
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
@@ -135,9 +136,16 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
         if (state == FOREGROUNDING) {
-            HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
-            EnqueueWaitingAbility(abilityRequest);
-            return START_ABILITY_WAITING;
+            auto foregroundingTime = currentTopAbility->GetForegroundingTime();
+            auto currentTime = AbilityUtil::SystemTimeMillis();
+            if (currentTime - foregroundingTime > MAX_FOREGROUNDING_TIME) {
+                HILOG_INFO("Top ability:%{public}s is foregrounding and more than one minute.", element.c_str());
+                OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, currentTopAbility->GetAbilityRecordId());
+            } else {
+                HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
+                EnqueueWaitingAbility(abilityRequest);
+                return START_ABILITY_WAITING;
+            }
         }
     }
 
@@ -1538,6 +1546,7 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
         HILOG_ERROR("%{public}s, ability is not terminating.", __func__);
         return;
     }
+    abilityRecord->RemoveAbilityDeathRecipient();
 
     // notify AppMS terminate
     if (abilityRecord->TerminateAbility() != ERR_OK) {
@@ -1647,6 +1656,8 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
 
     abilityRecord->SetTerminatingState();
     abilityRecord->SetClearMissionFlag(true);
+    Want want;
+    abilityRecord->SaveResultToCallers(-1, &want);
     auto ret = TerminateAbilityLocked(abilityRecord, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("clear mission error: %{public}d.", ret);
@@ -1872,14 +1883,14 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
 
 void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
-    HILOG_DEBUG("On timeout, msgId is %{public}d", msgId);
+    HILOG_INFO("On timeout, msgId is %{public}d", msgId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordById(abilityRecordId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_INFO("Ability timeout, name:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RevokeUriPermission();
 
 #ifdef SUPPORT_GRAPHICS
@@ -3312,6 +3323,11 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
 
     if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
         abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+        return true;
+    }
+
+    if (abilityRequest.IsAcquireShareData()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_SHARE);
         return true;
     }
 

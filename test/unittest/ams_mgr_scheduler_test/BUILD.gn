@@ -24,8 +24,10 @@ ohos_unittest("ams_mgr_scheduler_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
-  sources =
-      [ "${ability_runtime_services_path}/appmgr/src/ams_mgr_scheduler.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/appmgr/src/ams_mgr_scheduler.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+  ]
 
   sources += [ "ams_mgr_scheduler_test.cpp" ]
 

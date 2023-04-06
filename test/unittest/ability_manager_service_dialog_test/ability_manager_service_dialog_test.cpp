@@ -97,7 +97,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0100, TestSize.Lev
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0200, TestSize.Level1)
 {
     HILOG_INFO("AbilityMgrServiceDialog_0200 start");
-    auto want = systemDialogScheduler_->GetTipsDialogWant();
+    auto want = systemDialogScheduler_->GetTipsDialogWant(nullptr);
     EXPECT_EQ(want.GetElement().GetBundleName(), "com.ohos.amsdialog");
     EXPECT_EQ(want.GetElement().GetAbilityName(), "TipsDialog");
     HILOG_INFO("AbilityMgrServiceDialog_0200 end");

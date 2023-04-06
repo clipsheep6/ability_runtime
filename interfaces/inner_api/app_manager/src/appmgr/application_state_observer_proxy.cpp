@@ -233,5 +233,52 @@ void ApplicationStateObserverProxy::OnAppStateChanged(const AppStateData &appSta
         HILOG_WARN("OnAppStateChanged, SendRequest is failed, error code: %{public}d", ret);
     }
 }
+
+void ApplicationStateObserverProxy::OnAppStarted(const AppStateData &appStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnAppStarted, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&appStateData);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("OnAppStarted, Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnAppStarted, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+void ApplicationStateObserverProxy::OnAppStopped(const AppStateData &appStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnAppStopped, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&appStateData);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("OnAppStopped, Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnAppStopped, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

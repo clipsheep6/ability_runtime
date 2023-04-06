@@ -1481,6 +1481,11 @@ void Ability::EnableAbilityRecovery(const std::shared_ptr<AbilityRecovery>& abil
     abilityRecovery_ = abilityRecovery;
 }
 
+int32_t Ability::OnShare(WantParams &wantParams)
+{
+    return ERR_OK;
+}
+
 #ifdef SUPPORT_GRAPHICS
 bool Ability::PrintDrawnCompleted()
 {

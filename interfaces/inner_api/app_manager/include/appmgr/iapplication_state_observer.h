@@ -81,6 +81,20 @@ public:
 
     virtual void OnProcessReused(const ProcessData &processData) {}
 
+    /**
+     * Will be called when the application start.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStarted(const AppStateData &appStateData) {};
+
+    /**
+     * Will be called when the application stop.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppStopped(const AppStateData &appStateData) {};
+
     enum class Message {
         TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED = 0,
         TRANSACT_ON_ABILITY_STATE_CHANGED,
@@ -91,6 +105,8 @@ public:
         TRANSACT_ON_APPLICATION_STATE_CHANGED,
         TRANSACT_ON_APP_STATE_CHANGED,
         TRANSACT_ON_PROCESS_REUSED,
+        TRANSACT_ON_APP_STARTED,
+        TRANSACT_ON_APP_STOPPED,
     };
 };
 }  // namespace AppExecFwk

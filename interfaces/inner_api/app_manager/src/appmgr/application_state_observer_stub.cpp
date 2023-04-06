@@ -52,6 +52,12 @@ ApplicationStateObserverStub::ApplicationStateObserverStub()
     memberFuncMap_[static_cast<uint32_t>(
         IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED)] =
         &ApplicationStateObserverStub::HandleOnProcessReused;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED)] =
+        &ApplicationStateObserverStub::HandleOnAppStarted;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED)] =
+        &ApplicationStateObserverStub::HandleOnAppStopped;
 }
 
 ApplicationStateObserverStub::~ApplicationStateObserverStub()
@@ -106,6 +112,12 @@ void ApplicationStateObserverStub::OnAppStateChanged(const AppStateData &appStat
 {}
 
 void ApplicationStateObserverStub::OnProcessReused(const ProcessData &processData)
+{}
+
+void ApplicationStateObserverStub::OnAppStarted(const AppStateData &appStateData)
+{}
+
+void ApplicationStateObserverStub::OnAppStopped(const AppStateData &appStateData)
 {}
 
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
@@ -237,6 +249,30 @@ int32_t ApplicationStateObserverStub::HandleOnProcessReused(MessageParcel &data,
     }
 
     OnProcessReused(*processData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnAppStarted(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
+    if (!processData) {
+        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnAppStarted(*processData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnAppStopped(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
+    if (!processData) {
+        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnAppStopped(*processData);
     return NO_ERROR;
 }
 

@@ -1113,5 +1113,34 @@ bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t 
 
     return reply.ReadBool();
 }
+
+int32_t AppMgrProxy::StartNativeProcessForDebugger(const AAFwk::Want &want)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Notify unload patch, Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

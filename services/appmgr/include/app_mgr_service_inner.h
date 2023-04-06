@@ -305,6 +305,8 @@ public:
      */
     virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode);
 
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
         const sptr<IRemoteObject> &token,
         const sptr<IRemoteObject> &preToken,
@@ -471,6 +473,10 @@ public:
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
 
+    void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
+
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
     void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
@@ -628,10 +634,10 @@ private:
 
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo,
-        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName);
+        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
 
-    void MakeProcessName(
-        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName);
+    void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
+        std::string &processName) const;
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process
@@ -646,6 +652,9 @@ private:
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AppRunningRecord> &appRecord,
         const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want);
 
+    int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
+        const std::string& debugCmd, bool isSanboxApp) const;
+
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
      *
@@ -659,7 +668,7 @@ private:
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
-                      const std::string &bundleName, const int32_t bundleIndex);
+                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -765,7 +774,7 @@ private:
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
     bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0);
+        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0) const;
     AppProcessData WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
         const ApplicationState state);
 
@@ -849,6 +858,7 @@ private:
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
+    int32_t GetCurrentAccountId() const;
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;

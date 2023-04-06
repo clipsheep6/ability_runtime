@@ -756,6 +756,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_AbilityTransitionDone_
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;
     abilityRequest.abilityInfo.bundleName = "bundleName";
@@ -778,6 +779,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_001, Tes
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;
     abilityRequest.abilityInfo.bundleName = "bundleName";
@@ -800,6 +802,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_002, Tes
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_003, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest.abilityInfo.bundleName = "bundleName";
@@ -822,6 +825,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAbilityDied_003, Tes
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_OnAppStateChanged_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     AppInfo info;
     std::string processName = "processName";
     std::string appName = "appName";
@@ -1057,6 +1061,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_LoadLocked_002, TestSi
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     const char func[1] = "";
     int line = 0;
     dataAbilityManager->dataAbilityRecordsLoaded_["a"] = nullptr;
@@ -1075,6 +1080,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_001, TestSi
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     const char func[2] = "a";
     int line = 0;
     AbilityRequest abilityRequest;
@@ -1100,6 +1106,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_002, TestSi
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_003, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     const char func[2] = "a";
     int line = -1;
     dataAbilityManager->dataAbilityRecordsLoaded_.clear();
@@ -1118,6 +1125,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpLocked_003, TestSi
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     std::string args = "args";
     AbilityRequest abilityRequest;
@@ -1144,6 +1152,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_001, TestSiz
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     std::string args = "args";
     dataAbilityManager->dataAbilityRecordsLoaded_.clear();
@@ -1161,6 +1170,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_002, TestSiz
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_003, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     std::string args = "";
     AbilityRequest abilityRequest;
@@ -1186,6 +1196,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpState_003, TestSiz
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -1213,6 +1224,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_001, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -1240,6 +1252,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_002, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_003, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -1265,6 +1278,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_003, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_004, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -1290,6 +1304,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_004, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_005, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "args";
@@ -1308,6 +1323,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_005, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_006, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     std::string args = "args";
@@ -1326,6 +1342,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_006, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_007, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     std::string args = "args";
@@ -1344,6 +1361,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_007, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_008, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";
@@ -1371,6 +1389,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_008, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_009, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";
@@ -1398,6 +1417,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_009, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_010, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";
@@ -1423,6 +1443,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_010, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_011, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";
@@ -1447,6 +1468,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_011, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_012, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = true;
     std::string args = "";
@@ -1465,6 +1487,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_012, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_013, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<std::string> info;
     bool isClient = false;
     std::string args = "";
@@ -1483,6 +1506,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_013, Test
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<AbilityRunningInfo> info;
     bool isPerm = true;
     dataAbilityManager->dataAbilityRecordsLoaded_["a"] = nullptr;
@@ -1500,6 +1524,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<AbilityRunningInfo> info;
     bool isPerm = true;
     AbilityRequest abilityRequest;
@@ -1523,6 +1548,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos_003, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<AbilityRunningInfo> info;
     bool isPerm = false;
     AbilityRequest abilityRequest;
@@ -1548,6 +1574,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos_004, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<AbilityRunningInfo> info;
     bool isPerm = false;
     AbilityRequest abilityRequest;
@@ -1573,6 +1600,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_GetAbilityRunningInfos
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_RestartDataAbility_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     std::vector<AbilityRunningInfo> info;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;
@@ -1593,6 +1621,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_RestartDataAbility_001
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_ReportDataAbilityAcquired_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     bool isNotHap = true;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;
@@ -1615,6 +1644,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_ReportDataAbilityAcqui
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_ReportDataAbilityAcquired_002, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     bool isNotHap = true;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;
@@ -1635,6 +1665,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_ReportDataAbilityAcqui
 HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_ReportDataAbilityReleased_001, TestSize.Level1)
 {
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
+    ASSERT_NE(dataAbilityManager, nullptr);
     bool isNotHap = true;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::DATA;

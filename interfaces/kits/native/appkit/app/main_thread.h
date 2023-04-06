@@ -26,11 +26,12 @@
 #include "app_mgr_interface.h"
 #include "ability_record_mgr.h"
 #include "application_impl.h"
+#include "common_event_subscriber.h"
 #include "resource_manager.h"
 #include "runtime.h"
-#include "source_map.h"
 #include "ipc_singleton.h"
 #include "native_engine/native_engine.h"
+#include "overlay_event_subscriber.h"
 #include "watchdog.h"
 #include "app_malloc_info.h"
 #define ABILITY_LIBRARY_LOADER
@@ -41,7 +42,6 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Global;
 using OHOS::AbilityRuntime::Runtime;
-using OHOS::AbilityRuntime::ModSourceMap;
 enum class MainThreadState { INIT, ATTACH, READY, RUNNING };
 struct BundleInfo;
 class ContextDeal;
@@ -497,10 +497,20 @@ private:
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
 
-    bool Timer();
-    bool WaitForDuration(uint32_t duration);
-    void ReportEvent();
-    bool IsStopWatchdog();
+    void OnOverlayChanged(const EventFwk::CommonEventData &data,
+        const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
+        const std::string &moduleName, const std::string &loadPath);
+
+    void HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
+        const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
+        const std::string &moduleName, const std::string &loadPath);
+
+    int GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
+        std::vector<OverlayModuleInfo> &overlayModuleInfos) const;
+
+    std::vector<std::string> GetAddOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
+
+    std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     class MainHandler : public EventHandler {
     public:
@@ -559,6 +569,9 @@ private:
     void ChangeToLocalPath(const std::string &bundleName,
         const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath);
 
+    void ChangeToLocalPath(const std::string &bundleName,
+        const std::string &sourcDir, std::string &localPath);
+
     /**
      *
      * @brief Close the ability library loaded.
@@ -594,6 +607,7 @@ private:
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
     std::shared_ptr<IdleTime> idleTime_ = nullptr;
+    std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.

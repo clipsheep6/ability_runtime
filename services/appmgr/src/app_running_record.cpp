@@ -115,6 +115,11 @@ int32_t RenderRecord::GetCrashFd() const
     return crashFd_;
 }
 
+ProcessType RenderRecord::GetProcessType() const
+{
+    return processType_;
+}
+
 std::shared_ptr<AppRunningRecord> RenderRecord::GetHostRecord() const
 {
     return host_.lock();
@@ -1208,6 +1213,17 @@ std::shared_ptr<UserTestRecord> AppRunningRecord::GetUserTestInfo()
     return userTestRecord_;
 }
 
+void AppRunningRecord::SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo)
+{
+    extensionType_ = abilityInfo->extensionAbilityType;
+    if (extensionType_ == ExtensionAbilityType::UNSPECIFIED) {
+        processType_ = ProcessType::NORMAL;
+        return;
+    }
+    processType_ = ProcessType::EXTENSION;
+    return;
+}
+
 void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
     const bool flag, const AAFwk::Want &want, const std::string &moduleName)
 {
@@ -1427,6 +1443,16 @@ bool AppRunningRecord::IsUpdateStateFromService()
 void AppRunningRecord::SetUpdateStateFromService(bool isUpdateStateFromService)
 {
     isUpdateStateFromService_ = isUpdateStateFromService;
+}
+
+ExtensionAbilityType AppRunningRecord::GetExtensionType() const
+{
+    return extensionType_;
+}
+
+ProcessType AppRunningRecord::GetProcessType() const
+{
+    return processType_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

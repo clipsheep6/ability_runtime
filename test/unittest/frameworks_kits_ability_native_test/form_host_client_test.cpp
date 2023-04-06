@@ -16,7 +16,9 @@
 #include <gtest/gtest.h>
 
 #include "form_callback_interface.h"
+#define private public
 #include "form_host_client.h"
+#undef private
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -76,6 +78,7 @@ HWTEST_F(FormHostClientTest, AaFwk_formHostClientAddForm_0100, Function | Medium
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_AddForm_0100 start";
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    ASSERT_NE(callback, nullptr);
     FormJsInfo formJsInfo;
     formJsInfo.formId = 0;
     instance_->AddForm(callback, formJsInfo);
@@ -96,6 +99,7 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_RemoveForm_0100, Function | Me
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveForm_0100 start";
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    ASSERT_NE(callback, nullptr);
     FormJsInfo formJsInfo;
     formJsInfo.formId = 0;
     instance_->RemoveForm(callback, formJsInfo.formId);
@@ -116,6 +120,7 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_ContainsForm_0100, Function | 
     int64_t formId = 0;
     EXPECT_EQ(false, instance_->ContainsForm(formId));
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    ASSERT_NE(callback, nullptr);
     FormJsInfo formJsInfo;
     formJsInfo.formId = 1;
     instance_->AddForm(callback, formJsInfo);
@@ -137,6 +142,7 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnAcquired_0100, Function | Me
     instance_->OnAcquired(formInfo, nullptr);
     formInfo.formId = -1;
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    ASSERT_NE(callback, nullptr);
     instance_->AddForm(callback, formInfo);
     formInfo.formId = 1;
     formInfo.jsFormCodePath = "/data/test";
@@ -159,6 +165,7 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnUpdate_0100, Function | Medi
     instance_->OnUpdate(formInfo);
     formInfo.formId = 1;
     std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    ASSERT_NE(callback, nullptr);
     instance_->AddForm(callback, formInfo);
     formInfo.formId = 1;
     instance_->OnUpdate(formInfo);
@@ -203,8 +210,10 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_RemoveShareFormCallback_0100, 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveShareFormCallback_0100 start";
     std::shared_ptr<ShareFormCallBack> shareFormCallback;
     FormHostClient formhostclient;
+    formhostclient.shareFormCallbackMap_.clear();
     formhostclient.AddShareFormCallback(shareFormCallback, 0);
     formhostclient.AddShareFormCallback(shareFormCallback, 1);
+    EXPECT_EQ(formhostclient.shareFormCallbackMap_.size(), 2);
     formhostclient.RemoveShareFormCallback(1);
     formhostclient.RemoveShareFormCallback(0);
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveShareFormCallback_0100 end";

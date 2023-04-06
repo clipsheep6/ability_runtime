@@ -326,6 +326,15 @@ public:
     virtual void NotifyMemoryLevel(int32_t level);
 
     bool IsStageBasedModel() const;
+    
+    /**
+     * @brief Provide operating system ShareData information to the observer
+     *
+     * @param uniqueId Indicates the Id of request
+     *
+     * @return
+     */
+    virtual void HandleShareData(const int32_t &uniqueId);
 
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -447,6 +456,15 @@ protected:
      * @return Return true if success, otherwise return false.
      */
     bool CheckAndSave();
+
+    /**
+     * @brief Get share wantParam.
+     *
+     * @param WantParams
+     *
+     * @return Return the result of share.
+     */
+    int32_t Share(WantParams &wantParam);
 
     PacMap &GetRestoreData();
 

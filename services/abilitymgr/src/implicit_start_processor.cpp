@@ -87,7 +87,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     };
     if (dialogAppInfos.size() == 0) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
-        Want want = sysDialogScheduler->GetTipsDialogWant();
+        Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;

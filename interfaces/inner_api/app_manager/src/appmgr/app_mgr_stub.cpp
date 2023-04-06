@@ -112,6 +112,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyUnLoadRepairPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::IS_SHARED_BUNDLE_RUNNING)] =
         &AppMgrStub::HandleIsSharedBundleRunning;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
+        &AppMgrStub::HandleStartNativeProcessForDebugger;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -619,6 +621,23 @@ int32_t AppMgrStub::HandleIsSharedBundleRunning(MessageParcel &data, MessageParc
     uint32_t versionCode = data.ReadUint32();
     bool result = IsSharedBundleRunning(bundleName, versionCode);
     if (!reply.WriteBool(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleStartNativeProcessForDebugger(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = StartNativeProcessForDebugger(*want);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

@@ -229,7 +229,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static  bool IsStartIncludeAtomicService(const Want &want, const int32_t callerUid)
+[[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t callerUid)
 {
     auto bms = GetBundleManager();
     if (!bms) {
@@ -239,9 +239,9 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool result = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, targetAppInfo));
-    if (!result) {
+    if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
         return false;
     }
@@ -251,15 +251,15 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
 
     std::string callerBundleName;
-    result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, callerBundleName));
-    if (!result) {
+    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
+    if (err != ERR_OK) {
         HILOG_ERROR("Get bms failed in check atomic service.");
         return false;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    result = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, callerAppInfo));
-    if (!result) {
+    if (!getCallerResult) {
         HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
         return false;
     }

@@ -103,6 +103,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0200, Function | M
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyDown_0200 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -134,6 +135,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0100, Function | Med
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -166,6 +168,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0200, Function | Med
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0200 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -198,6 +201,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0100, Function 
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -230,6 +234,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0200, Function 
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0200 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -296,6 +301,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_020
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0200 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -327,6 +333,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_030
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0300 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -358,6 +365,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_040
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0400 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -389,6 +397,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_050
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0500 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -422,6 +431,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_060
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0600 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -456,6 +466,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_070
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0700 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -492,6 +503,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_080
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0800 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -527,6 +539,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_090
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_HandleAbilityTransaction_0900 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -564,6 +577,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchSaveAbilityState_010
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DispatchSaveAbilityState_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -594,6 +608,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchRestoreAbilityState_
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DispatchRestoreAbilityState_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -623,6 +638,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_SendResult_0100, Function | 
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_SendResult_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -654,6 +670,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_NewWant_0100, Function | Med
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_NewWant_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    ASSERT_NE(application, nullptr);
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "pageAbility";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -914,6 +931,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0300, Function | M
 {
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyDown_0300 start";
     auto keyEvent = MMI::KeyEvent::Create();
+    ASSERT_NE(pageAbilityImpl_, nullptr);
     pageAbilityImpl_->ability_ = nullptr;
     pageAbilityImpl_->DoKeyDown(keyEvent);
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyDown_0300 end";
@@ -928,6 +946,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0300, Function | Med
 {
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0300 start";
     auto keyEvent = MMI::KeyEvent::Create();
+    ASSERT_NE(pageAbilityImpl_, nullptr);
     pageAbilityImpl_->ability_ = nullptr;
     pageAbilityImpl_->DoKeyUp(keyEvent);
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoKeyUp_0300 end";
@@ -942,6 +961,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0300, Function 
 {
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0300 start";
     auto pointerEvent = MMI::PointerEvent::Create();
+    ASSERT_NE(pageAbilityImpl_, nullptr);
     pageAbilityImpl_->ability_ = nullptr;
     pageAbilityImpl_->DoPointerEvent(pointerEvent);
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DoTouchEvent_0300 end";

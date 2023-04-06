@@ -18,8 +18,12 @@
 #define protected public
 #include "ability_manager_client.h"
 #include "ability_manager_stub_mock_test.h"
+#include "ability_connect_manager.h"
 #undef private
 #undef protected
+
+#include "hilog_wrapper.h"
+#include "mock_ability_connect_callback.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -45,7 +49,19 @@ public:
 
     std::shared_ptr<AbilityManagerClient> client_{ nullptr };
     sptr<AbilityManagerStubTestMock> mock_{ nullptr };
+    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
 };
+
+    sptr<SessionInfo> AbilityManagerClientBranchTest::MockSessionInfo(uint64_t persistentId)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    if (!sessionInfo) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return nullptr;
+    }
+    sessionInfo->persistentId = persistentId;
+    return sessionInfo;
+}
 
 void AbilityManagerClientBranchTest::SetUpTestCase(void)
 {}
@@ -1171,6 +1187,116 @@ HWTEST_F(AbilityManagerClientBranchTest, IsValidMissionIds_0100, TestSize.Level1
     EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
     EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);
     GTEST_LOG_(INFO) << "IsValidMissionIds_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityAsCaller_0100
+ * @tc.desc: StartAbilityAsCaller
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityAsCaller_0100 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 1;
+    int32_t userId = 2;
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, callerToken, requestCode, userId), ERR_OK);
+    GTEST_LOG_(INFO) << "StartAbilityAsCaller_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityAsCaller_0200
+ * @tc.desc: StartAbilityAsCaller
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityAsCaller_0200 start";
+    Want want;
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 1;
+    int32_t userId = 2;
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, requestCode, userId), ERR_OK);
+    GTEST_LOG_(INFO) << "StartAbilityAsCaller_0200 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIExtensionAbility_0100
+ * @tc.desc: StartUIExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
+    Want want;
+    EXPECT_EQ(client_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+        ERR_OK);
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_TerminateUIExtensionAbility_0100
+ * @tc.desc: TerminateUIExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, TerminateUIExtensionAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 start";
+    Want* resultWant = nullptr;
+    EXPECT_EQ(client_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_OK);
+    GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MinimizeUIExtensionAbility_0100
+ * @tc.desc: MinimizeUIExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIExtensionAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 start";
+    EXPECT_EQ(client_->MinimizeUIExtensionAbility(nullptr, true), ERR_OK);
+    GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 end";
+}
+
+#ifdef ABILITY_COMMAND_FOR_TEST
+/**
+ * @tc.name: AbilityManagerClient_ForceTimeoutForTest_0100
+ * @tc.desc: ForceTimeoutForTest
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ForceTimeoutForTest_001, TestSize.Level1)
+{
+    EXPECT_TRUE(client_->ForceTimeoutForTest("clean", ""), ERR_OK);
+}
+#endif
+
+/**
+ * @tc.name: AbilityManagerClient_GetWantSender_0100
+ * @tc.desc: GetWantSender
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetWantSender_0100, TestSize.Level1)
+{
+    WantSenderInfo wantSenderInfo;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->GetWantSender(wantSenderInfo, callerToken);
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityByCall_0200
+ * @tc.desc: StartAbilityByCall
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(client_->StartAbilityByCall(want, nullptr), ERR_OK);
+    client_->EnableRecoverAbility(nullptr);
+    EXPECT_EQ(client_->AddFreeInstallObserver(nullptr), ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

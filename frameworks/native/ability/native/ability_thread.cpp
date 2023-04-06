@@ -72,7 +72,33 @@ AbilityThread::AbilityThread()
 
 AbilityThread::~AbilityThread()
 {
-    DelayedSingleton<AbilityImplFactory>::DestroyInstance();
+    wptr<AbilityThread> weak = this;
+    auto task = [weak]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("Ability thread is nullptr when destructor.");
+            return;
+        }
+
+        if (abilityThread->isExtension_) {
+            HILOG_DEBUG("Destroy extension in main-thread");
+            if (abilityThread->currentExtension_) {
+                abilityThread->currentExtension_.reset();
+            }
+        } else {
+            HILOG_DEBUG("Destroy ability in main-thread");
+            if (abilityThread->currentAbility_) {
+                abilityThread->currentAbility_->DetachBaseContext();
+                abilityThread->currentAbility_.reset();
+            }
+        }
+
+        DelayedSingleton<AbilityImplFactory>::DestroyInstance();
+    };
+
+    if (abilityHandler_ != nullptr) {
+        abilityHandler_->PostSyncTask(task);
+    }
 }
 
 std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
@@ -463,6 +489,17 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
     HILOG_DEBUG("Handle ability transaction success.");
 }
 
+void AbilityThread::HandleShareData(const int32_t &uniqueId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("share data error, abilityImpl_ == nullptr.");
+        return;
+    }
+    abilityImpl_->HandleShareData(uniqueId);
+    HILOG_DEBUG("Handle share data success.");
+}
+
 /**
  * @brief Handle the life cycle of Extension.
  *
@@ -765,6 +802,34 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
         HILOG_ERROR("AbilityThread::ScheduleAbilityTransaction PostTask error");
+    }
+}
+
+void AbilityThread::ScheduleShareData(const int32_t &uniqueId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!token_) {
+        HILOG_ERROR("token_  is nullptr.");
+        return;
+    }
+    wptr<AbilityThread> weak = this;
+    auto task = [weak, uniqueId]() {
+        auto abilityThread = weak.promote();
+        if (!abilityThread) {
+            HILOG_ERROR("abilityThread is nullptr, ScheduleShareData failed.");
+            return;
+        }
+        abilityThread->HandleShareData(uniqueId);
+    };
+
+    if (!abilityHandler_) {
+        HILOG_ERROR("abilityHandler_ is nullptr.");
+        return;
+    }
+
+    bool ret = abilityHandler_->PostTask(task);
+    if (!ret) {
+        HILOG_ERROR("postTask error.");
     }
 }
 

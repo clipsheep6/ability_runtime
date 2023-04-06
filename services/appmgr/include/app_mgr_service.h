@@ -283,6 +283,8 @@ public:
      */
     virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode) override;
 
+    virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override;
+
 private:
     /**
      * Init, Initialize application services.

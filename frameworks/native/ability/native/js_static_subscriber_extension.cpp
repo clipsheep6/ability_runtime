@@ -68,7 +68,13 @@ JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::uniq
 }
 
 JsStaticSubscriberExtension::JsStaticSubscriberExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsStaticSubscriberExtension::~JsStaticSubscriberExtension() = default;
+JsStaticSubscriberExtension::~JsStaticSubscriberExtension()
+{
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,
     const std::shared_ptr<OHOSApplication>& application,

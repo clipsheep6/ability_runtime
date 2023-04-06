@@ -45,10 +45,19 @@ public:
      * ScheduleAbilityTransaction,  schedule ability to transform life state.
      *
      * @param Want, Special Want for service type's ability.
-     * @param stateInfo, The lifecycle state to be transformed
+     * @param stateInfo, The lifecycle state to be transformed.
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo,
         sptr<SessionInfo> sessionInfo = nullptr) override;
+
+    /*
+     * ScheduleShareData,  schedule ability to transform life state and share data with orgin ability.
+     *
+     * @param want, special Want for service type's ability.
+     * @param stateInfo, the lifecycle state to be transformed.
+     * @param uniqueId, the Id of origin ability request.
+     */
+    void ScheduleShareData(const int32_t &uniqueId) override;
 
     /*
      * SendResult, Send result to app when ability is terminated with result want.

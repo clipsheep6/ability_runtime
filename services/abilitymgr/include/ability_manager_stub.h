@@ -92,6 +92,7 @@ private:
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
     int ConnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ConnectAbilityWithTypeInner(MessageParcel &data, MessageParcel &reply);
+    int ConnectUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StopServiceAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpStateInner(MessageParcel &data, MessageParcel &reply);
@@ -202,6 +203,9 @@ private:
     int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
 
     int VerifyPermissionInner(MessageParcel &data, MessageParcel &reply);
+
+    int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
+    int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
