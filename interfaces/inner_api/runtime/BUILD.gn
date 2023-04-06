@@ -92,6 +92,8 @@ ohos_shared_library("runtime") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
+    "ets_utils:console",
+    "ets_utils:timer",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
