@@ -1851,20 +1851,12 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 #ifdef SUPPORT_GRAPHICS
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
-        auto task = [me = weak_from_this()]() {
-            auto self = me.lock();
-            if (self == nullptr) {
-                HILOG_ERROR("Ability is invalid.");
-                return;
-            }
-            if (self->GetWMSHandler()) {
-                sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
-                self->SetAbilityTransitionInfo(info);
-                HILOG_INFO("Notification WMS UIAbiltiy abnormal death.");
-                self->GetWMSHandler()->NotifyAnimationAbilityDied(info);
-            }
-        };
-        handler->PostTask(task);
+        if (GetWMSHandler()) {
+            sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+            SetAbilityTransitionInfo(info);
+            HILOG_INFO("Notification window manager UIAbiltiy abnormal death.");
+            GetWMSHandler()->NotifyAnimationAbilityDied(info);
+        }
     }
 #endif
     HandleDlpClosed();
