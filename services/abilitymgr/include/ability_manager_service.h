@@ -1169,9 +1169,9 @@ private:
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId);
 
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId);
 
     void SubscribeBackgroundTask();
 
