@@ -26,6 +26,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 constexpr uint32_t INI_TIMER_FIRST_SECOND = 10000;
+constexpr uint32_t INI_TIMER_FIRST_SECOND_ASANENABLED = 150000;
 constexpr const char* MAIN_THREAD_TIMEOUT_TASK = "MAIN_THREAD_TIMEOUT_TASK";
 class Watchdog {
 public:
