@@ -57,6 +57,11 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         }
     }
 
+    if (abilityContext != nullptr && abilityContext->IsTerminating() && targetState.state == AAFwk::ABILITY_STATE_INACTIVE) {
+        HILOG_ERROR("Invalid translate state.");
+        retrun;
+    }
+
     SetLifeCycleStateInfo(targetState);
 
     if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
