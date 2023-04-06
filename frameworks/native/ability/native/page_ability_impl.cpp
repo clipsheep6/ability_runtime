@@ -40,6 +40,13 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         HILOG_ERROR("Handle ability transaction error, ability_ is null.");
         return;
     }
+
+    auto abilityContext = ability_->GetAbilityContext();
+    if (abilityContext != nullptr && abilityContext->IsTerminating() && targetState.state == AAFwk::ABILITY_STATE_INACTIVE) {
+        HILOG_ERROR("Invalid translate state.");
+        return;
+    }
+
     ability_->sceneFlag_ = targetState.sceneFlag;
     if ((lifecycleState_ == targetState.state) && !targetState.isNewWant) {
         if (targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
