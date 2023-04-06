@@ -68,6 +68,7 @@ private:
     void ThirdStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply);
