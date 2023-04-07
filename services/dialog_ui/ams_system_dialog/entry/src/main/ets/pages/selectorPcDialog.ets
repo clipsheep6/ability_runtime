@@ -69,7 +69,7 @@ struct SelectorPcDialog {
   cleanSecondListColorAndVisibility() {
     for(let n = 0; n <= this.pcShowMoreHapList.length; n++) {
       this.moreHapListBackGround[n] = 0xffffff;
-      this.moreHapListPngVisibility[n] = 1
+      this.moreHapListPngVisibility[n] = 1;
     }
   }
 
@@ -106,6 +106,8 @@ struct SelectorPcDialog {
       for (let i = 0; i < data.length; i++) {
         this.getHapResource(data[i], this.pcShowMoreHapList, i);
       }
+      console.error("***this.pcShowMoreHapList.length*1**"+JSON.stringify(this.pcShowMoreHapList.length));
+      this.getMoreHapListStyle()
       console.debug("pcShowMoreHapList: " + JSON.stringify(this.pcShowMoreHapList));
     });
   }
@@ -133,6 +135,7 @@ struct SelectorPcDialog {
               String(moreHapList)) == undefined) {
                 showHapList.push(bundleName + "#" + abilityName + "#" + appName +
                       "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
+              this.getMoreHapListStyle()
             }
           }).catch(error => {
               console.error("getMediaBase64 error:" + JSON.stringify(error));
@@ -141,7 +144,44 @@ struct SelectorPcDialog {
           console.error("getString error:" + JSON.stringify(error));
       });
     }
-
+  getMoreHapListStyle() {
+    let heightTotalVp = 200;
+    let heightVal = 64;
+    let recommendAppAreaHigh = 48;
+    let openModeHigh = 54;
+    let morelist = 0;
+    morelist ++;
+      if (this.hapList.length == 2) {
+        if(morelist == 1) {
+           this.totalHigh = 479 - 32; 
+           heightTotalVp = 294 - 32;
+           this.scrollbarCtrl = 1;
+        }
+        if(morelist >= 2) {
+           this.totalHigh = 543 - 32; 
+           heightTotalVp = 358 - 32;
+           this.scrollbarCtrl = 1;
+        }
+      } else if (this.hapList.length == 3) {
+        this.totalHigh = 479;
+        if (morelist >= 1) {
+           this.totalHigh = 543 - 32; 
+           heightTotalVp = 358 - 32;
+           this.scrollbarCtrl = 1;
+        }
+    } else if (this.hapList.length == 4) {
+        this.totalHigh = 543;
+    } else if (this.hapList.length > 4) {
+        this.totalHigh = 543 - 32 ;
+        heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
+        this.scrollbarCtrl = 1;
+    } 
+    this.pcSelectorlist = {
+      width: "100%",
+      height: heightTotalVp + "vp",
+    };
+  }
+  
   getHapListStyle() {
     let heightTotalVp = 0;
     let heightVal = 64;
@@ -165,30 +205,14 @@ struct SelectorPcDialog {
         heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
         if (this.hapList.length == 2) {
             this.totalHigh = 415;
-            if(this.pcShowMoreHapList.length == 1) {
-               this.totalHigh = 479; 
-               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64;
-               this.scrollbarCtrl = 1;
-            }
-            if(this.pcShowMoreHapList.length >= 2) {
-               this.totalHigh = 543; 
-               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64 + 64;
-               this.scrollbarCtrl = 1;
-            }
         } else if (this.hapList.length == 3) {
             this.totalHigh = 479;
-            if(this.pcShowMoreHapList.length >= 1) {
-               this.totalHigh = 543; 
-               heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh + 64 + 64;
-               this.scrollbarCtrl = 1;
-            }
         } else if (this.hapList.length == 4) {
             this.totalHigh = 543;
         } else if (this.hapList.length > 4) {
             this.totalHigh = 543;
             heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
             this.scrollbarCtrl = 1;
-        } else {
         }
     }
     this.pcSelectorlist = {
@@ -198,214 +222,220 @@ struct SelectorPcDialog {
   }
 
   build() {
-    Column() {
-        Text($r("app.string.message_title_selector"))
-          .fontSize(22)
-          .fontWeight(FontWeight.Medium)
-          .textAlign(TextAlign.Start)
-          .margin({ left: 48 })
-          .width(394)
-          .height(56)
-        List() {
-          ListItem() {
-            Text($r("app.string.message_recommendApps_selector"))
-              .fontSize(14)
-              .fontWeight(FontWeight.Medium)
-              .width(394)
-              .height(48)
-              .visibility(this.recommendAppsVisiable)
-          }
-        ForEach(globalThis.pcShowHapList, (item: any, current) => {
+    Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center ,  alignItems: ItemAlign.Center }) {
+      Column() {
+          Text($r("app.string.message_title_selector"))
+            .fontSize(22)
+            .fontWeight(FontWeight.Medium)
+            .textAlign(TextAlign.Start)
+            .margin({ left: 48 })
+            .width(394)
+            .height(56)
+          List() {
             ListItem() {
-              Flex({ direction: FlexDirection.Row }) {
-                if (item.split("#")[3] != "") {
-                  Image(item.split("#")[3])
-                    .height(48)
-                    .width(48)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ left : 16 })
-                    .borderRadius(12)
-                } else {
-                  Image($r("app.media.app_icon"))
-                    .height(48)
-                    .width(48)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ left : 16 })
-                    .borderRadius(12)
+              Text($r("app.string.message_recommendApps_selector"))
+                .fontSize(14)
+                .fontWeight(FontWeight.Medium)
+                .width(394)
+                .height(48)
+                .visibility(this.recommendAppsVisiable)
+            }
+          ForEach(globalThis.pcShowHapList, (item: any, current) => {
+              ListItem() {
+                Flex({ direction: FlexDirection.Row }) {
+                  if (item.split("#")[3] != "") {
+                    Image(item.split("#")[3])
+                      .height(48)
+                      .width(48)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ left : 16 })
+                      .borderRadius(12)
+                  } else {
+                    Image($r("app.media.app_icon"))
+                      .height(48)
+                      .width(48)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ left : 16 })
+                      .borderRadius(12)
+                  }
+                  if (item.split("#")[2] != "") {
+                    Text(item.split("#")[2])
+                      .fontSize(16)
+                      .width("60%")
+                      .height(64)
+                      .alignSelf(ItemAlign.Center)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .margin({ left : 16 })
+                  } else {
+                    Text(item.split("#")[0])
+                      .fontSize(16)
+                      .width("60%")
+                      .height(64)
+                      .alignSelf(ItemAlign.Center)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .margin({ left : 16 })
+                  }
+                  Image($r("app.media.selectedMark"))
+                      .height(24)
+                      .width(24)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ right : 16 })
+                      .visibility(this.hapListPngVisibility[current])
                 }
-                if (item.split("#")[2] != "") {
-                  Text(item.split("#")[2])
-                    .fontSize(16)
-                    .width("60%")
-                    .height(64)
-                    .alignSelf(ItemAlign.Center)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .margin({ left : 16 })
-                } else {
-                  Text(item.split("#")[0])
-                    .fontSize(16)
-                    .width("60%")
-                    .height(64)
-                    .alignSelf(ItemAlign.Center)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .margin({ left : 16 })
-                }
-                Image($r("app.media.selectedMark"))
-                    .height(24)
-                    .width(24)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ right : 16 })
-                    .visibility(this.hapListPngVisibility[current])
+                .onClick(() => {
+                  this.cleanFirstListColorAndVisibility();
+                  this.cleanSecondListColorAndVisibility();
+                  this.selectItem = item;
+                  this.hapListBackGround[current] = 0x1A0A59F7;
+                  this.hapListPngVisibility[current] = 0;
+                })
               }
-              .onClick(() => {
-                this.cleanFirstListColorAndVisibility();
-                this.cleanSecondListColorAndVisibility();
-                this.selectItem = item;
-                this.hapListBackGround[current] = 0x1A0A59F7;
-                this.hapListPngVisibility[current] = 0;
+              .backgroundColor(this.hapListBackGround[current])
+              .borderRadius(12)
+              .height(64)
+              .width(346)
+            }, item => item)
+            ListItem() {
+              Button($r("app.string.message_moreOpenMode_selector"),{ type: ButtonType.Capsule })
+                .fontSize(16)
+                .backgroundColor('#ffffffff')
+                .fontWeight(FontWeight.Medium)
+                .width(128)
+                .height(40)
+                .fontColor('#0A59F7')
+                .margin({ right : 218 })
+                .onClick(() => {
+                  this.onClickMoreApp()
+                  this.moreOpenModeVisiable = 2
+                  this.moreOpenModeAreaHigh = 0
+                  this.moreHapListVisibility = 0
+                  this.moreAppsVisiable = 0
+                  this.moreAppsAreaHigh = 48
               })
             }
-            .backgroundColor(this.hapListBackGround[current])
-            .borderRadius(12)
-            .height(64)
+            .visibility(this.moreOpenModeVisiable)
             .width(346)
-          }, item => item)
-          ListItem() {
-            Button($r("app.string.message_moreOpenMode_selector"),{ type: ButtonType.Capsule })
-              .fontSize(16)
-              .backgroundColor('#ffffffff')
-              .fontWeight(FontWeight.Medium)
-              .width(128)
-              .height(40)
-              .fontColor('#0A59F7')
-              .margin({ right : 218 })
-              .onClick(() => {
-                this.onClickMoreApp()
-                this.moreOpenModeVisiable = 2
-                this.moreOpenModeAreaHigh = 0
-                this.moreHapListVisibility = 0
-                this.moreAppsVisiable = 0
-                this.moreAppsAreaHigh = 48
+            .height(this.moreOpenModeAreaHigh)
+            ListItem() {
+              Text($r("app.string.message_moreApps_selector"))
+                .fontSize(14)
+                .fontWeight(FontWeight.Medium)
+                .visibility(this.moreAppsVisiable)
+                .margin({ right : 234 })
+            }
+            .width(346)
+            .height(this.moreAppsAreaHigh)
+            ForEach(this.pcShowMoreHapList, (item: any, current) => {
+              ListItem() {
+                Flex({ direction: FlexDirection.Row }) {
+                  if (item.split("#")[3] != "") {
+                    Image(item.split("#")[3])
+                      .height(48)
+                      .width(48)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ left : 16 })
+                      .borderRadius(12)
+                  } else {
+                    Image($r("app.media.app_icon"))
+                      .height(48)
+                      .width(48)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ left : 16 })
+                      .borderRadius(12)
+                  }
+                  if (item.split("#")[2] != "") {
+                    Text(item.split("#")[2])
+                      .fontSize(16)
+                      .width("60%")
+                      .height(64)
+                      .alignSelf(ItemAlign.Center)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .margin({ left : 16 })
+                  } else {
+                    Text(item.split("#")[0])
+                      .fontSize(16)
+                      .width("60%")
+                      .height(64)
+                      .alignSelf(ItemAlign.Center)
+                      .height(56)
+                      .width(394)
+                  }
+                  Image($r("app.media.selectedMark"))
+                      .height(24)
+                      .width(24)
+                      .alignSelf(ItemAlign.Center)
+                      .margin({ right : 16 })
+                      .visibility(this.moreHapListPngVisibility[current])
+                }
+                .onClick(() => {
+                  this.cleanFirstListColorAndVisibility();
+                  this.cleanSecondListColorAndVisibility();
+                  this.selectItem = item;
+                  this.moreHapListBackGround[current] = 0x1A0A59F7;
+                  this.moreHapListPngVisibility[current] = 0;
+                })
+              }
+              .backgroundColor(this.moreHapListBackGround[current])
+              .borderRadius(12)
+              .height(64)
+              .width(346)
+              .visibility(this.moreHapListVisibility)
+            }, item => item)
+          }
+          .edgeEffect(EdgeEffect.None)
+          .height(this.pcSelectorlist.height)
+          .backgroundColor("#ffffff")
+          .scrollBar(this.scrollbarCtrl)
+          .width(346)
+          Flex({ direction: FlexDirection.Row }) {
+            Checkbox({name: 'checkbox'})
+            .select(this.isCheckSelected)
+            .selectedColor(0x39a2db)
+            .margin({ left : 8 })
+            .onChange((value: boolean) => {
+                this.isCheckSelected = value;
             })
-          }
-          .visibility(this.moreOpenModeVisiable)
-          .width(346)
-          .height(this.moreOpenModeAreaHigh)
-          ListItem() {
-            Text($r("app.string.message_moreApps_selector"))
+            Text($r("app.string.message_openThisWay_selector"))
               .fontSize(14)
-              .fontWeight(FontWeight.Medium)
-              .visibility(this.moreAppsVisiable)
-              .margin({ right : 234 })
+              .fontColor('#000000')
+              .fontWeight(FontWeight.Regular)
           }
-          .width(346)
-          .height(this.moreAppsAreaHigh)
-          ForEach(this.pcShowMoreHapList, (item: any, current) => {
-            ListItem() {
-              Flex({ direction: FlexDirection.Row }) {
-                if (item.split("#")[3] != "") {
-                  Image(item.split("#")[3])
-                    .height(48)
-                    .width(48)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ left : 16 })
-                    .borderRadius(12)
-                } else {
-                  Image($r("app.media.app_icon"))
-                    .height(48)
-                    .width(48)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ left : 16 })
-                    .borderRadius(12)
-                }
-                if (item.split("#")[2] != "") {
-                  Text(item.split("#")[2])
-                    .fontSize(16)
-                    .width("60%")
-                    .height(64)
-                    .alignSelf(ItemAlign.Center)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .margin({ left : 16 })
-                } else {
-                  Text(item.split("#")[0])
-                    .fontSize(16)
-                    .width("60%")
-                    .height(64)
-                    .alignSelf(ItemAlign.Center)
-                    .height(56)
-                    .width(394)
-                }
-                Image($r("app.media.selectedMark"))
-                    .height(24)
-                    .width(24)
-                    .alignSelf(ItemAlign.Center)
-                    .margin({ right : 16 })
-                    .visibility(this.moreHapListPngVisibility[current])
-              }
-              .onClick(() => {
-                this.cleanFirstListColorAndVisibility();
-                this.cleanSecondListColorAndVisibility();
-                this.selectItem = item;
-                this.moreHapListBackGround[current] = 0x1A0A59F7;
-                this.moreHapListPngVisibility[current] = 0;
-              })
-            }
-            .backgroundColor(this.moreHapListBackGround[current])
-            .borderRadius(12)
-            .height(64)
-            .width(346)
-            .visibility(this.moreHapListVisibility)
-          }, item => item)
-        }
-        .edgeEffect(EdgeEffect.None)
-        .height(this.pcSelectorlist.height)
-        .backgroundColor("#ffffff")
-        .scrollBar(this.scrollbarCtrl)
-        .width(346)
-        Flex({ direction: FlexDirection.Row }) {
-          Checkbox({name: 'checkbox'})
-           .select(this.isCheckSelected)
-           .selectedColor(0x39a2db)
-           .margin({ left : 8 })
-           .onChange((value: boolean) => {
-              this.isCheckSelected = value;
-           })
-          Text($r("app.string.message_openThisWay_selector"))
-            .fontSize(14)
-            .fontColor('#000000')
-            .fontWeight(FontWeight.Regular)
-        }
-        .visibility(this.checkboxVisiable)
-        .height(48)
-        .width(394)
-        Flex({ direction: FlexDirection.Row }) {
-          Button($r("app.string.message_cancel_selector"), { type: ButtonType.Capsule })
-            .backgroundColor('#0d000000')
-            .fontColor('#0A59F7')
-            .fontWeight(FontWeight.Medium)
-            .width(157)
-            .height(40)
-            .fontSize(16)
-            .borderRadius(20)
-            .margin({ top : 16 , left : 16 })
-            .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
-          Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule })
-            .backgroundColor('#0d000000')
-            .fontColor('#0A59F7')
-            .fontWeight(FontWeight.Medium)
-            .width(157)
-            .height(40)
-            .fontSize(16)
-            .borderRadius(20)
-            .margin({ top : 16 , left : 48 })
-            .onClick(() => { this.onSelectApp(this.selectItem) })
-        }
+          .visibility(this.checkboxVisiable)
+          .height(48)
+          .width(394)
+          Flex({ direction: FlexDirection.Row }) {
+            Button($r("app.string.message_cancel_selector"), { type: ButtonType.Capsule })
+              .backgroundColor('#0d000000')
+              .fontColor('#0A59F7')
+              .fontWeight(FontWeight.Medium)
+              .width(157)
+              .height(40)
+              .fontSize(16)
+              .borderRadius(20)
+              .margin({ top : 16 , left : 16 })
+              .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
+            Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule })
+              .backgroundColor('#0d000000')
+              .fontColor('#0A59F7')
+              .fontWeight(FontWeight.Medium)
+              .width(157)
+              .height(40)
+              .fontSize(16)
+              .borderRadius(20)
+              .margin({ top : 16 , left : 48 })
+              .onClick(() => { this.onSelectApp(this.selectItem) })
+          }
+      }
+      .height(this.totalHigh)
+      .align(Alignment.Center)
+      .borderRadius(24)
+      .borderWidth(1)
+      .borderColor('#e9e9e9')
+      .width(394)
+      .backgroundColor('#ffffffff')
     }
-    .height(this.totalHigh)
-    .borderRadius(24)
-    .borderWidth(1)
-    .borderColor('#e9e9e9')
-    .width(394)
+    .width('100%')
+    .height('100%')
     .backgroundColor('#ffffffff')
   }
 }
