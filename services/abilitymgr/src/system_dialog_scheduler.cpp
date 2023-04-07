@@ -31,7 +31,7 @@
 namespace OHOS {
 namespace AAFwk {
 const int32_t UI_SELECTOR_DIALOG_WIDTH = 328 * 2;
-const int32_t UI_SELECTOR_DIALOG_HEIGHT = 340 * 2;
+const int32_t UI_SELECTOR_DIALOG_HEIGHT = 350 * 2;
 const int32_t UI_SELECTOR_DIALOG_HEIGHT_NARROW = 350 * 2;
 const int32_t UI_SELECTOR_DIALOG_WIDTH_NARROW = 328 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H1 = 240 * 2;
@@ -60,7 +60,6 @@ const std::string MODEL_FLAG = "modelFlag";
 const std::string ACRION = "action";
 
 const int32_t UI_HALF = 2;
-const int32_t UI_TRISECT = 3;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
 const int32_t UI_DEFAULT_WIDTH = 2560;
@@ -337,10 +336,10 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 if (position.wideScreen) {
                     HILOG_INFO("display screen width: %{public}d, position width: %{public}d",
                         display->GetWidth(), position.width);
-                    position.offsetX = (display->GetWidth() - position.width);
+                    position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
                     HILOG_INFO("display screen height: %{public}d, position height: %{public}d",
                         display->GetHeight(), position.height);
-                    position.offsetY = (display->GetHeight() - position.height / UI_HALF) / UI_TRISECT;
+                    position.offsetY = (display->GetHeight() - position.height) / UI_HALF;
                 } else {
                     position.window_width = position.window_width / UI_HALF;
                     position.window_height = position.window_height / UI_HALF;
