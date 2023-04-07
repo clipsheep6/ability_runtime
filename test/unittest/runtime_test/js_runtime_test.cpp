@@ -631,5 +631,25 @@ HWTEST_F(JsRuntimeTest, JsRuntimeInitialize_0200, TestSize.Level0)
 	EXPECT_NE(jsRuntime->GetEcmaVm(), nullptr);
 	EXPECT_NE(jsRuntime->GetNativeEnginePointer(), nullptr);
 }
+
+/**
+ * @tc.name: RegisterQuickFixQueryFunc_0100
+ * @tc.desc: JsRuntime test for RegisterQuickFixQueryFunc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, RegisterQuickFixQueryFunc_0100, TestSize.Level0)
+{
+    HILOG_INFO("RegisterQuickFixQueryFunc start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+    std::string moudel = "<moudelName>";
+    std::string hqfFile = "<hqfFile>";
+    std::map<std::string, std::string> moduleAndPath;
+    moduleAndPath.insert(std::make_pair(moudel, hqfFile));
+    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath);
+    
+    HILOG_INFO("RegisterQuickFixQueryFunc end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
