@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -233,6 +233,21 @@ class Caller {
         }
 
         this.__call_obj__.onRelease(callback);
+    }
+
+    onRemoteStateChange(callback) {
+        console.log("Caller onRemoteStateChange jscallback called.");
+        if (typeof callback !== 'function') {
+            console.log("Caller onRemoteStateChange " + typeof callback);
+            throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+        }
+
+        if (this.releaseState == true) {
+            console.log("Caller onRemoteStateChange remoteObj releaseState is true");
+            throw new BusinessError(ERROR_CODE_CALLER_RELEASED);
+        }
+
+        this.__call_obj__.onRemoteStateChange(callback);
     }
 
     on(type, callback) {

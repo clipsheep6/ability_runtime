@@ -4176,6 +4176,11 @@ int AbilityManagerService::StartRemoteAbilityByCall(const Want &want, const sptr
         HILOG_ERROR("%{public}s AddStartControlParam failed.", __func__);
         return ERR_INVALID_VALUE;
     }
+    int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+    if (missionId < 0) {
+        return ERR_INVALID_VALUE;
+    }
+    remoteWant.SetParam(DMS_MISSION_ID, missionId);
     DistributedClient dmsClient;
     return dmsClient.StartRemoteAbilityByCall(remoteWant, connect);
 }
