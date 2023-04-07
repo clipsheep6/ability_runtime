@@ -193,7 +193,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
-        bool isSanboxApp = want->GetBoolParam(ENTER_SANBOX, false);
+        bool isSanboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSanboxApp);
     } else {
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
