@@ -48,7 +48,7 @@ struct SelectorPcDialog {
   @State public hapListPngVisibility: number[] = [];
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
-  private var TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard"
+  private var TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
   private selectItem;
 
   aboutToAppear(): void {
@@ -102,7 +102,7 @@ struct SelectorPcDialog {
     try {
       globalThis.bundleManager.queryAbilityInfo({
           action: this.action,
-          type : TYPE_ONLY_MATCH_WILDCARD,
+          type : this.TYPE_ONLY_MATCH_WILDCARD,
       }, 0, (err, data) =>{
         if (data != undefined) {
           for (let i = 0; i < data.length; i++) {
