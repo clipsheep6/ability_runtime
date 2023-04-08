@@ -72,7 +72,6 @@
 #include <dirent.h>
 #include <dlfcn.h>
 #endif
-
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
@@ -82,10 +81,10 @@ std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
-#ifdef APP_USE_ARM64
-constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
-#else
+#ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#else
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #endif
 
 constexpr int32_t DELIVERY_TIME = 200;
@@ -1650,14 +1649,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
 
-    if (runtime) {
-        std::vector<std::pair<std::string, std::string>> hqfFilePair;
-        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
-            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
-                runtime->LoadRepairPatch(it->first, it->second);
-            }
+    std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
+    std::map<std::string, std::string> modulePaths;
+    if (runtime && !hqfInfos.empty()) {
+        for (auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
+            HILOG_INFO("moudelName: %{private}s, hqfFilePath: %{private}s.",
+                it->moduleName.c_str(), it->hqfFilePath.c_str());
+            modulePaths.insert(std::make_pair(it->moduleName, it->hqfFilePath));
         }
+        runtime->RegisterQuickFixQueryFunc(modulePaths);
     }
 }
 

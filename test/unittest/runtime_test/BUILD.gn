@@ -21,6 +21,25 @@ config("coverage_flags") {
   ldflags = [ "--coverage" ]
 }
 
+ohos_unittest("quickfix_callback_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+  ]
+
+  sources = [ "js_quickfix_callback_test.cpp" ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+  ]
+}
+
 ohos_unittest("runtime_test") {
   module_out_path = module_output_path
 

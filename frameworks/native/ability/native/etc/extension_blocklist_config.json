@@ -16,7 +16,13 @@
         "StaticSubscriberExtension": [],
         "AccessibilityExtension": [],
         "InputMethodExtension": [],
-        "WorkSchedulerExtension": [],
+        "WorkSchedulerExtension": [
+            "backgroundTaskManager",
+            "resourceschedule.backgroundTaskManager",
+            "multimedia.camera",
+            "multimedia.audio",
+            "multimedia.media"
+        ],
         "DataShareExtension": [
             "UIAbilityContext",
             "ability.featureAbility",

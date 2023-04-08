@@ -334,7 +334,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AbilityAttachTimeOut_001, TestSize.Level
 HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
 {
     sptr<IRemoteObject> token = nullptr;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -342,7 +341,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->PrepareTerminate(token);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -353,7 +351,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
 HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0)
 {
     int32_t recordId = INIT_VALUE;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -361,7 +358,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->AddAbilityStageDone(recordId);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -372,7 +368,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0
 HWTEST_F(AppMgrClientTest, AppMgrClient_StartupResidentProcess_001, TestSize.Level0)
 {
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -380,7 +375,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartupResidentProcess_001, TestSize.Lev
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->StartupResidentProcess(bundleInfos);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -392,7 +386,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
 {
     AAFwk::Want want;
     AppExecFwk::AbilityInfo abilityInfo;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -400,7 +393,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->StartSpecifiedAbility(want, abilityInfo);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -411,7 +403,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
 HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
 {
     sptr<IStartSpecifiedAbilityResponse> response = nullptr;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -419,7 +410,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterStartSpecifiedAbilityResponse_00
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->RegisterStartSpecifiedAbilityResponse(response);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -432,7 +422,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleAcceptWantDone_001, TestSize.Lev
     int32_t recordId = INIT_VALUE;
     AAFwk::Want want;
     std::string flag = EMPTY_STRING;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -440,7 +429,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleAcceptWantDone_001, TestSize.Lev
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->ScheduleAcceptWantDone(recordId, want, flag);
-    EXPECT_EQ(0, ret);
 }
 
 /**

@@ -84,6 +84,11 @@ public:
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadSystemModule called";
         return nullptr;
     }
+    bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
+    {
+        GTEST_LOG_(INFO) << "MockJsRuntime::GetFileBuffer called";
+        return true;
+    }
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -99,20 +99,12 @@ const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
-const std::string WHITE_LIST_NORMAL_FLAG = "component.startup.whitelist.normal";
 const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
 // White list app
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
-const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
-const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
-const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
 
-// White list
-const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_SERVICE_TEST,
-                                                                BUNDLE_NAME_SERVICE_SERVER_TEST,
-                                                                BUNDLE_NAME_SERVICE_SERVER2_TEST };
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 } // namespace
 
@@ -344,7 +336,6 @@ void AbilityManagerService::InitStartupFlag()
     startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
     newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
     backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
-    whiteListNormalFlag_ = CheckNewRuleSwitchState(WHITE_LIST_NORMAL_FLAG);
     whiteListassociatedWakeUpFlag_ = CheckNewRuleSwitchState(WHITE_LIST_ASS_WAKEUP_FLAG);
 }
 
@@ -6076,9 +6067,6 @@ bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityReq
     if (callerAbility) {
         const std::string bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-        if (whiteListNormalFlag_ && WHITE_LIST_NORMAL_SET.find(bundleName) != WHITE_LIST_NORMAL_SET.end()) {
-            return false;
-        }
         if (newRuleExceptLauncherSystemUI_ &&
             (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI)) {
             return false;

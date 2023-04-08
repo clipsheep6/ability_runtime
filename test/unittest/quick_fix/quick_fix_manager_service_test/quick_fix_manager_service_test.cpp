@@ -115,6 +115,7 @@ HWTEST_F(QuickFixManagerServiceTest, GetApplyedQuickFixInfo_0100, TestSize.Level
 HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    EXPECT_NE(quickFixMs_, nullptr);
     quickFixMs_->RemoveApplyTask(nullptr);
     quickFixMs_->AddApplyTask(nullptr);
 

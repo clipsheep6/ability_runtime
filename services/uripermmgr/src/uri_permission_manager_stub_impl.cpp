@@ -38,6 +38,7 @@ using TokenId = Security::AccessToken::AccessTokenID;
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int autoremove)
 {
+    HILOG_DEBUG("UriPermissionManagerStubImpl::GrantUriPermission is called.");
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
         return INNER_ERR;

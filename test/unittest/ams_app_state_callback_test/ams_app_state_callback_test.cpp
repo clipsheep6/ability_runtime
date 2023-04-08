@@ -51,6 +51,7 @@ void AmsAppStateCallBackTest::TearDown()
 HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_001, TestSize.Level1)
 {
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    EXPECT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option{ MessageOption::TF_ASYNC };
@@ -63,8 +64,6 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_001, TestSize.Level1)
     processData.pid = 1;
     processData.appState = ApplicationState::APP_STATE_FOREGROUND;
     data.WriteParcelable(&processData);
-    int32_t ret = 0;
-    EXPECT_EQ(0, ret);
 }
 
 /*
@@ -78,6 +77,7 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_001, TestSize.Level1)
 HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_002, TestSize.Level1)
 {
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    EXPECT_NE(host, nullptr);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option{ MessageOption::TF_ASYNC };
@@ -86,8 +86,6 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_002, TestSize.Level1)
     data.WriteParcelable(token.GetRefPtr());
     int32_t abilityState = static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND);
     data.WriteInt32(abilityState);
-    int32_t ret = 0;
-    EXPECT_EQ(0, ret);
 }
 
 /*
@@ -103,10 +101,8 @@ HWTEST_F(AmsAppStateCallBackTest, OnAbilityRequestDone_001, TestSize.Level1)
     sptr<IRemoteObject> token = nullptr;
     AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    EXPECT_NE(host, nullptr);
     host->OnAbilityRequestDone(token, state);
-
-    int32_t ret = 0;
-    EXPECT_EQ(0, ret);
 }
 
 /*
@@ -121,10 +117,8 @@ HWTEST_F(AmsAppStateCallBackTest, OnAppStateChanged_001, TestSize.Level1)
 {
     AppProcessData data;
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    EXPECT_NE(host, nullptr);
     host->OnAppStateChanged(data);
-
-    int32_t ret = 0;
-    EXPECT_EQ(0, ret);
 }
 
 /*
