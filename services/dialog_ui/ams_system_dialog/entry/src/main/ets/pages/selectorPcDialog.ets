@@ -48,7 +48,7 @@ struct SelectorPcDialog {
   @State public hapListPngVisibility: number[] = [];
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
-  private TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+  private var TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard"
   private selectItem;
 
   aboutToAppear(): void {
@@ -102,7 +102,7 @@ struct SelectorPcDialog {
     try {
       globalThis.bundleManager.queryAbilityInfo({
           action: this.action,
-          type : TYPE_ONLY_MATCH_WILDCARD
+          type : TYPE_ONLY_MATCH_WILDCARD,
       }, 0, (err, data) =>{
         if (data != undefined) {
           for (let i = 0; i < data.length; i++) {
@@ -193,37 +193,6 @@ struct SelectorPcDialog {
         height: heightTotalVp + "vp",
       };
     }
-    if (this.hapList.length == 3) {
-        this.totalHigh = 479;
-        if (morelist >= 1) {
-          this.totalHigh = 511; 
-          heightTotalVp = 326;
-        } else if (morelist == 0) {
-          this.totalHigh = 479;
-          heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-        }
-    }
-    if (this.hapList.length == 4) {
-        this.totalHigh = 543;
-        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-        console.error("******************4listhighis*************" + JSON.stringify(heightTotalVp))
-        if(morelist != 0) {
-            this.scrollbarCtrl = 2;
-        } else {
-            this.scrollbarCtrl = 0; 
-        }
-      }
-    if (this.hapList.length > 4) {
-        this.totalHigh = 543;
-        heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
-        console.error("******************5listhighis*************" + JSON.stringify(heightTotalVp))
-        this.scrollbarCtrl = 2;
-    } 
-    this.pcSelectorlist = {
-      width: "100%",
-      height: heightTotalVp + "vp",
-    };
-  }
 
   getHapListStyle() {
     let heightTotalVp = 0;
