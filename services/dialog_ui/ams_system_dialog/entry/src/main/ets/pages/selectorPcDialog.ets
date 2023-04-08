@@ -48,7 +48,7 @@ struct SelectorPcDialog {
   @State public hapListPngVisibility: number[] = [];
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
-  private TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+  public moreHapListType: string = "reserved/wildcard";
   private selectItem;
 
   aboutToAppear(): void {
@@ -84,16 +84,16 @@ struct SelectorPcDialog {
       }
       console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
     });
-    let type = item.split("#")[5];
     let userId = item.split("#")[6];
     let elementName = {
       bundleName: globalThis.abilityWant.bundleName,
       moduleName: globalThis.abilityWant.moduleName,
       abilityName: globalThis.abilityWant.abilityName,
     }
+    let userId = item.split("#")[6];
     if (this.isCheckSelected) {
       console.log(this.TAG + "setDefaultApplication type:" + JSON.stringify(globalThis.abilityWant.type));
-      globalThis.defaultAppManager.setDefaultApplication(globalThis.abilityWant.type, elementName);
+      globalThis.defaultAppManager.setDefaultApplication(globalThis.abilityWant.type, elementName, userId);
     }
     globalThis.selectExtensionContext.terminateSelf();
   }
@@ -102,7 +102,7 @@ struct SelectorPcDialog {
     try {
       globalThis.bundleManager.queryAbilityInfo({
           action: this.action,
-          type : this.TYPE_ONLY_MATCH_WILDCARD,
+          type : this.moreHapListType,
       }, 0, (err, data) =>{
         if (data != undefined) {
           for (let i = 0; i < data.length; i++) {
