@@ -267,7 +267,7 @@ struct SelectorPcDialog {
   build() {
     Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center ,  alignItems: ItemAlign.Center }) {
       Column() {
-          Text($r("app.string.message_title_selector"))
+          Text($r("app.string.message_title_pc_selector"))
             .fontSize(22)
             .fontWeight(FontWeight.Medium)
             .textAlign(TextAlign.Start)

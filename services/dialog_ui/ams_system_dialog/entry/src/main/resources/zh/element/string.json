@@ -22,6 +22,10 @@
     },
     {
       "name": "message_title_selector",
+      "value": "使用以下方式打开"
+    },
+    {
+      "name": "message_title_pc_selector",
       "value": "选择打开方式"
     },
     {
