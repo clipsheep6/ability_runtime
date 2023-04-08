@@ -80,7 +80,7 @@ const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string CALLER_TOKEN = "callerToken";
-
+const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
 const int32_t LINE_NUMS_THREE = 3;
@@ -213,7 +213,7 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     nlohmann::json jsonObject;
     jsonObject[DEVICE_TYPE] = deviceType_;
     jsonObject[ACRION] = action;
-    if (type == "reserved/wildcard") {
+    if (type == TYPE_ONLY_MATCH_WILDCARD) {
         jsonObject[MODEL_FLAG] = true;
     } else {
         jsonObject[MODEL_FLAG] = false;

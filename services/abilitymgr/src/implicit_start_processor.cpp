@@ -29,6 +29,7 @@ using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 const std::string STR_PC = "pc";
+const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -97,7 +98,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
         std::vector<DialogAppInfo> dialogAllAppInfos;
-        request.want.SetType("reserved/wildcard");
+        request.want.SetType(TYPE_ONLY_MATCH_WILDCARD);
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
         if (ret != ERR_OK) {
             HILOG_ERROR("generate ability request by action failed.");
@@ -161,14 +162,14 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     Want implicitwant;
     implicitwant.SetAction(request.want.GetAction());
-    implicitwant.SetType("reserved/wildcard");
+    implicitwant.SetType(TYPE_ONLY_MATCH_WILDCARD);
     std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
         implicitwant, abilityInfoFlag, userId, implicitAbilityInfos, implicitExtensionInfos));
     std::vector<std::string> infoNames;
     std::vector<std::string> dialogIndoNames;
-    if(implicitAbilityInfos.size() != 0 && request.want.GetType() != "reserved/wildcard") {
+    if(implicitAbilityInfos.size() != 0 && request.want.GetType() != TYPE_ONLY_MATCH_WILDCARD) {
         for (auto implicitAbilityInfo : implicitAbilityInfos) {
             infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
                 implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
