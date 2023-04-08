@@ -222,11 +222,11 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     nlohmann::json hapListObj = nlohmann::json::array();
     for (const auto &info : infos) {
         nlohmann::json aObj;
-        aObj["labelId"] = std::to_string(info.labelId);
-        aObj["iconId"] = std::to_string(info.iconId);
-        aObj["bundleName"] = info.bundleName;
+        aObj["label"] = std::to_string(info.labelId);
+        aObj["icon"] = std::to_string(info.iconId);
+        aObj["bundle"] = info.bundleName;
         aObj["ability"] = info.abilityName;
-        aObj["moduleName"] = info.moduleName;
+        aObj["module"] = info.moduleName;
         aObj["type"] = type;
         aObj["userId"] = std::to_string(userId);
         hapListObj.emplace_back(aObj);

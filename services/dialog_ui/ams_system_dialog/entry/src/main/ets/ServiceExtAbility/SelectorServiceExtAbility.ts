@@ -60,32 +60,33 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
 
     async getHapResource(hap, showHapList) {
-        let bundleName = hap.bundleName;
-        let moduleName = hap.moduleName;
+        let bundleName = hap.bundle;
+        let moduleName = hap.module;
         let abilityName = hap.ability;
         let appName = "";
         let appIcon = "";
-        let labelId = Number(hap.labelId);
         let type = "";
         let userId = Number("0");
         if (globalThis.params.deviceType == "pc") {
             type = hap.type;
             userId = Number(hap.userId);
         }
+        let lableId = Number(hap.label);
         let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
-        moduleContext.resourceManager.getString(labelId).then(value => {
+        await moduleContext.resourceManager.getString(lableId).then(value => {
             appName = value;
-            let iconId = Number(hap.iconId);
-            moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
-                appIcon = value;
-                showHapList.push(bundleName + "#" + abilityName + "#" + appName +
-                    "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
-            }).catch(error => {
-                console.error("getMediaBase64 error:" + JSON.stringify(error));
-            });
         }).catch(error => {
-            console.error("getString error:" + JSON.stringify(error));
+            console.error(TAG, "getString error:" + JSON.stringify(error));
         });
+
+        let iconId = Number(hap.icon);
+        await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
+            appIcon = value;
+        }).catch(error => {
+            console.error(TAG, "getMediaBase64 error:" + JSON.stringify(error));
+        });
+        showHapList.push(bundleName + "#" + abilityName + "#" + appName +
+            "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
     }
 
     async onRequest(want, startId) {

@@ -101,6 +101,11 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         std::vector<DialogAppInfo> dialogAllAppInfos;
         request.want.SetType(TYPE_ONLY_MATCH_WILDCARD);
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
+        if (dialogAllAppInfos.size() == 0) {
+            Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
+            abilityMgr->StartAbility(want);
+            return ERR_IMPLICIT_START_ABILITY_FAIL;
+        }
         if (ret != ERR_OK) {
             HILOG_ERROR("generate ability request by action failed.");
             return ret;
