@@ -60,7 +60,6 @@ const std::string MODEL_FLAG = "modelFlag";
 const std::string ACRION = "action";
 
 const int32_t UI_HALF = 2;
-// const int32_t UI_TRISECT = 3;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
 const int32_t UI_DEFAULT_WIDTH = 2560;
@@ -81,6 +80,7 @@ const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string CALLER_TOKEN = "callerToken";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
 const int32_t LINE_NUMS_THREE = 3;
