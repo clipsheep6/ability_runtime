@@ -4033,6 +4033,18 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
     napi_value result[ARGS_TWO] = {nullptr};
     result[PARAM0] =
         WrapElementName(connectAbilityCB->cbBase.cbInfo.env, connectAbilityCB->abilityConnectionCB.elementName);
+
+    napi_value globalValue;
+    napi_get_global(connectAbilityCB->cbBase.cbInfo.env, &globalValue);
+    napi_value func;
+    napi_get_named_property(connectAbilityCB->cbBase.cbInfo.env, globalValue, "requireNapi", &func);
+
+    napi_value rpcInfo;
+    napi_create_string_utf8(connectAbilityCB->cbBase.cbInfo.env, "rpc", NAPI_AUTO_LENGTH, &rpcInfo);
+    napi_value funcArgv[1] = { rpcInfo };
+    napi_value returnValue;
+    napi_call_function(connectAbilityCB->cbBase.cbInfo.env, globalValue, func, 1, funcArgv, &returnValue);
+
     napi_value jsRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
         connectAbilityCB->cbBase.cbInfo.env, connectAbilityCB->abilityConnectionCB.connection);
     result[PARAM1] = jsRemoteObject;
