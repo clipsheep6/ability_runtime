@@ -48,7 +48,7 @@ struct SelectorPcDialog {
   @State public hapListPngVisibility: number[] = [];
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
-  var TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+  private TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
   private selectItem;
 
   aboutToAppear(): void {
