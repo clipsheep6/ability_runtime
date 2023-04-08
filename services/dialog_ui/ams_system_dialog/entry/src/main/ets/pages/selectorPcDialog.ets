@@ -90,10 +90,9 @@ struct SelectorPcDialog {
       moduleName: globalThis.abilityWant.moduleName,
       abilityName: globalThis.abilityWant.abilityName,
     }
-    let userId = item.split("#")[6];
     if (this.isCheckSelected) {
       console.log(this.TAG + "setDefaultApplication type:" + JSON.stringify(globalThis.abilityWant.type));
-      globalThis.defaultAppManager.setDefaultApplication(globalThis.abilityWant.type, elementName, userId);
+      globalThis.defaultAppManager.setDefaultApplication(globalThis.abilityWant.type, elementName);
     }
     globalThis.selectExtensionContext.terminateSelf();
   }
