@@ -52,7 +52,7 @@ struct SelectorPcDialog {
   private selectItem;
 
   aboutToAppear(): void {
-    console.debug(this.TAG, "dialog page appears");
+    console.log(this.TAG, "dialog page appears");
     this.hapList = globalThis.params.hapList;
     this.action = globalThis.params.action;
     this.getHapListStyle();

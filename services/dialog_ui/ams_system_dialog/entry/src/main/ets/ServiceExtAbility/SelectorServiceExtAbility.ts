@@ -93,8 +93,8 @@ export default class SelectorServiceExtensionAbility extends extension {
         globalThis.abilityWant = want;
         globalThis.params = JSON.parse(want["parameters"]["params"]);
         globalThis.position = JSON.parse(want["parameters"]["position"]);
-        console.error(TAG, "onRequest, want: " + JSON.stringify(want));
-        console.error(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
+        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
+        console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
         globalThis.callerToken = want["parameters"]["callerToken"];
         console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
         console.debug(TAG, "onRequest, position: " + JSON.stringify(globalThis.position));
@@ -122,7 +122,7 @@ export default class SelectorServiceExtensionAbility extends extension {
             if (deviceInfo.deviceType == "phone") {
                 this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                console.error(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
+                console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
                 this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             }
             winNum++;
