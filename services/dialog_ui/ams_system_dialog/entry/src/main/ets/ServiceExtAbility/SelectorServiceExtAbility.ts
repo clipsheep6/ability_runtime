@@ -57,6 +57,7 @@ export default class SelectorServiceExtensionAbility extends extension {
             await this.getHapResource(globalThis.params.hapList[i], pcShowHapList);
         }
         globalThis.pcShowHapList = pcShowHapList;
+        console.debug(TAG, "pcShowHapList: " + JSON.stringify(pcShowHapList));
     }
 
     async getHapResource(hap, showHapList) {
