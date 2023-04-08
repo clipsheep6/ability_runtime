@@ -5,7 +5,7 @@
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *1
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ const int32_t UI_SELECTOR_DIALOG_PC_H0 = 1;
 const int32_t UI_SELECTOR_DIALOG_PC_H2 = (64 * 2 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
 const int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
 const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;;
+const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
 
 const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
@@ -60,6 +60,7 @@ const std::string MODEL_FLAG = "modelFlag";
 const std::string ACRION = "action";
 
 const int32_t UI_HALF = 2;
+// const int32_t UI_TRISECT = 3;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
 const int32_t UI_DEFAULT_WIDTH = 2560;
@@ -212,7 +213,7 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     nlohmann::json jsonObject;
     jsonObject[DEVICE_TYPE] = deviceType_;
     jsonObject[ACRION] = action;
-    if (type == "*/*") {
+    if (type == "reserved/wildcard") {
         jsonObject[MODEL_FLAG] = true;
     } else {
         jsonObject[MODEL_FLAG] = false;

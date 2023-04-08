@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "implicit_start_processor.h"
+#include<string>
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
@@ -96,7 +97,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
         std::vector<DialogAppInfo> dialogAllAppInfos;
-        request.want.SetType("*/*");
+        request.want.SetType("reserved/wildcard");
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
         if (ret != ERR_OK) {
             HILOG_ERROR("generate ability request by action failed.");
@@ -158,9 +159,30 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
 
+    Want implicitwant;
+    implicitwant.SetAction(request.want.GetAction());
+    implicitwant.SetType("reserved/wildcard");
+    std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
+        implicitwant, abilityInfoFlag, userId, implicitAbilityInfos, implicitExtensionInfos));
+    std::vector<std::string> infoNames;
+    std::vector<std::string> dialogIndoNames;
+    if(implicitAbilityInfos.size() != 0 && request.want.GetType() != "reserved/wildcard") {
+        for (auto implicitAbilityInfo : implicitAbilityInfos) {
+            infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
+                implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
+        }
+    }
     for (const auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
+        }
+        if (abilityInfos.size() > 1) {
+            if (std::find(infoNames.begin(), infoNames.end(),
+                (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
+                continue;
+            }
         }
         DialogAppInfo dialogAppInfo;
         dialogAppInfo.abilityName = info.name;

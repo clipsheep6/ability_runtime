@@ -92,24 +92,30 @@ struct SelectorPcDialog {
       abilityName: globalThis.abilityWant.abilityName,
     }
     if (this.isCheckSelected) {
-      console.log(this.TAG + "setDefaultApplication type:" + JSON.stringify(type));
-      globalThis.defaultAppManager.setDefaultApplication(type, elementName);
+      console.log(this.TAG + "setDefaultApplication type:" + JSON.stringify(globalThis.abilityWant.type));
+      globalThis.defaultAppManager.setDefaultApplication(globalThis.abilityWant.type, elementName);
     }
     globalThis.selectExtensionContext.terminateSelf();
   }
 
   onClickMoreApp() {
-    globalThis.bundleManager.queryAbilityInfo({
-        action: this.action,
-        type : "*/*"
-    }, 0, (err, data) =>{
-      for (let i = 0; i < data.length; i++) {
-        this.getHapResource(data[i], this.pcShowMoreHapList, i);
+    try {
+      globalThis.bundleManager.queryAbilityInfo({
+          action: this.action,
+          type : "reserved/wildcard"
+      }, 0, (err, data) =>{
+        if (data != undefined) {
+          for (let i = 0; i < data.length; i++) {
+            this.getHapResource(data[i], this.pcShowMoreHapList, i);
+          }
+          this.getMoreHapListStyle()
+          console.debug("pcShowMoreHapList: " + JSON.stringify(this.pcShowMoreHapList));
+        }
+      });
+    } catch { error => {
+        console.error("queryAbilityInfo error:" + JSON.stringify(error));
       }
-      console.error("***this.pcShowMoreHapList.length*1**"+JSON.stringify(this.pcShowMoreHapList.length));
-      this.getMoreHapListStyle()
-      console.debug("pcShowMoreHapList: " + JSON.stringify(this.pcShowMoreHapList));
-    });
+    }
   }
 
   getHapResource(hap, showHapList, n) {
@@ -144,44 +150,81 @@ struct SelectorPcDialog {
           console.error("getString error:" + JSON.stringify(error));
       });
     }
-  getMoreHapListStyle() {
-    let heightTotalVp = 200;
-    let heightVal = 64;
-    let recommendAppAreaHigh = 48;
-    let openModeHigh = 54;
-    let morelist = 0;
-    morelist ++;
-      if (this.hapList.length == 2) {
-        if(morelist == 1) {
-           this.totalHigh = 479 - 32; 
-           heightTotalVp = 294 - 32;
-           this.scrollbarCtrl = 1;
-        }
-        if(morelist >= 2) {
-           this.totalHigh = 543 - 32; 
-           heightTotalVp = 358 - 32;
-           this.scrollbarCtrl = 1;
-        }
-      } else if (this.hapList.length == 3) {
+
+    getMoreHapListStyle() {
+      let heightTotalVp = 200;
+      let heightVal = 64;
+      let recommendAppAreaHigh = 48;
+      let openModeHigh = 54;
+      let morelist = 0;
+      this.scrollbarCtrl = 2;
+      morelist ++;
+        if (this.hapList.length == 2) {
+          if(morelist == 1) {
+             this.totalHigh = 447; 
+             heightTotalVp = 262;
+          }else if(morelist >= 2) {
+             this.totalHigh = 511; 
+             heightTotalVp = 326;
+          } else {
+              ;
+          }
+        } else if (this.hapList.length == 3) {
+          this.totalHigh = 479;
+          if (morelist >= 1) {
+             this.totalHigh = 511; 
+             heightTotalVp = 326;
+          }
+      } else if (this.hapList.length == 4) {
+          this.totalHigh = 543;
+          this.scrollbarCtrl = 0;
+          heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
+          if(morelist != 0) {
+              this.scrollbarCtrl = 2;
+          } else {
+              this.scrollbarCtrl = 0; 
+          }
+      } else if (this.hapList.length > 4) {
+          this.totalHigh = 543;
+          heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
+      }
+      this.pcSelectorlist = {
+        width: "100%",
+        height: heightTotalVp + "vp",
+      };
+    }
+    if (this.hapList.length == 3) {
         this.totalHigh = 479;
         if (morelist >= 1) {
-           this.totalHigh = 543 - 32; 
-           heightTotalVp = 358 - 32;
-           this.scrollbarCtrl = 1;
+          this.totalHigh = 511; 
+          heightTotalVp = 326;
+        } else if (morelist == 0) {
+          this.totalHigh = 479;
+          heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
         }
-    } else if (this.hapList.length == 4) {
+    }
+    if (this.hapList.length == 4) {
         this.totalHigh = 543;
-    } else if (this.hapList.length > 4) {
-        this.totalHigh = 543 - 32 ;
+        heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
+        console.error("******************4listhighis*************" + JSON.stringify(heightTotalVp))
+        if(morelist != 0) {
+            this.scrollbarCtrl = 2;
+        } else {
+            this.scrollbarCtrl = 0; 
+        }
+      }
+    if (this.hapList.length > 4) {
+        this.totalHigh = 543;
         heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
-        this.scrollbarCtrl = 1;
+        console.error("******************5listhighis*************" + JSON.stringify(heightTotalVp))
+        this.scrollbarCtrl = 2;
     } 
     this.pcSelectorlist = {
       width: "100%",
       height: heightTotalVp + "vp",
     };
   }
-  
+
   getHapListStyle() {
     let heightTotalVp = 0;
     let heightVal = 64;
@@ -198,7 +241,7 @@ struct SelectorPcDialog {
         if(this.hapList.length > 6) {
             heightTotalVp = 6 * heightVal;
             this.totalHigh = 6 * heightVal + titleAreaHigh + buttonAreaHigh;
-            this.scrollbarCtrl = 1;
+            this.scrollbarCtrl = 2;
         }
     }
     if(globalThis.modelFlag == false) {
@@ -212,7 +255,7 @@ struct SelectorPcDialog {
         } else if (this.hapList.length > 4) {
             this.totalHigh = 543;
             heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
-            this.scrollbarCtrl = 1;
+            this.scrollbarCtrl = 2;
         }
     }
     this.pcSelectorlist = {
@@ -436,6 +479,6 @@ struct SelectorPcDialog {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#ffffffff')
+    .backgroundColor('#00ffffff')
   }
 }

@@ -66,8 +66,12 @@ export default class SelectorServiceExtensionAbility extends extension {
         let appName = "";
         let appIcon = "";
         let labelId = Number(hap.labelId);
-        let type = hap.type;
-        let userId = Number(hap.userId);
+        let type = "";
+        let userId = Number("0");
+        if (globalThis.params.deviceType == "pc") {
+            type = hap.type;
+            userId = Number(hap.userId);
+        }
         let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
         moduleContext.resourceManager.getString(labelId).then(value => {
             appName = value;
@@ -141,7 +145,7 @@ export default class SelectorServiceExtensionAbility extends extension {
                 }
             });
             await win.moveTo(rect.left, rect.top);
-            await win.resetSize(rect.width, 1000);
+            await win.resetSize(rect.width, rect.height);
             if (globalThis.params.deviceType == "phone") {
                 await win.loadContent('pages/selectorPhoneDialog');
             } else {
