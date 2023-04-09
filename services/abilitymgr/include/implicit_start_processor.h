@@ -39,8 +39,8 @@ public:
     int ImplicitStartAbility(AbilityRequest &request, int32_t userId);
 
 private:
-    int GenerateAbilityRequestByAction(int32_t userId,
-        AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos);
+    int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
+        std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 
@@ -55,6 +55,7 @@ private:
 
     bool FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos);
+    sptr<AppExecFwk::IDefaultApp> GetDefaultAppProxy();
 
 private:
     const static std::vector<std::string> blackList;

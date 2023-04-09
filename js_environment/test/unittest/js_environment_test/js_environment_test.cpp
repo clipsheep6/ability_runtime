@@ -16,15 +16,18 @@
 #include "js_environment.h"
 
 #include <gtest/gtest.h>
+#include <gtest/hwext/gtest-multithread.h>
 #include <cstdarg>
 #include <string>
 
 #include "ecmascript/napi/include/jsnapi.h"
+#include "js_env_logger.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 
 using namespace testing;
 using namespace testing::ext;
+using namespace testing::mt;
 
 namespace OHOS {
 namespace JsEnv {
@@ -58,9 +61,10 @@ void JsEnvironmentTest::TearDown()
  */
 HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0100, TestSize.Level0)
 {
-    auto jsEnvImpl = std::make_shared<AbilityRuntime::OHOSJsEnvironmentImpl>();
-    auto jsEnv = std::make_shared<JsEnvironment>(jsEnvImpl);
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
+    ASSERT_EQ(jsEnv->GetVM(), nullptr);
+    ASSERT_EQ(jsEnv->GetNativeEngine(), nullptr);
 
     panda::RuntimeOption pandaOption;
     auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
@@ -71,6 +75,80 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0100, TestSize.Level0)
 
     auto nativeEngine = jsEnv->GetNativeEngine();
     EXPECT_NE(nativeEngine, nullptr);
+}
+
+/**
+ * @tc.name: JsEnvInitialize_0200
+ * @tc.desc: Initialize js environment in multi thread.
+ * @tc.type: FUNC
+ * @tc.require: issueI6KODF
+ */
+HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0200, TestSize.Level0)
+{
+    JSENV_LOG_I("Running in multi-thread, using default thread number.");
+
+    auto task = []() {
+        JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
+        auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+        ASSERT_NE(jsEnv, nullptr);
+
+        panda::RuntimeOption pandaOption;
+        ASSERT_EQ(jsEnv->Initialize(pandaOption, nullptr), true);
+        EXPECT_NE(jsEnv->GetVM(), nullptr);
+        EXPECT_NE(jsEnv->GetNativeEngine(), nullptr);
+    };
+
+    GTEST_RUN_TASK(task);
+}
+
+/**
+ * @tc.name: LoadScript_0100
+ * @tc.desc: load script with invalid engine.
+ * @tc.type: FUNC
+ * @tc.require: issueI6KODF
+ */
+HWTEST_F(JsEnvironmentTest, LoadScript_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    EXPECT_EQ(jsEnv->LoadScript(""), false);
+}
+
+/**
+ * @tc.name: LoadScript_0200
+ * @tc.desc: load script with invalid path.
+ * @tc.type: FUNC
+ * @tc.require: issueI6KODF
+ */
+HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    EXPECT_EQ(jsEnv->LoadScript(""), false);
+}
+
+/**
+ * @tc.name: LoadScript_0300
+ * @tc.desc: load script with specify path.
+ * @tc.type: FUNC
+ * @tc.require: issueI6KODF
+ */
+HWTEST_F(JsEnvironmentTest, LoadScript_0300, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    EXPECT_EQ(jsEnv->LoadScript("/system/etc/strip.native.min.abc"), true);
 }
 }  // namespace JsEnv
 }  // namespace OHOS

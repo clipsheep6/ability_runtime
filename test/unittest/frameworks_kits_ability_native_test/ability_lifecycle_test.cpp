@@ -77,6 +77,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_GetLifecycleState_0100, Function | Mediu
 HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_AddObserver_0100, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_AddObserver_0100 start";
+    ASSERT_NE(lifeCycle_, nullptr);
 
     lifeCycle_->AddObserver(nullptr);
 
@@ -93,6 +94,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_AddObserver_0200, Function | MediumTest 
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_AddObserver_0200 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
 
@@ -109,6 +111,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_RemoveObserver_0100, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_RemoveObserver_0100 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     lifeCycle_->RemoveObserver(nullptr);
@@ -126,6 +129,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_RemoveObserver_0200, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_RemoveObserver_0200 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     lifeCycle_->RemoveObserver(observer);
@@ -144,6 +148,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0100, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0100 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::UNDEFINED, want);
@@ -161,6 +166,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0200, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0200 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE, want);
@@ -178,6 +184,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0300, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0300 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND, want);
@@ -195,6 +202,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0400, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0400 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_FOREGROUND, want);
@@ -212,6 +220,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0500, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0500 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE, want);
@@ -229,6 +238,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0600, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0600 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
@@ -246,6 +256,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_want_0700, Funct
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_want_0700 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     Want want;
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP, want);
@@ -263,6 +274,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0100, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0100 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::UNDEFINED);
 
@@ -279,6 +291,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0200, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0200 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
 
@@ -295,6 +308,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0300, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0300 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
 
@@ -311,6 +325,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0400, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0400 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_FOREGROUND);
 
@@ -327,6 +342,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0500, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0500 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
 
@@ -343,6 +359,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0600, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0600 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_START);
 
@@ -359,6 +376,7 @@ HWTEST_F(LifeCycleTest, AaFwk_LifeCycle_DispatchLifecycle_event_0700, Function |
     GTEST_LOG_(INFO) << "AaFwk_LifeCycle_DispatchLifecycle_event_0700 start";
 
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    ASSERT_NE(observer, nullptr);
     lifeCycle_->AddObserver(observer);
     lifeCycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
 

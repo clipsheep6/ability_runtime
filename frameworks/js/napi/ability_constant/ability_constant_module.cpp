@@ -53,6 +53,7 @@ static napi_value InitLaunchReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "CALL", LAUNCHREASON_CALL));
     NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION", LAUNCHREASON_CONTINUATION));
     NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", LAUNCHREASON_APP_RECOVERY));
+    NAPI_CALL(env, SetEnumItem(env, object, "SHARE", LAUNCHREASON_SHARE));
 
     return object;
 }

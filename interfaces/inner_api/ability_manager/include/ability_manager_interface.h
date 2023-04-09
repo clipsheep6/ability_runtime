@@ -28,6 +28,7 @@
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
+#include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
 #include "mission_listener_interface.h"
 #include "mission_info.h"
@@ -342,6 +343,21 @@ public:
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType,
         int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * Connect ui extension ability.
+     *
+     * @param want, special want for the ui extension ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param sessionInfo the extension session info of the ability to connect.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -820,6 +836,31 @@ public:
         return 0;
     }
 
+    /**
+     * Acquire the shared data.
+     * @param missionId The missionId of Target ability.
+     * @param shareData The IAcquireShareData object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AcquireShareData(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
+    {
+        return 0;
+    }
+    
+    /**
+     * Notify sharing data finished.
+     * @param token The token of ability.
+     * @param resultCode The result of sharing data.
+     * @param uniqueId The uniqueId from request object.
+     * @param wantParam The params of acquiring sharing data from target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ShareDataDone(const sptr<IRemoteObject>& token,
+        const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
+    {
+        return 0;
+    }
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1090,6 +1131,9 @@ public:
         // ipc id for terminating ui extension ability
         TERMINATE_UI_EXTENSION_ABILITY,
 
+        // ipc id for connect ui extension ability
+        CONNECT_UI_EXTENSION_ABILITY,
+
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
 
@@ -1142,6 +1186,9 @@ public:
         QUERY_MISSION_VAILD = 3012,
         
         VERIFY_PERMISSION = 3013,
+        
+        ACQUIRE_SHARE_DATA = 4001,
+        SHARE_DATA_DONE = 4002,
     };
 };
 }  // namespace AAFwk

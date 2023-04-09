@@ -46,6 +46,9 @@
       },
       {
         "name": "ohos.permission.START_ABILITIES_FROM_BACKGROUND"
+      },
+      {
+        "name": "ohos.permission.SET_DEFAULT_APPLICATION"
       }
     ]
   }

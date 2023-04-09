@@ -69,6 +69,7 @@ public:
     int32_t GetIpcFd() const;
     int32_t GetSharedFd() const;
     int32_t GetCrashFd() const;
+    ProcessType GetProcessType() const;
     std::shared_ptr<AppRunningRecord> GetHostRecord() const;
     sptr<IRenderScheduler> GetScheduler() const;
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
@@ -87,6 +88,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
@@ -536,6 +538,7 @@ public:
     void SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record);
     std::shared_ptr<UserTestRecord> GetUserTestInfo();
 
+    void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
     void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
     bool IsStartSpecifiedAbility() const;
     void ScheduleAcceptWant(const std::string &moduleName);
@@ -600,6 +603,9 @@ public:
     bool IsUpdateStateFromService();
 
     void SetUpdateStateFromService(bool isUpdateStateFromService);
+
+    ExtensionAbilityType GetExtensionType() const;
+    ProcessType GetProcessType() const;
 
 private:
     /**
@@ -705,6 +711,8 @@ private:
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;
+    ProcessType processType_ = ProcessType::NORMAL;
+    ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

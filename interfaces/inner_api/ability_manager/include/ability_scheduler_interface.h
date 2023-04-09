@@ -55,6 +55,13 @@ public:
         sptr<SessionInfo> sessionInfo = nullptr) = 0;
 
     /*
+     * ScheduleShareData,  schedule ability to share data.
+     *
+     * @param uniqueId, Indicates the uniqueId returned after the ability is started.
+     */
+    virtual void ScheduleShareData(const int32_t &uniqueId) = 0;
+
+    /*
      * SendResult, Send result to app when ability is terminated with result want.
      *
      * @param requestCode, the requestCode of the ability to start.
@@ -368,7 +375,9 @@ public:
         // block ability runner
         BLOCK_ABILITY_INNER,
 
-        SCHEDULE_CALL
+        SCHEDULE_CALL,
+        
+        SCHEDULE_SHARE_DATA
     };
 };
 }  // namespace AAFwk

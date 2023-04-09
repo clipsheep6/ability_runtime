@@ -38,6 +38,11 @@ bool AddResource(const std::string &path, const std::vector<std::string> &overla
     return true;
 }
 
+bool RemoveResource(const std::string &path, const std::vector<std::string> &overlayPaths)
+{
+    return true;
+}
+
 RState UpdateResConfig(ResConfig &resConfig)
 {
     return SUCCESS;

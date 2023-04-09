@@ -35,6 +35,12 @@ public:
     void AttachBaseContext(const std::shared_ptr<Context> &base);
 
     /**
+     * @brief Detach a attatched context.
+     *
+     */
+    void DetachBaseContext();
+
+    /**
      * Called when getting the ProcessInfo
      *
      * @return ProcessInfo

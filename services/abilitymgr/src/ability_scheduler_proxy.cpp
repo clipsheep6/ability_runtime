@@ -64,6 +64,31 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
     }
 }
 
+void AbilitySchedulerProxy::ScheduleShareData(const int32_t &uniqueId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32(uniqueId)) {
+        HILOG_ERROR("uniqueId write failed.");
+        return;
+    }
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote object is nullptr.");
+        return;
+    }
+    int32_t err = remote->SendRequest(IAbilityScheduler::SCHEDULE_SHARE_DATA, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("ScheduleShareData fail to SendRequest, err: %{public}d.", err);
+    }
+    return;
+}
+
 void AbilitySchedulerProxy::SendResult(int requestCode, int resultCode, const Want &resultWant)
 {
     MessageParcel data;

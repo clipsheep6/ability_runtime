@@ -142,6 +142,7 @@ public:
     {
         return;
     };
+    virtual void ScheduleShareData(const int32_t &uniqueId) {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

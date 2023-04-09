@@ -46,7 +46,7 @@ private:
     void ProcessActiveTimeOut(int64_t abilityRecordId);
     void ProcessInactiveTimeOut(int64_t abilityRecordId);
     void ProcessForegroundTimeOut(int64_t abilityRecordId);
-
+    void ProcessShareDataTimeOut(int64_t uniqueId);
 private:
     std::weak_ptr<AbilityManagerService> server_;
 };

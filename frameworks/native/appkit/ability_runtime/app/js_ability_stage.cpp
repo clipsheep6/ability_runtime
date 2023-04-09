@@ -118,7 +118,13 @@ JsAbilityStage::JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeRefer
     : jsRuntime_(jsRuntime), jsAbilityStageObj_(std::move(jsAbilityStageObj))
 {}
 
-JsAbilityStage::~JsAbilityStage() = default;
+JsAbilityStage::~JsAbilityStage()
+{
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+}
 
 void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
 {

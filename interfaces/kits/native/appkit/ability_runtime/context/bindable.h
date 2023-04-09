@@ -39,6 +39,13 @@ public:
         object_.reset();
     }
 
+    void Unbind()
+    {
+        if (object_) {
+            object_.release();
+        }
+    }
+
     Runtime& GetRuntime()
     {
         return runtime_;
@@ -68,6 +75,13 @@ public:
     void Bind(Runtime& runtime, T* object)
     {
         object_ = std::make_unique<BindingObject>(runtime, object);
+    }
+
+    void Unbind()
+    {
+        if (object_) {
+            object_->Unbind();
+        }
     }
 
     const std::unique_ptr<BindingObject>& GetBindingObject() const

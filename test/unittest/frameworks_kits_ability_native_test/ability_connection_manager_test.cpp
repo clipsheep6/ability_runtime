@@ -178,7 +178,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0500, TestSize.Level0)
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
     AAFwk::Want want;
     want.SetElementName("abc", "edf");
     int32_t accountId = -1;
@@ -209,7 +209,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0600, TestSize.Level0)
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
     AAFwk::Want want;
     want.SetElementName("abc", "edf");
     int32_t accountId = -1;
@@ -257,7 +257,9 @@ HWTEST_F(ConnectionManagerTest, IsConnectReceiverEqual_0100, TestSize.Level0)
     GTEST_LOG_(INFO) << "ConnectionManagerTest IsConnectReceiverEqual_0100 start";
     std::shared_ptr<OHOS::AbilityRuntime::ConnectionManager> mgr =
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
-    AppExecFwk::ElementName connectReceiver("deviceId", "bundleName", "abilityName", "");
+    AAFwk::Operation connectReceiver;
+    connectReceiver.SetBundleName("bundleName");
+    connectReceiver.SetAbilityName("abilityName");
     AppExecFwk::ElementName connectReceiverOther("deviceId", "bundleName", "abilityName", "");
     auto result = mgr->IsConnectReceiverEqual(connectReceiver, connectReceiverOther);
     EXPECT_TRUE(result);
@@ -279,8 +281,7 @@ HWTEST_F(ConnectionManagerTest, CreateConnection_0100, TestSize.Level0)
     AAFwk::Want want;
     int32_t accountId = 0;
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
-    AppExecFwk::ElementName connectReceiver;
-    auto result = mgr->CreateConnection(connectCallernew, want, accountId, connectCallback, connectReceiver);
+    auto result = mgr->CreateConnection(connectCallernew, want, accountId, connectCallback);
     EXPECT_EQ(result, AAFwk::CHECK_PERMISSION_FAILED);
     GTEST_LOG_(INFO) << "ConnectionManagerTest CreateConnection_0100 end";
 }
@@ -367,9 +368,12 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0500, TestSize.Level0)
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     sptr<AbilityConnectCallback> connectCallback = new (std::nothrow) MockAbilityConnectCallback();
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
     connectReceiver.SetBundleName("abc");
     connectReceiver.SetAbilityName("edf");
+    AppExecFwk::ElementName connectReceiverElement;
+    connectReceiverElement.SetBundleName("abc");
+    connectReceiverElement.SetAbilityName("edf");
     std::vector<sptr<AbilityConnectCallback>> callbacks;
     callbacks.emplace_back(connectCallback);
     sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
@@ -378,7 +382,7 @@ HWTEST_F(ConnectionManagerTest, DisconnectAbility_0500, TestSize.Level0)
     connectionInfo.connectReceiver.SetAbilityName("edf");
     connectionInfo.connectCaller = connectCaller;
     mgr->abilityConnections_.emplace(connectionInfo, callbacks);
-    auto result = mgr->DisconnectAbility(connectCaller, connectReceiver, connectCallback);
+    auto result = mgr->DisconnectAbility(connectCaller, connectReceiverElement, connectCallback);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectAbility_0500 end";
 }
@@ -425,7 +429,7 @@ HWTEST_F(ConnectionManagerTest, DisconnectCaller_0300, TestSize.Level0)
     std::shared_ptr<OHOS::AbilityRuntime::ConnectionManager> mgr =
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
     std::vector<sptr<AbilityConnectCallback>> callbacks;
     sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
     ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
@@ -445,13 +449,14 @@ HWTEST_F(ConnectionManagerTest, DisconnectReceiver_0100, TestSize.Level0)
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0100 start";
     std::shared_ptr<OHOS::AbilityRuntime::ConnectionManager> mgr =
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
-    AppExecFwk::ElementName connectReceiver;
+    AAFwk::Operation connectReceiver;
+    AppExecFwk::ElementName connectReceiverElement;
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     std::vector<sptr<AbilityConnectCallback>> callbacks;
     sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
     ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
     mgr->abilityConnections_.emplace(connectionInfo, callbacks);
-    auto result = mgr->DisconnectReceiver(connectReceiver);
+    auto result = mgr->DisconnectReceiver(connectReceiverElement);
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0100 end";
 }

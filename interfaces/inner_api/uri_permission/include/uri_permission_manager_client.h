@@ -32,32 +32,30 @@ public:
     ~UriPermissionManagerClient() = default;
 
     /**
-     * @brief Authorize the uri permission of fromTokenId to targetTokenId.
+     * @brief Authorize the uri permission of to targetBundleName.
      *
      * @param uri The file uri.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param fromTokenId The owner of uri.
-     * @param targetTokenId The user of uri.
+     * @param targetBundleName The user of uri.
+     * @param autoremove the uri is temperarily or not
      */
-    bool GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
-        const Security::AccessToken::AccessTokenID targetTokenId);
+    int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove);
 
     /**
-     * @brief Check whether the tokenId has URI permissions.
+     * @brief Clear user's uri authorization record with auto remove flag.
      *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param tokenId The user of uri.
-     * @return Returns true if the verification is successful, otherwise returns false.
+     * @param tokenId A tokenId of an application.
      */
-    bool VerifyUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID tokenId);
+    void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId);
 
     /**
      * @brief Clear user's uri authorization record.
      *
-     * @param tokenId A tokenId of an application.
+     * @param uri The file uri.
+     * @param BundleName A BundleName of an application.
      */
-    void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId);
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
 
 private:
     sptr<IUriPermissionManager> ConnectUriPermService();

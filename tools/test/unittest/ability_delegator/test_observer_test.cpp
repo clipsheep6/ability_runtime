@@ -133,6 +133,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0400, Function | MediumTest | Leve
 HWTEST_F(TestObserverTest, Test_Observer_Test_0500, Function | MediumTest | Level1)
 {
     HILOG_INFO("Test_Observer_Test_0500 is called");
-    TestObserver observer;
-    observer.TestStatus(MSG.c_str(), RESULT_CODE);
+    std::shared_ptr<TestObserver> observer = std::make_shared<TestObserver>();
+    ASSERT_NE(observer, nullptr);
+    observer->TestStatus(MSG.c_str(), RESULT_CODE);
 }

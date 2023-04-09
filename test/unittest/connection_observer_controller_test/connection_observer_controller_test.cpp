@@ -69,6 +69,7 @@ HWTEST_F(ConnectionObserverControllerTest, AddObserver_001, TestSize.Level1)
 HWTEST_F(ConnectionObserverControllerTest, RemoveObserver_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     sptr<IConnectionObserver> observer = nullptr;
     connectionObserverController->RemoveObserver(observer);
 }
@@ -84,6 +85,7 @@ HWTEST_F(ConnectionObserverControllerTest, RemoveObserver_001, TestSize.Level1)
 HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionConnected_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     ConnectionData data;
     connectionObserverController->NotifyExtensionConnected(data);
 }
@@ -99,6 +101,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionConnected_001, TestSiz
 HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionDisconnected_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     ConnectionData data;
     connectionObserverController->NotifyExtensionDisconnected(data);
 }
@@ -114,6 +117,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyExtensionDisconnected_001, Test
 HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityOpened_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     DlpStateData data;
     connectionObserverController->NotifyDlpAbilityOpened(data);
 }
@@ -129,6 +133,7 @@ HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityOpened_001, TestSize.
 HWTEST_F(ConnectionObserverControllerTest, NotifyDlpAbilityClosed_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     DlpStateData data;
     connectionObserverController->NotifyDlpAbilityClosed(data);
 }
@@ -160,6 +165,7 @@ HWTEST_F(ConnectionObserverControllerTest, GetObservers_001, TestSize.Level1)
 HWTEST_F(ConnectionObserverControllerTest, HandleRemoteDied_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     wptr<IRemoteObject> remote;
     connectionObserverController->HandleRemoteDied(remote);
 }
@@ -175,6 +181,7 @@ HWTEST_F(ConnectionObserverControllerTest, HandleRemoteDied_001, TestSize.Level1
 HWTEST_F(ConnectionObserverControllerTest, OnRemoteDied_001, TestSize.Level1)
 {
     auto connectionObserverController = std::make_shared<ConnectionObserverController>();
+    ASSERT_NE(connectionObserverController, nullptr);
     ConnectionObserverController::ObserverDeathRecipient::ObserverDeathHandler handler;
     auto observerDeathRecipient = std::make_shared<ConnectionObserverController::ObserverDeathRecipient>(handler);
     wptr<IRemoteObject> remote;
