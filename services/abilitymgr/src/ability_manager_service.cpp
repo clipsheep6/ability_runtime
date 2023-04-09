@@ -6301,6 +6301,7 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
 
 int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (freeInstallManager_ == nullptr) {
         HILOG_ERROR("freeInstallManager_ is nullptr.");
         return ERR_INVALID_VALUE;
