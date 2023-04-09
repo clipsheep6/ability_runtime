@@ -313,6 +313,11 @@ enum {
      * Result(2097210) for ecological rule control.
      */
     ERR_ECOLOGICAL_CONTROL_STATUS,
+
+    /**
+     * Result(2097211) for app jump interceptor.
+     */
+    ERR_APP_JUMP_INTERCEPTOR_STATUS,
 };
 
 enum {

@@ -41,6 +41,26 @@
       "value": "知道了"
     },
     {
+      "name": "message_title_jump_interceptor",
+      "value": "“%s”想要打开“%s”"
+    },
+    {
+      "name": "message_confirm_jump",
+      "value": "打开"
+    },
+    {
+      "name": "message_cancel_jump",
+      "value": "取消"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_desc",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_label",
+      "value": "JumpInterceptorDialog"
+    },
+    {
         "name": "message_recommendApps_selector",
         "value": "推荐的应用"
     },

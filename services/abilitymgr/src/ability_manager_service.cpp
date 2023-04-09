@@ -51,6 +51,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "os_account_manager_wrapper.h"
+#include "parameters.h"
 #include "permission_constants.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
@@ -302,6 +303,15 @@ bool AbilityManagerService::Init()
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+    bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
+        OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
+    HILOG_ERROR("GetBoolParameter -> isAppJumpEnabled:%{public}s", (isAppJumpEnabled ? "true" : "false"));
+    if (isAppJumpEnabled) {
+        HILOG_INFO("App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
+        interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
+    } else {
+        HILOG_INFO("App jump intercetor disabled");
+    }
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
@@ -414,7 +424,13 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
-
+    std::string callerPkg;
+    std::string targetPkg;
+    if (AbilityUtil::CheckJumpInterceptorWant(want, callerPkg, targetPkg)) {
+        HILOG_INFO("the call is from interceptor dialog, callerPkg:%{public}s, targetPkg:%{public}s",
+            callerPkg.c_str(), targetPkg.c_str());
+        AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
+    }
     int32_t ret = StartAbilityInner(want, callerToken, requestCode, -1, userId, true);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
