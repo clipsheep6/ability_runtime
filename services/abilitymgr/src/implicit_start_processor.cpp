@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 #include "implicit_start_processor.h"
 
+#include <string>
+
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "errors.h"
@@ -27,6 +29,8 @@ namespace AAFwk {
 using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
+const std::string STR_PC = "pc";
+const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -59,7 +63,6 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
 int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId)
 {
     HILOG_INFO("implicit start ability by type: %{public}d", request.callType);
-
     auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
 
@@ -85,23 +88,53 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         };
         return imp->CallStartAbilityInner(userId, targetWant, callBack, request.callType);
     };
-    if (dialogAppInfos.size() == 0) {
+
+    AAFwk::Want want;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    auto deviceType = sysDialogScheduler->GetDeviceType();
+    if (dialogAppInfos.size() == 0 && deviceType != STR_PC) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
-        Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
-        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
+    } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
+        std::vector<DialogAppInfo> dialogAllAppInfos;
+        request.want.SetType(TYPE_ONLY_MATCH_WILDCARD);
+        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos);
+        if (dialogAllAppInfos.size() == 0) {
+            Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
+            abilityMgr->StartAbility(want);
+            return ERR_IMPLICIT_START_ABILITY_FAIL;
+        }
+        if (ret != ERR_OK) {
+            HILOG_ERROR("generate ability request by action failed.");
+            return ret;
+        }
+        auto type = request.want.GetType();
+        want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
+            type, userId, request.callerToken);
+        IPCSkeleton::SetCallingIdentity(identity);
+        return abilityMgr->StartAbility(want, request.callerToken);
     }
 
+    //There is a default opening method or Only one application supports
     if (dialogAppInfos.size() == 1) {
         auto info = dialogAppInfos.front();
         HILOG_INFO("ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
-    HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-    Want want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (deviceType != STR_PC) {
+        HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
+        want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        // reset calling indentity
+        IPCSkeleton::SetCallingIdentity(identity);
+        return abilityMgr->StartAbility(want, request.callerToken);
+    }
+
+    HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
+    auto type = request.want.GetType();
+    want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return abilityMgr->StartAbility(want, request.callerToken);
@@ -133,9 +166,30 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
 
+    Want implicitwant;
+    implicitwant.SetAction(request.want.GetAction());
+    implicitwant.SetType(TYPE_ONLY_MATCH_WILDCARD);
+    std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
+        implicitwant, abilityInfoFlag, userId, implicitAbilityInfos, implicitExtensionInfos));
+    std::vector<std::string> infoNames;
+    std::vector<std::string> dialogIndoNames;
+    if(implicitAbilityInfos.size() != 0 && request.want.GetType() != TYPE_ONLY_MATCH_WILDCARD) {
+        for (auto implicitAbilityInfo : implicitAbilityInfos) {
+            infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
+                implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
+        }
+    }
     for (const auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
+        }
+        if (abilityInfos.size() > 1) {
+            if (std::find(infoNames.begin(), infoNames.end(),
+                (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
+                continue;
+            }
         }
         DialogAppInfo dialogAppInfo;
         dialogAppInfo.abilityName = info.name;
