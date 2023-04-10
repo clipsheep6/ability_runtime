@@ -18,10 +18,8 @@
 
 #include "configuration.h"
 #include "service_extension.h"
-
-class NativeReference;
-class NativeValue;
-class NativeObject;
+#include "native_engine/native_reference.h"
+#include "native_engine/native_value.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -162,6 +160,11 @@ private:
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
+};
+
+struct JsServiceExtensionDeleterObject {
+    std::unique_ptr<NativeReference> jsObj_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
 };
 }  // namespace AbilityRuntime

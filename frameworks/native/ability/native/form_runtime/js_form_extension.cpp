@@ -70,9 +70,50 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsFormExtension::~JsFormExtension()
 {
+    HILOG_DEBUG("Js form extension destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
+    }
+
+    auto& engine = jsRuntime_.GetNativeEngine();
+    auto loop = engine.GetUVLoop();
+    if (loop == nullptr) {
+        return;
+    }
+
+    auto work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return;
+    }
+
+    auto cb = new (std::nothrow) JsFormExtensionDeleterObject();
+    if (cb == nullptr) {
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    cb->jsObj_ = std::move(jsObj_);
+    cb->shellContextRef_ = std::move(shellContextRef_);
+    work->data = reinterpret_cast<void *>(cb);
+
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work != nullptr) {
+            if (work->data != nullptr) {
+                delete reinterpret_cast<JsFormExtensionDeleterObject *>(work->data);
+                work->data = nullptr;
+            }
+            delete work;
+            work = nullptr;
+        }
+    });
+    if (ret != 0) {
+        delete reinterpret_cast<JsFormExtensionDeleterObject *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
     }
 }
 

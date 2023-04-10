@@ -72,24 +72,18 @@ AbilityThread::AbilityThread()
 
 AbilityThread::~AbilityThread()
 {
-    wptr<AbilityThread> weak = this;
-    auto task = [weak]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            HILOG_ERROR("Ability thread is nullptr when destructor.");
-            return;
-        }
-
-        if (abilityThread->isExtension_) {
+    HILOG_DEBUG("Ability thread destructor.");
+    auto task = [this]() {
+        if (isExtension_) {
             HILOG_DEBUG("Destroy extension in main-thread");
-            if (abilityThread->currentExtension_) {
-                abilityThread->currentExtension_.reset();
+            if (currentExtension_) {
+                currentExtension_.reset();
             }
         } else {
             HILOG_DEBUG("Destroy ability in main-thread");
-            if (abilityThread->currentAbility_) {
-                abilityThread->currentAbility_->DetachBaseContext();
-                abilityThread->currentAbility_.reset();
+            if (currentAbility_) {
+                currentAbility_->DetachBaseContext();
+                currentAbility_.reset();
             }
         }
 
