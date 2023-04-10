@@ -107,18 +107,20 @@ void JsEnvironment::RemoveTask(const std::string& name)
     }
 }
 
-void JsEnvironment::InitSourceMap(const std::string& bundleCodeDir, bool isStageModel)
+void JsEnvironment::InitSourceMap(const std::shared_ptr<SourceMapOperatorImpl> operatorImpl)
 {
-    bindSourceMaps_ = std::make_shared<SourceMap>();
+    sourceMapOperator_ = std::make_shared<SourceMapOperator>(operatorImpl);
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
 {
-    if ((bindSourceMaps_ != nullptr) && (engine_ != nullptr)) {
-        bool isModular = !panda::JSNApi::IsBundle(vm_);
-        engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.hapPath,
-            uncaughtExceptionInfo.uncaughtTask, bindSourceMaps_, isModular));
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
     }
+
+    engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.uncaughtTask,
+        sourceMapOperator_));
 }
 
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)

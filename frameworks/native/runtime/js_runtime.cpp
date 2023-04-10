@@ -41,6 +41,7 @@
 #include "js_module_searcher.h"
 #include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
+#include "js_source_map_operator.h"
 #include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -507,8 +508,10 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
-            InitSourceMap(options);
+            auto bindSourceMaps = std::make_shared<JsEnv::SourceMap>();
+            bool isModular = !panda::JSNApi::IsBundle(vm);
+            auto operatorImpl = std::make_shared<JsSourceMapOperatorImpl>(options.hapPath, isModular, bindSourceMaps);
+            InitSourceMap(operatorImpl);
 
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
@@ -624,10 +627,10 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
     }
 }
 
-void JsRuntime::InitSourceMap(const Options& options)
+void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(options.bundleCodeDir, options.isStageModel);
+    jsEnv_->InitSourceMap(operatorImpl);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
 }
 
