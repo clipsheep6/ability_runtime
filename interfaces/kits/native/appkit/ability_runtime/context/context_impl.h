@@ -314,7 +314,8 @@ private:
     int GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
         std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
 
-    void OnOverlayChanged(const EventFwk::CommonEventData &data, const std::string &bundleName,
+    void OnOverlayChanged(const EventFwk::CommonEventData &data,
+        const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
         const std::string &moduleName, const std::string &loadPath);
     
     std::vector<std::string> GetAddOverlayPaths(

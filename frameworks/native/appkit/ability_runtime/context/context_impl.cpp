@@ -433,10 +433,10 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
                     EventFwk::MatchingSkills matchingSkills;
                     matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-                    auto callback = [this, bundleName = bundleInfo.name, moduleName = hapModuleInfo.moduleName, loadPath]
+                    auto callback = [this, resourceManager, bundleName = bundleInfo.name, moduleName = hapModuleInfo.moduleName, loadPath]
                         (const EventFwk::CommonEventData &data) {
                         HILOG_INFO("On overlay changed.");
-                        this->OnOverlayChanged(data, bundleName, moduleName, loadPath);
+                        this->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
                     };
                     auto subscriber = std::make_shared<AppExecFwk::OverlayEventSubscriber>(subscribeInfo, callback);
                     bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
@@ -723,7 +723,8 @@ std::vector<std::string> ContextImpl::GetRemoveOverlayPaths(
     return removePaths;
 }
 
-void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data, const std::string &bundleName,
+void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
+    const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
     const std::string &moduleName, const std::string &loadPath)
 {
     HILOG_DEBUG("OnOverlayChanged begin.");
@@ -739,7 +740,7 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data, const 
     }
     bool isEnable = data.GetWant().GetBoolParam(AppExecFwk::Constants::OVERLAY_STATE, false);
     // 1.get overlay hapPath
-    if (GetResourceManager() == nullptr) {
+    if (resourceManager == nullptr) {
         HILOG_ERROR("resourceManager is nullptr.");
         return;
     }
@@ -759,12 +760,12 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data, const 
     } else {
         if (isEnable) {
             std::vector<std::string> overlayPaths = GetAddOverlayPaths(overlayModuleInfos);
-            if (!GetResourceManager()->AddResource(loadPath, overlayPaths)) {
+            if (!resourceManager->AddResource(loadPath, overlayPaths)) {
                 HILOG_ERROR("AddResource failed");
             }
         } else {
             std::vector<std::string> overlayPaths = GetRemoveOverlayPaths(overlayModuleInfos);
-            if (!GetResourceManager()->RemoveResource(loadPath, overlayPaths)) {
+            if (!resourceManager->RemoveResource(loadPath, overlayPaths)) {
                 HILOG_ERROR("RemoveResource failed");
             }
         }
