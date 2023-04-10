@@ -3299,6 +3299,18 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
         HILOG_ERROR("napi_open_handle_scope failed");
         return;
     }
+
+    napi_value globalValue;
+    napi_get_global(cbInfo.env, &globalValue);
+    napi_value func;
+    napi_get_named_property(cbInfo.env, globalValue, "requireNapi", &func);
+
+    napi_value rpcInfo;
+    napi_create_string_utf8(cbInfo.env, "rpc", NAPI_AUTO_LENGTH, &rpcInfo);
+    napi_value funcArgv[1] = { rpcInfo };
+    napi_value returnValue;
+    napi_call_function(cbInfo.env, globalValue, func, 1, funcArgv, &returnValue);
+
     napi_value result[ARGS_TWO] = {nullptr};
     result[PARAM0] =
         WrapElementName(cbInfo.env, connectAbilityCB->abilityConnectionCB.elementName);
