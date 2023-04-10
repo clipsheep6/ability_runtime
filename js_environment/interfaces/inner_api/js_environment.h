@@ -68,7 +68,7 @@ private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
-    std::shared_ptr<AbilityRuntime::ModSourceMap> bindSourceMaps_;
+    std::shared_ptr<SourceMap> bindSourceMaps_;
 };
 } // namespace JsEnv
 } // namespace OHOS

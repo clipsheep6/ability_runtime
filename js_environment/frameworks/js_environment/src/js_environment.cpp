@@ -109,14 +109,15 @@ void JsEnvironment::RemoveTask(const std::string& name)
 
 void JsEnvironment::InitSourceMap(const std::string& bundleCodeDir, bool isStageModel)
 {
-    bindSourceMaps_ = std::make_shared<AbilityRuntime::ModSourceMap>(bundleCodeDir, isStageModel);
+    bindSourceMaps_ = std::make_shared<SourceMap>();
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
 {
     if ((bindSourceMaps_ != nullptr) && (engine_ != nullptr)) {
+        bool isModular = !panda::JSNApi::IsBundle(vm_);
         engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.hapPath,
-            uncaughtExceptionInfo.uncaughtTask, bindSourceMaps_));
+            uncaughtExceptionInfo.uncaughtTask, bindSourceMaps_, isModular));
     }
 }
 
