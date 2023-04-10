@@ -87,6 +87,11 @@ public:
      */
     virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) = 0;
 
+    /**
+     * SchedulePrepareTerminateAbility, schedule ability to prepare terminate.
+     */
+    virtual void SchedulePrepareTerminateAbility() {};
+
     /*
      * ScheduleSaveAbilityState, scheduling save ability state.
      */
@@ -305,6 +310,9 @@ public:
 
         // ipc id for scheduling service ability to command
         SCHEDULE_ABILITY_COMMAND,
+
+        // ipc id for scheduling service ability to prepare terminate
+        SCHEDULE_ABILITY_PREPARE_TERMINATE,
 
         // ipc id for scheduling save ability state
         SCHEDULE_SAVE_ABILITY_STATE,

@@ -940,6 +940,18 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
     HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
 }
 
+void AbilityThread::SchedulePrepareTerminateAbility()
+{
+    HILOG_DEBUG("AbilityThread::SchedulePrepareTerminateAbility begin");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("AbilityThread::SchedulePrepareTerminateAbility abilityImpl_ == nullptr");
+        return;
+    }
+
+    abilityImpl_->PrepareTerminateAbility();
+    HILOG_DEBUG("AbilityThread::SchedulePrepareTerminateAbility end");
+}
+
 /**
  * @brief Send the result code and data to be returned by this Page ability to the caller.
  * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
