@@ -124,6 +124,8 @@ constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 
+constexpr int32_t OVERLAY_FLAG = 0x40;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -1636,6 +1638,18 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
                 HILOG_ERROR("StartProcess PERMISSION_ACCESS_BUNDLE_DIR NOT GRANTED");
                 hasAccessBundleDirReq = false;
             }
+        }
+    }
+
+    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
+    if (overlayMgrProxy !=  nullptr) {
+        std::vector<OverlayModuleInfo> overlayModuleInfo;
+        HILOG_DEBUG("Check overlay app begin.");
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetOverlayModuleInfoForTarget");
+        auto ret = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
+        if (ret == ERR_OK && overlayModuleInfo.size() != 0) {
+            HILOG_DEBUG("Start an overlay app process.");
+            startFlags = (startFlags | OVERLAY_FLAG);
         }
     }
 
