@@ -56,7 +56,7 @@ std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(
         hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     renderRecord->SetHostUid(host->GetUid());
     renderRecord->SetHostBundleName(host->GetBundleName());
-
+    renderRecord->SetProcessName(host->GetProcessName());
     return renderRecord;
 }
 
@@ -93,6 +93,16 @@ void RenderRecord::SetHostBundleName(const std::string &hostBundleName)
 std::string RenderRecord::GetHostBundleName() const
 {
     return hostBundleName_;
+}
+
+void RenderRecord::SetProcessName(const std::string &hostProcessName)
+{
+    processName_ = hostProcessName;
+}
+
+std::string RenderRecord::GetProcessName() const
+{
+    return processName_;
 }
 
 std::string RenderRecord::GetRenderParam() const
@@ -1215,6 +1225,10 @@ std::shared_ptr<UserTestRecord> AppRunningRecord::GetUserTestInfo()
 
 void AppRunningRecord::SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo)
 {
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("abilityInfo is nullptr");
+        return;
+    }
     extensionType_ = abilityInfo->extensionAbilityType;
     if (extensionType_ == ExtensionAbilityType::UNSPECIFIED) {
         processType_ = ProcessType::NORMAL;

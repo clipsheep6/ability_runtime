@@ -32,6 +32,15 @@
         "label":"$string:TipsServiceExtAbility_label",
         "visible": true,
         "type": "service"
+      },
+      {
+        "name": "JumpInterceptorDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/JumpInterceptorServiceExtAbility.ts",
+        "description": "$string:JumpInterceptorServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:JumpInterceptorServiceExtAbility_label",
+        "visible": true,
+        "type": "service"
       }
     ],
     "metadata": [
@@ -46,6 +55,9 @@
       },
       {
         "name": "ohos.permission.START_ABILITIES_FROM_BACKGROUND"
+      },
+      {
+        "name": "ohos.permission.SET_DEFAULT_APPLICATION"
       }
     ]
   }

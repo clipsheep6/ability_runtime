@@ -16,6 +16,7 @@
 #include "js_free_install_observer.h"
 
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -61,6 +62,7 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleNam
                 it = jsObserverObjectList_.erase(it);
                 continue;
             }
+            FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, "StartFreeInstall", atoi(startTime.c_str()));
             NativeValue* value = (it->callback)->Get();
             NativeValue* argv[] = { CreateJsErrorByNativeErr(engine_, resultCode) };
             CallJsFunction(value, argv, ARGC_ONE);
@@ -98,6 +100,7 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, c
         }
     }
 
+    StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, "StartFreeInstall", atoi(startTime.c_str()));
     JsFreeInstallObserverObject object;
     object.bundleName = bundleName;
     object.abilityName = abilityName;

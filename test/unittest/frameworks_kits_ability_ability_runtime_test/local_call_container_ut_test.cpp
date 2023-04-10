@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -371,6 +371,75 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnAbilityConnectDone_0300,
     OHOS::sptr<OHOS::IRemoteObject> remoteObject = new (std::nothrow) MockServiceAbilityManagerService();
 
     localCallContainer.OnAbilityConnectDone(elementName, remoteObject, 0);
+    EXPECT_EQ(callback->isCallBack_, false);
+}
+
+/**
+ * @tc.number: Local_Call_Container_OnRemoteStateChanged_0100
+ * @tc.name: OnRemoteStateChanged
+ * @tc.desc: Local Call Container to process OnRemoteStateChanged, and the result is success resultCode == ERR_OK.
+ */
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnRemoteStateChanged_0100, Function | MediumTest | Level1)
+{
+    LocalCallContainer localCallContainer;
+
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
+    localCallRecord->AddCaller(callback);
+    localCallRecord->callers_.emplace_back(callback);
+
+    std::string uri = elementName.GetURI();
+    localCallContainer.callProxyRecords_.emplace(uri, localCallRecord);
+    OHOS::sptr<OHOS::IRemoteObject> remoteObject = new (std::nothrow) MockServiceAbilityManagerService();
+    localCallContainer.OnAbilityConnectDone(elementName, remoteObject, 0);
+
+    localCallContainer.OnRemoteStateChanged(elementName, 0);
+    EXPECT_EQ(callback->isCallBack_, true);
+}
+
+/**
+ * @tc.number: Local_Call_Container_OnRemoteStateChanged_0200
+ * @tc.name: OnRemoteStateChanged
+ * @tc.desc: Local Call Container to process OnRemoteStateChanged success when resultCode != ERR_OK.
+ */
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnRemoteStateChanged_0200, Function | MediumTest | Level1)
+{
+    LocalCallContainer localCallContainer;
+
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
+    localCallRecord->AddCaller(callback);
+    localCallRecord->callers_.emplace_back(callback);
+
+    std::string uri = elementName.GetURI();
+    localCallContainer.callProxyRecords_.emplace(uri, localCallRecord);
+    OHOS::sptr<OHOS::IRemoteObject> remoteObject = new (std::nothrow) MockServiceAbilityManagerService();
+    localCallContainer.OnAbilityConnectDone(elementName, remoteObject, 0);
+
+    localCallContainer.OnRemoteStateChanged(elementName, -1);
+    EXPECT_EQ(callback->isCallBack_, true);
+}
+
+/**
+ * @tc.number: Local_Call_Container_OnRemoteStateChanged_0300
+ * @tc.name: OnRemoteStateChanged
+ * @tc.desc: Local Call Container to process OnRemoteStateChanged fail because localCallRecord is null.
+ */
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnRemoteStateChanged_0300, Function | MediumTest | Level1)
+{
+    LocalCallContainer localCallContainer;
+
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    EXPECT_EQ(callback->isCallBack_, false);
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
+    localCallRecord->AddCaller(callback);
+
+    localCallContainer.OnRemoteStateChanged(elementName, 0);
     EXPECT_EQ(callback->isCallBack_, false);
 }
 

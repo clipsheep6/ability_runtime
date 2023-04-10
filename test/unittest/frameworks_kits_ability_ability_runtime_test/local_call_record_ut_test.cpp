@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,8 @@ using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
 
 namespace {
+constexpr int32_t FOREGROUND = 2;
+constexpr int32_t BACKGROUND = 4;
 }
 
 class LocalCallRecordTest : public testing::Test {
@@ -270,6 +272,77 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_InvokeCallBack_0400, Function | 
     EXPECT_TRUE(callback->IsCallBack() == false);
     localCallRecord.callers_.emplace_back(nullptr);
     localCallRecord.InvokeCallBack();
+    EXPECT_TRUE(callback->IsCallBack() == false);
+}
+
+/**
+* @tc.number: Local_Call_Record_NotifyRemoteStateChanged_0100
+* @tc.name: NotifyRemoteStateChanged
+* @tc.desc: LocalCallRecord to process NotifyRemoteStateChanged success.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_NotifyRemoteStateChanged_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.remoteObject_ = new (std::nothrow) MockServiceAbilityManagerService();
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
+    EXPECT_TRUE(callback->IsCallBack() == false);
+    localCallRecord.callers_.emplace_back(callback);
+    localCallRecord.InvokeCallBack();
+    int32_t abilityState = FOREGROUND;
+    localCallRecord.NotifyRemoteStateChanged(abilityState);
+    EXPECT_TRUE(callback->IsCallBack() == true);
+}
+
+/**
+* @tc.number: Local_Call_Record_NotifyRemoteStateChanged_0200
+* @tc.name: NotifyRemoteStateChanged
+* @tc.desc: LocalCallRecord to process NotifyRemoteStateChanged fail because remote is null.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_NotifyRemoteStateChanged_0200, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    EXPECT_TRUE(callback->IsCallBack() == false);
+    int32_t abilityState = FOREGROUND;
+    localCallRecord.NotifyRemoteStateChanged(abilityState);
+    EXPECT_TRUE(callback->IsCallBack() == false);
+}
+
+/**
+* @tc.number: Local_Call_Record_NotifyRemoteStateChanged_0300
+* @tc.name: NotifyRemoteStateChanged
+* @tc.desc: LocalCallRecord to process NotifyRemoteStateChanged fail because callers_ is empty.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_NotifyRemoteStateChanged_0300, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.remoteObject_ = new (std::nothrow) MockServiceAbilityManagerService();
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    EXPECT_TRUE(callback->IsCallBack() == false);
+    int32_t abilityState = BACKGROUND;
+    localCallRecord.NotifyRemoteStateChanged(abilityState);
+    EXPECT_TRUE(callback->IsCallBack() == false);
+}
+
+/**
+* @tc.number: Local_Call_Record_NotifyRemoteStateChanged_0400
+* @tc.name: NotifyRemoteStateChanged
+* @tc.desc: LocalCallRecord to process NotifyRemoteStateChanged fail because call back is null.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_NotifyRemoteStateChanged_0400, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.remoteObject_ = new (std::nothrow) MockServiceAbilityManagerService();
+    std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
+    EXPECT_TRUE(callback->IsCallBack() == false);
+    localCallRecord.callers_.emplace_back(nullptr);
+    int32_t abilityState = 0;
+    localCallRecord.NotifyRemoteStateChanged(abilityState);
     EXPECT_TRUE(callback->IsCallBack() == false);
 }
 

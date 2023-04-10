@@ -35,6 +35,26 @@
     {
       "name": "message_close_tips",
       "value": "Got it"
+    },
+    {
+      "name": "message_title_jump_interceptor",
+      "value": "\"%s\" wants to open \"%s\""
+    },
+    {
+      "name": "message_confirm_jump",
+      "value": "Open"
+    },
+    {
+      "name": "message_cancel_jump",
+      "value": "Cancel"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_desc",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_label",
+      "value": "JumpInterceptorDialog"
     }
   ]
 }

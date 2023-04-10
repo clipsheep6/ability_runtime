@@ -42,6 +42,7 @@
       *ControlInterceptor*;
       *CrowdTestInterceptor*;
       *EcologicalRuleInterceptor*;
+      *AbilityJumpInterceptor*;
       *DataAbilityManager*;
       *FreeInstallManager*;
       *FreeInstallObserverManager*;

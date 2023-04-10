@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,15 +38,20 @@ const int32_t UI_SELECTOR_DIALOG_PHONE_H1 = 240 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H2 = 340 * 2;
 const int32_t UI_SELECTOR_DIALOG_PHONE_H3 = 350 * 2;
 const int32_t UI_SELECTOR_DIALOG_PC_H0 = 1;
-const int32_t UI_SELECTOR_DIALOG_PC_H2 = (70 * 2 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H3 = (70 * 3 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H4 = (70 * 4 + 85 + 2) * 2;
-const int32_t UI_SELECTOR_DIALOG_PC_H5 = (70 * 4 + 85 + 38) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H2 = (64 * 2 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
 
 const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 135 * 2;
 const int32_t UI_TIPS_DIALOG_WIDTH_NARROW = 328 * 2;
+
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT = 135 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT_NARROW = 135 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH_NARROW = 328 * 2;
 
 const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
@@ -56,6 +61,8 @@ const std::string OFF_SET_X = "offsetX";
 const std::string OFF_SET_Y = "offsetY";
 const std::string WIDTH = "width";
 const std::string HEIGHT = "height";
+const std::string MODEL_FLAG = "modelFlag";
+const std::string ACTION = "action";
 
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
@@ -68,6 +75,7 @@ const std::string STR_PC = "pc";
 const std::string DIALOG_NAME_ANR = "dialog_anr_service";
 const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
 const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
+const std::string DIALOG_JUMP_INTERCEPTOR_NAME = "dialog_jump_interceptor_service";
 
 const std::string BUNDLE_NAME = "bundleName";
 const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
@@ -77,6 +85,8 @@ const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string CALLER_TOKEN = "callerToken";
+const std::string ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
+const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
@@ -141,6 +151,27 @@ Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerT
     return want;
 }
 
+Want SystemDialogScheduler::GetJumpInterceptorDialogWant(Want &targetWant)
+{
+    HILOG_DEBUG("GetJumpInterceptorDialogWant start");
+
+    DialogPosition position;
+    GetDialogPositionAndSize(DialogType::DIALOG_JUMP_INTERCEPTOR, position);
+
+    nlohmann::json jsonObj;
+    jsonObj[DEVICE_TYPE] = deviceType_;
+    jsonObj["bundleName"] = targetWant.GetElement().GetBundleName();
+    jsonObj["abilityName"] = targetWant.GetElement().GetAbilityName();
+    jsonObj["moduleName"] = targetWant.GetElement().GetModuleName();
+    const std::string params = jsonObj.dump();
+
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG);
+    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    targetWant.SetParam(DIALOG_PARAMS, params);
+    targetWant.GetStringParam(DIALOG_PARAMS);
+    return targetWant;
+}
+
 Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
     const sptr<IRemoteObject> &callerToken)
 {
@@ -175,6 +206,57 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
         aObj["module"] = aInfo.moduleName;
+        hapListObj.emplace_back(aObj);
+    }
+    jsonObject["hapList"] = hapListObj;
+
+    return jsonObject.dump();
+}
+
+Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
+    Want &targetWant, const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("GetPcSelectorDialogWant start");
+    DialogPosition position;
+    GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
+
+    std::string params = GetPcSelectorParams(dialogAppInfos, type, userId, targetWant.GetAction());
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    targetWant.SetParam(DIALOG_PARAMS, params);
+    targetWant.SetParam(CALLER_TOKEN, callerToken);
+
+    return targetWant;
+}
+
+const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
+    const std::string &type, int32_t userId, const std::string &action) const
+{
+    HILOG_DEBUG("GetPcSelectorParams start");
+    if (infos.empty()) {
+        HILOG_WARN("Invalid abilityInfos.");
+        return {};
+    }
+
+    nlohmann::json jsonObject;
+    jsonObject[DEVICE_TYPE] = deviceType_;
+    jsonObject[ACTION] = action;
+    if (type == TYPE_ONLY_MATCH_WILDCARD) {
+        jsonObject[MODEL_FLAG] = true;
+    } else {
+        jsonObject[MODEL_FLAG] = false;
+    }
+
+    nlohmann::json hapListObj = nlohmann::json::array();
+    for (const auto &info : infos) {
+        nlohmann::json aObj;
+        aObj["label"] = std::to_string(info.labelId);
+        aObj["icon"] = std::to_string(info.iconId);
+        aObj["bundle"] = info.bundleName;
+        aObj["ability"] = info.abilityName;
+        aObj["module"] = info.moduleName;
+        aObj["type"] = type;
+        aObj["userId"] = std::to_string(userId);
         hapListObj.emplace_back(aObj);
     }
     jsonObject["hapList"] = hapListObj;
@@ -228,6 +310,12 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
             position.width_narrow = UI_TIPS_DIALOG_WIDTH_NARROW;
             position.height_narrow = UI_TIPS_DIALOG_HEIGHT_NARROW;
             break;
+        case DialogType::DIALOG_JUMP_INTERCEPTOR:
+            position.width = UI_JUMP_INTERCEPTOR_DIALOG_WIDTH;
+            position.height = UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT;
+            position.width_narrow = UI_JUMP_INTERCEPTOR_DIALOG_WIDTH_NARROW;
+            position.height_narrow = UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT_NARROW;
+            break;
         default:
             position.width = UI_DEFAULT_WIDTH;
             position.height = UI_DEFAULT_HEIGHT;
@@ -240,7 +328,7 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
 void SystemDialogScheduler::DialogPositionAdaptive(DialogPosition &position, int lineNums) const
 {
     if (position.wideScreen) {
-        if (lineNums == LINE_NUMS_TWO) {
+        if (lineNums <= LINE_NUMS_TWO) {
             position.height = UI_SELECTOR_DIALOG_PC_H2;
         } else if (lineNums == LINE_NUMS_THREE) {
             position.height = UI_SELECTOR_DIALOG_PC_H3;
