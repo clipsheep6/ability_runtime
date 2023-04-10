@@ -29,6 +29,7 @@ class RSSurfaceNode;
 Rect g_Rect;
 SystemBarProperty g_SystemBarProperty;
 Transform g_Transform;
+KeyboardAnimationConfig g_KeyboardAnimationConfig;
 class MockWindow : public Window {
 public:
     MockWindow() = default;
@@ -157,6 +158,7 @@ public:
     virtual WMError SetAspectRatio(float ratio) {return WMError::WM_OK;}
     virtual WMError ResetAspectRatio() {return WMError::WM_OK;}
     virtual WMError SetWindowGravity(WindowGravity gravity, uint32_t percent) {return WMError::WM_OK;}
+    virtual KeyboardAnimationConfig GetKeyboardAnimationConfig() {return g_KeyboardAnimationConfig;};
 };
 }
 }
