@@ -233,6 +233,20 @@ public:
     }
 
     /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(
+        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr)
+    {
+        return 0;
+    }
+
+    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -1133,6 +1147,8 @@ public:
 
         // ipc id for connect ui extension ability
         CONNECT_UI_EXTENSION_ABILITY,
+
+        PREPARE_TERMINATE_ABILITY,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
