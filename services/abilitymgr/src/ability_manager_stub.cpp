@@ -160,6 +160,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
     requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
     requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
+    requestFuncMap_[PREPARE_TERMINATE_ABILITY] = &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
@@ -228,6 +229,22 @@ int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, Me
     int resultCode = data.ReadInt32();
     Want *resultWant = data.ReadParcelable<Want>();
     int32_t result = TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    int32_t result = PrepareTerminateAbility(token, resultCode, resultWant);
     reply.WriteInt32(result);
     if (resultWant != nullptr) {
         delete resultWant;
