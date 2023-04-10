@@ -133,6 +133,8 @@ private:
     void InitSourceMap(const Options& options);
     bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
     inline bool IsUseAbilityRuntime(const Options& options) const;
+    bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
+        const DebuggerPostTask& debuggerPostTask = {});
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -134,5 +134,17 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
+
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
+    const DebuggerPostTask& debuggerPostTask)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
+    return true;
+}
 } // namespace JsEnv
 } // namespace OHOS

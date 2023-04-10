@@ -64,6 +64,10 @@ public:
 
     void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
+
+    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
+        const DebuggerPostTask& debuggerPostTask = {});
+
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

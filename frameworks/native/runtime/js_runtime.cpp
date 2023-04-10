@@ -247,27 +247,28 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         return;
     }
 
-    auto vm = GetEcmaVm();
-    CHECK_POINTER(vm);
-
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-
-    HdcRegister::Get().StartHdcRegister(bundleName_);
-    ConnectServerManager::Get().StartConnectServer(bundleName_);
-    ConnectServerManager::Get().AddInstance(instanceId_);
-    StartDebuggerInWorkerModule();
-
     auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
         eventHandler->PostTask(task);
     };
-    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm, needBreakPoint, instanceId_, debuggerPostTask);
 
-    debugMode_ = true;
+    debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
+}
+
+bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
+    const DebuggerPostTask& debuggerPostTask)
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    HdcRegister::Get().StartHdcRegister(bundleName);
+    ConnectServerManager::Get().StartConnectServer(bundleName);
+    ConnectServerManager::Get().AddInstance(instanceId);
+    StartDebuggerInWorkerModule();
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
