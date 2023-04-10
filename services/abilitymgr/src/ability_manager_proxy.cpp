@@ -496,6 +496,45 @@ int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemo
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &token, int resultCode,
+    const Want *resultWant)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (token) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+            HILOG_ERROR("flag and token write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
+        HILOG_ERROR("data write failed.");
+        return INNER_ERR;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::PREPARE_TERMINATE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     return TerminateAbility(token, resultCode, resultWant, true);

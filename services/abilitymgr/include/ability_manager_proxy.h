@@ -171,6 +171,18 @@ public:
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(
+        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
+
     /**
      * TerminateAbility, terminate the special ability.
      *

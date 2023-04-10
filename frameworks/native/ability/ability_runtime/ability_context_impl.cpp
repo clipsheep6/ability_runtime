@@ -427,6 +427,17 @@ ErrCode AbilityContextImpl::CloseAbility()
     return err;
 }
 
+ErrCode AbilityContextImpl::PrepareTerminateSelf()
+{
+    HILOG_DEBUG("AbilityContextImpl::PrepareTerminateSelf begin.");
+    AAFwk::Want resultWant;
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->PrepareTerminateAbility(token_, -1, &resultWant);
+    if (err != ERR_OK) {
+        HILOG_ERROR("AbilityContextImpl::PrepareTerminateSelf is failed %{public}d", err);
+    }
+    return err;
+}
+
 sptr<IRemoteObject> AbilityContextImpl::GetToken()
 {
     return token_;
