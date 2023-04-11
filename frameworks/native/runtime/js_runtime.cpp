@@ -51,7 +51,6 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
-#include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "source_map.h"
 
@@ -516,7 +515,7 @@ bool JsRuntime::Initialize(const Options& options)
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
             } else {
-                JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(nativeEngine));
+                InitTimerModule(*nativeEngine, *globalObj);
             }
 
             InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
