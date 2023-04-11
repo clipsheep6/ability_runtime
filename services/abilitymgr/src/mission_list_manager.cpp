@@ -1134,16 +1134,17 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         handler->PostTask(task);
     } else {
         auto task = [self, abilityRecord, state]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
+                HILOG_WARN("Mission list mgr is invalid.");
+                return;
+            }
             if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
                 HILOG_INFO("Window was freezed.");
                 if (abilityRecord != nullptr) {
                     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+                    selfObj->TerminatePreviousAbility(abilityRecord);
                 }
-                return;
-            }
-            auto selfObj = self.lock();
-            if (!selfObj) {
-                HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
             selfObj->CompleteForegroundFailed(abilityRecord, state);
