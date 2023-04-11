@@ -1186,6 +1186,11 @@ private:
     ComponentRequest initComponentRequest(const sptr<IRemoteObject> &callerToken = nullptr,
         const int requestCode = -1, const int componentStatus = 0);
 
+    bool CheckProxyComponent(const Want &want, const int result);
+
+    bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
+        int &result);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
