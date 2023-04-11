@@ -272,7 +272,11 @@ bool AbilityJumpInterceptor::CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, con
         HILOG_ERROR("GetBundleNameForUid from bms fail.");
         return false;
     }
-    if (CheckIfIntercept(bms, controlRule, userId)) {
+    if (controlRule.callerPkg == controlRule.targetPkg) {
+        HILOG_INFO("jump within the same app.");
+        return false;
+    }
+    if (CheckIfJumpExempt(bms, controlRule, userId)) {
         HILOG_INFO("jump from or to system or exempt apps");
         return false;
     }
@@ -292,41 +296,35 @@ bool AbilityJumpInterceptor::CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, con
     return controlRule.jumpMode != AppExecFwk::AbilityJumpMode::DIRECT;
 }
 
-bool AbilityJumpInterceptor::CheckIfIntercept(sptr<AppExecFwk::IBundleMgr> &bms,
+bool AbilityJumpInterceptor::CheckIfJumpExempt(sptr<AppExecFwk::IBundleMgr> &bms,
     AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
-    int callerUid = IPCSkeleton::GetCallingUid();
-    if (bms->CheckIsSystemAppByUid(callerUid)) {
-        HILOG_INFO("Jump From SystemApp, No need to intercept");
-        return true;
-    }
-    if (VerifyPermissionByBundleName(bms, controlRule.callerPkg,
+    if (CheckIfExemptByBundleName(bms, controlRule.callerPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_CALLER, userId)) {
-        HILOG_INFO("Jump From exempt caller app, No need to intercept");
+        HILOG_INFO("Jump from exempt caller app, No need to intercept");
         return true;
     }
-    int targetUid = bms->GetUidByBundleName(controlRule.targetPkg, userId);
-    if (bms->CheckIsSystemAppByUid(targetUid)) {
-        HILOG_INFO("Jump To SystemApp, No need to intercept");
-        return true;
-    }
-    if (VerifyPermissionByBundleName(bms, controlRule.targetPkg,
+    if (CheckIfExemptByBundleName(bms, controlRule.targetPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_TARGET, userId)) {
-        HILOG_INFO("Jump From exempt target app, No need to intercept");
+        HILOG_INFO("Jump to exempt target app, No need to intercept");
         return true;
     }
     HILOG_INFO("Third-party apps jump to third-party apps");
     return false;
 }
 
-bool AbilityJumpInterceptor::VerifyPermissionByBundleName(sptr<AppExecFwk::IBundleMgr> &bms,
+bool AbilityJumpInterceptor::CheckIfExemptByBundleName(sptr<AppExecFwk::IBundleMgr> &bms,
     const std::string &bundleName, const std::string &permission, int32_t userId)
 {
     AppExecFwk::ApplicationInfo appInfo;
     if (!IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
         userId, appInfo))) {
-        HILOG_DEBUG("VerifyPermission failed to get application info");
+        HILOG_ERROR("VerifyPermission failed to get application info");
         return false;
+    }
+    if (appInfo.isSystemApp) {
+        HILOG_INFO("bundle:%{public}s is system app", bundleName.c_str());
+        return true;
     }
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
     if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {

@@ -75,9 +75,9 @@ public:
 private:
     bool CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, const Want &want, int32_t userId,
         AppExecFwk::AppJumpControlRule &controlRule);
-    bool CheckIfIntercept(sptr<AppExecFwk::IBundleMgr> &bms, AppExecFwk::AppJumpControlRule &controlRule,
+    bool CheckIfJumpExempt(sptr<AppExecFwk::IBundleMgr> &bms, AppExecFwk::AppJumpControlRule &controlRule,
         int32_t userId);
-    bool VerifyPermissionByBundleName(sptr<AppExecFwk::IBundleMgr> &bms, const std::string &bundleName,
+    bool CheckIfExemptByBundleName(sptr<AppExecFwk::IBundleMgr> &bms, const std::string &bundleName,
         const std::string &permission, int32_t userId);
     bool LoadAppLabelInfo(sptr<AppExecFwk::IBundleMgr> &bms, Want &want, AppExecFwk::AppJumpControlRule &controlRule,
         int32_t userId);
