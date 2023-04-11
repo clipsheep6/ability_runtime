@@ -19,9 +19,22 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "js_runtime_utils.h"
+#include "js_napi_common_ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+class JsParticleAbility : public JsNapiCommon {
+public:
+    JsParticleAbility() = default;
+    ~JsParticleAbility() = default;
+    Ability* GetAbility(napi_env env);
+    static void Finalizer(NativeEngine *engine, void *data, void *hint);
+    static NativeValue* PAConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PADisConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PAStartAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* PATerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
+};
 /**
  * @brief ParticleAbility NAPI module registration.
  *
@@ -31,6 +44,7 @@ namespace AppExecFwk {
  * @return The return value from Init is treated as the exports object for the module.
  */
 napi_value ParticleAbilityInit(napi_env env, napi_value exports);
+NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H */

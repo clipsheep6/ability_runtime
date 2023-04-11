@@ -15,6 +15,10 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
+
+#include <mutex>
+#include <list>
+
 #include "ability_connect_callback_stub.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
@@ -239,40 +243,40 @@ napi_value TerminateAbilityAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 
+enum {
+    CONNECTION_STATE_DISCONNECTED = -1,
+
+    CONNECTION_STATE_CONNECTED = 0,
+
+    CONNECTION_STATE_CONNECTING = 1
+};
+
+struct ConnectionCallback {
+    napi_env env;
+    napi_ref connectCallbackRef;
+    napi_ref disconnectCallbackRef;
+    napi_ref failedCallbackRef;
+};
+
 class NAPIAbilityConnection : public AAFwk::AbilityConnectionStub {
 public:
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void SetEnv(const napi_env &env);
-    void SetConnectCBRef(const napi_ref &ref);
-    void SetDisconnectCBRef(const napi_ref &ref);
+    void AddConnectionCallback(const ConnectionCallback &callback);
+    void HandleOnAbilityConnectDone(const ConnectionCallback &callback, int resultCode);
+    void HandleOnAbilityDisconnectDone(const ConnectionCallback &callback, int resultCode);
+    int GetConnectionState() const;
+    void SetConnectionState(int connectionState);
+    size_t GetCallbackSize();
 
 private:
-    napi_env env_;
-    napi_ref connectRef_;
-    napi_ref disconnectRef_;
+    std::list<ConnectionCallback> callbacks_;
+    AppExecFwk::ElementName element_;
+    sptr<IRemoteObject> serviceRemoteObject_ = nullptr;
+    int connectionState_ = CONNECTION_STATE_DISCONNECTED;
+    mutable std::mutex lock_;
 };
-
-/**
- * @brief connectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_ConnectAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
-
-/**
- * @brief disconnectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_DisConnectAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 /**
  * @brief acquireDataAbilityHelper processing function.
@@ -319,12 +323,12 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
 
 bool CheckAbilityType(const CBBase *cbBase);
 
-struct ConnecttionKey {
+struct ConnectionKey {
     Want want;
     int64_t id;
 };
 struct key_compare {
-    bool operator()(const ConnecttionKey &key1, const ConnecttionKey &key2) const
+    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
     {
         if (key1.id < key2.id) {
             return true;
@@ -332,7 +336,8 @@ struct key_compare {
         return false;
     }
 };
-static std::map<ConnecttionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
+static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
+static std::recursive_mutex connectionsLock_;
 static int64_t serialNumber_ = 0;
 enum ErrorCode {
     NO_ERROR = 0,

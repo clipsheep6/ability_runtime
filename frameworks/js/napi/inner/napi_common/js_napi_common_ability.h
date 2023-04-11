@@ -122,7 +122,11 @@ public:
     bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
     bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options);
     std::string ConvertErrorCode(int32_t errCode);
-
+    void GenerateCallback(const napi_env &env, const napi_value &arg1, ConnectionCallback &callback);
+    sptr<NAPIAbilityConnection> FindConnectionLocked(const Want &want, int64_t &id);
+    bool CreateConnectionAndConnectAbilityLocked(
+        const ConnectionCallback &callback, const Want &want, int64_t &id);
+    void RemoveConnectionLocked(const Want &want);
     Ability *ability_;
 };
 }  // namespace AppExecFwk

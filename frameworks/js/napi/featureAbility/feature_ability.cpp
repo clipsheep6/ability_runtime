@@ -1554,36 +1554,6 @@ napi_value NAPI_AcquireDataAbilityHelper(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief FeatureAbility NAPI method : connectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_FAConnectAbility(napi_env env, napi_callback_info info)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("FA connect ability called.");
-    return NAPI_ConnectAbilityCommon(env, info, AbilityType::PAGE);
-}
-
-/**
- * @brief FeatureAbility NAPI method : disConnectAbility.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_FADisConnectAbility(napi_env env, napi_callback_info info)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("FA disconnect ability called.");
-    return NAPI_DisConnectAbilityCommon(env, info, AbilityType::PAGE);
-}
-
-/**
  * @brief FeatureAbility NAPI method : continueAbility.
  *
  * @param env The environment that the Node-API call is invoked under.

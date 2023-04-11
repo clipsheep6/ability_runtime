@@ -173,6 +173,7 @@ struct DAHelperInsertCB {
     int execResult;
 };
 
+struct ConnectionCallback;
 class NAPIAbilityConnection;
 struct AbilityConnectionCB {
     napi_env env;
