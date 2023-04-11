@@ -487,6 +487,21 @@ void JsAbility::OnBackground()
     HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
+int JsAbility::OnPrepareTerminate()
+{
+    HILOG_DEBUG("luc008,OnPrepareTerminate begin, ability is %{public}s.", GetAbilityName().c_str());
+    Ability::OnPrepareTerminate();
+    NativeValue *jsValue = CallObjectMethod("onPrepareTerminate", nullptr, 0, true);
+    auto numberValue = ConvertNativeValueTo<NativeBoolean>(jsValue);
+    if (numberValue == nullptr) {
+        HILOG_ERROR("luc008,OnPrepareTerminate, numberValue == nullptr.");
+        return 0;
+    }
+    int value = (int)(*numberValue);
+    HILOG_DEBUG("luc008,OnPrepareTerminate end, ability is %{public}s, ret=%{public}d.", GetAbilityName().c_str(), value);
+    return value;
+}
+
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
     HandleScope handleScope(jsRuntime_);

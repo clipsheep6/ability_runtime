@@ -328,6 +328,12 @@ public:
     void BackgroundAbility(const Closure &task);
 
     /**
+     * prepare terminate ability.
+     *
+     */
+    int PrepareTerminateAbility();
+
+    /**
      * terminate ability.
      *
      * @return Returns ERR_OK on success, others on failure.

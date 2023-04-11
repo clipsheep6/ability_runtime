@@ -927,6 +927,25 @@ void AbilityManagerClient::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &
     CHECK_POINTER_RETURN(abms);
     abms->CompleteFirstFrameDrawing(abilityToken);
 }
+
+ErrCode AbilityManagerClient::PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+    sptr<IPrepareTerminateCallback> &callback)
+{
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is null!");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("luc001,Prepare terminate ability come.");
+    int ret = abms->PrepareTerminateAbility(token, callback);
+    if (callback == nullptr) {
+        HILOG_INFO("luc001',callback==nullptr.");
+    } else {
+        HILOG_INFO("luc001',callback!=nullptr.");
+    }
+    return ret;
+}
 #endif
 
 ErrCode AbilityManagerClient::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)

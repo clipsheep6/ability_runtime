@@ -1,0 +1,5 @@
+{
+    "prepare_terminate_config":{
+        "ams_prepare_terminate_enable": "false"
+    }
+}

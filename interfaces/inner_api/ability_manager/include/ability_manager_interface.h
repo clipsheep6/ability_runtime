@@ -47,6 +47,7 @@
 #include "uri.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
+#include "iprepare_terminate_callback_interface.h"
 #endif
 
 namespace OHOS {
@@ -614,6 +615,18 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) = 0;
+
+    /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param callback callback.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback)
+    {
+        return 0;
+    }
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) = 0;
@@ -1189,6 +1202,8 @@ public:
         
         ACQUIRE_SHARE_DATA = 4001,
         SHARE_DATA_DONE = 4002,
+
+        PREPARE_TERMINATE_ABILITY,
     };
 };
 }  // namespace AAFwk
