@@ -392,7 +392,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
             if (currentBundle) {
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
-            } else if (bundleInfo.applicationInfo.compatiblePolicy != AppExecFwk::CompatiblePolicy::NORMAL) {
+            } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::SHARED) {
                 loadPath = std::regex_replace(loadPath, hsp_pattern, hsp_sandbox);
             } else {
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
