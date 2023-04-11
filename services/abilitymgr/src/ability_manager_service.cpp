@@ -87,6 +87,7 @@ const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
+constexpr int32_t KILL_APP_TIME = 3000;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
 const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 // Startup rule switch
@@ -4520,7 +4521,11 @@ int AbilityManagerService::SendANRProcessID(int pid)
         return ERR_INVALID_VALUE;
     }
 
-    DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(appInfo.bundleName);
+    auto timeoutTask = [bundleName = appInfo.bundleName]() {
+        DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
+    };
+
+    handler_->PostTask(timeoutTask, "TIME_OUT_TASK", KILL_APP_TIME);
     return ERR_OK;
 }
 
