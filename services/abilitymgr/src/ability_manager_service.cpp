@@ -516,7 +516,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
 
@@ -4247,7 +4247,7 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
     ComponentRequest componentRequest = initComponentRequest(callerToken, -1, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
@@ -4296,6 +4296,11 @@ int AbilityManagerService::ReleaseCall(
     if (CheckIsRemote(element.GetDeviceID())) {
         HILOG_INFO("release remote ability");
         return ReleaseRemoteAbility(connect->AsObject(), element);
+    }
+
+    int result = ERR_OK;
+    if (IsReleaseCallInterception(connect, element, result)) {
+        return result;
     }
 
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
@@ -6202,6 +6207,9 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         newWant.SetParam("launchMode", launchMode);
         int32_t callType = static_cast<int32_t>(request.callType);
         newWant.SetParam("callType", callType);
+        if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
+            newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
+        }
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();
@@ -6216,6 +6224,25 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         }
     }
     return true;
+}
+
+bool AbilityManagerService::CheckProxyComponent(const Want &want, const int result)
+{
+    // do proxy component while the deviceId is not empty
+    return ((!want.GetElement().GetDeviceID().empty()) || (result != ERR_OK));
+}
+
+bool AbilityManagerService::IsReleaseCallInterception(const sptr<IAbilityConnection> &connect,
+    const AppExecFwk::ElementName &element, int &result)
+{
+    if  (componentInterception_ == nullptr) {
+        return false;
+    }
+    HILOG_DEBUG("%{public}s", __func__);
+    sptr<Want> extraParam = new (std::nothrow) Want();
+    bool isInterception = componentInterception_->ReleaseCallInterception(connect->AsObject(), element, extraParam);
+    result = extraParam->GetIntParam("requestResult", 0);
+    return isInterception;
 }
 
 void AbilityManagerService::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
