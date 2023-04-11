@@ -51,11 +51,11 @@ void SourceMapTest::TearDown(void)
 
 bool ReadSourceMapData(const std::string& hapPath, std::string& content)
 {
-	if (hapPath.empty()) {
-		return false;
-	}
-	content = "abc";
-	return true;
+    if (hapPath.empty()) {
+        return false;
+    }
+    content = "abc";
+    return true;
 }
 
 /**
@@ -69,12 +69,12 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0100 start";
     std::string sourceCode = "123";
     uint32_t errorPos = 0;
-	std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
-	targetMapData->names_.emplace_back("abc.ets");
+    std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
+    targetMapData->names_.emplace_back("abc.ets");
 
     std::string result = SourceMap::GetOriginalNames(targetMapData, sourceCode, errorPos);
     EXPECT_EQ(result, sourceCode);
-	GTEST_LOG_(INFO) << "JsEnv_SourceMap_0100 end";
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0100 end";
 }
 
 /**
@@ -88,13 +88,13 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0200, TestSize.Level1)
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0200 start";
     std::string sourceCode = "SourceCode:\n/pages/Index.ets:111:13";
     uint32_t errorPos = 0;
-	std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
-	targetMapData->names_.emplace_back("Index.js");
-	targetMapData->names_.emplace_back("Index.ets");
+    std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
+    targetMapData->names_.emplace_back("Index.js");
+    targetMapData->names_.emplace_back("Index.ets");
 
     std::string result = SourceMap::GetOriginalNames(targetMapData, sourceCode, errorPos);
     EXPECT_EQ(result, sourceCode);
-	GTEST_LOG_(INFO) << "JsEnv_SourceMap_0200 end" << result;
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0200 end" << result;
 }
 
 /**
@@ -170,7 +170,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0600, Function | MediumTest | Level1)
 HWTEST_F(SourceMapTest, JsEnv_SourceMap_0700, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0700 start";
-	SourceMap::RegisterReadSourceMapCallback(ReadSourceMapData);
+    SourceMap::RegisterReadSourceMapCallback(ReadSourceMapData);
     auto modSourceMap = std::make_shared<SourceMap>();
     std::string filePath = "./abc.map";
     std::string context;
@@ -337,7 +337,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1400, Function | MediumTest | Level1)
 /**
  * @tc.number: JsEnv_SourceMap_1500
  * @tc.name: GetPosInfo
- * @tc.desc: Verifying GetPosInfo succeeded.
+ * @tc.desc: TranslateBySourceMap succeeded.
  * @tc.require: #I6T4K1
  */
 HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
@@ -348,10 +348,9 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
             "\"version\": 3,"
             "\"file\": \"Index.ets\","
             "\"sourceRoot\": \"\","
-            "\"sources\": ["
+            "\"sources\": [       "
             "\"entry/src/main/ets/pages/Index.ets\""
-            "],"
-            "\"names\": [],"
+            "     ],"
             "\"mappings\": \";;;;AAAA,OAAO,kBAAkB,MAAM,0BAA0B,CAAC;MAInD,KAAK;IAFZ;;oDAG2B,aAAa;QAEtC,mBAAmB;QACnB,"
             "sBAAsB;QACtB,gBAAgB;QAChB,GAAG;;;KAVqD;;;;;;;;;;QAKjD,OAAO;;;QAAP,OAAO;;;IAEd,mBAAmB;IACnB,sBAAsB;IACtB,"
             "gBAAgB;IAChB,GAAG;IACH;QACE,GAAG,UA8CY;QA9Cf,GAAG,CA8CF,MAAM,CAAC,MAAM;QA7CZ,MAAM,UA2CQ;QA3Cd,MAAM,CA2CL,"
@@ -371,24 +370,109 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
             "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"
-            "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"
+            "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"
+            "CAAC,CAAA;AACJ,CAAC\""
+            "\"names\": [],"
         "}"
     "}";
-    std::string stackStr = "entry/src/main/ets/pages/Index.ets:111:13";
+    std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
 
     auto mapObj = std::make_shared<SourceMap>();
     mapObj->Init(true, sourceMaps);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
-    EXPECT_STREQ(stack.c_str(), "entry/src/main/ets/pages/Index.ets:111:13");
+    EXPECT_STREQ(stack.c_str(), "at anonymous (/ets/pages/Index.ets:85:9)\n");
 
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_1500 end" << stack.c_str();
+}
+
+/**
+ * @tc.number: JsEnv_SourceMap_1600
+ * @tc.name: GetPosInfo
+ * @tc.desc: TranslateBySourceMap failed, sourceMaps null and return original stack.
+ * @tc.require: #I6T4K1
+ */
+HWTEST_F(SourceMapTest, JsEnv_SourceMap_1600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1600 start";
+    std::string sourceMaps = "";
+    std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
+
+    auto mapObj = std::make_shared<SourceMap>();
+    mapObj->Init(true, sourceMaps);
+    std::string stack = mapObj->TranslateBySourceMap(stackStr);
+    size_t pos = stack.find(stackStr);
+    EXPECT_NE(pos, std::string::npos);
+
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1600 end" << stack.c_str();
+}
+
+/**
+ * @tc.number: JsEnv_SourceMap_1700
+ * @tc.name: GetPosInfo
+ * @tc.desc: TranslateBySourceMap failed, sourceMaps error and return original stack.
+ * @tc.require: #I6T4K1
+ */
+HWTEST_F(SourceMapTest, JsEnv_SourceMap_1700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1700 start";
+    std::string sourceMaps = "{"
+        "\"entry/src/main/ets/pages/Index.ets\": {"
+            "\"version\": 3,"
+            "\"file\": \"Index.ets\","
+            "\"sourceRoot\": \"\","
+            "\"sources\": [       "
+            "\"entry/src/main/ets/pages/Index.ets\""
+            "     ],"
+            "\"mappings\": \";;;;AAAA,OAAO,kBAAkB,MAAM,0BAA0B,CAAC;"
+        "}"
+    "}";
+    std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
+
+    auto mapObj = std::make_shared<SourceMap>();
+    mapObj->Init(true, sourceMaps);
+    std::string stack = mapObj->TranslateBySourceMap(stackStr);
+    size_t pos = stack.find(stackStr);
+    EXPECT_NE(pos, std::string::npos);
+
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1700 end" << stack.c_str();
+}
+
+/**
+ * @tc.number: JsEnv_SourceMap_1800
+ * @tc.name: GetPosInfo
+ * @tc.desc: TranslateBySourceMap failed, stack error and return original stack.
+ * @tc.require: #I6T4K1
+ */
+HWTEST_F(SourceMapTest, JsEnv_SourceMap_1800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1800 start";
+    std::string sourceMaps = "{"
+        "\"entry/src/main/ets/pages/Index.ets\": {"
+            "\"version\": 3,"
+            "\"file\": \"Index.ets\","
+            "\"sourceRoot\": \"\","
+            "\"sources\": [       "
+            "\"entry/src/main/ets/pages/Index.ets\""
+            "     ],"
+            "\"mappings\": \";;;;AAAA,OAAO,kBAAkB,MAAM,0BAA0B,CAAC;"
+        "}"
+    "}";
+    std::string stackStr = "123/Index.ets:111:13";
+
+    auto mapObj = std::make_shared<SourceMap>();
+    mapObj->Init(true, sourceMaps);
+    std::string stack = mapObj->TranslateBySourceMap(stackStr);
+    size_t pos = stack.find(stackStr);
+    EXPECT_NE(pos, std::string::npos);
+
+    GTEST_LOG_(INFO) << "JsEnv_SourceMap_1800 end" << stack.c_str();
 }
 } // namespace AppExecFwk
 } // namespace OHOS
