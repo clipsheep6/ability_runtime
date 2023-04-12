@@ -164,6 +164,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
+    HILOG_INFO("ywz startAbility split.");
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueWaitingAbilityToFront(abilityRequest);
@@ -310,7 +311,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Start ability locked.");
+    HILOG_ERROR("ywz Start ability locked.");
     // 1. choose target mission list
     auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
     CHECK_POINTER_AND_RETURN(targetList, CREATE_MISSION_STACK_FAILED);
