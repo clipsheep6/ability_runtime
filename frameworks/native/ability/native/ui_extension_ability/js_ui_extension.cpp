@@ -181,8 +181,7 @@ void JsUIExtension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> se
 
     Extension::OnStart(want, sessionInfo);
     if (sessionInfo) {
-        uiWindow_ = Ace::NG::UIWindow::CreateWindowExtension(GetContext(),
-            sessionInfo->sessionToken, sessionInfo->surfaceNode);
+        uiWindow_ = Ace::NG::UIWindow::CreateWindowExtension(GetContext(), sessionInfo->sessionToken);
         if (uiWindow_ == nullptr) {
             HILOG_ERROR("JsUIExtension OnStart create ui window error.");
             return;

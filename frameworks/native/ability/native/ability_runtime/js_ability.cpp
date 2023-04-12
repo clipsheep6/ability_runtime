@@ -205,8 +205,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         want.GetBundle().find("animationdesktop") == std::string::npos) {
         HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
         if (sessionInfo) {
-            uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_,
-                sessionInfo->sessionToken, sessionInfo->surfaceNode);
+            uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_, sessionInfo->sessionToken);
             uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
             uiWindow_->Connect();
         }
