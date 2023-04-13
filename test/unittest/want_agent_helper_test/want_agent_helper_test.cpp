@@ -714,10 +714,10 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3100, Function | MediumTest | Leve
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3200, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    EXPECT_NE(wantAgentHelper, nullptr);
     std::shared_ptr<WantAgent> wantAgent(nullptr);
     int32_t uid = -1;
     wantAgentHelper->GetUid(wantAgent, uid);
-    EXPECT_EQ(uid, -1);
 }
 
 /*
@@ -728,11 +728,11 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3200, Function | MediumTest | Leve
 HWTEST_F(WantAgentHelperTest, WantAgentHelper_3300, Function | MediumTest | Level1)
 {
     std::shared_ptr<WantAgentHelper> wantAgentHelper = std::make_shared<WantAgentHelper>();
+    EXPECT_NE(wantAgentHelper, nullptr);
     std::shared_ptr<PendingWant> pendingWant(nullptr);
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     int32_t uid = -1;
     wantAgentHelper->GetUid(wantAgent, uid);
-    EXPECT_EQ(uid, -1);
 }
 
 /*

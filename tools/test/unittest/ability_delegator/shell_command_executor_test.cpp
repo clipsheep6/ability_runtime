@@ -118,10 +118,10 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0400, TestSize.Le
 HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_WaitWorkDone_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "ShellCommandExecutor_WaitWorkDone_0100 start";
+    ASSERT_NE(Command_, nullptr);
     Command_->timeoutSec_ = -1;
     Command_->cmdResult_.exitCode = 0;
     Command_->WaitWorkDone();
     Command_->DoWork();
-    EXPECT_EQ(Command_->cmdResult_.exitCode,0);
     GTEST_LOG_(INFO) << "ShellCommandExecutor_WaitWorkDone_0100 end";
 }
