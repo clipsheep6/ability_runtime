@@ -31,7 +31,7 @@ const std::string PARAM_FORM_NAME = "com.form.name.test";
 const std::string DEVICE_ID = "ohos-phone1";
 
 bool BundleMgrProxy::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
@@ -63,7 +63,7 @@ std::string BundleMgrService::GetAppType(const std::string& bundleName)
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     std::vector<AbilityInfo> abilityInfos;
     ApplicationInfo applicationInfo;

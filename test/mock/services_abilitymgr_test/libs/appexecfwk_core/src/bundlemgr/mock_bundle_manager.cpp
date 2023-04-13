@@ -45,13 +45,13 @@ bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abil
 }
 
 bool BundleMgrProxy::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -94,7 +94,7 @@ BundleMgrService::~BundleMgrService()
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
@@ -156,7 +156,7 @@ bool BundleMgrService::QueryAbilityInfo(const Want& want, int32_t flags, int32_t
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;

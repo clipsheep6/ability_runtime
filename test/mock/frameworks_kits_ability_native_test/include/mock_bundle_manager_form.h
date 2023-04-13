@@ -65,7 +65,7 @@ public:
     }
 
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
         std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
     {
@@ -93,7 +93,7 @@ public:
     std::string GetAppType(const std::string& bundleName) override;
     int GetUidByBundleName(const std::string& bundleName, const int userId) override;
     bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     bool GetBundleNameForUid(const int uid, std::string& bundleName) override
     {
         bundleName = "com.form.provider.service";

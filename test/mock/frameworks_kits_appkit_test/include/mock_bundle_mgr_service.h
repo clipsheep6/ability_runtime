@@ -25,7 +25,7 @@ namespace AppExecFwk {
 class MockBundleMgrService : public BundleMgrHost {
 public:
     virtual bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override
     {
         return false;
     }

@@ -49,13 +49,13 @@ bool BundleMgrProxy::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abil
 }
 
 bool BundleMgrProxy::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     return true;
 }
 
 bool BundleMgrProxy::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     if (appName.empty()) {
         return false;
@@ -71,7 +71,7 @@ int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessagePa
 }
 
 bool BundleMgrService::GetBundleInfo(
-    const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
+    const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId)
 {
     bundleInfo.uid = 0;
     return true;
@@ -137,7 +137,7 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& ab
 }
 
 bool BundleMgrService::GetApplicationInfo(
-    const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo)
+    const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo)
 {
     appInfo.name = appName;
     appInfo.bundleName = appName;

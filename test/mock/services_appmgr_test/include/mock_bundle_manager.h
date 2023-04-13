@@ -43,7 +43,7 @@ public:
     std::string GetAppType(const std::string& bundleName) override;
 
     virtual bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     virtual bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo);
     virtual bool GetHapModuleInfo(
         const AbilityInfo& abilityInfo, int32_t userId, HapModuleInfo& hapModuleInfo) override;
@@ -91,11 +91,11 @@ public:
     std::string GetAppType(const std::string& bundleName) override;
 
     virtual bool GetApplicationInfo(
-        const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
+        const std::string& appName, int32_t flag, const int userId, ApplicationInfo& appInfo) override;
     virtual bool GetBundleInfo(
-        const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
+        const std::string& bundleName, int32_t flag, BundleInfo& bundleInfo, int32_t userId) override;
     virtual bool GetBundleInfos(
-        const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId) override;
+        int32_t flag, std::vector<BundleInfo>& bundleInfos, int32_t userId) override;
     bool GetBundleGidsByUid(
         const std::string& bundleName, const int& uid, std::vector<int>& gids) override;
     virtual bool GetBundleGids(const std::string& bundleName, std::vector<int>& gids) override;
