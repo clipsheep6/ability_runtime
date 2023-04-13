@@ -1541,7 +1541,6 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     if (!perfCmd.empty()) {
-        startMsg.renderParam = perfCmd;
         HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
     } else {
         HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
@@ -1549,14 +1548,6 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
     if (isSanboxApp) {
         HILOG_INFO("debuggablePipe sandbox: true");
     }
-    pid_t pid = 0;
-    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
-    if (FAILED(errCode)) {
-        HILOG_ERROR("failed to spawn perf process, errCode %{public}08x", errCode);
-        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
-        return errCode;
-    }
-    HILOG_INFO("Start perf process success, pid is %{public}d", pid);
     return ERR_OK;
 }
 
