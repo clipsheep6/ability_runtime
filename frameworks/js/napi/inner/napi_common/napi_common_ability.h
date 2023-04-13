@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
 
+#include <memory>
 #include <mutex>
 #include <list>
 
@@ -252,10 +253,68 @@ enum {
 };
 
 struct ConnectionCallback {
-    napi_env env;
-    napi_ref connectCallbackRef;
-    napi_ref disconnectCallbackRef;
-    napi_ref failedCallbackRef;
+    ConnectionCallback(napi_env env, napi_value cbInfo)
+    {
+        this->env = env;
+        napi_value jsMethod = nullptr;
+        napi_get_named_property(env, cbInfo, "onConnect", &jsMethod);
+        napi_create_reference(env, jsMethod, 1, &connectCallbackRef);
+        napi_get_named_property(env, cbInfo, "onDisconnect", &jsMethod);
+        napi_create_reference(env, jsMethod, 1, &disconnectCallbackRef);
+        napi_get_named_property(env, cbInfo, "onFailed", &jsMethod);
+        napi_create_reference(env, jsMethod, 1, &failedCallbackRef);
+    }
+    ConnectionCallback(ConnectionCallback &) = delete;
+    ConnectionCallback(ConnectionCallback &&other)
+        : env(other.env), connectCallbackRef(other.connectCallbackRef),
+        disconnectCallbackRef(other.disconnectCallbackRef), failedCallbackRef(other.failedCallbackRef)
+    {
+        other.env = nullptr;
+        other.connectCallbackRef = nullptr;
+        other.disconnectCallbackRef = nullptr;
+        other.failedCallbackRef = nullptr;
+    }
+    const ConnectionCallback &operator=(ConnectionCallback &) = delete;
+    const ConnectionCallback &operator=(ConnectionCallback &&other)
+    {
+        Reset();
+        env = other.env;
+        connectCallbackRef = other.connectCallbackRef;
+        disconnectCallbackRef = other.disconnectCallbackRef;
+        failedCallbackRef = other.failedCallbackRef;
+        other.env = nullptr;
+        other.connectCallbackRef = nullptr;
+        other.disconnectCallbackRef = nullptr;
+        other.failedCallbackRef = nullptr;
+        return *this;
+    }
+    ~ConnectionCallback()
+    {
+        Reset();
+    }
+    void Reset()
+    {
+        if (env) {
+            if (connectCallbackRef) {
+                napi_delete_reference(env, connectCallbackRef);
+                connectCallbackRef = nullptr;
+            }
+            if (disconnectCallbackRef) {
+                napi_delete_reference(env, disconnectCallbackRef);
+                disconnectCallbackRef = nullptr;
+            }
+            if (failedCallbackRef) {
+                napi_delete_reference(env, failedCallbackRef);
+                failedCallbackRef = nullptr;
+            }
+            env = nullptr;
+        }
+    }
+
+    napi_env env = nullptr;
+    napi_ref connectCallbackRef = nullptr;
+    napi_ref disconnectCallbackRef = nullptr;
+    napi_ref failedCallbackRef = nullptr;
 };
 
 class NAPIAbilityConnection : public AAFwk::AbilityConnectionStub {
@@ -263,15 +322,15 @@ public:
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void AddConnectionCallback(const ConnectionCallback &callback);
-    void HandleOnAbilityConnectDone(const ConnectionCallback &callback, int resultCode);
-    void HandleOnAbilityDisconnectDone(const ConnectionCallback &callback, int resultCode);
+    void AddConnectionCallback(std::shared_ptr<ConnectionCallback> callback);
+    void HandleOnAbilityConnectDone(ConnectionCallback &callback, int resultCode);
+    void HandleOnAbilityDisconnectDone(ConnectionCallback &callback, int resultCode);
     int GetConnectionState() const;
     void SetConnectionState(int connectionState);
     size_t GetCallbackSize();
 
 private:
-    std::list<ConnectionCallback> callbacks_;
+    std::list<std::shared_ptr<ConnectionCallback>> callbacks_;
     AppExecFwk::ElementName element_;
     sptr<IRemoteObject> serviceRemoteObject_ = nullptr;
     int connectionState_ = CONNECTION_STATE_DISCONNECTED;
