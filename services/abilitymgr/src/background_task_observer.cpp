@@ -55,22 +55,14 @@ void BackgroundTaskObserver::OnContinuousTaskStop(const std::shared_ptr<Backgrou
     }
 }
 
-void BackgroundTaskObserver::OnRemoteDied(const wptr<IRemoteObject> &object)
+void BackgroundTaskObserver::GetContinuousTaskApps()
 {
-    HILOG_DEBUG("OnRemoteDied");
-    int attemptNums = 0;
-    while ((BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-        *(shared_from_this()))) != ERR_OK) {
-        ++attemptNums;
-        if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
-            HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
-            return;
-        }
-        usleep(REPOLL_TIME_MICRO_SECONDS);
-    }
-
     std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
-    BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    if (result != ERR_OK) {
+        HILOG_ERROR("failed to GetContinuousTaskApps, ErrCode: %{public}d", result);
+        return;
+    }
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.clear();
     for (size_t index = 0; index < continuousTasks.size(); index++) {
