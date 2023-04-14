@@ -137,6 +137,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
         // It may have been started through connect
+        targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
     } else {
         HILOG_INFO("Target service is already activating.");
@@ -285,10 +286,6 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         isLoadedAbility = false;
     } else {
         targetService = serviceMapIter->second;
-        if (targetService != nullptr) {
-            // want may be changed for the same ability.
-            targetService->SetWant(abilityRequest.want);
-        }
         isLoadedAbility = true;
     }
 }
@@ -345,6 +342,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
         // this service ability has not first connect
+        targetService->SetWant(abilityRequest.want);
         if (targetService->GetConnectRecordList().size() > 1) {
             if (eventHandler_ != nullptr) {
                 auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
