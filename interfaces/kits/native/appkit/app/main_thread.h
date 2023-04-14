@@ -233,6 +233,8 @@ public:
      */
     static void Start();
 
+    static void PreloadExtensionPlugin();
+
     /**
      *
      * @brief Schedule the application process exit safely.
@@ -456,10 +458,8 @@ private:
      * @brief Load all extension so
      *
      * @param nativeEngine nativeEngine instance
-     * @param filePath extension so file path
-     * @param bundleInfo application bundle information
      */
-    void LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath, const BundleInfo &bundleInfo);
+    void LoadAllExtensions(NativeEngine &nativeEngine);
 
     /**
      *
@@ -477,7 +477,7 @@ private:
      * @param abilityRecord current running ability record
      */
     void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
-    
+
     /**
      * @brief Add Extension block item
      *
@@ -485,7 +485,7 @@ private:
      * @param type extension type
      */
     void AddExtensionBlockItem(const std::string &extensionName, int32_t type);
-    
+
     /**
      * @brief Update extension block list to nativeEngine
      *
