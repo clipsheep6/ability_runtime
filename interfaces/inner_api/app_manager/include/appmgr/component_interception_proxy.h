@@ -50,6 +50,17 @@ public:
      */
     virtual void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode) override;
 
+    /**
+     * The system is trying to release call.
+     *
+     * @param connect Callback used to notify caller the result of connecting or disconnecting.
+     * @param element service ability's ElementName.
+     * @param extraParam The exra param of component to release.
+     * @return Return true when the call released, or false to reject.
+     */
+    virtual bool ReleaseCallInterception(const sptr<IRemoteObject> &connect, const AppExecFwk::ElementName &element,
+        sptr<Want> &extraParam) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam);

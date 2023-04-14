@@ -212,7 +212,7 @@ public:
         return E_OK;
     }
 
-    virtual int32_t CreateShareFile(std::string uri, int32_t tokenId, int32_t flag) override
+    virtual int32_t CreateShareFile(std::string uri, uint32_t tokenId, uint32_t flag) override
     {
         if (isZero) {
             return E_OK;
@@ -220,7 +220,7 @@ public:
         return -1;
     }
 
-    virtual int32_t DeleteShareFile(int32_t tokenId, std::vector<std::string>sharePathList) override
+    virtual int32_t DeleteShareFile(uint32_t tokenId, std::vector<std::string>sharePathList) override
     {
         return E_OK;
     }

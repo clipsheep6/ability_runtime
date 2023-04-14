@@ -20,6 +20,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr int CYCLE_LIMIT = 1000;
+}
 bool ExtensionRunningInfo::ReadFromParcel(Parcel &parcel)
 {
     std::unique_ptr<AppExecFwk::ElementName> readExtension(parcel.ReadParcelable<AppExecFwk::ElementName>());
@@ -33,6 +36,10 @@ bool ExtensionRunningInfo::ReadFromParcel(Parcel &parcel)
     processName = Str16ToStr8(parcel.ReadString16());
     startTime = parcel.ReadInt32();
     int32_t clientPackageSize = parcel.ReadInt32();
+    if (clientPackageSize > CYCLE_LIMIT) {
+        HILOG_ERROR("clientPackageSize is too large.");
+        return false;
+    }
     for (int32_t i = 0; i < clientPackageSize; i++) {
         clientPackage.emplace_back(Str16ToStr8(parcel.ReadString16()));
     }

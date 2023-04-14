@@ -37,6 +37,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr int32_t SINGLE_MAX_INSTANCE_COUNT = 128;
 constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 constexpr int64_t MAX_FOREGROUNDING_TIME = 60 * 1000; // 1 minute
@@ -118,14 +119,10 @@ int32_t MissionListManager::GetMissionCount() const
 int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    if (IsReachToLimitLocked(abilityRequest)) {
-        auto oldestMission = FindEarliestMission();
-        if (oldestMission) {
-            if (TerminateAbility(oldestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
-                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate oldestAbility failed.",
-                    MAX_INSTANCE_COUNT);
-                return ERR_REACH_UPPER_LIMIT;
-            }
+    auto reUsedMission = GetReusedMission(abilityRequest);
+    if (!reUsedMission) {
+        if (CheckLimit(abilityRequest)) {
+            return ERR_REACH_UPPER_LIMIT;
         }
     }
 
@@ -1134,16 +1131,17 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         handler->PostTask(task);
     } else {
         auto task = [self, abilityRecord, state]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
+                HILOG_WARN("Mission list mgr is invalid.");
+                return;
+            }
             if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
                 HILOG_INFO("Window was freezed.");
                 if (abilityRecord != nullptr) {
                     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+                    selfObj->TerminatePreviousAbility(abilityRecord);
                 }
-                return;
-            }
-            auto selfObj = self.lock();
-            if (!selfObj) {
-                HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
             selfObj->CompleteForegroundFailed(abilityRecord, state);
@@ -2992,15 +2990,56 @@ std::shared_ptr<Mission> MissionListManager::GetMissionBySpecifiedFlag(
     return defaultStandardList_->GetMissionBySpecifiedFlag(want, flag);
 }
 
-bool MissionListManager::IsReachToLimitLocked(const AbilityRequest &abilityRequest)
+bool MissionListManager::CheckLimit(const AbilityRequest &abilityRequest)
 {
-    auto reUsedMission = GetReusedMission(abilityRequest);
-    if (reUsedMission) {
-        return false;
+    bool isSingleMaxLimit = IsReachToSingleLimitLocked(abilityRequest);
+    if (isSingleMaxLimit) {
+        HILOG_ERROR("already reach single limit instance. limit is : %{public}d", SINGLE_MAX_INSTANCE_COUNT);
+        return true;
     }
+    bool isAllMaxLimit = IsReachToLimitLocked(abilityRequest);
+    if (isAllMaxLimit) {
+        auto earliestMission = FindEarliestMission();
+        if (earliestMission) {
+            if (TerminateAbility(earliestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
+                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate earliestAbility failed.",
+                    MAX_INSTANCE_COUNT);
+                return true;
+            }
+            HILOG_INFO("already reach limit instance. limit is : %{public}d, and terminate earliestAbility success.",
+                MAX_INSTANCE_COUNT);
+        }
+    }
+    return false;
+}
 
+bool MissionListManager::IsReachToLimitLocked(const AbilityRequest &abilityRequest) const
+{
     auto missionCount = GetMissionCount();
     if (missionCount == MAX_INSTANCE_COUNT) {
+        return true;
+    }
+    return false;
+}
+
+bool MissionListManager::IsReachToSingleLimitLocked(const AbilityRequest &abilityRequest) const
+{
+    int32_t singleAppMissionCount = 0;
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+        singleAppMissionCount += missionList->GetMissionCountByUid(abilityRequest.uid);
+        if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
+            return true;
+        }
+    }
+    singleAppMissionCount += defaultStandardList_->GetMissionCountByUid(abilityRequest.uid);
+    if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
+        return true;
+    }
+    singleAppMissionCount += defaultSingleList_->GetMissionCountByUid(abilityRequest.uid);
+    if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
         return true;
     }
     return false;

@@ -43,6 +43,7 @@
 #include "js_module_searcher.h"
 #include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
+#include "js_source_map_operator.h"
 #include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -52,8 +53,8 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
-#include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "source_map.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
@@ -69,6 +70,7 @@ constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
+const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #else
@@ -248,27 +250,28 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         return;
     }
 
-    auto vm = GetEcmaVm();
-    CHECK_POINTER(vm);
-
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-
-    HdcRegister::Get().StartHdcRegister(bundleName_);
-    ConnectServerManager::Get().StartConnectServer(bundleName_);
-    ConnectServerManager::Get().AddInstance(instanceId_);
-    StartDebuggerInWorkerModule();
-
     auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
         eventHandler->PostTask(task);
     };
-    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm, needBreakPoint, instanceId_, debuggerPostTask);
 
-    debugMode_ = true;
+    debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
+}
+
+bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
+    const DebuggerPostTask& debuggerPostTask)
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    HdcRegister::Get().StartHdcRegister(bundleName);
+    ConnectServerManager::Get().StartConnectServer(bundleName);
+    ConnectServerManager::Get().AddInstance(instanceId);
+    StartDebuggerInWorkerModule();
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -507,13 +510,15 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
-            InitSourceMap(options);
+            auto bindSourceMaps = std::make_shared<JsEnv::SourceMap>();
+            bool isModular = !panda::JSNApi::IsBundle(vm);
+            auto operatorImpl = std::make_shared<JsSourceMapOperatorImpl>(options.hapPath, isModular, bindSourceMaps);
+            InitSourceMap(operatorImpl);
 
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
             } else {
-                JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(nativeEngine));
+                InitTimerModule(*nativeEngine, *globalObj);
             }
 
             InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
@@ -604,7 +609,7 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
+void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
 {
     HILOG_DEBUG("Set library path.");
 
@@ -620,14 +625,15 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
     }
 
     for (const auto &appLibPath : appLibPaths) {
-        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
+        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second, isSystemApp);
     }
 }
 
-void JsRuntime::InitSourceMap(const Options& options)
+void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(options.bundleCodeDir, options.isStageModel);
+    jsEnv_->InitSourceMap(operatorImpl);
+    JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
 }
 
 void JsRuntime::Deinitialize()
@@ -979,6 +985,29 @@ void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::strin
     if (vm != nullptr) {
         panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
     }
+}
+
+bool JsRuntime::ReadSourceMapData(const std::string& hapPath, std::string& content)
+{
+    if (hapPath.empty()) {
+        HILOG_ERROR("hapPath is empty");
+        return false;
+    }
+    bool newCreate = false;
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
+        ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("hap's path: %{public}s, get extractor failed", hapPath.c_str());
+        return false;
+    }
+    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+    size_t len = 0;
+    if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
+        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
+        return false;
+    }
+    content = reinterpret_cast<char*>(dataPtr.get());
+    return true;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

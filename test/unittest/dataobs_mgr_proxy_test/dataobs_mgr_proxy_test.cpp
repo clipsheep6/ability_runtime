@@ -26,37 +26,37 @@ namespace AAFwk {
 using namespace testing::ext;
 using ::testing::_;
 
-class DataObsMgrServiceTest : public testing::Test {
+class DataObsMgrProxyTest : public testing::Test {
 public:
-    DataObsMgrServiceTest() = default;
-    virtual ~DataObsMgrServiceTest() = default;
+    DataObsMgrProxyTest() = default;
+    virtual ~DataObsMgrProxyTest() = default;
 
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
-void DataObsMgrServiceTest::SetUpTestCase(void)
+void DataObsMgrProxyTest::SetUpTestCase(void)
 {}
-void DataObsMgrServiceTest::TearDownTestCase(void)
+void DataObsMgrProxyTest::TearDownTestCase(void)
 {}
-void DataObsMgrServiceTest::SetUp()
+void DataObsMgrProxyTest::SetUp()
 {}
-void DataObsMgrServiceTest::TearDown()
+void DataObsMgrProxyTest::TearDown()
 {}
 
 /*
- * Feature: DataObsManagerStub
+ * Feature: DataObsManagerProxy
  * Function: RegisterObserver
  * SubFunction: NA
- * FunctionPoints: DataObsManagerStub RegisterObserver
+ * FunctionPoints: DataObsManagerProxy RegisterObserver
  * EnvConditions: NA
- * CaseDescription: Verify that the DataObsManagerStub RegisterObserver is normal.
+ * CaseDescription: Verify that the DataObsManagerProxy RegisterObserver is normal.
  */
-HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_RegisterObserver_0100, TestSize.Level1)
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_RegisterObserver_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_RegisterObserver_0100 start";
-    const int testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_RegisterObserver_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
     std::shared_ptr<Uri> uri =
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
@@ -65,25 +65,24 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_RegisterObserver_010
         std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
     sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
 
-    const int retVal = dataObsManagerProxy->RegisterObserver(*uri, dataObserver);
-
+    int32_t retVal = dataObsManagerProxy->RegisterObserver(*uri, dataObserver);
     EXPECT_EQ(testVal, retVal);
 
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_RegisterObserver_0100 end";
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_RegisterObserver_0100 end";
 }
 
 /*
- * Feature: DataObsManagerStub
+ * Feature: DataObsManagerProxy
  * Function: UnregisterObserver
  * SubFunction: NA
- * FunctionPoints: DataObsManagerStub UnregisterObserver
+ * FunctionPoints: DataObsManagerProxy UnregisterObserver
  * EnvConditions: NA
- * CaseDescription: Verify that the DataObsManagerStub UnregisterObserver is normal.
+ * CaseDescription: Verify that the DataObsManagerProxy UnregisterObserver is normal.
  */
-HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_UnregisterObserver_0100, TestSize.Level1)
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_UnregisterObserver_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_UnregisterObserver_0100 start";
-    const int testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_UnregisterObserver_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
     std::shared_ptr<Uri> uri =
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
@@ -92,36 +91,109 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_UnregisterObserver_0
         std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
     sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
 
-    const int retVal = dataObsManagerProxy->UnregisterObserver(*uri, dataObserver);
-
+    int32_t retVal = dataObsManagerProxy->UnregisterObserver(*uri, dataObserver);
     EXPECT_EQ(testVal, retVal);
 
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_UnregisterObserver_0100 end";
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_UnregisterObserver_0100 end";
 }
 
 /*
- * Feature: DataObsManagerStub
+ * Feature: DataObsManagerProxy
  * Function: NotifyChange
  * SubFunction: NA
- * FunctionPoints: DataObsManagerStub NotifyChange
+ * FunctionPoints: DataObsManagerProxy NotifyChange
  * EnvConditions: NA
- * CaseDescription: Verify that the DataObsManagerStub NotifyChange is normal.
+ * CaseDescription: Verify that the DataObsManagerProxy NotifyChange is normal.
  */
-HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_NotifyChange_0100, TestSize.Level1)
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_NotifyChange_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_NotifyChange_0100 start";
-    const int testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_NotifyChange_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
     std::shared_ptr<Uri> uri =
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
     sptr<MockDataObsMgrStub> mockDataobsMgrStub(new (std::nothrow) MockDataObsMgrStub());
     std::shared_ptr<DataObsManagerProxy> dataObsManagerProxy =
         std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
 
-    const int retVal = dataObsManagerProxy->NotifyChange(*uri);
-
+    int32_t retVal = dataObsManagerProxy->NotifyChange(*uri);
     EXPECT_EQ(testVal, retVal);
 
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_NotifyChange_0100 end";
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_NotifyChange_0100 end";
+}
+
+/*
+ * Feature: DataObsManagerProxy
+ * Function: RegisterObserverExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerProxy RegisterObserverExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerProxy RegisterObserverExt is normal.
+ */
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_RegisterObserverExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_RegisterObserverExt_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
+    std::shared_ptr<Uri> uri = std::make_shared<Uri>("datashare://Authority/com.domainname.persondata");
+    sptr<MockDataObsMgrStub> mockDataobsMgrStub(new (std::nothrow) MockDataObsMgrStub());
+    std::shared_ptr<DataObsManagerProxy> dataObsManagerProxy =
+        std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
+    sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
+
+    int32_t retVal = dataObsManagerProxy->RegisterObserverExt(*uri, dataObserver, true);
+    EXPECT_EQ(testVal, retVal);
+
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_RegisterObserverExt_0100 end";
+}
+
+/*
+ * Feature: DataObsManagerProxy
+ * Function: UnregisterObserverExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerProxy UnregisterObserverExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerProxy UnregisterObserverExt is normal.
+ */
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_UnregisterObserverExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_UnregisterObserverExt_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
+    std::shared_ptr<Uri> uri = std::make_shared<Uri>("datashare://Authority/com.domainname.persondata");
+    sptr<MockDataObsMgrStub> mockDataobsMgrStub(new (std::nothrow) MockDataObsMgrStub());
+    std::shared_ptr<DataObsManagerProxy> dataObsManagerProxy =
+        std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
+    sptr<AAFwk::IDataAbilityObserver> dataObserver(new (std::nothrow) MockDataAbilityObserverStub());
+
+    int32_t retVal = dataObsManagerProxy->UnregisterObserverExt(*uri, dataObserver);
+    EXPECT_EQ(testVal, retVal);
+    retVal = dataObsManagerProxy->UnregisterObserverExt(dataObserver);
+    EXPECT_EQ(testVal, retVal);
+
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_UnregisterObserverExt_0100 end";
+}
+
+/*
+ * Feature: DataObsManagerProxy
+ * Function: NotifyChangeExt
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerProxy NotifyChangeExt
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerProxy NotifyChangeExt is normal.
+ */
+HWTEST_F(DataObsMgrProxyTest, DataObsMgrProxyTest_NotifyChangeExt_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_NotifyChangeExt_0100 start";
+    const int32_t testVal = static_cast<int>(TEST_RETVAL_ONREMOTEREQUEST);
+    std::shared_ptr<Uri> uri = std::make_shared<Uri>("datashare://Authority/com.domainname.persondata");
+    sptr<MockDataObsMgrStub> mockDataobsMgrStub(new (std::nothrow) MockDataObsMgrStub());
+    std::shared_ptr<DataObsManagerProxy> dataObsManagerProxy =
+        std::make_shared<DataObsManagerProxy>(mockDataobsMgrStub);
+
+    int32_t retVal = dataObsManagerProxy->NotifyChangeExt({ ChangeInfo::ChangeType::INSERT, { *uri } });
+    EXPECT_EQ(testVal, retVal);
+
+    GTEST_LOG_(INFO) << "DataObsMgrProxyTest_NotifyChangeExt_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

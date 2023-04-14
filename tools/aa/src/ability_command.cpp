@@ -33,6 +33,8 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+size_t paramLength = 1024;
+
 const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDS";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
@@ -794,7 +796,6 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             break;
         }
 
-        size_t paramLength = 1024;
         switch (option) {
             case 'h': {
                 // 'aa process -h'
@@ -853,12 +854,12 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
         }
     }
 
-    if (perfCmd.empty() && debugCmd.empty()) {
-        HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
-        result = OHOS::ERR_INVALID_VALUE;
-    }
-
     if (result == OHOS::ERR_OK) {
+        if (perfCmd.empty() && debugCmd.empty()) {
+            HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
+
         if (abilityName.size() == 0 || bundleName.size() == 0) {
             // 'aa process -a <ability-name> -b <bundle-name> [-D]'
             HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
@@ -1127,7 +1128,11 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa stop-service -p xxx'
 
                 // save module name
-                perfCmd = optarg;
+                if (strlen(optarg) < paramLength) {
+                    perfCmd = optarg;
+                } else {
+                    HILOG_INFO("debuggablePipe aa start -p param length must be less than 1024.");
+                }
                 break;
             }
             case 'C': {

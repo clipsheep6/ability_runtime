@@ -377,28 +377,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleTest_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: JsRuntimeGetSourceMapTest_0100
- * @tc.desc: JsRuntime test for GetSourceMap.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeGetSourceMapTest_0100, TestSize.Level0)
-{
-    HILOG_INFO("GetSourceMap start");
-
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    options_.bundleCodeDir = TEST_CODE_PATH;
-    options_.isStageModel = true;
-    jsRuntime->bindSourceMaps_ = std::make_unique<ModSourceMap>(options_.bundleCodeDir, options_.isStageModel);
-
-    auto& sourceMap = jsRuntime->GetSourceMap();
-    EXPECT_NE(&sourceMap, nullptr);
-
-    HILOG_INFO("GetSourceMap end");
-}
-
-/**
  * @tc.name: JsRuntimePostTaskTest_0100
  * @tc.desc: JsRuntime test for PostTask.
  * @tc.type: FUNC

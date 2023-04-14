@@ -29,6 +29,7 @@ ohos_shared_library("js_environment") {
   sources = [
     "${utils_path}/src/js_env_logger.cpp",
     "src/js_environment.cpp",
+    "src/source_map.cpp",
     "src/uncaught_exception_callback.cpp",
   ]
 
@@ -42,7 +43,6 @@ ohos_shared_library("js_environment") {
   deps = [ "${arkui_path}/napi:ace_napi_ark" ]
 
   external_deps = [
-    "ability_runtime:source_map",
     "ets_runtime:libark_jsruntime",
     "napi:ace_napi",
   ]

@@ -25,7 +25,10 @@
 
 #include "native_engine/native_engine.h"
 #include "runtime.h"
-#include "source_map.h"
+
+namespace panda::ecmascript {
+class EcmaVM;
+} // namespace panda::ecmascript
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -37,6 +40,7 @@ class Extractor;
 
 namespace JsEnv {
 class JsEnvironment;
+class SourceMapOperatorImpl;
 struct UncaughtExceptionInfo;
 } // namespace JsEnv
 
@@ -44,7 +48,6 @@ using AppLibPathMap = std::map<std::string, std::vector<std::string>>;
 
 namespace AbilityRuntime {
 class TimerTask;
-class ModSourceMap;
 
 inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
 {
@@ -58,17 +61,14 @@ public:
     static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
         const std::string& moduleName, NativeValue* const* argv, size_t argc);
 
-    static void SetAppLibPath(const AppLibPathMap& appLibPaths);
+    static void SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp = false);
+
+    static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
 
     JsRuntime();
     ~JsRuntime() override;
 
     NativeEngine& GetNativeEngine() const;
-
-    ModSourceMap& GetSourceMap() const
-    {
-        return *bindSourceMaps_;
-    }
 
     Language GetLanguage() const override
     {
@@ -104,6 +104,8 @@ public:
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 
+    void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl);
+
 private:
     void FinishPreload() override;
 
@@ -116,7 +118,6 @@ private:
     bool debugMode_ = false;
     bool preloaded_ = false;
     bool isBundle_ = true;
-    std::unique_ptr<ModSourceMap> bindSourceMaps_;
     std::string codePath_;
     std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
@@ -132,9 +133,10 @@ private:
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    void InitSourceMap(const Options& options);
     bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
     inline bool IsUseAbilityRuntime(const Options& options) const;
+    bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
+        const DebuggerPostTask& debuggerPostTask = {});
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

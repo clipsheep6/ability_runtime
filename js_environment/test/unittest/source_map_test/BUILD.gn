@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/ability_test"
+module_output_path = "ability_runtime/js_environment"
 
 ohos_unittest("source_map_test") {
   module_out_path = module_output_path
@@ -23,27 +23,19 @@ ohos_unittest("source_map_test") {
   # configs = [ ":module_private_config" ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/appkit:app_context",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "ability_runtime:js_environment",
     "ability_base:want",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
-  }
 }
 
 group("unittest") {

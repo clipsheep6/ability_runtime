@@ -37,7 +37,6 @@
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
-class ModSourceMap;
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Global;

@@ -162,7 +162,8 @@
               "header_base": "//foundation/ability/ability_runtime/js_environment/interfaces/inner_api",
               "header_files": [
                 "js_environment.h",
-                "js_environment_impl.h"
+                "js_environment_impl.h",
+                "source_map.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
@@ -176,15 +177,6 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime:runtime"
-          },
-          {
-            "header": {
-              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/",
-              "header_files": [
-                "source_map.h"
-              ]
-            },
-            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime:source_map"
           },
           {
             "header": {
