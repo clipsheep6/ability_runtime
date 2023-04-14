@@ -316,8 +316,6 @@ bool AbilityManagerService::Init()
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
-    SubscribeBackgroundTask();
-
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
 
@@ -989,26 +987,59 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     return ERR_OK;
 }
 
+void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+            SubscribeBackgroundTask();
+            break;
+        default:
+            break;
+    }
+}
+
+void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d remove", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+            UnsubscribeBackgroundTask();
+            break;
+        default:
+            break;
+    }
+}
+
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     if (bgtaskObserver_) {
-        return ;
+        return;
     }
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
-    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
-        int attemptNums = 0;
-        while ((BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_))) != ERR_OK) {
-            ++attemptNums;
-            if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
-                HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
-                return;
-            }
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-        }
-    };
-    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+    int ret = BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_);
+    if (ret != ERR_OK) {
+        bgtaskObserver_ = nullptr;
+        HILOG_ERROR("%{public}s failed, err:%{public}d.", __func__, ret);
+    }
+    HILOG_INFO("%{public}s success.", __func__);
+#endif
+}
+
+void AbilityManagerService::UnsubscribeBackgroundTask()
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    if (!bgtaskObserver_) {
+        return;
+    }
+    int32_t ret = BackgroundTaskMgrHelper::UnsubscribeBackgroundTask(*bgtaskObserver_);
+    if (ret == ERR_OK) {
+        HILOG_INFO("%{public}s success.", __func__);
+    } else {
+        HILOG_ERROR("%{public}s failed. ret:%{public}d", __func__, ret);
+    }
+    bgtaskObserver_ = nullptr;
 #endif
 }
 
