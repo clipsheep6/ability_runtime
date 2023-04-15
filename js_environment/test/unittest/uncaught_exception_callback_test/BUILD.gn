@@ -12,15 +12,30 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("../../js_environment.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/js_environment"
+
+ohos_unittest("uncaught_exception_callback_test") {
+  module_out_path = module_output_path
+  sources = [ "uncaught_exception_callback_test.cpp" ]
+
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
+}
 
 group("unittest") {
   testonly = true
+  deps = []
 
-  deps = [
-    "js_env_log_unit_test:unittest",
-    "js_environment_test:unittest",
-    "source_map_test:unittest",
-    "uncaught_exception_callback_test:unittest",
-  ]
+  deps += [ ":uncaught_exception_callback_test" ]
 }
