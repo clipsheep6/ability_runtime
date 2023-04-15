@@ -87,7 +87,8 @@ void ConnectionRecord::ClearConnCallBack()
 int ConnectionRecord::DisconnectAbility()
 {
     if (state_ != ConnectionState::CONNECTED) {
-        HILOG_INFO("The connection has not established.");
+        HILOG_ERROR("The connection has not established, connectionState: %{public}d.",
+            static_cast<int32_t>(state_));
         return INVALID_CONNECTION_STATE;
     }
 
@@ -114,6 +115,8 @@ int ConnectionRecord::DisconnectAbility()
         /* schedule disconnect to target ability */
         targetService_->DisconnectAbility();
     } else {
+        HILOG_DEBUG("The current connection count is %{public}zu, no need to disconnect, just remove connection.",
+            connectNums);
         targetService_->RemoveConnectRecordFromList(shared_from_this());
         SetConnectState(ConnectionState::DISCONNECTED);
     }
