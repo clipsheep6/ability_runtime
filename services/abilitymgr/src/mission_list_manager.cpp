@@ -2499,7 +2499,9 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
             return;
         }
         mgr->NotifyMissionCreated(abilityRecord);
-        mgr->UpdateMissionSnapshot(abilityRecord);
+        if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsDmsAlive()) {
+            mgr->UpdateMissionSnapshot(abilityRecord);
+        }
     };
     handler->PostTask(task, "FirstFrameDrawing");
     auto preloadTask = [owner = weak_from_this(), abilityRecord] {
