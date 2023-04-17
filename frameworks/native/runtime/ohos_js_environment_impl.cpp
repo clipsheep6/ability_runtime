@@ -17,6 +17,7 @@
 
 #include "hilog_wrapper.h"
 
+#include "js_worker.h"
 namespace OHOS {
 namespace AbilityRuntime {
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
@@ -49,9 +50,16 @@ void OHOSJsEnvironmentImpl::InitConsoleLogModule()
     HILOG_DEBUG("called");
 }
 
-void OHOSJsEnvironmentImpl::InitWorkerModule()
+void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle)
 {
     HILOG_DEBUG("called");
+    engine.SetInitWorkerFunc(InitWorkerFunc);
+    engine.SetOffWorkerFunc(OffWorkerFunc);
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, isBundle));
+
+    engine.SetGetContainerScopeIdFunc(GetContainerId);
+    engine.SetInitContainerScopeFunc(UpdateContainerScope);
+    engine.SetFinishContainerScopeFunc(RestoreContainerScope);
 }
 
 void OHOSJsEnvironmentImpl::InitSyscapModule()
