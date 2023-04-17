@@ -89,8 +89,9 @@ const std::string HELP_MSG_PROCESS = "usage: aa process <options>\n"
     "options list:\n"
     "  -h, --help                   list available commands\n"
     "  -a <ability-name> -b <bundle-name> [-m <module-name>]\n"
-    "  -p <perf-cmd>                tuning command, both -p and - D must be chosen, with -p taking precedence.\n"
-    "  -D <debug-cmd>               debug command, both -p and - D must be chosen, with -p taking precedence.\n"
+    "  -p <perf-cmd>                performance optimization command. Either -p or -D must be selected, "
+    "-p takes precedence.\n"
+    "  -D <debug-cmd>               debug command. Either -p or -D must be selected, -p takes precedence.\n"
     "  [-S]\n"
     "  debug ability with an element name\n";
 

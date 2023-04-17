@@ -857,7 +857,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
     if (result == OHOS::ERR_OK) {
         if (perfCmd.empty() && debugCmd.empty()) {
             HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
-            result = OHOS::ERR_INVALID_VALUE;
+            return OHOS::ERR_INVALID_VALUE;
         }
 
         if (abilityName.size() == 0 || bundleName.size() == 0) {
@@ -1132,6 +1132,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     perfCmd = optarg;
                 } else {
                     HILOG_INFO("debuggablePipe aa start -p param length must be less than 1024.");
+                    result = OHOS::ERR_INVALID_VALUE;
                 }
                 break;
             }
