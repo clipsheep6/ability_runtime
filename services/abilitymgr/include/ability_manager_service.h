@@ -1238,11 +1238,6 @@ private:
      *  FALSE: Determine the state by AppExecFwk::AppProcessState::APP_STATE_FOCUS.
      */
     bool backgroundJudgeFlag_ = true;
-    /** The applications in white list use old rule
-     *  TRUE: white list enable.
-     *  FALSE: white list unable.
-     */
-    bool whiteListNormalFlag_ = true;
     /** The applications in white list can associatedWakeUp
      *  TRUE: white list enable.
      *  FALSE: white list unable.
