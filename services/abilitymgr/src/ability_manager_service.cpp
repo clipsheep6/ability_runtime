@@ -16,6 +16,7 @@
 #include "ability_manager_service.h"
 #include "accesstoken_kit.h"
 
+#include <atomic>
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -107,6 +108,8 @@ const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
+
+std::atomic<bool> g_isDmsAlive = false;
 } // namespace
 
 using namespace std::chrono;
@@ -246,6 +249,7 @@ void AbilityManagerService::OnStart()
     SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
     WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
+    AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     HILOG_INFO("AMS start success.");
 }
 
@@ -323,7 +327,7 @@ bool AbilityManagerService::Init()
     auto registerBundleEventCallbackTask = [aams = shared_from_this()]() {
         sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
             new (std::nothrow) AbilityBundleEventCallback(aams->handler_);
-        auto bms = aams->GetBundleManager(); 
+        auto bms = aams->GetBundleManager();
         if (bms && abilityBundleEventCallback_) {
             bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
             if (!re) {
@@ -952,10 +956,18 @@ bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
-    return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    if (bgtaskObserver_) {
+        return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    }
+    return false;
 #else
     return false;
 #endif
+}
+
+bool AbilityManagerService::IsDmsAlive() const
+{
+    return g_isDmsAlive.load();
 }
 
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -1001,9 +1013,14 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
 {
     HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
     switch (systemAbilityId) {
-        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID: {
             SubscribeBackgroundTask();
             break;
+        }
+        case DISTRIBUTED_SCHED_SA_ID: {
+            g_isDmsAlive.store(true);
+            break;
+        }
         default:
             break;
     }
@@ -1013,9 +1030,14 @@ void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const
 {
     HILOG_INFO("systemAbilityId: %{public}d remove", systemAbilityId);
     switch (systemAbilityId) {
-        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID: {
             UnSubscribeBackgroundTask();
             break;
+        }
+        case DISTRIBUTED_SCHED_SA_ID: {
+            g_isDmsAlive.store(false);
+            break;
+        }
         default:
             break;
     }
