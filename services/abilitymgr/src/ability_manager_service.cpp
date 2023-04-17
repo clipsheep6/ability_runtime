@@ -3911,9 +3911,9 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 
 void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 {
-    HILOG_DEBUG("handle shareData timeout.");
+    HILOG_DEBUG("handle shareData timeout, uniqueId:%{public}lld.", uniqueId);
     WantParams wantParam;
-    int32_t ret = GetShareDataPairAndReturnData(nullptr, uniqueId, ERR_TIMED_OUT, wantParam);
+    int32_t ret = GetShareDataPairAndReturnData(nullptr, ERR_TIMED_OUT, uniqueId, wantParam);
     if (ret) {
         HILOG_ERROR("acqurieShareData failed.");
     }
@@ -3922,7 +3922,8 @@ void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 int32_t AbilityManagerService::GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
     const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
-    HILOG_INFO("getShareDataPairAndReturnData enter.");
+    HILOG_INFO("resultCode:%{public}d, uniqueId:%{public}d, wantParam size:%{public}d.",
+        resultCode, uniqueId, wantParam.Size());
     auto it = iAcquireShareDataMap_.find(uniqueId);
     if (it != iAcquireShareDataMap_.end()) {
         auto shareDataPair = it->second;
@@ -6471,6 +6472,7 @@ int32_t AbilityManagerService::AcquireShareData(
     uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
     std::pair<int64_t, const sptr<IAcquireShareDataCallback>> shareDataPair =
         std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
+    HILOG_INFO("uniqueId:%{public}d, abilityRecordId:%{public}lld.", uniqueId_, abilityRecord->GetAbilityRecordId());
     iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
     abilityRecord->ShareData(uniqueId_);
     return ERR_OK;
@@ -6479,6 +6481,7 @@ int32_t AbilityManagerService::AcquireShareData(
 int32_t AbilityManagerService::ShareDataDone(
     const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
+    HILOG_INFO("resultCode:%{public}d, uniqueId:%{public}d.", resultCode, uniqueId);
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }

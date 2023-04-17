@@ -1239,6 +1239,7 @@ void AbilityRecord::ShareData(const int32_t &uniqueId)
     HILOG_INFO("targetAbility start to share data with OriginAbility, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_MULTIPLE;
+    HILOG_INFO("loadTimeOut %{public}d.", loadTimeout);
     SendEvent(AbilityManagerService::SHAREDATA_TIMEOUT_MSG, loadTimeout, uniqueId);
     HILOG_INFO("sendEvent.");
     lifecycleDeal_->ShareData(uniqueId);
