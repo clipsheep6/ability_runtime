@@ -1770,7 +1770,6 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
         }
     }
-    scheduler_.clear();
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->SetScheduler(nullptr);
     isWindowAttached_ = false;
