@@ -2014,28 +2014,168 @@ HWTEST_F(MainThreadTest, Start_0100, TestSize.Level1)
 
 /**
  * @tc.name: ChangeToLocalPath_0200
- * @tc.desc: Main thread start.
+ * @tc.desc: Change the inner path to local path.
  * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
  */
 HWTEST_F(MainThreadTest, ChangeToLocalPath_0200, TestSize.Level1)
 {
     EXPECT_TRUE(mainThread_ != nullptr);
     std::string bundleName = "com.ohos.demo";
-    std::string sourceDir = "/data/storage/el1/" + bundleName + "/";
-    std::string localPath = "";
-    mainThread_->ChangeToLocalPath(bundleName, sourceDir, localPath);
-    EXPECT_TRUE(localPath == "/data/storage/el1/");
+    std::string localPath = "/data/app/el1/bundle/public/com.ohos.demo/";
+    mainThread_->ChangeToLocalPath(bundleName, localPath, localPath);
+    EXPECT_TRUE(localPath == "/data/storage/el1/bundle/");
 }
 
 /**
- * @tc.name: ResourceManager_0100
- * @tc.desc: Main thread start.
+ * @tc.name: ChangeToLocalPath_0300
+ * @tc.desc: Change the outter path to local path.
  * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
  */
-HWTEST_F(MainThreadTest, ResourceManager_0100, TestSize.Level1)
+HWTEST_F(MainThreadTest, ChangeToLocalPath_0300, TestSize.Level1)
 {
+    EXPECT_TRUE(mainThread_ != nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string outBundleName = "com.example.demo";
+    std::string localPath = "/data/app/el1/bundle/public/com.example.demo/";
+    mainThread_->ChangeToLocalPath(bundleName, localPath, localPath);
+    EXPECT_TRUE(localPath == "/data/bundles/com.example.demo/");
+}
+
+/**
+ * @tc.name: GetAddOverlayPaths_0100
+ * @tc.desc: Get overlay paths that need add.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(MainThreadTest, GetAddOverlayPaths_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    mainThread_->overlayModuleInfos_ = overlayModuleInfos;
+
+    std::vector<std::string> result = mainThread_->GetAddOverlayPaths(overlayModuleInfos);
+    EXPECT_TRUE(result.size() == 1);
+    EXPECT_TRUE(result[0] == "test");
+}
+
+/**
+ * @tc.name: GetRemoveOverlayPaths_0100
+ * @tc.desc: Get overlay paths that need remove.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(MainThreadTest, GetRemoveOverlayPaths_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    mainThread_->overlayModuleInfos_ = overlayModuleInfos;
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+
+    std::vector<std::string> result = mainThread_->GetRemoveOverlayPaths(overlayModuleInfos);
+    EXPECT_TRUE(result.size() == 1);
+    EXPECT_TRUE(result[0] == "test");
+}
+
+/**
+ * @tc.name: GetOverlayModuleInfos_0100
+ * @tc.desc: Get overlay paths form mock bms.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(MainThreadTest, GetOverlayModuleInfos_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string moduleName = "entry";
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.priority = 99;
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+
+    int result = mainThread_->GetOverlayModuleInfos(bundleName, moduleName, overlayModuleInfos);
+    EXPECT_TRUE(result == 0);
+    EXPECT_TRUE(overlayModuleInfos.size() == 1);
+}
+
+/**
+ * @tc.name: OnOverlayChanged_0100
+ * @tc.desc: On overlay path changed.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(MainThreadTest, OnOverlayChanged_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_TRUE(resourceManager != nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string moduleName = "entry";
+    std::string loadPath = "test";
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+    OHOS::EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.demo", "MainAbility", "entry");
+    want.SetAction("usual.event.OVERLAY_STATE_CHANGED");
+    data.SetWant(want);
+
+    mainThread_->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
+}
+
+/**
+ * @tc.name: HandleOnOverlayChanged_0100
+ * @tc.desc: Handle the function OnOverlayChanged.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(MainThreadTest, HandleOnOverlayChanged_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(mainThread_ != nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    EXPECT_TRUE(resourceManager != nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string moduleName = "entry";
+    std::string loadPath = "test";
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+    OHOS::EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.demo", "MainAbility", "entry");
+    want.SetAction("usual.event.OVERLAY_STATE_CHANGED");
+    data.SetWant(want);
+
+    mainThread_->HandleOnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
 }
 } // namespace AppExecFwk
 } // namespace OHOS
