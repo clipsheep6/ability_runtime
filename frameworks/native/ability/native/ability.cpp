@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -317,11 +317,22 @@ void Ability::OnActive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("Ability::OnActive error. abilityInfo_ == nullptr.");
+        return;
+    }
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
     eventInfo.abilityName = abilityInfo_->name;
     eventInfo.abilityType = static_cast<int32_t>(abilityInfo_->type);
+    eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
+    if (setWant_ != nullptr) {
+        eventInfo.callerBundleName = setWant_->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        HILOG_INFO("callerBundleName is %{public}s", eventInfo.callerBundleName.c_str());
+    } else {
+        HILOG_ERROR("setWant_ is nullptr, can not get callerBundleName.");
+    }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s end.", __func__);
@@ -345,10 +356,15 @@ void Ability::OnInactive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("Ability::OnInactive error. abilityInfo_ == nullptr.");
+        return;
+    }
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
     eventInfo.abilityName = abilityInfo_->name;
+    eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONINACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s end", __func__);
@@ -1515,6 +1531,12 @@ void Ability::OnForeground(const Want &want)
     eventInfo.bundleName = want.GetElement().GetBundleName();
     eventInfo.moduleName = want.GetElement().GetModuleName();
     eventInfo.abilityName = want.GetElement().GetAbilityName();
+    eventInfo.callerBundleName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    if (abilityInfo_ != nullptr) {
+        eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
+    } else {
+        HILOG_ERROR("abilityInfo_ is nullptr, can not get bundleType.");
+    }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONFOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -1569,6 +1591,7 @@ void Ability::OnBackground()
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
     eventInfo.abilityName = abilityInfo_->name;
+    eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONBACKGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
