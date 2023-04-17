@@ -138,7 +138,6 @@ private:
         }
         int upperLimit = -1;
         if (!ConvertFromJsValue(engine, info.argv[0], upperLimit)) {
-            HILOG_ERROR("Parse missionId failed");
 #ifdef ENABLE_ERRCODE
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
 #endif
@@ -260,13 +259,10 @@ private:
         if (info.argc < ARGC_ONE) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
-
         int32_t missionId = -1;
-        if (!AppExecFwk::UnwrapInt32FromJS2(
-            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), missionId)) {
+        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], missionId)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
-
         NativeValue* lastParam = info.argc > ARGC_ONE  ? info.argv[INDEX_ONE] : nullptr;
         NativeValue *result = nullptr;
         std::unique_ptr<AsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(

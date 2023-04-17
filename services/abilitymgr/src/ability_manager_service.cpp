@@ -3911,7 +3911,6 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 
 void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 {
-    HILOG_DEBUG("handle shareData timeout, uniqueId:%{public}lld.", uniqueId);
     WantParams wantParam;
     int32_t ret = GetShareDataPairAndReturnData(nullptr, ERR_TIMED_OUT, uniqueId, wantParam);
     if (ret) {
@@ -6472,7 +6471,6 @@ int32_t AbilityManagerService::AcquireShareData(
     uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
     std::pair<int64_t, const sptr<IAcquireShareDataCallback>> shareDataPair =
         std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
-    HILOG_INFO("uniqueId:%{public}d, abilityRecordId:%{public}lld.", uniqueId_, abilityRecord->GetAbilityRecordId());
     iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
     abilityRecord->ShareData(uniqueId_);
     return ERR_OK;
