@@ -18,26 +18,26 @@ import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 
-const TAG = "JumpInterceptorDialog_Service";
+const TAG = 'JumpInterceptorDialog_Service';
 
-var winNum = 1;
-var win;
+let winNum = 1;
+let win;
 
 export default class JumpInterceptorServiceExtAbility extends extension {
     onCreate(want) {
-        console.debug(TAG, "onCreate, want: " + JSON.stringify(want));
+        console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
         globalThis.jumpInterceptorExtensionContext = this.context;
     }
 
     async onRequest(want, startId) {
         globalThis.abilityWant = want;
-        globalThis.params = JSON.parse(want["parameters"]["params"]);
-        globalThis.position = JSON.parse(want["parameters"]["position"]);
-        globalThis.interceptor_callerBundleName = want["parameters"]["interceptor_callerBundleName"];
-        globalThis.interceptor_callerModuleName = want["parameters"]["interceptor_callerModuleName"];
-        globalThis.interceptor_callerLabelId = want["parameters"]["interceptor_callerLabelId"];
-        globalThis.interceptor_targetModuleName = want["parameters"]["interceptor_targetModuleName"];
-        globalThis.interceptor_targetLabelId = want["parameters"]["interceptor_targetLabelId"];                            
+        globalThis.params = JSON.parse(want['parameters']['params']);
+        globalThis.position = JSON.parse(want['parameters']['position']);
+        globalThis.interceptor_callerBundleName = want['parameters']['interceptor_callerBundleName'];
+        globalThis.interceptor_callerModuleName = want['parameters']['interceptor_callerModuleName'];
+        globalThis.interceptor_callerLabelId = want['parameters']['interceptor_callerLabelId'];
+        globalThis.interceptor_targetModuleName = want['parameters']['interceptor_targetModuleName'];
+        globalThis.interceptor_targetLabelId = want['parameters']['interceptor_targetLabelId'];                            
         await this.getHapResource();
         display.getDefaultDisplay().then(dis => {
             let navigationBarRect = {
@@ -51,16 +51,16 @@ export default class JumpInterceptorServiceExtAbility extends extension {
                 winNum--;
             }
             if (deviceInfo.deviceType == "phone") {
-                this.createWindow("JumpInterceptorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+                this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                this.createWindow("JumpInterceptorDialog" + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+                this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
             }
             winNum++;
         });
     }
 
     async getHapResource() {
-        console.debug(TAG, "start getHapResource");
+        console.debug(TAG, 'start getHapResource');
         globalThis.callerAppName = await this.loadAppName(
             globalThis.interceptor_callerBundleName,
             globalThis.interceptor_callerModuleName,
@@ -71,12 +71,12 @@ export default class JumpInterceptorServiceExtAbility extends extension {
             globalThis.interceptor_targetModuleName,
             globalThis.interceptor_targetLabelId
         );
-        console.debug(TAG, "getHapResource load finished");
+        console.debug(TAG, 'getHapResource load finished');
     }
 
     async loadAppName(bundleName: string, moduleName: string, labelId: number) {
         let moduleContext = globalThis.jumpInterceptorExtensionContext.createModuleContext(bundleName, moduleName);
-        let appName: string = "";
+        let appName: string = '';
         try {
             appName = await moduleContext.resourceManager.getString(labelId);
         } catch (error) {
@@ -86,20 +86,20 @@ export default class JumpInterceptorServiceExtAbility extends extension {
     }
 
     onDestroy() {
-        console.info(TAG, "onDestroy.");
+        console.info(TAG, 'onDestroy.');
     }
 
     private async createWindow(name: string, windowType: number, rect) {
-        console.info(TAG, "create window");
+        console.info(TAG, 'create window');
         try {
             win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
             await win.loadContent('pages/jumpInterceptorDialog');
-            await win.setBackgroundColor("#00000000");
+            await win.setBackgroundColor('#00000000');
             await win.show();
         } catch {
-            console.error(TAG, "window create failed!");
+            console.error(TAG, 'window create failed!');
         }
     }
 };
