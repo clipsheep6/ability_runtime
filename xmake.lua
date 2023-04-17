@@ -33,7 +33,8 @@ target("ability_runtime")
     add_includedirs("../communication_ipc/interfaces/innerkits/ipc_core/include", "../communication_ipc/interfaces/innerkits/ipc_napi_common/include")
     add_includedirs("../commonlibrary_c_utils/base/include")
     add_includedirs("D:/cache/include")
-    add_includedirs("../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include", 
+    add_includedirs("../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include/overlay",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr")
     add_includedirs("../ability_ability_base/interfaces/kits/native/want/include", "../ability_ability_base/interfaces/inner_api/base/include", 

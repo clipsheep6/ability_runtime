@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_CLIENT_H
 
 #include <functional>
+#include <condition_variable>
 
 #include "uri.h"
 #include "uri_permission_manager_interface.h"

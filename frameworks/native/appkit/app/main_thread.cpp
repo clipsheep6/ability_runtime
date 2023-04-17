@@ -503,6 +503,7 @@ void MainThread::ScheduleMemoryLevel(const int level)
  */
 void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
+    /*
     struct mallinfo mi = mallinfo();
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
@@ -512,6 +513,7 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     mallocInfo.usmblks = usmblks;
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
+    */
 }
 
 /**
@@ -2025,7 +2027,7 @@ void MainThread::Start()
         HILOG_ERROR("MainThread::static failed. new MainThread failed");
         return;
     }
-
+/*
     struct sigaction sigAct;
     sigemptyset(&sigAct.sa_mask);
     sigAct.sa_flags = 0;
@@ -2033,7 +2035,7 @@ void MainThread::Start()
     sigaction(SIGUSR1, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
-
+*/
     thread->Init(runner);
 
     thread->Attach();

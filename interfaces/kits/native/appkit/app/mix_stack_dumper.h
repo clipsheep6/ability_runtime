@@ -49,7 +49,7 @@ private:
     void Write(int fd, const std::string& outStr);
     std::string DumpMixStackLocked(int fd, pid_t tid);
 
-    static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
+    static void Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context);
     static void HandleMixDumpRequest();
 
 private:

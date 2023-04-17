@@ -55,7 +55,7 @@ typedef struct ProcInfo {
 } ProcInfo;
 }
 
-typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
+typedef void (*DumpSignalHandlerFunc) (int sig, void/*siginfo_t*/ *si, void *context);
 static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
 static struct ProcInfo g_procInfo = {0};
@@ -223,8 +223,9 @@ static std::string GetCurrentTimeStr(uint64_t current = 0)
     return std::string(formatTimeBuf, strlen(formatTimeBuf));
 }
 
-void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
+void MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context)
 {
+    /**
     switch (si->si_code) {
         case NATIVE_DUMP: {
             if (g_dumpSignalHandlerFunc != nullptr) {
@@ -245,11 +246,13 @@ void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
         default:
             break;
     }
+    */
 }
 
 void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<EventHandler> handler)
 {
+    /**
     MixStackDumper::signalHandler_ = handler;
     MixStackDumper::application_ = application;
     struct sigaction newDumpAction;
@@ -263,6 +266,7 @@ void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> applica
     if (oldDumpAction.sa_sigaction != nullptr) {
         g_dumpSignalHandlerFunc = oldDumpAction.sa_sigaction;
     }
+    */
 }
 
 bool MixStackDumper::IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset)
@@ -504,6 +508,7 @@ void MixStackDumper::Write(int fd, const std::string& outStr)
 
 std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
 {
+    /*
     if (fd < 0) {
         outputStr_.clear();
     }
@@ -532,6 +537,7 @@ std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
         }
     }
     Destroy();
+    */
     return outputStr_;
 }
 
