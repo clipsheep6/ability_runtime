@@ -52,7 +52,7 @@ public:
 
     void InitConsoleLogModule();
 
-    void InitWorkerModule();
+    void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle);
 
     void InitSourceMap(const std::shared_ptr<SourceMapOperatorImpl> operatorImpl);
 

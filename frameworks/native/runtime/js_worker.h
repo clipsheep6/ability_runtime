@@ -17,13 +17,44 @@
 #define OHOS_ABILITY_RUNTIME_JS_WORKER_H
 
 #include <string>
-
+#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle);
+// void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle);
 void StartDebuggerInWorkerModule();
+void InitWorkerFunc(NativeEngine* nativeEngine);
+void OffWorkerFunc(NativeEngine* nativeEngine);
+int32_t GetContainerId();
+void UpdateContainerScope(int32_t id);
+void RestoreContainerScope(int32_t id);
+
+struct AssetHelper final
+{
+    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, bool isBundle)
+            : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
+    {
+        if (!codePath_.empty() && codePath.back() != '/') {
+            codePath_.append("/");
+        }
+    }
+
+    std::string NormalizedFileName(const std::string& fileName) const;
+
+    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami) const;
+
+    sptr<AppExecFwk::BundleMgrProxy> GetBundleMgrProxy() const;
+
+    bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
+
+    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const;
+
+    std::string codePath_;
+    bool isDebugVersion_ = false;
+    bool isBundle_ = true;
+};
+
 } // namespace AbilityRuntime
 } // namespace OHOS
 

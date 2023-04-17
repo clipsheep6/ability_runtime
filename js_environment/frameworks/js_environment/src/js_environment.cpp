@@ -79,10 +79,10 @@ void JsEnvironment::InitConsoleLogModule()
     }
 }
 
-void JsEnvironment::InitWorkerModule()
+void JsEnvironment::InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle)
 {
     if (impl_ != nullptr) {
-        impl_->InitWorkerModule();
+        impl_->InitWorkerModule(engine, codePath, isDebugVersion, isBundle);
     }
 }
 

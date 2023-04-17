@@ -33,7 +33,7 @@ public:
 
     void InitConsoleLogModule() override;
 
-    void InitWorkerModule() override;
+    void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle) override;
 
     void InitSyscapModule() override;
 };
