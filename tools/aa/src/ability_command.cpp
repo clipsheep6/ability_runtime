@@ -35,7 +35,7 @@ namespace AAFwk {
 namespace {
 size_t paramLength = 1024;
 
-const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDS";
+const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -46,6 +46,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"module", required_argument, nullptr, 'm'},
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
+    {"native-debug", no_argument, nullptr, 'N'},
     {nullptr, 0, nullptr, 0},
 };
 const std::string SHORT_OPTIONS_APPLICATION_NOT_RESPONDING = "hp:";
@@ -940,6 +941,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     bool isDebugApp = false;
     bool isContinuation = false;
     bool isSanboxApp = false;
+    bool isNativeDebug = false;
 
     while (true) {
         counter++;
@@ -1160,6 +1162,11 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 isContinuation = true;
                 break;
             }
+            case 'N': {
+                // 'aa start -N'
+                // wait for debug in appspawn
+                isNativeDebug = true;
+            }
             case 0: {
                 break;
             }
@@ -1202,6 +1209,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isSanboxApp) {
                 want.SetParam("sanboxApp", isSanboxApp);
+            }
+            if (isNativeDebug) {
+                want.SetParam("nativeDebug", isNativeDebug);
             }
         }
     }

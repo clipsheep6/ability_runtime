@@ -1060,6 +1060,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want);
     if (want) {
         appRecord->SetDebugApp(want->GetBoolParam("debugApp", false));
+        appRecord->SetNativeDebug(want->GetBoolParam("nativeDebug", false));
         if (want->GetBoolParam(COLD_START, false)) {
             appRecord->SetDebugApp(true);
         }
@@ -3229,6 +3230,9 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
 	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+    }
+    if (want.GetBoolParam("nativeDebug", false)) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
     }
 
     return startFlags;
