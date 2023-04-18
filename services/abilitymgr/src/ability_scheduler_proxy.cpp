@@ -174,6 +174,25 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
     }
 }
 
+int AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("fail to WriteInterfaceToken");
+        return -1;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_PREPARE_TERMINATE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("SchedulePrepareTerminateAbility fail to SendRequest. err: %{public}d", err);
+    }
+    int32_t ret = reply.ReadInt32();
+    HILOG_DEBUG("SchedulePrepareTerminateAbility end, ret: %{public}d", ret);
+    return ret;
+}
+
 void AbilitySchedulerProxy::ScheduleSaveAbilityState()
 {
     MessageParcel data;

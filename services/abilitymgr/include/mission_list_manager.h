@@ -190,6 +190,9 @@ public:
      */
     int ClearMission(int missionId);
 
+    int PrepareClearMission(int missionId);
+    int PrepareClearAllMissions();
+
     /**
      * @brief clear all the missions
      *
@@ -423,6 +426,9 @@ private:
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
+    int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
+    void PrepareClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
+        std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
     std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
