@@ -196,6 +196,12 @@ public:
     {
         return false;
     }
+
+    int32_t AcquireFormData(int64_t formId, int64_t requestCode, const sptr<IRemoteObject> &callerToken,
+         AAFwk::WantParams &formData) override
+    {
+        return 0;
+    }
     int32_t GetFormsCount(bool isTempFormFlag, int32_t &formCount) override
     {
         return 0;

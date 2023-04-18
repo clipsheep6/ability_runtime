@@ -92,6 +92,13 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         createWant.RemoveParam(Constants::FORM_PROCESS_ON_ADD_SURFACE);
         createWant.RemoveParam(Constants::FORM_ALLOW_UPDATE);
         createWant.SetElement(want.GetElement());
+        if (!createWant.HasParameter(Constants::LAUNCH_REASON_KEY)) {
+            createWant.SetParam(Constants::LAUNCH_REASON_KEY, Constants::FORM_DEFAULT);
+        }
+        if (!createWant.HasParameter(Constants::PARAM_FORM_CUSTOMIZE_KEY)) {
+            std::vector<std::string> customizeData;
+            createWant.SetParam(Constants::PARAM_FORM_CUSTOMIZE_KEY, customizeData);
+        }
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
         HILOG_DEBUG("%{public}s, formJsInfo.formId: %{public}s, data: %{public}s",
@@ -558,6 +565,47 @@ bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
     }
 
     return ownerFormExtension->OnShare(formId, wantParams);
+}
+
+int32_t FormExtensionProviderClient::AcquireFormData(int64_t formId, const sptr<IRemoteObject> &formSupplyCallback,
+    int64_t requestCode)
+{
+    HILOG_DEBUG("called.");
+
+    if (!FormProviderClient::CheckIsSystemApp()) {
+        HILOG_ERROR("error, AcquireFormData caller permission denied.");
+        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
+    }
+
+    std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
+    auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
+    if (formCall == nullptr) {
+        HILOG_ERROR("error, callback is nullptr.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    AAFwk::WantParams wantParams;
+    bool result = false;
+    auto taskProc = [client = wptr<FormExtensionProviderClient>(this), formId, &wantParams, &result]() {
+        result = client->FormExtensionProviderAcquireFormData(formId, wantParams);
+    };
+    mainHandler->PostSyncTask(taskProc);
+    formCall->OnAcquireDataResult(wantParams, requestCode);
+
+    return ERR_OK;
+}
+
+bool FormExtensionProviderClient::FormExtensionProviderAcquireFormData(
+    int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("called.");
+    std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
+    if (ownerFormExtension == nullptr) {
+        HILOG_ERROR("error, ownerFormExtension is nullptr.");
+        return false;
+    }
+
+    return ownerFormExtension->OnAcquireData(formId, wantParams);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
