@@ -18,9 +18,8 @@
 
 #include "ability.h"
 #include "ability_delegator_infos.h"
-
-class NativeReference;
-class NativeValue;
+#include "native_engine/native_reference.h"
+#include "native_engine/native_value.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -108,6 +107,14 @@ private:
     std::shared_ptr<NativeReference> shellContextRef_;
     std::shared_ptr<NativeReference> jsAbilityObj_;
     sptr<IRemoteObject> remoteCallee_;
+};
+
+struct JsAbilityDeleterObject {
+    std::shared_ptr<NativeReference> jsAbilityObj_ = nullptr;
+    std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
+#ifdef SUPPORT_GRAPHICS
+    std::shared_ptr<NativeReference> jsWindowStageObj_ = nullptr;
+#endif
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
