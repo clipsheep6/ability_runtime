@@ -279,7 +279,7 @@ class Caller {
         }
 
         if (callback && typeof callback !== 'function') {
-            console.log("Caller onRelease error " + typeof callback);
+            console.log('Caller onRelease error ' + typeof callback);
             throw new BusinessError(ERROR_CODE_INVALID_PARAM);
         }
         // Empty
