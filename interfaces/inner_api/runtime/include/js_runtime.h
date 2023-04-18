@@ -105,6 +105,8 @@ public:
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl);
+    void FreeNativeReference(std::unique_ptr<NativeReference> reference);
+    void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
 
 private:
     void FinishPreload() override;
@@ -137,6 +139,8 @@ private:
     inline bool IsUseAbilityRuntime(const Options& options) const;
     bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
+    void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
+        std::shared_ptr<NativeReference>&& sharedNativeRef);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
