@@ -32,7 +32,7 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
-
+constexpr uint32_t CHECK_INTERVAL_TIME_ASANENABLED = 45000;
 #ifdef SUPPORT_ASAN
 constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
 #else
@@ -61,8 +61,15 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
     }
     lastWatchTime_ = 0;
     auto watchdogTask = std::bind(&Watchdog::Timer, this);
-    OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
-        CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
+    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
+    SetApplicationInfo(application);
+    if (applicationInfo_->asanEnabled) {
+        OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
+            CHECK_INTERVAL_TIME_ASANENABLED, INI_TIMER_FIRST_SECOND_ASANENABLED);
+    } else {
+        OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
+            CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
+    }
 }
 
 void Watchdog::Stop()
@@ -122,6 +129,12 @@ bool Watchdog::IsStopWatchdog()
 void Watchdog::Timer()
 {
     std::unique_lock<std::mutex> lock(cvMutex_);
+    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
+    SetApplicationInfo(application);
+    if (applicationInfo_->asanEnabled) {
+        needReport_.store(false);
+	stopWatchdog_.store(true);
+    }	
     if (stopWatchdog_) {
         HILOG_DEBUG("Watchdog has stoped.");
         return;
@@ -157,11 +170,18 @@ void Watchdog::reportEvent()
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     constexpr int RESET_RATIO = 2;
-    if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
-        HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
-            static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
-        lastWatchTime_ = now;
-        return;
+    if (applicationInfo_->asanEnabled) {
+        if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME_ASANENABLED)) {
+            HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
+                static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
+            lastWatchTime_ = now;
+            return;
+        } else if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
+            HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
+                static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
+            lastWatchTime_ = now;
+            return;
+        }
     }
     
     if (applicationInfo_ == nullptr) {
