@@ -61,7 +61,7 @@ public:
     static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
         const std::string& moduleName, NativeValue* const* argv, size_t argc);
 
-    static void SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp = false);
+    static void SetAppLibPath(const AppLibPathMap& appLibPaths);
 
     static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
 

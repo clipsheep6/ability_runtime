@@ -136,6 +136,9 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hapInfo : bundleInfo.hapModuleInfos) {
         HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
             hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
+        if (!hapInfo.isLibIsolated) {
+            continue;
+        }
         std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
 
         // libraries in patch lib path has a higher priority when loading.
@@ -148,11 +151,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         }
 
         std::string libPath = LOCAL_CODE_PATH;
-        if (hapInfo.isLibIsolated) {
-            libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-        } else {
-            libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        }
+        libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
         HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
         appLibPaths[appLibPathKey].emplace_back(libPath);
     }
@@ -1194,9 +1193,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     AppLibPathMap appLibPaths {};
     GetNativeLibPath(bundleInfo, hspList, appLibPaths);
-    bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
-    HILOG_DEBUG("the application isSystemApp: %{public}d", isSystemApp);
-    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths);
 
     if (isStageBased) {
         // Create runtime
