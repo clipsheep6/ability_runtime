@@ -229,6 +229,7 @@ ohos_unittest("ability_context_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_clientex.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_service.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "ability_context_test.cpp",
   ]
@@ -1312,6 +1313,7 @@ ohos_unittest("ability_permission_test") {
   sources = [
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_service.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "ability_permission_test.cpp",
   ]

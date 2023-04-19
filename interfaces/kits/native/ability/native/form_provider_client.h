@@ -138,7 +138,7 @@ public:
 
     /**
      * @brief Acquire to share form information data. This is sync API.
-     * @param formId The Id of the from.
+     * @param formId The Id of the form.
      * @param remoteDeviceId Indicates the remote device ID.
      * @param formSupplyCallback Indicates lifecycle callbacks.
      * @param requestCode Indicates the request code of this share form.
@@ -146,6 +146,19 @@ public:
      */
     virtual int32_t AcquireShareFormData(int64_t formId, const std::string &remoteDeviceId,
         const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode) override;
+
+    /**
+     * @brief Acquire form data.
+     * @param formId The Id of the form.
+     * @param formSupplyCallback Indicates lifecycle callbacks.
+     * @param requestCode Indicates the request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AcquireFormData(int64_t formId, const sptr<IRemoteObject> &formSupplyCallback,
+        int64_t requestCode) override
+    {
+        return ERR_OK;
+    }
 
     /**
      * @brief Set the owner ability of the form provider client.

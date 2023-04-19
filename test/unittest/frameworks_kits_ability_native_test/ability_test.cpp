@@ -763,6 +763,53 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnActive_0300, TestSize.Level1)
 }
 
 /**
+ * @tc.name: AaFwk_Ability_OnActive_0400
+ * @tc.desc: Ability OnActive test when abilityInfo is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI6UDXQ
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnActive_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<AbilityLifecycleExecutor> lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    std::shared_ptr<LifeCycle> lifecycle = std::make_shared<LifeCycle>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->lifecycle_ = lifecycle;
+    ability->abilityInfo_ = nullptr;
+    ability->OnActive();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnActive_0500
+ * @tc.desc: Ability OnActive test when setWant_ is nuot nulptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI6UDXQ
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnActive_0500, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<AbilityLifecycleExecutor> lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    std::shared_ptr<LifeCycle> lifecycle = std::make_shared<LifeCycle>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    AAFwk::Want want;
+    std::string callerBundleName = "callerBundleName";
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->lifecycle_ = lifecycle;
+    ability->abilityInfo_ = abilityInfo;
+    ability->SetWant(want);
+    ability->OnActive();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.number: AaFwk_Ability_OnInactive_0100
  * @tc.name: OnInactive
  * @tc.desc: Test whether oninactive is called normally and verify whether the member is correct.
@@ -826,6 +873,27 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnInactive_0300, TestSize.Level1)
     // lifecycle is nullptr and lifecycle executor is not nullptr
     auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
     ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->OnInactive();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AaFwk_Ability_OnInactive_0400
+ * @tc.desc: Ability OnActive test when abilityInfo_ is nullptr.
+ * @tc.type: FUNC
+ * @tc.require: issueI6UDXQ
+ */
+HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnInactive_0400, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<AbilityLifecycleExecutor> lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
+    std::shared_ptr<LifeCycle> lifecycle = std::make_shared<LifeCycle>();
+    ability->abilityLifecycleExecutor_ = lifecycleExecutor;
+    ability->lifecycle_ = lifecycle;
+    ability->abilityInfo_ = nullptr;
     ability->OnInactive();
     HILOG_INFO("%{public}s end.", __func__);
 }

@@ -227,6 +227,12 @@ public:
     {
         return 0;
     }
+
+    int32_t AcquireFormData(int64_t formId, int64_t requestCode, const sptr<IRemoteObject> &callerToken,
+        AAFwk::WantParams &formData)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

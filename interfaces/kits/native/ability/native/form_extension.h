@@ -149,6 +149,15 @@ public:
     virtual bool OnShare(int64_t formId, AAFwk::WantParams &wantParams);
 
     /**
+     * @brief Request currently acquired form data
+     *
+     * @param wantParams Indicates the form acquired information data.
+     *
+     * @return none.
+     */
+    virtual bool OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams);
+
+    /**
      * @brief Called when the system configuration is updated.
      *
      * @param configuration Indicates the updated configuration information.

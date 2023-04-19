@@ -40,6 +40,7 @@ ohos_unittest("AmsAppLifeCycleTest") {
     "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
   ]
 
   sources += [ "ams_app_life_cycle_test.cpp" ]

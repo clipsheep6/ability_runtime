@@ -3948,7 +3948,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_005, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -3972,7 +3973,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_006, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -3996,8 +3998,9 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_007, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
-    EXPECT_NE(res, nullptr);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
+    EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
 
@@ -4020,7 +4023,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_008, TestSize.Level1)
     missionListManager->launcherList_ = missionList;
     missionListManager->defaultStandardList_ = missionList;
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -4048,7 +4052,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_009, TestSize.Level1)
     InnerMissionInfo info;
     info.missionInfo.id = 1;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(info);
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -5047,11 +5052,7 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_001, TestSize.Level1)
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     missionList->missions_.push_front(mission);
     missionListManager->launcherList_ = missionList;
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
-    abilityRequest.specifiedFlag = flag;
-    bool res = missionListManager->IsReachToLimitLocked(abilityRequest);
+    bool res = missionListManager->IsReachToLimitLocked();
     EXPECT_FALSE(res);
     missionListManager.reset();
 }
@@ -5068,8 +5069,6 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_002, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
@@ -5078,7 +5077,7 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_002, TestSize.Level1)
     missionListManager->currentMissionLists_.push_back(missionList);
     missionListManager->defaultStandardList_ = missionList;
     missionListManager->defaultSingleList_ = missionList;
-    bool res = missionListManager->IsReachToLimitLocked(abilityRequest);
+    bool res = missionListManager->IsReachToLimitLocked();
     EXPECT_FALSE(res);
     missionListManager.reset();
 }

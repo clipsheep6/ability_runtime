@@ -57,7 +57,8 @@ int32_t AcquireShareDataCallbackStub::AcquireShareDataDoneInner(MessageParcel &d
 
 int32_t AcquireShareDataCallbackStub::AcquireShareDataDone(int32_t resultCode, WantParams &wantParam)
 {
-    if (!resultCode || wantParam.IsEmpty()) {
+    HILOG_INFO("resultCode:%{public}d, wantParam size:%{public}d", resultCode, wantParam.Size());
+    if (resultCode || wantParam.IsEmpty()) {
         HILOG_INFO("invaild param.");
     }
     auto task = [resultCode, wantParam, shareRuntimeTask = shareRuntimeTask_]() {

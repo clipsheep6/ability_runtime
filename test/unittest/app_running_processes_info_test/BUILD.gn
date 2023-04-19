@@ -35,6 +35,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
   ]
 
   sources += [ "app_running_processes_info_test.cpp" ]

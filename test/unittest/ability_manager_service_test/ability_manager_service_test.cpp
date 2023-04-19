@@ -1753,20 +1753,6 @@ HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: GetMaxRestartNum
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMaxRestartNum
- */
-HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
-    auto ret = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
-    EXPECT_EQ(ret, 0);
-    HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: KillProcess
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService KillProcess

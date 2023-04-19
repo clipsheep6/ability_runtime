@@ -35,7 +35,7 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
         HILOG_ERROR("invalid baseFileName!");
         return false;
     }
-    int baseFileNameLen = baseFileName.length();
+    int baseFileNameLen = static_cast<int>(baseFileName.length());
     int prefixLen = strlen(BUNDLE_INSTALL_PATH);
     int suffixLen = strlen(MERGE_ABC_PATH);
     int moduleLen = baseFileNameLen - prefixLen - suffixLen;

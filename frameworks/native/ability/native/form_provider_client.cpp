@@ -70,6 +70,13 @@ int FormProviderClient::AcquireProviderFormInfo(
     createWant.RemoveParam(Constants::FORM_DENSITY);
     createWant.RemoveParam(Constants::FORM_PROCESS_ON_ADD_SURFACE);
     createWant.RemoveParam(Constants::FORM_ALLOW_UPDATE);
+    if (!createWant.HasParameter(Constants::LAUNCH_REASON_KEY)) {
+        createWant.SetParam(Constants::LAUNCH_REASON_KEY, Constants::FORM_DEFAULT);
+    }
+    if (!createWant.HasParameter(Constants::PARAM_FORM_CUSTOMIZE_KEY)) {
+        std::vector<std::string> customizeData;
+        createWant.SetParam(Constants::PARAM_FORM_CUSTOMIZE_KEY, customizeData);
+    }
     FormProviderInfo formProviderInfo = ownerAbility->OnCreate(createWant);
     HILOG_DEBUG("%{public}s, formId: %{public}" PRId64 ", data: %{public}s",
         __func__, formJsInfo.formId, formProviderInfo.GetFormDataString().c_str());

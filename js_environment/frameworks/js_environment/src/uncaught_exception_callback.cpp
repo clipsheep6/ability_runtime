@@ -38,10 +38,6 @@ std::string UncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(NativeObject*
     size_t valueStrBufLength = valueStr->GetLength();
     size_t valueStrLength = 0;
     auto valueCStr = std::make_unique<char[]>(valueStrBufLength + 1);
-    if (valueCStr == nullptr) {
-        JSENV_LOG_E("Failed to new valueCStr.");
-        return "";
-    }
 
     valueStr->GetCString(valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);

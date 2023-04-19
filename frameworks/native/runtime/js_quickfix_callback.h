@@ -25,7 +25,7 @@ namespace AbilityRuntime {
 class JsRuntime;
 class JsQuickfixCallback final {
 public:
-    explicit JsQuickfixCallback(std::map<std::string, std::string> moduleAndHqfPath) :
+    explicit JsQuickfixCallback(const std::map<std::string, std::string> moduleAndHqfPath) :
         moduleAndHqfPath_(moduleAndHqfPath) {};
     ~JsQuickfixCallback() = default;
 

@@ -27,6 +27,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
 
   sources = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
     "ams_app_running_record_test.cpp",
   ]
 

@@ -421,6 +421,14 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
+    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
+    int32_t callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
+    auto callerRecord = GetAppRunningRecordByPid(callerPid);
+    if (callerRecord != nullptr) {
+        eventInfo.callerBundleName = callerRecord->GetBundleName();
+    } else {
+        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
+    }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_FOREGROUND, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -451,6 +459,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
+    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_BACKGROUND, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -1051,6 +1060,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want);
     if (want) {
         appRecord->SetDebugApp(want->GetBoolParam("debugApp", false));
+        appRecord->SetNativeDebug(want->GetBoolParam("nativeDebug", false));
         if (want->GetBoolParam(COLD_START, false)) {
             appRecord->SetDebugApp(true);
         }
@@ -1737,21 +1747,21 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         auto token = appRecord->GetCallerTokenId() == -1 ?
             static_cast<int>(IPCSkeleton::GetCallingTokenID()) : appRecord->GetCallerTokenId();
         Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
-        eventInfo.bundleName = "";
-        eventInfo.processName = nativeTokenInfo.processName;
+        eventInfo.callerBundleName = "";
+        eventInfo.callerProcessName = nativeTokenInfo.processName;
     } else {
         if (callerAppRecord->GetBundleName().empty()) {
-            eventInfo.bundleName = callerAppRecord->GetName();
+            eventInfo.callerBundleName = callerAppRecord->GetName();
         } else {
-            eventInfo.bundleName = callerAppRecord->GetBundleName();
+            eventInfo.callerBundleName = callerAppRecord->GetBundleName();
         }
-        eventInfo.processName = callerAppRecord->GetProcessName();
+        eventInfo.callerProcessName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
-        __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
-        eventInfo.processName.c_str());
+        __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
+        eventInfo.callerProcessName.c_str());
 
     return true;
 }
@@ -3220,6 +3230,9 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
 	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+    }
+    if (want.GetBoolParam("nativeDebug", false)) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
     }
 
     return startFlags;

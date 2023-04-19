@@ -88,8 +88,10 @@ ohos_unittest("js_runtime_test") {
   ]
 
   external_deps = [
+    "ability_runtime:js_environment",
     "ability_runtime:runtime",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
