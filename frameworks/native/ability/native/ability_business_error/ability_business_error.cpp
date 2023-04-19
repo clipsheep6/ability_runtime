@@ -28,28 +28,29 @@ constexpr const char* ERROR_MSG_OK = "OK.";
 constexpr const char* ERROR_MSG_PERMISSION_DENIED = "The application does not have permission to call the interface.";
 constexpr const char* ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
 constexpr const char* ERROR_MSG_SYSTEMCAP = "The specified SystemCapability name was not found.";
-constexpr const char* ERROR_MSG_INNER = "Inner Error.";
+constexpr const char* ERROR_MSG_INNER = "Internal error.";
 constexpr const char* ERROR_MSG_RESOLVE_ABILITY = "The specified ability does not exist.";
-constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Ability type error. The specified ability type is wrong";
-constexpr const char* ERROR_MSG_INVALID_ID = "The specified id does not exist.";
+constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Incorrect ability type.";
+constexpr const char* ERROR_MSG_INVALID_ID = "Input error. The specified ID does not exist.";
 constexpr const char* ERROR_MSG_INVISIBLE = "Can not start invisible component.";
 constexpr const char* ERROR_MSG_STATIC_CFG_PERMISSION = "The specified process does not have the permission.";
-constexpr const char* ERROR_MSG_CROSS_USER = "Can not cross user operations.";
-constexpr const char* ERROR_MSG_CROWDTEST_EXPIRED = "Crowdtest App Expiration.";
-constexpr const char* ERROR_MSG_WUKONG_MODE = "Cannot operate in wukong mode.";
-constexpr const char* ERROR_MSG_CONTINUATION_FLAG = "StartAbility with continuation flags is not allowed!";
-constexpr const char* ERROR_MSG_INVALID_CONTEXT = "Context does not exist!";
-constexpr const char* ERROR_MSG_NETWORK_ABNORMAL = "Network error. The network is abnormal when free install.";
-constexpr const char* ERROR_MSG_NOT_SUPPORT_FREE_INSTALL = "The Application does not support free install.";
-constexpr const char* ERROR_MSG_NOT_TOP_ABILITY = "Not top ability, Can not free install ability.";
+constexpr const char* ERROR_MSG_CROSS_USER = "Cross-user operations are not allowed.";
+constexpr const char* ERROR_MSG_SERVICE_BUSY = "Service busy.Try again later.";
+constexpr const char* ERROR_MSG_CROWDTEST_EXPIRED = "The crowdtesting application expires.";
+constexpr const char* ERROR_MSG_WUKONG_MODE = "An ability cannot be started or stopped in Wukong mode.";
+constexpr const char* ERROR_MSG_CONTINUATION_FLAG = "The call with the continuation flag is forbidden.";
+constexpr const char* ERROR_MSG_INVALID_CONTEXT = "The context does not exist.";
+constexpr const char* ERROR_MSG_NETWORK_ABNORMAL = "Network error.";
+constexpr const char* ERROR_MSG_NOT_SUPPORT_FREE_INSTALL = "Installation-free is not supported.";
+constexpr const char* ERROR_MSG_NOT_TOP_ABILITY = "The ability is not on the top of the UI.";
 constexpr const char* ERROR_MSG_FREE_INSTALL_TOO_BUSY =
-    "Free install busyness. There are concurrent tasks waiting for retry.";
-constexpr const char* ERROR_MSG_FREE_INSTALL_TIMEOUT = "Free install timeout.";
-constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Can not free install other ability.";
-constexpr const char* ERROR_MSG_INVALID_CALLER = "Caller released, The caller has been released.";
-constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission id does not exist.";
-constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "The specified mission listener does not exist.";
-constexpr const char* ERROR_MSG_START_ABILITY_WAITTING = "The previous ability is starting, wait start later.";
+    "The installation-free service is busy. Try again later.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_TIMEOUT = "Installation-free timed out.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_OTHERS = "Installation-free is not allowed for other applications.";
+constexpr const char* ERROR_MSG_FREE_INSTALL_CROSS_DEVICE = "Cross-device installation-free is not supported.";
+constexpr const char* ERROR_MSG_INVALID_CALLER = "The caller has been released.";
+constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission does not exist.";
+constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specified mission listener does not exist.";
 
 static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_OK, ERROR_MSG_OK },
