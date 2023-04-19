@@ -15,6 +15,7 @@
 
 #include "js_uri_perm_mgr.h"
 
+#include "ability_business_error.h"
 #include "ability_manager_errors.h"
 #include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
@@ -30,6 +31,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t ERR_OK = 0;
+constexpr int32_t ERROR_CODE_URI_PERMISSION_NOT_FOUND = 16000058;
 constexpr int32_t argCountFour = 4;
 constexpr int32_t argCountThree = 3;
 constexpr int32_t argCountTwo = 2;
@@ -150,6 +152,9 @@ private:
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
                 task.Reject(engine, CreateNoPermissionError(engine,
                     "Do not have permission ohos.permission.PROXY_AUTHORIZATION_URI"));
+            } else if (errCode == ERROR_CODE_URI_PERMISSION_NOT_FOUND){
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_URI_PERMISSION_NOT_FOUND,
+                "Uri permission to revoke not found."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));

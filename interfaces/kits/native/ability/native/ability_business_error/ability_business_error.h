@@ -96,6 +96,9 @@ enum class AbilityErrorCode {
     // Cross-device installation-free is not supported.
     ERROR_CODE_FREE_INSTALL_CROSS_DEVICE = 16000057,
 
+    // Uri permission not found.
+    ERROR_CODE_URI_PERMISSION_NOT_FOUND = 16000058,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 

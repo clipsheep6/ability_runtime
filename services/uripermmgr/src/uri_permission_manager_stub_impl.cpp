@@ -33,6 +33,7 @@ namespace OHOS {
 namespace AAFwk {
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t ERR_OK = 0;
+const int32_t ERROR_CODE_URI_PERMISSION_NOT_FOUND = 16000058;
 using TokenId = Security::AccessToken::AccessTokenID;
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -178,12 +179,14 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         auto search = uriMap_.find(uriStr);
         if (search == uriMap_.end()) {
             HILOG_ERROR("URI does not exist on uri map.");
-            return INNER_ERR;
+            return ERROR_CODE_URI_PERMISSION_NOT_FOUND;
         }
         auto& list = search->second;
+        bool found = false;
         for (auto it = list.begin(); it != list.end(); it++) {
             if (it->targetTokenId == tokenId) {
                 HILOG_INFO("Erase an info form list.");
+                found = true;
                 auto storageMgrProxy = ConnectStorageManager();
                 if (storageMgrProxy == nullptr) {
                     HILOG_ERROR("ConnectStorageManager failed");
@@ -201,6 +204,9 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         }
         if (list.size() == 0) {
             uriMap_.erase(search);
+        }
+        if (!found) {
+            return ERROR_CODE_URI_PERMISSION_NOT_FOUND;
         }
     }
     return ERR_OK;
