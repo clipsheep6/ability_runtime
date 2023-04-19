@@ -126,7 +126,7 @@ void ComponentInterceptionProxy::NotifyHandleAbilityStateChange(const sptr<IRemo
 }
 
 bool ComponentInterceptionProxy::ReleaseCallInterception(const sptr<IRemoteObject> &connect,
-        const AppExecFwk::ElementName &element, sptr<Want> &extraParam)
+    const AppExecFwk::ElementName &element, sptr<Want> &extraParam)
 {
     MessageParcel data;
     MessageParcel reply;

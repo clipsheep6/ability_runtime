@@ -510,7 +510,6 @@ void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::
     }
     // SourceMapData curMapData;
     Init(targetMap, *targetMaps.nonModularMap_);
-    // targetMaps.sourceMaps_.insert(std::pair<std::string, SourceMapData>(isPageFlag, curMapData));
 }
 
 std::string ModSourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData, const std::string& sourceCode, uint32_t& errorPos)

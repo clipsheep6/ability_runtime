@@ -48,7 +48,6 @@ export default {
             this.pcDisplay = 'flex';
             this.initPcData();
         }
-
         this.getHapResource();
     },
     initPhoneData() {
@@ -62,7 +61,6 @@ export default {
                 selectorHap = [];
             }
         }
-
         console.log("dialog service this.lineNums:" + this.lineNums);
         console.log("dialog service selectorHapList.length:" + this.selectorHapList.length);
     },
@@ -74,7 +72,6 @@ export default {
             this.selectorHapList[i].icon = "common/app_icon.png";
             console.log("dialog service onInit bundle " + this.hapList[i].bundle);
         }
-
         this.getHapListStyle();
     },
     getHapListStyle() {
