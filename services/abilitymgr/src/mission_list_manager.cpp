@@ -1628,6 +1628,63 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityFromTerminateList(c
     return nullptr;
 }
 
+int MissionListManager::PrepareClearMission(int missionId)
+{
+    HILOG_DEBUG("PrepareClearMission begin.");
+    if (missionId < 0) {
+        HILOG_ERROR("Mission id is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    auto mission = GetMissionById(missionId);
+    if (mission && mission->GetMissionList() && mission->GetMissionList()->GetType() == MissionListType::LAUNCHER) {
+        HILOG_ERROR("Mission id is launcher, can not clear.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (IsExcludeFromMissions(mission)) {
+        HILOG_WARN("excludeFromMissions is true, not clear by id.");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_DEBUG("PrepareClearMission end.");
+
+    return PrepareClearMissionLocked(missionId, mission);
+}
+
+int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission)
+{
+    if (mission == nullptr) {
+        HILOG_DEBUG("ability has already terminate, just remove mission.");
+        return ERR_OK;
+    }
+    HILOG_DEBUG("PrepareClearMissionLocked begin, missionId=%{public}d.", missionId);
+    auto abilityRecord = mission->GetAbilityRecord();
+    if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
+        HILOG_WARN("Ability record is not exist or is on terminating.");
+        return ERR_OK;
+    }
+    auto prepareResult = abilityRecord->PrepareTerminateAbility();
+    if (prepareResult == 1) {
+        HILOG_DEBUG("PrepareClearMissionLocked: onPrepareTerminate ok.");
+        return ERR_OK;
+    }
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteMissionInfo(missionId);
+    if (listenerController_) {
+        listenerController_->NotifyMissionDestroyed(missionId);
+    }
+    abilityRecord->SetTerminatingState();
+    abilityRecord->SetClearMissionFlag(true);
+    Want want;
+    abilityRecord->SaveResultToCallers(-1, &want);
+    auto ret = TerminateAbilityLocked(abilityRecord, false);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("clear mission error: %{public}d.", ret);
+        return REMOVE_MISSION_FAILED;
+    }
+
+    return ERR_OK;
+}
+
 int MissionListManager::ClearMission(int missionId)
 {
     if (missionId < 0) {
@@ -1679,6 +1736,55 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
     }
 
     return ERR_OK;
+}
+
+int MissionListManager::PrepareClearAllMissions()
+{
+    HILOG_DEBUG("PrepareClearAllMissions begin.");
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::list<std::shared_ptr<Mission>> foregroundAbilities;
+    PrepareClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false);
+    PrepareClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false);
+
+    for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
+        auto missionList = (*listIter);
+        listIter++;
+        if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
+            continue;
+        }
+        PrepareClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true);
+    }
+
+    PrepareClearAllMissionsLocked(foregroundAbilities, foregroundAbilities, false);
+    HILOG_DEBUG("PrepareClearAllMissions end.");
+    return ERR_OK;
+}
+
+void MissionListManager::PrepareClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
+    std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
+{
+    HILOG_DEBUG("PrepareClearAllMissionsLocked begin.");
+    for (auto listIter = missionList.begin(); listIter != missionList.end();) {
+        auto mission = (*listIter);
+        listIter++;
+        if (!mission || mission->IsLockedState()) {
+            continue;
+        }
+
+        auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMs_->IsBackgroundTaskUid(mission->GetAbilityRecord()->GetUid())) {
+            HILOG_INFO("the mission is background task, do not need clear");
+            continue;
+        }
+
+        if (searchActive && mission->GetAbilityRecord() && mission->GetAbilityRecord()->IsActiveState()) {
+            foregroundAbilities.push_front(mission);
+            continue;
+        }
+        int missionId = mission->GetMissionId();
+        HILOG_DEBUG("PrepareClearAllMissionsLocked end, missionId=%{public}d.", missionId);
+        PrepareClearMissionLocked(missionId, mission);
+    }
 }
 
 int MissionListManager::ClearAllMissions()

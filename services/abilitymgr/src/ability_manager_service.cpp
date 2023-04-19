@@ -5820,6 +5820,49 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     }
     return false;
 }
+
+int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+    sptr<IPrepareTerminateCallback> &callback)
+{
+    HILOG_DEBUG("Prepare terminate ability begin.");
+
+    if (!PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    } else {
+        HILOG_INFO("%{public}s: Permission verification ok", __func__);
+    }
+    if (callback == nullptr) {
+        HILOG_ERROR("Fail to get prepare terminate parameter or the value obtained is false.");
+        return ERR_INVALID_OPERATION;
+    }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!VerificationAllToken(token)) {
+        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    int res = abilityRecord->PrepareTerminateAbility();
+    HILOG_DEBUG("Prepare terminate ability res=%{public}d.", res);
+    if (res == 1) {
+        HILOG_DEBUG("callback->DoPrepareTerminate().");
+        callback->DoPrepareTerminate();
+    } else if (res == 0) {
+        HILOG_DEBUG("set callback nullptr.");
+        callback = nullptr;
+    } else {
+        HILOG_ERROR("Prepare terminate ability failed, %{public}d", res);
+        return res;
+    }
+    HILOG_DEBUG("Prepare terminate ability end.");
+    return ERR_OK;
+}
 #endif
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)

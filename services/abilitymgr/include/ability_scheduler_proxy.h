@@ -86,6 +86,11 @@ public:
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
     /*
+     * SchedulePrepareTerminateAbility, schedule service ability to prepare terminate.
+     */
+    int SchedulePrepareTerminateAbility() override;
+
+    /*
      * ScheduleSaveAbilityState, scheduling save ability state.
      */
     void ScheduleSaveAbilityState() override;
