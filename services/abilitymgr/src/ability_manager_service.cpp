@@ -282,7 +282,7 @@ bool AbilityManagerService::Init()
     amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
     amsConfigResolver_->Parse();
     HILOG_INFO("ams config parse");
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityManager_ = std::make_unique<UIAbilityManager>();
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
@@ -2638,7 +2638,7 @@ int AbilityManagerService::AttachAbilityThread(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && !VerificationAllToken(token)) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -2672,7 +2672,7 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = dataAbilityManager->AttachAbilityThread(scheduler, token);
     } else {
-        if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             returnCode = uiAbilityManager_->AttachAbilityThread(scheduler, token);
         } else {
             int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
@@ -3219,7 +3219,7 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             break;
         }
         default: {
-            if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+            if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
                 uiAbilityManager_->OnAbilityRequestDone(token, state);
             } else {
                 int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
@@ -3872,7 +3872,7 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     HILOG_INFO("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     {
-        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
             for (auto item: missionListManagers_) {
                 if (item.second && item.second->GetAbilityRecordByToken(token)) {
@@ -4017,7 +4017,7 @@ void AbilityManagerService::StartResidentApps()
     }
 
     HILOG_INFO("StartResidentApps GetBundleInfos size: %{public}zu", bundleInfos.size());
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         for (auto iter = bundleInfos.begin(); iter != bundleInfos.end(); iter++) {
             if (iter->name == BUNDLE_NAME_SYSTEMUI) {
                 bundleInfos.erase(iter);
@@ -4453,7 +4453,7 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 {
     HILOG_DEBUG("%{public}s", __func__);
     std::unique_lock<std::shared_mutex> lock(managersMutex_);
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         missionListManagers_.erase(userId);
     }
     connectManagers_.erase(userId);
@@ -4690,7 +4690,7 @@ void AbilityManagerService::UserStarted(int32_t userId)
 {
     HILOG_INFO("%{public}s", __func__);
     InitConnectManager(userId, false);
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitMissionListManager(userId, false);
     }
     InitDataAbilityManager(userId, false);
@@ -4715,7 +4715,7 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 {
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----begin", __func__, userId);
     InitConnectManager(userId, switchUser);
-    if (userId != U0_USER_ID && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (userId != U0_USER_ID && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitMissionListManager(userId, switchUser);
     }
     InitDataAbilityManager(userId, switchUser);
@@ -4725,7 +4725,7 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 
 void AbilityManagerService::PauseOldUser(int32_t userId)
 {
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         HILOG_INFO("PauseOldUser:%{public}d-----begin", userId);
         PauseOldMissionListManager(userId);
     }
@@ -4776,7 +4776,7 @@ void AbilityManagerService::PauseOldConnectManager(int32_t userId)
 void AbilityManagerService::StartUserApps(int32_t userId, bool isBoot)
 {
     HILOG_INFO("StartUserApps, userId:%{public}d, currentUserId:%{public}d", userId, GetUserId());
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && currentMissionListManager_ &&
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && currentMissionListManager_ &&
         currentMissionListManager_->IsStarted()) {
         HILOG_INFO("missionListManager ResumeManager");
         currentMissionListManager_->ResumeManager();

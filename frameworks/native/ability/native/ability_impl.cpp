@@ -51,7 +51,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     isStageBasedModel_ = info && info->isStageBasedModel;
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
-        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled() ||
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() ||
             ability_->GetBundleName().find("animationdesktop") != std::string::npos) {
             ability_->SetSceneListener(
                 sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));

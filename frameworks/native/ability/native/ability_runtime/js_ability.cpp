@@ -201,7 +201,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
         if (sessionInfo) {
             uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_, sessionInfo->sessionToken);
@@ -415,7 +415,7 @@ void JsAbility::OnForeground(const Want &want)
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
 
     obj->SetProperty("lastRequestWant", jsWant);
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (GetState() == AppExecFwk::AbilityLifecycleExecutor::STARTED_NEW) {
             AbilityContinuationOrRecover(want);
         }
@@ -531,7 +531,7 @@ void JsAbility::DoOnForeground(const Want &want)
     std::string testName = want.GetBundle();
     HILOG_ERROR("chy BundleName: %{public}s beforeForeground", testName.c_str());
     auto testType = Ability::GetAbilityInfo()->type;
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (uiWindow_) {
             HILOG_ERROR("chy ablitytype: %{public}d", static_cast<uint32_t>(testType));
             uiWindow_->Foreground();
@@ -597,7 +597,7 @@ void JsAbility::DoOnForeground(const Want &want)
 void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (uiWindow_ != nullptr) {
             // 待UIWindow提供对应的接口
             // uiWindow_->Focus();

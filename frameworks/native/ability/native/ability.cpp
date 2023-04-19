@@ -127,7 +127,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         // register displayid change callback
         HILOG_DEBUG("Ability::Init call RegisterDisplayListener");
         abilityDisplayListener_ = new AbilityDisplayListener(ability);
-        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
         }
     }
@@ -184,7 +184,7 @@ void Ability::OnStart(const Want &want, sptr<SessionInfo> sessionInfo)
 
         // Update resMgr, Configuration
         sptr<Rosen::Display> display = nullptr;
-        if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
         } else {
             // 待合一服务提供新的拿display的方法
@@ -336,7 +336,7 @@ void Ability::OnStop()
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
     }
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     }
     auto && window = GetWindow();

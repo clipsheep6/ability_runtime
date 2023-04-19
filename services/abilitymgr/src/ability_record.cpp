@@ -543,7 +543,7 @@ void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRe
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
     auto abilityInfo = GetAbilityInfo();
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && abilityInfo.isStageBasedModel &&
         abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
         HILOG_ERROR("sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
         return;
@@ -629,7 +629,7 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
     std::shared_ptr<StartOptions> &startOptions)
 {
     auto abilityInfo = GetAbilityInfo();
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && abilityInfo.isStageBasedModel &&
         abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
         HILOG_ERROR("chy sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
         return;
@@ -656,7 +656,7 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
     auto abilityInfo = GetAbilityInfo();
-    if (Rosen::WindowSceneJudgement::IsWindowSceneEnabled() && abilityInfo.isStageBasedModel &&
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && abilityInfo.isStageBasedModel &&
         abilityInfo.bundleName.find("animationdesktop") == std::string::npos) {
         HILOG_ERROR("chy sceneSessionStage %{public}s, %{public}s", abilityInfo.bundleName.c_str(), __func__);
         return;

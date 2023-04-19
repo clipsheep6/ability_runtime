@@ -97,7 +97,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         return -1;
     }
 
-    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         // start freezing screen
         DelayedSingleton<AbilityManagerService>::GetInstance()->StartFreezingScreen();
     }
@@ -122,7 +122,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         SendSystemUserStart(userId);
     }
 
-    if (isForeground && !Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (isForeground && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         SendSystemUserCurrent(oldUserId, userId);
         SendReportUserSwitch(oldUserId, userId, userItem);
         SendUserSwitchTimeout(oldUserId, userId, userItem);
@@ -166,7 +166,7 @@ int32_t UserController::StopUser(int32_t userId)
     }
     IN_PROCESS_CALL_WITHOUT_RET(appScheduler->KillProcessesByUserId(userId));
 
-    if (!Rosen::WindowSceneJudgement::IsWindowSceneEnabled()) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
         if (!taskDataPersistenceMgr) {
             HILOG_ERROR("taskDataPersistenceMgr is null");
