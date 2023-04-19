@@ -477,6 +477,7 @@ private:
         const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     std::shared_ptr<AbilityRecord> GetAliveAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest);
+    void NotifyStartAbilityResult(const AbilityRequest &abilityRequest, int result);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

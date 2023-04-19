@@ -154,7 +154,9 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
     }
 
     abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
-    return StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    int ret = StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    NotifyStartAbilityResult(abilityRequest, ret);
+    return ret;
 }
 
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -3416,6 +3418,15 @@ void MissionListManager::NotifyAbilityToken(const sptr<IRemoteObject> &token, co
         = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
     if (abilityInfoCallback != nullptr) {
         abilityInfoCallback->NotifyAbilityToken(token, abilityRequest.want);
+    }
+}
+
+void MissionListManager::NotifyStartAbilityResult(const AbilityRequest &abilityRequest, int result)
+{
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        abilityInfoCallback->NotifyStartAbilityResult(abilityRequest.want, result);
     }
 }
 }  // namespace AAFwk
