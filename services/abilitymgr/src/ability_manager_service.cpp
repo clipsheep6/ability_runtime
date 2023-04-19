@@ -74,7 +74,6 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
-#include "container_manager_client.h"
 
 #include "ability_bundle_event_callback.h"
 
@@ -3388,15 +3387,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     HILOG_DEBUG("%{public}s", __func__);
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
-
-    auto func = []() {
-        auto client = ContainerManagerClient::GetInstance();
-        if (client != nullptr) {
-            client->NotifyBootComplete(0);
-            HILOG_INFO("StartSystemApplication NotifyBootComplete");
-        }
-    };
-    std::thread(func).detach();
 
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;

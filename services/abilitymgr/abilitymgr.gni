@@ -21,8 +21,6 @@ abilityms_files = [
   "src/ability_manager_service.cpp",
   "src/ability_manager_stub.cpp",
   "src/ability_manager_proxy.cpp",
-  "src/container_manager_proxy.cpp",
-  "src/container_manager_client.cpp",
   "src/ability_record.cpp",
   "src/ability_scheduler_stub.cpp",
   "src/ability_scheduler_proxy.cpp",
