@@ -54,5 +54,4 @@ errormanager("errormanager_napi") {
 
 errormanager("errormanager") {
   relative_install_dir = "module/app/ability"
-  defines = [ "ENABLE_ERRCODE" ]
 }

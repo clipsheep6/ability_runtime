@@ -17,7 +17,6 @@
 #include "native_engine/native_engine.h"
 
 extern "C" __attribute__((constructor))
-#ifdef ENABLE_ERRCODE
 void NAPI_app_ability_ErrorManager_AutoRegister()
 {
     NativeModule newModuleInfo = {
@@ -29,16 +28,3 @@ void NAPI_app_ability_ErrorManager_AutoRegister()
     auto moduleManager = NativeModuleManager::GetInstance();
     moduleManager->Register(&newModuleInfo);
 }
-#else
-void NAPI_application_ErrorManager_AutoRegister()
-{
-    NativeModule newModuleInfo = {
-        .name = "application.errorManager",
-        .fileName = "application/errormanager_napi.so/error_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsErrorManagerInit,
-    };
-
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
-}
-#endif
