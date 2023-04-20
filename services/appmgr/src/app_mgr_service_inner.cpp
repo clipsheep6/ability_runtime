@@ -91,7 +91,7 @@ const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
-#define OVERLAY_FLAG 0x40
+#define OVERLAY_FLAG 0x80
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
