@@ -48,10 +48,6 @@ template("errormanager") {
   }
 }
 
-errormanager("errormanager_napi") {
-  relative_install_dir = "module/application"
-}
-
 errormanager("errormanager") {
   relative_install_dir = "module/app/ability"
   defines = [ "ENABLE_ERRCODE" ]
