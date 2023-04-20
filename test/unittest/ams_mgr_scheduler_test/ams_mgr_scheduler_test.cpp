@@ -847,5 +847,18 @@ HWTEST_F(AmsMgrSchedulerTest, GetApplicationInfoByProcessID_001, TestSize.Level0
     int res2 = amsMgrScheduler->GetApplicationInfoByProcessID(pid, application, debug);
     EXPECT_NE(res2, ERR_INVALID_OPERATION);
 }
+
+/**
+ * @tc.name: SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, SetCurrentUserId_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    ASSERT_NE(amsMgrScheduler, nullptr);
+    int userId = 1;
+    amsMgrScheduler->SetCurrentUserId(userId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -3005,8 +3005,7 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
         return ERR_OK;
     }
 
-    const int currentUserId = (int)(getuid() / Constants::BASE_USER_RANGE);
-    if (userId != currentUserId) {
+    if (userId != currentUserId_) {
         auto isCallingPermAccount = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
         if (!isCallingPermAccount) {
@@ -3546,6 +3545,15 @@ void AppMgrServiceInner::RemoveRunningSharedBundleList(const std::string &bundle
         return;
     }
     runningSharedBundleList_.erase(iterator);
+}
+
+void AppMgrServiceInner::SetCurrentUserId(const int32_t userId)
+{
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        return;
+    }
+    HILOG_DEBUG("set current userId: %{public}d", userId);
+    currentUserId_ = userId;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
