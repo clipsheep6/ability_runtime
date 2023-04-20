@@ -25,6 +25,20 @@ group("ams_common_target") {
 
 config("common_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "//base/powermgr/power_manager/utils/*",
+    "//base/request/request/common/*",
+    "//developtools/profiler/hiebpf/*",
+    "//foundation/ability/ability_runtime/frameworks/js/napi/*",
+    "//foundation/ability/ability_runtime/frameworks/native/ability/native/*",
+    "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator/*",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/*",
+    "//foundation/ability/ability_runtime/services/common/*",
+    "//foundation/ability/ability_runtime/services/quickfixmgr/*",
+    "//foundation/ability/ability_runtime/services/uripermmgr/*",
+    "//foundation/ability/ability_runtime/test/*",
+    "//foundation/ability/ability_runtime/tools/aa/*",
+  ]
   include_dirs = [
     "include",
     "${ability_runtime_innerkits_path}/ability_manager/include",

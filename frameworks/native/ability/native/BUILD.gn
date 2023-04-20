@@ -17,6 +17,15 @@ import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 config("ability_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "//base/inputmethod/imf/frameworks/kits/extension/*",
+    "//base/print/print_fwk/frameworks/kits/extension/*",
+    "//base/theme/wallpaper_mgr/frameworks/kits/extension/*",
+    "//foundation/ability/ability_runtime/frameworks/native/ability/native/*",
+    "//foundation/ability/ability_runtime/test/*",
+    "//foundation/distributeddatamgr/data_share/interfaces/inner_api/*",
+    "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access/*",
+  ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
@@ -61,6 +70,10 @@ config("ability_config") {
 
 config("ability_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "//foundation/ability/ability_runtime/frameworks/js/napi/inner/*",
+    "//foundation/ability/ability_runtime/test/fuzztest/*",
+  ]
   include_dirs = [
     "${ability_runtime_napi_path}/inner/napi_ability_common",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
