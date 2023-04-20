@@ -938,6 +938,16 @@ void AbilityRecord::InitColdStartingWindowResource(
         handler->PostTask(delayTask, "release_bg", RELEASE_STARTING_BG_TIMEOUT);
     }
 }
+
+void AbilityRecord::SetCompleteFirstFrameDrawing(const bool flag)
+{
+    isCompleteFirstFrameDrawing_ = flag;
+}
+
+bool AbilityRecord::IsCompleteFirstFrameDrawing() const
+{
+    return isCompleteFirstFrameDrawing_;
+}
 #endif
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
