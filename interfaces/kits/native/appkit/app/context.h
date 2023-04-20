@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -58,51 +58,10 @@ constexpr int DEFAULT_ACCOUNT_ID = -1;
 class DataAbilityHelperImpl;
 class ContinuationConnector;
 class IAbilityManager;
-class EventRunner;
 class Context {
 public:
     Context() = default;
     virtual ~Context() = default;
-
-    /**
-     * The value 0 indicates that there is no restriction on creating contexts for applications.
-     */
-    int MODE_PRIVATE = 0x0000;
-
-    /**
-     * static final int CONTEXT_INCLUDE_CODE
-     * Indicates the flag used with createBundleContext(java.lang.String,int) for creating a Context
-     * object that includes the application code.
-     *
-     * The value is 0x00000001.
-     *
-     * @since 3
-     */
-    int CONTEXT_INCLUDE_CODE = 0x00000001;
-
-    /**
-     * static final int CONTEXT_IGNORE_SECURITY
-     * Indicates the flag used with createBundleContext(java.lang.String,int) for creating a Context
-     * object that can always be loaded with all security restrictions ignored.
-     *
-     * The value is 0x00000002.
-     *
-     * @since 3
-     */
-    int CONTEXT_IGNORE_SECURITY = 0x00000002;
-
-    /**
-     * static final int CONTEXT_RESTRICTED
-     * Indicates the flag used with createBundleContext(java.lang.String,int) for creating a Context
-     * object in which particular features may be disabled.
-     *
-     * The value is 0x00000004.
-     *
-     * @since 3
-     */
-    int CONTEXT_RESTRICTED = 0x00000004;
-
-    int CONTEXT_RESOUCE_ONLY = 0x00000008;
 
     /**
      * Called when getting the ProcessInfo
