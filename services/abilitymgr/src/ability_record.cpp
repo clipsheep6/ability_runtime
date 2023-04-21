@@ -687,7 +687,11 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         }
     };
     auto taskName = std::to_string(missionId_) + "_cold";
-    handler->PostTask(delayTask, taskName, AbilityManagerService::LOAD_TIMEOUT);
+    if (applicationInfo_.asanEnabled) {
+        handler->PostTask(delayTask, taskName, AbilityManagerService::LOAD_TIMEOUT_ASANENABLED);
+    } else {
+        handler->PostTask(delayTask, taskName, AbilityManagerService::LOAD_TIMEOUT);
+    }
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const

@@ -740,7 +740,12 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
     std::string taskName;
     int resultCode;
     uint32_t delayTime;
-    if (messageId == AbilityManagerService::LOAD_TIMEOUT_MSG) {
+    if (abilityRecord->GetApplicationInfo().asanEnabled) {
+        recordId = abilityRecord->GetRecordId();
+        taskName = std::string("LoadTimeout_") + std::to_string(recordId);
+        resultCode = LOAD_ABILITY_TIMEOUT;
+        delayTime = AbilityManagerService::LOAD_TIMEOUT_ASANENABLED;
+    } else if (messageId == AbilityManagerService::LOAD_TIMEOUT_MSG) {
         // first load ability, There is at most one connect record.
         recordId = abilityRecord->GetRecordId();
         taskName = std::string("LoadTimeout_") + std::to_string(recordId);

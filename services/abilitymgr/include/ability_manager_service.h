@@ -834,10 +834,10 @@ public:
     static constexpr uint32_t FOREGROUND_TIMEOUT_MSG = 5;
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
-    static constexpr uint32_t LOAD_TIMEOUT_ASANENABLED = 150000;  //ms
+    static constexpr uint32_t LOAD_TIMEOUT_ASANENABLED = 150000; //ms
     static constexpr uint32_t TERMINATE_TIMEOUT_ASANENABLED = 150000; //ms
-#ifdef SUPPORT_ASAN
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 150000; // ms
+#ifdef SUPPORT_ASAN
     static constexpr uint32_t LOAD_TIMEOUT = 150000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 75000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 7500;         // ms
@@ -852,7 +852,6 @@ public:
     static constexpr uint32_t DUMP_TIMEOUT = 15000;            // ms
     static constexpr uint32_t KILL_TIMEOUT = 45000;           // ms
 #else
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
