@@ -3238,7 +3238,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    int userId = 1;
+    int userId = 0;
     appMgrServiceInner->SetCurrentUserId(userId);
     EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
 
