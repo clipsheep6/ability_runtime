@@ -616,6 +616,15 @@ public:
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
+    /**
+     * Set the current userId, only used by abilityMgr.
+     *
+     * @param userId the user id.
+     *
+     * @return
+     */
+    void SetCurrentUserId(const int32_t userId);
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask);
 #endif
@@ -873,6 +882,7 @@ private:
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    int32_t currentUserId_ = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -19,6 +19,7 @@
 #include "context.h"
 #include "profile.h"
 #include "lifecycle_state_info.h"
+#include "event_runner.h"
 
 namespace OHOS {
 namespace AppExecFwk {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -213,91 +213,6 @@ sptr<IRemoteObject> AbilityContext::GetToken()
     return token_;
 }
 
-std::shared_ptr<ApplicationInfo> AbilityContext::GetApplicationInfo() const
-{
-    return ContextContainer::GetApplicationInfo();
-}
-
-std::string AbilityContext::GetCacheDir()
-{
-    return ContextContainer::GetCacheDir();
-}
-
-std::string AbilityContext::GetCodeCacheDir()
-{
-    return ContextContainer::GetCodeCacheDir();
-}
-
-std::string AbilityContext::GetDatabaseDir()
-{
-    return ContextContainer::GetDatabaseDir();
-}
-
-std::string AbilityContext::GetDataDir()
-{
-    return ContextContainer::GetDataDir();
-}
-
-std::string AbilityContext::GetDir(const std::string &name, int mode)
-{
-    return ContextContainer::GetDir(name, mode);
-}
-
-sptr<IBundleMgr> AbilityContext::GetBundleManager() const
-{
-    return ContextContainer::GetBundleManager();
-}
-
-std::string AbilityContext::GetBundleCodePath()
-{
-    return ContextContainer::GetBundleCodePath();
-}
-
-std::string AbilityContext::GetBundleName() const
-{
-    return ContextContainer::GetBundleName();
-}
-
-std::string AbilityContext::GetBundleResourcePath()
-{
-    return ContextContainer::GetBundleResourcePath();
-}
-
-std::shared_ptr<Context> AbilityContext::GetApplicationContext() const
-{
-    return ContextContainer::GetApplicationContext();
-}
-
-std::shared_ptr<Context> AbilityContext::GetContext()
-{
-    return ContextContainer::GetContext();
-}
-
-sptr<AAFwk::IAbilityManager> AbilityContext::GetAbilityManager()
-{
-    return ContextContainer::GetAbilityManager();
-}
-
-std::shared_ptr<ProcessInfo> AbilityContext::GetProcessInfo() const
-{
-    return ContextContainer::GetProcessInfo();
-}
-
-std::string AbilityContext::GetAppType()
-{
-    return ContextContainer::GetAppType();
-}
-
-const std::shared_ptr<AbilityInfo> AbilityContext::GetAbilityInfo()
-{
-    return ContextContainer::GetAbilityInfo();
-}
-
-std::shared_ptr<HapModuleInfo> AbilityContext::GetHapModuleInfo()
-{
-    return ContextContainer::GetHapModuleInfo();
-}
-
 AppExecFwk::AbilityType AbilityContext::GetAbilityInfoType()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
@@ -307,11 +222,6 @@ AppExecFwk::AbilityType AbilityContext::GetAbilityInfoType()
     }
 
     return info->type;
-}
-
-std::shared_ptr<Context> AbilityContext::CreateBundleContext(std::string bundleName, int flag, int accountId)
-{
-    return ContextContainer::CreateBundleContext(bundleName, flag, accountId);
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceManager() const
@@ -378,11 +288,6 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-bool AbilityContext::DeleteFile(const std::string &fileName)
-{
-    return ContextContainer::DeleteFile(fileName);
-}
-
 void AbilityContext::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
     const std::string &abilityName, const std::string &moduleName)
 {
@@ -390,107 +295,6 @@ void AbilityContext::SetCallingContext(const std::string &deviceId, const std::s
     callingBundleName_ = bundleName;
     callingAbilityName_ = abilityName;
     callingModuleName_ = moduleName;
-}
-
-Uri AbilityContext::GetCaller()
-{
-    return ContextContainer::GetCaller();
-}
-
-void AbilityContext::AttachBaseContext(const std::shared_ptr<Context> &base)
-{
-    HILOG_DEBUG("AbilityContext::AttachBaseContext.");
-    ContextContainer::AttachBaseContext(base);
-}
-
-std::string AbilityContext::GetExternalCacheDir()
-{
-    return ContextContainer::GetExternalCacheDir();
-}
-
-std::string AbilityContext::GetExternalFilesDir(std::string &type)
-{
-    return ContextContainer::GetExternalFilesDir(type);
-}
-
-std::string AbilityContext::GetFilesDir()
-{
-    return ContextContainer::GetFilesDir();
-}
-
-std::string AbilityContext::GetNoBackupFilesDir()
-{
-    return ContextContainer::GetNoBackupFilesDir();
-}
-
-void AbilityContext::UnauthUriPermission(const std::string &permission, const Uri &uri, int uid)
-{
-    ContextContainer::UnauthUriPermission(permission, uri, uid);
-}
-
-std::string AbilityContext::GetDistributedDir()
-{
-    return ContextContainer::GetDistributedDir();
-}
-
-void AbilityContext::SetPattern(int patternId)
-{
-    ContextContainer::SetPattern(patternId);
-}
-
-std::shared_ptr<Context> AbilityContext::GetAbilityPackageContext()
-{
-    return ContextContainer::GetAbilityPackageContext();
-}
-
-std::string AbilityContext::GetProcessName()
-{
-    return ContextContainer::GetProcessName();
-}
-
-void AbilityContext::InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal)
-{
-    ContextContainer::InitResourceManager(bundleInfo, deal);
-}
-
-std::string AbilityContext::GetString(int resId)
-{
-    return ContextContainer::GetString(resId);
-}
-
-std::vector<std::string> AbilityContext::GetStringArray(int resId)
-{
-    return ContextContainer::GetStringArray(resId);
-}
-
-std::vector<int> AbilityContext::GetIntArray(int resId)
-{
-    return ContextContainer::GetIntArray(resId);
-}
-
-std::map<std::string, std::string> AbilityContext::GetTheme()
-{
-    return ContextContainer::GetTheme();
-}
-
-void AbilityContext::SetTheme(int themeId)
-{
-    ContextContainer::SetTheme(themeId);
-}
-
-std::map<std::string, std::string> AbilityContext::GetPattern()
-{
-    return ContextContainer::GetPattern();
-}
-
-int AbilityContext::GetColor(int resId)
-{
-    return ContextContainer::GetColor(resId);
-}
-
-int AbilityContext::GetThemeId()
-{
-    return ContextContainer::GetThemeId();
 }
 
 bool AbilityContext::TerminateAbilityResult(int startId)
@@ -513,47 +317,12 @@ bool AbilityContext::TerminateAbilityResult(int startId)
     return (errval == ERR_OK) ? true : false;
 }
 
-int AbilityContext::GetDisplayOrientation()
-{
-    return ContextContainer::GetDisplayOrientation();
-}
-
-std::string AbilityContext::GetPreferencesDir()
-{
-    return ContextContainer::GetPreferencesDir();
-}
-
-void AbilityContext::SetColorMode(int mode)
-{
-    ContextContainer::SetColorMode(mode);
-}
-
-int AbilityContext::GetColorMode()
-{
-    return ContextContainer::GetColorMode();
-}
-
-int AbilityContext::GetMissionId()
-{
-    return ContextContainer::GetMissionId();
-}
-
 void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
 {
     for (auto want : wants) {
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
     }
     HILOG_DEBUG("%{public}s end.", __func__);
-}
-
-bool AbilityContext::IsUpdatingConfigurations()
-{
-    return ContextContainer::IsUpdatingConfigurations();
-}
-
-bool AbilityContext::PrintDrawnCompleted()
-{
-    return ContextContainer::PrintDrawnCompleted();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -175,6 +175,15 @@ public:
 
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
 
+    /**
+     * Set the current userId of appMgr.
+     *
+     * @param userId the user id.
+     *
+     * @return
+     */
+    virtual void SetCurrentUserId(const int32_t userId) = 0;
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -197,7 +206,8 @@ public:
         GET_APPLICATION_INFO_BY_PROCESS_ID,
         KILL_APPLICATION_SELF,
         GET_RUNNING_PROCESS_INFO_BY_PID,
-        UPDATE_APPLICATION_INFO_INSTALLED
+        UPDATE_APPLICATION_INFO_INSTALLED,
+        SET_CURRENT_USER_ID
     };
 };
 }  // namespace AppExecFwk

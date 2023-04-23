@@ -245,14 +245,7 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
         HandleTerminateDisconnectTask(connectRecordList);
     }
 
-    auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
-        HILOG_WARN("Disconnect ability terminate timeout.");
-        connectManager->HandleStopTimeoutTask(abilityRecord);
-    };
-
-    MoveToTerminatingMap(abilityRecord);
-    abilityRecord->Terminate(timeoutTask);
-
+    TerminateRecord(abilityRecord);
     return ERR_OK;
 }
 
@@ -363,6 +356,11 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
 
 int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect)
 {
+    return DisconnectAbilityLocked(connect, false);
+}
+
+int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool force)
+{
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Disconnect ability begin.");
     std::lock_guard<std::recursive_mutex> guard(Lock_);
@@ -376,6 +374,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
     }
 
     // 2. schedule disconnect to target service
+    int result = ERR_OK;
     for (auto &connectRecord : connectRecordList) {
         if (connectRecord) {
             auto abilityRecord = connectRecord->GetAbilityRecord();
@@ -384,26 +383,70 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 abilityRecord->GetAbilityInfo().name.c_str(), abilityRecord->GetAbilityInfo().bundleName.c_str());
             auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
             CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
-            int result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+            result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
             if (result != ERR_OK) {
                 HILOG_ERROR("Judge ability visible error.");
-                return result;
-            }
-            int ret = connectRecord->DisconnectAbility();
-            if (ret != ERR_OK) {
-                HILOG_ERROR("Disconnect ability fail , ret = %{public}d.", ret);
-                return ret;
+                break;
             }
 
-            if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
-                HILOG_WARN("This record: %{public}d complete disconnect directly.", connectRecord->GetRecordId());
-                connectRecord->CompleteDisconnect(ERR_OK, false);
-                RemoveConnectionRecordFromMap(connectRecord);
+            if (force) {
+                DicconnectRecordForce(connectRecord);
+            } else {
+                result = DicconnectRecordNormal(connectRecord);
+            }
+
+            if (result != ERR_OK) {
+                HILOG_ERROR("Disconnect ability fail , ret = %{public}d.", result);
+                break;
             }
         }
     }
 
+    return result;
+}
+
+void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
+        HILOG_WARN("Disconnect ability terminate timeout.");
+        connectManager->HandleStopTimeoutTask(abilityRecord);
+    };
+
+    MoveToTerminatingMap(abilityRecord);
+    abilityRecord->Terminate(timeoutTask);
+}
+
+int AbilityConnectManager::DicconnectRecordNormal(std::shared_ptr<ConnectionRecord> connectRecord)
+{
+    auto result = connectRecord->DisconnectAbility();
+    if (result != ERR_OK) {
+        HILOG_ERROR("Disconnect ability fail , ret = %{public}d.", result);
+        return result;
+    }
+
+    if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
+        HILOG_WARN("This record: %{public}d complete disconnect directly.", connectRecord->GetRecordId());
+        connectRecord->CompleteDisconnect(ERR_OK, false);
+        RemoveConnectionRecordFromMap(connectRecord);
+    }
     return ERR_OK;
+}
+
+void AbilityConnectManager::DicconnectRecordForce(std::shared_ptr<ConnectionRecord> connectRecord)
+{
+    auto abilityRecord = connectRecord->GetAbilityRecord();
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("Disconnect force abilityRecord null");
+        return;
+    }
+    abilityRecord->RemoveConnectRecordFromList(connectRecord);
+    connectRecord->CompleteDisconnect(ERR_OK, true);
+    RemoveConnectionRecordFromMap(connectRecord);
+    if (abilityRecord->IsConnectListEmpty()) {
+        HILOG_WARN("Force terminate ability record state: %{public}d.", abilityRecord->GetAbilityState());
+        TerminateRecord(abilityRecord);
+        RemoveServiceAbility(abilityRecord);
+    }
 }
 
 int AbilityConnectManager::AttachAbilityThreadLocked(
@@ -582,12 +625,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
     abilityRecord->RemoveConnectRecordFromList(connect);
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
         HILOG_INFO("Service ability has no any connection, and not started , need terminate.");
-        auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
-            HILOG_WARN("Disconnect ability terminate timeout.");
-            connectManager->HandleStopTimeoutTask(abilityRecord);
-        };
-        MoveToTerminatingMap(abilityRecord);
-        abilityRecord->Terminate(timeoutTask);
+        TerminateRecord(abilityRecord);
     }
     RemoveConnectionRecordFromMap(connect);
 
@@ -1158,7 +1196,7 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
         return;
     }
     sptr<IAbilityConnection> object = iface_cast<IAbilityConnection>(connect);
-    DisconnectAbilityLocked(object);
+    DisconnectAbilityLocked(object, true);
 }
 
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)

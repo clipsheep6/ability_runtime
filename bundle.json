@@ -91,7 +91,9 @@
           "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
-          "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc"
+          "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc",
+          "//foundation/ability/ability_runtime/service_router_framework:srms_target",
+          "//foundation/ability/ability_runtime/service_router_framework:jsapi_target"
         ],
         "inner_kits": [
           {
@@ -320,6 +322,17 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager:dataobs_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/service_router_framework/interfaces/inner_api/include",
+              "header_files": [
+                "service_info.h",
+                "service_router_mgr_interface.h",
+                "service_router_mgr_proxy.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/service_router_framework/interfaces/inner_api:srms_fwk"
           }
         ],
         "test": [
@@ -327,7 +340,8 @@
           "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
           "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
           "//foundation/ability/ability_runtime/test/unittest:unittest",
-          "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest"
+          "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest",
+          "//foundation/ability/ability_runtime/service_router_framework:test_target"
         ]
       }
   }

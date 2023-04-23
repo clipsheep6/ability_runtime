@@ -3226,5 +3226,23 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
 
     HILOG_INFO("NotifyUnLoadRepairPatch_001 end");
 }
+
+/**
+ * @tc.name: SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
+{
+    HILOG_INFO("SetCurrentUserId_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int userId = 0;
+    appMgrServiceInner->SetCurrentUserId(userId);
+    EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
+
+    HILOG_INFO("SetCurrentUserId_001 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

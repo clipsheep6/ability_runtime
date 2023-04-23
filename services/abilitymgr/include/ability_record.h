@@ -458,6 +458,9 @@ public:
 
     void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag = 0);
     void NotifyAnimationFromTerminatingAbility() const;
+
+    void SetCompleteFirstFrameDrawing(const bool flag);
+    bool IsCompleteFirstFrameDrawing() const;
 #endif
 
     /**
@@ -1007,6 +1010,8 @@ private:
     bool isStartingWindow_ = false;
     uint32_t bgColor_ = 0;
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
+
+    bool isCompleteFirstFrameDrawing_ = false;
 #endif
 
     bool isGrantedUriPermission_ = false;
