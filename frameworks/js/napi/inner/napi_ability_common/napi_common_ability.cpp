@@ -3278,6 +3278,23 @@ size_t NAPIAbilityConnection::GetCallbackSize()
     return callbacks_.size();
 }
 
+size_t NAPIAbilityConnection::ReomveAllCallbacks(ConnectRemoveKeyType key)
+{
+    size_t result = 0;
+    std::lock_guard<std::mutex> guard(lock_);
+    for (auto it = callbacks_.begin(); it != callbacks_.end();) {
+        auto callback = *it;
+        if (callback && callback->removeKey == key) {
+            it = callbacks_.erase(it);
+            result++;
+        } else {
+            ++it;
+        }
+    }
+    HILOG_INFO("ReomveAllCallbacks removed size:%{public}zu, left size:%{public}zu", result, callbacks_.size());
+    return result;
+}
+
 void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
 {
     HILOG_INFO("UvWorkOnAbilityConnectDone, uv_queue_work");
@@ -3983,7 +4000,7 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         return engine.CreateUndefined();
     }
 
-    auto connectionCallback = std::make_shared<ConnectionCallback>(env, secondParam);
+    auto connectionCallback = std::make_shared<ConnectionCallback>(env, secondParam, this);
     bool result = false;
     int32_t errorVal = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
     int64_t id = 0;
@@ -4152,6 +4169,26 @@ sptr<NAPIAbilityConnection> JsNapiCommon::FindConnectionLocked(const Want &want,
         return connection;
     }
     return nullptr;
+}
+
+void JsNapiCommon::RemoveAllCallbacksLocked()
+{
+    HILOG_DEBUG("RemoveAllCallbacksLocked begin");
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    for (auto it = connects_.begin(); it != connects_.end();) {
+        auto connection = it->second;
+        if (!connection) {
+            HILOG_ERROR("connection is nullptr");
+            it = connects_.erase(it);
+            continue;
+        }
+        connection->ReomveAllCallbacks(this);
+        if (connection->GetCallbackSize() == 0) {
+            it = connects_.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void JsNapiCommon::RemoveConnectionLocked(const Want &want)
