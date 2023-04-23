@@ -258,10 +258,12 @@ private:
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], missionId)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
         }
         NativeValue* lastParam = info.argc > ARGC_ONE  ? info.argv[INDEX_ONE] : nullptr;
         NativeValue *result = nullptr;
