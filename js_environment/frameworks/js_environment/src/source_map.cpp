@@ -166,7 +166,6 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
     size_t rightBracket = 0;
     std::string value;
     while ((leftBracket = sourceMapData.find(": {", rightBracket)) != std::string::npos) {
-        std::string left = sourceMapData.substr(leftBracket);
         rightBracket = sourceMapData.find("},", leftBracket);
         uint32_t subLeftBracket = leftBracket;
         uint32_t subRightBracket = rightBracket;

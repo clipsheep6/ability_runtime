@@ -107,8 +107,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             return ret;
         }
         if (dialogAllAppInfos.size() == 0) {
-            Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
-            abilityMgr->StartAbility(want);
+            Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
+            abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,

@@ -1662,8 +1662,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         std::vector<OverlayModuleInfo> overlayModuleInfo;
         HILOG_DEBUG("Check overlay app begin.");
         HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetOverlayModuleInfoForTarget");
-        auto ret = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
-        if (ret == ERR_OK && overlayModuleInfo.size() != 0) {
+        auto targetRet = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
+        if (targetRet == ERR_OK && overlayModuleInfo.size() != 0) {
             HILOG_DEBUG("Start an overlay app process.");
             startMsg.flags = startMsg.flags | OVERLAY_FLAG;
         }

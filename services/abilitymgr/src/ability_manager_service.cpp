@@ -4732,6 +4732,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 return;
             } else {
                 auto bms = GetBundleManager();
+                if (bms == nullptr) {
+                    HILOG_ERROR("bms is nullptr");
+                    return;
+                }
                 AppExecFwk::BundleInfo bundleInfo;
                 auto bundleName = want->GetElement().GetBundleName();
                 int32_t userId = GetUserId();
