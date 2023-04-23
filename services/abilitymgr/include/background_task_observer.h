@@ -33,14 +33,14 @@ public:
     virtual ~BackgroundTaskObserver();
     bool IsBackgroundTaskUid(const int uid);
 
+    void GetContinuousTaskApps();
+
 private:
     void OnContinuousTaskStart(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
         &continuousTaskCallbackInfo);
 
     void OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
         &continuousTaskCallbackInfo);
-
-    void OnRemoteDied(const wptr<IRemoteObject> &object);
 
     sptr<AppExecFwk::IAppMgr> GetAppManager();
 

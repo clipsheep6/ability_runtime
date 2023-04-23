@@ -33,6 +33,8 @@ public:
         return true;
     }
 
+    bool AddSystemAbilityListener(int32_t systemAbilityId);
+
 protected:
     virtual void OnStart()
     {
@@ -42,6 +44,16 @@ protected:
     virtual void OnStop()
     {
         HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnStop called");
+    }
+
+    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+    {
+        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnAddSystemAbility called");
+    }
+
+    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+    {
+        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnRemoveSystemAbility called");
     }
 
     bool Publish(sptr<IRemoteObject> systemAbility)

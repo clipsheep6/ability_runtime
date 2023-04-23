@@ -33,6 +33,8 @@ public:
         return true;
     }
 
+    bool AddSystemAbilityListener(int32_t systemAbilityId);
+
 protected:
     virtual void OnStart()
     {
@@ -50,6 +52,16 @@ protected:
         systemAbility.ForceSetRefPtr(nullptr);
         // For test just mock to return true
         return true;
+    }
+
+    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+    {
+        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnAddSystemAbility called");
+    }
+
+    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+    {
+        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnRemoveSystemAbility called");
     }
 
     SystemAbility(bool runOnCreate = false)

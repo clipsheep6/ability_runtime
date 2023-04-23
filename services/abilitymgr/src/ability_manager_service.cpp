@@ -240,9 +240,8 @@ void AbilityManagerService::OnStart()
     }
 
     SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
-
     WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
-
+    AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     HILOG_INFO("AMS start success.");
 }
 
@@ -299,7 +298,6 @@ bool AbilityManagerService::Init()
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
-    SubscribeBackgroundTask();
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
@@ -333,6 +331,16 @@ void AbilityManagerService::InitStartupFlag()
 void AbilityManagerService::OnStop()
 {
     HILOG_INFO("Stop AMS.");
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (bgtaskObserver_) {
+        int ret = BackgroundTaskMgrHelper::UnsubscribeBackgroundTask(*bgtaskObserver_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("unsubscribe bgtask failed, err:%{public}d.", ret);
+        }
+    }
+    bgtaskObserver_.reset();
+#endif
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
@@ -851,7 +859,11 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    std::shared_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (bgtaskObserver_) {
+        return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    }
+    return false;
 #else
     return false;
 #endif
@@ -896,26 +908,58 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     return ERR_OK;
 }
 
+void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+            SubscribeBackgroundTask();
+            break;
+        default:
+            break;
+    }
+}
+
+void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d remove", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID:
+            UnSubscribeBackgroundTask();
+            break;
+        default:
+            break;
+    }
+}
+
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
-        return ;
+        return;
     }
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
-    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
-        int attemptNums = 0;
-        while ((BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_))) != ERR_OK) {
-            ++attemptNums;
-            if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
-                HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
-                return;
-            }
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-        }
-    };
-    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+    int ret = BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_);
+    if (ret != ERR_OK) {
+        bgtaskObserver_ = nullptr;
+        HILOG_ERROR("%{public}s failed, err:%{public}d.", __func__, ret);
+        return;
+    }
+    bgtaskObserver_->GetContinuousTaskApps();
+    HILOG_INFO("%{public}s success.", __func__);
+#endif
+}
+
+void AbilityManagerService::UnSubscribeBackgroundTask()
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (!bgtaskObserver_) {
+        return;
+    }
+    bgtaskObserver_ = nullptr;
+    HILOG_INFO("%{public}s success.", __func__);
 #endif
 }
 
