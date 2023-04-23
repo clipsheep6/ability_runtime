@@ -51,6 +51,7 @@ ohos_fuzztest("StartServiceExtensionAbilityFuzzTest") {
     "ability_runtime:ability_manager",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
+    "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
