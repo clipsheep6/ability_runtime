@@ -15,6 +15,10 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_JS_NAPI_COMMON_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_JS_NAPI_COMMON_ABILITY_H
+
+#include <map>
+#include <mutex>
+
 #include "ability_connect_callback_stub.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
@@ -24,6 +28,20 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+struct ConnectionKey {
+    Want want;
+    int64_t id;
+};
+struct KeyCompare {
+    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+    {
+        if (key1.id < key2.id) {
+            return true;
+        }
+        return false;
+    }
+};
+
 class JsNapiCommon {
 public:
     JsNapiCommon();
@@ -128,6 +146,9 @@ public:
         std::shared_ptr<ConnectionCallback> callback, const Want &want, int64_t &id);
     void RemoveConnectionLocked(const Want &want);
     Ability *ability_;
+    std::map<ConnectionKey, sptr<NAPIAbilityConnection>, KeyCompare> &connects_;
+    std::recursive_mutex &connectionsLock_;
+    int64_t &serialNumber_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

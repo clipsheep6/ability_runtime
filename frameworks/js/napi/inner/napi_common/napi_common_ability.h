@@ -391,22 +391,6 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
 
 bool CheckAbilityType(const CBBase *cbBase);
 
-struct ConnectionKey {
-    Want want;
-    int64_t id;
-};
-struct key_compare {
-    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
-    {
-        if (key1.id < key2.id) {
-            return true;
-        }
-        return false;
-    }
-};
-static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
-static std::recursive_mutex connectionsLock_;
-static int64_t serialNumber_ = 0;
 enum ErrorCode {
     NO_ERROR = 0,
     INVALID_PARAMETER = -1,
