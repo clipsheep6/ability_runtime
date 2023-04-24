@@ -67,7 +67,7 @@ public:
 
     bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
-
+    bool StartCPUProfiler();
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

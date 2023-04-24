@@ -271,6 +271,19 @@ bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoin
     return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
 }
 
+void JsRuntime::StartCPUProfiler()
+{
+    HILOG_DEBUG("JsRuntime::StartCPUProfiler start!");
+    if (jsEnv_ == nullptr) {
+        HILOG_ERROR("jsEnv_ is nullptr!");
+        return;
+    }
+    auto ret = jsEnv_->StartCPUProfiler();
+    if (!ret) {
+        HILOG_ERROR("StartCPUProfiler failed!");
+    }
+}
+
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
 {
     Extractor extractor(filePath);

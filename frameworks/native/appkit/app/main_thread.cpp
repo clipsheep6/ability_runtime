@@ -1641,6 +1641,10 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     if (runtime && want && appInfo->debug) {
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        auto perfCmd = want->GetStringParam("perfCmd");
+        if (!perfCmd.empty()) {
+            runtime->StartCPUProfiler();
+        }
     }
 
     mainThreadState_ = MainThreadState::RUNNING;

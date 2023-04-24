@@ -148,5 +148,16 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
     panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
     return true;
 }
+
+bool JsEnvironment::StartCPUProfiler()
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::DFXJSNApi::StartCpuProfilerForInfo(vm_);
+    return true;
+}
 } // namespace JsEnv
 } // namespace OHOS

@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#define private public
 #include "js_environment.h"
+#undef private
 
 #include <gtest/gtest.h>
 #include <gtest/hwext/gtest-multithread.h>
@@ -149,6 +151,37 @@ HWTEST_F(JsEnvironmentTest, LoadScript_0300, TestSize.Level0)
     ASSERT_EQ(ret, true);
 
     EXPECT_EQ(jsEnv->LoadScript("/system/etc/strip.native.min.abc"), true);
+}
+
+/**
+ * @tc.name: StartCPUProfiler_0100
+ * @tc.desc: Start CPU Profiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartCPUProfiler_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->vm_ = nullptr;
+    auto ret = jsEnv->StartCPUProfiler();
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: StartCPUProfiler_0200
+ * @tc.desc: Start CPU Profiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartCPUProfiler_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    panda::RuntimeOption pandaOption;
+    jsEnv->vm_ = panda::JSNApi::CreateJSVM(pandaOption);;
+    auto ret = jsEnv->StartCPUProfiler();
+    ASSERT_EQ(ret, true);
 }
 }  // namespace JsEnv
 }  // namespace OHOS
