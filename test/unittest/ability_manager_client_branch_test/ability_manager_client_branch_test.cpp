@@ -520,6 +520,31 @@ HWTEST_F(AbilityManagerClientBranchTest, MoveMissionToFront_0200, TestSize.Level
 
 
 /**
+ * @tc.name: AbilityManagerClient_MoveMissionsToForeground_0100
+ * @tc.desc: MoveMissionsToForeground
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToForeground_0100, TestSize.Level1)
+{
+    auto result = client_->MoveMissionsToForeground({1, 2, 3}, 1);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MoveMissionsToBackground_0100
+ * @tc.desc: MoveMissionsToBackground
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToBackground_0100, TestSize.Level1)
+{
+    std::vector<int32_t> rs;
+    auto result = client_->MoveMissionsToBackground({1, 2, 3}, rs);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
  * @tc.name: AbilityManagerClient_GetAbilityRunningInfos_0100
  * @tc.desc: GetAbilityRunningInfos
  * @tc.type: FUNC

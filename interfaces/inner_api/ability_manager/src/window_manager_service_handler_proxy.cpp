@@ -177,6 +177,78 @@ void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTr
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
     }
 }
+
+int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::vector<int32_t>& missionIds,
+    int32_t topMissionId)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt32Vector(missionIds)) {
+        HILOG_ERROR("Write missionIds failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt32(topMissionId)) {
+        HILOG_ERROR("Write TopMissionId failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+    int error = remote->SendRequest(WMSCmd::ON_MOVE_MISSINONS_TO_FOREGROUND, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt32Vector(missionIds)) {
+        HILOG_ERROR("Write missionIds failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+    int error = remote->SendRequest(WMSCmd::ON_MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    if (!reply.ReadInt32Vector(&result)) {
+        HILOG_ERROR("Read hide result failed");
+        return ERR_AAFWK_PARCEL_FAIL;
+    };
+    return reply.ReadInt32();
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif

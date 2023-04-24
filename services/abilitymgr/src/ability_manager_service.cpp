@@ -35,6 +35,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
+#include "errors.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -43,6 +44,7 @@
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
@@ -2606,6 +2608,45 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
 
     auto options = std::make_shared<StartOptions>(startOptions);
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
+}
+
+int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToForeground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
+int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToBackground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
 }
 
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)

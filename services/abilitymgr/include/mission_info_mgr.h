@@ -21,6 +21,7 @@
 #include <mutex>
 #include <string>
 
+#include "ability_state.h"
 #include "inner_mission_info.h"
 #include "mission_listener_controller.h"
 #include "mission_snapshot.h"
@@ -120,6 +121,15 @@ public:
      * @return 0 if success.
      */
     int UpdateMissionLabel(int32_t missionId, const std::string& label);
+
+    /**
+     * @brief Set mission abilityState.
+     *
+     * @param missionId indicates this mission id.
+     * @param abilityState indicates this mission abilityState.
+     * @return 0 if success.
+     */
+    void SetMissionAbilityState(int32_t missionId, AbilityState state);
 
     /**
      * @brief dump mission info

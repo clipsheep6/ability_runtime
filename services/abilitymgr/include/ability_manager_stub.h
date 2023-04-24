@@ -137,6 +137,8 @@ private:
     int CleanMissionInner(MessageParcel &data, MessageParcel &reply);
     int CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
+    int MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply);
+    int MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionIdByTokenInner(MessageParcel &data, MessageParcel &reply);
 
     // for new version ability (call ability)

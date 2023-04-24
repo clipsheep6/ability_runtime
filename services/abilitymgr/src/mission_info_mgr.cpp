@@ -349,6 +349,22 @@ int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& lab
     return 0;
 }
 
+void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState state)
+{
+    if (missionId <= 0) {
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+        return missionId == info.missionInfo.id;
+    });
+    if (it == missionInfoList_.end()) {
+        HILOG_ERROR("SetMissionAbilityState failed, missionId %{public}d not exists", missionId);
+        return;
+    }
+    it->missionInfo.abilityState = state;
+}
+
 bool MissionInfoMgr::LoadAllMissionInfo()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);

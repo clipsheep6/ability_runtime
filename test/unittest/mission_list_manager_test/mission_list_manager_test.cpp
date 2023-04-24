@@ -109,6 +109,16 @@ public:
         g_cancelStartingWindowCalled = true;
     }
 
+    virtual int32_t MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+    {
+        return 0;
+    }
+
+    virtual int32_t MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result)
+    {
+        return 0;
+    }
+
     virtual sptr<IRemoteObject> AsObject()
     {
         return nullptr;
