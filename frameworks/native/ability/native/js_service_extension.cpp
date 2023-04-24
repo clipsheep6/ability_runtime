@@ -105,7 +105,12 @@ JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& r
 }
 
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsServiceExtension::~JsServiceExtension() = default;
+JsServiceExtension::~JsServiceExtension()
+{
+    HILOG_DEBUG("Js service extension destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+}
 
 void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,

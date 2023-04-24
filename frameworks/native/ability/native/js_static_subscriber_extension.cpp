@@ -68,7 +68,11 @@ JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::uniq
 }
 
 JsStaticSubscriberExtension::JsStaticSubscriberExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsStaticSubscriberExtension::~JsStaticSubscriberExtension() = default;
+JsStaticSubscriberExtension::~JsStaticSubscriberExtension()
+{
+    HILOG_DEBUG("Js static subscriber extension destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+}
 
 void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,
     const std::shared_ptr<OHOSApplication>& application,

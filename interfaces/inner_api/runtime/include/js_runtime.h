@@ -79,6 +79,9 @@ public:
     virtual void UpdateModuleNameAndAssetPath(const std::string& moduleName) {}
     void UpdateExtensionType(int32_t extensionType) override;
 
+    void FreeNativeReference(std::unique_ptr<NativeReference> reference);
+    void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
+
 protected:
     JsRuntime() = default;
 
@@ -87,6 +90,9 @@ protected:
 
     virtual NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     virtual NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) = 0;
+
+    void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
+        std::shared_ptr<NativeReference>&& sharedNativeRef);
 
     bool isArkEngine_ = false;
     bool debugMode_ = false;

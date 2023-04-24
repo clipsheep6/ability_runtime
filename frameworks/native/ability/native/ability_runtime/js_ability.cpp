@@ -95,7 +95,15 @@ Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 
 JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {}
-JsAbility::~JsAbility() = default;
+JsAbility::~JsAbility()
+{
+    HILOG_DEBUG("Js ability destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsAbilityObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+#ifdef SUPPORT_GRAPHICS
+    jsRuntime_.FreeNativeReference(std::move(jsWindowStageObj_));
+#endif
+}
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,

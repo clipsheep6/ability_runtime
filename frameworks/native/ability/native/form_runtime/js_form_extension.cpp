@@ -68,7 +68,12 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 }
 
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
-JsFormExtension::~JsFormExtension() = default;
+JsFormExtension::~JsFormExtension()
+{
+    HILOG_DEBUG("Js form extension destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+}
 
 void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application,

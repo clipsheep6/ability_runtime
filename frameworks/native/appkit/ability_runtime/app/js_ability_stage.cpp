@@ -118,7 +118,12 @@ JsAbilityStage::JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeRefer
     : jsRuntime_(jsRuntime), jsAbilityStageObj_(std::move(jsAbilityStageObj))
 {}
 
-JsAbilityStage::~JsAbilityStage() = default;
+JsAbilityStage::~JsAbilityStage()
+{
+    HILOG_DEBUG("Js ability stage destructor.");
+    jsRuntime_.FreeNativeReference(std::move(jsAbilityStageObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+}
 
 void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
 {
