@@ -3808,13 +3808,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 sptr<AppExecFwk::IBundleMgr> AbilityManagerService::GetBundleManager()
 {
     if (iBundleManager_ == nullptr) {
-        auto bundleObj =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (bundleObj == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-        iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+        iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
 }

@@ -55,6 +55,7 @@ ohos_unittest("ability_record_test") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -63,6 +64,7 @@ ohos_unittest("ability_record_test") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "resource_management:global_resmgr",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

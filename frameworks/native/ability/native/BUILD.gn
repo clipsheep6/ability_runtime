@@ -286,6 +286,7 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "relational_store:native_rdb",
+    "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
 

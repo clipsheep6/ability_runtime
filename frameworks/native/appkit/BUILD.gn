@@ -129,13 +129,12 @@ ohos_shared_library("appkit_native") {
     "//foundation/graphic/graphic_2d/rosen/modules/render_service_client:librender_service_client",
   ]
 
-  public_deps =
-      [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
   external_deps = [
     "ability_base:configuration",
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
@@ -154,13 +153,14 @@ ohos_shared_library("appkit_native") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-    public_deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    external_deps += [ "i18n:intl_util" ]
   }
 
   defines = []
@@ -169,9 +169,9 @@ ohos_shared_library("appkit_native") {
   }
 
   if (defined(global_parts_info.web_webview)) {
-    public_deps += [ "//base/web/webview/ohos_adapter:nweb_ohos_adapter" ]
+    deps += [ "${webview_path}/ohos_adapter:nweb_ohos_adapter" ]
 
-    include_dirs += [ "//base/web/webview/ohos_adapter/interfaces" ]
+    include_dirs += [ "${webview_path}/ohos_adapter/interfaces" ]
 
     external_deps += [ "webview:libnweb" ]
 
@@ -208,9 +208,6 @@ ohos_shared_library("app_context") {
   }
   deps = []
 
-  public_deps =
-      [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
-
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
@@ -225,12 +222,13 @@ ohos_shared_library("app_context") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-    public_deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    external_deps += [ "i18n:intl_util" ]
   }
 
   subsystem_name = "ability"
@@ -263,9 +261,6 @@ ohos_shared_library("app_context_utils") {
     "${ability_runtime_native_path}/appkit:application_context_manager",
   ]
 
-  public_deps =
-      [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
-
   external_deps = [
     "ability_runtime:ability_runtime_error_util",
     "ability_runtime:app_manager",
@@ -277,12 +272,13 @@ ohos_shared_library("app_context_utils") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
     "resource_management:resmgr_napi_core",
   ]
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-    public_deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    external_deps += [ "i18n:intl_util" ]
   }
 
   subsystem_name = "ability"
