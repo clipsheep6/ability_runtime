@@ -59,6 +59,8 @@ public:
         callback->OnAppStateChanged(appProcessData);
     }
 
+    MOCK_METHOD1(SetCurrentUserId, void(const int32_t userId));
+
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)

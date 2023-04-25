@@ -321,5 +321,13 @@ int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Ap
     }
     return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application, debug);
 }
+
+void AmsMgrScheduler::SetCurrentUserId(const int32_t userId)
+{
+    if (!IsReady()) {
+        return;
+    }
+    amsMgrServiceInner_->SetCurrentUserId(userId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

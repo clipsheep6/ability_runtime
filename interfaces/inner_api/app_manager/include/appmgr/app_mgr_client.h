@@ -315,6 +315,15 @@ public:
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
+    /**
+     * Set the current userId of appMgr.
+     *
+     * @param userId the user id.
+     *
+     * @return
+     */
+    void SetCurrentUserId(const int32_t userId);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**
