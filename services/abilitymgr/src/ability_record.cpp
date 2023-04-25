@@ -2300,6 +2300,10 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
 
 void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName)
 {
+    if (appIndex_ > 0) {
+        HILOG_WARN("Dlp can not grant uriPermission to targetBundleName.");
+        return;
+    }
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
