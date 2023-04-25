@@ -682,5 +682,32 @@ int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Applic
     HILOG_DEBUG("get parcelable info success");
     return NO_ERROR;
 }
+
+void AmsMgrProxy::SetCurrentUserId(const int32_t userId)
+{
+    HILOG_DEBUG("start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Failed to write userId");
+        return;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID),
+            data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+    HILOG_DEBUG("end");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

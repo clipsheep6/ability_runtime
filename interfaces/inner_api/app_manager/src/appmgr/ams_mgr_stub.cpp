@@ -69,6 +69,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleGetApplicationInfoByProcessID;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] = 
+        &AmsMgrStub::HandleSetCurrentUserId;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -352,5 +354,11 @@ int32_t AmsMgrStub::HandleUpdateApplicationInfoInstalled(MessageParcel &data, Me
     return NO_ERROR;
 }
 
+int32_t AmsMgrStub::HandleSetCurrentUserId(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t userId = data.ReadInt32();
+    SetCurrentUserId(userId);
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
