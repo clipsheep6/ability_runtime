@@ -29,7 +29,7 @@ public:
 
     ~JsSourceMapOperatorImpl() = default;
 
-std::string TranslateBySourceMap(const std::string& stackStr) override;
+    std::string TranslateBySourceMap(const std::string& stackStr) override;
 
 private:
     const std::string hapPath_;
