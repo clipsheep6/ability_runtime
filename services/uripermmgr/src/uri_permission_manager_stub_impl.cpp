@@ -44,26 +44,32 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
         return ERR_CODE_INVALID_URI_FLAG;
     }
     Uri uri_inner = uri;
+    auto&& scheme = uri_inner.GetScheme();
+    if (scheme != "file") {
+        HILOG_WARN("only support file uri.");
+        return ERR_CODE_INVALID_URI_TYPE;
+    }
     auto&& authority = uri_inner.GetAuthority();
-    Security::AccessToken::AccessTokenID fromTokenId = GetTokenIdByBundleName(authority);
-    Security::AccessToken::AccessTokenID targetTokenId = GetTokenIdByBundleName(targetBundleName);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
-    if (!permission && (fromTokenId != callerTokenId)) {
-        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
-        return CHECK_PERMISSION_FAILED;
+    if (authority == "media") {
+        if (!permission) {
+            HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
+            return CHECK_PERMISSION_FAILED;
+        }
+    } else {
+        Security::AccessToken::AccessTokenID fromTokenId = GetTokenIdByBundleName(authority);
+        if (!permission && (fromTokenId != callerTokenId)) {
+            HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
+            return CHECK_PERMISSION_FAILED;
+        }
     }
     unsigned int tmpFlag = 0;
     if (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) {
         tmpFlag = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
     } else {
         tmpFlag = Want::FLAG_AUTH_READ_URI_PERMISSION;
-    }
-    auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
-        HILOG_WARN("only support file uri.");
-        return ERR_CODE_INVALID_URI_TYPE;
     }
     // auto remove URI permission for clipboard
     Security::AccessToken::NativeTokenInfo nativeInfo;
@@ -72,11 +78,12 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     if (nativeInfo.processName == "pasteboard_serv") {
         autoremove = 1;
     }
-    return GrantUriPermissionImpl(uri, tmpFlag, fromTokenId, targetTokenId, autoremove);
+
+    Security::AccessToken::AccessTokenID targetTokenId = GetTokenIdByBundleName(targetBundleName);
+    return GrantUriPermissionImpl(uri, tmpFlag, targetTokenId, autoremove);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-    Security::AccessToken::AccessTokenID fromTokenId,
     Security::AccessToken::AccessTokenID targetTokenId, int autoremove)
 {
     auto storageMgrProxy = ConnectStorageManager();
@@ -92,7 +99,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
     }
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uriStr);
-    GrantInfo info = { flag, fromTokenId, targetTokenId, autoremove };
+    GrantInfo info = { flag, targetTokenId, autoremove };
     if (search == uriMap_.end()) {
         std::list<GrantInfo> infoList = { info };
         uriMap_.emplace(uriStr, infoList);
@@ -100,7 +107,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
     }
     auto& infoList = search->second;
     for (auto& item : infoList) {
-        if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
+        if (item.targetTokenId == targetTokenId) {
             if ((flag & item.flag) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
                 item.flag = flag;

@@ -2328,16 +2328,18 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
             continue;
         }
         auto&& authority = uri.GetAuthority();
-        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-        AppExecFwk::BundleInfo uriBundleInfo;
-        if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
-            HILOG_WARN("To fail to get bundle info according to uri.");
-            continue;
-        }
-        if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
-            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_) {
-            HILOG_ERROR("the uri does not belong to caller.");
-            continue;
+        if (authority != "media") {
+            HILOG_INFO("uri authority is %{public}s.", authority.c_str());
+            AppExecFwk::BundleInfo uriBundleInfo;
+            if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+                HILOG_WARN("To fail to get bundle info according to uri.");
+                continue;
+            }
+            if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
+                uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_) {
+                HILOG_ERROR("the uri does not belong to caller.");
+                continue;
+            }
         }
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
