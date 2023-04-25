@@ -2342,7 +2342,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
             targetBundleName, autoremove));
-        if (ret) {
+        if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
     }
