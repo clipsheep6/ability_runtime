@@ -18,7 +18,6 @@
 #include <malloc.h>
 #include <new>
 #include <regex>
-#include <sys/prctl.h>
 #include <unistd.h>
 
 #include "constants.h"
