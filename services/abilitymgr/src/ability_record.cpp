@@ -69,8 +69,8 @@ const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
 const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
-#ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 150;
+#ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int FOREGROUND_TIMEOUT_MULTIPLE = 75;
 const int BACKGROUND_TIMEOUT_MULTIPLE = 45;
@@ -80,7 +80,6 @@ const int INACTIVE_TIMEOUT_MULTIPLE = 8;
 const int DUMP_TIMEOUT_MULTIPLE = 15;
 const int SHAREDATA_TIMEOUT_MULTIPLE = 75;
 #else
-const int COLDSTART_TIMEOUT_MULTIPLE = 10;
 const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int FOREGROUND_TIMEOUT_MULTIPLE = 5;
 const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
@@ -724,7 +723,12 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         }
     };
     auto taskName = std::to_string(missionId_) + "_cold";
-    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
+    int loadTimeout;
+    if (applicationInfo_.asanEnabled) {
+        loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
+    } else {
+        loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
+    }
     handler->PostTask(delayTask, taskName, loadTimeout);
 }
 
