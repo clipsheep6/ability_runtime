@@ -138,6 +138,7 @@ ohos_unittest("ability_delegator_unittest") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -190,6 +191,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -222,6 +224,7 @@ ohos_unittest("js_test_runner_unittest") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "ets_runtime:libark_jsruntime",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",

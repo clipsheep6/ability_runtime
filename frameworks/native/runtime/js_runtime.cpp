@@ -39,7 +39,9 @@
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
+#include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
+#include "js_source_map_operator.h"
 #include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -49,6 +51,8 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "source_map.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
@@ -64,6 +68,7 @@ constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
+const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #else
@@ -242,27 +247,28 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         return;
     }
 
-    auto vm = GetEcmaVm();
-    CHECK_POINTER(vm);
-
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-
-    HdcRegister::Get().StartHdcRegister(bundleName_);
-    ConnectServerManager::Get().StartConnectServer(bundleName_);
-    ConnectServerManager::Get().AddInstance(instanceId_);
-    StartDebuggerInWorkerModule();
-
     auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
         eventHandler->PostTask(task);
     };
-    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm, needBreakPoint, instanceId_, debuggerPostTask);
 
-    debugMode_ = true;
+    debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
+}
+
+bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
+    const DebuggerPostTask& debuggerPostTask)
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    HdcRegister::Get().StartHdcRegister(bundleName);
+    ConnectServerManager::Get().StartConnectServer(bundleName);
+    ConnectServerManager::Get().AddInstance(instanceId);
+    StartDebuggerInWorkerModule();
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -317,6 +323,11 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     auto position = hapPath.find(".hap");
     if (position != std::string::npos) {
         resolvedHapPath = hapPath.substr(0, position) + MERGE_ABC_PATH;
+    }
+
+    auto hspPosition = hapPath.find(".hsp");
+    if (hspPosition != std::string::npos) {
+        resolvedHapPath = hapPath.substr(0, hspPosition) + MERGE_ABC_PATH;
     }
 
     HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
@@ -448,7 +459,7 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            InitConsoleLogModule(*nativeEngine, *globalObj);
+            JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'
@@ -496,8 +507,10 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
-            InitSourceMap(options);
+            auto bindSourceMaps = std::make_shared<JsEnv::SourceMap>();
+            bool isModular = !panda::JSNApi::IsBundle(vm);
+            auto operatorImpl = std::make_shared<JsSourceMapOperatorImpl>(options.hapPath, isModular, bindSourceMaps);
+            InitSourceMap(operatorImpl);
 
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
@@ -593,7 +606,7 @@ bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRu
     return true;
 }
 
-void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
+void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
 {
     HILOG_DEBUG("Set library path.");
 
@@ -609,14 +622,15 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
     }
 
     for (const auto &appLibPath : appLibPaths) {
-        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second);
+        moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second, isSystemApp);
     }
 }
 
-void JsRuntime::InitSourceMap(const Options& options)
+void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(options.bundleCodeDir, options.isStageModel);
+    jsEnv_->InitSourceMap(operatorImpl);
+    JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
 }
 
 void JsRuntime::Deinitialize()
@@ -960,6 +974,106 @@ void JsRuntime::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo un
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
+}
+
+void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath)
+{
+    auto vm = GetEcmaVm();
+    if (vm != nullptr) {
+        panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
+    }
+}
+
+bool JsRuntime::ReadSourceMapData(const std::string& hapPath, std::string& content)
+{
+    if (hapPath.empty()) {
+        HILOG_ERROR("hapPath is empty");
+        return false;
+    }
+    bool newCreate = false;
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
+        ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("hap's path: %{public}s, get extractor failed", hapPath.c_str());
+        return false;
+    }
+    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+    size_t len = 0;
+    if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
+        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
+        return false;
+    }
+    content = reinterpret_cast<char*>(dataPtr.get());
+    return true;
+}
+
+void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> reference)
+{
+    FreeNativeReference(std::move(reference), nullptr);
+}
+
+void JsRuntime::FreeNativeReference(std::shared_ptr<NativeReference>&& reference)
+{
+    FreeNativeReference(nullptr, std::move(reference));
+}
+
+struct JsNativeReferenceDeleterObject {
+    std::unique_ptr<NativeReference> uniqueNativeRef_ = nullptr;
+    std::shared_ptr<NativeReference> sharedNativeRef_ = nullptr;
+};
+
+void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
+    std::shared_ptr<NativeReference>&& sharedNativeRef)
+{
+    if (uniqueNativeRef == nullptr && sharedNativeRef == nullptr) {
+        HILOG_WARN("native reference is invalid.");
+        return;
+    }
+
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    auto uvLoop = nativeEngine->GetUVLoop();
+    CHECK_POINTER(uvLoop);
+
+    auto work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("new uv work failed.");
+        return;
+    }
+
+    auto cb = new (std::nothrow) JsNativeReferenceDeleterObject();
+    if (cb == nullptr) {
+        HILOG_ERROR("new deleter object failed.");
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    if (uniqueNativeRef != nullptr) {
+        cb->uniqueNativeRef_ = std::move(uniqueNativeRef);
+    }
+    if (sharedNativeRef != nullptr) {
+        cb->sharedNativeRef_ = std::move(sharedNativeRef);
+    }
+    work->data = reinterpret_cast<void*>(cb);
+    int ret = uv_queue_work(uvLoop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work != nullptr) {
+            if (work->data != nullptr) {
+                delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
+                work->data = nullptr;
+            }
+            delete work;
+            work = nullptr;
+        }
+    });
+
+    if (ret != 0) {
+        delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

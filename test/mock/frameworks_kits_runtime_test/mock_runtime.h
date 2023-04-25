@@ -88,6 +88,10 @@ public:
     {
         return true;
     }
+    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override
+    {
+        return;
+    }
 public:
     Language language;
 };

@@ -522,7 +522,7 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.bundleName = renderRecord->GetHostBundleName();
     processData.pid = renderRecord->GetPid();
     processData.uid = renderRecord->GetHostUid();
-    processData.processName = renderRecord->GetHostRecord()->GetProcessName();
+    processData.processName = renderRecord->GetProcessName();
     processData.processType = renderRecord->GetProcessType();
     return processData;
 }
@@ -604,7 +604,9 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.bundleName = appRecord->GetBundleName();
     appStateData.state = static_cast<int32_t>(state);
     appStateData.uid = appRecord->GetUid();
-    appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
+    if (appRecord->GetApplicationInfo() != nullptr) {
+        appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
+    }
     appStateData.isFocused = appRecord->GetFocusFlag();
     return appStateData;
 }

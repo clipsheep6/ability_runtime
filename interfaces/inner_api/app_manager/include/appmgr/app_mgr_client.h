@@ -330,6 +330,15 @@ public:
 
     int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
 
+    /**
+     * Set the current userId of appMgr.
+     *
+     * @param userId the user id.
+     *
+     * @return
+     */
+    void SetCurrentUserId(const int32_t userId);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

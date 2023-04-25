@@ -16,6 +16,7 @@
 #include "ability_manager_service.h"
 #include "accesstoken_kit.h"
 
+#include <atomic>
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -34,6 +35,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
+#include "errors.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -42,6 +44,7 @@
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
@@ -51,6 +54,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "os_account_manager_wrapper.h"
+#include "parameters.h"
 #include "permission_constants.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
@@ -72,7 +76,6 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
-#include "container_manager_client.h"
 
 #include "ability_bundle_event_callback.h"
 
@@ -99,21 +102,15 @@ const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
-const std::string WHITE_LIST_NORMAL_FLAG = "component.startup.whitelist.normal";
 const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
 // White list app
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
-const std::string BUNDLE_NAME_SERVICE_TEST = "com.amsst.stserviceabilityclient";
-const std::string BUNDLE_NAME_SERVICE_SERVER_TEST = "com.amsst.stserviceabilityserver";
-const std::string BUNDLE_NAME_SERVICE_SERVER2_TEST = "com.amsst.stserviceabilityserversecond";
 
-// White list
-const std::unordered_set<std::string> WHITE_LIST_NORMAL_SET = { BUNDLE_NAME_SERVICE_TEST,
-                                                                BUNDLE_NAME_SERVICE_SERVER_TEST,
-                                                                BUNDLE_NAME_SERVICE_SERVER2_TEST };
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
+
+std::atomic<bool> g_isDmsAlive = false;
 } // namespace
 
 using namespace std::chrono;
@@ -251,9 +248,9 @@ void AbilityManagerService::OnStart()
     }
 
     SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
-
     WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
-
+    AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
+    AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     HILOG_INFO("AMS start success.");
 }
 
@@ -310,11 +307,18 @@ bool AbilityManagerService::Init()
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+    bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
+        OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
+    HILOG_ERROR("GetBoolParameter -> isAppJumpEnabled:%{public}s", (isAppJumpEnabled ? "true" : "false"));
+    if (isAppJumpEnabled) {
+        HILOG_INFO("App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
+        interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
+    } else {
+        HILOG_INFO("App jump intercetor disabled");
+    }
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
-
-    SubscribeBackgroundTask();
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
@@ -324,7 +328,7 @@ bool AbilityManagerService::Init()
     auto registerBundleEventCallbackTask = [aams = shared_from_this()]() {
         sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
             new (std::nothrow) AbilityBundleEventCallback(aams->handler_);
-        auto bms = aams->GetBundleManager(); 
+        auto bms = aams->GetBundleManager();
         if (bms && abilityBundleEventCallback_) {
             bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
             if (!re) {
@@ -344,13 +348,22 @@ void AbilityManagerService::InitStartupFlag()
     startUpNewRule_ = CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES);
     newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
     backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
-    whiteListNormalFlag_ = CheckNewRuleSwitchState(WHITE_LIST_NORMAL_FLAG);
     whiteListassociatedWakeUpFlag_ = CheckNewRuleSwitchState(WHITE_LIST_ASS_WAKEUP_FLAG);
 }
 
 void AbilityManagerService::OnStop()
 {
     HILOG_INFO("Stop AMS.");
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (bgtaskObserver_) {
+        int ret = BackgroundTaskMgrHelper::UnsubscribeBackgroundTask(*bgtaskObserver_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("unsubscribe bgtask failed, err:%{public}d.", ret);
+        }
+    }
+    bgtaskObserver_.reset();
+#endif
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
@@ -423,7 +436,13 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
-
+    std::string callerPkg;
+    std::string targetPkg;
+    if (AbilityUtil::CheckJumpInterceptorWant(want, callerPkg, targetPkg)) {
+        HILOG_INFO("the call is from interceptor dialog, callerPkg:%{public}s, targetPkg:%{public}s",
+            callerPkg.c_str(), targetPkg.c_str());
+        AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
+    }
     int32_t ret = StartAbilityInner(want, callerToken, requestCode, -1, userId, true);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -509,7 +528,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
 
@@ -937,10 +956,19 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    std::shared_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (bgtaskObserver_) {
+        return bgtaskObserver_->IsBackgroundTaskUid(uid);
+    }
+    return false;
 #else
     return false;
 #endif
+}
+
+bool AbilityManagerService::IsDmsAlive() const
+{
+    return g_isDmsAlive.load();
 }
 
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -982,26 +1010,68 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     return ERR_OK;
 }
 
+void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID: {
+            SubscribeBackgroundTask();
+            break;
+        }
+        case DISTRIBUTED_SCHED_SA_ID: {
+            g_isDmsAlive.store(true);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d remove", systemAbilityId);
+    switch (systemAbilityId) {
+        case BACKGROUND_TASK_MANAGER_SERVICE_ID: {
+            UnSubscribeBackgroundTask();
+            break;
+        }
+        case DISTRIBUTED_SCHED_SA_ID: {
+            g_isDmsAlive.store(false);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
-        return ;
+        return;
     }
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
-    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
-        int attemptNums = 0;
-        while ((BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_))) != ERR_OK) {
-            ++attemptNums;
-            if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
-                HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
-                return;
-            }
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-        }
-    };
-    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+    int ret = BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_);
+    if (ret != ERR_OK) {
+        bgtaskObserver_ = nullptr;
+        HILOG_ERROR("%{public}s failed, err:%{public}d.", __func__, ret);
+        return;
+    }
+    bgtaskObserver_->GetContinuousTaskApps();
+    HILOG_INFO("%{public}s success.", __func__);
+#endif
+}
+
+void AbilityManagerService::UnSubscribeBackgroundTask()
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    if (!bgtaskObserver_) {
+        return;
+    }
+    bgtaskObserver_ = nullptr;
+    HILOG_INFO("%{public}s success.", __func__);
 #endif
 }
 
@@ -2540,6 +2610,45 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
 }
 
+int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToForeground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
+int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToBackground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("request GetMissionIdByToken.");
@@ -3320,15 +3429,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
 
-    auto func = []() {
-        auto client = ContainerManagerClient::GetInstance();
-        if (client != nullptr) {
-            client->NotifyBootComplete(0);
-            HILOG_INFO("StartSystemApplication NotifyBootComplete");
-        }
-    };
-    std::thread(func).detach();
-
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
     want.AddEntity(HIGHEST_PRIORITY_ABILITY_ENTITY);
@@ -3842,9 +3942,8 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 
 void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 {
-    HILOG_DEBUG("handle shareData timeout.");
     WantParams wantParam;
-    int32_t ret = GetShareDataPairAndReturnData(nullptr, uniqueId, ERR_TIMED_OUT, wantParam);
+    int32_t ret = GetShareDataPairAndReturnData(nullptr, ERR_TIMED_OUT, uniqueId, wantParam);
     if (ret) {
         HILOG_ERROR("acqurieShareData failed.");
     }
@@ -3853,7 +3952,8 @@ void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 int32_t AbilityManagerService::GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
     const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
-    HILOG_INFO("getShareDataPairAndReturnData enter.");
+    HILOG_INFO("resultCode:%{public}d, uniqueId:%{public}d, wantParam size:%{public}d.",
+        resultCode, uniqueId, wantParam.Size());
     auto it = iAcquireShareDataMap_.find(uniqueId);
     if (it != iAcquireShareDataMap_.end()) {
         auto shareDataPair = it->second;
@@ -4185,6 +4285,11 @@ int AbilityManagerService::StartRemoteAbilityByCall(const Want &want, const sptr
         HILOG_ERROR("%{public}s AddStartControlParam failed.", __func__);
         return ERR_INVALID_VALUE;
     }
+    int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+    if (missionId < 0) {
+        return ERR_INVALID_VALUE;
+    }
+    remoteWant.SetParam(DMS_MISSION_ID, missionId);
     DistributedClient dmsClient;
     return dmsClient.StartRemoteAbilityByCall(remoteWant, connect);
 }
@@ -4235,7 +4340,7 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
     ComponentRequest componentRequest = initComponentRequest(callerToken, -1, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
+    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
     if (result != ERR_OK) {
@@ -4284,6 +4389,11 @@ int AbilityManagerService::ReleaseCall(
     if (CheckIsRemote(element.GetDeviceID())) {
         HILOG_INFO("release remote ability");
         return ReleaseRemoteAbility(connect->AsObject(), element);
+    }
+
+    int result = ERR_OK;
+    if (IsReleaseCallInterception(connect, element, result)) {
+        return result;
     }
 
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
@@ -4663,6 +4773,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 return;
             } else {
                 auto bms = GetBundleManager();
+                if (bms == nullptr) {
+                    HILOG_ERROR("bms is nullptr");
+                    return;
+                }
                 AppExecFwk::BundleInfo bundleInfo;
                 auto bundleName = want->GetElement().GetBundleName();
                 int32_t userId = GetUserId();
@@ -6073,9 +6187,6 @@ bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityReq
     if (callerAbility) {
         const std::string bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
-        if (whiteListNormalFlag_ && WHITE_LIST_NORMAL_SET.find(bundleName) != WHITE_LIST_NORMAL_SET.end()) {
-            return false;
-        }
         if (newRuleExceptLauncherSystemUI_ &&
             (bundleName == BUNDLE_NAME_LAUNCHER || bundleName == BUNDLE_NAME_SYSTEMUI)) {
             return false;
@@ -6193,6 +6304,9 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         newWant.SetParam("launchMode", launchMode);
         int32_t callType = static_cast<int32_t>(request.callType);
         newWant.SetParam("callType", callType);
+        if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
+            newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
+        }
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();
@@ -6207,6 +6321,25 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         }
     }
     return true;
+}
+
+bool AbilityManagerService::CheckProxyComponent(const Want &want, const int result)
+{
+    // do proxy component while the deviceId is not empty
+    return ((!want.GetElement().GetDeviceID().empty()) || (result != ERR_OK));
+}
+
+bool AbilityManagerService::IsReleaseCallInterception(const sptr<IAbilityConnection> &connect,
+    const AppExecFwk::ElementName &element, int &result)
+{
+    if  (componentInterception_ == nullptr) {
+        return false;
+    }
+    HILOG_DEBUG("%{public}s", __func__);
+    sptr<Want> extraParam = new (std::nothrow) Want();
+    bool isInterception = componentInterception_->ReleaseCallInterception(connect->AsObject(), element, extraParam);
+    result = extraParam->GetIntParam("requestResult", 0);
+    return isInterception;
 }
 
 void AbilityManagerService::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
@@ -6292,6 +6425,7 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
 
 int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (freeInstallManager_ == nullptr) {
         HILOG_ERROR("freeInstallManager_ is nullptr.");
         return ERR_INVALID_VALUE;
@@ -6380,6 +6514,7 @@ int32_t AbilityManagerService::AcquireShareData(
 int32_t AbilityManagerService::ShareDataDone(
     const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
+    HILOG_INFO("resultCode:%{public}d, uniqueId:%{public}d.", resultCode, uniqueId);
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }

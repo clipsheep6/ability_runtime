@@ -44,6 +44,10 @@ public:
 
     virtual void NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info) = 0;
 
+    virtual int32_t MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) = 0;
+
+    virtual int32_t MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result) = 0;
+
     enum WMSCmd {
         // ipc id for NotifyWindowTransition
         ON_NOTIFY_WINDOW_TRANSITION,
@@ -62,6 +66,12 @@ public:
 
         // ipc id for NotifyAnimationAbilityDied
         ON_NOTIFY_ANIMATION_ABILITY_DIED,
+
+        // ipc id for MoveMissionsToForeground
+        ON_MOVE_MISSINONS_TO_FOREGROUND,
+
+        // ipc id for MoveMissionsToBackground
+        ON_MOVE_MISSIONS_TO_BACKGROUND,
     };
 };
 }  // namespace AAFwk

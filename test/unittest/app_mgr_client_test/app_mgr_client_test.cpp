@@ -22,6 +22,7 @@
 #include "ability_record.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#include "mock_native_token.h"
 #undef protected
 #undef private
 
@@ -51,7 +52,9 @@ public:
 };
 
 void AppMgrClientTest::SetUpTestCase(void)
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AppMgrClientTest::TearDownTestCase(void)
 {}
@@ -118,6 +121,34 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UpdateExtensionState_001, TestSize.Level
 
     int ret = appMgrClient->UpdateExtensionState(token, state);
     EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetAllRunningProcesses_001
+ * @tc.desc: get all running processes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetAllRunningProcesses_001, TestSize.Level0)
+{
+    HILOG_INFO("GetAllRunningProcesses_001 start");
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::vector<RunningProcessInfo> info;
+    appMgrClient->GetAllRunningProcesses(info);
+    EXPECT_NE(info.size(), APP_NUMBER_ZERO);
+    for (int i = 0; i < info.size(); i++) {
+        HILOG_DEBUG("running %{public}d: name: %{public}s, processType: %{public}d, extensionType: %{public}d",
+            i, info[i].processName_.c_str(), info[i].processType_, info[i].extensionType_);
+        if (info[i].processName_ == "com.ohos.systemui") {
+            EXPECT_EQ(info[i].processType_, ProcessType::EXTENSION);
+            EXPECT_EQ(info[i].extensionType_, ExtensionAbilityType::SERVICE);
+        } else if (info[i].processName_ == "com.ohos.launcher") {
+            EXPECT_EQ(info[i].processType_, ProcessType::EXTENSION);
+            EXPECT_EQ(info[i].extensionType_, ExtensionAbilityType::SERVICE);
+        }
+    }
+    HILOG_INFO("GetAllRunningProcesses_001 end");
 }
 
 /**
@@ -334,7 +365,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AbilityAttachTimeOut_001, TestSize.Level
 HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
 {
     sptr<IRemoteObject> token = nullptr;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -342,7 +372,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->PrepareTerminate(token);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -353,7 +382,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PrepareTerminate_001, TestSize.Level0)
 HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0)
 {
     int32_t recordId = INIT_VALUE;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -361,7 +389,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->AddAbilityStageDone(recordId);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -372,7 +399,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AddAbilityStageDone_001, TestSize.Level0
 HWTEST_F(AppMgrClientTest, AppMgrClient_StartupResidentProcess_001, TestSize.Level0)
 {
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -380,7 +406,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartupResidentProcess_001, TestSize.Lev
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->StartupResidentProcess(bundleInfos);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -392,7 +417,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
 {
     AAFwk::Want want;
     AppExecFwk::AbilityInfo abilityInfo;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -400,7 +424,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->StartSpecifiedAbility(want, abilityInfo);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -411,7 +434,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedAbility_001, TestSize.Leve
 HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
 {
     sptr<IStartSpecifiedAbilityResponse> response = nullptr;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -419,7 +441,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterStartSpecifiedAbilityResponse_00
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->RegisterStartSpecifiedAbilityResponse(response);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -432,7 +453,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleAcceptWantDone_001, TestSize.Lev
     int32_t recordId = INIT_VALUE;
     AAFwk::Want want;
     std::string flag = EMPTY_STRING;
-    int32_t ret = 0;
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
@@ -440,7 +460,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleAcceptWantDone_001, TestSize.Lev
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     appMgrClient->ScheduleAcceptWantDone(recordId, want, flag);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -503,5 +522,21 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_BlockAppService_001, TestSize.Level0)
 }
 #endif
 
+/**
+ * @tc.name: AppMgrClient_SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_SetCurrentUserId_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int32_t userId = 0;
+    appMgrClient->SetCurrentUserId(userId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

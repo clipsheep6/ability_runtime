@@ -77,6 +77,7 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void UpdateExtensionType(int32_t extensionType) = 0;
+    virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

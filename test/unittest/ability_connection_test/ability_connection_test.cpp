@@ -120,8 +120,6 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityDiscon
     EXPECT_NE(abilityConnection->abilityConnectCallbackList_.size(), 0);
     int32_t resultCode = 0;
     abilityConnection->OnAbilityDisconnectDone(element,resultCode);
-    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0200 resultCode: " << resultCode ;
-    EXPECT_EQ(resultCode, 0);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0200 end";
 }
 

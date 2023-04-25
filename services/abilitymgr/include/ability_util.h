@@ -22,6 +22,7 @@
 #include "ability_config.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_client.h"
+#include "app_jump_control_rule.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "erms_mgr_interface.h"
 #include "hilog_wrapper.h"
@@ -44,6 +45,7 @@ constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
 const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
+const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 // dlp White list
 const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
 
@@ -208,6 +210,49 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
 }
 
+[[maybe_unused]] static bool ParseJumpInterceptorWant(Want &targetWant, const std::string callerPkg)
+{
+    if (callerPkg.empty()) {
+        HILOG_ERROR("%{public}s error, get empty callerPkg.", __func__);
+        return false;
+    }
+    targetWant.SetParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG, callerPkg);
+    return true;
+}
+
+[[maybe_unused]] static bool CheckJumpInterceptorWant(const Want &targetWant, std::string &callerPkg,
+    std::string &targetPkg)
+{
+    if (!targetWant.HasParameter(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG)) {
+        HILOG_ERROR("%{public}s error, the interceptor parameter invalid.", __func__);
+        return false;
+    }
+    callerPkg = targetWant.GetStringParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG);
+    targetPkg = targetWant.GetElement().GetBundleName();
+    return !callerPkg.empty() && !targetPkg.empty();
+}
+    
+[[maybe_unused]] static bool AddAbilityJumpRuleToBms(const std::string &callerPkg, const std::string &targetPkg,
+    int32_t userId)
+{
+    if (callerPkg.empty() || targetPkg.empty()) {
+        HILOG_ERROR("get invalid inputs");
+        return false;
+    }
+    auto bms = AbilityUtil::GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return false;
+    }
+    auto appControlMgr = bms->GetAppControlProxy();
+    if (appControlMgr == nullptr) {
+        HILOG_ERROR("Get appControlMgr failed");
+        return false;
+    }
+    int ret = IN_PROCESS_CALL(appControlMgr->ConfirmAppJumpControlRule(callerPkg, targetPkg, userId));
+    return ret == ERR_OK;
+}
+
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
@@ -229,7 +274,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t callerUid)
+[[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
     auto bms = GetBundleManager();
     if (!bms) {
@@ -240,7 +285,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
     bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, targetAppInfo));
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
         return false;
@@ -250,6 +295,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         return true;
     }
 
+    int callerUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {

@@ -19,7 +19,6 @@
 #include "want.h"
 #include <gmock/gmock.h>
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/app_control/app_control_interface.h"
-#include "app_running_control_rule_result.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
@@ -49,6 +48,16 @@ public:
     virtual ErrCode GetAppRunningControlRule(int32_t userId, std::vector<std::string>& appIds) override;
     virtual ErrCode GetAppRunningControlRule(
         const std::string& bundleName, int32_t userId, AppRunningControlRuleResult& controlRuleResult) override;
+
+    virtual ErrCode ConfirmAppJumpControlRule(const std::string &callerBundleName, const std::string &targetBundleName,
+        int32_t userId) override;
+    virtual ErrCode AddAppJumpControlRule(const std::vector<AppJumpControlRule> &controlRules, int32_t userId) override;
+    virtual ErrCode DeleteAppJumpControlRule(const std::vector<AppJumpControlRule> &controlRules,
+        int32_t userId) override;
+    virtual ErrCode DeleteRuleByCallerBundleName(const std::string &callerBundleName, int32_t userId) override;
+    virtual ErrCode DeleteRuleByTargetBundleName(const std::string &targetBundleName, int32_t userId) override;
+    virtual ErrCode GetAppJumpControlRule(const std::string &callerBundleName, const std::string &targetBundleName,
+        int32_t userId, AppJumpControlRule &controlRule) override;
 
     virtual ErrCode SetDisposedStatus(const std::string& appId, const Want& want) override;
     virtual ErrCode DeleteDisposedStatus(const std::string& appId) override;

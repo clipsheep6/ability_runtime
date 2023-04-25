@@ -1135,5 +1135,18 @@ HWTEST_F(AppSchedulerTest, AppScheduler_BlockAppService_002, TestSize.Level1)
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.reset();
 }
 #endif
+
+/**
+ * @tc.name: SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_SetCurrentUserId_001, TestSize.Level1)
+{
+    int32_t userId = 0;
+    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
+    ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
+    DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

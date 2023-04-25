@@ -66,6 +66,7 @@ public:
     int32_t GetHostUid() const;
     std::string GetHostBundleName() const;
     std::string GetRenderParam() const;
+    std::string GetProcessName() const;
     int32_t GetIpcFd() const;
     int32_t GetSharedFd() const;
     int32_t GetCrashFd() const;
@@ -79,12 +80,14 @@ public:
 private:
     void SetHostUid(const int32_t hostUid);
     void SetHostBundleName(const std::string &hostBundleName);
+    void SetProcessName(const std::string &hostProcessName);
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
     int32_t hostUid_ = 0;
     std::string hostBundleName_;
     std::string renderParam_;
+    std::string processName_;
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
@@ -547,6 +550,7 @@ public:
     const AAFwk::Want &GetSpecifiedWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
+    void SetNativeDebug(bool isNativeDebug);
     void SetRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecord();
     void SetStartMsg(const AppSpawnStartMsg &msg);
@@ -691,6 +695,7 @@ private:
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
     bool isDebugApp_ = false;
+    bool isNativeDebug_ = false;
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
 

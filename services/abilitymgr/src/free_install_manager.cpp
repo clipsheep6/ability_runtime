@@ -25,6 +25,7 @@
 #include "distributed_client.h"
 #include "free_install_observer_manager.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {
@@ -82,6 +83,7 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
 int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int requestCode,
     const sptr<IRemoteObject> &callerToken, bool isAsync)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("StartFreeInstall called");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && !IsTopAbility(callerToken)) {
@@ -196,6 +198,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
 
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::mutex> autoLock(distributedFreeInstallLock_);
     if (dmsFreeInstallCbs_.empty()) {
         HILOG_ERROR("Has no dms callback.");
@@ -242,6 +245,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 
 void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode, bool isAsync)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::mutex> lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
         HILOG_INFO("Has no app callback.");
@@ -377,6 +381,7 @@ std::time_t FreeInstallManager::GetTimeStamp()
 
 void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     if (isAsync) {
         // remove timeout task

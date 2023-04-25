@@ -1903,6 +1903,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_AddSystemAbilityCallerRecord_002, Test
 HWTEST_F(AbilityRecordTest, AbilityRecord_GetConnectingRecordList_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     std::shared_ptr<ConnectionRecord> connection1 =
         std::make_shared<ConnectionRecord>(abilityRecord->GetToken(), abilityRecord, callback);

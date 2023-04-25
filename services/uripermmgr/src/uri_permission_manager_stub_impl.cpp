@@ -33,15 +33,15 @@ namespace OHOS {
 namespace AAFwk {
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t ERR_OK = 0;
-const int32_t ERROR_CODE_URI_PERMISSION_NOT_FOUND = 16000058;
 using TokenId = Security::AccessToken::AccessTokenID;
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int autoremove)
 {
+    HILOG_DEBUG("UriPermissionManagerStubImpl::GrantUriPermission is called.");
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
-        return INNER_ERR;
+        return ERR_CODE_INVALID_URI_FLAG;
     }
     Uri uri_inner = uri;
     auto&& authority = uri_inner.GetAuthority();
@@ -63,7 +63,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     auto&& scheme = uri_inner.GetScheme();
     if (scheme != "file") {
         HILOG_WARN("only support file uri.");
-        return INNER_ERR;
+        return ERR_CODE_INVALID_URI_TYPE;
     }
     // auto remove URI permission for clipboard
     Security::AccessToken::NativeTokenInfo nativeInfo;
@@ -120,7 +120,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
     Security::AccessToken::NativeTokenInfo nativeInfo;
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
     HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
-    if (nativeInfo.processName != "fodundation") {
+    if (nativeInfo.processName != "foundation") {
         HILOG_ERROR("RevokeUriPermission can only be called by foundation");
         return;
     }
@@ -161,6 +161,11 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     HILOG_DEBUG("Start to remove uri permission manually.");
     Uri uri_inner = uri;
     auto&& authority = uri_inner.GetAuthority();
+    auto&& scheme = uri_inner.GetScheme();
+    if (scheme != "file") {
+        HILOG_WARN("only support file uri.");
+        return ERR_CODE_INVALID_URI_TYPE;
+    }
     Security::AccessToken::AccessTokenID uriTokenId = GetTokenIdByBundleName(authority);
     Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
@@ -178,15 +183,13 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         auto uriStr = uri.ToString();
         auto search = uriMap_.find(uriStr);
         if (search == uriMap_.end()) {
-            HILOG_ERROR("URI does not exist on uri map.");
-            return ERROR_CODE_URI_PERMISSION_NOT_FOUND;
+            HILOG_INFO("URI does not exist on uri map.");
+            return ERR_OK;
         }
         auto& list = search->second;
-        bool found = false;
         for (auto it = list.begin(); it != list.end(); it++) {
             if (it->targetTokenId == tokenId) {
                 HILOG_INFO("Erase an info form list.");
-                found = true;
                 auto storageMgrProxy = ConnectStorageManager();
                 if (storageMgrProxy == nullptr) {
                     HILOG_ERROR("ConnectStorageManager failed");
@@ -204,9 +207,6 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         }
         if (list.size() == 0) {
             uriMap_.erase(search);
-        }
-        if (!found) {
-            return ERROR_CODE_URI_PERMISSION_NOT_FOUND;
         }
     }
     return ERR_OK;

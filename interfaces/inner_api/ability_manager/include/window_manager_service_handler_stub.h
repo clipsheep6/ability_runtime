@@ -42,6 +42,8 @@ private:
     int StartingWindowHot(MessageParcel &data, MessageParcel &reply);
     int CancelStartingWindowInner(MessageParcel &data, MessageParcel &reply);
     int NotifyAnimationAbilityDiedInner(MessageParcel &data, MessageParcel &reply);
+    int MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply);
+    int MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (WindowManagerServiceHandlerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

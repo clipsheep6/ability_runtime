@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,16 +17,20 @@ import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import deviceInfo from '@ohos.deviceInfo';
+import defaultAppManager from '@ohos.bundle.defaultAppManager';
+import bundleManager from '@ohos.bundle.bundleManager';
 
-const TAG = "SelectorDialog_Service";
+const TAG = 'SelectorDialog_Service';
 
-var winNum = 1;
-var win;
+let winNum = 1;
+let win;
 
 export default class SelectorServiceExtensionAbility extends extension {
     onCreate(want) {
-        console.debug(TAG, "onCreate, want: " + JSON.stringify(want));
+        console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
         globalThis.selectExtensionContext = this.context;
+        globalThis.defaultAppManager = defaultAppManager;
+        globalThis.bundleManager = bundleManager;
     }
 
     async getPhoneShowHapList() {
@@ -44,7 +48,7 @@ export default class SelectorServiceExtensionAbility extends extension {
             }
         }
         globalThis.phoneShowHapList = phoneShowHapList;
-        console.debug(TAG, "phoneShowHapList: " + JSON.stringify(phoneShowHapList));
+        console.debug(TAG, 'phoneShowHapList: ' + JSON.stringify(phoneShowHapList));
     }
 
     async getPcShowHapList() {
@@ -53,42 +57,54 @@ export default class SelectorServiceExtensionAbility extends extension {
             await this.getHapResource(globalThis.params.hapList[i], pcShowHapList);
         }
         globalThis.pcShowHapList = pcShowHapList;
-        console.debug(TAG, "pcShowHapList: " + JSON.stringify(pcShowHapList));
+        console.debug(TAG, 'pcShowHapList: ' + JSON.stringify(pcShowHapList));
     }
 
     async getHapResource(hap, showHapList) {
         let bundleName = hap.bundle;
         let moduleName = hap.module;
         let abilityName = hap.ability;
-        let appName = "";
-        let appIcon = "";
+        let appName = '';
+        let appIcon = '';
+        let type = '';
+        let userId = Number('0');
+        if (globalThis.params.deviceType == 'pc') {
+            type = hap.type;
+            userId = Number(hap.userId);
+        }
         let lableId = Number(hap.label);
         let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
         await moduleContext.resourceManager.getString(lableId).then(value => {
             appName = value;
         }).catch(error => {
-            console.error(TAG, "getString error:" + JSON.stringify(error));
+            console.error(TAG, 'getString error:' + JSON.stringify(error));
         });
 
         let iconId = Number(hap.icon);
         await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
             appIcon = value;
         }).catch(error => {
-            console.error(TAG, "getMediaBase64 error:" + JSON.stringify(error));
+            console.error(TAG, 'getMediaBase64 error:' + JSON.stringify(error));
         });
-        showHapList.push(bundleName + "#" + abilityName + "#" + appName + "#" + appIcon + "#" + moduleName);
+        showHapList.push(bundleName + '#' + abilityName + '#' + appName +
+            '#' + appIcon + '#' + moduleName + '#' + type + '#' + userId);
     }
 
     async onRequest(want, startId) {
-        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
+        console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
         globalThis.abilityWant = want;
-        globalThis.params = JSON.parse(want["parameters"]["params"]);
-        globalThis.position = JSON.parse(want["parameters"]["position"]);
-        globalThis.callerToken = want["parameters"]["callerToken"];
-        console.debug(TAG, "onRequest, params: " + JSON.stringify(globalThis.params));
-        console.debug(TAG, "onRequest, position: " + JSON.stringify(globalThis.position));
-
-        if (globalThis.params.deviceType == "phone") {
+        globalThis.params = JSON.parse(want['parameters']['params']);
+        globalThis.position = JSON.parse(want['parameters']['position']);
+        console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
+        console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
+        globalThis.callerToken = want['parameters']['callerToken'];
+        console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
+        console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
+        if (globalThis.params.deviceType == 'pc') {
+            globalThis.modelFlag = Boolean(globalThis.params.modelFlag)
+            globalThis.action = Boolean(globalThis.params.action)
+        }
+        if (globalThis.params.deviceType == 'phone') {
             await this.getPhoneShowHapList();
         } else {
             await this.getPcShowHapList();
@@ -105,21 +121,22 @@ export default class SelectorServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            if (deviceInfo.deviceType == "phone") {
-                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+            if (deviceInfo.deviceType == 'phone') {
+                this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                this.createWindow("SelectorDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
+                console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
+                this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             }
             winNum++;
         })
     }
 
     onDestroy() {
-        console.info(TAG, "onDestroy.");
+        console.info(TAG, 'onDestroy.');
     }
 
     private async createWindow(name: string, windowType: number, rect) {
-        console.info(TAG, "create window");
+        console.info(TAG, 'create window');
         try {
             win = await window.create(globalThis.selectExtensionContext, name, windowType);
             await win.bindDialogTarget(globalThis.callerToken.value, () => {
@@ -131,15 +148,15 @@ export default class SelectorServiceExtensionAbility extends extension {
             });
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
-            if (globalThis.params.deviceType == "phone") {
+            if (globalThis.params.deviceType == 'phone') {
                 await win.loadContent('pages/selectorPhoneDialog');
             } else {
                 await win.loadContent('pages/selectorPcDialog');
             }
-            await win.setBackgroundColor("#00000000");
+            await win.setBackgroundColor('#00000000');
             await win.show();
         } catch (e) {
-            console.error(TAG, "window create failed: " + JSON.stringify(e));
+            console.error(TAG, 'window create failed: ' + JSON.stringify(e));
         }
     }
 };

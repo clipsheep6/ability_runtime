@@ -37,6 +37,7 @@
 #include "js_console_log.h"
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
 #ifdef SUPPORT_GRAPHICS
 using OHOS::Ace::ContainerScope;
@@ -70,7 +71,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         return;
     }
 
-    InitConsoleLogModule(*nativeEngine, *globalObj);
+    OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
 
     if (g_debugMode) {
         auto instanceId = gettid();

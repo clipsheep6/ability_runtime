@@ -109,6 +109,16 @@ public:
         g_cancelStartingWindowCalled = true;
     }
 
+    virtual int32_t MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+    {
+        return 0;
+    }
+
+    virtual int32_t MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result)
+    {
+        return 0;
+    }
+
     virtual sptr<IRemoteObject> AsObject()
     {
         return nullptr;
@@ -3948,7 +3958,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_005, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -3972,7 +3983,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_006, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -3996,8 +4008,9 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_007, TestSize.Level1)
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
-    EXPECT_NE(res, nullptr);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
+    EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
 
@@ -4020,7 +4033,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_008, TestSize.Level1)
     missionListManager->launcherList_ = missionList;
     missionListManager->defaultStandardList_ = missionList;
     int missionId = 1;
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -4048,7 +4062,8 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_009, TestSize.Level1)
     InnerMissionInfo info;
     info.missionInfo.id = 1;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(info);
-    auto res = missionListManager->GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
     EXPECT_EQ(res, nullptr);
     missionListManager.reset();
 }
@@ -4710,6 +4725,35 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_002, TestSize.Level1)
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
     missionListManager.reset();
 }
+
+
+/*
+ * Feature: MissionListManager
+ * Function: CompleteFirstFrameDrawing
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CompleteFirstFrameDrawing
+ * EnvConditions: NA
+ * CaseDescription: Verify CompleteFirstFrameDrawing
+ */
+HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_003, TestSize.Level1)
+{
+    HILOG_INFO("CompleteFirstFrameDrawing_003 start");
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), false);
+    sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    missionList->missions_.push_front(mission);
+    missionListManager->terminateAbilityList_.clear();
+    missionListManager->currentMissionLists_.clear();
+    missionListManager->currentMissionLists_.push_front(missionList);
+    missionListManager->defaultSingleList_ = missionList;
+    missionListManager->defaultStandardList_ = missionList;
+    missionListManager->CompleteFirstFrameDrawing(abilityToken);
+    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), true);
+}
 #endif
 
 /*
@@ -5047,11 +5091,7 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_001, TestSize.Level1)
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     missionList->missions_.push_front(mission);
     missionListManager->launcherList_ = missionList;
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
-    abilityRequest.specifiedFlag = flag;
-    bool res = missionListManager->IsReachToLimitLocked(abilityRequest);
+    bool res = missionListManager->IsReachToLimitLocked();
     EXPECT_FALSE(res);
     missionListManager.reset();
 }
@@ -5068,8 +5108,6 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_002, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
@@ -5078,7 +5116,7 @@ HWTEST_F(MissionListManagerTest, IsReachToLimitLocked_002, TestSize.Level1)
     missionListManager->currentMissionLists_.push_back(missionList);
     missionListManager->defaultStandardList_ = missionList;
     missionListManager->defaultSingleList_ = missionList;
-    bool res = missionListManager->IsReachToLimitLocked(abilityRequest);
+    bool res = missionListManager->IsReachToLimitLocked();
     EXPECT_FALSE(res);
     missionListManager.reset();
 }
@@ -5282,6 +5320,7 @@ HWTEST_F(MissionListManagerTest, EraseWaitingAbility_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
@@ -5407,6 +5446,7 @@ HWTEST_F(MissionListManagerTest, GetAllForegroundAbilities_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::list<std::shared_ptr<AbilityRecord>> foregroundList;
     missionList->missions_.clear();
@@ -5429,6 +5469,7 @@ HWTEST_F(MissionListManagerTest, GetForegroundAbilities_001, TestSize.Level1)
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::list<std::shared_ptr<AbilityRecord>> foregroundList;
     missionList->missions_.clear();
@@ -5611,6 +5652,7 @@ HWTEST_F(MissionListManagerTest, SetMissionANRStateByTokens_003, TestSize.Level1
 {
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    EXPECT_NE(missionListManager, nullptr);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     std::vector<sptr<IRemoteObject>> tokens;

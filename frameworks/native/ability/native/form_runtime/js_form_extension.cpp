@@ -70,10 +70,14 @@ JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime
 JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsFormExtension::~JsFormExtension()
 {
+    HILOG_DEBUG("Js form extension destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
     }
+
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }
 
 void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -422,6 +426,40 @@ bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     }
 
     HILOG_DEBUG("%{public}s called end.", __func__);
+    return true;
+}
+
+bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("called.");
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+    if (nativeEngine == nullptr) {
+        HILOG_ERROR("get NativeEngine is nullptr");
+        return false;
+    }
+
+    auto formIdStr = std::to_string(formId);
+    NativeValue* argv[] = { nativeEngine->CreateString(formIdStr.c_str(), formIdStr.length()) };
+    NativeValue* nativeResult = CallObjectMethod("onAcquireFormData", "OnAcquireData", argv, 1);
+    if (nativeResult == nullptr) {
+        HILOG_ERROR("return value is nullptr");
+        return false;
+    }
+
+    if (nativeResult->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("return value`s type is %{public}d",
+            static_cast<int32_t>(nativeResult->TypeOf()));
+        return false;
+    }
+
+    if (!OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(nativeEngine),
+        reinterpret_cast<napi_value>(nativeResult), wantParams)) {
+        HILOG_ERROR("UnwrapWantParams failed, return false");
+        return false;
+    }
+
+    HILOG_DEBUG("called end.");
     return true;
 }
 } // namespace AbilityRuntime

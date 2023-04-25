@@ -44,6 +44,7 @@ const std::string EVENT_KEY_CALLER_PROCESS_NAME = "CALLER_PROCESS_NAME";
 const std::string EVENT_KEY_EXIT_TIME = "EXIT_TIME";
 const std::string EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
 const std::string EVENT_KEY_EXIT_PID = "EXIT_PID";
+const std::string EVENT_KEY_BUNDLE_TYPE = "BUNDLE_TYPE";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -102,9 +103,9 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                     type,
                     EVENT_KEY_STARTUP_TIME, eventInfo.time,
                     EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
-                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.processName);
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
             } else {
                 HiSysEventWrite(
                     HiSysEvent::Domain::AAFWK,
@@ -113,9 +114,9 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                     EVENT_KEY_STARTUP_TIME, eventInfo.time,
                     EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
                     EVENT_KEY_STARTUP_EXTENSION_TYPE, eventInfo.extensionType,
-                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.processName);
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
             }
             break;
         case EventName::PROCESS_EXIT:
@@ -127,6 +128,29 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                 EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
                 EVENT_KEY_EXIT_PID, eventInfo.pid);
             break;
+        case EventName::APP_FOREGROUND:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+        case EventName::APP_BACKGROUND:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
         default:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -182,6 +206,16 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
             break;
         case EventName::ABILITY_ONFOREGROUND:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            break;
         case EventName::ABILITY_ONBACKGROUND:
         case EventName::ABILITY_ONINACTIVE:
             HiSysEventWrite(
@@ -190,7 +224,8 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 type,
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
             break;
         case EventName::ABILITY_ONACTIVE:
             HiSysEventWrite(
@@ -200,7 +235,9 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType);
+                EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType,
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
             break;
         default:
             break;

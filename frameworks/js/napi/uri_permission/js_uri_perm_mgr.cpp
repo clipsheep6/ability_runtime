@@ -31,7 +31,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t ERR_OK = 0;
-constexpr int32_t ERROR_CODE_URI_PERMISSION_NOT_FOUND = 16000058;
 constexpr int32_t argCountFour = 4;
 constexpr int32_t argCountThree = 3;
 constexpr int32_t argCountTwo = 2;
@@ -62,6 +61,7 @@ public:
 private:
     NativeValue* OnGrantUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
     {
+        HILOG_DEBUG("Grant Uri Permission start");
         if (info.argc != argCountThree && info.argc != argCountFour) {
             HILOG_ERROR("The number of parameter is invalid.");
             ThrowTooFewParametersError(engine);
@@ -102,6 +102,12 @@ private:
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else if (errCode ==  AAFwk::CHECK_PERMISSION_FAILED) {
                 task.Reject(engine, CreateNoPermissionError(engine, "ohos.permission.PROXY_AUTHORIZATION_URI"));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_FLAG){
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
+                "Invalid URI flag."));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE){
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                "Only support file URI."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));
@@ -152,9 +158,9 @@ private:
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
                 task.Reject(engine, CreateNoPermissionError(engine,
                     "Do not have permission ohos.permission.PROXY_AUTHORIZATION_URI"));
-            } else if (errCode == ERROR_CODE_URI_PERMISSION_NOT_FOUND){
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_URI_PERMISSION_NOT_FOUND,
-                "Uri permission to revoke not found."));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE) {
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                "Only support file URI."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));

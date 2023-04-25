@@ -20,7 +20,7 @@
 #include "ecmascript/napi/include/jsnapi.h"
 #include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
-#include "source_map.h"
+#include "source_map_operator.h"
 #include "uncaught_exception_callback.h"
 
 namespace OHOS {
@@ -54,7 +54,7 @@ public:
 
     void InitWorkerModule();
 
-    void InitSourceMap(const std::string& bundleCodeDir, bool isStageModel);
+    void InitSourceMap(const std::shared_ptr<SourceMapOperatorImpl> operatorImpl);
 
     void InitSyscapModule();
 
@@ -64,11 +64,15 @@ public:
 
     void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
+
+    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
+        const DebuggerPostTask& debuggerPostTask = {});
+
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
-    std::shared_ptr<AbilityRuntime::ModSourceMap> bindSourceMaps_;
+    std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
 };
 } // namespace JsEnv
 } // namespace OHOS

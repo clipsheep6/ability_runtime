@@ -33,7 +33,9 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDS";
+size_t paramLength = 1024;
+
+const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -44,6 +46,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"module", required_argument, nullptr, 'm'},
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
+    {"native-debug", no_argument, nullptr, 'N'},
     {nullptr, 0, nullptr, 0},
 };
 const std::string SHORT_OPTIONS_APPLICATION_NOT_RESPONDING = "hp:";
@@ -794,7 +797,6 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             break;
         }
 
-        size_t paramLength = 1024;
         switch (option) {
             case 'h': {
                 // 'aa process -h'
@@ -853,12 +855,12 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
         }
     }
 
-    if (perfCmd.empty() && debugCmd.empty()) {
-        HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
-        result = OHOS::ERR_INVALID_VALUE;
-    }
-
     if (result == OHOS::ERR_OK) {
+        if (perfCmd.empty() && debugCmd.empty()) {
+            HILOG_INFO("debuggablePipe aa process must contains -p or -D and param length must be less than 1024.");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
         if (abilityName.size() == 0 || bundleName.size() == 0) {
             // 'aa process -a <ability-name> -b <bundle-name> [-D]'
             HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
@@ -939,6 +941,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     bool isDebugApp = false;
     bool isContinuation = false;
     bool isSanboxApp = false;
+    bool isNativeDebug = false;
 
     while (true) {
         counter++;
@@ -1127,7 +1130,12 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa stop-service -p xxx'
 
                 // save module name
-                perfCmd = optarg;
+                if (strlen(optarg) < paramLength) {
+                    perfCmd = optarg;
+                } else {
+                    HILOG_INFO("debuggablePipe aa start -p param length must be less than 1024.");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
                 break;
             }
             case 'C': {
@@ -1153,6 +1161,11 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // set ability launch reason = continuation
                 isContinuation = true;
                 break;
+            }
+            case 'N': {
+                // 'aa start -N'
+                // wait for debug in appspawn
+                isNativeDebug = true;
             }
             case 0: {
                 break;
@@ -1196,6 +1209,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isSanboxApp) {
                 want.SetParam("sanboxApp", isSanboxApp);
+            }
+            if (isNativeDebug) {
+                want.SetParam("nativeDebug", isNativeDebug);
             }
         }
     }

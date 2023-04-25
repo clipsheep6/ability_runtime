@@ -105,16 +105,15 @@ HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStop_002, TestSize.Level1)
 
 /*
  * Feature: BackgroundTaskObserver
- * Function: OnRemoteDied
+ * Function: GetContinuousTaskApps
  * SubFunction: NA
- * FunctionPoints: BackgroundTaskObserver OnRemoteDied
+ * FunctionPoints: BackgroundTaskObserver GetContinuousTaskApps
  * EnvConditions: NA
- * CaseDescription: Verify OnRemoteDied
+ * CaseDescription: Verify GetContinuousTaskApps
  */
-HWTEST_F(BackgroundTaskObserverTest, OnRemoteDied_001, TestSize.Level1)
+HWTEST_F(BackgroundTaskObserverTest, GetContinuousTaskApps_001, TestSize.Level1)
 {
-    wptr<IRemoteObject> object;
-    observer_->OnRemoteDied(object);
+    observer_->GetContinuousTaskApps();
 }
 
 /*

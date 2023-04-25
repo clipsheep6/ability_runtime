@@ -61,6 +61,8 @@ public:
     {
         return ERR_OK;
     }
+
+    sptr<IOverlayManager> GetOverlayManagerProxy() override;
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -95,6 +97,7 @@ public:
     {
         return ERR_OK;
     }
+    sptr<IOverlayManager> GetOverlayManagerProxy() override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

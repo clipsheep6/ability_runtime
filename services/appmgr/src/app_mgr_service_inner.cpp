@@ -91,7 +91,7 @@ const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
-#define OVERLAY_FLAG 0x40
+#define OVERLAY_FLAG 0x80
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
@@ -193,7 +193,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
-        bool isSanboxApp = want->GetBoolParam(ENTER_SANBOX, false);
+        bool isSanboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSanboxApp);
     } else {
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
@@ -421,6 +421,14 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
+    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
+    int32_t callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
+    auto callerRecord = GetAppRunningRecordByPid(callerPid);
+    if (callerRecord != nullptr) {
+        eventInfo.callerBundleName = callerRecord->GetBundleName();
+    } else {
+        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
+    }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_FOREGROUND, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -451,6 +459,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
+    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_BACKGROUND, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -1051,6 +1060,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want);
     if (want) {
         appRecord->SetDebugApp(want->GetBoolParam("debugApp", false));
+        appRecord->SetNativeDebug(want->GetBoolParam("nativeDebug", false));
         if (want->GetBoolParam(COLD_START, false)) {
             appRecord->SetDebugApp(true);
         }
@@ -1541,7 +1551,6 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     if (!perfCmd.empty()) {
-        startMsg.renderParam = perfCmd;
         HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
     } else {
         HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
@@ -1549,14 +1558,6 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
     if (isSanboxApp) {
         HILOG_INFO("debuggablePipe sandbox: true");
     }
-    pid_t pid = 0;
-    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
-    if (FAILED(errCode)) {
-        HILOG_ERROR("failed to spawn perf process, errCode %{public}08x", errCode);
-        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
-        return errCode;
-    }
-    HILOG_INFO("Start perf process success, pid is %{public}d", pid);
     return ERR_OK;
 }
 
@@ -1661,8 +1662,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         std::vector<OverlayModuleInfo> overlayModuleInfo;
         HILOG_DEBUG("Check overlay app begin.");
         HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetOverlayModuleInfoForTarget");
-        auto ret = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
-        if (ret == ERR_OK && overlayModuleInfo.size() != 0) {
+        auto targetRet = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
+        if (targetRet == ERR_OK && overlayModuleInfo.size() != 0) {
             HILOG_DEBUG("Start an overlay app process.");
             startMsg.flags = startMsg.flags | OVERLAY_FLAG;
         }
@@ -1746,21 +1747,21 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         auto token = appRecord->GetCallerTokenId() == -1 ?
             static_cast<int>(IPCSkeleton::GetCallingTokenID()) : appRecord->GetCallerTokenId();
         Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
-        eventInfo.bundleName = "";
-        eventInfo.processName = nativeTokenInfo.processName;
+        eventInfo.callerBundleName = "";
+        eventInfo.callerProcessName = nativeTokenInfo.processName;
     } else {
         if (callerAppRecord->GetBundleName().empty()) {
-            eventInfo.bundleName = callerAppRecord->GetName();
+            eventInfo.callerBundleName = callerAppRecord->GetName();
         } else {
-            eventInfo.bundleName = callerAppRecord->GetBundleName();
+            eventInfo.callerBundleName = callerAppRecord->GetBundleName();
         }
-        eventInfo.processName = callerAppRecord->GetProcessName();
+        eventInfo.callerProcessName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
-        __func__, eventInfo.time, eventInfo.abilityType, eventInfo.bundleName.c_str(), eventInfo.callerUid,
-        eventInfo.processName.c_str());
+        __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
+        eventInfo.callerProcessName.c_str());
 
     return true;
 }
@@ -3004,8 +3005,7 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
         return ERR_OK;
     }
 
-    const int currentUserId = (int)(getuid() / Constants::BASE_USER_RANGE);
-    if (userId != currentUserId) {
+    if (userId != currentUserId_) {
         auto isCallingPermAccount = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
         if (!isCallingPermAccount) {
@@ -3229,6 +3229,9 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
 	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+    }
+    if (want.GetBoolParam("nativeDebug", false)) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
     }
 
     return startFlags;
@@ -3542,6 +3545,15 @@ void AppMgrServiceInner::RemoveRunningSharedBundleList(const std::string &bundle
         return;
     }
     runningSharedBundleList_.erase(iterator);
+}
+
+void AppMgrServiceInner::SetCurrentUserId(const int32_t userId)
+{
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        return;
+    }
+    HILOG_DEBUG("set current userId: %{public}d", userId);
+    currentUserId_ = userId;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

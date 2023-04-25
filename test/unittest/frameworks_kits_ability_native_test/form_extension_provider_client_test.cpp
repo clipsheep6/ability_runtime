@@ -52,6 +52,7 @@ public:
         const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result));
     MOCK_METHOD2(OnRenderTaskDone, int32_t(int64_t formId, const Want &want));
     MOCK_METHOD2(OnStopRenderingTaskDone, int32_t(int64_t formId, const Want &want));
+    MOCK_METHOD2(OnAcquireDataResult, int32_t(const AAFwk::WantParams &wantParams, int64_t requestCode));
 };
 
 class FormExtensionProviderClientTest : public testing::Test {

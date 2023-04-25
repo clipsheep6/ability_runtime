@@ -74,7 +74,7 @@ void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
         return;
     }
 
-    if (ChangeInfo::Marshalling(changeInfo, data)) {
+    if (!ChangeInfo::Marshalling(changeInfo, data)) {
         HILOG_ERROR("changeInfo marshalling failed");
         return;
     }

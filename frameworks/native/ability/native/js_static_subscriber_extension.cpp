@@ -70,10 +70,13 @@ JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::uniq
 JsStaticSubscriberExtension::JsStaticSubscriberExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsStaticSubscriberExtension::~JsStaticSubscriberExtension()
 {
+    HILOG_DEBUG("Js static subscriber extension destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
     }
+
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
 }
 
 void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>& record,

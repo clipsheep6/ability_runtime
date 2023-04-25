@@ -38,10 +38,13 @@ struct EventInfo {
     std::string moduleName;
     std::string abilityName;
     std::string processName;
+    std::string callerProcessName;
+    std::string callerBundleName;
     int32_t abilityType = -1;
     int64_t time = 0;
     int32_t callerUid = -1;
     int32_t exitResult = -1;
+    int32_t bundleType = -1;
 };
 
 enum class EventName {

@@ -508,7 +508,7 @@ HWTEST_F(AppMgrServiceInnerTest, AddAbilityStageDone_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: AddAbilityStageDone_001
+ * @tc.name: ApplicationForegrounded_001
  * @tc.desc: application foregrounded.
  * @tc.type: FUNC
  * @tc.require: issueI5W4S7
@@ -528,6 +528,58 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_001, TestSize.Level0)
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
     HILOG_INFO("ApplicationForegrounded_001 end");
+}
+
+/**
+ * @tc.name: ApplicationForegrounded_002
+ * @tc.desc: application foregrounded.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
+{
+    HILOG_INFO("ApplicationForegrounded_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    record->SetUpdateStateFromService(true);
+    recordId_ += 1;
+
+    appMgrServiceInner->ApplicationForegrounded(recordId_);
+    HILOG_INFO("ApplicationForegrounded_002 end");
+}
+
+/**
+ * @tc.name: ApplicationForegrounded_003
+ * @tc.desc: application foregrounded.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
+{
+    HILOG_INFO("ApplicationForegrounded_003 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    record->SetUpdateStateFromService(true);
+    auto record2 = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();
+    std::string callerBundleName = "callerBundleName";
+    priorityObject->SetPid(1);
+    record2->priorityObject_ = priorityObject;
+    record2->mainBundleName_ = callerBundleName;
+    record->SetCallerPid(1);
+
+    appMgrServiceInner->ApplicationForegrounded(--recordId_);
+    HILOG_INFO("ApplicationForegrounded_003 end");
 }
 
 /**
@@ -1540,6 +1592,8 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManager(nullptr);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
@@ -3173,6 +3227,24 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
     appMgrServiceInner->NotifyUnLoadRepairPatch(bundleName, callback);
 
     HILOG_INFO("NotifyUnLoadRepairPatch_001 end");
+}
+
+/**
+ * @tc.name: SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
+{
+    HILOG_INFO("SetCurrentUserId_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int userId = 0;
+    appMgrServiceInner->SetCurrentUserId(userId);
+    EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
+
+    HILOG_INFO("SetCurrentUserId_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

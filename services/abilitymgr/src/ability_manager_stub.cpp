@@ -112,6 +112,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[CLEAN_ALL_MISSIONS] = &AbilityManagerStub::CleanAllMissionsInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT_BY_OPTIONS] = &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
+    requestFuncMap_[MOVE_MISSIONS_TO_FOREGROUND] = &AbilityManagerStub::MoveMissionsToForegroundInner;
+    requestFuncMap_[MOVE_MISSIONS_TO_BACKGROUND] = &AbilityManagerStub::MoveMissionsToBackgroundInner;
     requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
     requestFuncMap_[CALL_REQUEST_DONE] = &AbilityManagerStub::CallRequestDoneInner;
     requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseCallInner;
@@ -1149,6 +1151,38 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
     int result = MoveMissionToFront(missionId, *startOptions);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("MoveMissionToFront failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::vector<int32_t> missionIds;
+    data.ReadInt32Vector(&missionIds);
+    int32_t topMissionId = data.ReadInt32();
+    int32_t errCode = MoveMissionsToForeground(missionIds, topMissionId);
+    if (!reply.WriteInt32(errCode)) {
+        return ERR_INVALID_VALUE;
+    }
+    return errCode;
+}
+
+int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::vector<int32_t> missionIds;
+    std::vector<int32_t> result;
+
+    data.ReadInt32Vector(&missionIds);
+    int32_t errCode = MoveMissionsToBackground(missionIds, result);
+    HILOG_DEBUG("%{public}s is called. resultSize: %{public}zu", __func__, result.size());
+    if (!reply.WriteInt32Vector(result)) {
+        HILOG_ERROR("%{public}s is called. WriteInt32Vector Failed", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(errCode)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

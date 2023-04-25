@@ -54,6 +54,7 @@ struct AbilityTransitionInfo : public Parcelable {
     int32_t missionId_;
     TransitionReason reason_ = TransitionReason::ABILITY_TRANSITION;
     AppExecFwk::DisplayOrientation orientation_ = AppExecFwk::DisplayOrientation::UNSPECIFIED;
+    uint32_t apiCompatibleVersion_ = 0;
 
     virtual bool Marshalling(Parcel& parcel) const override
     {
@@ -106,6 +107,10 @@ struct AbilityTransitionInfo : public Parcelable {
         }
 
         if (!parcel.WriteUint32(static_cast<uint32_t>(orientation_))) {
+            return false;
+        }
+
+        if (!parcel.WriteUint32(static_cast<uint32_t>(apiCompatibleVersion_))) {
             return false;
         }
         return true;
@@ -163,6 +168,7 @@ struct AbilityTransitionInfo : public Parcelable {
         info->missionId_ = parcel.ReadInt32();
         info->reason_ = static_cast<TransitionReason>(parcel.ReadUint32());
         info->orientation_ = static_cast<AppExecFwk::DisplayOrientation>(parcel.ReadUint32());
+        info->apiCompatibleVersion_ = parcel.ReadUint32();
         return info;
     }
 };

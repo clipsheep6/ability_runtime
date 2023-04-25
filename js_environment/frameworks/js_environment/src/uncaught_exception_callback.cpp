@@ -38,10 +38,6 @@ std::string UncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(NativeObject*
     size_t valueStrBufLength = valueStr->GetLength();
     size_t valueStrLength = 0;
     auto valueCStr = std::make_unique<char[]>(valueStrBufLength + 1);
-    if (valueCStr == nullptr) {
-        JSENV_LOG_E("Failed to new valueCStr.");
-        return "";
-    }
 
     valueStr->GetCString(valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);
@@ -69,7 +65,7 @@ void UncaughtExceptionCallback::operator()(NativeValue* value)
         JSENV_LOG_E("errorStack is empty");
         return;
     }
-    auto errorPos = AbilityRuntime::ModSourceMap::GetErrorPos(errorStack);
+    auto errorPos = SourceMap::GetErrorPos(errorStack);
     std::string error;
     if (obj != nullptr) {
         NativeValue* value = obj->GetProperty("errorfunc");
@@ -78,8 +74,11 @@ void UncaughtExceptionCallback::operator()(NativeValue* value)
             error = fuc->GetSourceCodeInfo(errorPos);
         }
     }
-    summary += error + "Stacktrace:\n" +
-        AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack, *bindSourceMaps_, hapPath_);
+    if (sourceMapOperator_ == nullptr) {
+        JSENV_LOG_E("sourceMapOperator_ is empty");
+        return;
+    }
+    summary += error + "Stacktrace:\n" + sourceMapOperator_->TranslateBySourceMap(errorStack);
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }

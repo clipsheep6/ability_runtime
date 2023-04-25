@@ -218,7 +218,7 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
         return IPC_PARCEL_ERROR;
     }
 
-    if (ChangeInfo::Marshalling(changeInfo, data)) {
+    if (!ChangeInfo::Marshalling(changeInfo, data)) {
         HILOG_ERROR("failed, changeInfo marshalling error, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);

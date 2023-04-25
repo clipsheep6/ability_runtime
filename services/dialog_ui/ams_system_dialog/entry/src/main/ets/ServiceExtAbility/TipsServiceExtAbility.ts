@@ -18,23 +18,23 @@ import window from '@ohos.window';
 import display from '@ohos.display';
 import deviceInfo from '@ohos.deviceInfo';
 
-const TAG = "TipsDialog_Service";
+const TAG = 'TipsDialog_Service';
 
-var winNum = 1;
-var win;
+let winNum = 1;
+let win;
 
 export default class TipsServiceExtensionAbility extends extension {
     onCreate(want) {
-        console.debug(TAG, "onCreate, want: " + JSON.stringify(want));
+        console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
         globalThis.tipsExtensionContext = this.context;
     }
 
     onRequest(want, startId) {
-        console.debug(TAG, "onRequest, want: " + JSON.stringify(want));
+        console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
         globalThis.abilityWant = want;
-        globalThis.params = JSON.parse(want["parameters"]["params"]);
-        globalThis.position = JSON.parse(want["parameters"]["position"]);
-        globalThis.callerToken = want["parameters"]["callerToken"];
+        globalThis.params = JSON.parse(want['parameters']['params']);
+        globalThis.position = JSON.parse(want['parameters']['position']);
+        globalThis.callerToken = want['parameters']['callerToken'];
 
         display.getDefaultDisplay().then(dis => {
             let navigationBarRect = {
@@ -47,21 +47,21 @@ export default class TipsServiceExtensionAbility extends extension {
                 win.destroy();
                 winNum--;
             }
-            if (deviceInfo.deviceType == "phone") {
-                this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+            if (deviceInfo.deviceType == 'phone') {
+                this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
             } else {
-                this.createWindow("TipsDialog" + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
+                this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
             }
             winNum++;
         })
     }
 
     onDestroy() {
-        console.info(TAG, "onDestroy.");
+        console.info(TAG, 'onDestroy.');
     }
 
     private async createWindow(name: string, windowType: number, rect) {
-        console.info(TAG, "create window");
+        console.info(TAG, 'create window');
         try {
             win = await window.create(globalThis.tipsExtensionContext, name, windowType);
             await win.bindDialogTarget(globalThis.callerToken.value, () => {
@@ -74,10 +74,10 @@ export default class TipsServiceExtensionAbility extends extension {
             await win.moveTo(rect.left, rect.top);
             await win.resetSize(rect.width, rect.height);
             await win.loadContent('pages/tipsDialog');
-            await win.setBackgroundColor("#00000000");
+            await win.setBackgroundColor('#00000000');
             await win.show();
         } catch {
-            console.error(TAG, "window create failed!");
+            console.error(TAG, 'window create failed!');
         }
     }
 };

@@ -36,6 +36,7 @@ public:
     void AddCaller(const std::shared_ptr<CallerCallBack> &callback);
     bool RemoveCaller(const std::shared_ptr<CallerCallBack> &callback);
     void OnCallStubDied(const wptr<IRemoteObject> &remote);
+    void NotifyRemoteStateChanged(int32_t abilityState);
     sptr<IRemoteObject> GetRemoteObject() const;
     void InvokeCallBack() const;
     AppExecFwk::ElementName GetElementName() const;

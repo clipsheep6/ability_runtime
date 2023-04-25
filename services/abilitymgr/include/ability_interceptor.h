@@ -19,6 +19,7 @@
 #include "ability_util.h"
 #include "erms_mgr_param.h"
 #include "erms_mgr_interface.h"
+#include "in_process_call_wrapper.h"
 #include "want.h"
 
 namespace OHOS {
@@ -62,6 +63,24 @@ public:
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
     bool CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule);
+};
+
+// ability jump interceptor
+class AbilityJumpInterceptor : public AbilityInterceptor {
+public:
+    AbilityJumpInterceptor();
+    ~AbilityJumpInterceptor();
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    
+private:
+    bool CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, const Want &want, int32_t userId,
+        AppExecFwk::AppJumpControlRule &controlRule);
+    bool CheckIfJumpExempt(sptr<AppExecFwk::IBundleMgr> &bms, AppExecFwk::AppJumpControlRule &controlRule,
+        int32_t userId);
+    bool CheckIfExemptByBundleName(sptr<AppExecFwk::IBundleMgr> &bms, const std::string &bundleName,
+        const std::string &permission, int32_t userId);
+    bool LoadAppLabelInfo(sptr<AppExecFwk::IBundleMgr> &bms, Want &want, AppExecFwk::AppJumpControlRule &controlRule,
+        int32_t userId);
 };
 } // namespace AAFwk
 } // namespace OHOS

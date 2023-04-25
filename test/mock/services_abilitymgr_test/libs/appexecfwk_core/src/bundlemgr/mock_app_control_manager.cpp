@@ -90,6 +90,38 @@ ErrCode AppControlProxy::GetAppRunningControlRule(
     return ERR_OK;
 }
 
+ErrCode AppControlProxy::ConfirmAppJumpControlRule(const std::string &callerBundleName,
+    const std::string &targetBundleName, int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode AppControlProxy::AddAppJumpControlRule(const std::vector<AppJumpControlRule> &controlRules, int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode AppControlProxy::DeleteAppJumpControlRule(const std::vector<AppJumpControlRule> &controlRules, int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode AppControlProxy::DeleteRuleByCallerBundleName(const std::string &callerBundleName, int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode AppControlProxy::DeleteRuleByTargetBundleName(const std::string &targetBundleName, int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode AppControlProxy::GetAppJumpControlRule(const std::string &callerBundleName,
+const std::string &targetBundleName, int32_t userId, AppJumpControlRule &controlRule)
+{
+    return ERR_OK;
+}
+
 ErrCode AppControlProxy::SetDisposedStatus(const std::string& appId, const Want& want)
 {
     return ERR_OK;

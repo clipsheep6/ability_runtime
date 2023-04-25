@@ -92,6 +92,7 @@ bool ConnectionManager::MatchConnection(
     if (!connectReceiver.GetElement().GetAbilityName().empty()) {
         return connectCaller == connection.first.connectCaller &&
             connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
+            connectReceiver.GetElement().GetModuleName() == connection.first.connectReceiver.GetModuleName() &&
             connectReceiver.GetElement().GetAbilityName() == connection.first.connectReceiver.GetAbilityName();
     } else {
         // ImplicitConnect

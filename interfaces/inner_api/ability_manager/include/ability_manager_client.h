@@ -621,6 +621,22 @@ public:
     ErrCode MoveMissionToFront(int32_t missionId, const StartOptions &startOptions);
 
     /**
+     * Move missions to front
+     * @param missionIds Ids of target missions
+     * @param topMissionId Indicate which mission will be moved to top, if set to -1, missions' order won't change
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId);
+
+    /**
+     * Move missions to background
+     * @param missionIds Ids of target missions
+     * @param result The result of move missions to background, and the array is sorted by zOrder
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result);
+
+    /**
      * @brief Get mission id by ability token.
      *
      * @param token ability token.
@@ -903,7 +919,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode AcquireShareData(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData);
-    
+
     /**
      * Notify sharing data finished.
      * @param resultCode The result of sharing data.
@@ -913,7 +929,7 @@ public:
      */
     ErrCode ShareDataDone(
         const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
-    
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

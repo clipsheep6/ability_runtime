@@ -37,6 +37,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr int32_t SINGLE_MAX_INSTANCE_COUNT = 128;
 constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 constexpr int64_t MAX_FOREGROUNDING_TIME = 60 * 1000; // 1 minute
@@ -118,15 +119,10 @@ int32_t MissionListManager::GetMissionCount() const
 int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    if (IsReachToLimitLocked(abilityRequest)) {
-        auto oldestMission = FindEarliestMission();
-        if (oldestMission) {
-            if (TerminateAbility(oldestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
-                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate oldestAbility failed.",
-                    MAX_INSTANCE_COUNT);
-                return ERR_REACH_UPPER_LIMIT;
-            }
-        }
+    bool isReachToSingleLimit = CheckSingleLimit(abilityRequest);
+    if (isReachToSingleLimit) {
+        HILOG_ERROR("already reach single limit instance. limit is : %{public}d", SINGLE_MAX_INSTANCE_COUNT);
+        return ERR_REACH_UPPER_LIMIT;
     }
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
@@ -158,7 +154,9 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
     }
 
     abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
-    return StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    int ret = StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    NotifyStartAbilityResult(abilityRequest, ret);
+    return ret;
 }
 
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -236,7 +234,12 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
     HILOG_INFO("move mission to front:%{public}d.", missionId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     std::shared_ptr<Mission> mission;
-    auto targetMissionList = GetTargetMissionList(missionId, mission);
+    bool isReachToLimit = false;
+    auto targetMissionList = GetTargetMissionList(missionId, mission, isReachToLimit);
+    if (isReachToLimit) {
+        HILOG_ERROR("get target mission list failed, already reach to limit.");
+        return ERR_REACH_UPPER_LIMIT;
+    }
     if (!targetMissionList || !mission) {
         HILOG_ERROR("get target mission list failed, missionId: %{public}d", missionId);
         return MOVE_MISSION_FAILED;
@@ -318,7 +321,12 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     // 2. get target mission
     std::shared_ptr<AbilityRecord> targetAbilityRecord;
     std::shared_ptr<Mission> targetMission;
-    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord);
+    bool isReachToLimit = false;
+    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord, isReachToLimit);
+    if (isReachToLimit) {
+        HILOG_ERROR("Failed to get mission and ability, already reach to limit.");
+        return ERR_REACH_UPPER_LIMIT;
+    }
     if (!targetMission || !targetAbilityRecord) {
         HILOG_ERROR("Failed to get mission or record.");
         return ERR_INVALID_VALUE;
@@ -497,7 +505,7 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
 }
 
 void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
-    std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord)
+    std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit)
 {
     if (HandleReusedMissionAndAbility(abilityRequest, targetMission, targetRecord)) {
         return;
@@ -514,8 +522,17 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     }
 
     if (targetMission == nullptr) {
+    	if (CheckLimit()) {
+            isReachToLimit = true;
+            HILOG_ERROR("already reach to limit, not create new mission and ability.");
+       	    return;
+    	}
         HILOG_DEBUG("Make new mission data.");
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        if (targetRecord == nullptr) {
+            HILOG_ERROR("targetRecord is nullptr");
+            return;
+        }
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
@@ -1134,16 +1151,17 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         handler->PostTask(task);
     } else {
         auto task = [self, abilityRecord, state]() {
+            auto selfObj = self.lock();
+            if (!selfObj) {
+                HILOG_WARN("Mission list mgr is invalid.");
+                return;
+            }
             if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
                 HILOG_INFO("Window was freezed.");
                 if (abilityRecord != nullptr) {
                     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+                    selfObj->TerminatePreviousAbility(abilityRecord);
                 }
-                return;
-            }
-            auto selfObj = self.lock();
-            if (!selfObj) {
-                HILOG_WARN("Mission list mgr is invalid.");
                 return;
             }
             selfObj->CompleteForegroundFailed(abilityRecord, state);
@@ -2167,7 +2185,8 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
     HandleAbilityDied(abilityRecord);
 }
 
-std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission)
+std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission,
+    bool &isReachToLimit)
 {
     mission = GetMissionById(missionId);
     if (mission) {
@@ -2217,6 +2236,12 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
         innerMissionInfo.missionInfo.want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId_);
     if (generateAbility != ERR_OK) {
         HILOG_ERROR("cannot find generate ability request, missionId: %{public}d", missionId);
+        return nullptr;
+    }
+
+    if (CheckLimit()) {
+        isReachToLimit = true;
+        HILOG_ERROR("already reach to limit, not create new mission list.");
         return nullptr;
     }
 
@@ -2488,6 +2513,12 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         return;
     }
 
+    if (abilityRecord->IsCompleteFirstFrameDrawing()) {
+        HILOG_DEBUG("First frame drawing has completed.");
+        return;
+    }
+    abilityRecord->SetCompleteFirstFrameDrawing(true);
+
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler == nullptr) {
         HILOG_ERROR("Fail to get AbilityEventHandler.");
@@ -2501,7 +2532,9 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
             return;
         }
         mgr->NotifyMissionCreated(abilityRecord);
-        mgr->UpdateMissionSnapshot(abilityRecord);
+        if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsDmsAlive()) {
+            mgr->UpdateMissionSnapshot(abilityRecord);
+        }
     };
     handler->PostTask(task, "FirstFrameDrawing");
     auto preloadTask = [owner = weak_from_this(), abilityRecord] {
@@ -2750,7 +2783,12 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     // Get target mission and ability record.
     std::shared_ptr<AbilityRecord> targetAbilityRecord;
     std::shared_ptr<Mission> targetMission;
-    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord);
+    bool isReachToLimit = false;
+    GetTargetMissionAndAbility(abilityRequest, targetMission, targetAbilityRecord, isReachToLimit);
+    if (isReachToLimit) {
+        HILOG_ERROR("Failed to get mission or record, already reach to limit.");
+        return ERR_REACH_UPPER_LIMIT;
+    }
     if (!targetMission || !targetAbilityRecord) {
         HILOG_ERROR("Failed to get mission or record.");
         return ERR_INVALID_VALUE;
@@ -2992,15 +3030,64 @@ std::shared_ptr<Mission> MissionListManager::GetMissionBySpecifiedFlag(
     return defaultStandardList_->GetMissionBySpecifiedFlag(want, flag);
 }
 
-bool MissionListManager::IsReachToLimitLocked(const AbilityRequest &abilityRequest)
+bool MissionListManager::CheckSingleLimit(const AbilityRequest &abilityRequest)
 {
     auto reUsedMission = GetReusedMission(abilityRequest);
-    if (reUsedMission) {
-        return false;
+    if (!reUsedMission) {
+        bool isSingleMaxLimit = IsReachToSingleLimitLocked(abilityRequest.uid);
+        if (isSingleMaxLimit) {
+            return true;
+        }
     }
+    return false;
+}
 
+bool MissionListManager::CheckLimit()
+{
+    bool isAllMaxLimit = IsReachToLimitLocked();
+    if (isAllMaxLimit) {
+        auto earliestMission = FindEarliestMission();
+        if (earliestMission) {
+            if (TerminateAbility(earliestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
+                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate earliestAbility fail.",
+                    MAX_INSTANCE_COUNT);
+                return true;
+            }
+            HILOG_INFO("already reach limit instance. limit is : %{public}d, and terminate earliestAbility success.",
+                MAX_INSTANCE_COUNT);
+        }
+    }
+    HILOG_DEBUG("current is not reach limit instance.");
+    return false;
+}
+
+bool MissionListManager::IsReachToLimitLocked() const
+{
     auto missionCount = GetMissionCount();
-    if (missionCount == MAX_INSTANCE_COUNT) {
+    if (missionCount >= MAX_INSTANCE_COUNT) {
+        return true;
+    }
+    return false;
+}
+
+bool MissionListManager::IsReachToSingleLimitLocked(const int32_t uid) const
+{
+    int32_t singleAppMissionCount = 0;
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+        singleAppMissionCount += missionList->GetMissionCountByUid(uid);
+        if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
+            return true;
+        }
+    }
+    singleAppMissionCount += defaultStandardList_->GetMissionCountByUid(uid);
+    if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
+        return true;
+    }
+    singleAppMissionCount += defaultSingleList_->GetMissionCountByUid(uid);
+    if (singleAppMissionCount >= SINGLE_MAX_INSTANCE_COUNT) {
         return true;
     }
     return false;
@@ -3341,6 +3428,15 @@ void MissionListManager::NotifyAbilityToken(const sptr<IRemoteObject> &token, co
         = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
     if (abilityInfoCallback != nullptr) {
         abilityInfoCallback->NotifyAbilityToken(token, abilityRequest.want);
+    }
+}
+
+void MissionListManager::NotifyStartAbilityResult(const AbilityRequest &abilityRequest, int result)
+{
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        abilityInfoCallback->NotifyStartAbilityResult(abilityRequest.want, result);
     }
 }
 }  // namespace AAFwk

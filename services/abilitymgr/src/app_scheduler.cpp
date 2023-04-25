@@ -414,5 +414,11 @@ int AppScheduler::BlockAppService()
     return ERR_OK;
 }
 #endif
+
+void AppScheduler::SetCurrentUserId(const int32_t userId)
+{
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->SetCurrentUserId(userId));
+}
 }  // namespace AAFwk
 }  // namespace OHOS

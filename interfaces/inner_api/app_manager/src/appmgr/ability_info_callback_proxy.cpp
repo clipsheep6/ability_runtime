@@ -37,7 +37,7 @@ void AbilityInfoCallbackProxy::NotifyAbilityToken(const sptr<IRemoteObject> toke
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -122,6 +122,29 @@ void AbilityInfoCallbackProxy::SetExtraParam(const sptr<Want> &want, sptr<Want> 
     extraParam->SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE,
         want->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0));
     extraParam->SetParam(Want::PARAM_RESV_ABILITY_INFO_CALLBACK, tempCallBack);
+}
+
+void AbilityInfoCallbackProxy::NotifyStartAbilityResult(const Want &want, int result)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+
+    data.WriteParcelable(&want);
+    data.WriteInt32(result);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_START_ABILITY_RESULT, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("NotifyStartAbilityResult is failed, error code: %{public}d", ret);
+        return;
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

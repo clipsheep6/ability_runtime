@@ -20,6 +20,7 @@
 
 #include "native_engine/native_engine.h"
 #include "source_map.h"
+#include "source_map_operator.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -42,10 +43,10 @@ inline T* ConvertNativeValueTo(NativeValue* value)
 
 class UncaughtExceptionCallback final {
 public:
-    UncaughtExceptionCallback(const std::string hapPath,
+    UncaughtExceptionCallback(
         std::function<void(const std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask,
-        std::shared_ptr<AbilityRuntime::ModSourceMap> bindSourceMaps)
-        : hapPath_(hapPath), uncaughtTask_(uncaughtTask), bindSourceMaps_(bindSourceMaps)
+        std::shared_ptr<SourceMapOperator> sourceMapOperator)
+        : uncaughtTask_(uncaughtTask), sourceMapOperator_(sourceMapOperator)
     {}
 
     UncaughtExceptionCallback() = default;
@@ -53,10 +54,10 @@ public:
     void operator()(NativeValue* value);
 
     std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key);
+
 private:
-    std::string hapPath_;
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask_;
-    std::shared_ptr<AbilityRuntime::ModSourceMap> bindSourceMaps_;
+    std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
 };
 } // namespace JsEnv
 } // namespace OHOS

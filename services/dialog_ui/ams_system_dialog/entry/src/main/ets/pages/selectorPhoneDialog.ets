@@ -90,6 +90,7 @@ struct SelectorPhoneDialog {
   }
 
   onSelectApp(item) {
+    console.log(this.TAG, "onSelectApp - start ");
     globalThis.abilityWant.bundleName = item.split("#")[0];
     globalThis.abilityWant.abilityName = item.split("#")[1];
     globalThis.abilityWant.moduleName = item.split("#")[4];

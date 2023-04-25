@@ -72,7 +72,6 @@
 #include <dirent.h>
 #include <dlfcn.h>
 #endif
-
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
@@ -82,10 +81,10 @@ std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
-#ifdef APP_USE_ARM64
-constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
-#else
+#ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#else
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #endif
 
 constexpr int32_t DELIVERY_TIME = 200;
@@ -137,9 +136,6 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hapInfo : bundleInfo.hapModuleInfos) {
         HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
             hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
-        if (!hapInfo.isLibIsolated) {
-            continue;
-        }
         std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
 
         // libraries in patch lib path has a higher priority when loading.
@@ -152,7 +148,11 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         }
 
         std::string libPath = LOCAL_CODE_PATH;
-        libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+        if (hapInfo.isLibIsolated) {
+            libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+        } else {
+            libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
+        }
         HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
         appLibPaths[appLibPathKey].emplace_back(libPath);
     }
@@ -1194,7 +1194,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     AppLibPathMap appLibPaths {};
     GetNativeLibPath(bundleInfo, hspList, appLibPaths);
-    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths);
+    bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
+    HILOG_DEBUG("the application isSystemApp: %{public}d", isSystemApp);
+    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
 
     if (isStageBased) {
         // Create runtime
@@ -1650,14 +1652,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
 
-    if (runtime) {
-        std::vector<std::pair<std::string, std::string>> hqfFilePair;
-        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
-            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
-                runtime->LoadRepairPatch(it->first, it->second);
-            }
+    std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
+    std::map<std::string, std::string> modulePaths;
+    if (runtime && !hqfInfos.empty()) {
+        for (auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
+            HILOG_INFO("moudelName: %{private}s, hqfFilePath: %{private}s.",
+                it->moduleName.c_str(), it->hqfFilePath.c_str());
+            modulePaths.insert(std::make_pair(it->moduleName, it->hqfFilePath));
         }
+        runtime->RegisterQuickFixQueryFunc(modulePaths);
     }
 }
 
@@ -2506,7 +2509,7 @@ int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::
     }
 
     auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
-    if (overlayMgrProxy ==  nullptr) {
+    if (overlayMgrProxy == nullptr) {
         HILOG_ERROR("GetOverlayManagerProxy failed.");
         return ERR_INVALID_VALUE;
     }

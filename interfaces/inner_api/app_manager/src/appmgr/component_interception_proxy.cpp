@@ -124,5 +124,40 @@ void ComponentInterceptionProxy::NotifyHandleAbilityStateChange(const sptr<IRemo
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
+
+bool ComponentInterceptionProxy::ReleaseCallInterception(const sptr<IRemoteObject> &connect,
+    const AppExecFwk::ElementName &element, sptr<Want> &extraParam)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return false;
+    }
+
+    data.WriteRemoteObject(connect);
+    data.WriteParcelable(&element);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return false;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IComponentInterception::Message::TRANSACT_ON_RELEASE_CALL),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return false;
+    }
+
+    bool hasExtraParam = reply.ReadBool();
+    if (hasExtraParam) {
+        sptr<Want> tempWant = reply.ReadParcelable<Want>();
+        if (tempWant != nullptr) {
+            SetExtraParam(tempWant, extraParam);
+        }
+    }
+    return reply.ReadBool();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

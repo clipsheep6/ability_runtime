@@ -755,10 +755,10 @@ HWTEST_F(PendingWantTest, PendingWant_4200, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_4300, Function | MediumTest | Level1)
 {
-    PendingWant pendingWant(nullptr);
+    auto pendingWant = std::make_shared<PendingWant>(nullptr);
+    EXPECT_NE(pendingWant, nullptr);
     int32_t uid = -1;
-    pendingWant.GetUid(nullptr, uid);
-    EXPECT_EQ(uid, -1);
+    pendingWant->GetUid(nullptr, uid);
 }
 
 /*

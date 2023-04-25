@@ -680,7 +680,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     Want want;
     // AddStartControlParam
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-    
+
     // IsStartFreeInstall
     MyFlag::flag_ = 1;
     unsigned int flag = 0x00000800;
@@ -696,7 +696,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     want.SetFlags(0);
     want.SetParam("ohos.aafwk.param.startAbilityForResult", true);
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-    
+
     want.SetParam("test", true);
     sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, callerToken), ERR_INVALID_VALUE);
@@ -1362,6 +1362,34 @@ HWTEST_F(AbilityManagerServiceTest, MoveMissionToFront_002, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: MoveMissionsToForeground
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionToFront
+ */
+HWTEST_F(AbilityManagerServiceTest, MoveMissionsToForeground_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToForeground_001 start");
+    EXPECT_EQ(abilityMs_->MoveMissionsToForeground({1, 2, 3}, 1), CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToForeground_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveMissionsToBackground
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionToFront
+ */
+HWTEST_F(AbilityManagerServiceTest, MoveMissionsToBackground_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToBackground_001 start");
+    std::vector<int32_t> rs;
+    EXPECT_EQ(abilityMs_->MoveMissionsToBackground({1, 2, 3}, rs), CHECK_PERMISSION_FAILED);
+    EXPECT_TRUE(rs.empty());
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToBackground_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetMissionIdByToken
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetMissionIdByToken
@@ -1749,21 +1777,6 @@ HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
     Want want;
     EXPECT_EQ(abilityMs_->StopServiceAbility(want, 100), ERR_CROSS_USER);
     HILOG_INFO("AbilityManagerServiceTest StopServiceAbility_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMaxRestartNum
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMaxRestartNum
- */
-HWTEST_F(AbilityManagerServiceTest, GetMaxRestartNum_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 start");
-    int max = 0;
-    ASSERT_NE(abilityMs_, nullptr);
-    max = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
-    HILOG_INFO("AbilityManagerServiceTest GetMaxRestartNum_001 end");
 }
 
 /*

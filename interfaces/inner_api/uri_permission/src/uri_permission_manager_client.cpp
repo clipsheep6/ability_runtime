@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,13 +20,29 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "uri_permission_load_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
+} // namespace
+std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::instance_ = nullptr;
+std::recursive_mutex UriPermissionManagerClient::recursiveMutex_;
+std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::GetInstance()
+{
+    if (instance_ == nullptr) {
+        std::lock_guard<std::recursive_mutex> lock_l(recursiveMutex_);
+        if (instance_ == nullptr) {
+            instance_ = std::make_shared<UriPermissionManagerClient>();
+        }
+    }
+    return instance_;
+}
+
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int autoremove)
 {
-    HILOG_DEBUG("UriPermissionManagerClient::GrantUriPermission is called.");
     HILOG_DEBUG("targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
@@ -57,17 +73,15 @@ int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, cons
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
     HILOG_DEBUG("UriPermissionManagerClient::ConnectUriPermService is called.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (uriPermMgr_ == nullptr) {
-        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityMgr) {
-            HILOG_ERROR("Failed to get SystemAbilityManager.");
+    auto uriPermMgr = GetUriPermMgr();
+    if (uriPermMgr == nullptr) {
+        if (!LoadUriPermService()) {
+            HILOG_ERROR("Load uri permission manager service failed.");
             return nullptr;
         }
-
-        auto remoteObj = systemAbilityMgr->GetSystemAbility(URI_PERMISSION_MGR_SERVICE_ID);
-        if (!remoteObj || (uriPermMgr_ = iface_cast<IUriPermissionManager>(remoteObj)) == nullptr) {
-            HILOG_ERROR("Failed to get UriPermService.");
+        uriPermMgr = GetUriPermMgr();
+        if (uriPermMgr == nullptr || uriPermMgr->AsObject() == nullptr) {
+            HILOG_ERROR("Failed to get uri permission manager.");
             return nullptr;
         }
         auto self = shared_from_this();
@@ -77,10 +91,76 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
             }
         };
         sptr<UpmsDeathRecipient> recipient(new UpmsDeathRecipient(onClearProxyCallback));
-        uriPermMgr_->AsObject()->AddDeathRecipient(recipient);
+        uriPermMgr->AsObject()->AddDeathRecipient(recipient);
     }
     HILOG_DEBUG("End UriPermissionManagerClient::ConnectUriPermService.");
+    return uriPermMgr;
+}
+
+bool UriPermissionManagerClient::LoadUriPermService()
+{
+    HILOG_DEBUG("UriPermissionManagerClient::LoadUriPermService is called.");
+    auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityMgr == nullptr) {
+        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        return false;
+    }
+
+    sptr<UriPermissionLoadCallback> loadCallback = new (std::nothrow) UriPermissionLoadCallback();
+    if (loadCallback == nullptr) {
+        HILOG_ERROR("Create load callback failed.");
+        return false;
+    }
+
+    auto ret = systemAbilityMgr->LoadSystemAbility(URI_PERMISSION_MGR_SERVICE_ID, loadCallback);
+    if (ret != 0) {
+        HILOG_ERROR("Load system ability %{public}d failed with %{public}d.", URI_PERMISSION_MGR_SERVICE_ID, ret);
+        return false;
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(saLoadMutex_);
+        auto waitStatus = loadSaVariable_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
+            [this]() {
+                return saLoadFinished_;
+            });
+        if (!waitStatus) {
+            HILOG_ERROR("Wait for load sa timeout.");
+            return false;
+        }
+    }
+    return true;
+}
+
+sptr<IUriPermissionManager> UriPermissionManagerClient::GetUriPermMgr()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
     return uriPermMgr_;
+}
+
+void UriPermissionManagerClient::SetUriPermMgr(const sptr<IRemoteObject> &remoteObject)
+{
+    HILOG_DEBUG("UriPermissionManagerClient::SetUriPermMgr is called.");
+    std::lock_guard<std::mutex> lock(mutex_);
+    uriPermMgr_ = iface_cast<IUriPermissionManager>(remoteObject);
+}
+
+void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
+{
+    HILOG_DEBUG("UriPermissionManagerClient::OnLoadSystemAbilitySuccess is called.");
+    SetUriPermMgr(remoteObject);
+    std::unique_lock<std::mutex> lock(saLoadMutex_);
+    saLoadFinished_ = true;
+    loadSaVariable_.notify_one();
+}
+
+void UriPermissionManagerClient::OnLoadSystemAbilityFail()
+{
+    HILOG_DEBUG("UriPermissionManagerClient::OnLoadSystemAbilityFail is called.");
+    SetUriPermMgr(nullptr);
+    std::unique_lock<std::mutex> lock(saLoadMutex_);
+    saLoadFinished_ = true;
+    loadSaVariable_.notify_one();
 }
 
 void UriPermissionManagerClient::ClearProxy()

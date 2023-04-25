@@ -39,7 +39,7 @@ bool ChangeInfo::Marshalling(const ChangeInfo &input, MessageParcel &data)
         return false;
     }
 
-    return data.WriteBuffer(input.data_, input.size_);
+    return input.size_ == 0 || data.WriteBuffer(input.data_, input.size_);
 }
 
 bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
@@ -68,8 +68,8 @@ bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
         return false;
     }
 
-    auto data = parcel.ReadBuffer(size);
-    if (data == nullptr) {
+    const uint8_t *data = size > 0 ? parcel.ReadBuffer(size) : nullptr;
+    if (size > 0 && data == nullptr) {
         return false;
     }
     output.changeType_ = static_cast<ChangeType>(changeType);

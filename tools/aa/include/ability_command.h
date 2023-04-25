@@ -58,7 +58,7 @@ const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-D] [-S] "
+    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
     "  start ability with an element name\n";
 
 const std::string HELP_MSG_STOP_SERVICE =
@@ -88,7 +88,11 @@ const std::string HELP_MSG_DUMPSYS = "usage: aa dump <options>\n"
 const std::string HELP_MSG_PROCESS = "usage: aa process <options>\n"
     "options list:\n"
     "  -h, --help                   list available commands\n"
-    "  -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-d <debug-cmd>] [-S] "
+    "  -a <ability-name> -b <bundle-name> [-m <module-name>]\n"
+    "  -p <perf-cmd>                performance optimization command. Either -p or -D must be selected, "
+    "-p takes precedence.\n"
+    "  -D <debug-cmd>               debug command. Either -p or -D must be selected, -p takes precedence.\n"
+    "  [-S]\n"
     "  debug ability with an element name\n";
 
 const std::string HELP_MSG_TEST =

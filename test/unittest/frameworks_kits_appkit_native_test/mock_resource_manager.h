@@ -281,6 +281,18 @@ RState GetDrawableInfoByName(const char *name, std::string &type, size_t &len,
 {
     return SUCCESS;
 }
+
+RState GetStringFormatById(uint32_t id, std::string &outValue,
+    std::vector<std::tuple<ResourceManager::NapiValueType, std::string>> &jsParams)
+{
+    return SUCCESS;
+}
+
+RState GetStringFormatByName(const char *name, std::string &outValue,
+    std::vector<std::tuple<ResourceManager::NapiValueType, std::string>> &jsParams)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global

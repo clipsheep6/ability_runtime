@@ -107,6 +107,12 @@ bool FormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     return false;
 }
 
+bool FormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("called.");
+    return false;
+}
+
 void FormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
     Extension::OnConfigurationUpdated(configuration);

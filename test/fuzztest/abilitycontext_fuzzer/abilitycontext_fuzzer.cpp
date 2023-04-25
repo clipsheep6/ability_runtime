@@ -93,7 +93,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::string abilityName(data, size);
     std::string moduleName(data, size);
     abilityContext.SetCallingContext(deviceId, bundleName, abilityName, moduleName);
-    std::shared_ptr<Context> base = nullptr;
+    std::shared_ptr<ContextDeal> base = nullptr;
     abilityContext.AttachBaseContext(base);
     std::string type(data, size);
     abilityContext.GetExternalFilesDir(type);

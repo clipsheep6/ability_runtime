@@ -50,6 +50,7 @@ namespace OHOS {
 namespace AAFwk {
 using namespace OHOS::Security;
 const std::string DEBUG_APP = "debugApp";
+const std::string NATIVE_DEBUG = "nativeDebug";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
@@ -328,7 +329,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::FOREGROUNDING;
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
     foregroundingTime_ = AbilityUtil::SystemTimeMillis();
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
@@ -480,6 +481,7 @@ void AbilityRecord::SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) 
     info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
     info->minWindowHeight_ = abilityInfo_.minWindowHeight;
     info->orientation_ = abilityInfo_.orientation;
+    info->apiCompatibleVersion_ = abilityInfo_.applicationInfo.apiCompatibleVersion;
 }
 
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo()
@@ -600,6 +602,7 @@ void AbilityRecord::SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abil
     info->bundleName_ = abilityInfo.bundleName;
     info->windowModes_ = abilityInfo.windowModes;
     info->orientation_ = abilityInfo.orientation;
+    info->apiCompatibleVersion_ = abilityInfo.applicationInfo.apiCompatibleVersion;
     SetShowWhenLocked(abilityInfo, info);
 }
 
@@ -671,7 +674,7 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
         HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
         return;
     }
@@ -699,7 +702,7 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
@@ -971,6 +974,16 @@ void AbilityRecord::InitColdStartingWindowResource(
         handler->PostTask(delayTask, "release_bg", RELEASE_STARTING_BG_TIMEOUT);
     }
 }
+
+void AbilityRecord::SetCompleteFirstFrameDrawing(const bool flag)
+{
+    isCompleteFirstFrameDrawing_ = flag;
+}
+
+bool AbilityRecord::IsCompleteFirstFrameDrawing() const
+{
+    return isCompleteFirstFrameDrawing_;
+}
 #endif
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
@@ -983,7 +996,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
@@ -999,7 +1012,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::BACKGROUNDING;
+    SetAbilityStateInner(AbilityState::BACKGROUNDING);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1040,9 +1053,15 @@ bool AbilityRecord::IsForeground() const
     return currentState_ == AbilityState::FOREGROUND || currentState_ == AbilityState::FOREGROUNDING;
 }
 
-void AbilityRecord::SetAbilityState(AbilityState state)
+void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+}
+
+void AbilityRecord::SetAbilityState(AbilityState state)
+{
+    SetAbilityStateInner(state);
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE || state == AbilityState::BACKGROUND) {
         SetRestarting(false);
     }
@@ -1178,7 +1197,7 @@ void AbilityRecord::Activate()
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::ACTIVATING;
+    SetAbilityStateInner(AbilityState::ACTIVATING);
     lifecycleDeal_->Activate(want_, lifeCycleStateInfo_);
 
     // update ability state to appMgr service when restart
@@ -1203,7 +1222,7 @@ void AbilityRecord::Inactivate()
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::INACTIVATING;
+    SetAbilityStateInner(AbilityState::INACTIVATING);
     lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1214,7 +1233,7 @@ void AbilityRecord::Terminate(const Closure &task)
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
@@ -1228,7 +1247,7 @@ void AbilityRecord::Terminate(const Closure &task)
     }
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::TERMINATING;
+    SetAbilityStateInner(AbilityState::TERMINATING);
     lifecycleDeal_->Terminate(want_, lifeCycleStateInfo_);
 }
 
@@ -1237,6 +1256,7 @@ void AbilityRecord::ShareData(const int32_t &uniqueId)
     HILOG_INFO("targetAbility start to share data with OriginAbility, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_MULTIPLE;
+    HILOG_INFO("loadTimeOut %{public}d.", loadTimeout);
     SendEvent(AbilityManagerService::SHAREDATA_TIMEOUT_MSG, loadTimeout, uniqueId);
     HILOG_INFO("sendEvent.");
     lifecycleDeal_->ShareData(uniqueId);
@@ -1724,7 +1744,7 @@ void AbilityRecord::DumpAbilityState(
     if (callContainer_) {
         callContainer_->Dump(info);
     }
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     dumpInfo = "        isKeepAlive: " + isKeepAlive;
     info.push_back(dumpInfo);
@@ -1764,7 +1784,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
     info.emplace_back("      ability type [SERVICE]");
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     info.emplace_back("        isKeepAlive: " + isKeepAlive);
     if (isLauncherRoot_) {
@@ -1825,7 +1845,6 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
         }
     }
-    scheduler_.clear();
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->SetScheduler(nullptr);
     isWindowAttached_ = false;
@@ -1849,20 +1868,12 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 #ifdef SUPPORT_GRAPHICS
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
-        auto task = [me = weak_from_this()]() {
-            auto self = me.lock();
-            if (self == nullptr) {
-                HILOG_ERROR("Ability is invalid.");
-                return;
-            }
-            if (self->GetWMSHandler()) {
-                sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
-                self->SetAbilityTransitionInfo(info);
-                HILOG_INFO("Notification WMS UIAbiltiy abnormal death.");
-                self->GetWMSHandler()->NotifyAnimationAbilityDied(info);
-            }
-        };
-        handler->PostTask(task);
+        if (GetWMSHandler()) {
+            sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+            SetAbilityTransitionInfo(info);
+            HILOG_INFO("Notification window manager UIAbiltiy abnormal death.");
+            GetWMSHandler()->NotifyAnimationAbilityDied(info);
+        }
     }
 #endif
     HandleDlpClosed();
@@ -1921,7 +1932,7 @@ bool AbilityRecord::IsActiveState() const
 
 void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 {
-    if (want_.GetBoolParam(DEBUG_APP, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return;
     }
@@ -2331,7 +2342,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
             targetBundleName, autoremove));
-        if (ret) {
+        if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
     }

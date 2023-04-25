@@ -129,8 +129,10 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
         "The specified SystemCapability name was not found." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_START_ABILITY_WAITTING,
         "The previous ability is starting, wait start later." },
-    { ERR_ABILITY_RUNTIME_EXTERNAL_URI_PERMISSION_NOT_FOUND,
-        "Uri permission to revoke not found." }
+    { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
+        "Invalid URI flag." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+        "Invalid URI type, only support file uri" }
 };
 }
 

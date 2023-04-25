@@ -107,17 +107,20 @@ void JsEnvironment::RemoveTask(const std::string& name)
     }
 }
 
-void JsEnvironment::InitSourceMap(const std::string& bundleCodeDir, bool isStageModel)
+void JsEnvironment::InitSourceMap(const std::shared_ptr<SourceMapOperatorImpl> operatorImpl)
 {
-    bindSourceMaps_ = std::make_shared<AbilityRuntime::ModSourceMap>(bundleCodeDir, isStageModel);
+    sourceMapOperator_ = std::make_shared<SourceMapOperator>(operatorImpl);
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
 {
-    if ((bindSourceMaps_ != nullptr) && (engine_ != nullptr)) {
-        engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.hapPath,
-            uncaughtExceptionInfo.uncaughtTask, bindSourceMaps_));
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
     }
+
+    engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.uncaughtTask,
+        sourceMapOperator_));
 }
 
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
@@ -132,6 +135,18 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     }
 
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
+}
+
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
+    const DebuggerPostTask& debuggerPostTask)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
+    return true;
 }
 } // namespace JsEnv
 } // namespace OHOS
