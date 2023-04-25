@@ -39,7 +39,7 @@ config("module_private_config") {
     "${ability_runtime_services_path}/common/include",
     "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/app_distributeddata/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+    "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
   ]
@@ -425,15 +425,15 @@ ohos_unittest("data_ability_helper_impl_test") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
-    "//foundation/ability/ability_runtime/test/mock/frameworks_kits_ability_native_test/include",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/include",
-    "//foundation/ability/ability_runtime/services/dataobsmgr/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "${ability_runtime_services_path}/dataobsmgr/include",
   ]
   sources = [
     "${ability_runtime_path}/test/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_service.cpp",
-    "//foundation/ability/ability_runtime/services/dataobsmgr/src/data_ability_observer_stub.cpp",
+    "${ability_runtime_services_path}/dataobsmgr/src/data_ability_observer_stub.cpp",
     "data_ability_helper_impl_test.cpp",
     "mock_ability_runtime_context.cpp",
   ]
@@ -601,9 +601,9 @@ ohos_unittest("ability_thread_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "//foundation/ability/ability_runtime/test/unittest/dataobs_mgr_stub_test",
-    "//foundation/ability/ability_runtime/services/dataobsmgr/include/",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/include/",
+    "${ability_runtime_test_path}/unittest/dataobs_mgr_stub_test",
+    "${ability_runtime_services_path}/dataobsmgr/include/",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include/",
   ]
 
   sources = [
@@ -674,11 +674,11 @@ ohos_unittest("service_extension_module_loader_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:service_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -954,20 +954,20 @@ ohos_unittest("data_ability_impl_test") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_base_kits_path}/extractortool/include",
-    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/rdb/include",
-    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/common/include",
-    "//foundation/distributeddatamgr/relational_store/frameworks/js/napi/dataability/include",
+    "${distributeddatamgr_path}/relational_store/frameworks/js/napi/rdb/include",
+    "${distributeddatamgr_path}/relational_store/frameworks/js/napi/common/include",
+    "${distributeddatamgr_path}/relational_store/frameworks/js/napi/dataability/include",
   ]
 
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
+    "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_replace_ability_impl.cpp",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native/data_ability_impl.cpp",
     "data_ability_impl_test.cpp",
   ]
 
@@ -1692,7 +1692,7 @@ ohos_unittest("distributed_client_test") {
 
 ohos_unittest("ability_window_test") {
   module_out_path = module_output_path
-  include_dirs = [ "//foundation/window/window_manager/wm/include" ]
+  include_dirs = [ "${windowmanager_path}/wm/include" ]
   sources = [
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",

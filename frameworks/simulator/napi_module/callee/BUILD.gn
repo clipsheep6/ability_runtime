@@ -12,12 +12,12 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/frameworks/simulator/build/ability_simulator.gni")
 
 gen_js_src_binary("callee") {
-  js_source =
-      "//foundation/ability/ability_runtime/frameworks/js/napi/callee/callee.js"
+  js_source = "${ability_runtime_napi_path}/callee/callee.js"
 }
 
 ohos_shared_library("callee_napi") {
@@ -27,13 +27,13 @@ ohos_shared_library("callee_napi") {
     defines = [ "MAC_PLATFORM" ]
   }
 
-  sources = [ "//foundation/ability/ability_runtime/frameworks/js/napi/callee/callee_module.cpp" ]
+  sources = [ "${ability_runtime_napi_path}/callee/callee_module.cpp" ]
 
   deps = [
     ":gen_obj_src_callee_abc",
     ":gen_obj_src_callee_js",
-    "//foundation/arkui/napi:ace_napi",
   ]
+  external_deps = [ "napi:ace_napi" ]
 
   part_name = "simulator"
   subsystem_name = "ability"

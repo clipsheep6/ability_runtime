@@ -277,7 +277,7 @@ if (accessibility_enable) {
     include_dirs = [ "//third_party/jsoncpp/include" ]
 
     sources = [
-      "//foundation/ability/ability_runtime/tools/aa/src/accessibility_ability_utils.cpp",
+      "${ability_runtime_path}/tools/aa/src/accessibility_ability_utils.cpp",
       "accessibility_ability_utils_test.cpp",
     ]
 

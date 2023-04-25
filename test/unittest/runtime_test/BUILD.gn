@@ -46,7 +46,7 @@ ohos_unittest("runtime_test") {
   include_dirs = [
     "${ability_runtime_native_path}/runtime",
     "${ability_runtime_native_path}/runtime/utils/include",
-    "//foundation/ability/ability_base/interfaces/kits/native/extractortool/include",
+    "${ability_base_kits_path}/extractortool/include",
     "//third_party/zlib/contrib/minizip",
     "//third_party/zlib",
   ]
@@ -110,7 +110,7 @@ ohos_unittest("hdc_register_test") {
 
   sources = [
     # add mock file
-    "//foundation/ability/ability_runtime/frameworks/native/runtime/hdc_register.cpp",
+    "${ability_runtime_native_path}/runtime/hdc_register.cpp",
     "hdc_register_test.cpp",
   ]
 
