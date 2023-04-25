@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/security/access_token/access_token.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
@@ -159,7 +160,8 @@ if (accessibility_enable) {
 
     symlink_target_name = [ "ability_tool" ]
 
-    include_dirs = [ "//base/security/access_token/interfaces/innerkits/token_setproc/include/" ]
+    include_dirs =
+        [ "${access_token_path}/interfaces/innerkits/token_setproc/include/" ]
 
     configs = [ ":tools_ability_delegator_config" ]
 

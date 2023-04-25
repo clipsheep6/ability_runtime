@@ -87,8 +87,7 @@ ohos_unittest("context_deal_interface_test") {
 ohos_unittest("application_test") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "//base/global/resource_management/frameworks/resmgr/include" ]
+  include_dirs = [ "${resource_management_path}/frameworks/resmgr/include" ]
 
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",

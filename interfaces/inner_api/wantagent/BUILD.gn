@@ -30,7 +30,7 @@ config("wantagent_innerkits_public_config") {
   ]
 
   include_dirs = [
-    "//base/notification/eventhandler/interfaces/inner_api",
+    "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",

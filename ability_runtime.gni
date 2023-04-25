@@ -40,7 +40,13 @@ appspawn_path = "//base/startup/appspawn"
 init_path = "//base/startup/init"
 ipc_native_path = "//foundation/communication/ipc/ipc/native"
 third_party_path = "//third_party"
+eventhandler_path = "//base/notification/eventhandler"
+hiviewdfx_path = "//base/hiviewdfx/hiview"
+hilog_path = "//base/hiviewdfx/hilog"
 webview_path = "//base/web/webview"
+appspawn_path = "//base/startup/appspawn"
+resource_management_path = "//base/global/resource_management"
+common_event_service_path = "//base/notification/common_event_service"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
