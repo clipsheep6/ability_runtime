@@ -161,6 +161,8 @@ public:
         const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
+
+    virtual void SetCurrentUserId(const int32_t userId) override;
 private:
     bool WriteInterfaceToken(MessageParcel &data);
 

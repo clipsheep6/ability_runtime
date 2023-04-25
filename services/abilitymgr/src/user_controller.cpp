@@ -16,6 +16,7 @@
 #include "user_controller.h"
 
 #include "ability_manager_service.h"
+#include "app_scheduler.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
@@ -236,6 +237,8 @@ void UserController::SetCurrentUserId(int32_t userId)
 {
     std::lock_guard<std::recursive_mutex> guard(userLock_);
     currentUserId_ = userId;
+    HILOG_DEBUG("set current userId: %{public}d", userId);
+    DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
 }
 
 void UserController::MoveUserToForeground(int32_t oldUserId, int32_t newUserId)

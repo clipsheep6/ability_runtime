@@ -173,6 +173,8 @@ public:
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
 
+    virtual void SetCurrentUserId(const int32_t userId) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.
