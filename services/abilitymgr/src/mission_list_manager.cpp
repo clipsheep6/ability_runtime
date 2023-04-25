@@ -529,6 +529,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     	}
         HILOG_DEBUG("Make new mission data.");
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        if (targetRecord == nullptr) {
+            HILOG_ERROR("targetRecord is nullptr");
+            return;
+        }
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);

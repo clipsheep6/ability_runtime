@@ -48,6 +48,10 @@ public:
     {}
     void OnAppStateChanged(const AppStateData &appStateData) override
     {}
+    void OnAppStarted(const AppStateData &appStateData) override
+    {}
+    void OnAppStopped(const AppStateData &appStateData) override
+    {}
     sptr<IRemoteObject> AsObject() override
     {
         return {};
@@ -144,6 +148,42 @@ HWTEST_F(AppSpawnSocketTest, UnregisterApplicationStateObserver_001, TestSize.Le
     auto manager = std::make_shared<AppStateObserverManager>();
     int32_t res = manager->UnregisterApplicationStateObserver(nullptr);
     EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: OnAppStarted
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager OnAppStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAppStarted
+ */
+HWTEST_F(AppSpawnSocketTest, OnAppStarted_001, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::shared_ptr<AppRunningRecord> appRecord;
+    manager->OnAppStarted(appRecord);
+    manager->Init();
+    manager->OnAppStarted(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: OnAppStopped
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager OnAppStopped
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAppStopped
+ */
+HWTEST_F(AppSpawnSocketTest, OnAppStopped_001, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::shared_ptr<AppRunningRecord> appRecord;
+    manager->OnAppStopped(appRecord);
+    manager->Init();
+    manager->OnAppStopped(appRecord);
 }
 
 /*
@@ -290,6 +330,176 @@ HWTEST_F(AppSpawnSocketTest, StateChangedNotifyObserver_001, TestSize.Level0)
     manager->StateChangedNotifyObserver(abilityStateData, isAbility);
     manager->Init();
     manager->StateChangedNotifyObserver(abilityStateData, isAbility);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStarted
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStarted
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStarted_001, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->HandleOnAppStarted(nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    bundleNameList.push_back(bundleName);
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStarted(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStarted
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStarted
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStarted_002, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStarted(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStarted
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStarted
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStarted_003, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName1 = "com.ohos.unittest1";
+    std::string bundleName2 = "com.ohos.unittest2";
+    appRecord->mainBundleName_ = bundleName1;
+    bundleNameList.push_back(bundleName2);
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStarted(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStarted
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStarted
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStarted
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStarted_004, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    bundleNameList.push_back(bundleName);
+    manager->appStateObserverMap_.emplace(nullptr, bundleNameList);
+    manager->HandleOnAppStarted(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStopped
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStopped
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStopped
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStopped_001, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->HandleOnAppStopped(nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    bundleNameList.push_back(bundleName);
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStopped(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStopped
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStopped
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStopped
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStopped_002, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStopped(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStopped
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStopped
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStopped
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStopped_003, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName1 = "com.ohos.unittest1";
+    std::string bundleName2 = "com.ohos.unittest2";
+    appRecord->mainBundleName_ = bundleName1;
+    bundleNameList.push_back(bundleName2);
+    manager->appStateObserverMap_.emplace(observer_, bundleNameList);
+    manager->HandleOnAppStopped(appRecord);
+}
+
+/*
+ * Feature: AppStateObserverManager
+ * Function: HandleOnAppStopped
+ * SubFunction: NA
+ * FunctionPoints: AppStateObserverManager HandleOnAppStopped
+ * EnvConditions: NA
+ * CaseDescription: Verify HandleOnAppStopped
+ */
+HWTEST_F(AppSpawnSocketTest, HandleOnAppStopped_004, TestSize.Level0)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    std::vector<std::string> bundleNameList;
+    std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
+    std::string bundleName = "com.ohos.unittest";
+    appRecord->mainBundleName_ = bundleName;
+    bundleNameList.push_back(bundleName);
+    manager->appStateObserverMap_.emplace(nullptr, bundleNameList);
+    manager->HandleOnAppStopped(appRecord);
 }
 
 /*

@@ -17,6 +17,7 @@
 
 #include <chrono>
 
+#include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "app_jump_control_rule.h"
@@ -225,8 +226,11 @@ AbilityJumpInterceptor::~AbilityJumpInterceptor()
 
 ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
-    int callerUid = IPCSkeleton::GetCallingUid();
-    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(want, callerUid);
+    if (!isForeground) {
+        HILOG_INFO("This startup is not foreground, keep going.");
+        return ERR_OK;
+    }
+    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(want, userId);
     if (isStartIncludeAtomicService) {
         HILOG_INFO("This startup contain atomic service, keep going.");
         return ERR_OK;
@@ -235,6 +239,13 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
     auto bms = AbilityUtil::GetBundleManager();
     if (!bms) {
         HILOG_ERROR("GetBundleManager failed");
+        return ERR_OK;
+    }
+    AppExecFwk::AbilityInfo targetAbilityInfo;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, targetAbilityInfo));
+    if (targetAbilityInfo.type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_INFO("Target is not page Ability, keep going, abilityType:%{public}d", targetAbilityInfo.type);
         return ERR_OK;
     }
     AppExecFwk::AppJumpControlRule controlRule;
@@ -271,6 +282,10 @@ bool AbilityJumpInterceptor::CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, con
     if (!result) {
         HILOG_ERROR("GetBundleNameForUid from bms fail.");
         return false;
+    }
+    if (controlRule.callerPkg.empty() || controlRule.targetPkg.empty()) {
+        HILOG_INFO("This startup is not explicitly, keep going.");
+        return false; 
     }
     if (controlRule.callerPkg == controlRule.targetPkg) {
         HILOG_INFO("jump within the same app.");

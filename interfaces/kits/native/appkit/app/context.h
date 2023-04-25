@@ -197,7 +197,10 @@ public:
      * @return Returns the absolute path to the application-specific cache directory on the external or
      * shared storage device; returns null if the external or shared storage device is temporarily unavailable.
      */
-    virtual std::string GetExternalCacheDir() = 0;
+    virtual std::string GetExternalCacheDir()
+    {
+        return "";
+    }
 
     /**
      * @brief Obtains the absolute path to the directory for storing files for the application on the
@@ -208,7 +211,10 @@ public:
      * @return Returns the absolute path to the application file directory on the external or shared storage
      * device; returns null if the external or shared storage device is temporarily unavailable.
      */
-    virtual std::string GetExternalFilesDir(std::string &type) = 0;
+    virtual std::string GetExternalFilesDir(std::string &type)
+    {
+        return "";
+    }
 
     /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
@@ -236,7 +242,10 @@ public:
      * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
      * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
      */
-    virtual int VerifySelfPermission(const std::string &permission) = 0;
+    virtual int VerifySelfPermission(const std::string &permission)
+    {
+        return 0;
+    }
 
     /**
      * @brief Obtains the bundle name of the current ability.
@@ -277,7 +286,8 @@ public:
      * @param uid Indicates the UID of the unauth to check.
      *
      */
-    virtual void UnauthUriPermission(const std::string &permission, const Uri &uri, int uid) = 0;
+    virtual void UnauthUriPermission(const std::string &permission, const Uri &uri, int uid)
+    {}
 
     /**
      * @brief Obtains an ability manager.
@@ -324,7 +334,10 @@ public:
      * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
      * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
      */
-    virtual int VerifyPermission(const std::string &permission, int pid, int uid) = 0;
+    virtual int VerifyPermission(const std::string &permission, int pid, int uid)
+    {
+        return 0;
+    }
 
     /**
      * @brief Obtains the distributed file path.
@@ -347,7 +360,10 @@ public:
      *
      * @return Returns the Context object of this ability.
      */
-    virtual std::shared_ptr<Context> GetAbilityPackageContext() = 0;
+    virtual std::shared_ptr<Context> GetAbilityPackageContext()
+    {
+        return nullptr;
+    }
 
     /**
      * @brief Obtains the HapModuleInfo object of the application.
@@ -383,7 +399,8 @@ public:
      * @param task The callback or promise fo js interface.
      */
     virtual void RequestPermissionsFromUser(std::vector<std::string> &permissions, std::vector<int> &permissionsState,
-        PermissionRequestTask &&task) = 0;
+        PermissionRequestTask &&task)
+    {}
 
     /**
      * @brief Starts a new ability with special ability start setting.
@@ -554,14 +571,20 @@ public:
      *
      * @return Returns true if the configuration of this ability is changing and false otherwise.
      */
-    virtual bool IsUpdatingConfigurations() = 0;
+    virtual bool IsUpdatingConfigurations()
+    {
+        return false;
+    }
 
     /**
      * @brief Informs the system of the time required for drawing this Page ability.
      *
      * @return Returns the notification is successful or fail
      */
-    virtual bool PrintDrawnCompleted() = 0;
+    virtual bool PrintDrawnCompleted()
+    {
+        return false;
+    }
 
     friend DataAbilityHelperImpl;
     friend OHOS::DataShare::DataShareHelper;

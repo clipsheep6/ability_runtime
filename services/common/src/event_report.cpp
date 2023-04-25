@@ -22,29 +22,27 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 // event params
-const std::string TYPE = "TYPE";
-const std::string EVENT_KEY_APP_PID = "APP_PID";
-const std::string EVENT_KEY_USERID = "USER_ID";
-const std::string EVENT_KEY_FORM_ID = "FORM_ID";
-const std::string EVENT_KEY_ERROR_CODE = "ERROR_CODE";
-const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
-const std::string EVENT_KEY_MODULE_NAME = "MODULE_NAME";
-const std::string EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
-const std::string EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
-const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
-const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
-const std::string EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
-const std::string EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
-const std::string EVENT_KEY_STARTUP_TIME = "STARTUP_TIME";
-const std::string EVENT_KEY_STARTUP_ABILITY_TYPE = "STARTUP_ABILITY_TYPE";
-const std::string EVENT_KEY_STARTUP_EXTENSION_TYPE = "STARTUP_EXTENSION_TYPE";
-const std::string EVENT_KEY_CALLER_BUNDLE_NAME = "CALLER_BUNDLE_NAME";
-const std::string EVENT_KEY_CALLER_UID = "CALLER_UID";
-const std::string EVENT_KEY_CALLER_PROCESS_NAME = "CALLER_PROCESS_NAME";
-const std::string EVENT_KEY_EXIT_TIME = "EXIT_TIME";
-const std::string EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
-const std::string EVENT_KEY_EXIT_PID = "EXIT_PID";
-const std::string EVENT_KEY_BUNDLE_TYPE = "BUNDLE_TYPE";
+constexpr const char *EVENT_KEY_APP_PID = "APP_PID";
+constexpr const char *EVENT_KEY_USERID = "USER_ID";
+constexpr const char *EVENT_KEY_ERROR_CODE = "ERROR_CODE";
+constexpr const char *EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
+constexpr const char *EVENT_KEY_MODULE_NAME = "MODULE_NAME";
+constexpr const char *EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
+constexpr const char *EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
+constexpr const char *EVENT_KEY_VERSION_NAME = "VERSION_NAME";
+constexpr const char *EVENT_KEY_VERSION_CODE = "VERSION_CODE";
+constexpr const char *EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
+constexpr const char *EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
+constexpr const char *EVENT_KEY_STARTUP_TIME = "STARTUP_TIME";
+constexpr const char *EVENT_KEY_STARTUP_ABILITY_TYPE = "STARTUP_ABILITY_TYPE";
+constexpr const char *EVENT_KEY_STARTUP_EXTENSION_TYPE = "STARTUP_EXTENSION_TYPE";
+constexpr const char *EVENT_KEY_CALLER_BUNDLE_NAME = "CALLER_BUNDLE_NAME";
+constexpr const char *EVENT_KEY_CALLER_UID = "CALLER_UID";
+constexpr const char *EVENT_KEY_CALLER_PROCESS_NAME = "CALLER_PROCESS_NAME";
+constexpr const char *EVENT_KEY_EXIT_TIME = "EXIT_TIME";
+constexpr const char *EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
+constexpr const char *EVENT_KEY_EXIT_PID = "EXIT_PID";
+constexpr const char *EVENT_KEY_BUNDLE_TYPE = "BUNDLE_TYPE";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -63,18 +61,6 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::STOP_SERVICE, "STOP_SERVICE"),
     std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE, "CONNECT_SERVICE"),
     std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE, "DISCONNECT_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::ADD_FORM, "ADD_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::REQUEST_FORM, "REQUEST_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::REQUEST_FORM, "REQUEST_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::DELETE_FORM, "DELETE_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::CASTTEMP_FORM, "CASTTEMP_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::ACQUIREFORMSTATE_FORM, "ACQUIREFORMSTATE_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::MESSAGE_EVENT_FORM, "MESSAGE_EVENT_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::ROUTE_EVENT_FORM, "ROUTE_EVENT_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::BACKGROUND_EVENT_FORM, "BACKGROUND_EVENT_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::RELEASE_FORM, "RELEASE_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::DELETE_INVALID_FORM, "DELETE_INVALID_FORM"),
-    std::map<EventName, std::string>::value_type(EventName::SET_NEXT_REFRESH_TIME_FORM, "SET_NEXT_REFRESH_TIME_FORM"),
     std::map<EventName, std::string>::value_type(EventName::APP_ATTACH, "APP_ATTACH"),
     std::map<EventName, std::string>::value_type(EventName::APP_LAUNCH, "APP_LAUNCH"),
     std::map<EventName, std::string>::value_type(EventName::APP_FOREGROUND, "APP_FOREGROUND"),
@@ -85,8 +71,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
 };
 }
 
-void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
-    const EventInfo& eventInfo)
+void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     constexpr int32_t defaultVal = -1;
     std::string name = ConvertEventName(eventName);
@@ -140,6 +125,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
                 EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            break;
         case EventName::APP_BACKGROUND:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -151,6 +137,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
+            break;
         default:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -165,8 +152,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type,
     }
 }
 
-void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type,
-    const EventInfo& eventInfo)
+void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     std::string name = ConvertEventName(eventName);
     if (name == "INVALIDEVENTNAME") {
@@ -244,8 +230,7 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
     }
 }
 
-void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType type,
-    const EventInfo& eventInfo)
+void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     std::string name = ConvertEventName(eventName);
     if (name == "INVALIDEVENTNAME") {
@@ -293,53 +278,6 @@ void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType 
             break;
         case EventName::DISCONNECT_SERVICE_ERROR:
             HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type, EVENT_KEY_ERROR_CODE, eventInfo.errCode);
-            break;
-        default:
-            break;
-    }
-}
-
-void EventReport::SendFormEvent(const EventName &eventName, HiSysEventType type,
-    const EventInfo& eventInfo)
-{
-    std::string name = ConvertEventName(eventName);
-    if (name == "INVALIDEVENTNAME") {
-        HILOG_ERROR("invalid eventName");
-        return;
-    }
-    switch (eventName) {
-        case EventName::DELETE_INVALID_FORM:
-            HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type);
-            break;
-        case EventName::ACQUIREFORMSTATE_FORM:
-        case EventName::MESSAGE_EVENT_FORM:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-            break;
-        case EventName::ADD_FORM:
-        case EventName::REQUEST_FORM:
-        case EventName::BACKGROUND_EVENT_FORM:
-        case EventName::ROUTE_EVENT_FORM:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_FORM_ID, eventInfo.formId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-            break;
-        case EventName::DELETE_FORM:
-        case EventName::CASTTEMP_FORM:
-        case EventName::RELEASE_FORM:
-        case EventName::SET_NEXT_REFRESH_TIME_FORM:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK, name, type, EVENT_KEY_FORM_ID, eventInfo.formId);
             break;
         default:
             break;

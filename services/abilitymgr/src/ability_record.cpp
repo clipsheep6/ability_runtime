@@ -329,7 +329,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::FOREGROUNDING;
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
     foregroundingTime_ = AbilityUtil::SystemTimeMillis();
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
@@ -1012,7 +1012,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::BACKGROUNDING;
+    SetAbilityStateInner(AbilityState::BACKGROUNDING);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1053,9 +1053,15 @@ bool AbilityRecord::IsForeground() const
     return currentState_ == AbilityState::FOREGROUND || currentState_ == AbilityState::FOREGROUNDING;
 }
 
-void AbilityRecord::SetAbilityState(AbilityState state)
+void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+}
+
+void AbilityRecord::SetAbilityState(AbilityState state)
+{
+    SetAbilityStateInner(state);
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE || state == AbilityState::BACKGROUND) {
         SetRestarting(false);
     }
@@ -1191,7 +1197,7 @@ void AbilityRecord::Activate()
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::ACTIVATING;
+    SetAbilityStateInner(AbilityState::ACTIVATING);
     lifecycleDeal_->Activate(want_, lifeCycleStateInfo_);
 
     // update ability state to appMgr service when restart
@@ -1216,7 +1222,7 @@ void AbilityRecord::Inactivate()
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::INACTIVATING;
+    SetAbilityStateInner(AbilityState::INACTIVATING);
     lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1241,7 +1247,7 @@ void AbilityRecord::Terminate(const Closure &task)
     }
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::TERMINATING;
+    SetAbilityStateInner(AbilityState::TERMINATING);
     lifecycleDeal_->Terminate(want_, lifeCycleStateInfo_);
 }
 
@@ -1738,7 +1744,7 @@ void AbilityRecord::DumpAbilityState(
     if (callContainer_) {
         callContainer_->Dump(info);
     }
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     dumpInfo = "        isKeepAlive: " + isKeepAlive;
     info.push_back(dumpInfo);
@@ -1778,7 +1784,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
     info.emplace_back("      ability type [SERVICE]");
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     info.emplace_back("        isKeepAlive: " + isKeepAlive);
     if (isLauncherRoot_) {

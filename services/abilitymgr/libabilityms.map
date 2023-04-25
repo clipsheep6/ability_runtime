@@ -62,7 +62,6 @@
       *PendingWantManager*;
       *PendingWantRecord*;
       *ResidentProcessManager*;
-      *SaMgrClient*;
       *StartOptions*;
       *SystemDialogScheduler*;
       *TaskDataPersistenceMgr*;

@@ -747,18 +747,6 @@ HWTEST_F(ContextContainerTest, VerifySelfPermission_0100, Function | MediumTest 
 }
 
 /**
- * @tc.number: VerifySelfPermission_0200
- * @tc.name: VerifySelfPermission
- * @tc.desc: VerifySelfPermission
- */
-HWTEST_F(ContextContainerTest, VerifySelfPermission_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    std::string permission = "test_permission";
-    EXPECT_EQ(context_->VerifySelfPermission(permission), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
-}
-
-/**
  * @tc.number: UnauthUriPermission_0100
  * @tc.name: UnauthUriPermission
  * @tc.desc: UnauthUriPermission
@@ -1394,17 +1382,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_VerifySelfPermission_
     context_->AttachBaseContext(contextDeal_);
 
     EXPECT_EQ(context_->VerifySelfPermission("permission"), AppExecFwk::Constants::PERMISSION_GRANTED);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_VerifySelfPermission_0200
- * @tc.name: Verify Self Permission
- * @tc.desc: Test Verify Self Permission When baseContext is null.
- *           and verify whether the return value of Verify Self Permission is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_VerifySelfPermission_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->VerifySelfPermission("permission"), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class ContextDeal : public Context, public std::enable_shared_from_this<ContextDeal> {
+class ContextDeal : public std::enable_shared_from_this<ContextDeal> {
 public:
     ContextDeal() = default;
     explicit ContextDeal(bool isCreateBySystemApp);
@@ -34,7 +34,7 @@ public:
      *
      * @return ProcessInfo
      */
-    std::shared_ptr<ProcessInfo> GetProcessInfo() const override;
+    std::shared_ptr<ProcessInfo> GetProcessInfo() const;
 
     /**
      * Called when setting the ProcessInfo
@@ -49,7 +49,7 @@ public:
      *
      * @return Returns the ApplicationInfo for the current application.
      */
-    std::shared_ptr<ApplicationInfo> GetApplicationInfo() const override;
+    std::shared_ptr<ApplicationInfo> GetApplicationInfo() const;
 
     /**
      * @brief Set ApplicationInfo
@@ -63,7 +63,7 @@ public:
      *
      * @return Returns the Context object of the application.
      */
-    std::shared_ptr<Context> GetApplicationContext() const override;
+    std::shared_ptr<Context> GetApplicationContext() const;
 
     /**
      * @brief Set ApplicationContext
@@ -78,7 +78,7 @@ public:
      *
      * @return Returns the path of the package file.
      */
-    std::string GetBundleCodePath() override;
+    std::string GetBundleCodePath();
 
     /**
      * @brief SetBundleCodePath
@@ -93,7 +93,7 @@ public:
      *
      * @return Returns the AbilityInfo object for the current ability.
      */
-    const std::shared_ptr<AbilityInfo> GetAbilityInfo() override;
+    const std::shared_ptr<AbilityInfo> GetAbilityInfo();
 
     /**
      * @brief Set AbilityInfo
@@ -107,7 +107,7 @@ public:
      *
      * @return Returns the Context object of the ability.
      */
-    std::shared_ptr<Context> GetContext() override;
+    std::shared_ptr<Context> GetContext();
 
     /**
      * @brief Set Ability context
@@ -122,14 +122,14 @@ public:
      *
      * @return Returns an IBundleMgr instance.
      */
-    sptr<IBundleMgr> GetBundleManager() const override;
+    sptr<IBundleMgr> GetBundleManager() const;
 
     /**
      * @brief Obtains a resource manager.
      *
      * @return Returns a ResourceManager object.
      */
-    std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
+    std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const;
 
     /**
      * @brief Set Profile instance.
@@ -152,19 +152,7 @@ public:
      *
      * @return Returns true if the file is deleted successfully; returns false otherwise.
      */
-    bool DeleteFile(const std::string &fileName) override;
-
-    /**
-     * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
-     * The current ability using either the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE
-     * template can call this method to destroy another ability that uses the AbilityInfo.AbilityType.SERVICE
-     * template. The current ability itself can be destroyed by calling the terminateAbility() method.
-     *
-     * @param want Indicates the Want containing information about the ability to destroy.
-     *
-     * @return Returns true if the ability is destroyed successfully; returns false otherwise.
-     */
-    bool StopAbility(const AAFwk::Want &want) override;
+    bool DeleteFile(const std::string &fileName);
 
     /**
      * @brief Obtains the application-specific cache directory on the device's internal storage. The system
@@ -173,21 +161,7 @@ public:
      *
      * @return Returns the application-specific cache directory.
      */
-    std::string GetCacheDir() override;
-
-    /**
-     * @brief Checks whether the configuration of this ability is changing.
-     *
-     * @return Returns true if the configuration of this ability is changing and false otherwise.
-     */
-    bool IsUpdatingConfigurations() override;
-
-    /**
-     * @brief Informs the system of the time required for drawing this Page ability.
-     *
-     * @return Returns the notification is successful or fail
-     */
-    bool PrintDrawnCompleted() override;
+    std::string GetCacheDir();
 
     /**
      * @brief Obtains the application-specific code-cache directory on the device's internal storage.
@@ -196,7 +170,7 @@ public:
      *
      * @return Returns the application-specific code-cache directory.
      */
-    std::string GetCodeCacheDir() override;
+    std::string GetCodeCacheDir();
 
     /**
      * @brief Obtains the local database path.
@@ -204,14 +178,14 @@ public:
      *
      * @return Returns the local database file.
      */
-    std::string GetDatabaseDir() override;
+    std::string GetDatabaseDir();
 
     /**
      * @brief Obtains the absolute path where all private data files of this application are stored.
      *
      * @return Returns the absolute path storing all private data files of this application.
      */
-    std::string GetDataDir() override;
+    std::string GetDataDir();
 
     /**
      * @brief Obtains the directory for storing custom data files of the application.
@@ -224,34 +198,14 @@ public:
      *
      * @return Returns a File object for the requested directory.
      */
-    std::string GetDir(const std::string &name, int mode) override;
-
-    /**
-     * @brief Obtains the absolute path to the application-specific cache directory
-     * on the primary external or shared storage device.
-     *
-     * @return Returns the absolute path to the application-specific cache directory on the external or
-     * shared storage device; returns null if the external or shared storage device is temporarily unavailable.
-     */
-    std::string GetExternalCacheDir() override;
-
-    /**
-     * @brief Obtains the absolute path to the directory for storing files for the application on the
-     * primary external or shared storage device.
-     *
-     * @param type Indicates the type of the file directory to return
-     *
-     * @return Returns the absolute path to the application file directory on the external or shared storage
-     * device; returns null if the external or shared storage device is temporarily unavailable.
-     */
-    std::string GetExternalFilesDir(std::string &type) override;
+    std::string GetDir(const std::string &name, int mode);
 
     /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
      * @return Returns the application file directory.
      */
-    std::string GetFilesDir() override;
+    std::string GetFilesDir();
 
     /**
      * @brief Obtains the absolute path which app created and will be excluded from automatic backup to remote storage.
@@ -260,60 +214,21 @@ public:
      * @return The path of the directory holding application files that will not be automatically backed up to remote
      * storage.
      */
-    std::string GetNoBackupFilesDir() override;
-
-    /**
-     * @brief Checks whether the current process has the given permission.
-     * You need to call requestPermissionsFromUser(std::vector<std::string>,std::vector<int>, int) to request
-     * a permission only if the current process does not have the specific permission.
-     *
-     * @param permission Indicates the permission to check. This parameter cannot be null.
-     *
-     * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
-     * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
-     */
-    int VerifySelfPermission(const std::string &permission) override;
+    std::string GetNoBackupFilesDir();
 
     /**
      * @brief Obtains the bundle name of the current ability.
      *
      * @return Returns the bundle name of the current ability.
      */
-    std::string GetBundleName() const override;
+    std::string GetBundleName() const;
 
     /**
      * @brief Obtains the path of the OHOS Ability Package (HAP} containing this ability.
      *
      * @return Returns the path of the HAP containing this ability.
      */
-    std::string GetBundleResourcePath() override;
-
-    /**
-     * @brief Starts a new ability.
-     * An ability using the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE template uses this method
-     * to start a specific ability. The system locates the target ability from installed abilities based on the value
-     * of the want parameter and then starts it. You can specify the ability to start using the want parameter.
-     *
-     * @param want Indicates the Want containing information about the target ability to start.
-     *
-     * @param requestCode Indicates the request code returned after the ability using the AbilityInfo.AbilityType.PAGE
-     * template is started. You can define the request code to identify the results returned by abilities. The value
-     * ranges from 0 to 65535. This parameter takes effect only on abilities using the AbilityInfo.AbilityType.PAGE
-     * template.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
-
-    /**
-     * @brief Remove permissions for all users who have access to specific permissions
-     *
-     * @param permission Indicates the permission to unauth. This parameter cannot be null.
-     * @param uri Indicates the URI to unauth. This parameter cannot be null.
-     * @param uid Indicates the UID of the unauth to check.
-     *
-     */
-    void UnauthUriPermission(const std::string &permission, const Uri &uri, int uid) override;
+    std::string GetBundleResourcePath();
 
     /**
      * @brief Obtains an ability manager.
@@ -321,7 +236,7 @@ public:
      *
      * @return Returns an IAbilityManager instance.
      */
-    sptr<AAFwk::IAbilityManager> GetAbilityManager() override;
+    sptr<AAFwk::IAbilityManager> GetAbilityManager();
 
     /**
      * @brief Obtains the type of this application.
@@ -331,29 +246,7 @@ public:
      * returns other if it is released by a third-party vendor;
      * returns an empty string if the query fails.
      */
-    std::string GetAppType() override;
-
-    /**
-     * @brief Destroys another ability you had previously started by calling Ability.startAbilityForResult
-     * (ohos.aafwk.content.Want, int, ohos.aafwk.ability.startsetting.AbilityStartSetting) with the same requestCode
-     * passed.
-     *
-     * @param requestCode Indicates the request code passed for starting the ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility(int requestCode) override;
-
-    /**
-     * @brief Query whether the application of the specified PID and UID has been granted a certain permission
-     *
-     * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
-     * @param pid Process id
-     * @param uid
-     * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
-     * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
-     */
-    virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
+    std::string GetAppType();
 
     /**
      * @brief Obtains the distributed file path.
@@ -362,97 +255,28 @@ public:
      *
      * @return Returns the distributed file.
      */
-    std::string GetDistributedDir() override;
+    std::string GetDistributedDir();
 
     /**
      * @brief Sets the pattern of this Context based on the specified pattern ID.
      *
      * @param patternId Indicates the resource ID of the pattern to set.
      */
-    void SetPattern(int patternId) override;
-
-    /**
-     * @brief Obtains the Context object of this ability.
-     *
-     * @return Returns the Context object of this ability.
-     */
-    std::shared_ptr<Context> GetAbilityPackageContext() override;
+    void SetPattern(int patternId);
 
     /**
      * @brief Obtains the HapModuleInfo object of the application.
      *
      * @return Returns the HapModuleInfo object of the application.
      */
-    std::shared_ptr<HapModuleInfo> GetHapModuleInfo() override;
+    std::shared_ptr<HapModuleInfo> GetHapModuleInfo();
 
     /**
      * @brief Obtains the name of the current process.
      *
      * @return Returns the current process name.
      */
-    std::string GetProcessName() override;
-
-    /**
-     * @brief Obtains the bundle name of the ability that called the current ability.
-     * You can use the obtained bundle name to check whether the calling ability is allowed to receive the data you will
-     * send. If you did not use Ability.startAbilityForResult(ohos.aafwk.content.Want, int,
-     * ohos.aafwk.ability.startsetting.AbilityStartSetting) to start the calling ability, null is returned.
-     *
-     * @return Returns the bundle name of the calling ability; returns null if no calling ability is available.
-     */
-    std::string GetCallingBundle() override;
-
-    /**
-     * @brief Requests certain permissions from the system.
-     * This method is called for permission request. This is an asynchronous method. When it is executed,
-     * the task will be called back.
-     *
-     * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
-     * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
-     * @param task The callback or promise fo js interface.
-     */
-    void RequestPermissionsFromUser(std::vector<std::string> &permissions, std::vector<int> &permissionsState,
-        PermissionRequestTask &&task) override;
-
-    /**
-     * @brief Starts a new ability with special ability start setting.
-     *
-     * @param want Indicates the Want containing information about the target ability to start.
-     * @param requestCode Indicates the request code returned after the ability is started. You can define the request
-     * code to identify the results returned by abilities. The value ranges from 0 to 65535.
-     * @param abilityStartSetting Indicates the special start setting used in starting ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting) override;
-
-    /**
-     * @brief Destroys the current ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility() override;
-
-    /**
-     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
-     *
-     * @param want Indicates the want containing information about the ability to connect
-     *
-     * @param conn Indicates the callback object when the target ability is connected.
-     *
-     * @return True means success and false means failure
-     */
-    bool ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn) override;
-
-    /**
-     * @brief Disconnects the current ability from an ability
-     *
-     * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
-     *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
+    std::string GetProcessName();
 
     /**
      * @brief init the ResourceManager for ContextDeal.
@@ -467,7 +291,7 @@ public:
      *
      * @return Returns the caller information.
      */
-    Uri GetCaller() override;
+    Uri GetCaller();
 
     /**
      * @brief SerUriString
@@ -481,7 +305,7 @@ public:
      *
      * @return Returns the string of this Context.
      */
-    std::string GetString(int resId) override;
+    std::string GetString(int resId);
 
     /**
      * @brief Get the string array of this Context based on the specified resource ID.
@@ -490,7 +314,7 @@ public:
      *
      * @return Returns the string array of this Context.
      */
-    std::vector<std::string> GetStringArray(int resId) override;
+    std::vector<std::string> GetStringArray(int resId);
 
     /**
      * @brief Get the integer array of this Context based on the specified resource ID.
@@ -499,28 +323,28 @@ public:
      *
      * @return Returns the integer array of this Context.
      */
-    std::vector<int> GetIntArray(int resId) override;
+    std::vector<int> GetIntArray(int resId);
 
     /**
      * @brief Obtains the theme of this Context.
      *
      * @return theme Returns the theme of this Context.
      */
-    std::map<std::string, std::string> GetTheme() override;
+    std::map<std::string, std::string> GetTheme();
 
     /**
      * @brief Sets the theme of this Context based on the specified theme ID.
      *
      * @param themeId Indicates the resource ID of the theme to set.
      */
-    void SetTheme(int themeId) override;
+    void SetTheme(int themeId);
 
     /**
      * @brief Obtains the pattern of this Context.
      *
      * @return getPattern in interface Context
      */
-    std::map<std::string, std::string> GetPattern() override;
+    std::map<std::string, std::string> GetPattern();
 
     /**
      * @brief Get the color of this Context based on the specified resource ID.
@@ -529,38 +353,21 @@ public:
      *
      * @return Returns the color value of this Context.
      */
-    int GetColor(int resId) override;
+    int GetColor(int resId);
 
     /**
      * @brief Obtains the theme id of this Context.
      *
      * @return int Returns the theme id of this Context.
      */
-    int GetThemeId() override;
-
-    /**
-     * @brief
-     * Destroys this Service ability if the number of times it has been started equals the number represented by the
-     * given {@code startId}. This method is the same as calling {@link #terminateAbility} to destroy this Service
-     * ability, except that this method helps you avoid destroying it if a client has requested a Service
-     * ability startup in {@link ohos.aafwk.ability.Ability#onCommand} but you are unaware of it.
-     *
-     * @param startId Indicates the number of startup times of this Service ability passed to
-     *                {@link ohos.aafwk.ability.Ability#onCommand}. The {@code startId} is
-     *                incremented by 1 every time this ability is started. For example,
-     *                if this ability has been started for six times, the value of {@code startId} is {@code 6}.
-     *
-     * @return Returns {@code true} if the {@code startId} matches the number of startup times
-     *         and this Service ability will be destroyed; returns {@code false} otherwise.
-     */
-    bool TerminateAbilityResult(int startId) override;
+    int GetThemeId();
 
     /**
      * @brief Obtains the current display orientation of this ability.
      *
      * @return Returns the current display orientation.
      */
-    int GetDisplayOrientation() override;
+    int GetDisplayOrientation();
 
     /**
      * @brief Obtains the path storing the preference file of the application.
@@ -568,21 +375,21 @@ public:
      *
      * @return Returns the preference file path .
      */
-    std::string GetPreferencesDir() override;
+    std::string GetPreferencesDir();
 
     /**
      * @brief Set color mode
      *
      * @param the value of color mode.
      */
-    void SetColorMode(int mode) override;
+    void SetColorMode(int mode);
 
     /**
      * @brief Obtains color mode.
      *
      * @return Returns the color mode value.
      */
-    int GetColorMode() override;
+    int GetColorMode();
 
     /**
      * @brief Set the LifeCycleStateInfo to the deal.
@@ -596,14 +403,7 @@ public:
      *
      * @return Returns the unique mission ID.
      */
-    int GetMissionId() override;
-
-    /**
-     * @brief Starts multiple abilities.
-     *
-     * @param wants Indicates the Want containing information array about the target ability to start.
-     */
-    void StartAbilities(const std::vector<AAFwk::Want> &wants) override;
+    int GetMissionId();
 
     /**
      * @brief Set EventRunner for main thread.
@@ -648,7 +448,6 @@ public:
     int flags_ = 0x00000000;
 
 protected:
-    sptr<IRemoteObject> GetToken() override;
     bool HapModuleInfoRequestInit();
 
 private:

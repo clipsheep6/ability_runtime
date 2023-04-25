@@ -25,11 +25,9 @@ using HiSysEvent = OHOS::HiviewDFX::HiSysEvent;
 
 namespace OHOS {
 namespace AAFwk {
-
 struct EventInfo {
     int32_t pid = -1;
     int32_t userId = -1;
-    int64_t formId = -1;
     int32_t extensionType = -1;
     uint32_t versionCode = 0;
     int32_t errCode = -1;
@@ -71,19 +69,6 @@ enum class EventName {
     CONNECT_SERVICE,
     DISCONNECT_SERVICE,
 
-    // form behavior event
-    ADD_FORM,
-    REQUEST_FORM,
-    DELETE_FORM,
-    CASTTEMP_FORM,
-    ACQUIREFORMSTATE_FORM,
-    MESSAGE_EVENT_FORM,
-    ROUTE_EVENT_FORM,
-    BACKGROUND_EVENT_FORM,
-    RELEASE_FORM,
-    DELETE_INVALID_FORM,
-    SET_NEXT_REFRESH_TIME_FORM,
-
     // app behavior event
     APP_ATTACH,
     APP_LAUNCH,
@@ -96,14 +81,10 @@ enum class EventName {
 
 class EventReport {
 public:
-    static void SendAppEvent(const EventName &eventName, HiSysEventType type,
-        const EventInfo& eventInfo);
-    static void SendAbilityEvent(const EventName &eventName, HiSysEventType type,
-        const EventInfo& eventInfo);
-    static void SendExtensionEvent(const EventName &eventName, HiSysEventType type,
-        const EventInfo& eventInfo);
-    static void SendFormEvent(const EventName &eventName, HiSysEventType type,
-        const EventInfo& eventInfo);
+    static void SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+
 private:
     static std::string ConvertEventName(const EventName &eventName);
 };
