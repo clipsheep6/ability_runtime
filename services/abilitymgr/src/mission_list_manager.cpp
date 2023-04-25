@@ -522,11 +522,11 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     }
 
     if (targetMission == nullptr) {
-    	if (CheckLimit()) {
+        if (CheckLimit()) {
             isReachToLimit = true;
             HILOG_ERROR("already reach to limit, not create new mission and ability.");
        	    return;
-    	}
+        }
         HILOG_DEBUG("Make new mission data.");
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (targetRecord == nullptr) {

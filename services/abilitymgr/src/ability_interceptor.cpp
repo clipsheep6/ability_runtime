@@ -41,11 +41,11 @@ using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string ACTION_MARKET_DISPOSED = "ohos.want.action.marketDisposed";
 const std::string PERMISSION_MANAGE_DISPOSED_APP_STATUS = "ohos.permission.MANAGE_DISPOSED_APP_STATUS";
-const std::string JUMP_DIALOG_CALLER_BUNDLE_NAME= "interceptor_callerBundleName";
-const std::string JUMP_DIALOG_CALLER_MODULE_NAME= "interceptor_callerModuleName";
-const std::string JUMP_DIALOG_CALLER_LABEL_ID= "interceptor_callerLabelId";
-const std::string JUMP_DIALOG_TARGET_MODULE_NAME= "interceptor_targetModuleName";
-const std::string JUMP_DIALOG_TARGET_LABEL_ID= "interceptor_targetLabelId";
+const std::string JUMP_DIALOG_CALLER_BUNDLE_NAME = "interceptor_callerBundleName";
+const std::string JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName";
+const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
+const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
+const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 
 AbilityInterceptor::~AbilityInterceptor()
 {}
@@ -354,10 +354,10 @@ bool AbilityJumpInterceptor::LoadAppLabelInfo(sptr<AppExecFwk::IBundleMgr> &bms,
     AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
     AppExecFwk::ApplicationInfo callerAppInfo;
-    int result = IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.callerPkg,
+    IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.callerPkg,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     AppExecFwk::ApplicationInfo targetAppInfo;
-    result = IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.targetPkg,
+    IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.targetPkg,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     want.SetParam(JUMP_DIALOG_CALLER_BUNDLE_NAME, controlRule.callerPkg);
     want.SetParam(JUMP_DIALOG_CALLER_MODULE_NAME, callerAppInfo.labelResource.moduleName);
