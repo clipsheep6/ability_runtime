@@ -1381,11 +1381,11 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Terminate ability locked, ability is %{public}s.", element.c_str());
-    // remove AbilityRecord out of stack
+    // remove AbilityRecord out of list
     RemoveTerminatingAbility(abilityRecord, flag);
     abilityRecord->SendResultToCallers();
 
-    // 1. if the ability was foreground, first should find wether there is other ability foreground
+    // 1. if the ability was foreground, first should find whether there is other ability foreground
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
