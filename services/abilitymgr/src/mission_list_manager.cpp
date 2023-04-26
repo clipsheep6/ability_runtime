@@ -478,7 +478,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
             targetMission->SetSpecifiedFlag(abilityRequest.specifiedFlag);
             targetRecord->SetSpecifiedFlag(abilityRequest.specifiedFlag);
-         }
+        }
     }
 
     if (!findReusedMissionInfo && targetRecord) {

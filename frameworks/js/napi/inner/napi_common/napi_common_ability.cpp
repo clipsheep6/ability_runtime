@@ -3666,7 +3666,7 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
     napi_close_handle_scope(cbInfo.env, scope);
 
     // release connect
-    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
     HILOG_INFO("UvWorkOnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
     std::string deviceId = connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID();
     std::string bundleName = connectAbilityCB->abilityConnectionCB.elementName.GetBundleName();
@@ -4356,7 +4356,7 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
-    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
     auto env = reinterpret_cast<napi_env>(&engine);
     auto firstParam = reinterpret_cast<napi_value>(info.argv[PARAM0]);
     auto secondParam = reinterpret_cast<napi_value>(info.argv[PARAM1]);
@@ -4436,7 +4436,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
-    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     int64_t id = 0;
     sptr<NAPIAbilityConnection> abilityConnection = nullptr;

@@ -508,7 +508,6 @@ void ModSourceMap::NonModularLoadSourceMap(ModSourceMap& targetMaps, const std::
     if (!targetMaps.nonModularMap_) {
         targetMaps.nonModularMap_ = std::make_shared<SourceMapData>();
     }
-    // SourceMapData curMapData;
     Init(targetMap, *targetMaps.nonModularMap_);
 }
 
