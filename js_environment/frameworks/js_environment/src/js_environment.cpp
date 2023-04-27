@@ -73,10 +73,17 @@ void JsEnvironment::InitTimerModule()
     }
 }
 
-void JsEnvironment::InitWorkerModule()
+void JsEnvironment::InitConsoleLogModule()
 {
     if (impl_ != nullptr) {
-        impl_->InitWorkerModule();
+        impl_->InitConsoleLogModule();
+    }
+}
+
+void JsEnvironment::InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle)
+{
+    if (impl_ != nullptr && engine_ != nullptr) {
+        impl_->InitWorkerModule(*engine_, codePath, isDebugVersion, isBundle);
     }
 }
 

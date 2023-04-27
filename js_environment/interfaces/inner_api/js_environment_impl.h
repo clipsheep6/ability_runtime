@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 
 #include <string>
+#include "native_engine/native_engine.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 
 namespace OHOS {
@@ -34,7 +35,7 @@ public:
 
     virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
-    virtual void InitWorkerModule() = 0;
+    virtual void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle) = 0;
 
     virtual void InitSyscapModule() = 0;
 };
