@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 
 #include <string>
+#include "native_engine/impl/ark/ark_native_engine.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -31,7 +32,7 @@ public:
 
     virtual void InitTimerModule() = 0;
 
-    virtual void InitConsoleLogModule() = 0;
+    virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
     virtual void InitWorkerModule() = 0;
 

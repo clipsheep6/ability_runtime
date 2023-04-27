@@ -14,7 +14,7 @@
  */
 
 #include "ohos_js_environment_impl.h"
-
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -44,9 +44,10 @@ void OHOSJsEnvironmentImpl::InitTimerModule()
     HILOG_DEBUG("called");
 }
 
-void OHOSJsEnvironmentImpl::InitConsoleLogModule()
+void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)
 {
     HILOG_DEBUG("called");
+    JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
 void OHOSJsEnvironmentImpl::InitWorkerModule()

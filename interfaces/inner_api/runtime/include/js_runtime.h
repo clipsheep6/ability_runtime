@@ -98,6 +98,7 @@ public:
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
     bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
+    void InitConsoleModule();
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;

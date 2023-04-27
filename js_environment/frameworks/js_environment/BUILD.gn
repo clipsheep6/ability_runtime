@@ -44,6 +44,7 @@ ohos_shared_library("js_environment") {
 
   external_deps = [
     "ets_runtime:libark_jsruntime",
+    "ets_utils:console",
     "napi:ace_napi",
   ]
 
