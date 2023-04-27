@@ -108,6 +108,11 @@ JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRunt
 JsServiceExtension::~JsServiceExtension()
 {
     HILOG_DEBUG("Js service extension destructor.");
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }

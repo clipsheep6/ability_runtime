@@ -71,6 +71,11 @@ JsStaticSubscriberExtension::JsStaticSubscriberExtension(JsRuntime& jsRuntime) :
 JsStaticSubscriberExtension::~JsStaticSubscriberExtension()
 {
     HILOG_DEBUG("Js static subscriber extension destructor.");
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
 }
 

@@ -71,6 +71,17 @@ AbilityThread::AbilityThread()
 
 AbilityThread::~AbilityThread()
 {
+    if (isExtension_) {
+        if (currentExtension_) {
+            currentExtension_.reset();
+        }
+    } else {
+        if (currentAbility_) {
+            currentAbility_->DetachBaseContext();
+            currentAbility_.reset();
+        }
+    }
+
     DelayedSingleton<AbilityImplFactory>::DestroyInstance();
 }
 

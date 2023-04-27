@@ -71,6 +71,11 @@ JsFormExtension::JsFormExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {
 JsFormExtension::~JsFormExtension()
 {
     HILOG_DEBUG("Js form extension destructor.");
+    auto context = GetContext();
+    if (context) {
+        context->Unbind();
+    }
+
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }

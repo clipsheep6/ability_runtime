@@ -98,6 +98,11 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 JsAbility::~JsAbility()
 {
     HILOG_DEBUG("Js ability destructor.");
+    auto context = GetAbilityContext();
+    if (context) {
+        context->Unbind();
+    }
+
     jsRuntime_.FreeNativeReference(std::move(jsAbilityObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 #ifdef SUPPORT_GRAPHICS
@@ -317,6 +322,8 @@ void JsAbility::OnSceneCreated()
         HILOG_ERROR("Failed to create jsAppWindowStage object by LoadSystemModule");
         return;
     }
+
+    HandleScope handleScope(jsRuntime_);
     NativeValue *argv[] = {jsAppWindowStage->Get()};
     CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
 
