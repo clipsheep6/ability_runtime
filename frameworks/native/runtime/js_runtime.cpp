@@ -433,9 +433,9 @@ bool JsRuntime::Initialize(const Options& options)
         }
     }
 
+    auto nativeEngine = GetNativeEnginePointer();
     if (IsUseAbilityRuntime(options)) {
         HandleScope handleScope(*this);
-        auto nativeEngine = GetNativeEnginePointer();
         CHECK_POINTER_AND_RETURN(nativeEngine, false);
 
         auto vm = GetEcmaVm();
@@ -517,9 +517,11 @@ bool JsRuntime::Initialize(const Options& options)
             } else {
                 InitTimerModule(*nativeEngine, *globalObj);
             }
-
-            InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
         }
+    }
+
+    if (jsEnv_) {
+        jsEnv_->InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
     }
 
     preloaded_ = options.preload;
