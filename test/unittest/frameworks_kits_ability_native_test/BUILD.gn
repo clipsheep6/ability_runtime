@@ -2052,38 +2052,6 @@ ohos_unittest("form_extension_module_loader_test") {
   ]
 }
 
-ohos_unittest("static_subscriber_extension_module_loader_test") {
-  module_out_path = module_output_path
-
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
-
-  sources = [
-    "${ability_runtime_native_path}/ability/native/static_subscriber_extension_module_loader.cpp",
-    "static_subscriber_extension_module_loader_test.cpp",
-  ]
-
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
-
-  deps = [
-    "${ability_runtime_native_path}/ability/native:static_subscriber_extension",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
-
-  external_deps = [
-    "ability_base:configuration",
-    "ability_base:session_info",
-    "ace_engine:ace_uicontent",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-  ]
-}
-
 ###############################################################################
 
 group("unittest") {
@@ -2131,7 +2099,6 @@ group("unittest") {
     ":reverse_continuation_scheduler_replica_stub_test",
     ":service_ability_impl_test",
     ":service_extension_module_loader_test",
-    ":static_subscriber_extension_module_loader_test",
     ":task_handler_client_test",
   ]
 

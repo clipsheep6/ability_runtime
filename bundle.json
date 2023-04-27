@@ -84,7 +84,6 @@
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
-          "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension_module",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
