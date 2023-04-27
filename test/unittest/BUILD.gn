@@ -330,6 +330,7 @@ group("unittest") {
     "atomic_service_status_callback_stub_test:unittest",
     "authorization_result_test:unittest",
     "background_task_observer_test:unittest",
+    "call_record_test:unittest",
     "completed_dispatcher_test:unittest",
     "configuration_test:unittest",
     "connect_server_manager_test:unittest",

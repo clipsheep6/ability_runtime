@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -230,11 +230,20 @@ public:
     virtual ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
+     * clear failed call connection by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return void.
+     */
+    virtual void ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback) = 0;
+
+    /**
      * @brief Get LocalCallContainer.
      *
      * @return Returns the LocalCallContainer.
      */
-    virtual sptr<LocalCallContainer> GetLocalCallContainer() = 0;
+    virtual std::shared_ptr<LocalCallContainer> GetLocalCallContainer() = 0;
 
     virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
 

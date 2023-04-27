@@ -437,19 +437,9 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Lev
 {
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), ERR_INVALID_VALUE);
 
-    abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
-    abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 end");
 }

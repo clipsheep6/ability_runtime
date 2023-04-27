@@ -70,7 +70,10 @@ ohos_unittest("caller_call_back_ut_test") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+  ]
 }
 
 ohos_unittest("local_call_container_ut_test") {

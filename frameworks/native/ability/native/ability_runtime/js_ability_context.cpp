@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -181,6 +181,19 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnIsTerminating(*engine, *info) : nullptr;
+}
+
+void JsAbilityContext::ClearFailedCallConnection(
+    const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
+{
+    HILOG_DEBUG("clear failed call of startup is called.");
+    auto context = abilityContext.lock();
+    if (context == nullptr || callback == nullptr) {
+        HILOG_ERROR("clear failed call of startup input param is nullptr.");
+        return;
+    }
+
+    context->ClearFailedCallConnection(callback);
 }
 
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent)
@@ -441,6 +454,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         if (calldata->err != 0) {
             HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
             task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            ClearFailedCallConnection(weak, calldata->callerCallBack);
             return;
         }
 

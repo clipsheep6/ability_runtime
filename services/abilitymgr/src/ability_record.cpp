@@ -2209,6 +2209,14 @@ bool AbilityRecord::ReleaseCall(const sptr<IAbilityConnection>& connect)
     return callContainer_->RemoveCallRecord(connect);
 }
 
+bool AbilityRecord::IsExistConnection(const sptr<IAbilityConnection> &connect)
+{
+    HILOG_DEBUG("ability find call record by callback.");
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+
+    return callContainer_->IsExistConnection(connect);
+}
+
 bool AbilityRecord::IsNeedToCallRequest() const
 {
     HILOG_DEBUG("ability release call record by callback.");

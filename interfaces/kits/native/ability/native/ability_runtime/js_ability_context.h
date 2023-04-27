@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,6 +78,8 @@ private:
 #endif
 
 private:
+    static void ClearFailedCallConnection(
+        const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
     NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);

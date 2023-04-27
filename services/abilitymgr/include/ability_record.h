@@ -847,6 +847,7 @@ public:
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RevokeUriPermission();
     void RemoveAbilityDeathRecipient() const;
+    bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
