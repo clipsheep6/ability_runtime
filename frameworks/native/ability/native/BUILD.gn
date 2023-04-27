@@ -215,6 +215,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/new_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/ability_recovery.cpp",
     "${ability_runtime_native_path}/ability/native/recovery/app_recovery.cpp",
+    "${ability_runtime_native_path}/ability/native/recovery/app_recovery_parcel_allocator.cpp",
     "${ability_runtime_native_path}/ability/native/service_ability_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",

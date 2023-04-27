@@ -28,13 +28,13 @@
 #include "js_runtime_utils.h"
 
 #include "ability_manager_client.h"
+#include "app_recovery_parcel_allocator.h"
 #include "hilog_wrapper.h"
 #include "parcel.h"
 #include "recovery_param.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
 #include "want_params.h"
-
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -200,14 +200,15 @@ bool AbilityRecovery::ReadSerializeDataFromFile(int32_t savedStateId, WantParams
         return false;
     }
 
-    if (!parcel_.ParseFrom(reinterpret_cast<uintptr_t>(mapFile), statbuf.st_size)) {
+    Parcel parcel(new AppRecoveryParcelAllocator()); // do not dealloc mmap area
+    if (!parcel.ParseFrom(reinterpret_cast<uintptr_t>(mapFile), statbuf.st_size)) {
         munmap(mapFile, statbuf.st_size);
         close(fd);
         remove(path);
         return false;
     }
 
-    auto parsedParam = WantParams::Unmarshalling(parcel_);
+    auto parsedParam = WantParams::Unmarshalling(parcel);
     if (parsedParam != nullptr) {
         params = *parsedParam;
         delete parsedParam;
