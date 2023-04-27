@@ -76,9 +76,9 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
         } else if (abilityConnection->GetConnectionState() == CONNECTION_STATE_CONNECTING) {
             return ERR_OK;
         } else {
-            HILOG_ERROR("AbilityConnection has disconnected, erase it.");
+            HILOG_ERROR("AbilityConnection has disconnected, erase it and reconnect.");
             abilityConnections_.erase(connectionIter);
-            return AAFwk::INVALID_CONNECTION_STATE;
+            return CreateConnection(connectCaller, want, accountId, connectCallback);
         }
     } else {
         return CreateConnection(connectCaller, want, accountId, connectCallback);

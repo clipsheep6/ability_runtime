@@ -193,7 +193,7 @@ HWTEST_F(ConnectionManagerTest, ConnectAbilityInner_0500, TestSize.Level0)
     connectionInfo.connectCaller = connectCaller;
     mgr->abilityConnections_.emplace(connectionInfo, callbacks);
     auto result = mgr->ConnectAbilityInner(connectCaller, want, accountId, connectCallback);
-    EXPECT_EQ(result, AAFwk::INVALID_CONNECTION_STATE);
+    EXPECT_EQ(result, AAFwk::RESOLVE_ABILITY_ERR);
     GTEST_LOG_(INFO) << "ConnectionManagerTest ConnectAbilityInner_0500 end";
 }
 
