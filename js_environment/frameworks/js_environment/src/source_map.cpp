@@ -23,6 +23,11 @@
 #include <unistd.h>
 
 #include "js_env_logger.h"
+#include "hilog_wrapper.h"
+#include "extractor.h"
+
+using namespace OHOS::AbilityBase;
+using Extractor = OHOS::AbilityBase::Extractor;
 
 namespace OHOS {
 namespace JsEnv {
@@ -88,7 +93,7 @@ void SourceMap::Init(bool isModular, const std::string& sourceMap)
     SplitSourceMap(sourceMap);
 }
 
-std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
+std::string SourceMap::TranslateBySourceMap(const std::string& stackStr, const std::string& hapPath)
 {
     std::string closeBrace = ")";
     std::string openBrace = "(";
@@ -116,8 +121,15 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
     // collect error info first
     for (; i < res.size(); i++) {
         std::string temp = res[i];
-        size_t start = temp.find(openBrace);
-        size_t end = temp.find(":");
+        size_t start;
+        size_t end;
+        if (isModular_) {
+            start = temp.find(openBrace);
+            end = temp.find(":");
+        } else {
+            start = temp.find("/ets/");
+            end = temp.rfind("_.js");
+        }
         if (end <= start) {
             continue;
         }
@@ -133,12 +145,19 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         }
         std::string sourceInfo;
         if (isModular_) {
+            std::string curSourceMap;
             auto iter = sourceMaps_.find(key);
             if (iter != sourceMaps_.end()) {
                 sourceInfo = GetSourceInfo(line, column, *(iter->second), key);
             }
         } else {
-            sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key);
+            std::string url = key + ".js.map";
+            std::string curSourceMap;
+            if (!ReadFaSourceMapData(hapPath, url, curSourceMap)) {
+                HILOG_ERROR("ReadSourceMapData fail");
+            }
+            ExtractSourceMapData(curSourceMap, nonModularMap_);
+            sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key + ".ts");
         }
         if (sourceInfo.empty()) {
             break;
@@ -161,7 +180,6 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
         }
         return ExtractSourceMapData(sourceMapData, nonModularMap_);
     }
-
     size_t leftBracket = 0;
     size_t rightBracket = 0;
     std::string value;
@@ -206,21 +224,28 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
 {
     std::vector<std::string> sourceKey;
     ExtractKeyInfo(sourceMapData, sourceKey);
-
     std::string mark = "";
+    for (auto sourceKey1 : sourceKey) {
+        HILOG_INFO("rentangyu sourceKey1 %{public}s ", sourceKey1.c_str());
+    }
     for (auto sourceKeyInfo : sourceKey) {
         if (sourceKeyInfo == SOURCES || sourceKeyInfo == NAMES ||
             sourceKeyInfo == MAPPINGS || sourceKeyInfo == FILE ||
             sourceKeyInfo == SOURCE_CONTENT ||  sourceKeyInfo == SOURCE_ROOT) {
             mark = sourceKeyInfo;
+            HILOG_INFO("rentangyu mark %{public}s ", mark.c_str());
         } else if (mark == SOURCES) {
+            HILOG_INFO("rentangyu SOURCES %{public}s ", sourceKeyInfo.c_str());
             curMapData->sources_.push_back(sourceKeyInfo);
         } else if (mark == NAMES) {
+            HILOG_INFO("rentangyu NAMES %{public}s ", sourceKeyInfo.c_str());
             curMapData->names_.push_back(sourceKeyInfo);
         } else if (mark == MAPPINGS) {
+            HILOG_INFO("rentangyu MAPPINGS %{public}s ", sourceKeyInfo.c_str());
             curMapData->mappings_.push_back(sourceKeyInfo);
         } else if (mark == FILE) {
-            curMapData->files_.push_back(sourceKeyInfo);
+            HILOG_INFO("rentangyu FILE %{public}s ", sourceKeyInfo.c_str());
+            curMapData->files_.push_back("entryability/EntryAbility.js");
         } else {
             continue;
         }
@@ -548,6 +573,29 @@ bool SourceMap::ReadSourceMapData(const std::string& hapPath, std::string& conte
         return readSourceMapFunc_(hapPath, content);
     }
     return false;
+}
+
+bool SourceMap::ReadFaSourceMapData(const std::string& hapPath, const std::string& filePath, std::string& content)
+{
+    if (hapPath.empty()) {
+        HILOG_ERROR("hapPath is empty");
+        return false;
+    }
+    bool newCreate = false;
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
+        ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("hap's path: %{public}s, get extractor failed", hapPath.c_str());
+        return false;
+    }
+    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+    size_t len = 0;
+    if (!extractor->ExtractToBufByName(filePath, dataPtr, len)) {
+        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
+        return false;
+    }
+    content = reinterpret_cast<char*>(dataPtr.get());
+    return true;
 }
 }   // namespace JsEnv
 }   // namespace OHOS

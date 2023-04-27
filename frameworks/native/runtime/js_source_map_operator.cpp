@@ -26,9 +26,11 @@ std::string JsSourceMapOperatorImpl::TranslateBySourceMap(const std::string& sta
     }
 
     std::string sourceMapData;
-    JsEnv::SourceMap::ReadSourceMapData(hapPath_, sourceMapData);
-    bindSourceMaps_->Init(isModular_, sourceMapData);
-    return bindSourceMaps_->TranslateBySourceMap(stackStr);
+    if (isModular_) {
+        JsEnv::SourceMap::ReadSourceMapData(hapPath_, sourceMapData);
+        bindSourceMaps_->Init(isModular_, sourceMapData);
+    }
+    return bindSourceMaps_->TranslateBySourceMap(stackStr, hapPath_);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

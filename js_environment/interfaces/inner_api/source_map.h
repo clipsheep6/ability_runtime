@@ -68,13 +68,14 @@ public:
     ~SourceMap() = default;
 
     void Init(bool isModular, const std::string& sourceMap);
-    std::string TranslateBySourceMap(const std::string& stackStr);
+    std::string TranslateBySourceMap(const std::string& stackStr, const std::string& hapPath);
 
     static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
         const std::string& sourceCode, uint32_t& errorPos);
     static ErrorPos GetErrorPos(const std::string& rawStack);
     static void RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc);
     static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
+    static bool ReadFaSourceMapData(const std::string& hapPath, const std::string& filePath, std::string& content);
 
 private:
     void SplitSourceMap(const std::string& sourceMapData);
