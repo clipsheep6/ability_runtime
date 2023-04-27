@@ -45,6 +45,7 @@ ohos_shared_library("js_environment") {
   external_deps = [
     "ets_runtime:libark_jsruntime",
     "napi:ace_napi",
+    "ability_base:extractortool",
   ]
 
   subsystem_name = "ability"
