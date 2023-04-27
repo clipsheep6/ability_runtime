@@ -118,7 +118,7 @@ foundation/ability            #元能力子系统
 
 * 示例
 
-  更多开发指导可参考[**示例文档**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/ability/Readme-CN.md)
+  更多开发指导可参考[**示例文档**](https://gitee.com/openharmony/docs/tree/master/zh-cn/application-dev/application-models/Readme-CN.md)
 
 
 ## **aa命令**

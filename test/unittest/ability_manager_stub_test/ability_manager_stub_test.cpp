@@ -1441,6 +1441,40 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionToFrontInner_001,
 
 /*
  * Feature: AbilityManagerService
+ * Function: MoveMissionsToForegroundInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionsToForegroundInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MoveMissionsToForegroundInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionsToForegroundInner_001, TestSize.Level1)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MoveMissionsToForegroundInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveMissionsToBackgroundInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionsToBackgroundInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MoveMissionsToBackgroundInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionsToBackgroundInner_001, TestSize.Level1)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MoveMissionsToBackgroundInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetMissionIdByTokenInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetMissionIdByTokenInner

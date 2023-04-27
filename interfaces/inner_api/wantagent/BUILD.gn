@@ -20,9 +20,17 @@ group("native_wantagent") {
 
 config("wantagent_innerkits_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "${ability_runtime_innerkits_path}/wantagent/*",
+    "${ability_runtime_napi_path}/inner/*",
+    "${ability_runtime_native_path}/ability/native/*",
+    "${ability_runtime_test_path}/fuzztest/*",
+    "${device_usage_statistics_path}/*",
+    "//base/notification/distributed_notification_service/*",
+  ]
 
   include_dirs = [
-    "//base/notification/eventhandler/interfaces/inner_api",
+    "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",

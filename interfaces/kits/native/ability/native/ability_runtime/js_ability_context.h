@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,7 +55,6 @@ public:
     static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
@@ -79,6 +78,8 @@ private:
 #endif
 
 private:
+    static void ClearFailedCallConnection(
+        const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
     NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
@@ -94,7 +95,6 @@ private:
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRequestDialogService(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
@@ -103,8 +103,6 @@ private:
     static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
     static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
-    static NativeValue* WrapPermissionRequestResult(NativeEngine& engine,
-        const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
     void InheritWindowMode(AAFwk::Want &want);
     static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
     void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,

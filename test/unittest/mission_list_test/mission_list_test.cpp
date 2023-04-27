@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1007,6 +1007,43 @@ HWTEST_F(MissionListTest, mission_list_get_mission_count_by_uid_001, TestSize.Le
     EXPECT_EQ(res1, 0);
     int32_t res2 = missionList->GetMissionCountByUid(1);
     EXPECT_EQ(res2, 1);
+}
+
+/*
+ * Feature: MissionList
+ * Function: GetAbilityRecordsByName
+ * SubFunction: NA
+ * FunctionPoints: MissionList GetAbilityRecordsByName
+ * EnvConditions: NA
+ * CaseDescription: Verify GetAbilityRecordsByName
+ */
+HWTEST_F(MissionListTest, mission_list_get_ability_records_by_name_001, TestSize.Level1)
+{
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    abilityInfo.deviceId = "deviceId1";
+    abilityInfo.bundleName = "bundle";
+    abilityInfo.name = "name";
+    abilityInfo.moduleName = "bundle";
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityRecord->Init();
+    auto mission = std::make_shared<Mission>(1, abilityRecord, "name");
+    auto missionList = std::make_shared<MissionList>();
+    ElementName elementEmpty("", "", "");
+    std::vector<std::shared_ptr<AbilityRecord>> records;
+    missionList->missions_.push_front(mission);
+    missionList->missions_.push_front(nullptr);
+    missionList->GetAbilityRecordsByName(elementEmpty, records);
+    EXPECT_TRUE(records.empty());
+
+    ElementName element1(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
+    missionList->GetAbilityRecordsByName(element1, records);
+    EXPECT_FALSE(records.empty());
+
+    ElementName element2(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name);
+    missionList->GetAbilityRecordsByName(element2, records);
+    EXPECT_FALSE(records.empty());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

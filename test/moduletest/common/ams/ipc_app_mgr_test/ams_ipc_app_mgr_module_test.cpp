@@ -257,10 +257,14 @@ HWTEST_F(AmsIpcAppmgrModuleTest, ExcuteAppmgrIPCInterface_09, TestSize.Level3)
             auto& r1 = result.emplace_back();
             r1.processName_ = testBundleName_1;
             r1.pid_ = testApp1Pid;
+            r1.processType_ = ProcessType::NORMAL;
+            r1.extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 
             auto& r2 = result.emplace_back();
             r2.processName_ = testBundleName_2;
             r2.pid_ = testApp2Pid;
+            r2.processType_ = ProcessType::EXTENSION;
+            r2.extensionType_ = ExtensionAbilityType::INPUTMETHOD;
 
             mockMockAppMgr->Post();
 
@@ -275,7 +279,11 @@ HWTEST_F(AmsIpcAppmgrModuleTest, ExcuteAppmgrIPCInterface_09, TestSize.Level3)
         EXPECT_TRUE(allRunningProcessInfo.size() == 2);
         EXPECT_EQ(allRunningProcessInfo[0].processName_, testBundleName_1);
         EXPECT_EQ(allRunningProcessInfo[0].pid_, testApp1Pid);
+        EXPECT_EQ(allRunningProcessInfo[0].processType_, ProcessType::NORMAL);
+        EXPECT_EQ(allRunningProcessInfo[0].extensionType_, ExtensionAbilityType::UNSPECIFIED);
         EXPECT_EQ(allRunningProcessInfo[1].processName_, testBundleName_2);
         EXPECT_EQ(allRunningProcessInfo[1].pid_, testApp2Pid);
+        EXPECT_EQ(allRunningProcessInfo[1].processType_, ProcessType::EXTENSION);
+        EXPECT_EQ(allRunningProcessInfo[1].extensionType_, ExtensionAbilityType::INPUTMETHOD);
     }
 }

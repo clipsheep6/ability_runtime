@@ -127,6 +127,7 @@ public:
     std::string ConvertErrorCode(int32_t errCode);
     void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
     sptr<NAPIAbilityConnection> FindConnectionLocked(const Want &want, int64_t &id);
+    void RemoveAllCallbacksLocked();
     bool CreateConnectionAndConnectAbilityLocked(
         std::shared_ptr<ConnectionCallback> callback, const Want &want, int64_t &id);
     void RemoveConnectionLocked(const Want &want);

@@ -61,14 +61,14 @@ ohos_shared_library("ability_simulator") {
   cflags = [ "-std=c++17" ]
 
   include_dirs = [
-    "//foundation/ability/ability_runtime/frameworks/native/runtime",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/runtime/include",
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_innerkits_path}/runtime/include",
   ]
 
   sources = [
-    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_console_log.cpp",
-    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_module_searcher.cpp",
-    "//foundation/ability/ability_runtime/frameworks/native/runtime/js_runtime_utils.cpp",
+    "${ability_runtime_native_path}/runtime/js_console_log.cpp",
+    "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+    "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
     "src/js_timer.cpp",
     "src/simulator.cpp",
   ]
@@ -81,15 +81,17 @@ ohos_shared_library("ability_simulator") {
   deps = [
     ":gen_obj_src_js_mock_abc",
     "${ability_runtime_native_path}/runtime:string_utils",
+    "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
+    "${arkui_path}/napi:ace_napi_ark",
+    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
-    "//foundation/ability/ability_runtime/frameworks/simulator/osal:simulator_osal",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/arkui/napi:ace_napi_ark",
   ]
 
-  external_deps = [ "ets_runtime:libark_jsruntime" ]
+  external_deps = [
+    "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
 
   part_name = "simulator"
   subsystem_name = "ability"

@@ -159,6 +159,7 @@ public:
     virtual WMError ResetAspectRatio() {return WMError::WM_OK;}
     virtual WMError SetWindowGravity(WindowGravity gravity, uint32_t percent) {return WMError::WM_OK;}
     virtual KeyboardAnimationConfig GetKeyboardAnimationConfig() {return g_KeyboardAnimationConfig;};
+    virtual void SetNeedDefaultAnimation(bool needDefaultAnimation) {}
 };
 }
 }

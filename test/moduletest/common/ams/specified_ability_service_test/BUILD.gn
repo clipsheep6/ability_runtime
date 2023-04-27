@@ -32,7 +32,7 @@ ohos_moduletest("specified_ability_service_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_bundle_mgr.cpp",
-    "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
+    "${device_manager_path}/test/unittest/mock/parameter.cpp",
   ]
 
   configs = [

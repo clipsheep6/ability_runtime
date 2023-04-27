@@ -31,7 +31,7 @@ public:
 
     void InitTimerModule() override;
 
-    void InitConsoleLogModule() override;
+    void InitConsoleModule(NativeEngine *engine) override;
 
     void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion, bool isBundle) override;
 

@@ -454,7 +454,16 @@ NativeValue *JsApplicationContextUtils::OnGetRunningProcessInformation(NativeEng
             object->SetProperty("isContinuousTask", CreateJsValue(engine, processInfo.isContinuousTask));
             object->SetProperty("isKeepAlive", CreateJsValue(engine, processInfo.isKeepAlive));
             object->SetProperty("isFocused", CreateJsValue(engine, processInfo.isFocused));
-            task.ResolveWithNoError(engine, objValue);
+            NativeValue* arrayValue = engine.CreateArray(1);
+            NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+            if (array == nullptr) {
+                HILOG_ERROR("Initiate array failed.");
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+                    "Initiate array failed."));
+            } else {
+                array->SetElement(0, objValue);
+                task.ResolveWithNoError(engine, arrayValue);
+            }
         } else {
             task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Get process infos failed."));

@@ -40,6 +40,8 @@ void WindowManagerServiceHandlerStub::Init()
     requestFuncMap_[ON_CANCEL_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
     requestFuncMap_[ON_NOTIFY_ANIMATION_ABILITY_DIED] =
         &WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner;
+    requestFuncMap_[ON_MOVE_MISSINONS_TO_FOREGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner;
+    requestFuncMap_[ON_MOVE_MISSIONS_TO_BACKGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner;
 }
 
 int WindowManagerServiceHandlerStub::OnRemoteRequest(
@@ -165,6 +167,29 @@ int WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner(MessageParc
     NotifyAnimationAbilityDied(info);
     return ERR_OK;
 }
+
+int WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::vector<int32_t> missionIds;
+    data.ReadInt32Vector(&missionIds);
+    int32_t topMissionId = data.ReadInt32();
+    auto errCode = MoveMissionsToForeground(missionIds, topMissionId);
+    reply.WriteInt32(errCode);
+    return errCode;
+}
+
+int WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::vector<int32_t> missionIds;
+    std::vector<int32_t> result;
+    data.ReadInt32Vector(&missionIds);
+    auto errCode = MoveMissionsToBackground(missionIds, result);
+    reply.WriteInt32Vector(result);
+    return errCode;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif

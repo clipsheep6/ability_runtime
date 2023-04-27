@@ -31,6 +31,7 @@ bool MissionInfo::ReadFromParcel(Parcel &parcel)
         return false;
     }
     want = *parcelWant;
+    abilityState = parcel.ReadInt32();
     return true;
 }
 
@@ -78,6 +79,9 @@ bool MissionInfo::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    if (!parcel.WriteInt32(abilityState)) {
+        return false;
+    }
     return true;
 }
 

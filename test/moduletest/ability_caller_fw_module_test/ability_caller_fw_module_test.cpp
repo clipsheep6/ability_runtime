@@ -94,7 +94,6 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0100, Function | MediumTe
     AppExecFwk::ElementName element("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    context_->localCallContainer_->OnAbilityConnectDone(element, callRemoteObject, ERR_OK);
     std::vector<std::string> info;
     EXPECT_TRUE(info.size() == 0);
     context_->localCallContainer_->DumpCalls(info);

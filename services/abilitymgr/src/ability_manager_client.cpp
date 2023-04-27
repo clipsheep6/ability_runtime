@@ -744,6 +744,23 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId, const StartO
     return abms->MoveMissionToFront(missionId, startOptions);
 }
 
+ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    HILOG_INFO("MoveMissionsToForeground begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveMissionsToForeground(missionIds, topMissionId);
+}
+
+ErrCode AbilityManagerClient::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    HILOG_INFO("MoveMissionsToBackground begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveMissionsToBackground(missionIds, result);
+}
+
 ErrCode AbilityManagerClient::GetMissionIdByToken(const sptr<IRemoteObject> &token, int32_t &missionId)
 {
     auto abms = GetAbilityManager();

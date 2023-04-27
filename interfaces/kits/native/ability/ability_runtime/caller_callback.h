@@ -22,6 +22,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 constexpr const char* ON_RELEASE = "release";
 constexpr const char* ON_DIED = "died";
+class LocalCallRecord;
 /**
  * @class CallerCallBack
  * CallerCallBack the callback function of caller.
@@ -72,11 +73,22 @@ public:
         return isCallBack_;
     };
 
+    void SetRecord(const std::weak_ptr<LocalCallRecord> &localCallRecord)
+    {
+        localCallRecord_ = localCallRecord;
+    }
+
+    std::shared_ptr<LocalCallRecord> GetRecord()
+    {
+        return localCallRecord_.lock();
+    }
+
 private:
     CallBackClosure callback_ = {};
     OnReleaseClosure onRelease_ = {};
     OnRemoteStateChangedClosure onRemoteStateChanged_ = {};
     bool isCallBack_ = false;
+    std::weak_ptr<LocalCallRecord> localCallRecord_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

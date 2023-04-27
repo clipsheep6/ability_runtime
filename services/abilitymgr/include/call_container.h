@@ -47,6 +47,7 @@ public:
     bool CallRequestDone(const sptr<IRemoteObject> & callStub);
     void Dump(std::vector<std::string> &info) const;
     bool IsNeedToCallRequest() const;
+    bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
 private:
     void RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect);

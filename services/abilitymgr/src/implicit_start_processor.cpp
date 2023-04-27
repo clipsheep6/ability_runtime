@@ -107,8 +107,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             return ret;
         }
         if (dialogAllAppInfos.size() == 0) {
-            Want want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
-            abilityMgr->StartAbility(want);
+            Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
+            abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
@@ -314,13 +314,7 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
 sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
 {
     if (iBundleManager_ == nullptr) {
-        auto bundleObj =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (bundleObj == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-        iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+        iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
 }

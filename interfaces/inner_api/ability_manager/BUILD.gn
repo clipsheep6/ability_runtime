@@ -16,9 +16,16 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("ability_manager_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "${ability_runtime_test_path}/fuzztest/*",
+    "${ability_runtime_test_path}/moduletest/*",
+    "${ability_runtime_test_path}/unittest/*",
+    "${form_fwk_path}/test/fuzztest/*",
+    "//base/account/os_account/tools/test/moduletest/acm/*",
+  ]
   include_dirs = [
     "include/",
-    "//base/notification/eventhandler/interfaces/inner_api",
+    "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
     "${ability_base_kits_path}/uri/include",
     "${ability_base_kits_path}/want/include",

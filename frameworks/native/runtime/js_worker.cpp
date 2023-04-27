@@ -45,16 +45,18 @@ using OHOS::Ace::ContainerScope;
 
 namespace OHOS {
 namespace AbilityRuntime {
-constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
-const std::string BUNDLE_NAME_FLAG = "@bundle:";
-const std::string CACHE_DIRECTORY = "el2";
-#ifdef APP_USE_ARM
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
-#else
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
-#endif
+namespace {    
+    constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
+    const std::string BUNDLE_NAME_FLAG = "@bundle:";
+    const std::string CACHE_DIRECTORY = "el2";
+    #ifdef APP_USE_ARM
+    constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
+    #else
+    constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+    #endif
 
-bool g_debugMode = false;
+    bool g_debugMode = false;
+}
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {

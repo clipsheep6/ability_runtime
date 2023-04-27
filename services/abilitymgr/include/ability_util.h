@@ -49,14 +49,6 @@ const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 // dlp White list
 const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
 
-static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
-static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
-static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
-static constexpr unsigned int CHANGE_CONFIG_LAYOUT = 0x00000002;
-static constexpr unsigned int CHANGE_CONFIG_FONTSIZE = 0x00000004;
-static constexpr unsigned int CHANGE_CONFIG_ORIENTATION = 0x00000008;
-static constexpr unsigned int CHANGE_CONFIG_DENSITY = 0x00000010;
-
 #define CHECK_POINTER_CONTINUE(object)      \
     if (!object) {                          \
         HILOG_ERROR("pointer is nullptr."); \
@@ -182,20 +174,6 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
 }
 
-[[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> GetEcologicalRuleMgr()
-{
-    // should remove when AG SA online
-    int32_t ECOLOGICAL_RULE_SA_ID = 9999;
-    auto remoteObject =
-        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(ECOLOGICAL_RULE_SA_ID);
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s error, failed to get ecological rule manager service.", __func__);
-        return nullptr;
-    }
-
-    return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
-}
-
 [[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> CheckEcologicalRuleMgr()
 {
     // should remove when AG SA online
@@ -231,7 +209,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     targetPkg = targetWant.GetElement().GetBundleName();
     return !callerPkg.empty() && !targetPkg.empty();
 }
-    
+
 [[maybe_unused]] static bool AddAbilityJumpRuleToBms(const std::string &callerPkg, const std::string &targetPkg,
     int32_t userId)
 {
@@ -274,7 +252,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t callerUid)
+[[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
     auto bms = GetBundleManager();
     if (!bms) {
@@ -285,7 +263,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
     bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, targetAppInfo));
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
         return false;
@@ -295,6 +273,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         return true;
     }
 
+    int callerUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {

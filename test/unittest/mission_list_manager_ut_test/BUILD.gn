@@ -54,6 +54,7 @@ ohos_unittest("mission_list_manager_ut_test") {
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

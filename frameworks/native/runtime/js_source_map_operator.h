@@ -32,7 +32,7 @@ public:
 std::string TranslateBySourceMap(const std::string& stackStr) override;
 
 private:
-    std::string hapPath_;
+    const std::string hapPath_;
     bool isModular_ = false;
     std::shared_ptr<JsEnv::SourceMap> bindSourceMaps_ = nullptr;
 };

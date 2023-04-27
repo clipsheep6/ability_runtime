@@ -82,20 +82,6 @@ HWTEST_F(OHOSJsEnvironmentTest, InitTimerModule_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: InitConsoleLogModule_0100
- * @tc.desc: Js environment init console log.
- * @tc.type: FUNC
- * @tc.require: issueI6KODF
- */
-HWTEST_F(OHOSJsEnvironmentTest, InitConsoleLogModule_0100, TestSize.Level0)
-{
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
-    ASSERT_NE(jsEnvImpl, nullptr);
-
-    jsEnvImpl->InitConsoleLogModule();
-}
-
-/**
  * @tc.name: InitWorkerModule_0100
  * @tc.desc: Js environment init worker.
  * @tc.type: FUNC

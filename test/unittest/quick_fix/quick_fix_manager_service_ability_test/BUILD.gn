@@ -19,11 +19,11 @@ ohos_unittest("quick_fix_manager_service_ability_test") {
   module_out_path = "ability_runtime/quick_fix"
 
   include_dirs = [
-    "//foundation/ability/ability_runtime/services/quickfixmgr/include",
+    "${ability_runtime_services_path}/quickfixmgr/include",
     "mock",
   ]
   sources = [
-    "//foundation/ability/ability_runtime/services/quickfixmgr/src/quick_fix_manager_service_ability.cpp",
+    "${ability_runtime_services_path}/quickfixmgr/src/quick_fix_manager_service_ability.cpp",
     "mock/mock_quick_fix_manager_service.cpp",
     "quick_fix_manager_service_ability_test.cpp",
   ]

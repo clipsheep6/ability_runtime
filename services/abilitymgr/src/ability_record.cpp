@@ -329,7 +329,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::FOREGROUNDING;
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
     foregroundingTime_ = AbilityUtil::SystemTimeMillis();
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
@@ -974,6 +974,16 @@ void AbilityRecord::InitColdStartingWindowResource(
         handler->PostTask(delayTask, "release_bg", RELEASE_STARTING_BG_TIMEOUT);
     }
 }
+
+void AbilityRecord::SetCompleteFirstFrameDrawing(const bool flag)
+{
+    isCompleteFirstFrameDrawing_ = flag;
+}
+
+bool AbilityRecord::IsCompleteFirstFrameDrawing() const
+{
+    return isCompleteFirstFrameDrawing_;
+}
 #endif
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
@@ -1002,7 +1012,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::BACKGROUNDING;
+    SetAbilityStateInner(AbilityState::BACKGROUNDING);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1043,9 +1053,15 @@ bool AbilityRecord::IsForeground() const
     return currentState_ == AbilityState::FOREGROUND || currentState_ == AbilityState::FOREGROUNDING;
 }
 
-void AbilityRecord::SetAbilityState(AbilityState state)
+void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+}
+
+void AbilityRecord::SetAbilityState(AbilityState state)
+{
+    SetAbilityStateInner(state);
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE || state == AbilityState::BACKGROUND) {
         SetRestarting(false);
     }
@@ -1181,7 +1197,7 @@ void AbilityRecord::Activate()
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::ACTIVATING;
+    SetAbilityStateInner(AbilityState::ACTIVATING);
     lifecycleDeal_->Activate(want_, lifeCycleStateInfo_);
 
     // update ability state to appMgr service when restart
@@ -1206,7 +1222,7 @@ void AbilityRecord::Inactivate()
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::INACTIVATING;
+    SetAbilityStateInner(AbilityState::INACTIVATING);
     lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1231,7 +1247,7 @@ void AbilityRecord::Terminate(const Closure &task)
     }
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
-    currentState_ = AbilityState::TERMINATING;
+    SetAbilityStateInner(AbilityState::TERMINATING);
     lifecycleDeal_->Terminate(want_, lifeCycleStateInfo_);
 }
 
@@ -1315,13 +1331,13 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
     return result_;
 }
 
-void AbilityRecord::SendResult()
+void AbilityRecord::SendResult(bool isSandboxApp)
 {
     HILOG_INFO("Send result to the caller, ability:%{public}s.", abilityInfo_.name.c_str());
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
-    GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName);
+    GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName, isSandboxApp);
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     // reset result to avoid send result next time
     result_.reset();
@@ -1336,7 +1352,8 @@ void AbilityRecord::SendResultToCallers()
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            callerAbilityRecord->SendResult();
+            bool isSandboxApp = appIndex_ > 0 ? true : false;
+            callerAbilityRecord->SendResult(isSandboxApp);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
             if (callerSystemAbilityRecord != nullptr) {
@@ -1728,7 +1745,7 @@ void AbilityRecord::DumpAbilityState(
     if (callContainer_) {
         callContainer_->Dump(info);
     }
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     dumpInfo = "        isKeepAlive: " + isKeepAlive;
     info.push_back(dumpInfo);
@@ -1768,7 +1785,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
     info.emplace_back("      ability type [SERVICE]");
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
-    
+
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
     info.emplace_back("        isKeepAlive: " + isKeepAlive);
     if (isLauncherRoot_) {
@@ -2192,6 +2209,14 @@ bool AbilityRecord::ReleaseCall(const sptr<IAbilityConnection>& connect)
     return callContainer_->RemoveCallRecord(connect);
 }
 
+bool AbilityRecord::IsExistConnection(const sptr<IAbilityConnection> &connect)
+{
+    HILOG_DEBUG("ability find call record by callback.");
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+
+    return callContainer_->IsExistConnection(connect);
+}
+
 bool AbilityRecord::IsNeedToCallRequest() const
 {
     HILOG_DEBUG("ability release call record by callback.");
@@ -2282,8 +2307,22 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName)
+void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp)
 {
+    // reject sandbox to grant uri permission by start ability
+    if (!callerList_.empty() && callerList_.back()) {
+        auto caller = callerList_.back()->GetCaller();
+        if (caller && caller->appIndex_ > 0) {
+            HILOG_ERROR("Sandbox can not grant UriPermission by start ability.");
+            return;
+        }
+    }
+    // reject sandbox to grant uri permission by terminate self with result
+    if (isSandboxApp) {
+        HILOG_ERROR("Sandbox can not grant uriPermission by terminate self with result.");
+        return;
+    }
+
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
@@ -2326,7 +2365,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
             targetBundleName, autoremove));
-        if (ret) {
+        if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
     }

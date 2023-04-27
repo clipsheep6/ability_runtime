@@ -19,6 +19,7 @@
 #include "js_environment_impl.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "uncaught_exception_callback.h"
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -147,6 +148,18 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
 
     panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
     return true;
+}
+
+void JsEnvironment::InitConsoleModule()
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->InitConsoleModule(engine_);
+    }
 }
 } // namespace JsEnv
 } // namespace OHOS

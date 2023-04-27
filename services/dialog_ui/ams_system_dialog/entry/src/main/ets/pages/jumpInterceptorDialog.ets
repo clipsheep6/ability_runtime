@@ -13,11 +13,15 @@
  * limitations under the License.
  */
 
+interface TipBtn {
+  color:string
+}
+
 @Entry
 @Component
 struct JumpInterceptorDialog {
   @State private deviceType: string = "phone";
-  @State private btn: any = { color: "#FFFFFF" }
+  @State private btn: TipBtn = { color: "#FFFFFF" }
   private TAG = "JumpInterceptorDialog_Page"
 
   aboutToAppear() {

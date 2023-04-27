@@ -40,6 +40,7 @@ struct MissionInfo : public Parcelable {
     std::string label;
     std::string iconPath;
     Want want;
+    int32_t abilityState = -1;
 };
 
 /**

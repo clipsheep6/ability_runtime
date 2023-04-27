@@ -130,11 +130,11 @@ bool CallRecord::SchedulerConnectDone()
     const AppExecFwk::AbilityInfo &abilityInfo = tmpService->GetAbilityInfo();
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
-    connCallback_->OnAbilityConnectDone(element, callRemoteObject_, ERR_OK);
+    connCallback_->OnAbilityConnectDone(element, callRemoteObject_, static_cast<int32_t>(abilityInfo.launchMode));
     state_ = CallState::REQUESTED;
 
-    HILOG_DEBUG("element: %{public}s, result: %{public}d. connectstate:%{public}d.", element.GetURI().c_str(),
-        ERR_OK, state_);
+    HILOG_DEBUG("element: %{public}s, mode: %{public}d. connectstate:%{public}d.", element.GetURI().c_str(),
+        static_cast<int32_t>(abilityInfo.launchMode), state_);
     return true;
 }
 

@@ -35,6 +35,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
+#include "errors.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -43,6 +44,7 @@
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
@@ -2608,6 +2610,45 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
 }
 
+int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToForeground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
+int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToBackground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("request GetMissionIdByToken.");
@@ -3767,13 +3808,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 sptr<AppExecFwk::IBundleMgr> AbilityManagerService::GetBundleManager()
 {
     if (iBundleManager_ == nullptr) {
-        auto bundleObj =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (bundleObj == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-        iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+        iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
 }
@@ -4732,6 +4767,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 return;
             } else {
                 auto bms = GetBundleManager();
+                if (bms == nullptr) {
+                    HILOG_ERROR("bms is nullptr");
+                    return;
+                }
                 AppExecFwk::BundleInfo bundleInfo;
                 auto bundleName = want->GetElement().GetBundleName();
                 int32_t userId = GetUserId();
@@ -5989,11 +6028,10 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-        HILOG_DEBUG("Called ability is common ability and singleton.");
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("Called ability is common ability.");
     } else {
-        HILOG_ERROR("Called ability is not common ability or singleton.");
+        HILOG_ERROR("Called ability is not common ability.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
 

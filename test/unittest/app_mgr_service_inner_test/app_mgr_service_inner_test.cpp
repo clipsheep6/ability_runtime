@@ -1592,6 +1592,8 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManager(nullptr);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
@@ -3225,6 +3227,24 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
     appMgrServiceInner->NotifyUnLoadRepairPatch(bundleName, callback);
 
     HILOG_INFO("NotifyUnLoadRepairPatch_001 end");
+}
+
+/**
+ * @tc.name: SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
+{
+    HILOG_INFO("SetCurrentUserId_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int userId = 0;
+    appMgrServiceInner->SetCurrentUserId(userId);
+    EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
+
+    HILOG_INFO("SetCurrentUserId_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

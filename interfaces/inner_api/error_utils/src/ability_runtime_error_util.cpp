@@ -128,7 +128,11 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_SYSCAP,
         "The specified SystemCapability name was not found." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_START_ABILITY_WAITTING,
-        "The previous ability is starting, wait start later." }
+        "The previous ability is starting, wait start later." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
+        "Invalid URI flag." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+        "Invalid URI type, only support file uri" }
 };
 }
 

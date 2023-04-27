@@ -15,12 +15,15 @@
 
 #include "js_uri_perm_mgr.h"
 
+#include "ability_business_error.h"
 #include "ability_manager_errors.h"
 #include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
+#include "tokenid_kit.h"
 #include "uri.h"
 #include "uri_permission_manager_client.h"
 
@@ -58,12 +61,12 @@ public:
 private:
     NativeValue* OnGrantUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
     {
+        HILOG_DEBUG("Grant Uri Permission start");
         if (info.argc != argCountThree && info.argc != argCountFour) {
             HILOG_ERROR("The number of parameter is invalid.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
-        HILOG_DEBUG("Grant Uri Permission start");
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[0]), uriStr)) {
@@ -85,6 +88,12 @@ private:
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
+        auto selfToken = IPCSkeleton::GetSelfTokenID();
+        if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+            HILOG_ERROR("This application is not system-app, can not use system-api");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return engine.CreateUndefined();
+        }
         AsyncTask::CompleteCallback complete =
         [uriStr, flag, targetBundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
             Uri uri(uriStr);
@@ -94,6 +103,12 @@ private:
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
             } else if (errCode ==  AAFwk::CHECK_PERMISSION_FAILED) {
                 task.Reject(engine, CreateNoPermissionError(engine, "ohos.permission.PROXY_AUTHORIZATION_URI"));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_FLAG){
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
+                "Invalid URI flag."));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE){
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                "Only support file URI."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));
@@ -128,6 +143,12 @@ private:
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
+        auto selfToken = IPCSkeleton::GetSelfTokenID();
+        if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+            HILOG_ERROR("This application is not system-app, can not use system-api");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return engine.CreateUndefined();
+        }
         AsyncTask::CompleteCallback complete =
         [uriStr, bundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
             Uri uri(uriStr);
@@ -138,6 +159,9 @@ private:
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
                 task.Reject(engine, CreateNoPermissionError(engine,
                     "Do not have permission ohos.permission.PROXY_AUTHORIZATION_URI"));
+            } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE) {
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                "Only support file URI."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));

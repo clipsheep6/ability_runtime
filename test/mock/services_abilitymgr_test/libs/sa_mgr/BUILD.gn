@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("sa_mgr_mock_config") {
   include_dirs = [
-    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_innerkits_path}/deps_wrapper/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
   cflags = []

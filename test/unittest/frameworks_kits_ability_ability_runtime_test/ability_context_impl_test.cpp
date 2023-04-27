@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -117,7 +117,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
-    context_->localCallContainer_ = new (std::nothrow)LocalCallContainer();
+    context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     EXPECT_NE(context_->localCallContainer_, nullptr);
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
@@ -131,16 +131,19 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100beagin==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100 beagin==============.";
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject>&) {});
+    std::shared_ptr<CallerCallBack> callbackSec = std::make_shared<CallerCallBack>();
+    callbackSec->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
     localCallRecord->AddCaller(callback);
+    localCallRecord->AddCaller(callbackSec);
 
-    context_->localCallContainer_ = new (std::nothrow) LocalCallContainer();
+    context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     EXPECT_NE(context_->localCallContainer_, nullptr);
 
     std::string uri = elementName.GetURI();
@@ -148,7 +151,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function
 
     ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_OK);
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100end==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100 end==============.";
 }
 
 /**
@@ -1002,6 +1005,19 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_CreateModuleContext_0400, 
     std::string bundleName = "com.test.bundleName";
     auto ret = context_->CreateModuleContext(bundleName, moduleName);
     EXPECT_EQ(ret, nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_ClearFailedCallConnection_0100
+ * @tc.name: ClearFailedCallConnection
+ * @tc.desc: clear failed call connection execute normally
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ClearFailedCallConnection_0100, Function | MediumTest | Level1)
+{
+    context_->ClearFailedCallConnection(nullptr);
+    context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
+    context_->ClearFailedCallConnection(nullptr);
+    EXPECT_NE(context_->localCallContainer_, nullptr);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

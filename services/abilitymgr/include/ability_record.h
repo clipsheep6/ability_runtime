@@ -457,6 +457,9 @@ public:
 
     void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag = 0);
     void NotifyAnimationFromTerminatingAbility() const;
+
+    void SetCompleteFirstFrameDrawing(const bool flag);
+    bool IsCompleteFirstFrameDrawing() const;
 #endif
 
     /**
@@ -595,8 +598,7 @@ public:
      * send result object to caller ability thread.
      *
      */
-    void SendResult();
-
+    void SendResult(bool isSandboxApp = false);
     /**
      * send result object to caller ability.
      *
@@ -845,6 +847,7 @@ public:
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RevokeUriPermission();
     void RemoveAbilityDeathRecipient() const;
+    bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
@@ -861,7 +864,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName);
+    void GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp = false);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall();
     int32_t GetCurrentAccountId() const;
@@ -920,6 +923,7 @@ private:
         const AbilityRequest &abilityRequest);
     void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
     void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
+    void SetAbilityStateInner(AbilityState state);
 #endif
 
     static int64_t abilityRecordId;
@@ -1006,6 +1010,8 @@ private:
     bool isStartingWindow_ = false;
     uint32_t bgColor_ = 0;
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
+
+    bool isCompleteFirstFrameDrawing_ = false;
 #endif
 
     bool isGrantedUriPermission_ = false;

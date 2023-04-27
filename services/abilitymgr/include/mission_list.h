@@ -172,6 +172,16 @@ public:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
 
     /**
+     * @brief Get the Ability Records By elementName
+     *
+     * @param element conditions for search
+     * @param records out of parameter, list of returned records
+     * @return void
+     */
+    void GetAbilityRecordsByName(
+        const AppExecFwk::ElementName &element, std::vector<std::shared_ptr<AbilityRecord>> &records);
+
+    /**
      * Get ability token by target mission id.
      *
      * @param missionId target missionId.

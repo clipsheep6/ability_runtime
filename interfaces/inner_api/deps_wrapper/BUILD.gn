@@ -31,7 +31,10 @@ config("ability_deps_wrapper_config") {
 }
 
 ohos_shared_library("ability_deps_wrapper") {
-  sources = [ "src/os_account_manager_wrapper.cpp" ]
+  sources = [
+    "src/os_account_manager_wrapper.cpp",
+    "src/sa_mgr_client.cpp",
+  ]
 
   public_configs = [ ":ability_deps_wrapper_config" ]
 
@@ -40,6 +43,7 @@ ohos_shared_library("ability_deps_wrapper") {
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "samgr:samgr_proxy",
   ]
 
   if (os_account_part_enabled) {
