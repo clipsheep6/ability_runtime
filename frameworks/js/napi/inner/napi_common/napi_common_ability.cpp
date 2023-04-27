@@ -94,6 +94,37 @@ const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
 };
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
+static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, KeyCompare> g_connects;
+static std::recursive_mutex g_connectionsLock;
+static int64_t g_serialNumber = 0;
+
+class ConnectionManager
+{
+public:
+    ConnectionManager(std::map<ConnectionKey, sptr<NAPIAbilityConnection>, KeyCompare> &connects, 
+        std::recursive_mutex &connectionsLock) : connects_(connects), connectionsLock_(connectionsLock)
+    {}
+    void RemoveConnection(std::string deviceId, std::string bundleName, std::string abilityName)
+    {
+        HILOG_INFO("RemoveConnection connects_.size:%{public}zu", connects_.size());
+        std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+        auto item = std::find_if(connects_.begin(), connects_.end(),
+            [deviceId, bundleName, abilityName](const auto &obj) {
+                return (deviceId == obj.first.want.GetDeviceId()) &&
+                       (bundleName == obj.first.want.GetBundle()) &&
+                       (abilityName == obj.first.want.GetElement().GetAbilityName());
+            });
+        if (item != connects_.end()) {
+            // match deviceid & bundlename && abilityname
+            connects_.erase(item);
+            HILOG_INFO("RemoveConnection erase connects_.size:%{public}zu", connects_.size());
+        }
+    }
+private:
+    std::map<ConnectionKey, sptr<NAPIAbilityConnection>, KeyCompare> &connects_;
+    std::recursive_mutex &connectionsLock_;
+};
+std::unique_ptr<ConnectionManager> g_connectionManager;
 
 napi_status SetGlobalClassContext(napi_env env, napi_value constructor)
 {
@@ -3510,6 +3541,24 @@ size_t NAPIAbilityConnection::GetCallbackSize()
     return callbacks_.size();
 }
 
+size_t NAPIAbilityConnection::ReomveAllCallbacks(ConnectRemoveKeyType key)
+{
+    HILOG_DEBUG("ReomveAllCallbacks begin");
+    size_t result = 0;
+    std::lock_guard<std::mutex> guard(lock_);
+    for (auto it = callbacks_.begin(); it != callbacks_.end();) {
+        auto callback = *it;
+        if (callback && callback->removeKey == key) {
+            it = callbacks_.erase(it);
+            result++;
+        } else {
+            ++it;
+        }
+    }
+    HILOG_DEBUG("ReomveAllCallbacks removed size:%{public}zu, left size:%{public}zu", result, callbacks_.size());
+    return result;
+}
+
 void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
 {
     HILOG_INFO("UvWorkOnAbilityConnectDone, uv_queue_work");
@@ -3666,22 +3715,10 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
     napi_close_handle_scope(cbInfo.env, scope);
 
     // release connect
-    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
-    HILOG_INFO("UvWorkOnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
-    std::string deviceId = connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID();
-    std::string bundleName = connectAbilityCB->abilityConnectionCB.elementName.GetBundleName();
-    std::string abilityName = connectAbilityCB->abilityConnectionCB.elementName.GetAbilityName();
-    auto item = std::find_if(connects_.begin(), connects_.end(),
-        [deviceId, bundleName, abilityName](const std::map<ConnectionKey,
-            sptr<NAPIAbilityConnection>>::value_type &obj) {
-            return (deviceId == obj.first.want.GetDeviceId()) &&
-                   (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName());
-        });
-    if (item != connects_.end()) {
-        // match deviceid & bundlename && abilityname
-        connects_.erase(item);
-        HILOG_INFO("UvWorkOnAbilityDisconnectDone erase connects_.size:%{public}zu", connects_.size());
+    if (g_connectionManager) {
+        g_connectionManager->RemoveConnection(connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID(),
+                                              connectAbilityCB->abilityConnectionCB.elementName.GetBundleName(),
+                                              connectAbilityCB->abilityConnectionCB.elementName.GetAbilityName());
     }
     HILOG_INFO("UvWorkOnAbilityDisconnectDone, uv_queue_work end");
 }
@@ -4345,8 +4382,13 @@ napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info)
     return ret;
 }
 
-JsNapiCommon::JsNapiCommon() : ability_(nullptr)
-{}
+JsNapiCommon::JsNapiCommon() : ability_(nullptr), connects_(g_connects),
+    connectionsLock_(g_connectionsLock), serialNumber_(g_serialNumber)
+{
+    if (!g_connectionManager) {
+        g_connectionManager = std::make_unique<ConnectionManager>(connects_, connectionsLock_);
+    }
+}
 
 NativeValue* JsNapiCommon::JsConnectAbility(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
@@ -4356,7 +4398,10 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
-    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
+    if (!g_connectionManager) {
+        g_connectionManager = std::make_unique<ConnectionManager>(connects_, connectionsLock_);
+    }
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto env = reinterpret_cast<napi_env>(&engine);
     auto firstParam = reinterpret_cast<napi_value>(info.argv[PARAM0]);
     auto secondParam = reinterpret_cast<napi_value>(info.argv[PARAM1]);
@@ -4366,7 +4411,7 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         return engine.CreateUndefined();
     }
 
-    auto connectionCallback = std::make_shared<ConnectionCallback>(env, secondParam);
+    auto connectionCallback = std::make_shared<ConnectionCallback>(env, secondParam, this);
     bool result = false;
     int32_t errorVal = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
     int64_t id = 0;
@@ -4436,7 +4481,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
-    std::lock_guard<std::recursive_mutex> lock(g_connectionsLock_);
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     int64_t id = 0;
     sptr<NAPIAbilityConnection> abilityConnection = nullptr;
@@ -4535,6 +4580,27 @@ sptr<NAPIAbilityConnection> JsNapiCommon::FindConnectionLocked(const Want &want,
         return connection;
     }
     return nullptr;
+}
+
+void JsNapiCommon::RemoveAllCallbacksLocked()
+{
+    HILOG_DEBUG("RemoveAllCallbacksLocked initial size:%{public}zu", connects_.size());
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    for (auto it = connects_.begin(); it != connects_.end();) {
+        auto connection = it->second;
+        if (!connection) {
+            HILOG_ERROR("connection is nullptr");
+            it = connects_.erase(it);
+            continue;
+        }
+        connection->ReomveAllCallbacks(this);
+        if (connection->GetCallbackSize() == 0) {
+            it = connects_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    HILOG_DEBUG("RemoveAllCallbacksLocked end size:%{public}zu", connects_.size());
 }
 
 void JsNapiCommon::RemoveConnectionLocked(const Want &want)
