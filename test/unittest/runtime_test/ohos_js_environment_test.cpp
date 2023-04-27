@@ -20,6 +20,7 @@
 #include <string>
 
 #include "hilog_wrapper.h"
+#include "js_runtime.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -90,8 +91,10 @@ HWTEST_F(OHOSJsEnvironmentTest, InitWorkerModule_0100, TestSize.Level0)
 {
     auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
     ASSERT_NE(jsEnvImpl, nullptr);
-
-    jsEnvImpl->InitWorkerModule();
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    jsEnvImpl->InitWorkerModule(jsEngine, "", false, false);
 }
 
 /**

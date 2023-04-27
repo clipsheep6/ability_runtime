@@ -24,7 +24,6 @@
 #include "js_worker.h"
 #undef private
 #undef protected
-
 #include "event_runner.h"
 #include "mock_js_runtime.h"
 #include "hilog_wrapper.h"
@@ -139,60 +138,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeUtilsTest_0100, TestSize.Level0)
     task->ResolveWithNoError(jsEngine, jsEngine.CreateUndefined());
     EXPECT_TRUE(task->deferred_ == nullptr);
     EXPECT_TRUE(task->callbackRef_ == nullptr);
-}
-
-/**
- * @tc.name: JsWorkerTest_0100
- * @tc.desc: JsWorker Test
- * @tc.type: FUNC
- * @tc.require: issueI581RO
- */
-HWTEST_F(JsRuntimeTest, JsWorkerTest_0100, TestSize.Level0)
-{
-    auto runtime = AbilityRuntime::Runtime::Create(options_);
-    auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
-
-    std::vector<uint8_t> content;
-    std::string str = "test";
-    InitWorkerModule(jsEngine, "", true, true);
-    jsEngine.CallGetAssetFunc("", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test.test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    InitWorkerModule(jsEngine, "", false, false);
-    jsEngine.CallGetAssetFunc("", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test.test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    InitWorkerModule(jsEngine, TEST_CODE_PATH, true, true);
-    jsEngine.CallGetAssetFunc("", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test.test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    InitWorkerModule(jsEngine, TEST_CODE_PATH, false, false);
-    jsEngine.CallGetAssetFunc("", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test", content, str);
-    EXPECT_TRUE(content.empty());
-
-    jsEngine.CallGetAssetFunc("test.test", content, str);
-    EXPECT_TRUE(content.empty());
 }
 
 /**

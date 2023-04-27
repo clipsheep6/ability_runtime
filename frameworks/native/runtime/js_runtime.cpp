@@ -522,8 +522,9 @@ bool JsRuntime::Initialize(const Options& options)
             } else {
                 InitTimerModule(*nativeEngine, *globalObj);
             }
-
-            InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
+            if (jsEnv_) {
+                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
+            }
         }
     }
 
