@@ -150,5 +150,27 @@ HWTEST_F(JsEnvironmentTest, LoadScript_0300, TestSize.Level0)
 
     EXPECT_EQ(jsEnv->LoadScript("/system/etc/strip.native.min.abc"), true);
 }
+
+/**
+ * @tc.name: JsEnvInitTimerModule_0100
+ * @tc.desc: Initialize timer module.
+ * @tc.type: FUNC
+ * @tc.require: issueI6Z5M5
+ */
+HWTEST_F(JsEnvironmentTest, JsEnvInitTimerModule_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    // Init timer module when native engine is invalid.
+    jsEnv->InitTimerModule();
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    // Init timer module when native engine has created.
+    jsEnv->InitTimerModule();
+}
 }  // namespace JsEnv
 }  // namespace OHOS

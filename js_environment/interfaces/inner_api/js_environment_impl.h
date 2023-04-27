@@ -19,6 +19,8 @@
 #include <string>
 #include "native_engine/impl/ark/ark_native_engine.h"
 
+#include "native_engine/native_engine.h"
+
 namespace OHOS {
 namespace JsEnv {
 class JsEnvironmentImpl {
@@ -30,7 +32,7 @@ public:
 
     virtual void RemoveTask(const std::string& name) = 0;
 
-    virtual void InitTimerModule() = 0;
+    virtual void InitTimerModule(NativeEngine* engine) = 0;
 
     virtual void InitConsoleModule(NativeEngine *engine) = 0;
 

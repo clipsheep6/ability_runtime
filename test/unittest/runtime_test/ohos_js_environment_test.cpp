@@ -20,6 +20,7 @@
 #include <string>
 
 #include "hilog_wrapper.h"
+#include "js_runtime.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -70,14 +71,22 @@ HWTEST_F(OHOSJsEnvironmentTest, PostTask_0100, TestSize.Level0)
  * @tc.name: InitTimerModule_0100
  * @tc.desc: Js environment init timer.
  * @tc.type: FUNC
- * @tc.require: issueI6KODF
+ * @tc.require: issueI6Z5M5
  */
 HWTEST_F(OHOSJsEnvironmentTest, InitTimerModule_0100, TestSize.Level0)
 {
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
+    auto jsEnvImpl = std::make_unique<OHOSJsEnvironmentImpl>();
     ASSERT_NE(jsEnvImpl, nullptr);
 
-    jsEnvImpl->InitTimerModule();
+    // Init timer module when native engine is invalid.
+    jsEnvImpl->InitTimerModule(nullptr);
+
+    AbilityRuntime::Runtime::Options options;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    // Init timer module when native engine has created.
+    jsEnvImpl->InitTimerModule(jsRuntime->GetNativeEnginePointer());
 }
 
 /**

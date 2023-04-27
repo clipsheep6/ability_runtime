@@ -16,6 +16,9 @@
 #include "ohos_js_environment_impl.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
+#include "js_timer.h"
+#include "js_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -39,9 +42,16 @@ void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
     HILOG_DEBUG("called");
 }
 
-void OHOSJsEnvironmentImpl::InitTimerModule()
+void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("Init timer.");
+    CHECK_POINTER(engine);
+
+    HandleScope handleScope(*engine);
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    CHECK_POINTER(globalObj);
+
+    InitTimer(*engine, *globalObj);
 }
 
 void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)

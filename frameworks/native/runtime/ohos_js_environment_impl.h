@@ -29,7 +29,7 @@ public:
 
     void RemoveTask(const std::string& name) override;
 
-    void InitTimerModule() override;
+    void InitTimerModule(NativeEngine* engine) override;
 
     void InitConsoleModule(NativeEngine *engine) override;
 

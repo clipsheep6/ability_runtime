@@ -142,6 +142,7 @@ private:
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
+    void InitTimerModule();
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
