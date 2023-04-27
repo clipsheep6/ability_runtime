@@ -24,6 +24,7 @@ arkui_path = "//foundation/arkui"
 
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
+c_utils_base_path = "//commonlibrary/c_utils/base"
 
 multimedia_path = "//foundation/multimedia/image_framework"
 multimodalinput_path = "//foundation/multimodalinput/input"

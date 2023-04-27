@@ -23,7 +23,7 @@ ohos_unittest("want_agent_test") {
 
   sources = [ "want_agent_test.cpp" ]
 
-  configs = [ "//commonlibrary/c_utils/base:utils_config" ]
+  configs = [ "${c_utils_base_path}:utils_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
