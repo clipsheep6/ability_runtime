@@ -1805,12 +1805,14 @@ void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityReco
         mission->SetNotifyLabel(false);
 
         if (mission->NeedNotifyUpdateLabel()) {
+#ifdef SUPPORT_GRAPHICS
             PostMissionLabelUpdateTask(missionId);
+#endif
             mission->SetNeedNotifyUpdateLabel(false);
         }
     }
 }
-
+#ifdef SUPPORT_GRAPHICS
 void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -1830,7 +1832,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
     };
     handler->PostTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
-
+#endif
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
 {
     if (ability == nullptr) {

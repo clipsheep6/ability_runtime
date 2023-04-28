@@ -2617,6 +2617,7 @@ int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+#ifdef SUPPORT_GRAPHICS
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
         if (ret) {
@@ -2626,6 +2627,7 @@ int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& 
             return NO_ERROR;
         }
     }
+#endif
     return ERR_NO_INIT;
 }
 
@@ -2637,6 +2639,7 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+#ifdef SUPPORT_GRAPHICS
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
         if (ret) {
@@ -2646,6 +2649,7 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
             return NO_ERROR;
         }
     }
+#endif    
     return ERR_NO_INIT;
 }
 

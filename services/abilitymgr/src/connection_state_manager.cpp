@@ -23,6 +23,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "nowhere.h"
 
 namespace OHOS {
 namespace AAFwk {

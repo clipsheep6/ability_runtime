@@ -22,6 +22,7 @@
 class NativeReference;
 class NativeValue;
 class NativeObject;
+struct NativeCallbackInfo;
 
 namespace OHOS {
 namespace AbilityRuntime {

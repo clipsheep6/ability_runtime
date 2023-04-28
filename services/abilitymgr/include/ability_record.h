@@ -924,8 +924,9 @@ private:
         const AbilityRequest &abilityRequest);
     void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
     void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
-    void SetAbilityStateInner(AbilityState state);
+    
 #endif
+    void SetAbilityStateInner(AbilityState state);
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id

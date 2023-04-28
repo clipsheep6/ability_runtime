@@ -39,8 +39,8 @@
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "locale_config.h"
-#include "mission_info_mgr.h"
 #endif
+#include "mission_info_mgr.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif // EFFICIENCY_MANAGER_ENABLE
