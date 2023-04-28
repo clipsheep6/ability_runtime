@@ -46,7 +46,7 @@ ohos_unittest("continuation_device_callback_proxy_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native:continuation_ipc",
+    "${ability_runtime_native_path}/ability/native:continuation_ipc",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

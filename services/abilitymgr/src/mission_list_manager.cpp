@@ -522,11 +522,11 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     }
 
     if (targetMission == nullptr) {
-    	if (CheckLimit()) {
+        if (CheckLimit()) {
             isReachToLimit = true;
             HILOG_ERROR("already reach to limit, not create new mission and ability.");
        	    return;
-    	}
+        }
         HILOG_DEBUG("Make new mission data.");
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (targetRecord == nullptr) {
@@ -1381,11 +1381,11 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Terminate ability locked, ability is %{public}s.", element.c_str());
-    // remove AbilityRecord out of stack
+    // remove AbilityRecord out of list
     RemoveTerminatingAbility(abilityRecord, flag);
     abilityRecord->SendResultToCallers();
 
-    // 1. if the ability was foreground, first should find wether there is other ability foreground
+    // 1. if the ability was foreground, first should find whether there is other ability foreground
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
@@ -2800,7 +2800,11 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     // mission is first created, add mission to default call mission list.
     // other keep in current mission list.
     if (!targetMission->GetMissionList()) {
-        defaultSingleList_->AddMissionToTop(targetMission);
+        if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
+            defaultSingleList_->AddMissionToTop(targetMission);
+        } else {
+            defaultStandardList_->AddMissionToTop(targetMission);
+        }
     }
 
     NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
@@ -2844,7 +2848,16 @@ int MissionListManager::ReleaseCallLocked(
 
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordByName(element);
+    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto isExist = [connect] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
+        return abilityRecord->IsExistConnection(connect);
+    };
+    auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
+    if (findRecord == abilityRecords.end()) {
+        HILOG_ERROR("not found ability record by callback");
+        return RELEASE_CALL_ABILITY_INNER_ERR;
+    }
+    auto abilityRecord = *findRecord;
     CHECK_POINTER_AND_RETURN(abilityRecord, RELEASE_CALL_ABILITY_INNER_ERR);
 
     if (!abilityRecord->ReleaseCall(connect)) {
@@ -2901,6 +2914,38 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByName(const 
     return defaultSingleList_->GetAbilityRecordByName(element);
 }
 
+std::vector<std::shared_ptr<AbilityRecord>> MissionListManager::GetAbilityRecordsByName(
+    const AppExecFwk::ElementName &element)
+{
+    std::vector<std::shared_ptr<AbilityRecord>> records;
+    for (auto missionList : currentMissionLists_) {
+        if (missionList != nullptr) {
+            missionList->GetAbilityRecordsByName(element, records);
+        }
+    }
+
+    // find in launcherMissionList_
+    if (launcherList_ != nullptr) {
+        launcherList_->GetAbilityRecordsByName(element, records);
+    }
+
+    // find in defaultStandardList_
+    if (defaultStandardList_ != nullptr) {
+        defaultStandardList_->GetAbilityRecordsByName(element, records);
+    }
+
+    if (!records.empty()) {
+        return records;
+    }
+
+    // find in default singlelist_
+    if (defaultSingleList_ != nullptr) {
+        defaultSingleList_->GetAbilityRecordsByName(element, records);
+    }
+    HILOG_DEBUG("records is %{public}s.", records.empty() ? "empty" : "not empty");
+    return records;
+}
+
 void MissionListManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord)
 {
     HILOG_INFO("On callConnect died.");
@@ -2908,7 +2953,16 @@ void MissionListManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &ca
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
     AppExecFwk::ElementName element = callRecord->GetTargetServiceName();
-    auto abilityRecord = GetAbilityRecordByName(element);
+    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto isExist = [callRecord] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
+        return abilityRecord->IsExistConnection(callRecord->GetConCallBack());
+    };
+    auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
+    if (findRecord == abilityRecords.end()) {
+        HILOG_ERROR("not found ability record by callback");
+        return;
+    }
+    auto abilityRecord = *findRecord;
     CHECK_POINTER(abilityRecord);
     abilityRecord->ReleaseCall(callRecord->GetConCallBack());
 }
@@ -3049,11 +3103,11 @@ bool MissionListManager::CheckLimit()
         auto earliestMission = FindEarliestMission();
         if (earliestMission) {
             if (TerminateAbility(earliestMission->GetAbilityRecord(), DEFAULT_INVAL_VALUE, nullptr, true) != ERR_OK) {
-                HILOG_ERROR("already reach limit instance. limit is : %{public}d, and terminate earliestAbility fail.",
+                HILOG_ERROR("already reach limit instance. limit: %{public}d, and terminate earliestAbility failed.",
                     MAX_INSTANCE_COUNT);
                 return true;
             }
-            HILOG_INFO("already reach limit instance. limit is : %{public}d, and terminate earliestAbility success.",
+            HILOG_INFO("already reach limit instance. limit: %{public}d, and terminate earliestAbility success.",
                 MAX_INSTANCE_COUNT);
         }
     }

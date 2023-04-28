@@ -99,6 +99,7 @@ public:
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
     bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
+    void InitConsoleModule();
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
@@ -142,6 +143,7 @@ private:
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
+    void InitTimerModule();
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

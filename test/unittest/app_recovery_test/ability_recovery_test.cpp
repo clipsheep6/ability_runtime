@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #undef private
 #include "ability.h"
 #include "ability_info.h"
+#include "app_recovery_parcel_allocator.h"
 #include "event_handler.h"
 #include "int_wrapper.h"
 #include "mock_ability.h"
@@ -535,6 +536,20 @@ HWTEST_F(AbilityRecoveryUnitTest, IsSameAbility_002, TestSize.Level1)
     uintptr_t jsAbility = reinterpret_cast<uintptr_t>(mockAbility_.get());
     abilityRecovery_->SetJsAbility(jsAbility);
     EXPECT_TRUE(abilityRecovery_->IsSameAbility(jsAbility));
+}
+
+/**
+ * @tc.name:  Test AppRecoveryAllocator
+ * @tc.desc:  Test AppRecoveryAllocator
+ * @tc.type: Bugfix
+ * @tc.require: I6ZDY2
+ */
+HWTEST_F(AbilityRecoveryUnitTest, TestAppRecoveryAllocator_001, TestSize.Level1)
+{
+    AppRecoveryParcelAllocator allocator;
+    allocator.Dealloc(nullptr);
+    EXPECT_EQ(allocator.Alloc(0), nullptr);
+    EXPECT_EQ(allocator.Realloc(nullptr, 0), nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

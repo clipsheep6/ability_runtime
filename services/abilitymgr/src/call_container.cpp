@@ -199,5 +199,10 @@ void CallContainer::RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &
         return;
     }
 }
+
+bool CallContainer::IsExistConnection(const sptr<IAbilityConnection> &connect)
+{
+    return callRecordMap_.find(connect->AsObject()) != callRecordMap_.end();
+}
 }  // namespace AAFwk
 }  // namesspace OHOS

@@ -12,11 +12,12 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_executable("ability_simulator_test") {
   sources = [ "src/main.cpp" ]
 
-  deps = [ "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator:ability_simulator" ]
+  deps = [ "${ability_runtime_path}/frameworks/simulator/ability_simulator:ability_simulator" ]
 
   part_name = "simulator"
   subsystem_name = "ability"

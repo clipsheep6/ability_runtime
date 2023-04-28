@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -123,7 +123,7 @@ public:
      *
      * @return Returns the LocalCallContainer.
      */
-    sptr<LocalCallContainer> GetLocalCallContainer() override
+    std::shared_ptr<LocalCallContainer> GetLocalCallContainer() override
     {
         return localCallContainer_;
     }
@@ -150,6 +150,15 @@ public:
      * @return Returns zero on success, others on failure.
      */
     ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) override;
+
+    /**
+     * clear failed call connection by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return void.
+     */
+    void ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback) override;
 
     /**
      * register ability callback
@@ -204,7 +213,7 @@ private:
     std::map<int, RuntimeTask> resultCallbacks_;
     std::unique_ptr<NativeReference> contentStorage_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
-    sptr<LocalCallContainer> localCallContainer_ = nullptr;
+    std::shared_ptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
     int32_t missionId_ = -1;

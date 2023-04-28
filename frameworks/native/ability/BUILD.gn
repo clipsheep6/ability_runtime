@@ -17,11 +17,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("ability_context_public_config") {
   visibility = [ ":*" ]
   visibility += [
+    "${ability_runtime_native_path}/ability/*",
+    "${ability_runtime_test_path}/fuzztest/connectability_fuzzer/*",
+    "${ability_runtime_test_path}/fuzztest/disconnectability_fuzzer/*",
+    "${user_file_service_innerkits_path}/file_access/*",
     "//base/print/print_fwk/frameworks/kits/extension/*",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/*",
-    "//foundation/ability/ability_runtime/test/fuzztest/connectability_fuzzer/*",
-    "//foundation/ability/ability_runtime/test/fuzztest/disconnectability_fuzzer/*",
-    "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access/*",
   ]
   include_dirs = [
     "${ability_base_kits_path}/extractortool/include",

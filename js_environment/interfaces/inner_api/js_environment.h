@@ -52,7 +52,7 @@ public:
 
     void InitConsoleLogModule();
 
-    void InitWorkerModule();
+    void InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle);
 
     void InitSourceMap(const std::shared_ptr<SourceMapOperatorImpl> operatorImpl);
 
@@ -67,7 +67,10 @@ public:
 
     bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
+
     bool StartCPUProfiler();
+
+    void InitConsoleModule();
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

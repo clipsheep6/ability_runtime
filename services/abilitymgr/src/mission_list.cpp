@@ -263,6 +263,24 @@ std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByName(const AppExec
     return nullptr;
 }
 
+void MissionList::GetAbilityRecordsByName(
+    const AppExecFwk::ElementName &element, std::vector<std::shared_ptr<AbilityRecord>> &records)
+{
+    for (auto mission : missions_) {
+        if (mission && mission->GetAbilityRecord() != nullptr) {
+            const AppExecFwk::AbilityInfo &abilityInfo = mission->GetAbilityRecord()->GetAbilityInfo();
+            AppExecFwk::ElementName localElement(abilityInfo.deviceId, abilityInfo.bundleName,
+                abilityInfo.name, abilityInfo.moduleName);
+            AppExecFwk::ElementName localElementNoModuleName(abilityInfo.deviceId,
+                abilityInfo.bundleName, abilityInfo.name);
+            if (localElement == element || localElementNoModuleName == element) {
+                HILOG_DEBUG("find element %{public}s", localElement.GetURI().c_str());
+                records.push_back(mission->GetAbilityRecord());
+            }
+        }
+    }
+}
+
 sptr<IRemoteObject> MissionList::GetAbilityTokenByMissionId(int32_t missionId)
 {
     for (auto mission : missions_) {

@@ -17,6 +17,9 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 
 #include <string>
+#include "native_engine/native_engine.h"
+
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -29,11 +32,12 @@ public:
 
     virtual void RemoveTask(const std::string& name) = 0;
 
-    virtual void InitTimerModule() = 0;
+    virtual void InitTimerModule(NativeEngine* engine) = 0;
 
-    virtual void InitConsoleLogModule() = 0;
+    virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
-    virtual void InitWorkerModule() = 0;
+    virtual void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
+        bool isBundle) = 0;
 
     virtual void InitSyscapModule() = 0;
 };

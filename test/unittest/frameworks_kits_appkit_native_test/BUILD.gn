@@ -87,8 +87,7 @@ ohos_unittest("context_deal_interface_test") {
 ohos_unittest("application_test") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "//base/global/resource_management/frameworks/resmgr/include" ]
+  include_dirs = [ "${resource_management_path}/frameworks/resmgr/include" ]
 
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
@@ -127,6 +126,7 @@ ohos_unittest("application_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "resource_management:global_resmgr",
   ]
 }
 
@@ -208,6 +208,7 @@ ohos_unittest("context_deal_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "resource_management:global_resmgr",
   ]
 }
 
@@ -257,7 +258,7 @@ config("ability_start_setting_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "//commonlibrary/c_utils/base/include",
+    "${c_utils_base_path}/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
   ]
 }
@@ -391,6 +392,7 @@ ohos_unittest("ability_stage_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "resource_management:global_resmgr",
   ]
 }
 

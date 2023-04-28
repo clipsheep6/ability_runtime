@@ -1592,6 +1592,8 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManager(nullptr);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);

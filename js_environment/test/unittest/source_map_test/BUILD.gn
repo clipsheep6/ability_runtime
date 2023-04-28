@@ -28,8 +28,8 @@ ohos_unittest("source_map_test") {
   ]
 
   external_deps = [
-    "ability_runtime:js_environment",
     "ability_base:want",
+    "ability_runtime:js_environment",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",

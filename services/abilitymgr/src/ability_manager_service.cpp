@@ -3808,13 +3808,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 sptr<AppExecFwk::IBundleMgr> AbilityManagerService::GetBundleManager()
 {
     if (iBundleManager_ == nullptr) {
-        auto bundleObj =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (bundleObj == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-        iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+        iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
 }
@@ -6034,11 +6028,10 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-        HILOG_DEBUG("Called ability is common ability and singleton.");
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("Called ability is common ability.");
     } else {
-        HILOG_ERROR("Called ability is not common ability or singleton.");
+        HILOG_ERROR("Called ability is not common ability.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
 

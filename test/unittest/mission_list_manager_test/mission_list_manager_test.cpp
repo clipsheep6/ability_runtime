@@ -4002,15 +4002,15 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_007, TestSize.Level1)
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord);
+    int missionId = 1;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(missionId, abilityRecord);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>(MissionListType::DEFAULT_STANDARD);
     mission->SetMissionList(missionList);
     missionList->missions_.push_back(mission);
     missionListManager->currentMissionLists_.push_back(missionList);
-    int missionId = 1;
     bool isReachToLimit = false;
     auto res = missionListManager->GetTargetMissionList(missionId, mission, isReachToLimit);
-    EXPECT_EQ(res, nullptr);
+    EXPECT_NE(res, nullptr);
     missionListManager.reset();
 }
 
@@ -5678,7 +5678,7 @@ HWTEST_F(MissionListManagerTest, SetMissionANRStateByTokens_003, TestSize.Level1
 HWTEST_F(MissionListManagerTest, EnableRecoverAbility_001, TestSize.Level1)
 {
     int userId = 3;
-    constexpr int32_t missionId = 100;
+    constexpr int32_t missionId = 999;
     InnerMissionInfo missionInfo;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     missionListManager->EnableRecoverAbility(missionId);

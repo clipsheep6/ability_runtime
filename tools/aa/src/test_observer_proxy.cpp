@@ -142,6 +142,9 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
         return result;
     }
     result = *resultPtr;
+    if (resultPtr != nullptr) {
+        delete resultPtr;
+    }
     return result;
 }
 }  // namespace AAFwk

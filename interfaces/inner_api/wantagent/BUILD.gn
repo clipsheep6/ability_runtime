@@ -21,16 +21,16 @@ group("native_wantagent") {
 config("wantagent_innerkits_public_config") {
   visibility = [ ":*" ]
   visibility += [
+    "${ability_runtime_innerkits_path}/wantagent/*",
+    "${ability_runtime_napi_path}/inner/*",
+    "${ability_runtime_native_path}/ability/native/*",
+    "${ability_runtime_test_path}/fuzztest/*",
+    "${device_usage_statistics_path}/*",
     "//base/notification/distributed_notification_service/*",
-    "//foundation/ability/ability_runtime/frameworks/js/napi/inner/*",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native/*",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent/*",
-    "//foundation/ability/ability_runtime/test/fuzztest/*",
-    "//foundation/resourceschedule/device_usage_statistics/*",
   ]
 
   include_dirs = [
-    "//base/notification/eventhandler/interfaces/inner_api",
+    "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -66,7 +66,7 @@ ohos_shared_library("wantagent_innerkits") {
     "src/want_agent_log_wrapper.cpp",
   ]
 
-  configs = [ "//commonlibrary/c_utils/base:utils_config" ]
+  configs = [ "${c_utils_base_path}:utils_config" ]
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
