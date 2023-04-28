@@ -51,7 +51,6 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
-#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "source_map.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -260,6 +259,12 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
 }
 
+void JsRuntime::InitConsoleModule()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitConsoleModule();
+}
+
 bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
     const DebuggerPostTask& debuggerPostTask)
 {
@@ -459,7 +464,7 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+            InitConsoleModule();
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'
@@ -515,10 +520,11 @@ bool JsRuntime::Initialize(const Options& options)
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
             } else {
-                InitTimerModule(*nativeEngine, *globalObj);
+                InitTimerModule();
             }
-
-            InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
+            if (jsEnv_) {
+                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
+            }
         }
     }
 
@@ -1005,6 +1011,81 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, std::string& conte
     }
     content = reinterpret_cast<char*>(dataPtr.get());
     return true;
+}
+
+void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> reference)
+{
+    FreeNativeReference(std::move(reference), nullptr);
+}
+
+void JsRuntime::FreeNativeReference(std::shared_ptr<NativeReference>&& reference)
+{
+    FreeNativeReference(nullptr, std::move(reference));
+}
+
+struct JsNativeReferenceDeleterObject {
+    std::unique_ptr<NativeReference> uniqueNativeRef_ = nullptr;
+    std::shared_ptr<NativeReference> sharedNativeRef_ = nullptr;
+};
+
+void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
+    std::shared_ptr<NativeReference>&& sharedNativeRef)
+{
+    if (uniqueNativeRef == nullptr && sharedNativeRef == nullptr) {
+        HILOG_WARN("native reference is invalid.");
+        return;
+    }
+
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    auto uvLoop = nativeEngine->GetUVLoop();
+    CHECK_POINTER(uvLoop);
+
+    auto work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("new uv work failed.");
+        return;
+    }
+
+    auto cb = new (std::nothrow) JsNativeReferenceDeleterObject();
+    if (cb == nullptr) {
+        HILOG_ERROR("new deleter object failed.");
+        delete work;
+        work = nullptr;
+        return;
+    }
+
+    if (uniqueNativeRef != nullptr) {
+        cb->uniqueNativeRef_ = std::move(uniqueNativeRef);
+    }
+    if (sharedNativeRef != nullptr) {
+        cb->sharedNativeRef_ = std::move(sharedNativeRef);
+    }
+    work->data = reinterpret_cast<void*>(cb);
+    int ret = uv_queue_work(uvLoop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work != nullptr) {
+            if (work->data != nullptr) {
+                delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
+                work->data = nullptr;
+            }
+            delete work;
+            work = nullptr;
+        }
+    });
+
+    if (ret != 0) {
+        delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
+}
+
+void JsRuntime::InitTimerModule()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitTimerModule();
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

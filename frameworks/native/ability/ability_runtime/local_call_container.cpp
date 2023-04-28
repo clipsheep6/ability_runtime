@@ -24,36 +24,31 @@ int LocalCallContainer::StartAbilityByCallInner(
     const Want& want, const std::shared_ptr<CallerCallBack>& callback, const sptr<IRemoteObject>& callerToken)
 {
     HILOG_DEBUG("start ability by call.");
-
     if (callback == nullptr) {
         HILOG_ERROR("callback is nullptr.");
         return ERR_INVALID_VALUE;
     }
-
     if (want.GetElement().GetBundleName().empty() ||
         want.GetElement().GetAbilityName().empty()) {
         HILOG_ERROR("the element of want is empty.");
         return ERR_INVALID_VALUE;
     }
-
     if (want.GetElement().GetDeviceID().empty()) {
         HILOG_DEBUG("start ability by call, element:DeviceID is empty");
     }
-
     HILOG_DEBUG("start ability by call, element:%{public}s", want.GetElement().GetURI().c_str());
-
     AppExecFwk::ElementName element = want.GetElement();
     std::shared_ptr<LocalCallRecord> localCallRecord;
     if (!GetCallLocalRecord(element, localCallRecord)) {
         localCallRecord = std::make_shared<LocalCallRecord>(element);
-        std::string uri = element.GetURI();
-        callProxyRecords_.emplace(uri, localCallRecord);
+        if (localCallRecord == nullptr) {
+            HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner Create local call record failed");
+            return ERR_INVALID_VALUE;
+        }
     }
-
     HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) begin");
     localCallRecord->AddCaller(callback);
     HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) end");
-
     auto remote = localCallRecord->GetRemoteObject();
     // already finish call request.
     if (remote) {
@@ -66,54 +61,120 @@ int LocalCallContainer::StartAbilityByCallInner(
     }
     auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityClient == nullptr) {
-        HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
+        HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner abilityClient is nullptr");
         return ERR_INVALID_VALUE;
     }
-    sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
-    HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
-    return abilityClient->StartAbilityByCall(want, connect, callerToken);
+    sptr<CallerConnection> connect = new (std::nothrow) CallerConnection();
+    if (connect == nullptr) {
+        HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner Create local call connection failed");
+        return ERR_INVALID_VALUE;
+    }
+    connections_.emplace(connect);
+    connect->SetRecordAndContainer(localCallRecord, shared_from_this());
+    HILOG_DEBUG("LocalCallContainer::StartAbilityByCallInner connections_.size is %{public}zu", connections_.size());
+    auto retval = abilityClient->StartAbilityByCall(want, connect, callerToken);
+    if (retval != ERR_OK) {
+        ClearFailedCallConnection(callback);
+    }
+    return retval;
 }
 
 int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
 {
     HILOG_DEBUG("LocalCallContainer::ReleaseCall begin.");
-    auto isExist = [&callback](auto& record) {
-        return record.second->RemoveCaller(callback);
-    };
-
-    auto iter = std::find_if(callProxyRecords_.begin(), callProxyRecords_.end(), isExist);
-    if (iter == callProxyRecords_.end()) {
-        HILOG_ERROR("release localCallRecord failed.");
+    if (callback == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ReleaseCall input params is nullptr");
         return ERR_INVALID_VALUE;
     }
-
-    std::shared_ptr<LocalCallRecord> record = iter->second;
-    if (record == nullptr) {
-        HILOG_ERROR("record is nullptr.");
+    auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityClient == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ReleaseCall abilityClient is nullptr");
         return ERR_INVALID_VALUE;
     }
-
-    if (record->IsExistCallBack()) {
+    auto localCallRecord = callback->GetRecord();
+    if (localCallRecord == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ReleaseCall abilityClient is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    localCallRecord->RemoveCaller(callback);
+    if (localCallRecord->IsExistCallBack()) {
         // just release callback.
         HILOG_DEBUG("LocalCallContainer::ReleaseCall, The callee has onther callers, just release this callback.");
         return ERR_OK;
     }
-
-    // notify ams this connect need to release.
-    AppExecFwk::ElementName elementName = record->GetElementName();
-    auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
-    if (abilityClient == nullptr) {
-        HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
+    auto connect = iface_cast<CallerConnection>(localCallRecord->GetConnection());
+    if (connect == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ReleaseCall connection conversion failed.");
         return ERR_INVALID_VALUE;
     }
-    sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
-    if (abilityClient->ReleaseCall(connect, elementName) != ERR_OK) {
+    int32_t retval = ERR_OK;
+    if (localCallRecord->IsSingletonRemote()) {
+        retval = RemoveSingletonCallLocalRecord(localCallRecord->GetElementName().GetURI());
+    } else {
+        retval = RemoveMultipleCallLocalRecord(localCallRecord);
+    }
+
+    if (retval != ERR_OK) {
+        HILOG_ERROR("Remove call local record failed");
+        return retval;
+    }
+
+    connections_.erase(connect);
+    if (abilityClient->ReleaseCall(connect, localCallRecord->GetElementName()) != ERR_OK) {
         HILOG_ERROR("ReleaseCall failed.");
         return ERR_INVALID_VALUE;
     }
-
-    callProxyRecords_.erase(iter);
     HILOG_DEBUG("LocalCallContainer::ReleaseCall end.");
+    return ERR_OK;
+}
+
+void LocalCallContainer::ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback)
+{
+    HILOG_DEBUG("LocalCallContainer::ClearFailedCallConnection called");
+    if (callback == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ClearFailedCallConnection callback is nullptr");
+        return;
+    }
+
+    auto localCallRecord = callback->GetRecord();
+    if (localCallRecord == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ClearFailedCallConnection localCallRecord is nullptr");
+        return;
+    }
+
+    auto connect = iface_cast<CallerConnection>(localCallRecord->GetConnection());
+    if (connect == nullptr) {
+        HILOG_ERROR("LocalCallContainer::ClearFailedCallConnection connection conversion failed.");
+        return;
+    }
+
+    connections_.erase(connect);
+}
+
+int32_t LocalCallContainer::RemoveSingletonCallLocalRecord(const std::string &uri)
+{
+    callProxyRecords_.erase(uri);
+    return ERR_OK;
+}
+
+int32_t LocalCallContainer::RemoveMultipleCallLocalRecord(const std::shared_ptr<LocalCallRecord> &record)
+{
+    if (record == nullptr) {
+        HILOG_ERROR("input params invalid value");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto iterRecord = multipleCallProxyRecords_.find(record->GetElementName().GetURI());
+    if (iterRecord == multipleCallProxyRecords_.end()) {
+        HILOG_ERROR("release record in multiple not found.");
+        return ERR_INVALID_VALUE;
+    }
+
+    iterRecord->second.erase(record);
+    if (iterRecord->second.empty()) {
+        multipleCallProxyRecords_.erase(iterRecord);
+    }
+
     return ERR_OK;
 }
 
@@ -147,42 +208,6 @@ void LocalCallContainer::DumpCalls(std::vector<std::string>& info) const
     return;
 }
 
-void LocalCallContainer::OnAbilityConnectDone(
-    const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
-{
-    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone start %{public}s .", element.GetURI().c_str());
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("OnAbilityConnectDone failed.");
-    }
-    std::shared_ptr<LocalCallRecord> localCallRecord;
-    if (GetCallLocalRecord(element, localCallRecord)) {
-        auto callRecipient = new (std::nothrow) CallRecipient(
-            std::bind(&LocalCallContainer::OnCallStubDied, this, std::placeholders::_1));
-        localCallRecord->SetRemoteObject(remoteObject, callRecipient);
-        localCallRecord->InvokeCallBack();
-    }
-
-    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone end. resultCode:%{public}d.", resultCode);
-    return;
-}
-
-void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
-{
-}
-
-void LocalCallContainer::OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState)
-{
-    HILOG_DEBUG("LocalCallContainer::OnRemoteStateChanged start %{public}s .", element.GetURI().c_str());
-    std::shared_ptr<LocalCallRecord> localCallRecord;
-    if (GetCallLocalRecord(element, localCallRecord)) {
-        localCallRecord->NotifyRemoteStateChanged(abilityState);
-        HILOG_DEBUG("call NotifyRemoteStateChanged.");
-    }
-
-    HILOG_DEBUG("LocalCallContainer::OnRemoteStateChanged end. abilityState:%{public}d.", abilityState);
-    return;
-}
-
 bool LocalCallContainer::GetCallLocalRecord(
     const AppExecFwk::ElementName& elementName, std::shared_ptr<LocalCallRecord>& localCallRecord)
 {
@@ -211,14 +236,116 @@ void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject>& remote)
     };
 
     auto iter = std::find_if(callProxyRecords_.begin(), callProxyRecords_.end(), isExist);
-    if (iter == callProxyRecords_.end()) {
-        HILOG_ERROR("StubDied object not found from localCallRecord.");
+    if (iter != callProxyRecords_.end() && iter->second != nullptr) {
+        iter->second->OnCallStubDied(remote);
+        callProxyRecords_.erase(iter);
         return;
     }
 
-    iter->second->OnCallStubDied(remote);
-    callProxyRecords_.erase(iter);
+    auto isMultipleExit = [&diedRemote] (auto& record) {
+        return record->IsSameObject(diedRemote);
+    };
+    for (auto &item : multipleCallProxyRecords_) {
+        HILOG_DEBUG("LocalCallContainer::OnCallStubDied multiple key[%{public}s].", item.first.c_str());
+        auto iterMultiple = find_if(item.second.begin(), item.second.end(), isMultipleExit);
+        if (iterMultiple == item.second.end()) {
+            continue;
+        }
+        HILOG_DEBUG("LocalCallContainer::OnCallStubDied multiple key[%{public}s]. notify died event",
+            item.first.c_str());
+        (*iterMultiple)->OnCallStubDied(remote);
+        item.second.erase(iterMultiple);
+        if (item.second.empty()) {
+            HILOG_DEBUG("LocalCallContainer::OnCallStubDied multiple key[%{public}s] empty.", item.first.c_str());
+            multipleCallProxyRecords_.erase(item.first);
+            break;
+        }
+    }
     HILOG_DEBUG("LocalCallContainer::OnCallStubDied end.");
+}
+
+void LocalCallContainer::SetCallLocalRecord(
+    const AppExecFwk::ElementName& element, const std::shared_ptr<LocalCallRecord> &localCallRecord)
+{
+    HILOG_DEBUG("LocalCallContainer::SetCallLocalRecord called uri is %{private}s.", element.GetURI().c_str());
+    const std::string strKey = element.GetURI();
+    callProxyRecords_.emplace(strKey, localCallRecord);
+}
+
+void LocalCallContainer::SetMultipleCallLocalRecord(
+    const AppExecFwk::ElementName& element, const std::shared_ptr<LocalCallRecord> &localCallRecord)
+{
+    HILOG_DEBUG("LocalCallContainer::SetMultipleCallLocalRecord called uri is %{private}s.", element.GetURI().c_str());
+    const std::string strKey = element.GetURI();
+    auto iter = multipleCallProxyRecords_.find(strKey);
+    if (iter == multipleCallProxyRecords_.end()) {
+        std::set<std::shared_ptr<LocalCallRecord>> records = { localCallRecord };
+        multipleCallProxyRecords_.emplace(strKey, records);
+        return;
+    }
+
+    iter->second.emplace(localCallRecord);
+}
+
+void CallerConnection::SetRecordAndContainer(const std::shared_ptr<LocalCallRecord> &localCallRecord,
+    const std::weak_ptr<LocalCallContainer> &container)
+{
+    if (localCallRecord == nullptr) {
+        HILOG_DEBUG("CallerConnection::SetRecordAndContainer input param is nullptr.");
+        return;
+    }
+    localCallRecord_ = localCallRecord;
+    container_ = container;
+    localCallRecord_->SetConnection(this->AsObject());
+}
+
+void CallerConnection::OnAbilityConnectDone(
+    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int code)
+{
+    HILOG_DEBUG("CallerConnection::OnAbilityConnectDone start %{public}s .", element.GetURI().c_str());
+    auto container = container_.lock();
+    if (container == nullptr || localCallRecord_ == nullptr) {
+        HILOG_ERROR("CallerConnection::OnAbilityConnectDone container or record is nullptr.");
+        return;
+    }
+
+    const bool isSingleton = (code == static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON));
+    localCallRecord_->SetIsSingleton(isSingleton);
+
+    auto callRecipient = new (std::nothrow) CallRecipient(
+        std::bind(&LocalCallContainer::OnCallStubDied, container, std::placeholders::_1));
+    localCallRecord_->SetRemoteObject(remoteObject, callRecipient);
+
+    if (isSingleton) {
+        container->SetCallLocalRecord(element, localCallRecord_);
+    } else {
+        container->SetMultipleCallLocalRecord(element, localCallRecord_);
+    }
+
+    localCallRecord_->InvokeCallBack();
+    HILOG_DEBUG("CallerConnection::OnAbilityConnectDone end. code:%{public}d.", code);
+    return;
+}
+
+void CallerConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int code)
+{
+    HILOG_DEBUG("CallerConnection::OnAbilityDisconnectDone start %{public}s %{public}d.",
+        element.GetURI().c_str(), code);
+}
+
+void CallerConnection::OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState)
+{
+    HILOG_DEBUG("CallerConnection::OnRemoteStateChanged start %{public}s .", element.GetURI().c_str());
+    std::shared_ptr<LocalCallRecord> localCallRecord;
+    if (localCallRecord_ == nullptr) {
+        HILOG_DEBUG("local call record is nullptr.");
+        return;
+    }
+
+    localCallRecord_->NotifyRemoteStateChanged(abilityState);
+
+    HILOG_DEBUG("CallerConnection::OnRemoteStateChanged end. abilityState:%{public}d.", abilityState);
+    return;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

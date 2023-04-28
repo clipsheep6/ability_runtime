@@ -1053,7 +1053,7 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
         return;
     }
 
-    if (isDebugApp_) {
+    if (isDebugApp_ || isNativeDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return;
     }
@@ -1332,6 +1332,12 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
 bool AppRunningRecord::IsDebugApp()
 {
     return isDebugApp_;
+}
+
+void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
+{
+    HILOG_INFO("SetNativeDebug, value is %{public}d", isNativeDebug);
+    isNativeDebug_ = isNativeDebug;
 }
 
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)

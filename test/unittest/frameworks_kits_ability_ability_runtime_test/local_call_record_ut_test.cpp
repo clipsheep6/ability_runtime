@@ -453,5 +453,45 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsSameObject_0300, Function | Me
     auto result = localCallRecord.IsSameObject(remote);
     EXPECT_FALSE(result);
 }
+
+/**
+* @tc.number: Local_Call_Record_SetIsSingleton_0100
+* @tc.name: SetIsSingleton
+* @tc.desc: SetIsSingleton input parameter false and IsSingletonRemote return false.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_SetIsSingleton_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.SetIsSingleton(false);
+    EXPECT_FALSE(localCallRecord.IsSingletonRemote());
+}
+
+/**
+* @tc.number: Local_Call_Record_SetIsSingleton_0200
+* @tc.name: SetIsSingleton
+* @tc.desc: SetIsSingleton input parameter true and IsSingletonRemote return true.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_SetIsSingleton_0200, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.SetIsSingleton(true);
+    EXPECT_TRUE(localCallRecord.IsSingletonRemote());
+}
+
+/**
+* @tc.number: Local_Call_Record_SetConnection_0100
+* @tc.name: SetConnection
+* @tc.desc: SetConnection input parameter connect and GetConnection return connect.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_SetConnection_0100, Function | MediumTest | Level1)
+{
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    sptr<IRemoteObject> connect = new (std::nothrow) MockServiceAbilityManagerService();
+    localCallRecord.SetConnection(connect);
+    EXPECT_EQ(localCallRecord.GetConnection(), connect);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -301,6 +301,15 @@ public:
      */
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
+    /**
+     * Set the current userId of appMgr, only used by abilityMgr.
+     *
+     * @param userId the user id.
+     *
+     * @return
+     */
+    void SetCurrentUserId(int32_t userId);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.

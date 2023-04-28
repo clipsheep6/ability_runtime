@@ -219,8 +219,10 @@ enum {
     CONNECTION_STATE_CONNECTING = 1
 };
 
+class JsNapiCommon;
+using ConnectRemoveKeyType = JsNapiCommon*;
 struct ConnectionCallback {
-    ConnectionCallback(napi_env env, napi_value cbInfo)
+    ConnectionCallback(napi_env env, napi_value cbInfo, ConnectRemoveKeyType key)
     {
         this->env = env;
         napi_value jsMethod = nullptr;
@@ -230,16 +232,19 @@ struct ConnectionCallback {
         napi_create_reference(env, jsMethod, 1, &disconnectCallbackRef);
         napi_get_named_property(env, cbInfo, "onFailed", &jsMethod);
         napi_create_reference(env, jsMethod, 1, &failedCallbackRef);
+        removeKey = key;
     }
     ConnectionCallback(ConnectionCallback &) = delete;
     ConnectionCallback(ConnectionCallback &&other)
         : env(other.env), connectCallbackRef(other.connectCallbackRef),
-        disconnectCallbackRef(other.disconnectCallbackRef), failedCallbackRef(other.failedCallbackRef)
+        disconnectCallbackRef(other.disconnectCallbackRef), failedCallbackRef(other.failedCallbackRef),
+        removeKey(other.removeKey)
     {
         other.env = nullptr;
         other.connectCallbackRef = nullptr;
         other.disconnectCallbackRef = nullptr;
         other.failedCallbackRef = nullptr;
+        other.removeKey = nullptr;
     }
     const ConnectionCallback &operator=(ConnectionCallback &) = delete;
     const ConnectionCallback &operator=(ConnectionCallback &&other)
@@ -253,6 +258,7 @@ struct ConnectionCallback {
         other.connectCallbackRef = nullptr;
         other.disconnectCallbackRef = nullptr;
         other.failedCallbackRef = nullptr;
+        other.removeKey = nullptr;
         return *this;
     }
     ~ConnectionCallback()
@@ -276,12 +282,14 @@ struct ConnectionCallback {
             }
             env = nullptr;
         }
+        removeKey = nullptr;
     }
 
     napi_env env = nullptr;
     napi_ref connectCallbackRef = nullptr;
     napi_ref disconnectCallbackRef = nullptr;
     napi_ref failedCallbackRef = nullptr;
+    ConnectRemoveKeyType removeKey = nullptr;
 };
 
 class NAPIAbilityConnection : public AAFwk::AbilityConnectionStub {
@@ -295,6 +303,7 @@ public:
     int GetConnectionState() const;
     void SetConnectionState(int connectionState);
     size_t GetCallbackSize();
+    size_t ReomveAllCallbacks(ConnectRemoveKeyType key);
 
 private:
     std::list<std::shared_ptr<ConnectionCallback>> callbacks_;
@@ -363,7 +372,7 @@ struct key_compare {
     }
 };
 static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
-static std::recursive_mutex connectionsLock_;
+static std::recursive_mutex g_connectionsLock_;
 static int64_t serialNumber_ = 0;
 enum ErrorCode {
     NO_ERROR = 0,

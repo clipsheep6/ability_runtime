@@ -51,10 +51,19 @@ public:
 
     virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) = 0;
 
+    /**
+     * Notify the result of start ability.
+     *
+     * @param want The want of ability to start.
+     * @param result The result of start ability.
+     */
+    virtual void NotifyStartAbilityResult(const Want &want, int result) = 0;
+
     enum {
         Notify_ABILITY_TOKEN = 1,
         Notify_START_SPECIFIED_ABILITY,
         Notify_RESTART_SPECIFIED_ABILITY,
+        Notify_START_ABILITY_RESULT,
     };
 };
 }  // namespace AppExecFwk

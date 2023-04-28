@@ -22,13 +22,13 @@ ohos_unittest("ability_manager_service_anr_test") {
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/arkui_mock",
-    "//foundation/arkui/ace_engine/frameworks",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/systemabilitymgr/samgr/adapter/interfaces/innerkits/include/",
+    "${ace_engine_path}/frameworks",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
-    "//base/notification/common_event_service/frameworks/core/include",
-    "//base/notification/common_event_service/interfaces/inner_api",
+    "${common_event_service_path}/frameworks/core/include",
+    "${common_event_service_path}/interfaces/inner_api",
   ]
 
   sources = [

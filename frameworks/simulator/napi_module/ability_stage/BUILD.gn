@@ -12,11 +12,12 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/frameworks/simulator/build/ability_simulator.gni")
 
 gen_js_src_binary("ability_stage") {
-  js_source = "//foundation/ability/ability_runtime/frameworks/js/napi/app/ability_stage/ability_stage.js"
+  js_source = "${ability_runtime_napi_path}/app/ability_stage/ability_stage.js"
 }
 
 ohos_shared_library("ability_stage_napi") {
@@ -26,13 +27,15 @@ ohos_shared_library("ability_stage_napi") {
     defines = [ "MAC_PLATFORM" ]
   }
 
-  sources = [ "//foundation/ability/ability_runtime/frameworks/js/napi/app/ability_stage/ability_stage_module.cpp" ]
+  sources = [
+    "${ability_runtime_napi_path}/app/ability_stage/ability_stage_module.cpp",
+  ]
 
   deps = [
     ":gen_obj_src_ability_stage_abc",
     ":gen_obj_src_ability_stage_js",
-    "//foundation/arkui/napi:ace_napi",
   ]
+  external_deps = [ "napi:ace_napi" ]
 
   part_name = "simulator"
   subsystem_name = "ability"

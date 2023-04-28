@@ -253,6 +253,14 @@ public:
     {
         return 0;
     }
+    int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) override
+    {
+        return 0;
+    }
+    int MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result) override
+    {
+        return 0;
+    }
     int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token) override
     {
         return 0;

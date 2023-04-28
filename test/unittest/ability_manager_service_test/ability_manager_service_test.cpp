@@ -437,19 +437,9 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Lev
 {
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), ERR_INVALID_VALUE);
 
-    abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
-    abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 end");
 }
@@ -680,7 +670,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     Want want;
     // AddStartControlParam
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-    
+
     // IsStartFreeInstall
     MyFlag::flag_ = 1;
     unsigned int flag = 0x00000800;
@@ -696,7 +686,7 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
     want.SetFlags(0);
     want.SetParam("ohos.aafwk.param.startAbilityForResult", true);
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-    
+
     want.SetParam("test", true);
     sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, callerToken), ERR_INVALID_VALUE);
@@ -1358,6 +1348,34 @@ HWTEST_F(AbilityManagerServiceTest, MoveMissionToFront_002, TestSize.Level1)
     StartOptions startOptions;
     EXPECT_EQ(abilityMs_->MoveMissionToFront(100, startOptions), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest MoveMissionToFront_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveMissionsToForeground
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionToFront
+ */
+HWTEST_F(AbilityManagerServiceTest, MoveMissionsToForeground_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToForeground_001 start");
+    EXPECT_EQ(abilityMs_->MoveMissionsToForeground({1, 2, 3}, 1), CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToForeground_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveMissionsToBackground
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionToFront
+ */
+HWTEST_F(AbilityManagerServiceTest, MoveMissionsToBackground_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToBackground_001 start");
+    std::vector<int32_t> rs;
+    EXPECT_EQ(abilityMs_->MoveMissionsToBackground({1, 2, 3}, rs), CHECK_PERMISSION_FAILED);
+    EXPECT_TRUE(rs.empty());
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionsToBackground_001 end");
 }
 
 /*

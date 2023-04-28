@@ -62,7 +62,6 @@
       *PendingWantManager*;
       *PendingWantRecord*;
       *ResidentProcessManager*;
-      *SaMgrClient*;
       *StartOptions*;
       *SystemDialogScheduler*;
       *TaskDataPersistenceMgr*;
@@ -76,7 +75,6 @@
       *UserItem*;
       *WantReceiverStub*;
       *CallRecord*;
-      *ContainerManagerClient*;
       *WantReceiverProxy*;
       *WantSenderProxy*;
       *WantSenderStub*;

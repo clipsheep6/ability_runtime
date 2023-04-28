@@ -1066,5 +1066,38 @@ HWTEST_F(ContextImplTest, GetBundleManager_0100, TestSize.Level1)
     EXPECT_NE(contextImpl->GetBundleManager(), nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.number: ChangeToLocalPath_0100
+ * @tc.name: ChangeToLocalPath_0100
+ * @tc.desc: Change the inner path to local path.
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(ContextImplTest, ChangeToLocalPath_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string localPath = "/data/app/el1/bundle/public/com.ohos.demo/";
+    contextImpl->ChangeToLocalPath(bundleName, localPath, localPath);
+    EXPECT_TRUE(localPath == "/data/storage/el1/bundle/");
+}
+
+/**
+ * @tc.number: ChangeToLocalPath_0200
+ * @tc.name: ChangeToLocalPath_0200
+ * @tc.desc: Change the outter path to local path.
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(ContextImplTest, ChangeToLocalPath_0200, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string outBundleName = "com.example.demo";
+    std::string localPath = "/data/app/el1/bundle/public/com.example.demo/";
+    contextImpl->ChangeToLocalPath(bundleName, localPath, localPath);
+    EXPECT_TRUE(localPath == "/data/bundles/com.example.demo/");
+}
 }  // namespace AppExecFwk
 }

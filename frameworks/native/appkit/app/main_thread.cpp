@@ -15,10 +15,11 @@
 
 #include "main_thread.h"
 
+#include <malloc.h>
 #include <new>
 #include <regex>
+#include <sys/prctl.h>
 #include <unistd.h>
-#include <malloc.h>
 
 #include "constants.h"
 #include "ability_delegator.h"
@@ -941,7 +942,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                         return;
                     }
                     appThread->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
-                };       
+                };
                 auto subscriber = std::make_shared<OverlayEventSubscriber>(subscribeInfo, callback);
                 bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
                 HILOG_INFO("Overlay event subscriber register result is %{public}d", subResult);
@@ -1022,7 +1023,7 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
     if (res != ERR_OK) {
         return;
     }
-    
+
     // 2.add/remove overlay hapPath
     if (loadPath.empty() || overlayModuleInfos.size() == 0) {
         HILOG_WARN("There is not any hapPath in overlayModuleInfo");
@@ -1360,6 +1361,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             HILOG_ERROR("HandleLaunchApplication app or appmgr is null");
             return;
         }
+
+        if (prctl(PR_SET_NAME, "preStartNWeb") < 0) {
+            HILOG_WARN("Set thread name failed with %{public}d", errno);
+        }
+
         std::string nwebPath = app->GetAppContext()->GetCacheDir() + "/web";
         bool isFirstStartUpWeb = (access(nwebPath.c_str(), F_OK) != 0);
         if (!isFirstStartUpWeb) {
@@ -2509,7 +2515,7 @@ int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::
     }
 
     auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
-    if (overlayMgrProxy ==  nullptr) {
+    if (overlayMgrProxy == nullptr) {
         HILOG_ERROR("GetOverlayManagerProxy failed.");
         return ERR_INVALID_VALUE;
     }

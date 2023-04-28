@@ -200,7 +200,8 @@ void Watchdog::ReportEvent()
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
         EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
         EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent, EVENT_KEY_STACK, stack);
-    HILOG_INFO("reportEvent success, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
+    HILOG_INFO("reportEvent success");
+    HILOG_DEBUG("reportEvent info, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
     // should call error manager-> appRecovery
     if (eventType == "THREAD_BLOCK_6S") {
         AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);

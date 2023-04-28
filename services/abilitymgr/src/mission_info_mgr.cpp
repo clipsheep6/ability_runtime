@@ -17,6 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "nlohmann/json.hpp"
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map.h"
@@ -348,6 +349,22 @@ int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& lab
     return 0;
 }
 
+void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState state)
+{
+    if (missionId <= 0) {
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+        return missionId == info.missionInfo.id;
+    });
+    if (it == missionInfoList_.end()) {
+        HILOG_ERROR("SetMissionAbilityState failed, missionId %{public}d not exists", missionId);
+        return;
+    }
+    it->missionInfo.abilityState = state;
+}
+
 bool MissionInfoMgr::LoadAllMissionInfo()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -414,7 +431,9 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "FindTargetMissionSnapshot");
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
@@ -513,13 +532,17 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     MissionSnapshot& missionSnapshot, bool isLowResolution, bool force)
 {
     HILOG_INFO("mission_list_info GetMissionSnapshot, missionId:%{public}d, force:%{public}d", missionId, force);
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
-        return missionId == info.missionInfo.id;
-    });
-    if (it == missionInfoList_.end()) {
-        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
-        return false;
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return false;
+        }
+        missionSnapshot.topAbility = it->missionInfo.want.GetElement();
     }
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
@@ -551,7 +574,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     }
 
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot, isLowResolution)) {
-        missionSnapshot.topAbility = it->missionInfo.want.GetElement();
+
         HILOG_ERROR("mission_list_info GetMissionSnapshot, find snapshot OK, missionId:%{public}d", missionId);
         return true;
     }

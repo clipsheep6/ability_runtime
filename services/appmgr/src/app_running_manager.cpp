@@ -592,20 +592,23 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 
 int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
-    std::lock_guard<std::recursive_mutex> guard(lock_);
-    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
-    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
-        auto priorityObject = pair.second->GetPriorityObject();
-        return priorityObject && priorityObject->GetPid() == pid;
-    });
-    if (iter == appRunningRecordMap_.end()) {
-        HILOG_ERROR("No matching application was found.");
-        return ERR_INVALID_VALUE;
-    }
-    auto appRecord = iter->second;
-    if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr.");
-        return ERR_INVALID_VALUE;
+    std::shared_ptr<AppRunningRecord> appRecord;
+    {
+        std::lock_guard<std::recursive_mutex> guard(lock_);
+        HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+        auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+            auto priorityObject = pair.second->GetPriorityObject();
+            return priorityObject && priorityObject->GetPid() == pid;
+        });
+        if (iter == appRunningRecordMap_.end()) {
+            HILOG_ERROR("No matching application was found.");
+            return ERR_INVALID_VALUE;
+        }
+        appRecord = iter->second;
+        if (appRecord == nullptr) {
+            HILOG_ERROR("appRecord is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
     }
     appRecord->ScheduleHeapMemory(pid, mallocInfo);
     return ERR_OK;
@@ -776,6 +779,10 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            HILOG_ERROR("appRecord is nullptr");
+            return false;
+        }
         auto state = appRecord->GetState();
         if (appRecord && appRecord->GetBundleName() == bundleName &&
             state == ApplicationState::APP_STATE_FOREGROUND) {

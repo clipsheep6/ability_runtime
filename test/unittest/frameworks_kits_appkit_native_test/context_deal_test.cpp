@@ -67,20 +67,6 @@ void ContextDealTest::TearDown(void)
 {}
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_StartAbility_0100
- * @tc.name: StartAbility
- * @tc.desc: Test whether startability is called normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_StartAbility_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_StartAbility_0100 start";
-    AAFwk::Want want;
-    int requestCode = 0;
-    context_->StartAbility(want, requestCode);
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextDeal_StartAbility_0100 end, StartAbility is empty";
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetBundleName_0100
  * @tc.name: GetBundleName
  * @tc.desc: Verify that the GetBundleName return value is correct.
@@ -781,89 +767,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetPattern_0200, Function | Med
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_GetAbilityPackageContext_0100
- * @tc.name: GetAbilityPackageContext
- * @tc.desc: Verify that the GetAbilityPackageContext execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetAbilityPackageContext_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    EXPECT_TRUE(context_->GetAbilityPackageContext() == nullptr);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetCallingBundle_0100
- * @tc.name: GetCallingBundle
- * @tc.desc: Verify that the GetCallingBundle execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetCallingBundle_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    EXPECT_TRUE(context_->GetCallingBundle() == std::string(""));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_RequestPermissionsFromUser_0100
- * @tc.name: RequestPermissionsFromUser
- * @tc.desc: Verify that the RequestPermissionsFromUser execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_RequestPermissionsFromUser_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    std::vector<std::string> permissions;
-    std::vector<int> permissionsState;
-    auto task = [] (const std::vector<std::string> &listStr, const std::vector<int32_t> &listInt) {};
-    context_->RequestPermissionsFromUser(permissions, permissionsState, task);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_TerminateAbility_0100
- * @tc.name: TerminateAbility
- * @tc.desc: Verify that the TerminateAbility execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_TerminateAbility_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    EXPECT_EQ(context_->TerminateAbility(), ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_ConnectAbility_0100
- * @tc.name: ConnectAbility
- * @tc.desc: Verify that the ConnectAbility execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_ConnectAbility_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const sptr<AAFwk::IAbilityConnection> conn;
-    Want want;
-    EXPECT_FALSE(context_->ConnectAbility(want, conn));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_DisconnectAbility_0100
- * @tc.name: DisconnectAbility
- * @tc.desc: Verify that the DisconnectAbility execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_DisconnectAbility_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const sptr<AAFwk::IAbilityConnection> conn;
-    EXPECT_EQ(context_->DisconnectAbility(conn), ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetToken_0100
- * @tc.name: GetToken
- * @tc.desc: Verify that the GetToken execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetToken_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    EXPECT_TRUE(context_->GetToken() == nullptr);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetCaller_0100
  * @tc.name: GetCaller
  * @tc.desc: Verify that the GetCaller execute normally.
@@ -978,18 +881,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetPattern_0100, Function | Med
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_TerminateAbilityResult_0100
- * @tc.name: TerminateAbilityResult
- * @tc.desc: Verify that the TerminateAbilityResult execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_TerminateAbilityResult_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t startId = 0;
-    EXPECT_FALSE(context_->TerminateAbilityResult(startId));
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetPreferencesDir_0100
  * @tc.name: GetPreferencesDir
  * @tc.desc: Verify that the GetPreferencesDir execute normally.
@@ -1034,18 +925,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetLifeCycleStateInfo_0100, Fun
 {
     EXPECT_TRUE(context_ != nullptr);
     context_->GetLifeCycleStateInfo();
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_StartAbilities_0100
- * @tc.name: StartAbilities
- * @tc.desc: Verify that the StartAbilities execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_StartAbilities_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const std::vector<AAFwk::Want> wants;
-    context_->StartAbilities(wants);
 }
 
 /**

@@ -2352,6 +2352,73 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOption
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32Vector(missionIds)) {
+        HILOG_ERROR("mission id write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(topMissionId)) {
+        HILOG_ERROR("top mission id write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("%{public}s remote is null", __func__);
+        return ERR_NULL_OBJECT;
+    }
+
+    auto error = remote->SendRequest(IAbilityManager::MOVE_MISSIONS_TO_FOREGROUND, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("query front missionInfo failed: send request error: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32Vector(missionIds)) {
+        HILOG_ERROR("mission id write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("%{public}s remote is null", __func__);
+        return ERR_NULL_OBJECT;
+    }
+
+    auto error = remote->SendRequest(IAbilityManager::MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("query front missionInfo failed: send request error: %{public}d", error);
+        return error;
+    }
+
+    if (!reply.ReadInt32Vector(&result)) {
+        HILOG_ERROR("read result failed");
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StartUser(int userId)
 {
     int error;

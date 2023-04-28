@@ -485,6 +485,11 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
 
+    virtual int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) override;
+
+    virtual int MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+        std::vector<int32_t>& result) override;
+
     /**
      * Start Ability, connect session with common ability.
      *
@@ -712,7 +717,7 @@ public:
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
     virtual int32_t ShareDataDone(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam) override;
-    
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

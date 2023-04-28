@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include "ability_info.h"
 #include "application_info.h"
+#include "mock_overlay_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -63,6 +64,12 @@ bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t us
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
+}
+
+sptr<IOverlayManager> BundleMgrProxy::GetOverlayManagerProxy()
+{
+    sptr<IOverlayManager> overlayModuleProxy = new (std::nothrow) OverlayManagerProxy(nullptr);
+    return overlayModuleProxy;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
@@ -128,6 +135,12 @@ bool BundleMgrService::GetHapModuleInfo(const AbilityInfo& abilityInfo, int32_t 
     GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
+}
+
+sptr<IOverlayManager> BundleMgrService::GetOverlayManagerProxy()
+{
+    sptr<IOverlayManager> overlayManagerProxy = new (std::nothrow) OverlayManagerProxy(nullptr);
+    return overlayManagerProxy;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

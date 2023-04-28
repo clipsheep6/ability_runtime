@@ -73,7 +73,6 @@ private:
     wptr<IRemoteObject> token_;
     std::string pageStack_;
     WantParams params_;
-    Parcel parcel_;
     bool hasTryLoad_ = false;
     bool hasLoaded_ = false;
     std::mutex lock_;

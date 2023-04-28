@@ -126,7 +126,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->GetAbilityRecordByCaller(abilityRecord, intParam);
     missionListManager->GetAbilityRecordById(int64Param);
     missionListManager->OnAbilityDied(abilityRecord, int32Param);
-    missionListManager->GetTargetMissionList(intParam, mission);
+    missionListManager->GetTargetMissionList(intParam, mission, boolParam);
     missionListManager->GetMissionIdByAbilityToken(token);
     missionListManager->GetAbilityTokenByMissionId(int32Param);
     missionListManager->PostStartWaitingAbility();
@@ -157,7 +157,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->OnAcceptWantResponse(*want, stringParam);
     missionListManager->OnStartSpecifiedAbilityTimeoutResponse(*want);
     missionListManager->GetMissionBySpecifiedFlag(*want, stringParam);
-    missionListManager->IsReachToLimitLocked(abilityRequest);
+    missionListManager->IsReachToLimitLocked();
     sptr<ISnapshotHandler> snapshotHandler;
     missionListManager->RegisterSnapshotHandler(snapshotHandler);
     MissionSnapshot missionSnapshot;

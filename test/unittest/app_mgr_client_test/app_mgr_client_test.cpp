@@ -22,6 +22,7 @@
 #include "ability_record.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#include "mock_native_token.h"
 #undef protected
 #undef private
 
@@ -51,7 +52,9 @@ public:
 };
 
 void AppMgrClientTest::SetUpTestCase(void)
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AppMgrClientTest::TearDownTestCase(void)
 {}
@@ -118,6 +121,34 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UpdateExtensionState_001, TestSize.Level
 
     int ret = appMgrClient->UpdateExtensionState(token, state);
     EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetAllRunningProcesses_001
+ * @tc.desc: get all running processes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetAllRunningProcesses_001, TestSize.Level0)
+{
+    HILOG_INFO("GetAllRunningProcesses_001 start");
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::vector<RunningProcessInfo> info;
+    appMgrClient->GetAllRunningProcesses(info);
+    EXPECT_NE(info.size(), APP_NUMBER_ZERO);
+    for (int i = 0; i < info.size(); i++) {
+        HILOG_DEBUG("running %{public}d: name: %{public}s, processType: %{public}d, extensionType: %{public}d",
+            i, info[i].processName_.c_str(), info[i].processType_, info[i].extensionType_);
+        if (info[i].processName_ == "com.ohos.systemui") {
+            EXPECT_EQ(info[i].processType_, ProcessType::EXTENSION);
+            EXPECT_EQ(info[i].extensionType_, ExtensionAbilityType::SERVICE);
+        } else if (info[i].processName_ == "com.ohos.launcher") {
+            EXPECT_EQ(info[i].processType_, ProcessType::EXTENSION);
+            EXPECT_EQ(info[i].extensionType_, ExtensionAbilityType::SERVICE);
+        }
+    }
+    HILOG_INFO("GetAllRunningProcesses_001 end");
 }
 
 /**
@@ -491,5 +522,21 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_BlockAppService_001, TestSize.Level0)
 }
 #endif
 
+/**
+ * @tc.name: AppMgrClient_SetCurrentUserId_001
+ * @tc.desc: set current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_SetCurrentUserId_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int32_t userId = 0;
+    appMgrClient->SetCurrentUserId(userId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -75,6 +75,8 @@ public:
     {
         return ERR_OK;
     }
+
+    sptr<IOverlayManager> GetOverlayManagerProxy() override;
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -147,6 +149,7 @@ public:
     {
         return ERR_OK;
     }
+    sptr<IOverlayManager> GetOverlayManagerProxy() override;
 private:
     std::vector<BundleInfo> bundleInfos_;
     sptr<IQuickFixManager> quickFixManager_ = nullptr;

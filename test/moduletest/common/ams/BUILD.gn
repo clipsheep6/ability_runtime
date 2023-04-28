@@ -35,7 +35,7 @@ ohos_source_set("appmgr_mst_source") {
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy_config",
-    "//commonlibrary/c_utils/base:utils_config",
+    "${c_utils_base_path}:utils_config",
     "//third_party/googletest:gtest_config",
     "//third_party/googletest:gmock_config",
   ]
@@ -52,8 +52,8 @@ ohos_source_set("appmgr_mst_source") {
     "${appspawn_path}/interfaces/innerkits:appspawn_socket_client",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
+    "${c_utils_base_path}:utils",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",

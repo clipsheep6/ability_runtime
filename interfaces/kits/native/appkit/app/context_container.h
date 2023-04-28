@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,7 @@ public:
      *
      * @param base Indicates a Context object.
      */
-    void AttachBaseContext(const std::shared_ptr<Context> &base);
+    void AttachBaseContext(const std::shared_ptr<ContextDeal> &base);
 
     /**
      * @brief Detach a attatched context.
@@ -77,20 +77,6 @@ public:
      * @return Returns the AbilityInfo object for the current ability.
      */
     virtual const std::shared_ptr<AbilityInfo> GetAbilityInfo() override;
-
-    /**
-     * @brief Checks whether the configuration of this ability is changing.
-     *
-     * @return Returns true if the configuration of this ability is changing and false otherwise.
-     */
-    virtual bool IsUpdatingConfigurations() override;
-
-    /**
-     * @brief Informs the system of the time required for drawing this Page ability.
-     *
-     * @return Returns the notification is successful or fail
-     */
-    virtual bool PrintDrawnCompleted() override;
 
     /**
      * @brief Obtains the Context object of the application.
@@ -170,26 +156,6 @@ public:
     std::string GetDir(const std::string &name, int mode) override;
 
     /**
-     * @brief Obtains the absolute path to the application-specific cache directory
-     * on the primary external or shared storage device.
-     *
-     * @return Returns the absolute path to the application-specific cache directory on the external or
-     * shared storage device; returns null if the external or shared storage device is temporarily unavailable.
-     */
-    std::string GetExternalCacheDir() override;
-
-    /**
-     * @brief Obtains the absolute path to the directory for storing files for the application on the
-     * primary external or shared storage device.
-     *
-     * @param type Indicates the type of the file directory to return
-     *
-     * @return Returns the absolute path to the application file directory on the external or shared storage
-     * device; returns null if the external or shared storage device is temporarily unavailable.
-     */
-    std::string GetExternalFilesDir(std::string &type) override;
-
-    /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
      * @return Returns the application file directory.
@@ -206,18 +172,6 @@ public:
     std::string GetNoBackupFilesDir() override;
 
     /**
-     * @brief Checks whether the current process has the given permission.
-     * You need to call requestPermissionsFromUser(java.lang.std::string[],int) to request a permission only
-     * if the current process does not have the specific permission.
-     *
-     * @param permission Indicates the permission to check. This parameter cannot be null.
-     *
-     * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
-     * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
-     */
-    int VerifySelfPermission(const std::string &permission) override;
-
-    /**
      * @brief Obtains the bundle name of the current ability.
      *
      * @return Returns the bundle name of the current ability.
@@ -230,16 +184,6 @@ public:
      * @return Returns the path of the HAP containing this ability.
      */
     std::string GetBundleResourcePath() override;
-
-    /**
-     * @brief Remove permissions for all users who have access to specific permissions
-     *
-     * @param permission Indicates the permission to unauth. This parameter cannot be null.
-     * @param uri Indicates the URI to unauth. This parameter cannot be null.
-     * @param uid Indicates the UID of the unauth to check.
-     *
-     */
-    void UnauthUriPermission(const std::string &permission, const Uri &uri, int uid) override;
 
     /**
      * @brief Obtains an ability manager.
@@ -260,17 +204,6 @@ public:
     std::string GetAppType() override;
 
     /**
-     * @brief Query whether the application of the specified PID and UID has been granted a certain permission
-     *
-     * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
-     * @param pid Process id
-     * @param uid
-     * @return Returns 0 (IBundleManager.PERMISSION_GRANTED) if the current process has the permission;
-     * returns -1 (IBundleManager.PERMISSION_DENIED) otherwise.
-     */
-    int VerifyPermission(const std::string &permission, int pid, int uid) override;
-
-    /**
      * @brief Obtains the distributed file path.
      * If the distributed file path does not exist, the system creates one and returns the created path. This method is
      * applicable only to the context of an ability rather than that of an application.
@@ -287,13 +220,6 @@ public:
     void SetPattern(int patternId) override;
 
     /**
-     * @brief Obtains the Context object of this ability.
-     *
-     * @return Returns the Context object of this ability.
-     */
-    std::shared_ptr<Context> GetAbilityPackageContext() override;
-
-    /**
      * @brief Obtains the HapModuleInfo object of the application.
      *
      * @return Returns the HapModuleInfo object of the application.
@@ -306,18 +232,6 @@ public:
      * @return Returns the current process name.
      */
     std::string GetProcessName() override;
-
-    /**
-     * @brief Requests certain permissions from the system.
-     * This method is called for permission request. This is an asynchronous method. When it is executed,
-     * the task will be called back.
-     *
-     * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
-     * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
-     * @param task The callback or promise fo js interface.
-     */
-    void RequestPermissionsFromUser(std::vector<std::string> &permissions, std::vector<int> &permissionsState,
-        PermissionRequestTask &&task) override;
 
     /**
      * @brief Creates a Context object for an application with the given bundle name.
@@ -448,7 +362,7 @@ public:
     int GetMissionId() override;
 
 private:
-    std::shared_ptr<Context> baseContext_;
+    std::shared_ptr<ContextDeal> baseContext_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

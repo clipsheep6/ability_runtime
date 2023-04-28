@@ -564,6 +564,16 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) = 0;
 
+    virtual int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+    {
+        return 0;
+    }
+
+    virtual int MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result)
+    {
+        return 0;
+    }
+
     /**
      * Start Ability, connect session with common ability.
      *
@@ -846,7 +856,7 @@ public:
     {
         return 0;
     }
-    
+
     /**
      * Notify sharing data finished.
      * @param token The token of ability.
@@ -1155,6 +1165,8 @@ public:
         REGISTER_SNAPSHOT_HANDLER = 1114,
         GET_MISSION_SNAPSHOT_INFO = 1115,
         UPDATE_MISSION_SNAPSHOT = 1116,
+        MOVE_MISSIONS_TO_FOREGROUND = 1117,
+        MOVE_MISSIONS_TO_BACKGROUND = 1118,
 
         // ipc id for user test(1120)
         START_USER_TEST = 1120,
@@ -1184,9 +1196,9 @@ public:
         ABILITY_RECOVERY_ENABLE = 3011,
 
         QUERY_MISSION_VAILD = 3012,
-        
+
         VERIFY_PERMISSION = 3013,
-        
+
         ACQUIRE_SHARE_DATA = 4001,
         SHARE_DATA_DONE = 4002,
     };

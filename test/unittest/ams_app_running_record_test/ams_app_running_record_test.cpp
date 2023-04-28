@@ -1917,6 +1917,27 @@ HWTEST_F(AmsAppRunningRecordTest, SetHostBundleName_001, TestSize.Level1)
 
 /*
  * Feature: AMS
+ * Function: Set/GetProcessName
+ * SubFunction: Set/GetProcessName
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get GetProcessName
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetProcessName_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    std::string hostProcessName = "testhostProcessName";
+    renderRecord->SetProcessName(hostProcessName);
+    EXPECT_EQ(renderRecord->GetProcessName(), hostProcessName);
+}
+
+/*
+ * Feature: AMS
  * Function: GetRenderParam
  * SubFunction: GetRenderParam
  * FunctionPoints: check params

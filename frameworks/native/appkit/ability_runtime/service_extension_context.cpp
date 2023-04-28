@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -77,7 +77,7 @@ ErrCode ServiceExtensionContext::StartAbilityByCall(
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (localCallContainer_ == nullptr) {
-        localCallContainer_ = new (std::nothrow) LocalCallContainer();
+        localCallContainer_ = std::make_shared<LocalCallContainer>();
         if (localCallContainer_ == nullptr) {
             HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
             return ERR_INVALID_VALUE;
@@ -94,6 +94,16 @@ ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBac
         return ERR_INVALID_VALUE;
     }
     return localCallContainer_->ReleaseCall(callback);
+}
+
+void ServiceExtensionContext::ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback) const
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (localCallContainer_ == nullptr) {
+        HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
+        return;
+    }
+    localCallContainer_->ClearFailedCallConnection(callback);
 }
 
 ErrCode ServiceExtensionContext::ConnectAbility(

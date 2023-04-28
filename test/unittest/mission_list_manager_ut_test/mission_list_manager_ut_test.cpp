@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -370,6 +370,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_008, Function | MediumTest |
 
     missionListMgr->currentMissionLists_.push_front(missionList);
     missionListMgr->launcherList_ = missionList;
+    missionListMgr->defaultStandardList_ = missionList;
     missionListMgr->defaultSingleList_ = missionList;
 
     auto testRet = missionListMgr->GetAbilityRecordByName(element);
@@ -581,6 +582,154 @@ HWTEST_F(MissionListManagerTest, MissionListManager_014, Function | MediumTest |
 
     EXPECT_EQ(ERR_OK, testRet);
     GTEST_LOG_(INFO) << "MissionListManager_014 end";
+}
+
+/**
+ * @tc.number: MissionListManager_015
+ * @tc.name: CallAbilityLocked
+ * @tc.desc: MissionListManager test CallAbilityLocked is not SINGLETON.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_015, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_015 begin";
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    abilityInfo.applicationInfo = applicationInfo;
+    want.SetElementName("test.bundle.name", "test.ability.name");
+    AbilityRequest abilityRequest;
+    abilityRequest.want = want;
+    abilityRequest.abilityInfo = abilityInfo;
+    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest.abilityInfo.bundleName = "test_bundle";
+    abilityRequest.abilityInfo.name = "test_name";
+    abilityRequest.abilityInfo.moduleName = "test_moduleName";
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    abilityRequest.startRecent = true;
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, abilityInfo.applicationInfo);
+    abilityRecord->isReady_ = true;
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    missionListMgr->defaultStandardList_ = missionList;
+    std::shared_ptr<Mission> mission =
+        std::make_shared<Mission>(0, abilityRecord, missionListMgr->GetMissionName(abilityRequest));
+    missionList->AddMissionToTop(mission);
+    EXPECT_EQ(RESOLVE_CALL_ABILITY_INNER_ERR, missionListMgr->CallAbilityLocked(abilityRequest));
+    GTEST_LOG_(INFO) << "MissionListManager_015 end";
+}
+
+/**
+ * @tc.number: MissionListManager_016
+ * @tc.name: GetAbilityRecordsByName
+ * @tc.desc: MissionListManager to process GetAbilityRecordsByName success.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_016, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_016 begin";
+    AppExecFwk::ElementName element;
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(0, abilityRecord, "");
+    missionList->AddMissionToTop(mission);
+    missionListMgr->currentMissionLists_.push_front(missionList);
+    missionListMgr->currentMissionLists_.push_front(nullptr);
+    missionListMgr->launcherList_ = missionList;
+    missionListMgr->defaultStandardList_ = missionList;
+    auto ret = missionListMgr->GetAbilityRecordsByName(element);
+    EXPECT_FALSE(ret.empty());
+    GTEST_LOG_(INFO) << "MissionListManager_016 end";
+}
+
+/**
+ * @tc.number: MissionListManager_017
+ * @tc.name: GetAbilityRecordsByName
+ * @tc.desc: MissionListManager to process GetAbilityRecordsByName success.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_017, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_017 begin";
+    AppExecFwk::ElementName element;
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    auto ret = missionListMgr->GetAbilityRecordsByName(element);
+    EXPECT_TRUE(ret.empty());
+    GTEST_LOG_(INFO) << "MissionListManager_017 end";
+}
+
+/**
+ * @tc.number: MissionListManager_018
+ * @tc.name: GetAbilityRecordsByName
+ * @tc.desc: MissionListManager to process GetAbilityRecordsByName success.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_018, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_018 begin";
+    AppExecFwk::ElementName element;
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(0, abilityRecord, "");
+    missionListMgr->defaultSingleList_ = missionList;
+    auto ret = missionListMgr->GetAbilityRecordsByName(element);
+    EXPECT_TRUE(ret.empty());
+    GTEST_LOG_(INFO) << "MissionListManager_018 end";
+}
+
+/**
+ * @tc.number: MissionListManager_019
+ * @tc.name: ReleaseCallLocked
+ * @tc.desc: call ReleaseCallLocked interface and find_if fails and return RELEASE_CALL_ABILITY_INNER_ERR.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_019, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_019 begin";
+    sptr<IAbilityConnection> connect = new (std::nothrow) MissionListManagerTestStub();
+    AppExecFwk::ElementName element;
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    missionListMgr->currentMissionLists_.push_front(nullptr);
+    auto ret = missionListMgr->ReleaseCallLocked(connect, element);
+    EXPECT_EQ(ret, RELEASE_CALL_ABILITY_INNER_ERR);
+    GTEST_LOG_(INFO) << "MissionListManager_019 end";
+}
+
+/**
+ * @tc.number: MissionListManager_020
+ * @tc.name: ReleaseCallLocked
+ * @tc.desc: call ReleaseCallLocked interface and return ERR_OK.
+ */
+HWTEST_F(MissionListManagerTest, MissionListManager_020, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "MissionListManager_020 begin";
+    sptr<IAbilityConnection> connect = new (std::nothrow) MissionListManagerTestStub();
+    sptr<IRemoteObject> callToken = nullptr;
+    AppExecFwk::ElementName element;
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<CallRecord> callRecord =
+        std::make_shared<CallRecord>(2, abilityRecord, connect, callToken);
+    std::shared_ptr<CallContainer> callContainer = std::make_shared<CallContainer>();
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(0, abilityRecord, "");
+    abilityRecord->callContainer_ = callContainer;
+    callContainer->AddCallRecord(connect, callRecord);
+    missionList->AddMissionToTop(mission);
+    missionListMgr->currentMissionLists_.push_front(missionList);
+    auto ret = missionListMgr->ReleaseCallLocked(connect, element);
+    EXPECT_EQ(ret, ERR_OK);
+    GTEST_LOG_(INFO) << "MissionListManager_020 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

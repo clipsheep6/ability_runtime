@@ -25,6 +25,7 @@
 #include "js_runtime_utils.h"
 #include "mission_snapshot.h"
 #include "napi_common_start_options.h"
+#include "native_engine/native_value.h"
 #include "permission_constants.h"
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
@@ -117,6 +118,18 @@ public:
     {
         JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
         return (me != nullptr) ? me->OnMoveMissionToFront(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* MoveMissionsToForeground(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
+        return (me != nullptr) ? me->OnMoveMissionsToForeground(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* MoveMissionsToBackground(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
+        return (me != nullptr) ? me->OnMoveMissionsToBackground(*engine, *info) : nullptr;
     }
 
 private:
@@ -522,6 +535,112 @@ private:
         return result;
     }
 
+    NativeValue *OnMoveMissionsToForeground(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        std::vector<int32_t> missionIds;
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("OnMoveMissionsToForeground Not enough params");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(info.argv[0]);
+        if (nativeArray == nullptr) {
+            HILOG_ERROR("OnMoveMissionsToForeground Parse missionIds array failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+            int32_t missionId;
+            if (!ConvertFromJsValue(engine, nativeArray->GetElement(i), missionId)) {
+                HILOG_ERROR("OnMoveMissionsToForeground Parse missionId failed");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return engine.CreateUndefined();
+            }
+            missionIds.push_back(missionId);
+        }
+
+        int topMissionId = -1;
+        decltype(info.argc) unwrapArgc = 1;
+        if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_NUMBER) {
+            if (!ConvertFromJsValue(engine, info.argv[1], topMissionId)) {
+                HILOG_ERROR("OnMoveMissionsToForeground Parse topMissionId failed");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return engine.CreateUndefined();
+            }
+            unwrapArgc++;
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [missionIds, topMissionId](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                auto ret =
+                    AAFwk::AbilityManagerClient::GetInstance()->MoveMissionsToForeground(missionIds, topMissionId);
+                if (ret == 0) {
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine,
+                        CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
+        NativeValue *result = nullptr;
+        AsyncTask::Schedule("MissioManager::OnMoveMissionsToForeground", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    NativeValue* OnMoveMissionsToBackground(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        std::vector<int32_t> missionIds;
+
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("OnMoveMissionsToBackground Not enough params");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(info.argv[0]);
+        if (nativeArray == nullptr) {
+            HILOG_ERROR("OnMoveMissionsToBackground Parse missionIds array failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+            int32_t missionId;
+            if (!ConvertFromJsValue(engine, nativeArray->GetElement(i), missionId)) {
+                HILOG_ERROR("OnMoveMissionsToBackground Parse topMissionId failed");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return engine.CreateUndefined();
+            }
+            missionIds.push_back(missionId);
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [missionIds](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                std::vector<int32_t> resultMissionIds;
+                auto ret  = AbilityManagerClient::GetInstance()->MoveMissionsToBackground(missionIds, resultMissionIds);
+                if (ret == 0) {
+                    NativeValue* arrayValue = engine.CreateArray(resultMissionIds.size());
+                    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+                    uint32_t index = 0;
+                    for (const auto &missionId : resultMissionIds) {
+                        array->SetElement(index++, CreateJsValue(engine, missionId));
+                    }
+                    task.ResolveWithNoError(engine, arrayValue);
+                } else {
+                    task.Reject(engine,
+                        CreateJsErrorByNativeErr(engine, ret, PermissionConstants::PERMISSION_MANAGE_MISSION));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("MissioManager::OnMoveMissionsToBackground",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
 private:
     bool CheckOnOffType(NativeEngine &engine, NativeCallbackInfo &info)
     {
@@ -583,6 +702,10 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "clearMission", moduleName, JsMissionManager::ClearMission);
     BindNativeFunction(*engine, *object, "clearAllMissions", moduleName, JsMissionManager::ClearAllMissions);
     BindNativeFunction(*engine, *object, "moveMissionToFront", moduleName, JsMissionManager::MoveMissionToFront);
+    BindNativeFunction(*engine, *object,
+        "moveMissionsToForeground", moduleName, JsMissionManager::MoveMissionsToForeground);
+    BindNativeFunction(*engine, *object,
+        "moveMissionsToBackground", moduleName, JsMissionManager::MoveMissionsToBackground);
     return engine->CreateUndefined();
 }
 }  // namespace AbilityRuntime

@@ -318,6 +318,16 @@ enum {
      * Result(2097211) for app jump interceptor.
      */
     ERR_APP_JUMP_INTERCEPTOR_STATUS,
+
+    /**
+     * Result(2097212) for URI flag invalid.
+     */
+    ERR_CODE_INVALID_URI_FLAG,
+
+    /**
+     * Result(2097213) for URI type invalid.
+     */
+    ERR_CODE_INVALID_URI_TYPE,
 };
 
 enum {

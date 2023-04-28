@@ -55,6 +55,8 @@ public:
      */
     int OnAcquireStateResult(FormState state, const std::string& provider, const Want& wantArg,
         const Want& want) override;
+    
+    int OnAcquireDataResult(const AAFwk::WantParams &wantParams, int64_t requestCode) override;
 
     void OnShareAcquire(int64_t formId, const std::string& remoteDeviceId,
         const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result) override;

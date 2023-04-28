@@ -50,6 +50,14 @@ public:
 
     virtual void NotifyRestartSpecifiedAbility(const sptr<IRemoteObject> &token) override;
 
+    /**
+     * Notify the result of start ability.
+     *
+     * @param want The want of ability to start.
+     * @param result The result of start ability.
+     */
+    virtual void NotifyStartAbilityResult(const Want &want, int result) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam);

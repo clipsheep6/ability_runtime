@@ -62,6 +62,8 @@ public:
 
     bool OnShare(int64_t formId, AAFwk::WantParams &wantParams) override;
 
+    bool OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams) override;
+
 private:
     NativeValue* CallObjectMethod(const char* name, const char* bakName, NativeValue* const * argv = nullptr,
         size_t argc = 0);

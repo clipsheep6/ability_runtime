@@ -398,7 +398,7 @@ private:
     std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedStandardMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
-        std::shared_ptr<AbilityRecord> &targetRecord);
+        std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit);
     bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord);
     std::string GetMissionName(const AbilityRequest &abilityRequest) const;
@@ -427,7 +427,8 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
-    std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
+    std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission,
+        bool &isReachToLimit);
     void PostStartWaitingAbility();
     void HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleLauncherDied(std::shared_ptr<AbilityRecord> ability);
@@ -438,9 +439,10 @@ private:
     void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
         std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const AAFwk::Want &want, const std::string &flag) const;
-    bool CheckLimit(const AbilityRequest &abilityRequest);
-    bool IsReachToLimitLocked(const AbilityRequest &abilityRequest) const;
-    bool IsReachToSingleLimitLocked(const AbilityRequest &abilityRequest) const;
+    bool IsReachToSingleLimitLocked(const int32_t uid) const;
+    bool IsReachToLimitLocked() const;
+    bool CheckSingleLimit(const AbilityRequest &abilityRequest);
+    bool CheckLimit();
     std::shared_ptr<Mission> FindEarliestMission() const;
     int32_t GetMissionCount() const;
 
@@ -458,6 +460,7 @@ private:
     void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
+    std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
@@ -475,6 +478,7 @@ private:
         const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     std::shared_ptr<AbilityRecord> GetAliveAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest);
+    void NotifyStartAbilityResult(const AbilityRequest &abilityRequest, int result);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

@@ -16,6 +16,13 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("ability_context_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "${ability_runtime_native_path}/ability/*",
+    "${ability_runtime_test_path}/fuzztest/connectability_fuzzer/*",
+    "${ability_runtime_test_path}/fuzztest/disconnectability_fuzzer/*",
+    "${user_file_service_innerkits_path}/file_access/*",
+    "//base/print/print_fwk/frameworks/kits/extension/*",
+  ]
   include_dirs = [
     "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",

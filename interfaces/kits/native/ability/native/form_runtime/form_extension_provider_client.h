@@ -117,6 +117,16 @@ public:
      */
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                              const sptr<IRemoteObject> &callerToken) override;
+    
+    /**
+     * @brief Acquire form data.
+     * @param formId The Id of the from.
+     * @param formSupplyCallback Indicates lifecycle callbacks.
+     * @param requestCode Indicates the request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AcquireFormData(int64_t formId, const sptr<IRemoteObject> &formSupplyCallback,
+        int64_t requestCode) override;
 
     /**
      * @brief Set the owner form extension of the form provider client.
@@ -167,6 +177,8 @@ private:
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                          const sptr<IRemoteObject> &callerToken);
     bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
+
+    bool FormExtensionProviderAcquireFormData(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
     mutable std::mutex formExtensionMutex_;

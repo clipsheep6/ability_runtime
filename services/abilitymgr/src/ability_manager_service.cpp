@@ -35,6 +35,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
+#include "errors.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -43,6 +44,7 @@
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
@@ -74,7 +76,6 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
-#include "container_manager_client.h"
 
 #include "ability_bundle_event_callback.h"
 
@@ -2609,6 +2610,45 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
 }
 
+int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToForeground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
+int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
+    std::vector<int32_t>& result)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (wmsHandler_) {
+        auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
+        if (ret) {
+            HILOG_ERROR("MoveMissionsToBackground failed, missiondIds may be invalid");
+            return ERR_INVALID_VALUE;
+        } else {
+            return NO_ERROR;
+        }
+    }
+    return ERR_NO_INIT;
+}
+
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("request GetMissionIdByToken.");
@@ -3389,15 +3429,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
 
-    auto func = []() {
-        auto client = ContainerManagerClient::GetInstance();
-        if (client != nullptr) {
-            client->NotifyBootComplete(0);
-            HILOG_INFO("StartSystemApplication NotifyBootComplete");
-        }
-    };
-    std::thread(func).detach();
-
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
     want.AddEntity(HIGHEST_PRIORITY_ABILITY_ENTITY);
@@ -3777,13 +3808,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 sptr<AppExecFwk::IBundleMgr> AbilityManagerService::GetBundleManager()
 {
     if (iBundleManager_ == nullptr) {
-        auto bundleObj =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (bundleObj == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-        iBundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+        iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
 }
@@ -3911,7 +3936,6 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 
 void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
 {
-    HILOG_DEBUG("handle shareData timeout, uniqueId:%{public}lld.", uniqueId);
     WantParams wantParam;
     int32_t ret = GetShareDataPairAndReturnData(nullptr, ERR_TIMED_OUT, uniqueId, wantParam);
     if (ret) {
@@ -4743,6 +4767,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 return;
             } else {
                 auto bms = GetBundleManager();
+                if (bms == nullptr) {
+                    HILOG_ERROR("bms is nullptr");
+                    return;
+                }
                 AppExecFwk::BundleInfo bundleInfo;
                 auto bundleName = want->GetElement().GetBundleName();
                 int32_t userId = GetUserId();
@@ -6000,11 +6028,10 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-        HILOG_DEBUG("Called ability is common ability and singleton.");
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("Called ability is common ability.");
     } else {
-        HILOG_ERROR("Called ability is not common ability or singleton.");
+        HILOG_ERROR("Called ability is not common ability.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
 
@@ -6472,7 +6499,6 @@ int32_t AbilityManagerService::AcquireShareData(
     uniqueId_ = (uniqueId_ == INT_MAX) ? 0 : (uniqueId_ + 1);
     std::pair<int64_t, const sptr<IAcquireShareDataCallback>> shareDataPair =
         std::make_pair(abilityRecord->GetAbilityRecordId(), shareData);
-    HILOG_INFO("uniqueId:%{public}d, abilityRecordId:%{public}lld.", uniqueId_, abilityRecord->GetAbilityRecordId());
     iAcquireShareDataMap_.emplace(uniqueId_, shareDataPair);
     abilityRecord->ShareData(uniqueId_);
     return ERR_OK;
