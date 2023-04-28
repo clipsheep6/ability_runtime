@@ -163,6 +163,7 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitTimerModule_0100, TestSize.Level0)
 {
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
+
     // Init timer module when native engine is invalid.
     jsEnv->InitTimerModule();
 
@@ -180,6 +181,10 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitTimerModule_0100, TestSize.Level0)
  * @tc.type: FUNC
  */
 HWTEST_F(JsEnvironmentTest, StartCPUProfiler_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
     jsEnv->vm_ = nullptr;
     auto ret = jsEnv->StartCPUProfiler();
     ASSERT_EQ(ret, false);
