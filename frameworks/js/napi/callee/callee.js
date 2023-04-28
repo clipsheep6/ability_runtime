@@ -96,25 +96,31 @@ class Callee extends rpc.RemoteObject {
                 return false;
             }
 
-            let method = data.readString();
-            console.log("Callee onRemoteMessageRequest method [" + method + "]");
-            let func = this.callList.get(method);
-            if (typeof func !== 'function') {
-                console.log("Callee onRemoteMessageRequest error, get func is " + typeof func);
+            try {
+                let method = data.readString();
+                console.log("Callee onRemoteMessageRequest method [" + method + "]");
+                let func = this.callList.get(method);
+                if (typeof func !== 'function') {
+                    console.log("Callee onRemoteMessageRequest error, get func is " + typeof func);
+                    return false;
+                }
+    
+                let result = func(data);
+                if (typeof result === 'object' && result != null) {
+                    reply.writeInt(REQUEST_SUCCESS);
+                    reply.writeString(typeof result);
+                    reply.writeParcelable(result);
+                    console.log("Callee onRemoteMessageRequest code proc Packed data");
+                } else {
+                    reply.writeInt(REQUEST_FAILED);
+                    reply.writeString(typeof result);
+                    console.log("Callee onRemoteMessageRequest error, retVal is " + REQUEST_FAILED + ", type is " + typeof result);
+                }
+            } catch (e) {
+                console.log("Call func failed: " + e);
                 return false;
             }
 
-            let result = func(data);
-            if (typeof result === 'object' && result != null) {
-                reply.writeInt(REQUEST_SUCCESS);
-                reply.writeString(typeof result);
-                reply.writeParcelable(result);
-                console.log("Callee onRemoteMessageRequest code proc Packed data");
-            } else {
-                reply.writeInt(REQUEST_FAILED);
-                reply.writeString(typeof result);
-                console.log("Callee onRemoteMessageRequest error, retval is " + REQUEST_FAILED + ", type is " + typeof result);
-            }
         } else {
             console.log("Callee onRemoteMessageRequest error, code is " + code);
             return false;
