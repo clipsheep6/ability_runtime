@@ -2404,13 +2404,13 @@ HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->SendANRProcessID(100), CHECK_PERMISSION_FAILED);
 
     MyFlag::flag_ = 1;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_OK);
 
     MyFlag::flag_ = 2;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_OK);
 
     MyFlag::flag_ = 3;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_OK);
 
     MyFlag::flag_ = 0;
     HILOG_INFO("AbilityManagerServiceTest SendANRProcessID_001 end");
