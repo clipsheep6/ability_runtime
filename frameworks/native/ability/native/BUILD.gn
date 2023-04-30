@@ -688,6 +688,7 @@ ohos_shared_library("dialog_request_callback") {
   public_configs = [ ":dialog_request_callback_public_config" ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

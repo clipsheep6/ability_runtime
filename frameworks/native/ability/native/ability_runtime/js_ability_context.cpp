@@ -1131,9 +1131,9 @@ NativeValue* JsAbilityContext::OnRequestDialogService(NativeEngine& engine, Nati
     auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RequestDialogResultTask task =
-        [&engine, asyncTask](int32_t resultCode) {
+        [&engine, asyncTask](int32_t resultCode, const AAFwk::Want &resultWant) {
         HILOG_INFO("OnRequestDialogService async callback is called");
-        NativeValue* requestResult = JsAbilityContext::WrapRequestDialogResult(engine, resultCode);
+        NativeValue* requestResult = JsAbilityContext::WrapRequestDialogResult(engine, resultCode, resultWant);
         if (requestResult == nullptr) {
             HILOG_WARN("wrap requestResult failed");
             asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
@@ -1215,7 +1215,8 @@ bool JsAbilityContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue* ar
     return JsAbilityContext::UnWrapWant(engine, jWant, want);
 }
 
-NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode)
+NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine,
+    int32_t resultCode, const AAFwk::Want &want)
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
@@ -1225,6 +1226,7 @@ NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine, int
     }
 
     object->SetProperty("result", CreateJsValue(engine, resultCode));
+    object->SetProperty("want", JsAbilityContext::WrapWant(engine, want));
     return objValue;
 }
 

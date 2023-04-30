@@ -33,6 +33,7 @@ const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Ability
 
 struct RequestResult {
     int32_t resultCode {0};
+    AAFwk::Want resultWant;
     RequestDialogResultTask task;
 };
 
@@ -470,9 +471,10 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
 
     auto resultTask =
-        [&engine, outTask = std::move(task)](int32_t resultCode) {
+        [&engine, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
         retData->resultCode = resultCode;
+        retData->resultWant = resultWant;
         retData->task = std::move(outTask);
 
         auto loop = engine.GetUVLoop();
@@ -521,7 +523,7 @@ void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int 
     }
 
     if (retCB->task) {
-        retCB->task(retCB->resultCode);
+        retCB->task(retCB->resultCode, retCB->resultWant);
     }
 
     delete retCB;

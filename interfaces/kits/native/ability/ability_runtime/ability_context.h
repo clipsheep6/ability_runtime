@@ -36,7 +36,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
-using RequestDialogResultTask = std::function<void(int32_t resultCode)>;
+using RequestDialogResultTask = std::function<void(int32_t resultCode, const AAFwk::Want&)>;
 class LocalCallContainer;
 class AbilityContext : public Context {
 public:

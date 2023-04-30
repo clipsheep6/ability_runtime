@@ -104,7 +104,7 @@ private:
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
     static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
     void InheritWindowMode(AAFwk::Want &want);
-    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
+    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode, const AAFwk::Want& want);
     void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
         bool isAbilityResult = false);
 
