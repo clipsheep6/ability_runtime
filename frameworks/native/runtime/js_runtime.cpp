@@ -1073,7 +1073,6 @@ void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativ
             work = nullptr;
         }
     });
-
     if (ret != 0) {
         delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
         work->data = nullptr;
