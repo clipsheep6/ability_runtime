@@ -124,15 +124,6 @@ public:
     virtual std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const = 0;
 
     /**
-     * @brief Deletes the specified private file associated with the application.
-     *
-     * @param fileName Indicates the name of the file to delete. The file name cannot contain path separators.
-     *
-     * @return Returns true if the file is deleted successfully; returns false otherwise.
-     */
-    virtual bool DeleteFile(const std::string &fileName) = 0;
-
-    /**
      * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
      * The current ability using either the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE
      * template can call this method to destroy another ability that uses the AbilityInfo.AbilityType.SERVICE
@@ -143,24 +134,6 @@ public:
      * @return Returns true if the ability is destroyed successfully; returns false otherwise.
      */
     virtual bool StopAbility(const AAFwk::Want &want) = 0;
-
-    /**
-     * @brief Obtains the application-specific cache directory on the device's internal storage. The system
-     * automatically deletes files from the cache directory if disk space is required elsewhere on the device.
-     * Older files are always deleted first.
-     *
-     * @return Returns the application-specific cache directory.
-     */
-    virtual std::string GetCacheDir() = 0;
-
-    /**
-     * @brief Obtains the application-specific code-cache directory on the device's internal storage.
-     * The system will delete any files stored in this location both when your specific application is upgraded,
-     * and when the entire platform is upgraded.
-     *
-     * @return Returns the application-specific code-cache directory.
-     */
-    virtual std::string GetCodeCacheDir() = 0;
 
     /**
      * @brief Obtains the local database path.
@@ -222,15 +195,6 @@ public:
      * @return Returns the application file directory.
      */
     virtual std::string GetFilesDir() = 0;
-
-    /**
-     * @brief Obtains the absolute path which app created and will be excluded from automatic backup to remote storage.
-     * The returned path maybe changed if the application is moved to an adopted storage device.
-     *
-     * @return The path of the directory holding application files that will not be automatically backed up to remote
-     * storage.
-     */
-    virtual std::string GetNoBackupFilesDir() = 0;
 
     /**
      * @brief Checks whether the current process has the given permission.
@@ -338,15 +302,6 @@ public:
     {
         return 0;
     }
-
-    /**
-     * @brief Obtains the distributed file path.
-     * If the distributed file path does not exist, the system creates one and returns the created path. This method is
-     * applicable only to the context of an ability rather than that of an application.
-     *
-     * @return Returns the distributed file.
-     */
-    virtual std::string GetDistributedDir() = 0;
 
     /**
      * @brief Sets the pattern of this Context based on the specified pattern ID.

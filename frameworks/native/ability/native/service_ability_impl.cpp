@@ -46,7 +46,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
         }
         case AAFwk::ABILITY_STATE_INACTIVE: {
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
-                SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
+                SetUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
                              targetState.caller.abilityName);
                 Start(want);
             }

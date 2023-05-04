@@ -203,7 +203,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0600, Function | M
     appInfo->cacheDir = "cacheDir";
     appInfo->bundleName = "bundleName";
 
-    contextDeal->SetProcessInfo(processInfo);
+    application->SetProcessInfo(processInfo);
     contextDeal->SetApplicationInfo(appInfo);
     contextDeal->SetApplicationContext(application);
     application->AttachBaseContext(contextDeal);

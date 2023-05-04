@@ -88,7 +88,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityContext.GetPermissionDes(permissionName, des);
     std::vector<std::string> permissions;
     std::string fileName(data, size);
-    abilityContext.DeleteFile(fileName);
     std::string deviceId(data, size);
     std::string abilityName(data, size);
     std::string moduleName(data, size);

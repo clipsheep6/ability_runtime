@@ -267,62 +267,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityManager_020
 }
 
 /**
- * @tc.number: AppExecFwk_ContextContainer_GetCodeCacheDir_0100
- * @tc.name: GetCodeCacheDir
- * @tc.desc: Test whether AttachBaseContext is called normally,
- *           and verify whether the return value of GetCodeCacheDir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCodeCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CodeCacheDir";
-    info->dataDir = dir;
-    contextDeal_->SetApplicationInfo(info);
-    context_->AttachBaseContext(contextDeal_);
-    std::string dirCompare = "CodeCacheDir/code_cache";
-    EXPECT_STREQ(context_->GetCodeCacheDir().c_str(), "/data/storage/el2/base/data/code_cache");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetCodeCacheDir_0200
- * @tc.name: GetCodeCacheDir
- * @tc.desc: Test GetCodeCacheDir exception status.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCodeCacheDir_0200, Function | MediumTest | Level3)
-{
-    std::string empty = "";
-    EXPECT_STREQ(context_->GetCodeCacheDir().c_str(), empty.c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Test whether AttachBaseContext is called normally,
- *           and verify whether the return value of GetCacheDir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CacheDir";
-    info->cacheDir = dir;
-    contextDeal_->SetApplicationInfo(info);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_STREQ(context_->GetCacheDir().c_str(), "/data/storage/el2/base/cache");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetCacheDir_0200
- * @tc.name: GetCacheDir
- * @tc.desc: Test GetCacheDir exception status.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCacheDir_0200, Function | MediumTest | Level3)
-{
-    std::string empty = "";
-    EXPECT_STREQ(context_->GetCacheDir().c_str(), empty.c_str());
-}
-
-/**
  * @tc.number: AppExecFwk_ContextContainer_GetDatabaseDir_0100
  * @tc.name: GetDatabaseDir
  * @tc.desc: Test whether AttachBaseContext is called normally,
@@ -532,7 +476,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetProcessInfo_0100, 
     pid_t id = 0;
     ProcessInfo info(name, id);
     std::shared_ptr<ProcessInfo> processinfo = std::make_shared<ProcessInfo>(info);
-    contextDeal_->SetProcessInfo(processinfo);
+    context_->SetProcessInfo(processinfo);
     context_->AttachBaseContext(contextDeal_);
 
     EXPECT_STREQ(name.c_str(), context_->GetProcessInfo()->GetProcessName().c_str());
@@ -561,7 +505,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextDeal_GetProcessName_0100, Funct
     pid_t id = 0;
     ProcessInfo info(name, id);
     std::shared_ptr<ProcessInfo> processinfo = std::make_shared<ProcessInfo>(info);
-    contextDeal_->SetProcessInfo(processinfo);
+    context_->SetProcessInfo(processinfo);
     context_->AttachBaseContext(contextDeal_);
 
     EXPECT_STREQ(name.c_str(), context_->GetProcessName().c_str());
@@ -645,28 +589,6 @@ HWTEST_F(ContextContainerTest, GetResourceManager_0100, Function | MediumTest | 
 }
 
 /**
- * @tc.number: DeleteFile_0100
- * @tc.name: DeleteFile
- * @tc.desc: DeleteFile
- */
-HWTEST_F(ContextContainerTest, DeleteFile_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_TRUE(context_->DeleteFile("test_file"));
-}
-
-/**
- * @tc.number: DeleteFile_0200
- * @tc.name: DeleteFile
- * @tc.desc: DeleteFile
- */
-HWTEST_F(ContextContainerTest, DeleteFile_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_FALSE(context_->DeleteFile("test_file"));
-}
-
-/**
  * @tc.number: GetExternalCacheDir_0100
  * @tc.name: GetExternalCacheDir
  * @tc.desc: GetExternalCacheDir
@@ -710,28 +632,6 @@ HWTEST_F(ContextContainerTest, GetExternalFilesDir_0200, Function | MediumTest |
     context_->AttachBaseContext(nullptr);
     string type = "type_test";
     EXPECT_EQ(context_->GetExternalFilesDir(type), "");
-}
-
-/**
- * @tc.number: GetNoBackupFilesDir_0100
- * @tc.name: GetNoBackupFilesDir
- * @tc.desc: GetNoBackupFilesDir
- */
-HWTEST_F(ContextContainerTest, GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_NE(context_->GetNoBackupFilesDir(), "");
-}
-
-/**
- * @tc.number: GetNoBackupFilesDir_0200
- * @tc.name: GetNoBackupFilesDir
- * @tc.desc: GetNoBackupFilesDir
- */
-HWTEST_F(ContextContainerTest, GetNoBackupFilesDir_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetNoBackupFilesDir(), "");
 }
 
 /**
@@ -802,28 +702,6 @@ HWTEST_F(ContextContainerTest, VerifyPermission_0200, Function | MediumTest | Le
     int pid = 0;
     int uid = 0;
     EXPECT_EQ(context_->VerifyPermission(permission, pid, uid), AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
-}
-
-/**
- * @tc.number: GetDistributedDir_0100
- * @tc.name: GetDistributedDir
- * @tc.desc: GetDistributedDir
- */
-HWTEST_F(ContextContainerTest, GetDistributedDir_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_NE(context_->GetDistributedDir(), "");
-}
-
-/**
- * @tc.number: GetDistributedDir_0200
- * @tc.name: GetDistributedDir
- * @tc.desc: GetDistributedDir
- */
-HWTEST_F(ContextContainerTest, GetDistributedDir_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetDistributedDir(), "");
 }
 
 /**
@@ -1259,33 +1137,6 @@ HWTEST_F(ContextContainerTest, PrintDrawnCompleted_0200, Function | MediumTest |
 }
 
 /**
- * @tc.number: AppExecFwk_ContextContainer_DeleteFile_0100
- * @tc.name: Delete File
- * @tc.desc: Test Delete File When baseContext is not null,
- *           and verify whether the return value of DeleteFile is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_DeleteFile_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_TRUE(context_->DeleteFile("test"));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_DeleteFile_0200
- * @tc.name: Delete File
- * @tc.desc: Test Delete File When baseContext is null.
- *           and verify whether the return value of DeleteFile is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_DeleteFile_0200, Function | MediumTest | Level3)
-{
-    EXPECT_FALSE(context_->DeleteFile("test"));
-}
-
-/**
  * @tc.number: AppExecFwk_ContextContainer_GetExternalCacheDir_0100
  * @tc.name: Get External Cache Dir
  * @tc.desc: Test Get External Cache Dir When baseContext is not null,
@@ -1342,33 +1193,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetExternalFilesDir_0
 }
 
 /**
- * @tc.number: AppExecFwk_ContextContainer_GetNoBackupFilesDir_0100
- * @tc.name: Get No Backup Files Dir
- * @tc.desc: Test Get No Backup Files Dir When baseContext is not null,
- *           and verify whether the return value of Get No Backup Files Dir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_EQ(context_->GetNoBackupFilesDir(), "/data/storage/el2/base/data/no_backup");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetNoBackupFilesDir_0200
- * @tc.name: Get No Backup FilesDir
- * @tc.desc: Test Get No Backup Files Dir When baseContext is null.
- *           and verify whether the return value of Get No Backup Files Dir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetNoBackupFilesDir_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->GetNoBackupFilesDir(), "");
-}
-
-/**
  * @tc.number: AppExecFwk_ContextContainer_VerifySelfPermission_0100
  * @tc.name: Verify Self Permission
  * @tc.desc: Test Verify Self Permission When baseContext is not null,
@@ -1411,33 +1235,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0
     ASSERT_NE(context_, nullptr);
     Uri urivalue("");
     context_->UnauthUriPermission("permission", urivalue, 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetDistributedDir_0100
- * @tc.name: Get Distributed Dir
- * @tc.desc: Test Get Distributed Dir When baseContext is not null,
- *           and verify whether the return value of Get Distributed Dir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDistributedDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_EQ(context_->GetDistributedDir(), "/data/storage/el2/distributedfiles");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetDistributedDir_0200
- * @tc.name: Get Distributed Dir
- * @tc.desc: Test Get Distributed Dir When baseContext is null.
- *           and verify whether the return value of Get Distributed Dir is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetDistributedDir_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->GetDistributedDir(), "");
 }
 
 /**
@@ -1506,7 +1303,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCaller_0100, Funct
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
     contextDeal_->SetContext(context);
-    contextDeal_->SerUriString("test");
+    context_->SetUriString("test");
     context_->AttachBaseContext(contextDeal_);
 
     Uri uri("test");
@@ -1876,7 +1673,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetMissionId_0100, Fu
 
     AAFwk::LifeCycleStateInfo lifeCycleStateInfo;
     lifeCycleStateInfo.missionId = 0;
-    contextDeal_->SetLifeCycleStateInfo(lifeCycleStateInfo);
+    context_->SetLifeCycleStateInfo(lifeCycleStateInfo);
     context_->AttachBaseContext(contextDeal_);
 
     EXPECT_EQ(context_->GetMissionId(), 0);

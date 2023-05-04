@@ -163,40 +163,6 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetApplicationInfo_0100, Funct
 }
 
 /**
- * @tc.number: AaFwk_AbilityContext_GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Test the attachbasecontext call to verify whether the return value of getcachedir is correct.
- */
-HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CacheDir";
-    info->cacheDir = dir;
-    deal->SetApplicationInfo(info);
-    context_->AttachBaseContext(deal);
-
-    EXPECT_STREQ("/data/storage/el2/base/cache", context_->GetCacheDir().c_str());
-}
-
-/**
- * @tc.number: AaFwk_AbilityContext_GetCodeCacheDir_0100
- * @tc.name: GetCodeCacheDir
- * @tc.desc: Test the attachbasecontext call to verify whether the return value of getcodechedir is correct.
- */
-HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCodeCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CacheDir";
-    info->dataDir = dir;
-    deal->SetApplicationInfo(info);
-    context_->AttachBaseContext(deal);
-    std::string dirCompare = "CacheDir/code_cache";
-    EXPECT_STREQ("/data/storage/el2/base/data/code_cache", context_->GetCodeCacheDir().c_str());
-}
-
-/**
  * @tc.number: AaFwk_AbilityContext_GetDatabaseDir_0100
  * @tc.name: GetDatabaseDir
  * @tc.desc: Test the attachbasecontext call to verify whether the return value of getdatabasedir is correct.
@@ -360,9 +326,7 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetProcessInfo_0100, Function 
     ProcessInfo info(name, id);
 
     std::shared_ptr<ProcessInfo> processInfo = std::make_shared<ProcessInfo>(info);
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    deal->SetProcessInfo(processInfo);
-    context_->AttachBaseContext(deal);
+    context_->SetProcessInfo(processInfo);
 
     EXPECT_STREQ(name.c_str(), context_->GetProcessInfo()->GetProcessName().c_str());
 }
