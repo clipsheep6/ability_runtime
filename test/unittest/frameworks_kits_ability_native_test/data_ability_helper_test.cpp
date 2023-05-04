@@ -2040,6 +2040,25 @@ HWTEST_F(
 }
 
 /**
+ * @tc.number: AaFwk_DataAbilityHelper_TransferScheme_0500
+ * @tc.name: TransferScheme
+ * @tc.desc: Simulate successful test cases
+ */
+HWTEST_F(
+    DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_TransferScheme_0500, Function | MediumTest | Level3)
+{
+    std::shared_ptr<Context> context = std::make_shared<AbilityContext>();
+    std::shared_ptr<Uri> uri =
+        std::make_shared<Uri>("file://com.domainname.dataability.persondata/person/10");
+    std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
+    std::string uriString = "abc";
+    Uri dataShareUri(uriString);
+    bool ret = false;
+    ret = dataAbilityHelper->TransferScheme(*uri, dataShareUri);
+    EXPECT_TRUE(ret);
+}
+
+/**
  * @tc.number: AaFwk_DataAbilityHelper_Creator_0100
  * @tc.name: Creator
  * @tc.desc: Simulate successful test cases
