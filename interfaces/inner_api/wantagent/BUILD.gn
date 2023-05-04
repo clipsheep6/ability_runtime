@@ -26,7 +26,7 @@ config("wantagent_innerkits_public_config") {
     "${ability_runtime_native_path}/ability/native/*",
     "${ability_runtime_test_path}/fuzztest/*",
     "${device_usage_statistics_path}/*",
-    "//base/notification/distributed_notification_service/*",
+    "${distributed_notification_service_path}/*",
   ]
 
   include_dirs = [

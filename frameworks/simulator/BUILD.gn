@@ -127,11 +127,9 @@ ohos_copy("copy_ability_simulator") {
   out_path = get_label_info("//third_party/libuv:uv", "root_out_dir")
   sources += [ out_path + "/thirdparty/libuv/libuv" + dylib_suffix ]
 
-  deps += [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
-  ]
+  deps += [ "${hilog_path}/interfaces/native/innerkits:libhilog_$platform" ]
   out_path = get_label_info(
-          "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
+          "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
           "root_out_dir")
   sources +=
       [ out_path + "/hiviewdfx/hilog_native/libhilog_$platform" + dylib_suffix ]

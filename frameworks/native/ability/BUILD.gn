@@ -20,8 +20,8 @@ config("ability_context_public_config") {
     "${ability_runtime_native_path}/ability/*",
     "${ability_runtime_test_path}/fuzztest/connectability_fuzzer/*",
     "${ability_runtime_test_path}/fuzztest/disconnectability_fuzzer/*",
+    "${print_fwk_path}/frameworks/kits/extension/*",
     "${user_file_service_innerkits_path}/file_access/*",
-    "//base/print/print_fwk/frameworks/kits/extension/*",
   ]
   include_dirs = [
     "${ability_base_kits_path}/extractortool/include",

@@ -21,7 +21,7 @@ config("ability_manager_public_config") {
     "${ability_runtime_test_path}/moduletest/*",
     "${ability_runtime_test_path}/unittest/*",
     "${form_fwk_path}/test/fuzztest/*",
-    "//base/account/os_account/tools/test/moduletest/acm/*",
+    "${os_account_path}/tools/test/moduletest/acm/*",
   ]
   include_dirs = [
     "include/",
