@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H
 #define OHOS_ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H
 
+#include "ability_context.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_connect_callback_proxy.h"
 #include "local_call_record.h"
@@ -26,13 +27,13 @@ namespace AbilityRuntime {
 using Want = OHOS::AAFwk::Want;
 using AbilityConnectionStub = OHOS::AAFwk::AbilityConnectionStub;
 class CallerConnection;
-class LocalCallContainer : public std::enable_shared_from_this<LocalCallContainer>{
+class LocalCallContainer : public std::enable_shared_from_this<LocalCallContainer> {
 public:
     LocalCallContainer() = default;
     virtual ~LocalCallContainer() = default;
 
-    int StartAbilityByCallInner(
-        const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken);
+    int StartAbilityByCallInner(const Want &want, const std::shared_ptr<CallerCallBack> &callback,
+        const sptr<IRemoteObject> &callerToken, int32_t accountId = DEFAULT_INVAL_VALUE);
 
     int ReleaseCall(const std::shared_ptr<CallerCallBack> &callback);
 
@@ -48,15 +49,19 @@ public:
     void OnCallStubDied(const wptr<IRemoteObject> &remote);
 
 private:
-    bool GetCallLocalRecord(
-        const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord);
+    bool GetCallLocalRecord(const AppExecFwk::ElementName &elementName,
+        std::shared_ptr<LocalCallRecord> &localCallRecord, int32_t accountId);
     void OnSingletonCallStubDied(const wptr<IRemoteObject> &remote);
-    int32_t RemoveSingletonCallLocalRecord(const std::string &uri);
+    int32_t RemoveSingletonCallLocalRecord(const std::shared_ptr<LocalCallRecord> &record);
     int32_t RemoveMultipleCallLocalRecord(const std::shared_ptr<LocalCallRecord> &record);
+    int32_t GetCurrentUserId();
+    int32_t GetValidUserId(int32_t accountId);
+    bool IsCallBackCalled(const std::vector<std::shared_ptr<CallerCallBack>> &callers) const;
 
 private:
+    int32_t currentUserId_ = DEFAULT_INVAL_VALUE;
     // used to store single instance call records
-    std::map<std::string, std::shared_ptr<LocalCallRecord>> callProxyRecords_;
+    std::map<std::string, std::set<std::shared_ptr<LocalCallRecord>>> callProxyRecords_;
     // used to store multi instance call records
     std::map<std::string, std::set<std::shared_ptr<LocalCallRecord>>> multipleCallProxyRecords_;
     std::set<sptr<CallerConnection>> connections_;

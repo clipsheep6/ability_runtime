@@ -320,8 +320,8 @@ public:
         return 0;
     }
 
-    int StartAbilityByCall(
-        const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken) override
+    int StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
+        const sptr<IRemoteObject>& callerToken, int32_t userId = DEFAULT_INVAL_VALUE) override
     {
         return 0;
     }

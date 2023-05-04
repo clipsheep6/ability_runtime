@@ -493,5 +493,19 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_SetConnection_0100, Function | M
     localCallRecord.SetConnection(connect);
     EXPECT_EQ(localCallRecord.GetConnection(), connect);
 }
+
+/**
+* @tc.number: Local_Call_Record_SetUserId_0100
+* @tc.name: SetUserId
+* @tc.desc: SetUserId input parameter connect and GetConnection return connect.
+*/
+HWTEST_F(LocalCallRecordTest, Local_Call_Record_SetUserId_0100, Function | MediumTest | Level1)
+{
+    constexpr int32_t USER_ID_U100 = 100;
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    LocalCallRecord localCallRecord(elementName);
+    localCallRecord.SetUserId(USER_ID_U100);
+    EXPECT_EQ(USER_ID_U100, localCallRecord.GetUserId());
+}
 } // namespace AppExecFwk
 } // namespace OHOS

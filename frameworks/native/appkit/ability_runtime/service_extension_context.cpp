@@ -73,7 +73,7 @@ ErrCode ServiceExtensionContext::StartAbilityAsCaller(const AAFwk::Want &want,
 }
 
 ErrCode ServiceExtensionContext::StartAbilityByCall(
-    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
+    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback, int32_t accountId)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (localCallContainer_ == nullptr) {
@@ -83,7 +83,7 @@ ErrCode ServiceExtensionContext::StartAbilityByCall(
             return ERR_INVALID_VALUE;
         }
     }
-    return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
+    return localCallContainer_->StartAbilityByCallInner(want, callback, token_, accountId);
 }
 
 ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) const

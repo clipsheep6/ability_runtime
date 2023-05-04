@@ -50,8 +50,8 @@ int MockServiceAbilityManagerService::StartAbilityAsCaller(
     return 0;
 }
 
-int MockServiceAbilityManagerService::StartAbilityByCall(
-    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
+int MockServiceAbilityManagerService::StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
+    const sptr<IRemoteObject>& callerToken, int32_t accountId)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::StartAbilityByCall begain";
     if (!connect) {

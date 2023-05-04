@@ -1202,7 +1202,9 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
-    int32_t result = StartAbilityByCall(*want, callback, callerToken);
+
+    int32_t accountId = data.ReadInt32();
+    int32_t result = StartAbilityByCall(*want, callback, callerToken, accountId);
 
     HILOG_DEBUG("resolve call ability ret = %d", result);
 

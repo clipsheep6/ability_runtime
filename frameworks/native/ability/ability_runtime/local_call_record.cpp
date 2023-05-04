@@ -210,5 +210,15 @@ sptr<IRemoteObject> LocalCallRecord::GetConnection()
 {
     return connection_.promote();
 }
+
+void LocalCallRecord::SetUserId(int32_t userId)
+{
+    userId_ = userId;
+}
+
+int32_t LocalCallRecord::GetUserId() const
+{
+    return userId_;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
