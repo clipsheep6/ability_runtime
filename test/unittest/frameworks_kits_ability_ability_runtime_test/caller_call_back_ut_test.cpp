@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "caller_callback.h"
+#include "local_call_record.h"
 #undef private
 #undef protected
 
@@ -153,6 +154,21 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_IsCallBack_0100, Function | Medium
     bool ret = callerCallBack.IsCallBack();
 
     EXPECT_EQ(ret, true);
+}
+
+/**
+ * @tc.number: Caller_Call_Back_SetRecord_0100
+ * @tc.name: SetRecord
+ * @tc.desc: Caller call back to process SetRecord and GetRecord success.
+ */
+HWTEST_F(CallerCallBackTest, Caller_Call_Back_SetRecord_0100, Function | MediumTest | Level1)
+{
+    CallerCallBack callerCallBack;
+    EXPECT_EQ(callerCallBack.GetRecord(), nullptr);
+    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
+    callerCallBack.SetRecord(localCallRecord);
+    EXPECT_NE(callerCallBack.GetRecord(), nullptr);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

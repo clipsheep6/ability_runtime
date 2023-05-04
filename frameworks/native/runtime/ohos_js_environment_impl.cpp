@@ -14,9 +14,13 @@
  */
 
 #include "ohos_js_environment_impl.h"
-
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
+#include "js_timer.h"
+#include "js_utils.h"
 
+#include "js_worker.h"
 namespace OHOS {
 namespace AbilityRuntime {
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
@@ -39,19 +43,35 @@ void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
     HILOG_DEBUG("called");
 }
 
-void OHOSJsEnvironmentImpl::InitTimerModule()
+void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("Init timer.");
+    CHECK_POINTER(engine);
+
+    HandleScope handleScope(*engine);
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    CHECK_POINTER(globalObj);
+
+    InitTimer(*engine, *globalObj);
 }
 
-void OHOSJsEnvironmentImpl::InitConsoleLogModule()
+void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)
 {
     HILOG_DEBUG("called");
+    JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
-void OHOSJsEnvironmentImpl::InitWorkerModule()
+void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, const std::string& codePath,
+    bool isDebugVersion, bool isBundle)
 {
     HILOG_DEBUG("called");
+    engine.SetInitWorkerFunc(InitWorkerFunc);
+    engine.SetOffWorkerFunc(OffWorkerFunc);
+    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, isBundle));
+
+    engine.SetGetContainerScopeIdFunc(GetContainerId);
+    engine.SetInitContainerScopeFunc(UpdateContainerScope);
+    engine.SetFinishContainerScopeFunc(RestoreContainerScope);
 }
 
 void OHOSJsEnvironmentImpl::InitSyscapModule()

@@ -182,7 +182,7 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 }
 }
 
-void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
+void InitTimer(NativeEngine& engine, NativeObject& globalObject)
 {
     HILOG_DEBUG("InitTimerModule begin.");
     const char *moduleName = "JsTimer";

@@ -599,8 +599,7 @@ public:
      * send result object to caller ability thread.
      *
      */
-    void SendResult();
-
+    void SendResult(bool isSandboxApp = false);
     /**
      * send result object to caller ability.
      *
@@ -849,6 +848,7 @@ public:
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RevokeUriPermission();
     void RemoveAbilityDeathRecipient() const;
+    bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
@@ -865,7 +865,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName);
+    void GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp = false);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall();
     int32_t GetCurrentAccountId() const;

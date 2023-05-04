@@ -53,7 +53,6 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "systemcapability.h"
-#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "source_map.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -263,6 +262,12 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
 }
 
+void JsRuntime::InitConsoleModule()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitConsoleModule();
+}
+
 bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
     const DebuggerPostTask& debuggerPostTask)
 {
@@ -462,7 +467,7 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+            InitConsoleModule();
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'
@@ -518,10 +523,11 @@ bool JsRuntime::Initialize(const Options& options)
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
             } else {
-                InitTimerModule(*nativeEngine, *globalObj);
+                InitTimerModule();
             }
-
-            InitWorkerModule(*nativeEngine, codePath_, options.isDebugVersion, options.isBundle);
+            if (jsEnv_) {
+                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
+            }
         }
     }
 
@@ -1070,13 +1076,18 @@ void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativ
             work = nullptr;
         }
     });
-
     if (ret != 0) {
         delete reinterpret_cast<JsNativeReferenceDeleterObject*>(work->data);
         work->data = nullptr;
         delete work;
         work = nullptr;
     }
+}
+
+void JsRuntime::InitTimerModule()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitTimerModule();
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

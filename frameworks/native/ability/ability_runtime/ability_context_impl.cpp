@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,7 @@ const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Ability
 
 struct RequestResult {
     int32_t resultCode {0};
+    AAFwk::Want resultWant;
     RequestDialogResultTask task;
 };
 
@@ -424,16 +425,16 @@ ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue
 }
 
 ErrCode AbilityContextImpl::StartAbilityByCall(
-    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack>& callback)
+    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack>& callback, int32_t accountId)
 {
     if (localCallContainer_ == nullptr) {
-        localCallContainer_ = new (std::nothrow) LocalCallContainer();
+        localCallContainer_ = std::make_shared<LocalCallContainer>();
         if (localCallContainer_ == nullptr) {
             HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
             return ERR_INVALID_VALUE;
         }
     }
-    return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
+    return localCallContainer_->StartAbilityByCallInner(want, callback, token_, accountId);
 }
 
 ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
@@ -445,6 +446,17 @@ ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack>& c
     }
     HILOG_DEBUG("AbilityContextImpl::Release end.");
     return localCallContainer_->ReleaseCall(callback);
+}
+
+void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerCallBack>& callback)
+{
+    HILOG_DEBUG("AbilityContextImpl::Clear begin.");
+    if (localCallContainer_ == nullptr) {
+        HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
+        return;
+    }
+    localCallContainer_->ClearFailedCallConnection(callback);
+    HILOG_DEBUG("AbilityContextImpl::Clear end.");
 }
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
@@ -459,9 +471,10 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
 
     auto resultTask =
-        [&engine, outTask = std::move(task)](int32_t resultCode) {
+        [&engine, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
         retData->resultCode = resultCode;
+        retData->resultWant = resultWant;
         retData->task = std::move(outTask);
 
         auto loop = engine.GetUVLoop();
@@ -510,7 +523,7 @@ void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int 
     }
 
     if (retCB->task) {
-        retCB->task(retCB->resultCode);
+        retCB->task(retCB->resultCode, retCB->resultWant);
     }
 
     delete retCB;

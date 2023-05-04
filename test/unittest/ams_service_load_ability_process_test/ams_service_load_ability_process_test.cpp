@@ -1197,11 +1197,11 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess002, TestSize.Level1)
         abilityInfo->applicationInfo.uid,
         abilityInfo->applicationInfo.bundleName, 0);
     const auto& recordMap = service_->appRunningManager_->GetAppRunningRecordMap();
-    EXPECT_EQ(recordMap.size(), (uint32_t)1);
+    EXPECT_EQ(recordMap.size(), (uint32_t)0);
 
     auto record1 = service_->appRunningManager_->CheckAppRunningRecordIsExist(
         appInfo->name, GetTestAppName(), appInfo->uid, bundleInfo);
-    EXPECT_NE(record1, nullptr);
+    EXPECT_EQ(record1, nullptr);
     CHECK_POINTER_IS_NULLPTR(record1);
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartProcess002 end");
 }

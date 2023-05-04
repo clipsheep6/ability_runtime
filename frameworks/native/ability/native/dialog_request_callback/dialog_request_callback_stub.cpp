@@ -48,7 +48,13 @@ int DialogRequestCallbackStub::OnRemoteRequest(
 int DialogRequestCallbackStub::SendResultInner(MessageParcel &data, MessageParcel &reply)
 {
     auto resultCode = data.ReadInt32();
-    SendResult(resultCode);
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    SendResult(resultCode, *want);
     return NO_ERROR;
 }
 }  // namespace AbilityRuntime

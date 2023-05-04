@@ -29,11 +29,12 @@ public:
 
     void RemoveTask(const std::string& name) override;
 
-    void InitTimerModule() override;
+    void InitTimerModule(NativeEngine* engine) override;
 
-    void InitConsoleLogModule() override;
+    void InitConsoleModule(NativeEngine *engine) override;
 
-    void InitWorkerModule() override;
+    void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
+        bool isBundle) override;
 
     void InitSyscapModule() override;
 };

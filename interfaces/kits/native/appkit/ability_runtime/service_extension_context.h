@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,10 +67,12 @@ public:
      *
      * @param want Request info for ability.
      * @param callback Indicates the callback object.
+     * @param accountId Indicates the account to start.
      *
      * @return Returns zero on success, others on failure.
      */
-    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback);
+    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback,
+        int32_t accountId = DEFAULT_INVAL_VALUE);
 
     /**
      * caller release by callback object
@@ -80,6 +82,15 @@ public:
      * @return Returns zero on success, others on failure.
      */
     ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) const;
+
+    /**
+     * clear failed call connection by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return void.
+     */
+    void ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback) const;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
@@ -156,7 +167,7 @@ protected:
 
 private:
     static int ILLEGAL_REQUEST_CODE;
-    sptr<LocalCallContainer> localCallContainer_ = nullptr;
+    std::shared_ptr<LocalCallContainer> localCallContainer_ = nullptr;
 
     /**
      * @brief Get Current Ability Type

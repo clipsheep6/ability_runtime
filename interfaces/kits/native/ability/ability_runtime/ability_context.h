@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,8 +36,9 @@ namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
-using RequestDialogResultTask = std::function<void(int32_t resultCode)>;
+using RequestDialogResultTask = std::function<void(int32_t resultCode, const AAFwk::Want&)>;
 class LocalCallContainer;
+constexpr int32_t DEFAULT_INVAL_VALUE = -1;
 class AbilityContext : public Context {
 public:
     virtual ~AbilityContext() = default;
@@ -215,10 +216,12 @@ public:
      *
      * @param want Request info for ability.
      * @param callback Indicates the callback object.
+     * @param accountId Indicates the account to start.
      *
      * @return Returns zero on success, others on failure.
      */
-    virtual ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) = 0;
+    virtual ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback,
+        int32_t accountId = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * caller release by callback object
@@ -230,11 +233,20 @@ public:
     virtual ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
+     * clear failed call connection by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return void.
+     */
+    virtual void ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback) = 0;
+
+    /**
      * @brief Get LocalCallContainer.
      *
      * @return Returns the LocalCallContainer.
      */
-    virtual sptr<LocalCallContainer> GetLocalCallContainer() = 0;
+    virtual std::shared_ptr<LocalCallContainer> GetLocalCallContainer() = 0;
 
     virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
 

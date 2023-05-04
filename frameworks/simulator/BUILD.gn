@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 if (is_mac) {
   dylib_suffix = ".dylib"
@@ -95,13 +96,12 @@ ohos_copy("copy_ability_simulator") {
   sources +=
       [ out_path + "/ability/simulator/libability_simulator" + dylib_suffix ]
 
-  deps += [ "//foundation/arkui/napi:ace_napi" ]
-  out_path = get_label_info("//foundation/arkui/napi:ace_napi", "root_out_dir")
+  external_deps = [ "napi:ace_napi" ]
+  out_path = get_label_info("${arkui_path}/napi:ace_napi", "root_out_dir")
   sources += [ out_path + "/arkui/napi/libace_napi" + dylib_suffix ]
 
-  deps += [ "//foundation/arkui/napi:ace_napi_ark" ]
-  out_path =
-      get_label_info("//foundation/arkui/napi:ace_napi_ark", "root_out_dir")
+  deps += [ "${arkui_path}/napi:ace_napi_ark" ]
+  out_path = get_label_info("${arkui_path}/napi:ace_napi_ark", "root_out_dir")
   sources += [ out_path + "/arkui/napi/libace_napi_ark" + dylib_suffix ]
 
   deps += [ "//arkcompiler/ets_runtime:libark_jsruntime" ]
@@ -127,11 +127,9 @@ ohos_copy("copy_ability_simulator") {
   out_path = get_label_info("//third_party/libuv:uv", "root_out_dir")
   sources += [ out_path + "/thirdparty/libuv/libuv" + dylib_suffix ]
 
-  deps += [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
-  ]
+  deps += [ "${hilog_path}/interfaces/native/innerkits:libhilog_$platform" ]
   out_path = get_label_info(
-          "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
+          "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
           "root_out_dir")
   sources +=
       [ out_path + "/hiviewdfx/hilog_native/libhilog_$platform" + dylib_suffix ]

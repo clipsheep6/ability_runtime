@@ -22,6 +22,7 @@
 #include "ability_manager_service.h"
 #include "ability_event_handler.h"
 #include "ability_connect_manager.h"
+#include "ability_connection.h"
 #include "ams_configuration_parameter.h"
 #undef private
 #undef protected
@@ -281,6 +282,22 @@ HWTEST_F(AbilityManagerServiceTest, StartAbilityByCall_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityByCall
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityByCall
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityByCall_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityByCall_002 start");
+    Want want;
+    constexpr int32_t USER_ID_U202 = 202;
+    sptr<IAbilityConnection> connect = new (std::nothrow) AbilityConnection();
+    EXPECT_EQ(abilityMs_->StartAbilityByCall(want, connect, nullptr, USER_ID_U202), ERR_CROSS_USER);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityByCall_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckCallServicePermission
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CheckCallServicePermission
@@ -437,19 +454,9 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Lev
 {
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), ERR_INVALID_VALUE);
 
-    abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
-
-    abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 end");
 }

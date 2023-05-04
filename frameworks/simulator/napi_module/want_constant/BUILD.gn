@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("wantconstant_napi") {
   if (is_mingw) {
@@ -21,16 +22,15 @@ ohos_shared_library("wantconstant_napi") {
   }
 
   sources = [
-    "//foundation/ability/ability_runtime/frameworks/js/napi/wantConstant/native_module.cpp",
-    "//foundation/ability/ability_runtime/frameworks/js/napi/wantConstant/want_constant.cpp",
+    "${ability_runtime_napi_path}/wantConstant/native_module.cpp",
+    "${ability_runtime_napi_path}/wantConstant/want_constant.cpp",
   ]
 
   deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_$platform",
-    "//foundation/ability/ability_runtime/frameworks/simulator/osal:simulator_osal",
-    "//foundation/arkui/napi:ace_napi",
+    "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
+    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
   ]
-
+  external_deps = [ "napi:ace_napi" ]
   part_name = "simulator"
   subsystem_name = "ability"
 }

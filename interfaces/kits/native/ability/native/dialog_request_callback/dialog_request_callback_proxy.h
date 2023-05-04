@@ -35,8 +35,9 @@ public:
      * @brief Send dialogRequest result.
      *
      * @param resultCode result code.
+     * @param want result data.
      */
-    virtual void SendResult(int32_t resultCode) override;
+    virtual void SendResult(int32_t resultCode, const AAFwk::Want &want) override;
 
 private:
     static inline BrokerDelegator<DialogRequestCallbackProxy> delegator_;

@@ -84,7 +84,6 @@
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
-          "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension_module",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
@@ -321,7 +320,6 @@
         ],
         "test": [
           "//foundation/ability/ability_runtime/test/moduletest:moduletest",
-          "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
           "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
           "//foundation/ability/ability_runtime/test/unittest:unittest",
           "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest",

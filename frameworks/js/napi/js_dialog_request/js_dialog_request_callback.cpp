@@ -20,6 +20,7 @@
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "napi_common_want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -77,12 +78,20 @@ private:
             return engine.CreateUndefined();
         }
 
+        AAFwk::Want wantValue;
+        NativeValue* jWant = paramObject->GetProperty("want");
+        if (jWant != nullptr && jWant->TypeOf() == NativeValueType::NATIVE_OBJECT) {
+            AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jWant), wantValue);
+        } else {
+            HILOG_WARN("jWant is invalid data!");
+        }
+
         if (callback_ == nullptr) {
             HILOG_ERROR("JsDialogRequestCallback::%{public}s, callback_ is nullptr", __func__);
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
             return engine.CreateUndefined();
         }
-        callback_->SendResult(resultCodeValue);
+        callback_->SendResult(resultCodeValue, wantValue);
         HILOG_INFO("function called end.");
         return engine.CreateUndefined();
     }

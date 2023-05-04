@@ -19,6 +19,7 @@
 #include "js_environment_impl.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "uncaught_exception_callback.h"
+#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -67,22 +68,20 @@ void JsEnvironment::StopDebugger()
 
 void JsEnvironment::InitTimerModule()
 {
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
     if (impl_ != nullptr) {
-        impl_->InitTimerModule();
+        impl_->InitTimerModule(engine_);
     }
 }
 
-void JsEnvironment::InitConsoleLogModule()
+void JsEnvironment::InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle)
 {
-    if (impl_ != nullptr) {
-        impl_->InitConsoleLogModule();
-    }
-}
-
-void JsEnvironment::InitWorkerModule()
-{
-    if (impl_ != nullptr) {
-        impl_->InitWorkerModule();
+    if (impl_ != nullptr && engine_ != nullptr) {
+        impl_->InitWorkerModule(*engine_, codePath, isDebugVersion, isBundle);
     }
 }
 
@@ -147,6 +146,18 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
 
     panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
     return true;
+}
+
+void JsEnvironment::InitConsoleModule()
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->InitConsoleModule(engine_);
+    }
 }
 } // namespace JsEnv
 } // namespace OHOS

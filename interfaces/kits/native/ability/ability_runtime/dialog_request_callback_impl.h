@@ -26,7 +26,7 @@ public:
     explicit DialogRequestCallbackImpl(RequestDialogResultTask &&task) : task_(task) {}
     virtual ~DialogRequestCallbackImpl() = default;
 
-    void SendResult(int32_t resultCode) override;
+    void SendResult(int32_t resultCode, const AAFwk::Want &want) override;
 
 private:
     RequestDialogResultTask task_;

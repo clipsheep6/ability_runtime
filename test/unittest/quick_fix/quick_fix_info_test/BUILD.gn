@@ -19,11 +19,11 @@ ohos_unittest("quick_fix_info_test") {
   module_out_path = "ability_runtime/quick_fix"
 
   include_dirs = [
-    "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix/include",
+    "${ability_runtime_innerkits_path}/quick_fix/include",
     "mock",
   ]
   sources = [
-    "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix/src/quick_fix_info.cpp",
+    "${ability_runtime_innerkits_path}/quick_fix/src/quick_fix_info.cpp",
     "mock/parcel.cpp",
     "quick_fix_info_test.cpp",
   ]

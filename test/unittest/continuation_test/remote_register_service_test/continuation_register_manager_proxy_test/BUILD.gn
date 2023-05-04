@@ -46,7 +46,7 @@ config("ability_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_napi_path}/inner/napi_common",
     "${ability_runtime_napi_path}/featureAbility",
-    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/continuation/kits",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
   ]
 
   cflags = []
@@ -83,7 +83,7 @@ ohos_unittest("continuation_register_manager_proxy_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native:continuation_ipc",
+    "${ability_runtime_native_path}/ability/native:continuation_ipc",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

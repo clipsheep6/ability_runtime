@@ -394,5 +394,23 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1500, Func
     formExtensionProviderClient.NotifyFormExtensionAcquireState(wantArg, provider, want, callback->AsObject());
     GTEST_LOG_(INFO) << "formExtensionProviderClient_1500 end";
 }
+
+/**
+ * @tc.number: formExtensionProviderClient_1600
+ * @tc.name: AcquireFormData
+ * @tc.desc: formSupplyCallback is nullptr, failed to verify AcquireFormData.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1600 start";
+    int64_t formId = 0;
+    sptr<IRemoteObject> formSupplyCallback = nullptr;
+    int64_t requestCode = 0;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    auto result = formExtensionProviderClient.AcquireFormData(
+        formId, formSupplyCallback, requestCode);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1600 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

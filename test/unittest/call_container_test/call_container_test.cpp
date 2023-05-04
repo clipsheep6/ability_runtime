@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -450,6 +450,21 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     WaitUntilTaskFinished();
 
     EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
+}
+
+/*
+ * Feature: CallContainer
+ * Function: IsExistConnection
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: Verify IsExistConnection funtion call called
+ */
+HWTEST_F(CallContainerTest, Call_Container_Is_Exist_Connection_001, TestSize.Level1)
+{
+    std::shared_ptr<CallContainer> callContainer = get();
+    sptr<IAbilityConnection> connect = new AbilityConnectCallback();
+    EXPECT_FALSE(callContainer->IsExistConnection(connect));
 }
 }  // namespace AAFwk
 }  // namespace OHOS

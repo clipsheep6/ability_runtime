@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void DialogRequestCallbackProxy::SendResult(int32_t resultCode)
+void DialogRequestCallbackProxy::SendResult(int32_t resultCode, const AAFwk::Want &want)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -35,6 +35,11 @@ void DialogRequestCallbackProxy::SendResult(int32_t resultCode)
 
     if (!data.WriteInt32(resultCode)) {
         HILOG_ERROR("Write resultCode error.");
+        return;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
         return;
     }
 

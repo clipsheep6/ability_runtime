@@ -1331,13 +1331,13 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
     return result_;
 }
 
-void AbilityRecord::SendResult()
+void AbilityRecord::SendResult(bool isSandboxApp)
 {
     HILOG_INFO("Send result to the caller, ability:%{public}s.", abilityInfo_.name.c_str());
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
-    GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName);
+    GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName, isSandboxApp);
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     // reset result to avoid send result next time
     result_.reset();
@@ -1352,7 +1352,8 @@ void AbilityRecord::SendResultToCallers()
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            callerAbilityRecord->SendResult();
+            bool isSandboxApp = appIndex_ > 0 ? true : false;
+            callerAbilityRecord->SendResult(isSandboxApp);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
             if (callerSystemAbilityRecord != nullptr) {
@@ -2208,6 +2209,14 @@ bool AbilityRecord::ReleaseCall(const sptr<IAbilityConnection>& connect)
     return callContainer_->RemoveCallRecord(connect);
 }
 
+bool AbilityRecord::IsExistConnection(const sptr<IAbilityConnection> &connect)
+{
+    HILOG_DEBUG("ability find call record by callback.");
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+
+    return callContainer_->IsExistConnection(connect);
+}
+
 bool AbilityRecord::IsNeedToCallRequest() const
 {
     HILOG_DEBUG("ability release call record by callback.");
@@ -2298,8 +2307,22 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName)
+void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp)
 {
+    // reject sandbox to grant uri permission by start ability
+    if (!callerList_.empty() && callerList_.back()) {
+        auto caller = callerList_.back()->GetCaller();
+        if (caller && caller->appIndex_ > 0) {
+            HILOG_ERROR("Sandbox can not grant UriPermission by start ability.");
+            return;
+        }
+    }
+    // reject sandbox to grant uri permission by terminate self with result
+    if (isSandboxApp) {
+        HILOG_ERROR("Sandbox can not grant uriPermission by terminate self with result.");
+        return;
+    }
+
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
@@ -2342,7 +2365,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
             targetBundleName, autoremove));
-        if (ret) {
+        if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
     }

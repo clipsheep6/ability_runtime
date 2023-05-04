@@ -20,6 +20,7 @@
 #include <string>
 
 #include "hilog_wrapper.h"
+#include "js_runtime.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -70,28 +71,22 @@ HWTEST_F(OHOSJsEnvironmentTest, PostTask_0100, TestSize.Level0)
  * @tc.name: InitTimerModule_0100
  * @tc.desc: Js environment init timer.
  * @tc.type: FUNC
- * @tc.require: issueI6KODF
+ * @tc.require: issueI6Z5M5
  */
 HWTEST_F(OHOSJsEnvironmentTest, InitTimerModule_0100, TestSize.Level0)
 {
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
+    auto jsEnvImpl = std::make_unique<OHOSJsEnvironmentImpl>();
     ASSERT_NE(jsEnvImpl, nullptr);
 
-    jsEnvImpl->InitTimerModule();
-}
+    // Init timer module when native engine is invalid.
+    jsEnvImpl->InitTimerModule(nullptr);
 
-/**
- * @tc.name: InitConsoleLogModule_0100
- * @tc.desc: Js environment init console log.
- * @tc.type: FUNC
- * @tc.require: issueI6KODF
- */
-HWTEST_F(OHOSJsEnvironmentTest, InitConsoleLogModule_0100, TestSize.Level0)
-{
-    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
-    ASSERT_NE(jsEnvImpl, nullptr);
+    AbilityRuntime::Runtime::Options options;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
 
-    jsEnvImpl->InitConsoleLogModule();
+    // Init timer module when native engine has created.
+    jsEnvImpl->InitTimerModule(jsRuntime->GetNativeEnginePointer());
 }
 
 /**
@@ -104,8 +99,10 @@ HWTEST_F(OHOSJsEnvironmentTest, InitWorkerModule_0100, TestSize.Level0)
 {
     auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
     ASSERT_NE(jsEnvImpl, nullptr);
-
-    jsEnvImpl->InitWorkerModule();
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    jsEnvImpl->InitWorkerModule(jsEngine, "", false, false);
 }
 
 /**

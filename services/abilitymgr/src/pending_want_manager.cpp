@@ -284,6 +284,12 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
     eventData.SetCode(senderInfo.code);
 
     CommonEventPublishInfo eventPublishData;
+
+    if (!want.GetBundle().empty()) {
+        HILOG_INFO("eventPublishData set bundleName = %{public}s", want.GetBundle().c_str());
+        eventPublishData.SetBundleName(want.GetBundle());
+    }
+
     if (!senderInfo.requiredPermission.empty()) {
         std::vector<std::string> permissions;
         permissions.emplace_back(senderInfo.requiredPermission);

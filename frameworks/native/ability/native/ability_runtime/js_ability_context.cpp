@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -181,6 +181,19 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnIsTerminating(*engine, *info) : nullptr;
+}
+
+void JsAbilityContext::ClearFailedCallConnection(
+    const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
+{
+    HILOG_DEBUG("clear failed call of startup is called.");
+    auto context = abilityContext.lock();
+    if (context == nullptr || callback == nullptr) {
+        HILOG_ERROR("clear failed call of startup input param is nullptr.");
+        return;
+    }
+
+    context->ClearFailedCallConnection(callback);
 }
 
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent)
@@ -403,8 +416,28 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     InheritWindowMode(want);
 
     std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-    NativeValue* lastParam = ((info.argc == ARGC_TWO) ? info.argv[ARGC_ONE] : nullptr);
+    NativeValue* lastParam = nullptr;
     NativeValue* retsult = nullptr;
+    int32_t userId = DEFAULT_INVAL_VALUE;
+    if (info.argc > ARGC_ONE) {
+        if (info.argv[ARGC_ONE]->TypeOf() == NativeValueType::NATIVE_NUMBER) {
+            if (!ConvertFromJsValue(engine, info.argv[ARGC_ONE], userId)) {
+                HILOG_ERROR("Failed to parse accountId!");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return engine.CreateUndefined();
+            }
+        } else if (info.argv[ARGC_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
+            lastParam = info.argv[ARGC_ONE];
+        } else {
+            HILOG_ERROR("Failed, input param type invalid");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+    }
+
+    if (info.argc > ARGC_TWO && info.argv[ARGC_TWO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
+        lastParam = info.argv[ARGC_TWO];
+    }
 
     calls->callerCallBack = std::make_shared<CallerCallBack>();
 
@@ -441,6 +474,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         if (calldata->err != 0) {
             HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
             task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            ClearFailedCallConnection(weak, calldata->callerCallBack);
             return;
         }
 
@@ -478,7 +512,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         return engine.CreateUndefined();
     }
 
-    auto ret = context->StartAbilityByCall(want, calls->callerCallBack);
+    auto ret = context->StartAbilityByCall(want, calls->callerCallBack, userId);
     if (ret != 0) {
         HILOG_ERROR("OnStartAbilityByCall StartAbility is failed");
         ThrowErrorByNativeErr(engine, ret);
@@ -1117,9 +1151,9 @@ NativeValue* JsAbilityContext::OnRequestDialogService(NativeEngine& engine, Nati
     auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RequestDialogResultTask task =
-        [&engine, asyncTask](int32_t resultCode) {
+        [&engine, asyncTask](int32_t resultCode, const AAFwk::Want &resultWant) {
         HILOG_INFO("OnRequestDialogService async callback is called");
-        NativeValue* requestResult = JsAbilityContext::WrapRequestDialogResult(engine, resultCode);
+        NativeValue* requestResult = JsAbilityContext::WrapRequestDialogResult(engine, resultCode, resultWant);
         if (requestResult == nullptr) {
             HILOG_WARN("wrap requestResult failed");
             asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
@@ -1201,7 +1235,8 @@ bool JsAbilityContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue* ar
     return JsAbilityContext::UnWrapWant(engine, jWant, want);
 }
 
-NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode)
+NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine,
+    int32_t resultCode, const AAFwk::Want &want)
 {
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
@@ -1211,6 +1246,7 @@ NativeValue* JsAbilityContext::WrapRequestDialogResult(NativeEngine& engine, int
     }
 
     object->SetProperty("result", CreateJsValue(engine, resultCode));
+    object->SetProperty("want", JsAbilityContext::WrapWant(engine, want));
     return objValue;
 }
 

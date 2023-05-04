@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -94,7 +94,12 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0100, Function | MediumTe
     AppExecFwk::ElementName element("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    context_->localCallContainer_->OnAbilityConnectDone(element, callRemoteObject, ERR_OK);
+    for (auto& item : context_->localCallContainer_->connections_) {
+        if (item->localCallRecord_->GetElementName().GetURI() == element.GetURI()) {
+            item->OnAbilityConnectDone(
+                element, callRemoteObject, static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON));
+        }
+    }
     std::vector<std::string> info;
     EXPECT_TRUE(info.size() == 0);
     context_->localCallContainer_->DumpCalls(info);
@@ -148,6 +153,15 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0100, Function | MediumTes
     ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == 0);
 
+    sptr<IRemoteObject> callRemoteObject =
+        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    for (auto& item : context_->localCallContainer_->connections_) {
+        if (item->localCallRecord_->GetElementName().GetURI() == want.GetElement().GetURI()) {
+            item->OnAbilityConnectDone(
+                want.GetElement(), callRemoteObject, static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON));
+        }
+    }
+
     ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == 0);
 }
@@ -184,17 +198,9 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0100, Function | Medium
         EXPECT_TRUE(result == "died");
         isSetOnReleaseCalled = true;
     });
-
-    ErrCode ret = context_->StartAbilityByCall(want, callback);
-    EXPECT_TRUE(ret == 0);
-
-    std::shared_ptr<LocalCallRecord> localCallRecord;
-    AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
-    context_->localCallContainer_->GetCallLocalRecord(elementName, localCallRecord);
-
-    sptr<IRemoteObject> callRemoteObject =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    localCallRecord->OnCallStubDied(callRemoteObject);
+    std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(want.GetElement());
+    localCallRecord->AddCaller(callback);
+    localCallRecord->OnCallStubDied(nullptr);
     EXPECT_TRUE(isSetOnReleaseCalled);
 }
 

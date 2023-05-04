@@ -4299,12 +4299,20 @@ int AbilityManagerService::ReleaseRemoteAbility(const sptr<IRemoteObject> &conne
     return dmsClient.ReleaseRemoteAbility(connect, element);
 }
 
-int AbilityManagerService::StartAbilityByCall(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<IRemoteObject> &callerToken, int32_t accountId)
 {
     HILOG_INFO("call ability.");
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    if (IsCrossUserCall(accountId)) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
+
+    if (VerifyAccountPermission(accountId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
@@ -4323,8 +4331,8 @@ int AbilityManagerService::StartAbilityByCall(
         return StartRemoteAbilityByCall(want, callerToken, connect->AsObject());
     }
 
-    int32_t callerUserId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    if (!JudgeMultiUserConcurrency(callerUserId)) {
+    int32_t oriValidUserId = GetValidUserId(accountId);
+    if (!JudgeMultiUserConcurrency(oriValidUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_CROSS_USER;
     }
@@ -4360,8 +4368,9 @@ int AbilityManagerService::StartAbilityByCall(
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
 
-    if (!currentMissionListManager_) {
-        HILOG_ERROR("currentMissionListManager_ is Null. curentUserId=%{public}d", GetUserId());
+    auto missionListMgr = GetListManagerByUserId(oriValidUserId);
+    if (missionListMgr == nullptr) {
+        HILOG_ERROR("missionListMgr is Null. Designated User Id=%{public}d", oriValidUserId);
         return ERR_INVALID_VALUE;
     }
     UpdateCallerInfo(abilityRequest.want, callerToken);
@@ -4369,7 +4378,8 @@ int AbilityManagerService::StartAbilityByCall(
     if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    return currentMissionListManager_->ResolveLocked(abilityRequest);
+
+    return missionListMgr->ResolveLocked(abilityRequest);
 }
 
 int AbilityManagerService::ReleaseCall(
@@ -6035,11 +6045,10 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-        HILOG_DEBUG("Called ability is common ability and singleton.");
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("Called ability is common ability.");
     } else {
-        HILOG_ERROR("Called ability is not common ability or singleton.");
+        HILOG_ERROR("Called ability is not common ability.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
 

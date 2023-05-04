@@ -2782,8 +2782,8 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartAbilityByCall(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<IRemoteObject> &callerToken, int32_t accountId)
 {
     HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall begin.");
     int error;
@@ -2816,6 +2816,10 @@ int AbilityManagerProxy::StartAbilityByCall(
             HILOG_ERROR("Failed to write flag.");
             return ERR_INVALID_VALUE;
         }
+    }
+    if (!data.WriteInt32(accountId)) {
+        HILOG_ERROR("accountId write failed.");
+        return ERR_INVALID_VALUE;
     }
 
     HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall SendRequest Call.");

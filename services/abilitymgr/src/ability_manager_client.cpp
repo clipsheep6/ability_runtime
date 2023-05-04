@@ -778,16 +778,16 @@ ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, const sptr<IA
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_DEBUG("AbilityManagerClient::StartAbilityByCall called.");
-    return abms->StartAbilityByCall(want, connect, nullptr);
+    return abms->StartAbilityByCall(want, connect, nullptr, DEFAULT_INVAL_VALUE);
 }
 
-ErrCode AbilityManagerClient::StartAbilityByCall(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callToken)
+ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
+    const sptr<IRemoteObject> &callToken, int32_t accountId)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_DEBUG("AbilityManagerClient::StartAbilityByCall called.");
-    return abms->StartAbilityByCall(want, connect, callToken);
+    return abms->StartAbilityByCall(want, connect, callToken, accountId);
 }
 
 void AbilityManagerClient::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)

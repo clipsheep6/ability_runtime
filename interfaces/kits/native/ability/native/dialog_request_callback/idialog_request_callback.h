@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_IDIALOG_REQUEST_CALLBACK_H
 
 #include "iremote_broker.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -32,8 +33,9 @@ public:
      * @brief Send dialogRequest result.
      *
      * @param resultCode result code.
+     * @param want result data.
      */
-    virtual void SendResult(int32_t resultCode) = 0;
+    virtual void SendResult(int32_t resultCode, const AAFwk::Want &want) = 0;
 
     enum DialogRequestCallbackCmd {
         // ipc id for SendResult

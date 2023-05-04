@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,6 +78,8 @@ private:
 #endif
 
 private:
+    static void ClearFailedCallConnection(
+        const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
     NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
@@ -102,7 +104,7 @@ private:
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
     static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
     void InheritWindowMode(AAFwk::Want &want);
-    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode);
+    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode, const AAFwk::Want& want);
     void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
         bool isAbilityResult = false);
 
