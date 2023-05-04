@@ -41,10 +41,10 @@ sptr<IAbilityScheduler> LifecycleDeal::GetScheduler()
 
 void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_INFO("Activate.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_INFO("caller %{public}s, %{public}s",
+    HILOG_DEBUG("caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
@@ -54,7 +54,7 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_INFO("Inactivate.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
@@ -63,7 +63,7 @@ void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_INFO("Move to background.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND;
@@ -72,7 +72,7 @@ void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &state
 
 void LifecycleDeal::ConnectAbility(const Want &want)
 {
-    HILOG_INFO("Connect ability.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleConnectAbility(want);
@@ -80,7 +80,7 @@ void LifecycleDeal::ConnectAbility(const Want &want)
 
 void LifecycleDeal::DisconnectAbility(const Want &want)
 {
-    HILOG_INFO("Disconnect ability.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleDisconnectAbility(want);
@@ -88,7 +88,7 @@ void LifecycleDeal::DisconnectAbility(const Want &want)
 
 void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_INFO("Terminate, send ipc request.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
@@ -97,7 +97,7 @@ void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo)
 
 void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 {
-    HILOG_INFO("Command ability. startId:%{public}d", startId);
+    HILOG_INFO("startId:%{public}d", startId);
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
@@ -105,7 +105,7 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 
 void LifecycleDeal::SaveAbilityState()
 {
-    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleSaveAbilityState();
@@ -113,7 +113,7 @@ void LifecycleDeal::SaveAbilityState()
 
 void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 {
-    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleRestoreAbilityState(inState);
@@ -122,10 +122,10 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_INFO("ForegroundNew.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_INFO("caller %{public}s, %{public}s",
+    HILOG_DEBUG("caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW;
@@ -135,10 +135,10 @@ void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInf
 void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_INFO("Start move ability to background.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_INFO("caller %{public}s, %{public}s",
+    HILOG_DEBUG("caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW;
@@ -147,14 +147,14 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
 
 void LifecycleDeal::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("ContinueAbility.");
+    HILOG_INFO("call");
     CHECK_POINTER(abilityScheduler_);
     abilityScheduler_->ContinueAbility(deviceId, versionCode);
 }
 
 void LifecycleDeal::NotifyContinuationResult(int32_t result)
 {
-    HILOG_INFO("NotifyContinuationResult.");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->NotifyContinuationResult(result);
