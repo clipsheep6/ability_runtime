@@ -435,37 +435,10 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
-     * @return
+     * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ClearUpApplicationData(const std::string &bundleName);
 
-    sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
-
-    ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);
-
-    void CancelWantSender(const sptr<IWantSender> &sender);
-
-    ErrCode GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid);
-
-    ErrCode GetPendingWantUserId(const sptr<IWantSender> &target, int32_t &userId);
-
-    ErrCode GetPendingWantBundleName(const sptr<IWantSender> &target, std::string &bundleName);
-
-    ErrCode GetPendingWantCode(const sptr<IWantSender> &target, int32_t &code);
-
-    ErrCode GetPendingWantType(const sptr<IWantSender> &target, int32_t &type);
-
-    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
-
-    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
-
-    ErrCode GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
-
-    ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
-
-    ErrCode GetAppMemorySize();
-
-    bool IsRamConstrainedDevice();
     /**
      * ContinueMission, continue ability from mission center.
      *
@@ -681,10 +654,29 @@ public:
      */
     ErrCode ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
 
+    /**
+     * @brief Get the ability running information.
+     *
+     * @param info Ability running information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
 
+    /**
+     * @brief Get the extension running information.
+     *
+     * @param upperLimit The maximum limit of information wish to get.
+     * @param info Extension running information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info);
 
+    /**
+     * @brief Get running process information.
+     *
+     * @param info Running process information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
 
     /**
@@ -891,9 +883,29 @@ public:
      * @param token The target ability.
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief Enable recover ability.
+     *
+     * @param token Ability identify.
+     */
     void EnableRecoverAbility(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief Schedule recovery ability.
+     *
+     * @param token Ability identify.
+     * @param reason See AppExecFwk::StateReason.
+     * @param want Want information.
+     */
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
 
+    /**
+     * @brief Add free install observer.
+     *
+     * @param observer Free install observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
 
     /**

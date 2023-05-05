@@ -118,6 +118,7 @@ ohos_shared_library("runtime") {
     ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
