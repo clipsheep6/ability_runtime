@@ -536,6 +536,44 @@ ohos_shared_library("service_extension") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("driver_extension") {
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+  ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/driver_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/js_driver_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/js_driver_extension_context.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/driver_extension_context.cpp",
+  ]
+
+  deps = [
+    ":abilitykit_native",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/appkit:app_context",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc:ipc_napi_common",
+    "napi:ace_napi",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("continuation_ipc") {
   include_dirs = []
 
@@ -646,6 +684,43 @@ ohos_shared_library("service_extension_module") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("driver_extension_module") {
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/driver_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":driver_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "ace_engine:ace_uicontent",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+config("ability_business_error_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
+    "//base/hiviewdfx/hiview/adapter/utility/include/extra",
+  ]
+}
+
 config("ability_business_error_config") {
   visibility = [ ":*" ]
   include_dirs = [
@@ -719,6 +794,7 @@ group("extension_blocklist_config") {
 
 group("extension_module") {
   deps = [
+    ":driver_extension_module",
     ":service_extension_module",
     ":ui_extension_module",
   ]
