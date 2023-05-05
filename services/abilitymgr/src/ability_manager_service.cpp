@@ -134,6 +134,7 @@ const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
+const int32_t DMS_UID = 5522;
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
@@ -5577,6 +5578,11 @@ int AbilityManagerService::BlockAppService()
 int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
     int32_t userId, int requestCode)
 {
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != DMS_UID) {
+        HILOG_ERROR("The interface only support for DMS");
+        return CHECK_PERMISSION_FAILED;
+    }
     int32_t validUserId = GetValidUserId(userId);
     if (freeInstallManager_ == nullptr) {
         HILOG_ERROR("freeInstallManager_ is nullptr");
