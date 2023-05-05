@@ -27,17 +27,10 @@ namespace AAFwk {
 namespace {
 const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
 } // namespace
-std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::instance_ = nullptr;
-std::recursive_mutex UriPermissionManagerClient::recursiveMutex_;
-std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::GetInstance()
+UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> lock_l(recursiveMutex_);
-        if (instance_ == nullptr) {
-            instance_ = std::make_shared<UriPermissionManagerClient>();
-        }
-    }
-    return instance_;
+    static UriPermissionManagerClient client;
+    return client;
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -75,20 +68,15 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
     HILOG_DEBUG("UriPermissionManagerClient::ConnectUriPermService is called.");
     auto uriPermMgr = GetUriPermMgr();
     if (uriPermMgr == nullptr) {
-        if (!LoadUriPermService()) {
-            HILOG_ERROR("Load uri permission manager service failed.");
-            return nullptr;
-        }
+        LoadUriPermService();
         uriPermMgr = GetUriPermMgr();
         if (uriPermMgr == nullptr || uriPermMgr->AsObject() == nullptr) {
             HILOG_ERROR("Failed to get uri permission manager.");
             return nullptr;
         }
-        auto self = shared_from_this();
-        const auto& onClearProxyCallback = [self] {
-            if (self) {
-                self->ClearProxy();
-            }
+        const auto& onClearProxyCallback = [this] {
+            std::lock_guard<std::mutex> lock(mutex_);
+            uriPermMgr_ = nullptr;
         };
         sptr<UpmsDeathRecipient> recipient(new UpmsDeathRecipient(onClearProxyCallback));
         uriPermMgr->AsObject()->AddDeathRecipient(recipient);
@@ -97,39 +85,31 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
     return uriPermMgr;
 }
 
-bool UriPermissionManagerClient::LoadUriPermService()
+void UriPermissionManagerClient::LoadUriPermService()
 {
     HILOG_DEBUG("UriPermissionManagerClient::LoadUriPermService is called.");
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
         HILOG_ERROR("Failed to get SystemAbilityManager.");
-        return false;
+        return;
+    }
+    auto remoteObj = systemAbilityMgr->GetSystemAbility(URI_PERMISSION_MGR_SERVICE_ID);
+    if (remoteObj != nullptr) {
+        return;
     }
 
-    sptr<UriPermissionLoadCallback> loadCallback = new (std::nothrow) UriPermissionLoadCallback();
-    if (loadCallback == nullptr) {
-        HILOG_ERROR("Create load callback failed.");
-        return false;
-    }
-
+    sptr<UriPermissionLoadCallback> loadCallback = new UriPermissionLoadCallback();
     auto ret = systemAbilityMgr->LoadSystemAbility(URI_PERMISSION_MGR_SERVICE_ID, loadCallback);
     if (ret != 0) {
         HILOG_ERROR("Load system ability %{public}d failed with %{public}d.", URI_PERMISSION_MGR_SERVICE_ID, ret);
-        return false;
+        return;
     }
 
-    {
-        std::unique_lock<std::mutex> lock(saLoadMutex_);
-        auto waitStatus = loadSaVariable_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
-            [this]() {
-                return saLoadFinished_;
-            });
-        if (!waitStatus) {
-            HILOG_ERROR("Wait for load sa timeout.");
-            return false;
-        }
+    std::unique_lock<std::mutex> lock(saLoadMutex_);
+    auto waitStatus = loadSaVariable_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS));
+    if (waitStatus == std::cv_status::timeout || GetUriPermMgr() == nullptr) {
+        HILOG_ERROR("Wait for load sa timeout.");
     }
-    return true;
 }
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::GetUriPermMgr()
@@ -149,25 +129,14 @@ void UriPermissionManagerClient::OnLoadSystemAbilitySuccess(const sptr<IRemoteOb
 {
     HILOG_DEBUG("UriPermissionManagerClient::OnLoadSystemAbilitySuccess is called.");
     SetUriPermMgr(remoteObject);
-    std::unique_lock<std::mutex> lock(saLoadMutex_);
-    saLoadFinished_ = true;
-    loadSaVariable_.notify_one();
+    loadSaVariable_.notify_all();
 }
 
 void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 {
     HILOG_DEBUG("UriPermissionManagerClient::OnLoadSystemAbilityFail is called.");
     SetUriPermMgr(nullptr);
-    std::unique_lock<std::mutex> lock(saLoadMutex_);
-    saLoadFinished_ = true;
-    loadSaVariable_.notify_one();
-}
-
-void UriPermissionManagerClient::ClearProxy()
-{
-    HILOG_DEBUG("UriPermissionManagerClient::ClearProxy is called.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    uriPermMgr_ = nullptr;
+    loadSaVariable_.notify_all();
 }
 
 void UriPermissionManagerClient::UpmsDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote)

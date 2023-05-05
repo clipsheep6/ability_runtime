@@ -34,7 +34,7 @@ void UriPermissionLoadCallback::OnLoadSystemAbilitySuccess(
     }
 
     HILOG_DEBUG("Load system ability %{public}d succeed.", systemAbilityId);
-    UriPermissionManagerClient::GetInstance()->OnLoadSystemAbilitySuccess(remoteObject);
+    UriPermissionManagerClient::GetInstance().OnLoadSystemAbilitySuccess(remoteObject);
 }
 
 void UriPermissionLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
@@ -45,7 +45,7 @@ void UriPermissionLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
     }
 
     HILOG_DEBUG("Load system ability %{public}d failed.", systemAbilityId);
-    UriPermissionManagerClient::GetInstance()->OnLoadSystemAbilityFail();
+    UriPermissionManagerClient::GetInstance().OnLoadSystemAbilityFail();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
