@@ -833,11 +833,6 @@ public:
         return recordId_;
     }
 
-    inline int64_t GetForegroundingTime() const
-    {
-        return foregroundingTime_;
-    }
-
     void SetPendingState(AbilityState state);
     AbilityState GetPendingState() const;
 
@@ -934,7 +929,6 @@ private:
     std::weak_ptr<AbilityRecord> nextAbilityRecord_ = {};  // ability that started by this ability
     int64_t startTime_ = 0;                           // records first time of ability start
     int64_t restartTime_ = 0;                         // the time of last trying restart
-    int64_t foregroundingTime_ = 0;                   // the time of foregrounding to do
     bool isReady_ = false;                            // is ability thread attached?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
