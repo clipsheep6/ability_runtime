@@ -53,6 +53,9 @@ bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
     if (!parcel.ReadUint32(len)) {
         return false;
     }
+    if (len > LIST_MAX_COUNT) {
+        return false;
+    }
 
     std::list<Uri> uris;
     for (uint32_t i = 0; i < len; i++) {
