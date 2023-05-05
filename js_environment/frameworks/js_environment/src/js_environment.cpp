@@ -58,14 +58,6 @@ bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* js
     return true;
 }
 
-void JsEnvironment::StartDebuggger(bool needBreakPoint)
-{
-}
-
-void JsEnvironment::StopDebugger()
-{
-}
-
 void JsEnvironment::InitTimerModule()
 {
     if (engine_ == nullptr) {
@@ -139,13 +131,17 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
     const DebuggerPostTask& debuggerPostTask)
 {
-    if (vm_ == nullptr) {
-        JSENV_LOG_E("Invalid vm.");
-        return false;
+    if (vm_ != nullptr) {
+        return panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
     }
+    return false;
+}
 
-    panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
-    return true;
+void JsEnvironment::StopDebugger()
+{
+    if (vm_ != nullptr) {
+        (void)panda::JSNApi::StopDebugger(vm_);
+    }
 }
 
 void JsEnvironment::InitConsoleModule()

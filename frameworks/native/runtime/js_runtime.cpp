@@ -197,8 +197,6 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
 }
 } // namespace
 
-std::atomic<bool> JsRuntime::hasInstance(false);
-
 JsRuntime::JsRuntime()
 {
     HILOG_DEBUG("JsRuntime costructor.");
@@ -208,14 +206,7 @@ JsRuntime::~JsRuntime()
 {
     HILOG_DEBUG("JsRuntime destructor.");
     Deinitialize();
-
-    auto vm = GetEcmaVm();
-    if (vm != nullptr) {
-        if (debugMode_) {
-            ConnectServerManager::Get().RemoveInstance(instanceId_);
-            panda::JSNApi::StopDebugger(vm);
-        }
-    }
+    StopDebugMode();
 }
 
 std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
@@ -246,17 +237,23 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         return;
     }
 
-    // Set instance id to tid after the first instance.
-    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
-    }
-
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
         eventHandler->PostTask(task);
     };
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(gettid());
+    debugMode_ = StartDebugger(needBreakPoint, debuggerPostTask);
+}
 
-    debugMode_ = StartDebugMode(bundleName_, needBreakPoint, instanceId_, debuggerPostTask);
+void JsRuntime::StopDebugMode()
+{
+    if (debugMode_) {
+        ConnectServerManager::Get().RemoveInstance(gettid());
+        StopDebugger();
+    }
 }
 
 void JsRuntime::InitConsoleModule()
@@ -265,15 +262,15 @@ void JsRuntime::InitConsoleModule()
     jsEnv_->InitConsoleModule();
 }
 
-bool JsRuntime::StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
-    const DebuggerPostTask& debuggerPostTask)
+bool JsRuntime::StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask)
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    HdcRegister::Get().StartHdcRegister(bundleName);
-    ConnectServerManager::Get().StartConnectServer(bundleName);
-    ConnectServerManager::Get().AddInstance(instanceId);
-    StartDebuggerInWorkerModule();
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, gettid(), debuggerPostTask);
+}
+
+void JsRuntime::StopDebugger()
+{
+    jsEnv_->StopDebugger();
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)

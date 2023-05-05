@@ -44,10 +44,6 @@ public:
         return vm_;
     }
 
-    void StartDebuggger(bool needBreakPoint);
-
-    void StopDebugger();
-
     void InitTimerModule();
 
     void InitConsoleLogModule();
@@ -70,6 +66,7 @@ public:
 
     void InitConsoleModule();
 
+    void StopDebugger();
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

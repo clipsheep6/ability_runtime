@@ -91,6 +91,7 @@ public:
     void PreloadSystemModule(const std::string& moduleName) override;
     void UpdateExtensionType(int32_t extensionType) override;
     void StartDebugMode(bool needBreakPoint) override;
+    void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
     bool NotifyHotReloadPage() override;
@@ -98,6 +99,8 @@ public:
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
     bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
+    bool StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask = {});
+    void StopDebugger();
     void InitConsoleModule();
 
     NativeEngine* GetNativeEnginePointer() const;
@@ -131,10 +134,6 @@ private:
     std::shared_ptr<JsEnv::JsEnvironment> jsEnv_ = nullptr;
 
     std::string bundleName_;
-    uint32_t instanceId_ = 0;
-
-    static std::atomic<bool> hasInstance;
-
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
