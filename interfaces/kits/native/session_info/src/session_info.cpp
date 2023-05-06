@@ -60,17 +60,6 @@ bool SessionInfo::Marshalling(Parcel& parcel) const
         }
     }
 
-    if (surfaceNode) {
-        if (!parcel.WriteBool(true) || !surfaceNode->Marshalling(parcel)) {
-            return false;
-        }
-    } else {
-        ABILITYBASE_LOGD("SurfaceNode is null.");
-        if (!parcel.WriteBool(false)) {
-            return false;
-        }
-    }
-
     if (!parcel.WriteUint64(persistentId)) {
         ABILITYBASE_LOGE("Write persistent id failed.");
         return false;
@@ -99,10 +88,6 @@ SessionInfo* SessionInfo::Unmarshalling(Parcel& parcel)
         info->callerToken = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
     } else {
         ABILITYBASE_LOGE("Read session token failed.");
-    }
-
-    if (parcel.ReadBool()) {
-        info->surfaceNode = Rosen::RSSurfaceNode::Unmarshalling(parcel);
     }
 
     info->persistentId = parcel.ReadUint64();
