@@ -63,7 +63,7 @@ ohos_shared_library("particleability") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

@@ -162,8 +162,8 @@ ohos_shared_library("abilitykit_utils") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
+    "ipc:ipc_single",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
@@ -263,8 +263,8 @@ ohos_shared_library("abilitykit_native") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "input:libmmi-client",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
+    "ipc:ipc_single",
     "ipc_js:rpc",
     "napi:ace_napi",
     "relational_store:native_rdb",
@@ -421,7 +421,7 @@ ohos_shared_library("ability_thread") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
   ]
 
   innerapi_tags = [ "platformsdk_indirect" ]
@@ -461,7 +461,7 @@ ohos_shared_library("form_extension") {
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "hiviewdfx_hilog_native:libhilog",
-      "ipc:ipc_core",
+      "ipc:ipc_single",
     ]
   }
   subsystem_name = "ability"
@@ -487,7 +487,7 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -526,8 +526,8 @@ ohos_shared_library("service_extension") {
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -569,7 +569,7 @@ ohos_shared_library("continuation_ipc") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "resource_management:global_resmgr",
   ]
 
@@ -637,7 +637,7 @@ ohos_shared_library("service_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -699,7 +699,7 @@ ohos_shared_library("dialog_request_callback") {
     "ability_base:want",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
   ]
 
   innerapi_tags = [ "platformsdk_indirect" ]
@@ -754,8 +754,8 @@ ohos_shared_library("ui_extension") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
+    "ipc:ipc_single",
     "ipc_js:rpc",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -782,7 +782,7 @@ ohos_shared_library("ui_extension_module") {
     "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "ipc_js:rpc",
     "napi:ace_napi",
   ]
