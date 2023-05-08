@@ -198,6 +198,22 @@ public:
         }
     }
 
+    ErrCode RegisterFormAddObserverByBundle(const std::string bundleName, const sptr<IRemoteObject> &callerToken)
+    {
+        return ERR_OK;
+    }
+
+    ErrCode GetRunningFormInfos(std::vector<RunningFormInfo> &runningFormInfos)
+    {
+        return ERR_OK;
+    }
+
+    ErrCode GetRunningFormInfosByBundleName(const std::string &bundleName,
+        std::vector<RunningFormInfo> &runningFormInfos)
+    {
+        return ERR_OK;
+    }
+
     /**
      * @brief Lifecycle Update.
      * @param formIds The Id list of the forms to notify.
