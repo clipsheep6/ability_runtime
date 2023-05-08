@@ -60,21 +60,22 @@ public:
     }
 };
 
-using ReadSourceMapCallback = std::function<bool(const std::string& hapPath, std::string& content)>;
+using ReadSourceMapCallback = std::function<bool(const std::string& hapPath,
+    const std::string& sourceMapPath, std::string& content)>;
 
 class SourceMap final {
 public:
     SourceMap() = default;
     ~SourceMap() = default;
 
-    void Init(bool isModular, const std::string& sourceMap);
+    void Init(bool isModular, const std::string& hapPath);
     std::string TranslateBySourceMap(const std::string& stackStr);
 
     static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
         const std::string& sourceCode, uint32_t& errorPos);
     static ErrorPos GetErrorPos(const std::string& rawStack);
     static void RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc);
-    static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
+    static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
 
 private:
     void SplitSourceMap(const std::string& sourceMapData);
@@ -91,6 +92,7 @@ private:
 
 private:
     bool isModular_ = true;
+    std::string hapPath_;
     std::unordered_map<std::string, std::shared_ptr<SourceMapData>> sourceMaps_;
     std::shared_ptr<SourceMapData> nonModularMap_;
     static ReadSourceMapCallback readSourceMapFunc_;
