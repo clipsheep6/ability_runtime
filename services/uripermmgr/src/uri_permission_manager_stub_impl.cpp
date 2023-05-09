@@ -39,6 +39,24 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     const std::string targetBundleName, int autoremove)
 {
     HILOG_DEBUG("UriPermissionManagerStubImpl::GrantUriPermission is called.");
+    // reject sandbox to grant uri permission
+    auto appMgrProxy = ConnectAppMgr();
+    if (appMgrProxy == nullptr) {
+        HILOG_ERROR("ConnectAppMgr failed");
+        return INNER_ERR;
+    }
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    bool isSandbox = false;
+    auto ret = appMgrProxy->JudgeSandboxByPid(callerPid, isSandbox);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("JudgeSandboxByPid failed.");
+        return INNER_ERR;
+    }
+    if (isSandbox) {
+        HILOG_ERROR("Sandbox can not grant uri permission.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
         return ERR_CODE_INVALID_URI_FLAG;
@@ -212,6 +230,38 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     return ERR_OK;
 }
 
+sptr<AppExecFwk::IAppMgr> UriPermissionManagerStubImpl::ConnectAppMgr()
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::lock_guard<std::mutex> lock(appMgrMutex_);
+    if (appMgr_ == nullptr) {
+        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (!systemAbilityMgr) {
+            HILOG_ERROR("Failed to get SystemAbilityManager.");
+            return nullptr;
+        }
+
+        auto remoteObj = systemAbilityMgr->GetSystemAbility(APP_MGR_SERVICE_ID);
+        if (!remoteObj || (appMgr_ = iface_cast<AppExecFwk::IAppMgr>(remoteObj)) == nullptr) {
+            HILOG_ERROR("Failed to get AppMgrService.");
+            return nullptr;
+        }
+        auto self = weak_from_this();
+        const auto& onClearProxyCallback = [self](const wptr<IRemoteObject>& remote) {
+            auto impl = self.lock();
+            if (impl && impl->appMgr_ == remote) {
+                impl->ClearAppMgrProxy();
+            }
+        };
+        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
+        if (!appMgr_->AsObject()->AddDeathRecipient(recipient)) {
+            HILOG_ERROR("AddDeathRecipient failed.");
+        }
+    }
+    HILOG_DEBUG("%{public}s end.", __func__);
+    return appMgr_;
+}
+
 sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager()
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
@@ -235,7 +285,7 @@ sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager(
                 impl->ClearBMSProxy();
             }
         };
-        sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
+        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
         if (!bundleManager_->AsObject()->AddDeathRecipient(recipient)) {
             HILOG_ERROR("AddDeathRecipient failed.");
         }
@@ -282,13 +332,20 @@ sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStora
                 impl->ClearSMProxy();
             }
         };
-        sptr<BMSOrSMDeathRecipient> recipient(new BMSOrSMDeathRecipient(onClearProxyCallback));
+        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
         if (!storageManager_->AsObject()->AddDeathRecipient(recipient)) {
             HILOG_ERROR("AddDeathRecipient failed.");
         }
     }
     HILOG_DEBUG("%{public}s end.", __func__);
     return storageManager_;
+}
+
+void UriPermissionManagerStubImpl::ClearAppMgrProxy()
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::lock_guard<std::mutex> lock(appMgrMutex_);
+    appMgr_ = nullptr;
 }
 
 void UriPermissionManagerStubImpl::ClearBMSProxy()
@@ -305,7 +362,7 @@ void UriPermissionManagerStubImpl::ClearSMProxy()
     storageManager_ = nullptr;
 }
 
-void UriPermissionManagerStubImpl::BMSOrSMDeathRecipient::OnRemoteDied(
+void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(
     [[maybe_unused]] const wptr<IRemoteObject>& remote)
 {
     if (proxy_) {
