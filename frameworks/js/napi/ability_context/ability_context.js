@@ -13,165 +13,165 @@
  * limitations under the License.
  */
 
-var Context = requireNapi("application.Context")
-var Caller = requireNapi("application.Caller")
+let Context = requireNapi('application.Context');
+let Caller = requireNapi('application.Caller');
 
 const ERROR_CODE_INVALID_PARAM = 401;
-const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 class ParamError extends Error {
-    constructor() {
-        super(ERROR_MSG_INVALID_PARAM);
-        this.code = ERROR_CODE_INVALID_PARAM;
-    }
+  constructor() {
+    super(ERROR_MSG_INVALID_PARAM);
+    this.code = ERROR_CODE_INVALID_PARAM;
+  }
 }
 
 class AbilityContext extends Context {
-    constructor(obj) {
-        super(obj)
-        this.abilityInfo = obj.abilityInfo
-        this.currentHapModuleInfo = obj.currentHapModuleInfo
-        this.config = obj.config
-    }
+  constructor(obj) {
+    super(obj);
+    this.abilityInfo = obj.abilityInfo;
+    this.currentHapModuleInfo = obj.currentHapModuleInfo;
+    this.config = obj.config;
+  }
 
-    onUpdateConfiguration(config) {
-        this.config = config
-    }
+  onUpdateConfiguration(config) {
+    this.config = config;
+  }
 
-    startAbility(want, options, callback) {
-        return this.__context_impl__.startAbility(want, options, callback)
-    }
+  startAbility(want, options, callback) {
+    return this.__context_impl__.startAbility(want, options, callback);
+  }
 
-    startAbilityAsCaller(want, options, callback) {
-        return this.__context_impl__.startAbilityAsCaller(want, options, callback)
-    }
+  startAbilityAsCaller(want, options, callback) {
+    return this.__context_impl__.startAbilityAsCaller(want, options, callback);
+  }
 
-    startRecentAbility(want, options, callback) {
-        return this.__context_impl__.startRecentAbility(want, options, callback)
-    }
+  startRecentAbility(want, options, callback) {
+    return this.__context_impl__.startRecentAbility(want, options, callback);
+  }
 
-    startAbilityWithAccount(want, accountId, options, callback) {
-        return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback)
-    }
+  startAbilityWithAccount(want, accountId, options, callback) {
+    return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback);
+  }
 
-    startAbilityByCall(want) {
-        return new Promise(async (resolve, reject) => {
-            if (typeof want !== 'object' || want == null) {
-                console.log("AbilityContext::startAbilityByCall input param error");
-                reject(new ParamError());
-                return;
-            }
+  startAbilityByCall(want) {
+    return new Promise(async (resolve, reject) => {
+      if (typeof want !== 'object' || want == null) {
+        console.log('AbilityContext::startAbilityByCall input param error');
+        reject(new ParamError());
+        return;
+      }
 
-            try{
-                var callee = await this.__context_impl__.startAbilityByCall(want);
-            } catch(error) {
-                console.log("AbilityContext::startAbilityByCall Obtain remoteObject failed");
-                reject(error);
-                return;
-            }
+      try {
+        var callee = await this.__context_impl__.startAbilityByCall(want);
+      } catch (error) {
+        console.log('AbilityContext::startAbilityByCall Obtain remoteObject failed');
+        reject(error);
+        return;
+      }
 
-            resolve(new Caller(callee));
-            console.log("AbilityContext::startAbilityByCall success");
-            return;
-        });
-    }
+      resolve(new Caller(callee));
+      console.log('AbilityContext::startAbilityByCall success');
+      return;
+    });
+  }
 
-    startAbilityByCallWithAccount(want, accountId) {
-        return new Promise(async (resolve, reject) => {
-            if (typeof want !== 'object'|| want == null || typeof accountId !== 'number') {
-                console.log("AbilityContext::startAbilityByCall With accountId input param error");
-                reject(new ParamError());
-                return;
-            }
+  startAbilityByCallWithAccount(want, accountId) {
+    return new Promise(async (resolve, reject) => {
+      if (typeof want !== 'object' || want == null || typeof accountId !== 'number') {
+        console.log('AbilityContext::startAbilityByCall With accountId input param error');
+        reject(new ParamError());
+        return;
+      }
 
-            try{
-                var callee = await this.__context_impl__.startAbilityByCall(want, accountId);
-            } catch(error) {
-                console.log("AbilityContext::startAbilityByCall With accountId Obtain remoteObject failed");
-                reject(error);
-                return;
-            }
+      try {
+        var callee = await this.__context_impl__.startAbilityByCall(want, accountId);
+      } catch (error) {
+        console.log('AbilityContext::startAbilityByCall With accountId Obtain remoteObject failed');
+        reject(error);
+        return;
+      }
 
-            resolve(new Caller(callee));
-            console.log("AbilityContext::startAbilityByCall With accountId success");
-            return;
-        });
-    }
+      resolve(new Caller(callee));
+      console.log('AbilityContext::startAbilityByCall With accountId success');
+      return;
+    });
+  }
 
-    startAbilityForResult(want, options, callback) {
-        return this.__context_impl__.startAbilityForResult(want, options, callback)
-    }
+  startAbilityForResult(want, options, callback) {
+    return this.__context_impl__.startAbilityForResult(want, options, callback);
+  }
 
-    startAbilityForResultWithAccount(want, accountId, options, callback) {
-        return this.__context_impl__.startAbilityForResultWithAccount(want, accountId, options, callback)
-    }
+  startAbilityForResultWithAccount(want, accountId, options, callback) {
+    return this.__context_impl__.startAbilityForResultWithAccount(want, accountId, options, callback);
+  }
 
-    startServiceExtensionAbility(want, callback) {
-        return this.__context_impl__.startServiceExtensionAbility(want, callback)
-    }
+  startServiceExtensionAbility(want, callback) {
+    return this.__context_impl__.startServiceExtensionAbility(want, callback);
+  }
 
-    startServiceExtensionAbilityWithAccount(want, accountId, callback) {
-        return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback)
-    }
+  startServiceExtensionAbilityWithAccount(want, accountId, callback) {
+    return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback);
+  }
 
-    stopServiceExtensionAbility(want, callback) {
-        return this.__context_impl__.stopServiceExtensionAbility(want, callback)
-    }
+  stopServiceExtensionAbility(want, callback) {
+    return this.__context_impl__.stopServiceExtensionAbility(want, callback);
+  }
 
-    stopServiceExtensionAbilityWithAccount(want, accountId, callback) {
-        return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback)
-    }
+  stopServiceExtensionAbilityWithAccount(want, accountId, callback) {
+    return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback);
+  }
 
-    connectAbility(want, options) {
-        return this.__context_impl__.connectAbility(want, options);
-    }
+  connectAbility(want, options) {
+    return this.__context_impl__.connectAbility(want, options);
+  }
 
-    connectServiceExtensionAbility(want, options) {
-        return this.__context_impl__.connectServiceExtensionAbility(want, options);
-    }
+  connectServiceExtensionAbility(want, options) {
+    return this.__context_impl__.connectServiceExtensionAbility(want, options);
+  }
 
-    connectAbilityWithAccount(want, accountId, options) {
-        return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
-    }
+  connectAbilityWithAccount(want, accountId, options) {
+    return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
+  }
 
-    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
-        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
-    }
+  connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+    return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+  }
 
-    disconnectAbility(connection, callback) {
-        return this.__context_impl__.disconnectAbility(connection, callback);
-    }
+  disconnectAbility(connection, callback) {
+    return this.__context_impl__.disconnectAbility(connection, callback);
+  }
 
-    disconnectServiceExtensionAbility(connection, callback) {
-        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
-    }
+  disconnectServiceExtensionAbility(connection, callback) {
+    return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
+  }
 
-    terminateSelf(callback) {
-        return this.__context_impl__.terminateSelf(callback)
-    }
+  terminateSelf(callback) {
+    return this.__context_impl__.terminateSelf(callback);
+  }
 
-    isTerminating() {
-        return this.__context_impl__.isTerminating()
-    }
+  isTerminating() {
+    return this.__context_impl__.isTerminating();
+  }
 
-    terminateSelfWithResult(abilityResult, callback) {
-        return this.__context_impl__.terminateSelfWithResult(abilityResult, callback)
-    }
+  terminateSelfWithResult(abilityResult, callback) {
+    return this.__context_impl__.terminateSelfWithResult(abilityResult, callback);
+  }
 
-    restoreWindowStage(contentStorage) {
-        return this.__context_impl__.restoreWindowStage(contentStorage)
-    }
+  restoreWindowStage(contentStorage) {
+    return this.__context_impl__.restoreWindowStage(contentStorage);
+  }
 
-    setMissionLabel(label, callback) {
-        return this.__context_impl__.setMissionLabel(label, callback)
-    }
+  setMissionLabel(label, callback) {
+    return this.__context_impl__.setMissionLabel(label, callback);
+  }
 
-    setMissionIcon(icon, callback) {
-        return this.__context_impl__.setMissionIcon(icon, callback)
-    }
+  setMissionIcon(icon, callback) {
+    return this.__context_impl__.setMissionIcon(icon, callback);
+  }
 
-    requestDialogService(want, resultCallback) {
-        return this.__context_impl__.requestDialogService(want, resultCallback)
-    }
+  requestDialogService(want, resultCallback) {
+    return this.__context_impl__.requestDialogService(want, resultCallback);
+  }
 }
 
-export default AbilityContext
+export default AbilityContext;
