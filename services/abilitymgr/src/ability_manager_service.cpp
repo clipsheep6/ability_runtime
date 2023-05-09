@@ -49,6 +49,7 @@
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
 #include "sa_mgr_client.h"
+#include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "softbus_bus_center.h"
 #include "string_ex.h"
@@ -277,7 +278,11 @@ bool AbilityManagerService::Init()
 
     AmsConfigurationParameter::GetInstance().Parse();
     HILOG_INFO("ams config parse");
-    InitMissionListManager(MAIN_USER_ID, true);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    } else {
+        InitMissionListManager(MAIN_USER_ID, true);
+    }
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
@@ -952,6 +957,58 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
+    sptr<SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Call.");
+    auto currentUserId = GetUserId();
+    EventInfo eventInfo = BuildEventInfo(want, currentUserId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, -1, currentUserId, true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
+    AbilityRequest abilityRequest;
+    result = GenerateAbilityRequest(want, -1, abilityRequest, sessionInfo->callerToken, currentUserId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        return result;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    if (abilityInfo.type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("Only support for page type ability.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
+        result = PreLoadAppDataAbilities(abilityInfo.bundleName, currentUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("StartAbility: App data ability preloading failed, '%{public}s', %{public}d",
+                abilityInfo.bundleName.c_str(), result);
+            return result;
+        }
+    }
+
+    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+    if (uiAbilityLifecycleManager_ == nullptr) {
+        HILOG_ERROR("uiAbilityLifecycleManager_ is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    if (abilityInfo.isStageBasedModel && !CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+    return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
 }
 
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
@@ -2784,7 +2841,7 @@ int AbilityManagerService::AttachAbilityThread(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
-    if (!VerificationAllToken(token)) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -2818,13 +2875,17 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = dataAbilityManager->AttachAbilityThread(scheduler, token);
     } else {
-        int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-        auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-        if (!missionListManager) {
-            HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-            return ERR_INVALID_VALUE;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            returnCode = uiAbilityLifecycleManager_->AttachAbilityThread(scheduler, token);
+        } else {
+            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+            if (!missionListManager) {
+                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+                return ERR_INVALID_VALUE;
+            }
+            returnCode = missionListManager->AttachAbilityThread(scheduler, token);
         }
-        returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
     return returnCode;
 }
@@ -3202,7 +3263,7 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Ability transition done come, state:%{public}d.", state);
-    if (!VerificationAllToken(token)) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -3242,13 +3303,17 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         }
         return dataAbilityManager->AbilityTransitionDone(token, state);
     }
-    int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-    if (!missionListManager) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-        return ERR_INVALID_VALUE;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->AbilityTransactionDone(token, state, saveData);
+    } else {
+        int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+        auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+        if (!missionListManager) {
+            HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+            return ERR_INVALID_VALUE;
+        }
+        return missionListManager->AbilityTransactionDone(token, state, saveData);
     }
-    return missionListManager->AbilityTransactionDone(token, state, saveData);
 }
 
 int AbilityManagerService::ScheduleConnectAbilityDone(
@@ -3361,13 +3426,17 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             break;
         }
         default: {
-            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-            if (!missionListManager) {
-                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-                return;
+            if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+                uiAbilityLifecycleManager_->OnAbilityRequestDone(token, state);
+            } else {
+                int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+                auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+                if (!missionListManager) {
+                    HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+                    return;
+                }
+                missionListManager->OnAbilityRequestDone(token, state);
             }
-            missionListManager->OnAbilityRequestDone(token, state);
             break;
         }
     }

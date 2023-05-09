@@ -197,6 +197,19 @@ ErrCode AbilityManagerClient::StartUIExtensionAbility(const Want &want, const sp
     return abms->StartUIExtensionAbility(want, extensionSessionInfo, userId, extensionType);
 }
 
+ErrCode AbilityManagerClient::StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
+    sptr<SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("abilityName: %{public}s.", want.GetElement().GetAbilityName().c_str());
+    return abms->StartUIAbilityBySCB(want, startOptions, sessionInfo);
+}
+
 ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {

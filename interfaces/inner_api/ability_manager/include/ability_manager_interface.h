@@ -200,6 +200,19 @@ public:
     }
 
     /**
+     * Start ui ability with want, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param sessionInfo the session info of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions, sptr<SessionInfo> sessionInfo)
+    {
+        return 0;
+    }
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -1129,6 +1142,8 @@ public:
 
         // start ui extension ability
         START_UI_EXTENSION_ABILITY,
+
+        START_UI_ABILITY_BY_SCB,
 
         CALL_REQUEST_DONE,
 

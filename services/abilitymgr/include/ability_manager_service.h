@@ -46,6 +46,7 @@
 #include "parameter.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
+#include "scene_board/ui_ability_lifecycle_manager.h"
 #include "user_controller.h"
 #include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
@@ -204,6 +205,17 @@ public:
         const sptr<SessionInfo> &extensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * Start ui ability with want, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param sessionInfo the session info of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
+        sptr<SessionInfo> sessionInfo) override;
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -1338,6 +1350,7 @@ private:
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
+    std::shared_ptr<UIAbilityLifecycleManager> uiAbilityLifecycleManager_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;

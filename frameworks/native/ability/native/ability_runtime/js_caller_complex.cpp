@@ -15,6 +15,7 @@
 #include <string>
 #include <set>
 
+#include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"

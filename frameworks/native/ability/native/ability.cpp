@@ -41,6 +41,8 @@
 #include "reverse_continuation_scheduler_replica.h"
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
+#include "scene_board_judgement.h"
+#include "session_info.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
@@ -54,6 +56,7 @@
 #include "display_type.h"
 #include "form_provider_client.h"
 #include "key_event.h"
+#include "ui_window.h"
 #endif
 
 namespace OHOS {
@@ -158,7 +161,7 @@ bool Ability::IsUpdatingConfigurations()
     return AbilityContext::IsUpdatingConfigurations();
 }
 
-void Ability::OnStart(const Want &want)
+void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
@@ -173,6 +176,16 @@ void Ability::OnStart(const Want &want)
     SetWant(want);
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
+        if (sessionInfo) {
+            uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_, sessionInfo->sessionToken);
+            if (uiWindow_ != nullptr) {
+                uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
+                uiWindow_->Connect();
+            }
+        }
+    }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
@@ -192,7 +205,12 @@ void Ability::OnStart(const Want &want)
 
         // Update resMgr, Configuration
         HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
-        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        sptr<Rosen::Display> display = nullptr;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            // waiting for SCB to provide GetDisplayById
+        } else {
+            display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        }
         if (display) {
             float density = display->GetVirtualPixelRatio();
             int32_t width = display->GetWidth();
@@ -262,6 +280,10 @@ void Ability::OnStop()
     if (scene_ != nullptr) {
         scene_->GoDestroy();
         onSceneDestroyed();
+    }
+    if (uiWindow_) {
+        HILOG_DEBUG("UIWindow do disconnect.");
+        uiWindow_->Disconnect();
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -1551,12 +1573,14 @@ void Ability::OnBackground()
     }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
-            if (scene_ == nullptr) {
-                HILOG_ERROR("Ability::OnBackground error. scene_ == nullptr.");
-                return;
+            if (scene_ != nullptr) {
+                HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
+                scene_->GoBackground(sceneFlag_);
             }
-            HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
-            scene_->GoBackground(sceneFlag_);
+            if (uiWindow_ != nullptr) {
+                HILOG_DEBUG("%{public}s DoBackground.", abilityInfo_->bundleName.c_str());
+                uiWindow_->Background();
+            }
             if (abilityRecovery_ != nullptr) {
                 abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
             }
@@ -1748,6 +1772,11 @@ sptr<IRemoteObject> Ability::GetFormRemoteObject()
 void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 {
     sceneListener_ = listener;
+}
+
+void Ability::SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener)
+{
+    sceneSessionStageListener_ = listener;
 }
 
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)

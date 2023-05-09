@@ -43,9 +43,11 @@ public:
      *
      * @param want Indicates the structure containing information about the ability.
      * @param targetState The life cycle state to switch to.
+     * @param sessionInfo  Indicates the sessionInfo.
      *
      */
-    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState) override;
+    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
      * @brief The life cycle callback of NewAbility.
