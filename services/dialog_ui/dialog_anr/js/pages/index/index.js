@@ -15,45 +15,45 @@
 
 import resourceManager from '@ohos.resourceManager';
 
-var EVENT_WAITING = "EVENT_WAITING";
-var EVENT_CLOSE = "EVENT_CLOSE";
-var EVENT_WAITING_CODE = "0";
-var EVENT_CLOSE_CODE = "1";
+let EVENT_WAITING = 'EVENT_WAITING';
+let EVENT_CLOSE = 'EVENT_CLOSE';
+let EVENT_WAITING_CODE = '0';
+let EVENT_CLOSE_CODE = '1';
 export default {
-    data: {
-        labelAppName: "",
-        labeloffsetX: 16,
-        labeloffsetY: 190,
-        labelwidth: 328,
-        labelheight: 192,
-        pcDisplay: 'flex',
-        phoneDisplay: 'none',
-    },
-    
-    onInit() {
-        console.info('onInit');
-        this.labelAppName = this.appName;
-        this.labeloffsetX = parseInt(this.offsetX);
-        this.labeloffsetY = parseInt(this.offsetY);
-        this.labelwidth = parseInt(this.width);
-        this.labelheight = parseInt(this.height);
-        if (this.deviceType === "phone") {
-            this.phoneDisplay = 'flex';
-            this.pcDisplay = 'none';
-        } else if (this.deviceType === "pc") {
-            this.phoneDisplay = 'none';
-            this.pcDisplay = 'flex';
-        }
-    },
-    onShow() {
-        console.info('onshow');
-    },
-    onWaiting() {
-        console.info('click waiting for a response');
-        callNativeHandler(EVENT_WAITING, EVENT_WAITING_CODE);
-    },
-    onCloseApp() {
-        console.info('click close app');
-        callNativeHandler(EVENT_CLOSE, EVENT_CLOSE_CODE);
+  data: {
+    labelAppName: '',
+    labeloffsetX: 16,
+    labeloffsetY: 190,
+    labelwidth: 328,
+    labelheight: 192,
+    pcDisplay: 'flex',
+    phoneDisplay: 'none',
+  },
+
+  onInit() {
+    console.info('onInit');
+    this.labelAppName = this.appName;
+    this.labeloffsetX = parseInt(this.offsetX);
+    this.labeloffsetY = parseInt(this.offsetY);
+    this.labelwidth = parseInt(this.width);
+    this.labelheight = parseInt(this.height);
+    if (this.deviceType === 'phone') {
+      this.phoneDisplay = 'flex';
+      this.pcDisplay = 'none';
+    } else if (this.deviceType === 'pc') {
+      this.phoneDisplay = 'none';
+      this.pcDisplay = 'flex';
     }
+  },
+  onShow() {
+    console.info('onshow');
+  },
+  onWaiting() {
+    console.info('click waiting for a response');
+    callNativeHandler(EVENT_WAITING, EVENT_WAITING_CODE);
+  },
+  onCloseApp() {
+    console.info('click close app');
+    callNativeHandler(EVENT_CLOSE, EVENT_CLOSE_CODE);
+  }
 }

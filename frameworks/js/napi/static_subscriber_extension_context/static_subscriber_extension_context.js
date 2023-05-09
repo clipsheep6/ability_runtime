@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-var ExtensionContext = requireNapi("application.ExtensionContext")
+let ExtensionContext = requireNapi('application.ExtensionContext');
 
 class StaticSubscriberExtensionContext extends ExtensionContext {
-    constructor(obj) {
-        super(obj);
-    }
+  constructor(obj) {
+    super(obj);
+  }
 }
 
-export default StaticSubscriberExtensionContext
+export default StaticSubscriberExtensionContext;

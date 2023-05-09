@@ -16,22 +16,22 @@
 import resourceManager from '@ohos.resourceManager';
 
 export default {
-    data: {
-        btn: {
-            color: "#FFFFFF",
-        }
-    },
-    onInit() {
-        console.info('onInit');
-        if (this.deviceType == "pc") {
-            this.btn.color = "#F2F2F2";
-        }
-    },
-    onShow() {
-        console.info('onshow');
-    },
-    onCloseApp() {
-        console.info('click close app');
-        callNativeHandler('EVENT_CLOSE', '');
+  data: {
+    btn: {
+      color: '#FFFFFF',
     }
+  },
+  onInit() {
+    console.info('onInit');
+    if (this.deviceType === 'pc') {
+      this.btn.color = '#F2F2F2';
+    }
+  },
+  onShow() {
+    console.info('onshow');
+  },
+  onCloseApp() {
+    console.info('click close app');
+    callNativeHandler('EVENT_CLOSE', '');
+  }
 }

@@ -14,123 +14,123 @@
  */
 
 class EventHub {
-    constructor() {
-        this.eventMap = {};
-    }
+  constructor() {
+    this.eventMap = {};
+  }
 
-    on(event, callback) {
-        if ((typeof(event) != 'string') || (typeof(callback) != 'function')) {
-            return;
-        }
-        if (!this.eventMap[event]) {
-            this.eventMap[event] = [];
-        }
-        if (this.eventMap[event].indexOf(callback) == -1) {
-            this.eventMap[event].push(callback);
-        }
+  on(event, callback) {
+    if ((typeof (event) !== 'string') || (typeof (callback) !== 'function')) {
+      return;
     }
+    if (!this.eventMap[event]) {
+      this.eventMap[event] = [];
+    }
+    if (this.eventMap[event].indexOf(callback) === -1) {
+      this.eventMap[event].push(callback);
+    }
+  }
 
-    off(event, callback) {
-        if (typeof(event) != 'string') {
-            return;
-        }
-        if (this.eventMap[event]) {
-            if (callback) {
-                let index = this.eventMap[event].indexOf(callback);
-                if (index > -1) {
-                    this.eventMap[event].splice(index, 1);
-                }
-            } else {
-                this.eventMap[event].length = 0;
-            }
-        }
+  off(event, callback) {
+    if (typeof (event) != 'string') {
+      return;
     }
+    if (this.eventMap[event]) {
+      if (callback) {
+        let index = this.eventMap[event].indexOf(callback);
+        if (index > -1) {
+          this.eventMap[event].splice(index, 1);
+        }
+      } else {
+        this.eventMap[event].length = 0;
+      }
+    }
+  }
 
-    emit(event, ...args) {
-        if (typeof(event) != 'string') {
-            return;
-        }
-        if (this.eventMap[event]) {
-            this.eventMap[event].map((callback) => {
-                callback(...args);
-            });
-        }
+  emit(event, ...args) {
+    if (typeof (event) !== 'string') {
+      return;
     }
+    if (this.eventMap[event]) {
+      this.eventMap[event].map((callback) => {
+        callback(...args);
+      });
+    }
+  }
 }
 
 class Context {
-    constructor(obj) {
-        this.__context_impl__ = obj
-        this.__context_impl__.eventHub = new EventHub()
-    }
+  constructor(obj) {
+    this.__context_impl__ = obj;
+    this.__context_impl__.eventHub = new EventHub();
+  }
 
-    createBundleContext(bundleName) {
-        return this.__context_impl__.createBundleContext(bundleName)
-    }
+  createBundleContext(bundleName) {
+    return this.__context_impl__.createBundleContext(bundleName);
+  }
 
-    createModuleContext(moduleName) {
-        return this.__context_impl__.createModuleContext(moduleName)
-    }
+  createModuleContext(moduleName) {
+    return this.__context_impl__.createModuleContext(moduleName);
+  }
 
-    createModuleContext(bundleName, moduleName) {
-        return this.__context_impl__.createModuleContext(bundleName, moduleName)
-    }
+  createModuleContext(bundleName, moduleName) {
+    return this.__context_impl__.createModuleContext(bundleName, moduleName);
+  }
 
-    getApplicationContext() {
-        return this.__context_impl__.getApplicationContext()
-    }
+  getApplicationContext() {
+    return this.__context_impl__.getApplicationContext();
+  }
 
-    set area(mode) {
-        return this.__context_impl__.switchArea(mode)
-    }
+  set area(mode) {
+    return this.__context_impl__.switchArea(mode);
+  }
 
-    get area() {
-        return this.__context_impl__.getArea()
-    }
+  get area() {
+    return this.__context_impl__.getArea();
+  }
 
-    get resourceManager() {
-        return this.__context_impl__.resourceManager
-    }
+  get resourceManager() {
+    return this.__context_impl__.resourceManager;
+  }
 
-    get applicationInfo() {
-        return this.__context_impl__.applicationInfo
-    }
+  get applicationInfo() {
+    return this.__context_impl__.applicationInfo;
+  }
 
-    get cacheDir() {
-        return this.__context_impl__.cacheDir
-    }
+  get cacheDir() {
+    return this.__context_impl__.cacheDir;
+  }
 
-    get tempDir() {
-        return this.__context_impl__.tempDir
-    }
+  get tempDir() {
+    return this.__context_impl__.tempDir;
+  }
 
-    get filesDir() {
-        return this.__context_impl__.filesDir
-    }
+  get filesDir() {
+    return this.__context_impl__.filesDir;
+  }
 
-    get distributedFilesDir() {
-        return this.__context_impl__.distributedFilesDir
-    }
+  get distributedFilesDir() {
+    return this.__context_impl__.distributedFilesDir;
+  }
 
-    get databaseDir() {
-        return this.__context_impl__.databaseDir
-    }
+  get databaseDir() {
+    return this.__context_impl__.databaseDir;
+  }
 
-    get preferencesDir() {
-        return this.__context_impl__.preferencesDir
-    }
+  get preferencesDir() {
+    return this.__context_impl__.preferencesDir;
+  }
 
-    get bundleCodeDir() {
-        return this.__context_impl__.bundleCodeDir
-    }
+  get bundleCodeDir() {
+    return this.__context_impl__.bundleCodeDir;
+  }
 
-    get eventHub() {
-        return this.__context_impl__.eventHub
-    }
+  get eventHub() {
+    return this.__context_impl__.eventHub;
+  }
 
-    get stageMode() {
-        return true;
-    }
+  get stageMode() {
+    return true;
+  }
 }
 
-export default Context
+export default Context;

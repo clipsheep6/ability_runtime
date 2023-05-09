@@ -18,24 +18,24 @@ class Logger {
   }
 
   public log(...args: any[]) {
-    console.log(`[${this.prefix}]: ${args.join('')}`)
+    console.log(`[${this.prefix}]: ${args.join('')}`);
   }
 
   public info(...args: any[]) {
-    console.info(`[${this.prefix}]: ${args.join('')}`)
+    console.info(`[${this.prefix}]: ${args.join('')}`);
   }
 
   public debug(...args: any[]) {
-    console.debug(`[${this.prefix}]: ${args.join('')}`)
+    console.debug(`[${this.prefix}]: ${args.join('')}`);
   }
 
   public warn(...args: any[]) {
-    console.warn(`[${this.prefix}]: ${args.join('')}`)
+    console.warn(`[${this.prefix}]: ${args.join('')}`);
   }
 
   public error(...args: any[]) {
-    console.error(`[${this.prefix}]: ${args.join('')}`)
+    console.error(`[${this.prefix}]: ${args.join('')}`);
   }
 }
 
-export default new Logger('eTSFormAbility')
+export default new Logger('eTSFormAbility');

@@ -14,25 +14,25 @@
  */
 
 class ServiceExtensionAbility {
-    onCreate(want) {
-        console.log('onCreate, want:' + want.abilityName);
-    }
+  onCreate(want) {
+    console.log('onCreate, want:' + want.abilityName);
+  }
 
-    onRequest(want, startId) {
-        console.log('onRequest, want:' + want.abilityName + ', startId:' + startId);
-    }
+  onRequest(want, startId) {
+    console.log('onRequest, want:' + want.abilityName + ', startId:' + startId);
+  }
 
-    onConnect(want) {
-        console.log('onConnect, want:' + want.abilityName);
-    }
+  onConnect(want) {
+    console.log('onConnect, want:' + want.abilityName);
+  }
 
-    onDisconnect(want) {
-        console.log('onDisconnect');
-    }
+  onDisconnect(want) {
+    console.log('onDisconnect');
+  }
 
-    onDestroy() {
-        console.log('onDestroy');
-    }
+  onDestroy() {
+    console.log('onDestroy');
+  }
 }
 
-export default ServiceExtensionAbility
+export default ServiceExtensionAbility;
