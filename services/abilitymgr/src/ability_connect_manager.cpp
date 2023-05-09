@@ -131,6 +131,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
 
     targetService->SetSessionInfo(sessionInfo);
+    targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_EXTENSION);
 
     if (!isLoadedAbility) {
         LoadAbility(targetService);
@@ -327,6 +328,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     }
     AddConnectDeathRecipient(connect);
     connectMap_.emplace(connect->AsObject(), connectRecordList);
+    targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_CONNECT_EXTENSION);
 
     // 5. load or connect ability
     int ret = ERR_OK;

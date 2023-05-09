@@ -284,6 +284,7 @@ int AbilityRecord::LoadAbility()
         }
     }
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
+    want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token_, callerToken_, abilityInfo_, applicationInfo_, want_);
     want_.RemoveParam(ABILITY_OWNER_USERID);
