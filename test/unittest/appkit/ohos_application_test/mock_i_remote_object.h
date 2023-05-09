@@ -76,6 +76,8 @@ public:
         std::u16string descriptor = std::u16string();
         return descriptor;
     }
+
+    void WaitForInit() override {};
 };
 } // namespace Notification
 } // namespace OHOS
