@@ -59,8 +59,8 @@
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
-const int32_t BASE_USER_RANGE = 200000;
-const int32_t U0_USER_ID = 0;
+constexpr int32_t BASE_USER_RANGE = 200000;
+constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
@@ -1327,6 +1327,8 @@ private:
 
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);
+
+    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

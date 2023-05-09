@@ -64,11 +64,18 @@ public:
      */
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, int32_t state) const;
 
+    /**
+     * Check whether the UIAbility is alive.
+     *
+     * @param token ability's token.
+     * @return Returns true on alive.
+     */
+    bool IsContainsAbility(const sptr<IRemoteObject> &token) const;
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
-    bool IsContainsAbility(std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void EraseAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -84,7 +91,7 @@ private:
     void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     mutable std::recursive_mutex sessionLock_;
-    std::map<sptr<SessionInfo>, std::shared_ptr<AbilityRecord>> sessionItems_;
+    std::map<sptr<Rosen::ISession>, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -205,12 +205,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
         // Update resMgr, Configuration
         HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
-        sptr<Rosen::Display> display = nullptr;
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            // waiting for SCB to provide GetDisplayById
-        } else {
-            display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-        }
+        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
         if (display) {
             float density = display->GetVirtualPixelRatio();
             int32_t width = display->GetWidth();

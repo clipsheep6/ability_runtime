@@ -203,6 +203,7 @@ ErrCode AbilityManagerClient::StartUIAbilityBySCB(const Want &want, const StartO
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
         HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);

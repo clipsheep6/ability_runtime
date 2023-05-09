@@ -108,6 +108,7 @@ const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.asso
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
+const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -964,9 +965,25 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
     auto currentUserId = GetUserId();
     EventInfo eventInfo = BuildEventInfo(want, currentUserId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+
+    if(!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (sessionInfo->callerToken != nullptr && !VerificationAllToken(sessionInfo->callerToken)) {
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CALLER;
+    }
 
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, -1, currentUserId, true);
@@ -1009,6 +1026,24 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
     return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
+}
+
+bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId)
+{
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bms is invalid.");
+        return false;
+    }
+    AppExecFwk::ApplicationInfo appInfo;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->GetApplicationInfo(bundleName,
+        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo));
+    auto accessTokenId = IPCSkeleton::GetCallingTokenID();
+    if (accessTokenId != appInfo.accessTokenId) {
+        HILOG_ERROR("Permission verification failed");
+        return false;
+    }
+    return true;
 }
 
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
@@ -4076,7 +4111,11 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
-    {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (uiAbilityLifecycleManager_ != nullptr && uiAbilityLifecycleManager_->IsContainsAbility(token)) {
+            return true;
+        }
+    } else {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
         for (auto item: missionListManagers_) {
             if (item.second && item.second->GetAbilityRecordByToken(token)) {
@@ -4719,17 +4758,8 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
-        auto bms = GetBundleManager();
-        CHECK_POINTER_IS_NULLPTR(bms);
-        AppExecFwk::ApplicationInfo appInfo;
-        if (!IN_PROCESS_CALL(bms->GetApplicationInfo(BUNDLE_NAME_LAUNCHER,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetUserId(), appInfo))) {
-            HILOG_ERROR("Not found GetApplicationInfo according to the bundle name.");
-            return;
-        }
-        auto tokenId = IPCSkeleton::GetCallingTokenID();
-        if (tokenId != appInfo.accessTokenId) {
-            HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        if(!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
+            HILOG_ERROR("Not launcher called, not allowed.");
             return;
         }
     }

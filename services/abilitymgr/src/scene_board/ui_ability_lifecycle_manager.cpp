@@ -29,47 +29,52 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
     HILOG_DEBUG("Call.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    // for uri permission, go to optimize
     abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
-    std::shared_ptr<AbilityRecord> targetAbilityRecord = nullptr;
-    auto iter = sessionItems_.find(sessionInfo);
-    if (iter != sessionItems_.end()) {
-        targetAbilityRecord = iter->second;
+    std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
+    auto iter = sessionAbilityMap_.find(sessionInfo->sessionToken);
+    if (iter != sessionAbilityMap_.end()) {
+        uiAbilityRecord = iter->second;
     } else {
-        targetAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
+        uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
     }
 
-    if (targetAbilityRecord == nullptr) {
+    if (uiAbilityRecord == nullptr) {
         HILOG_ERROR("Failed to get ability record.");
         return ERR_INVALID_VALUE;
     }
 
-    if (targetAbilityRecord->IsTerminating()) {
-        HILOG_ERROR("%{public}s is terminating.", targetAbilityRecord->GetAbilityInfo().name.c_str());
+    if (uiAbilityRecord->IsTerminating()) {
+        HILOG_ERROR("%{public}s is terminating.", uiAbilityRecord->GetAbilityInfo().name.c_str());
         return ERR_INVALID_VALUE;
     }
 
-    if (targetAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+    if (uiAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("pending state is FOREGROUND.");
-        targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        if (iter == sessionItems_.end()) {
-            sessionItems_.emplace(sessionInfo, targetAbilityRecord);
+        uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        if (iter == sessionAbilityMap_.end()) {
+            sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
         }
         return ERR_OK;
     } else {
         HILOG_DEBUG("pending state is not FOREGROUND.");
-        targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
     }
 
-    UpdateAbilityRecordLaunchReason(abilityRequest, targetAbilityRecord);
+    UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
         = iface_cast<AppExecFwk::IAbilityInfoCallback>(abilityRequest.abilityInfoCallback);
     if (abilityInfoCallback != nullptr) {
-        abilityInfoCallback->NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest.want);
+        abilityInfoCallback->NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest.want);
     }
 
-    targetAbilityRecord->ProcessForegroundAbility();
-    if (iter == sessionItems_.end()) {
-        sessionItems_.emplace(sessionInfo, targetAbilityRecord);
+    uiAbilityRecord->ProcessForegroundAbility();
+    if (iter == sessionAbilityMap_.end()) {
+        sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
     }
     return ERR_OK;
 }
@@ -79,6 +84,9 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    if (!IsContainsAbility(token)) {
+        return ERR_INVALID_VALUE;
+    }
     auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     HILOG_DEBUG("AbilityMS attach abilityThread, name is %{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
@@ -86,10 +94,6 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
-
-    if (!IsContainsAbility(abilityRecord)) {
-        return ERR_INVALID_VALUE;
-    }
 
     abilityRecord->SetScheduler(scheduler);
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
@@ -311,19 +315,19 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
     }
 
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    for (auto iter = sessionItems_.begin(); iter != sessionItems_.end(); iter++) {
-        if (iter->second->GetToken()->AsObject() == token) {
+    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
+        if (iter->second != nullptr && iter->second->GetToken()->AsObject() == token) {
             return iter->second;
         }
     }
     return nullptr;
 }
 
-bool UIAbilityLifecycleManager::IsContainsAbility(std::shared_ptr<AbilityRecord> &abilityRecord) const
+bool UIAbilityLifecycleManager::IsContainsAbility(const sptr<IRemoteObject> &token) const
 {
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    for (auto iter = sessionItems_.begin(); iter != sessionItems_.end(); iter++) {
-        if (iter->second == abilityRecord) {
+    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
+        if (iter->second != nullptr && iter->second->GetToken()->AsObject() == token) {
             return true;
         }
     }
@@ -336,9 +340,9 @@ void UIAbilityLifecycleManager::EraseAbilityRecord(const std::shared_ptr<Ability
         return;
     }
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    for (auto iter = sessionItems_.begin(); iter != sessionItems_.end(); iter++) {
-        if (iter->second == abilityRecord) {
-            sessionItems_.erase(iter);
+    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
+        if (iter->second != nullptr && iter->second->GetToken()->AsObject() == abilityRecord->GetToken()->AsObject()) {
+            sessionAbilityMap_.erase(iter);
             break;
         }
     }

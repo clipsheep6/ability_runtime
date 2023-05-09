@@ -1143,8 +1143,6 @@ public:
         // start ui extension ability
         START_UI_EXTENSION_ABILITY,
 
-        START_UI_ABILITY_BY_SCB,
-
         CALL_REQUEST_DONE,
 
         START_ABILITY_AS_CALLER_BY_TOKEN,
@@ -1159,6 +1157,8 @@ public:
 
         // ipc id for connect ui extension ability
         CONNECT_UI_EXTENSION_ABILITY,
+
+        START_UI_ABILITY_BY_SCB,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
