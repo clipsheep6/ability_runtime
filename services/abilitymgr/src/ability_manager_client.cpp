@@ -428,11 +428,11 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want &want)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, const sptr<IRemoteObject> &token)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->StopServiceAbility(want);
+    return abms->StopServiceAbility(want, -1, token);
 }
 
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)

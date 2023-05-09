@@ -1238,7 +1238,7 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId)
+int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     int error;
     MessageParcel data;
@@ -1255,6 +1255,17 @@ int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId)
     if (!data.WriteInt32(userId)) {
         HILOG_ERROR("userId write failed.");
         return INNER_ERR;
+    }
+    if (token) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+            HILOG_ERROR("Failed to write flag and token.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("Failed to write flag.");
+            return ERR_INVALID_VALUE;
+        }
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

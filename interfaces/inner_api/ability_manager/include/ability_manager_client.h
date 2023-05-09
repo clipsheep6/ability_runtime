@@ -417,9 +417,10 @@ public:
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.
+     * @param token ability's token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    ErrCode StopServiceAbility(const Want &want);
+    ErrCode StopServiceAbility(const Want &want, const sptr<IRemoteObject> &token = nullptr);
 
     /**
      * Kill the process immediately.

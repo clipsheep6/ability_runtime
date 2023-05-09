@@ -83,7 +83,8 @@ public:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
 
     int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId) override;
-    int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE) override;
+    int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr) override;
 
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));

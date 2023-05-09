@@ -3772,10 +3772,20 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
     return connectManager->TerminateAbilityResult(token, startId);
 }
 
-int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
+int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Stop service ability.");
+    HILOG_DEBUG("call.");
+
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(token);
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("callerRecord is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -3798,6 +3808,12 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
         HILOG_ERROR("Target ability is not service type.");
         return TARGET_ABILITY_NOT_SERVICE;
+    }
+
+    auto res = JudgeAbilityVisibleControl(abilityInfo, validUserId);
+    if (res != ERR_OK) {
+        HILOG_ERROR("Target ability is invisible");
+        return res;
     }
 
     auto connectManager = GetConnectManagerByUserId(validUserId);

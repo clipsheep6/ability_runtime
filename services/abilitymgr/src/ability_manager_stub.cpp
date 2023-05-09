@@ -646,7 +646,11 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = StopServiceAbility(*want, userId);
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t result = StopServiceAbility(*want, userId, token);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;

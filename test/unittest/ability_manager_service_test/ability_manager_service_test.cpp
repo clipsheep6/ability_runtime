@@ -1782,7 +1782,7 @@ HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StopServiceAbility_001 start");
     Want want;
-    EXPECT_EQ(abilityMs_->StopServiceAbility(want, 100), ERR_CROSS_USER);
+    EXPECT_EQ(abilityMs_->StopServiceAbility(want, 100), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest StopServiceAbility_001 end");
 }
 
