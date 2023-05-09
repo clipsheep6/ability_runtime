@@ -763,12 +763,13 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         HILOG_ERROR("ability is null");
         return;
     }
-    if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND) {
+    if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND &&
+        ability->GetState() != AbilityState::ABILITY_STATE_READY) {
         HILOG_ERROR("ability state is not foreground or focus");
         return;
     }
 
-    // First change ability to backgrounded.
+    // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true);

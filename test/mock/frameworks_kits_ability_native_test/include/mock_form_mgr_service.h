@@ -227,6 +227,11 @@ public:
     {
         return 0;
     }
+
+    int32_t SetBackgroundFunction(const std::string method, const std::string params)
+    {
+        return ERR_OK;
+    };
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

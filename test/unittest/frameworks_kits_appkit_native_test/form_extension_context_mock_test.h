@@ -197,6 +197,10 @@ public:
     {
         return false;
     }
+    int32_t SetBackgroundFunction(const std::string method, const std::string params) override
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
