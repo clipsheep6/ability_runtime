@@ -199,5 +199,21 @@ ohos_prebuilt_etc("ams_service_config.json") {
 }
 
 group("ams_service_config") {
-  deps = [ ":ams_service_config.json" ]
+  deps = [
+    ":ams_service_config.json",
+    ":ams_prepare_terminate_config",
+    ":ams_prepare_terminate_config_vendor"
+  ]
+}
+
+ohos_prebuilt_etc("ams_prepare_terminate_config") {
+  source = "resource/ams_prepare_terminate_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("ams_prepare_terminate_config_vendor") {
+  source = "//vendor/${product_company}/${product_name}/ams_config/ams_prepare_terminate_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }

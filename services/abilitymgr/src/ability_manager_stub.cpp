@@ -162,6 +162,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
     requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
     requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
+    requestFuncMap_[PREPARE_TERMINATE_ABILITY] = &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
@@ -1880,6 +1881,40 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
     }
     CompleteFirstFrameDrawing(abilityToken);
     return 0;
+}
+
+int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    // sptr<IRemoteObject> token = nullptr;
+    // if (data.ReadBool()) {
+    //     token = data.ReadRemoteObject();
+    // }
+    // sptr<IPrepareTerminateCallback> handler = iface_cast<IPrepareTerminateCallback>(data.ReadRemoteObject());
+    // if (handler == nullptr) {
+    //     HILOG_ERROR("%{public}s read WMS handler failed!", __func__);
+    //     return ERR_NULL_OBJECT;
+    // }
+    // return PrepareTerminateAbility(token, handler);
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    sptr<IPrepareTerminateCallback> handler = iface_cast<IPrepareTerminateCallback>(data.ReadRemoteObject());
+    if (handler == nullptr) {
+        HILOG_ERROR("%{public}s read WMS prepare terminate handler failed!", __func__);
+        return ERR_NULL_OBJECT;
+    }
+    int result = PrepareTerminateAbility(token, handler);
+    if (handler == nullptr) {
+        reply.WriteBool(false);
+    } else {
+        reply.WriteBool(true);
+    }
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("PrepareTerminateAbility result error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 #endif
 

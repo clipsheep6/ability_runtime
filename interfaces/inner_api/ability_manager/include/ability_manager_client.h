@@ -763,6 +763,15 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken);
+
+    /**
+     * PrepareTerminateAbility with want, if terminate, return want from ability manager service.
+     *
+     * @param token Ability token.
+     * @param callback callback.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
 #endif
 
     /**

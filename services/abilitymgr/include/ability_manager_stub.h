@@ -182,6 +182,7 @@ private:
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
     int RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply);
+    int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
 #endif
 
     #ifdef ABILITY_COMMAND_FOR_TEST

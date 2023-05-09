@@ -306,6 +306,18 @@ void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
+int AbilityImpl::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("luc007,AbilityImpl::PrepareTerminateAbility begin.");
+    if (ability_ == nullptr) {
+        HILOG_ERROR("luc007,AbilityImpl::PrepareTerminateAbility ability_ is nullptr");
+        return -1;
+    }
+    int ret = ability_->OnPrepareTerminate();
+    HILOG_DEBUG("luc007,AbilityImpl::PrepareTerminateAbility, OnPrepareTerminate end, ret=%{public}d.", ret);
+    return ret;
+}
+
 int AbilityImpl::GetCurrentState()
 {
     return lifecycleState_;

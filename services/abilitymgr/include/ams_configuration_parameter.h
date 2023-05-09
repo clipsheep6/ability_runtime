@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,10 @@ constexpr const char* RESIDENT_RESTART_MAX = "resident_restart_max";
 constexpr const char* RESTART_INTERVAL_TIME = "restart_interval_time";
 constexpr const char* BOOT_ANIMATION_TIMEOUT_TIME = "boot_animation_timeout_time";
 constexpr const char* TIMEOUT_UNIT_TIME = "timeout_unit_time";
+constexpr const char* PREPARE_TERMINATE_VENDOR_CONFIG_FILE = "/vendor/etc/ams_prepare_terminate_config.json";
+constexpr const char* PREPARE_TERMINATE_SYSTEM_CONFIG_FILE = "/system/etc/ams_prepare_terminate_config.json";
+constexpr const char* PREPARE_TERMINATE_CONFIG = "prepare_terminate_config";
+constexpr const char* AMS_PREPARE_TERMINATE_ENABLE = "ams_prepare_terminate_enable";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -98,6 +102,13 @@ public:
      */
     int GetAppStartTimeoutTime() const;
 
+    /**
+     * get ability manager service prepare terminate enable or not.
+     */
+    bool GetAMSPrepareTerminateEnable() const;
+    int LoadPrepareTerminateConfig(nlohmann::json& Object);
+    bool NonPrepareTerminateConfigFile() const;
+
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
 private:
@@ -113,6 +124,7 @@ private:
     int LoadAppConfigurationForMemoryThreshold(nlohmann::json& Object);
     int LoadSystemConfiguration(nlohmann::json& Object);
 
+    int LoadAmsPrepareTerminateConfigFile(const std::string &filePath);
 private:
     bool nonConfigFile_ {false};
     int maxRootLauncherRestartNum_ = 0;
@@ -125,6 +137,8 @@ private:
     int bootAnimationTime_ {5};
     std::string deviceType_ {""};
     int timeoutUnitTime_ {1000};
+    bool nonPrepareTerminateConfigFile_ {false};
+    bool amsPrepareTerminateEnable_ {false};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

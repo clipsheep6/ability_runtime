@@ -1021,6 +1021,16 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
+int AbilityRecord::PrepareTerminateAbility()
+{
+    HILOG_INFO("luc003,prepare terminate ability.");
+    if (lifecycleDeal_ == nullptr) {
+        HILOG_ERROR("Prepare terminate the ability fail, lifecycleDeal_ is null.");
+        return -1;
+    }
+    return lifecycleDeal_->PrepareTerminateAbility();
+}
+
 int AbilityRecord::TerminateAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

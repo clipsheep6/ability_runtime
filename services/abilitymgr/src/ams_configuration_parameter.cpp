@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,9 @@ void AmsConfigurationParameter::Parse()
 {
     auto ref = LoadAmsConfiguration(AmsConfig::AMS_CONFIG_FILE_PATH);
     HILOG_INFO("load config ref : %{public}d", ref);
+    if (LoadAmsPrepareTerminateConfigFile(AmsConfig::PREPARE_TERMINATE_VENDOR_CONFIG_FILE) != READ_OK) {
+        (void)LoadAmsPrepareTerminateConfigFile(AmsConfig::PREPARE_TERMINATE_SYSTEM_CONFIG_FILE);
+    }
 }
 
 bool AmsConfigurationParameter::NonConfigFile() const
@@ -81,6 +84,64 @@ int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 int AmsConfigurationParameter::GetAppStartTimeoutTime() const
 {
     return timeoutUnitTime_;
+}
+
+bool AmsConfigurationParameter::GetAMSPrepareTerminateEnable() const
+{
+    return amsPrepareTerminateEnable_;
+}
+
+int AmsConfigurationParameter::LoadPrepareTerminateConfig(nlohmann::json& Object)
+{
+    if (Object.contains(AmsConfig::PREPARE_TERMINATE_CONFIG)) {
+        auto tmpString = Object.at(AmsConfig::PREPARE_TERMINATE_CONFIG).at(AmsConfig::AMS_PREPARE_TERMINATE_ENABLE).get<std::string>();
+        if (tmpString == "true") {
+            amsPrepareTerminateEnable_ = true;
+        } else {
+            amsPrepareTerminateEnable_ = false;
+        }
+        return READ_OK;
+    }
+
+    return READ_FAIL;
+}
+
+int AmsConfigurationParameter::LoadAmsPrepareTerminateConfigFile(const std::string &filePath)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    int ret = -1;
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in);
+    if (!inFile.is_open()) {
+        HILOG_INFO("read ams config error ...");
+        nonPrepareTerminateConfigFile_ = true;
+        return READ_FAIL;
+    }
+
+    json amsJson;
+    inFile >> amsJson;
+    if (amsJson.is_discarded()) {
+        HILOG_INFO("json discarded error ...");
+        nonPrepareTerminateConfigFile_ = true;
+        inFile.close();
+        return READ_JSON_FAIL;
+    }
+
+    ret = LoadPrepareTerminateConfig(amsJson);
+    if (ret != 0) {
+        HILOG_ERROR("LoadPrepareTerminateConfig return error");
+    }
+
+    amsJson.clear();
+    inFile.close();
+
+    if (ret != 0) {
+        HILOG_ERROR("json no have service item ...");
+        return READ_JSON_FAIL;
+    }
+
+    HILOG_INFO("read ams config success!");
+    return READ_OK;
 }
 
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
