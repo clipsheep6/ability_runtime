@@ -91,7 +91,8 @@ private:
     void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     mutable std::recursive_mutex sessionLock_;
-    std::map<sptr<Rosen::ISession>, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    // std::map<sptr<Rosen::ISession>, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

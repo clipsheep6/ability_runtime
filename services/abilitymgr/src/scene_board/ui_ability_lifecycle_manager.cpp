@@ -33,10 +33,14 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_ERROR("sessionInfo is invalid.");
         return ERR_INVALID_VALUE;
     }
-    // for uri permission, go to optimize
-    abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto descriptor = Str16ToStr8(sessionInfo->sessionToken->GetDescriptor());
+    if (descriptor != "OHOS.ISession") {
+        HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
-    auto iter = sessionAbilityMap_.find(sessionInfo->sessionToken);
+    auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
     } else {
@@ -57,7 +61,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_DEBUG("pending state is FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
         if (iter == sessionAbilityMap_.end()) {
-            sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
+            sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
         }
         return ERR_OK;
     } else {
@@ -74,7 +78,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
 
     uiAbilityRecord->ProcessForegroundAbility();
     if (iter == sessionAbilityMap_.end()) {
-        sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
+        sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
     return ERR_OK;
 }
