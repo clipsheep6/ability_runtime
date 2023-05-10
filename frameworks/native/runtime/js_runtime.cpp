@@ -544,7 +544,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
-    pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
+    pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::FOLLOW);
     pandaOption.SetLogBufPrint(PrintVmLog);
 
     bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
