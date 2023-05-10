@@ -91,12 +91,14 @@ bool ConnectionManager::MatchConnection(
 {
     if (!connectReceiver.GetElement().GetAbilityName().empty()) {
         return connectCaller == connection.first.connectCaller &&
+            connectReceiver.GetElement().GetDeviceID() == connection.first.connectReceiver.GetDeviceID() &&
             connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
             connectReceiver.GetElement().GetModuleName() == connection.first.connectReceiver.GetModuleName() &&
             connectReceiver.GetElement().GetAbilityName() == connection.first.connectReceiver.GetAbilityName();
     } else {
         // ImplicitConnect
         return connectCaller == connection.first.connectCaller &&
+            connectReceiver.GetElement().GetDeviceID() == connection.first.connectReceiver.GetDeviceID() &&
             connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
             connectReceiver.GetOperation() == connection.first.connectReceiver;
     }
