@@ -167,6 +167,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
+    requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1213,6 +1214,27 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
     HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner end.");
 
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = StartUIAbilityBySCB(*want, *startOptions, sessionInfo);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

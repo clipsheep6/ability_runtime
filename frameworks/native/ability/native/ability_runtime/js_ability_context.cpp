@@ -1228,6 +1228,10 @@ bool JsAbilityContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue* ar
         HILOG_WARN("%s jWant == nullptr!", __func__);
         return false;
     }
+    if (jWant->TypeOf() == NativeValueType::NATIVE_UNDEFINED) {
+        HILOG_WARN("%s want is undefined!", __func__);
+        return true;
+    }
     if (jWant->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_WARN("%s invalid type of want!", __func__);
         return false;

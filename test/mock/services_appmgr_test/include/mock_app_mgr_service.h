@@ -108,6 +108,11 @@ public:
         return 0;
     }
 
+    virtual int32_t JudgeSandboxByPid(pid_t pid, bool &isSandbox)
+    {
+        return 0;
+    }
+
     void KillApplicationImpl(const std::string& data)
     {
         data_ = data;

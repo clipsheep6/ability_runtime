@@ -22,7 +22,6 @@
 
 #include "js_runtime_utils.h"
 #include "native_engine/native_engine.h"
-#include "napi_common_data.h"
 #include "want.h"
 #include "want_params.h"
 
@@ -36,8 +35,8 @@ napi_value WrapWantParams(napi_env env, const AAFwk::WantParams &wantParams);
 bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantParams);
 bool BlackListFilter(const std::string &strProName);
 
-napi_value WrapWant(napi_env env, const Want &want);
-bool UnwrapWant(napi_env env, napi_value param, Want &want);
+napi_value WrapWant(napi_env env, const AAFwk::Want &want);
+bool UnwrapWant(napi_env env, napi_value param, AAFwk::Want &want);
 
 void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string &strProName,
     AAFwk::WantParams &wantParams);
@@ -49,7 +48,7 @@ bool HandleFdObject(napi_env env, napi_value param, std::string &strProName, AAF
 
 bool HandleRemoteObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams);
 
-NativeValue* CreateJsWant(NativeEngine &engine, const Want &want);
+NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want);
 NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams);
 template<class TBase, class T, class NativeT>
 bool InnerWrapJsWantParams(

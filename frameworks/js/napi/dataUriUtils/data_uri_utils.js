@@ -12,57 +12,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const URI_SPLIT = '/'
+const URI_SPLIT = '/';
 
 let dataUriUtils = {
-    getId : (uri) => {
-        console.debug("DataUriUtils getId called.");
-        if (typeof uri !== 'string') {
-            return -1;
-        }
-        let index = uri.lastIndexOf(URI_SPLIT);
-        if (index === -1) {
-            return -1;
-        }
-        let ret = uri.substring(index + 1);
-        if (ret === "" || isNaN(Number(ret))) {
-            return -1;
-        }
-        return Number(ret);
-    },
-    updateId : (uri, id) => {
-        console.debug("DataUriUtils updateId called.");
-        if (typeof uri !== 'string' || typeof id !== 'number') {
-            return uri;
-        }
-        let ret = dataUriUtils.deleteId(uri);
-        if (ret === uri) {
-            return uri;
-        }
-        return ret + URI_SPLIT + id;
-    },
-    deleteId : (uri) => {
-        console.debug("DataUriUtils deleteId called.");
-        if (typeof uri !== 'string') {
-            return uri;
-        }
-        let index = uri.lastIndexOf(URI_SPLIT);
-        if (index === -1) {
-            return uri;
-        }
-        var id = uri.substring(index + 1);
-        if (id === "" || isNaN(Number(id))) {
-            return uri;
-        }
-        return uri.substring(0, index);
-    },
-    attachId : (uri, id) => {
-        console.debug("DataUriUtils attachId called.");
-        if (typeof uri !== 'string' || typeof id !== 'number') {
-            return uri;
-        }
-        return uri + URI_SPLIT + id;
+  getId: (uri) => {
+    console.debug('DataUriUtils getId called.');
+    if (typeof uri !== 'string') {
+      return -1;
     }
+    let index = uri.lastIndexOf(URI_SPLIT);
+    if (index === -1) {
+      return -1;
+    }
+    let ret = uri.substring(index + 1);
+    if (ret === '' || isNaN(Number(ret))) {
+      return -1;
+    }
+    return Number(ret);
+  },
+  updateId: (uri, id) => {
+    console.debug('DataUriUtils updateId called.');
+    if (typeof uri !== 'string' || typeof id !== 'number') {
+      return uri;
+    }
+    let ret = dataUriUtils.deleteId(uri);
+    if (ret === uri) {
+      return uri;
+    }
+    return ret + URI_SPLIT + id;
+  },
+  deleteId: (uri) => {
+    console.debug('DataUriUtils deleteId called.');
+    if (typeof uri !== 'string') {
+      return uri;
+    }
+    let index = uri.lastIndexOf(URI_SPLIT);
+    if (index === -1) {
+      return uri;
+    }
+    var id = uri.substring(index + 1);
+    if (id === '' || isNaN(Number(id))) {
+      return uri;
+    }
+    return uri.substring(0, index);
+  },
+  attachId: (uri, id) => {
+    console.debug('DataUriUtils attachId called.');
+    if (typeof uri !== 'string' || typeof id !== 'number') {
+      return uri;
+    }
+    return uri + URI_SPLIT + id;
+  }
 };
 
-export default dataUriUtils
+export default dataUriUtils;

@@ -308,7 +308,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
     auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
-    CHECK_POINTER_AND_RETURN(targetList, CREATE_MISSION_STACK_FAILED);
+    CHECK_POINTER_AND_RETURN(targetList, ERR_INVALID_CALLER);
 
     // 2. get target mission
     std::shared_ptr<AbilityRecord> targetAbilityRecord;

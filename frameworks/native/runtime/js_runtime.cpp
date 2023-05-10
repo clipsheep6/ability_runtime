@@ -41,7 +41,6 @@
 #include "js_module_searcher.h"
 #include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
-#include "js_source_map_operator.h"
 #include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -52,6 +51,7 @@
 #include "extractor.h"
 #include "systemcapability.h"
 #include "source_map.h"
+#include "source_map_operator.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "declarative_module_preloader.h"
@@ -67,7 +67,6 @@ constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
-const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #else
@@ -435,6 +434,7 @@ bool JsRuntime::Initialize(const Options& options)
         }
     }
 
+    bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         HandleScope handleScope(*this);
         auto nativeEngine = GetNativeEnginePointer();
@@ -504,15 +504,12 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName));
+            isModular = !panda::JSNApi::IsBundle(vm);
 
             if (!InitLoop(options.eventRunner)) {
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-            auto bindSourceMaps = std::make_shared<JsEnv::SourceMap>();
-            bool isModular = !panda::JSNApi::IsBundle(vm);
-            auto operatorImpl = std::make_shared<JsSourceMapOperatorImpl>(options.hapPath, isModular, bindSourceMaps);
-            InitSourceMap(operatorImpl);
 
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
@@ -524,6 +521,9 @@ bool JsRuntime::Initialize(const Options& options)
             }
         }
     }
+
+    auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
+    InitSourceMap(operatorObj);
 
     preloaded_ = options.preload;
     return true;
@@ -629,10 +629,10 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSy
     }
 }
 
-void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl)
+void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(operatorImpl);
+    jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
 }
 
@@ -987,8 +987,9 @@ void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::strin
     }
 }
 
-bool JsRuntime::ReadSourceMapData(const std::string& hapPath, std::string& content)
+bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)
 {
+    // Source map relative path, FA: "/assets/js", Stage: "/ets"
     if (hapPath.empty()) {
         HILOG_ERROR("hapPath is empty");
         return false;
@@ -1002,9 +1003,13 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, std::string& conte
     }
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
     size_t len = 0;
-    if (!extractor->ExtractToBufByName(MEGER_SOURCE_MAP_PATH, dataPtr, len)) {
-        HILOG_ERROR("get mergeSourceMapData fileBuffer failed");
-        return false;
+    if (!extractor->ExtractToBufByName(sourceMapPath, dataPtr, len)) {
+        HILOG_DEBUG("can't find source map, and switch to stage model.");
+        std::string tempPath = std::regex_replace(sourceMapPath, std::regex("ets"), "assets/js");
+        if (!extractor->ExtractToBufByName(tempPath, dataPtr, len)) {
+            HILOG_ERROR("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
+            return false;
+        }
     }
     content = reinterpret_cast<char*>(dataPtr.get());
     return true;

@@ -40,7 +40,7 @@ class Extractor;
 
 namespace JsEnv {
 class JsEnvironment;
-class SourceMapOperatorImpl;
+class SourceMapOperator;
 struct UncaughtExceptionInfo;
 } // namespace JsEnv
 
@@ -63,7 +63,7 @@ public:
 
     static void SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp = false);
 
-    static bool ReadSourceMapData(const std::string& hapPath, std::string& content);
+    static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
 
     JsRuntime();
     ~JsRuntime() override;
@@ -110,7 +110,7 @@ public:
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 
-    void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperatorImpl> operatorImpl);
+    void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
 

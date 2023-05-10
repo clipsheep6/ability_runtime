@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,8 @@
 #endif
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "session_info.h"
+#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "context/context.h"
 #include "context/application_context.h"
@@ -197,11 +199,11 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         nullptr);
 }
 
-void JsAbility::OnStart(const Want &want)
+void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStart begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnStart(want);
+    Ability::OnStart(want, sessionInfo);
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found Ability.js");
@@ -498,7 +500,7 @@ std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
-    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene());
+    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene(), uiWindow_);
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
@@ -561,6 +563,13 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
 
 void JsAbility::DoOnForeground(const Want &want)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (uiWindow_) {
+            HILOG_DEBUG("%{public}s DoForeground.", abilityInfo_->bundleName.c_str());
+            uiWindow_->Foreground();
+        }
+        return;
+    }
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
@@ -619,6 +628,12 @@ void JsAbility::DoOnForeground(const Want &want)
 void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (uiWindow_ != nullptr) {
+            HILOG_DEBUG("%{public}s Foreground.", abilityInfo_->bundleName.c_str());
+            uiWindow_->Foreground();
+        }
+    }
     if (scene_ == nullptr) {
         return;
     }
@@ -801,6 +816,9 @@ void JsAbility::OnNewWant(const Want &want)
 #ifdef SUPPORT_GRAPHICS
     if (scene_) {
         scene_->OnNewWant(want);
+    }
+    if (uiWindow_ != nullptr) {
+        // waiting for UIWindow to provide OnNewWant
     }
 #endif
 

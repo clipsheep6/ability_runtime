@@ -14,28 +14,28 @@
  */
 
 function isSystemplugin(shortName, moduleType) {
-    const plugin = moduleType === 'ohos' ? globalThis.ohosplugin : globalThis.systemplugin;
-    if (typeof (plugin) !== 'undefined') {
-      var target = plugin;
-      for (let key of shortName.split('.')) {
-        target = target[key];
-        if (!target) {
-          break;
-        }
+  const plugin = moduleType === 'ohos' ? globalThis.ohosplugin : globalThis.systemplugin;
+  if (typeof (plugin) !== 'undefined') {
+    var target = plugin;
+    for (let key of shortName.split('.')) {
+      target = target[key];
+      if (!target) {
+        break;
       }
-      return typeof (target) !== 'undefined';
     }
+    return typeof (target) !== 'undefined';
+  }
 }
 
 
 var global = globalThis;
-globalThis.exports = {default: {}};
+globalThis.exports = { default: {} };
 globalThis.$app_define$ = function (page, packageName, parseContent) {
-    const module = {exports: {}};
-    parseContent({}, module.exports, module);
-    globalThis.exports.default = module.exports;
-    console.info("Delegator Mgmt app_define");
+  const module = { exports: {} };
+  parseContent({}, module.exports, module);
+  globalThis.exports.default = module.exports;
+  console.info('Delegator Mgmt app_define');
 }
-globalThis.$app_bootstrap$ = function() {};
+globalThis.$app_bootstrap$ = function () { };
 
-console.info("Delegator Mgmt init success");
+console.info('Delegator Mgmt init success');
