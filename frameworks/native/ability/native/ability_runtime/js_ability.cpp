@@ -459,6 +459,11 @@ void JsAbility::OnForeground(const Want &want)
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
 
     obj->SetProperty("lastRequestWant", jsWant);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (GetState() == AppExecFwk::AbilityLifecycleExecutor::STARTED_NEW) {
+            AbilityContinuationOrRecover(want);
+        }
+    }
 
     CallObjectMethod("onForeground", &jsWant, 1);
 
