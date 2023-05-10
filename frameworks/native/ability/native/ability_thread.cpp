@@ -53,6 +53,7 @@ constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
+constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
 constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
 constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
