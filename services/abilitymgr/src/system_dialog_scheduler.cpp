@@ -44,8 +44,8 @@ const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) *
 const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
 
 const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
-const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
-const int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 135 * 2;
+const int32_t UI_TIPS_DIALOG_HEIGHT = 240 * 2;
+const int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 240 * 2;
 const int32_t UI_TIPS_DIALOG_WIDTH_NARROW = 328 * 2;
 
 const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH = 328 * 2;
@@ -380,7 +380,7 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 break;
             case DialogAlign::BOTTOM:
                 position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
-                position.offsetY = display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP;
+                position.offsetY = (display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP) / UI_HALF;
                 break;
             default:
                 position.offsetX = (display->GetWidth() - position.width) / UI_HALF;

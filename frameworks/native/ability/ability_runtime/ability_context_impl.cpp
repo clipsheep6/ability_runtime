@@ -389,6 +389,9 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("%{public}s SceneBoardJudgement begin.", __func__);
+    }
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
     AAFwk::Want resultWant;
