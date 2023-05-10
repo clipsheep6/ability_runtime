@@ -53,6 +53,7 @@ constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
+constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
 constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
 constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
@@ -457,8 +458,7 @@ void AbilityThread::Attach(
  * @param want  Indicates the structure containing lifecycle information about the ability.
  * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
  */
-void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-    sptr<SessionInfo> sessionInfo)
+void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Handle ability transaction begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -471,7 +471,7 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
         lifeCycleStateInfo.caller.bundleName,
         lifeCycleStateInfo.caller.abilityName,
         lifeCycleStateInfo.caller.moduleName);
-    abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
+    abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
     HILOG_DEBUG("Handle ability transaction success.");
 }
 
@@ -776,7 +776,7 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         if (abilityThread->isExtension_) {
             abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
         } else {
-            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
+            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
         }
     };
 
