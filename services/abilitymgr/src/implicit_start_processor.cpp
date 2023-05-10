@@ -32,6 +32,7 @@ using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 const std::string STR_PC = "pc";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+const std::string SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -150,8 +151,10 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT;
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    bool withDefault = false;
+    withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
     IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
-        request.want, abilityInfoFlag, userId, abilityInfos, extensionInfos));
+        request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
         abilityInfos.size(), extensionInfos.size());
@@ -173,8 +176,8 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
     if (deviceType == STR_PC) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
-            implicitwant, abilityInfoFlag, userId, implicitAbilityInfos, implicitExtensionInfos));
+        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
+            withDefault, implicitAbilityInfos, implicitExtensionInfos));
         if (implicitAbilityInfos.size() != 0 && request.want.GetType() != TYPE_ONLY_MATCH_WILDCARD) {
             for (auto implicitAbilityInfo : implicitAbilityInfos) {
                 infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
@@ -187,20 +190,22 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             continue;
         }
         if (deviceType == STR_PC) {
-            auto defaultMgr = GetDefaultAppProxy();
-            AppExecFwk::BundleInfo bundleInfo;
             auto isDefaultFlag = false;
-            ErrCode ret =
-                IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, request.want.GetType(), bundleInfo));
-            if (ret == ERR_OK) {
-                if (bundleInfo.abilityInfos.size() == 1) {
-                    HILOG_INFO("find default ability.");
-                    isDefaultFlag = true;
-                } else if (bundleInfo.extensionInfos.size() == 1) {
-                    HILOG_INFO("find default extension.");
-                    isDefaultFlag = true;
-                } else {
-                    HILOG_INFO("GetDefaultApplication failed.");
+            if (withDefault) {
+                auto defaultMgr = GetDefaultAppProxy();
+                AppExecFwk::BundleInfo bundleInfo;
+                ErrCode ret =
+                    IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, request.want.GetType(), bundleInfo));
+                if (ret == ERR_OK) {
+                    if (bundleInfo.abilityInfos.size() == 1) {
+                        HILOG_INFO("find default ability.");
+                        isDefaultFlag = true;
+                    } else if (bundleInfo.extensionInfos.size() == 1) {
+                        HILOG_INFO("find default extension.");
+                        isDefaultFlag = true;
+                    } else {
+                        HILOG_INFO("GetDefaultApplication failed.");
+                    }
                 }
             }
             if (!isMoreHapList && !isDefaultFlag) {
