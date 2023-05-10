@@ -298,13 +298,11 @@ ohos_shared_library("abilitykit_native") {
     include_dirs += []
     sources += [
       "${ability_runtime_native_path}/ability/native/ability_window.cpp",
-      "${ability_runtime_native_path}/ability/native/form_provider_client.cpp",
       "${ability_runtime_native_path}/ability/native/page_ability_impl.cpp",
     ]
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
 
     external_deps += [
-      "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "multimedia_image_framework:image",
     ]

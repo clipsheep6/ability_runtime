@@ -1186,12 +1186,6 @@ protected:
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
 
     /**
-     * @brief Acquire a form provider remote object.
-     * @return Returns form provider remote object.
-     */
-    sptr<IRemoteObject> GetFormRemoteObject();
-
-    /**
      * @brief process when foreground executed.
      *
      * You can override this function to implement your own processing logic
