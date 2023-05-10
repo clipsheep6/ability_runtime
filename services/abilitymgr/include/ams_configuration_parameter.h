@@ -34,6 +34,7 @@ constexpr const char* ROOT_LAUNCHER_RESTART_MAX = "root_launcher_restart_max";
 constexpr const char* RESIDENT_RESTART_MAX = "resident_restart_max";
 constexpr const char* RESTART_INTERVAL_TIME = "restart_interval_time";
 constexpr const char* BOOT_ANIMATION_TIMEOUT_TIME = "boot_animation_timeout_time";
+constexpr const char* APP_NOT_RESPONSE_HANDLE_TYPE = "anr_handle_type";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -92,6 +93,8 @@ public:
      */
     int GetBootAnimationTimeoutTime() const;
 
+    int GetAnrHandleType() const;
+
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
 private:
@@ -114,6 +117,7 @@ private:
     int anrTime_ {5000};
     int amsTime_ {5000};
     int bootAnimationTime_ {5};
+    int anrHandleType_ {0};
     std::string deviceType_ {""};
 };
 }  // namespace AAFwk

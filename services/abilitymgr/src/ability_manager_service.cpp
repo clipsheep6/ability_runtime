@@ -4562,6 +4562,11 @@ int AbilityManagerService::SendANRProcessID(int pid)
         return ERR_INVALID_VALUE;
     }
 
+    if (amsConfigResolver_->GetAnrHandleType() == 1) {
+        HILOG_INFO("no need kill app, return.");
+        return ERR_OK;
+    }
+
     auto timeoutTask = [bundleName = appInfo.bundleName]() {
         DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
     };
