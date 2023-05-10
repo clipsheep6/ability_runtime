@@ -23,7 +23,7 @@ class EventHub {
       return;
     }
     if (!this.eventMap[event]) {
-      this.eventMap[event] == [];
+      this.eventMap[event] = [];
     }
     if (this.eventMap[event].indexOf(callback) === -1) {
       this.eventMap[event].push(callback);
