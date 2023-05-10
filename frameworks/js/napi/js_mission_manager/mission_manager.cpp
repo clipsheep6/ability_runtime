@@ -185,7 +185,7 @@ private:
         }
 
         int32_t missionListenerId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[ARGC_ONE], missionListenerId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[ARGC_ONE], missionListenerId)) {
             HILOG_ERROR("Parse missionListenerId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -235,7 +235,7 @@ private:
             return engine.CreateUndefined();
         }
         int numMax = -1;
-        if (!ConvertFromJsValue(engine, info.argv[1], numMax)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[1], numMax)) {
             HILOG_ERROR("Parse numMax failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -275,7 +275,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[1], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[1], missionId)) {
             HILOG_ERROR("Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -364,7 +364,7 @@ private:
             return false;
         }
 
-        if (!ConvertFromJsValue(engine, info.argv[1], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[1], missionId)) {
             HILOG_ERROR("missionSnapshot: Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return false;
@@ -382,7 +382,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[0], missionId)) {
             HILOG_ERROR("OnLockMission Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -415,7 +415,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[0], missionId)) {
             HILOG_ERROR("OnUnlockMission Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -448,7 +448,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[0], missionId)) {
             HILOG_ERROR("OnClearMission Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -502,7 +502,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[0], missionId)) {
             HILOG_ERROR("OnMoveMissionToFront Parse missionId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();

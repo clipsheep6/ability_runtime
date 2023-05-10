@@ -3754,7 +3754,7 @@ napi_value StartBackgroundRunningAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
-    if (args == nullptr || asyncCallbackInfo == nullptr) {
+    if (args == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
@@ -3819,8 +3819,15 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNums, args, NULL, NULL));
 
-    if (paramNums < minParamNums || paramNums > maxParamNums) {
+    if (paramNums < minParamNums) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[0], &valuetype));
+    if (valuetype != napi_number) {
+        HILOG_ERROR("%{public}s, parse id failed.", __func__);
         return nullptr;
     }
 
@@ -3828,7 +3835,9 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
         asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
     }
 
-    if (paramNums == maxParamNums) {
+    valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[2], &valuetype));
+    if (paramNums > 2 && valuetype == napi_function) {
         ret = StartBackgroundRunningAsync(env, args, maxParamNums - 1, asyncCallbackInfo);
     } else {
         ret = StartBackgroundRunningPromise(env, asyncCallbackInfo);
@@ -3875,7 +3884,7 @@ napi_value CancelBackgroundRunningAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (args == nullptr || asyncCallbackInfo == nullptr) {
+    if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
@@ -3936,17 +3945,14 @@ napi_value CancelBackgroundRunningWrap(napi_env &env, napi_callback_info &info, 
     HILOG_INFO("%{public}s called.", __func__);
     size_t argcAsync = 1;
     const size_t argcPromise = 0;
-    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, NULL, NULL));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        return nullptr;
-    }
 
-    if (argcAsync > argcPromise) {
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[0], &valuetype));
+    if (argcAsync > argcPromise && valuetype == napi_function) {
         ret = CancelBackgroundRunningAsync(env, args, 0, asyncCallbackInfo);
     } else {
         ret = CancelBackgroundRunningPromise(env, asyncCallbackInfo);
@@ -4066,7 +4072,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
     HILOG_DEBUG("%{public}s is called", __func__);
-    if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
+    if (info.argc == ARGS_ZERO) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
@@ -4074,7 +4080,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     int64_t id = 0;
     sptr<NAPIAbilityConnection> abilityConnection = nullptr;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM0], id)) {
+    if (!ConvertNumFromJsValue(engine, info.argv[PARAM0], id)) {
         HILOG_ERROR("input params int error");
         return engine.CreateUndefined();
     }
@@ -5063,10 +5069,6 @@ NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_pt
 NativeValue* JsNapiCommon::JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s called", __func__);
-    if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, info.argc);
-        return engine.CreateUndefined();
-    }
 
     auto complete = [obj = this](NativeEngine &engine, AsyncTask &task, int32_t status) {
         if (obj->ability_ != nullptr) {
@@ -5090,7 +5092,7 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     auto env = reinterpret_cast<napi_env>(&engine);
     auto param = std::make_shared<CallAbilityParam>();
-    if (info.argc == 0 || info.argc > ARGS_TWO) {
+    if (info.argc == 0) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         *errorVal = NAPI_ERR_PARAM_INVALID;
     } else {

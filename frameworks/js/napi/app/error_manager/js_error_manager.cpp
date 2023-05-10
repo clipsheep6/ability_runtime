@@ -35,10 +35,9 @@ constexpr int32_t INVALID_PARAM = -2;
 #endif
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
 #ifdef ENABLE_ERRCODE
 constexpr int32_t INDEX_TWO = 2;
-constexpr size_t ARGC_THREE = 3;
+constexpr size_t ARGC_TWO = 2;
 #else
 constexpr size_t ARGC_ONE = 1;
 #endif
@@ -114,7 +113,7 @@ private:
     {
         int32_t observerId = -1;
 #ifdef ENABLE_ERRCODE
-        if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+        if (info.argc < ARGC_TWO) {
             ThrowTooFewParametersError(engine);
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
@@ -131,15 +130,15 @@ private:
         }
 #else
         // only support one or two params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
             napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
             HILOG_INFO("unregister errorObserver called, observer:%{public}d", observerId);
         }
-#endif
 
+#endif
         std::weak_ptr<JsErrorObserver> observerWptr(observer_);
         AsyncTask::CompleteCallback complete =
             [observerWptr, observerId](

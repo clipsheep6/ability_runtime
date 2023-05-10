@@ -199,8 +199,8 @@ private:
             return engine.CreateUndefined();
         }
 
-        int64_t observerId = -1;
-        napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
+        int32_t observerId = -1;
+        napi_get_value_int32(reinterpret_cast<napi_env>(&engine), 
             reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), &observerId);
         std::lock_guard<std::mutex> lock(g_observerMutex);
         if (observer_ == nullptr) {
@@ -209,11 +209,11 @@ private:
             return engine.CreateUndefined();
         }
         if (!observer_->FindObserverByObserverId(observerId)) {
-            HILOG_ERROR("not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
+            HILOG_ERROR("not find observer, observer:%{public}d", observerId);
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
-        HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, static_cast<int32_t>(observerId));
+        HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, observerId);
 
         AsyncTask::CompleteCallback complete =
             [appManager = appManager_, observer = observer_, observerId](
@@ -412,7 +412,7 @@ private:
         }
 
         uint32_t versionCode = 0;
-        if (!ConvertFromJsValue(engine, info.argv[1], versionCode)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[1], versionCode)) {
             HILOG_ERROR("get versionCode failed!");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
@@ -453,7 +453,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t accountId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[1], accountId)) {
             HILOG_ERROR("Parse userId failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();

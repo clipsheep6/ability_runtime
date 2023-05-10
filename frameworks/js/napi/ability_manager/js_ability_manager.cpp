@@ -50,7 +50,6 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
 
-
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
@@ -137,7 +136,7 @@ private:
             return engine.CreateUndefined();
         }
         int upperLimit = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], upperLimit)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[0], upperLimit)) {
 #ifdef ENABLE_ERRCODE
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
 #endif
@@ -261,7 +260,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], missionId)) {
+        if (!ConvertNumFromJsValue(engine, info.argv[INDEX_ZERO], missionId)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }

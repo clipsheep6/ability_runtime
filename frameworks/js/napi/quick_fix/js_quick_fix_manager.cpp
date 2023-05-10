@@ -26,7 +26,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr size_t ARGC_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
 const char *QUICK_FIX_MANAGER_NAME = "JsQuickFixMgr";
 } // namespace
 
@@ -72,7 +71,7 @@ private:
     NativeValue *OnGetApplyedQuickFixInfo(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_DEBUG("function called.");
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("The number of parameter is invalid.");
             Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
             return engine.CreateUndefined();
@@ -108,7 +107,7 @@ private:
     NativeValue *OnApplyQuickFix(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_DEBUG("function called.");
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        if (info.argc < ARGC_ONE) {
             HILOG_ERROR("The number of parameter is invalid.");
             Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
             return engine.CreateUndefined();

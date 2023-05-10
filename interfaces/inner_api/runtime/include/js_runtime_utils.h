@@ -101,6 +101,26 @@ inline bool ConvertFromJsValue(NativeEngine& engine, NativeValue* jsValue, T& va
 }
 
 template<class T>
+inline bool ConvertNumFromJsValue(NativeEngine& engine, NativeValue* jsValue, T& value)
+{
+    if (jsValue == nullptr || jsValue->TypeOf() != NATIVE_NUMBER) {
+        return false;
+    }
+
+    using ValueType = std::remove_cv_t<std::remove_reference_t<T>>;
+    if constexpr (std::is_arithmetic_v<ValueType>) {
+        auto numberValue = ConvertNativeValueTo<NativeNumber>(jsValue);
+        if (numberValue == nullptr) {
+            return false;
+        }
+        value = *numberValue;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+template<class T>
 NativeValue* CreateNativeArray(NativeEngine& engine, const std::vector<T>& data)
 {
     NativeValue* arrayValue = engine.CreateArray(data.size());
