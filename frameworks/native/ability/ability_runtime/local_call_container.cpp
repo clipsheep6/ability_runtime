@@ -379,7 +379,6 @@ void CallerConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &el
 void CallerConnection::OnRemoteStateChanged(const AppExecFwk::ElementName &element, int32_t abilityState)
 {
     HILOG_DEBUG("CallerConnection::OnRemoteStateChanged start %{public}s .", element.GetURI().c_str());
-    std::shared_ptr<LocalCallRecord> localCallRecord;
     if (localCallRecord_ == nullptr) {
         HILOG_DEBUG("local call record is nullptr.");
         return;

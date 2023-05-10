@@ -137,7 +137,7 @@ ErrCode AppMgrService::Init()
 
     handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
     appMgrServiceInner_->SetEventHandler(handler_);
-    std::function<void()> initAppMgrServiceInnerTask = 
+    std::function<void()> initAppMgrServiceInnerTask =
         std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
     handler_->PostTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
 
