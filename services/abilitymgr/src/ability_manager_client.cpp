@@ -279,6 +279,19 @@ ErrCode AbilityManagerClient::MinimizeUIExtensionAbility(const sptr<SessionInfo>
     return abms->MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
 }
 
+ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("failed, sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("call");
+    return abms->MinimizeUIAbilityBySCB(sessionInfo);
+}
+
 ErrCode AbilityManagerClient::ConnectAbility(const Want &want, const sptr<IAbilityConnection> &connect, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

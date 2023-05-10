@@ -83,6 +83,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
     requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
+    requestFuncMap_[MINIMIZE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -284,6 +285,17 @@ int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, Mes
     }
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = MinimizeUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

@@ -72,6 +72,7 @@ private:
     int TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int AttachAbilityThreadInner(MessageParcel &data, MessageParcel &reply);
     int AbilityTransitionDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleConnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);

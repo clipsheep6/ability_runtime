@@ -312,6 +312,14 @@ public:
     ErrCode MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser = false);
 
     /**
+     * MinimizeUIAbilityBySCB, minimize the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+
+    /**
      * ConnectAbility, connect session with service ability.
      *
      * @param want, Special want for service type's ability.

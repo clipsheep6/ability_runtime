@@ -326,6 +326,17 @@ public:
     };
 
     /**
+     * MinimizeUIAbilityBySCB, minimize the special ui ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+    {
+        return 0;
+    };
+
+    /**
      * ConnectAbility, connect session with service ability.
      *
      * @param want, Special want for service type's ability.
@@ -1161,6 +1172,9 @@ public:
         CONNECT_UI_EXTENSION_ABILITY,
 
         START_UI_ABILITY_BY_SCB,
+
+        // ipc id for minimize ui ability by scb
+        MINIMIZE_UI_ABILITY_BY_SCB,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

@@ -230,6 +230,10 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     obj->SetProperty("launchWant", jsWant);
     obj->SetProperty("lastRequestWant", jsWant);
 
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        AbilityContinuationOrRecover(want);
+    }
+
     NativeValue *argv[] = {
         jsWant,
         CreateJsLaunchParam(nativeEngine, GetLaunchParam()),

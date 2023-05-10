@@ -72,6 +72,21 @@ public:
      */
     bool IsContainsAbility(const sptr<IRemoteObject> &token) const;
 
+    /**
+     * MinimizeUIAbility, minimize the special ability by board.
+     *
+     * @param abilityRecord, the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    /**
+     * GetServiceRecordBySessionInfo.
+     *
+     * @param sessionToken, service ability's session token.
+     * @return Returns AbilityRecord shared_ptr.
+     */
+    std::shared_ptr<AbilityRecord> GetUIAbilityRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
@@ -88,10 +103,12 @@ private:
         AbilityState state = AbilityState::INITIAL);
     void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
         AbilityState state = AbilityState::INITIAL);
-    void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     mutable std::recursive_mutex sessionLock_;
-    std::map<sptr<Rosen::ISession>, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

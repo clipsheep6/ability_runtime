@@ -24,6 +24,13 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
+constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+}
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -33,20 +40,20 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_ERROR("sessionInfo is invalid.");
         return ERR_INVALID_VALUE;
     }
-    // for uri permission, go to optimize
-    abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto descriptor = Str16ToStr8(sessionInfo->sessionToken->GetDescriptor());
+    if (descriptor != "OHOS.ISession") {
+        HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
-    auto iter = sessionAbilityMap_.find(sessionInfo->sessionToken);
+    auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
     } else {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
     }
-
-    if (uiAbilityRecord == nullptr) {
-        HILOG_ERROR("Failed to get ability record.");
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 
     if (uiAbilityRecord->IsTerminating()) {
         HILOG_ERROR("%{public}s is terminating.", uiAbilityRecord->GetAbilityInfo().name.c_str());
@@ -57,7 +64,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_DEBUG("pending state is FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
         if (iter == sessionAbilityMap_.end()) {
-            sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
+            sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
         }
         return ERR_OK;
     } else {
@@ -74,7 +81,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
 
     uiAbilityRecord->ProcessForegroundAbility();
     if (iter == sessionAbilityMap_.end()) {
-        sessionAbilityMap_.emplace(sessionInfo->sessionToken, uiAbilityRecord);
+        sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
     return ERR_OK;
 }
@@ -211,7 +218,22 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
 
 int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    return 0;
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    if (!abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING)) {
+        HILOG_ERROR("Ability transition life state error. actual %{public}d", abilityRecord->GetAbilityState());
+        return ERR_INVALID_VALUE;
+    }
+
+    // remove background timeout task.
+    handler->RemoveTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    auto self(shared_from_this());
+    auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
+    handler->PostTask(task);
+
+    return ERR_OK;
 }
 
 int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -233,7 +255,7 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
 
     if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         abilityRecord->SetMinimizeReason(true);
-        MoveToBackgroundTask(abilityRecord);
+        MoveToBackground(abilityRecord);
     } else if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
@@ -304,8 +326,6 @@ void UIAbilityLifecycleManager::HandleTimeoutAndResumeAbility(const std::shared_
     }
 }
 
-void UIAbilityLifecycleManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord) {}
-
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
     const
 {
@@ -369,5 +389,138 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
     abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     return;
 }
+
+std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySessionInfo(
+    const sptr<SessionInfo> &sessionInfo)
+{
+    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
+    sptr<Rosen::ISession> sessionToken = sessionInfo->sessionToken;
+    CHECK_POINTER_AND_RETURN(sessionToken, nullptr);
+    std::string descriptor = Str16ToStr8(sessionToken->GetDescriptor());
+    if (descriptor != "OHOS.ISession") {
+        HILOG_ERROR("failed, input token is not a sessionToken, token->GetDescriptor(): %{public}s",
+            descriptor.c_str());
+        return nullptr;
+    }
+
+    auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
+    if (iter != sessionAbilityMap_.end()) {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("abilityInfoName:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
+    abilityRecord->SetPendingState(AbilityState::BACKGROUND);
+    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+        HILOG_ERROR("ability state is not foreground");
+        return ERR_OK;
+    }
+    MoveToBackground(abilityRecord);
+    return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null");
+        return;
+    }
+    abilityRecord->SetIsNewWant(false);
+    auto self(weak_from_this());
+    auto task = [abilityRecord, self]() {
+        auto selfObj = self.lock();
+        if (selfObj == nullptr) {
+            HILOG_WARN("UIAbilityLifecycleManager is invalid");
+            return;
+        }
+        HILOG_ERROR("UIAbilityLifecycleManager move to background timeout");
+        selfObj->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
+        selfObj->CompleteBackground(abilityRecord);
+    };
+    abilityRecord->BackgroundAbility(task);
+}
+
+void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+{
+    if (ability == nullptr) {
+        HILOG_ERROR("failed, ability is nullptr");
+        return;
+    }
+
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+    if (processInfo.pid_ == 0) {
+        HILOG_ERROR("failed, error: the ability[%{public}s], app may fork fail or not running.",
+            ability->GetAbilityInfo().name.data());
+        return;
+    }
+    std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
+    switch (msgId) {
+        case AbilityManagerService::LOAD_TIMEOUT_MSG:
+            msgContent += "load timeout";
+            break;
+        case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
+            msgContent += "active timeout";
+            break;
+        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
+            msgContent += "inactive timeout";
+            break;
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+            msgContent += "foreground timeout";
+            break;
+        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
+            msgContent += "background timeout";
+            break;
+        case AbilityManagerService::TERMINATE_TIMEOUT_MSG:
+            msgContent += "terminate timeout";
+            break;
+        default:
+            return;
+    }
+    std::string eventType = "LIFECYCLE_TIMEOUT";
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_UID, processInfo.uid_,
+        EVENT_KEY_PID, processInfo.pid_,
+        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
+        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
+        EVENT_KEY_MESSAGE, msgContent);
+
+    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+}
+
+void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
+        HILOG_ERROR("failed, ability state is %{public}d, it can't complete background.",
+            abilityRecord->GetAbilityState());
+        return;
+    }
+    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    // send application state to AppMS.
+    // notify AppMS to update application state.
+    DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+    if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
+    } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
+        HILOG_DEBUG("not continuous startup.");
+        abilityRecord->SetPendingState(AbilityState::INITIAL);
+    }
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

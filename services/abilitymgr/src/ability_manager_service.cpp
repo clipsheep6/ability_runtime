@@ -1842,6 +1842,41 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     return connectManager->MinimizeUIExtensionAbility(abilityRecord->GetToken(), fromUser);
 }
 
+int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("call");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (sessionInfo->callerToken != nullptr && !VerificationAllToken(sessionInfo->callerToken)) {
+        return ERR_INVALID_CALLER;
+    }
+    if (!uiAbilityLifecycleManager_) {
+        HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = uiAbilityLifecycleManager_->GetUIAbilityRecordBySessionInfo(sessionInfo);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    auto type = abilityRecord->GetAbilityInfo().type;
+    if (type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("failed, cannot minimize except page ability");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
+        return ERR_WOULD_BLOCK;
+    }
+
+    return uiAbilityLifecycleManager_->MinimizeUIAbility(abilityRecord);
+}
+
 int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
