@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
+#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -389,6 +390,9 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("%{public}s SceneBoardJudgement  begin.", __func__);
+    }
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
     AAFwk::Want resultWant;
