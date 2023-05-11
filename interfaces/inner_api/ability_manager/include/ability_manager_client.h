@@ -250,6 +250,14 @@ public:
      */
     ErrCode TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr);
+    
+    /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.

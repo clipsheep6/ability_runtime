@@ -271,6 +271,17 @@ public:
     }
 
     /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+    {
+        return 0;
+    }
+
+    /**
      * SendResultToAbility, send the result to ability.
      *
      * @param requestCode, the requestCode of the ability to terminate.
@@ -1175,6 +1186,9 @@ public:
 
         // ipc id for minimize ui ability by scb
         MINIMIZE_UI_ABILITY_BY_SCB,
+
+        // ipc id for close ui ability by scb
+        CLOSE_UI_ABILITY_BY_SCB,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

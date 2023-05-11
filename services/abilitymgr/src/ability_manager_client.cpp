@@ -261,6 +261,19 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
     return abms->CloseAbility(token, resultCode, resultWant);
 }
 
+ErrCode AbilityManagerClient::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("failed, sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("call");
+    return abms->CloseUIAbilityBySCB(sessionInfo);
+}
+
 ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

@@ -625,6 +625,43 @@ int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &ex
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("failed, Remote() is NULL");
+        return INNER_ERR;
+    }
+
+    error = remote->SendRequest(IAbilityManager::CLOSE_UI_ABILITY_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("failed, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant)
 {
     int error;

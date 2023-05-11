@@ -255,6 +255,14 @@ public:
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr) override;
 
     /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
      * SendResultToAbility with want, return want from ability manager service.
      *
      * @param requestCode, request code.

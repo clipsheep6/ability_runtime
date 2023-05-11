@@ -84,6 +84,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
     requestFuncMap_[MINIMIZE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
+    requestFuncMap_[CLOSE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::CloseUIAbilityBySCBInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -755,6 +756,17 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = CloseUIAbilityBySCB(sessionInfo);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
