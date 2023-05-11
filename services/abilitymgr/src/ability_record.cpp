@@ -1345,7 +1345,7 @@ void AbilityRecord::SendResult(bool isSandboxApp)
     result_.reset();
 }
 
-void AbilityRecord::SendResultToCallers()
+void AbilityRecord::SendResultToCallers(bool schedulerdied)
 {
     for (auto caller : GetCallerRecordList()) {
         if (caller == nullptr) {
@@ -1362,7 +1362,7 @@ void AbilityRecord::SendResultToCallers()
                 HILOG_INFO("Send result to system ability.");
                 callerSystemAbilityRecord->SendResultToSystemAbility(caller->GetRequestCode(),
                     callerSystemAbilityRecord->GetResultCode(), callerSystemAbilityRecord->GetResultWant(),
-                    callerSystemAbilityRecord->GetCallerToken());
+                    callerSystemAbilityRecord->GetCallerToken(), schedulerdied);
             }
         }
     }
@@ -1428,11 +1428,15 @@ void SystemAbilityCallerRecord::SetResultToSystemAbility(
 }
 
 void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
-    const sptr<IRemoteObject> &callerToken)
+    const sptr<IRemoteObject> &callerToken, bool schedulerdied)
 {
     HILOG_INFO("call");
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    if (schedulerdied) {
+        callerUid = abilityinfo_.applicationInfo.uid;
+        accessToken = abilityinfo_.applicationInfo.accessTokenId;
+    }
     HILOG_INFO("Try to SendResult, callerUid = %{public}d, AccessTokenId = %{public}u",
         callerUid, accessToken);
     if (callerToken == nullptr) {
@@ -1865,7 +1869,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     handler->PostTask(task);
     auto uriTask = [want = want_, ability = shared_from_this()]() {
         ability->SaveResultToCallers(-1, &want);
-        ability->SendResultToCallers();
+        ability->SendResultToCallers(true);
     };
     handler->PostTask(uriTask);
 #ifdef SUPPORT_GRAPHICS

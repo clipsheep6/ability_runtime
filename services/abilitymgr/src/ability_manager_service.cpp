@@ -3480,8 +3480,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
     StartOptions startOptions;
     startOptions.SetWindowMode(1);
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
-    (void)StartAbility(abilityWant, startOptions, accessToken, userId, DEFAULT_INVAL_VALUE);
+    (void)StartAbility(abilityWant, startOptions, nullptr, userId, DEFAULT_INVAL_VALUE);
 }
 
 int AbilityManagerService::GenerateAbilityRequest(

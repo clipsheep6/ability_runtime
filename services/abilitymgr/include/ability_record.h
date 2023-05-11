@@ -135,7 +135,7 @@ public:
      *
      */
     void SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken, bool schedulerdied);
 
 private:
     std::string srcAbilityId_;
@@ -603,7 +603,7 @@ public:
      * send result object to caller ability.
      *
      */
-    void SendResultToCallers();
+    void SendResultToCallers(bool schedulerdied = false);
 
     /**
      * save result object to caller ability.
