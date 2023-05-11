@@ -262,7 +262,6 @@ ohos_shared_library("abilitykit_native") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "ipc_js:rpc",
@@ -304,6 +303,7 @@ ohos_shared_library("abilitykit_native") {
 
     external_deps += [
       "form_fwk:form_manager",
+      "input:libmmi-client",
       "multimedia_image_framework:image",
     ]
 

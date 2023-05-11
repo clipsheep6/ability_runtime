@@ -1649,7 +1649,6 @@ ohos_unittest("distributed_client_test") {
     "c_utils:utils",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
   ]
 }
@@ -1815,7 +1814,6 @@ ohos_unittest("ability_loader_test") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
   ]
 }
@@ -1846,7 +1844,6 @@ ohos_unittest("ability_local_record_test") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
   ]
 }
@@ -1877,7 +1874,6 @@ ohos_unittest("reverse_continuation_scheduler_replica_proxy_test") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
   ]
 }
@@ -1907,7 +1903,6 @@ ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
     "c_utils:utils",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
   ]
 }
@@ -1948,7 +1943,6 @@ ohos_unittest("ability_connection_manager_test") {
     "hichecker_native:libhichecker",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
