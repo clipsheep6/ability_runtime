@@ -1434,8 +1434,8 @@ void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int r
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     if (schedulerdied) {
-        callerUid = AAFwk::abilityinfo_.applicationInfo.uid;
-        accessToken = AAFwk::abilityinfo_.applicationInfo.accessTokenId;
+        callerUid = AAFwk::AbilityRecord::abilityinfo_.applicationInfo.uid;
+        accessToken = AAFwk::AbilityRecord::abilityinfo_.applicationInfo.accessTokenId;
     }
     HILOG_INFO("Try to SendResult, callerUid = %{public}d, AccessTokenId = %{public}u",
         callerUid, accessToken);
