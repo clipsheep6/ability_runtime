@@ -15,7 +15,8 @@
 
 #include "js_environment.h"
 
-#include "js_env_logger.h"
+#define JSENV_LOG_D(param) ; // #include "js_env_logger.h"
+#define JSENV_LOG_E(param) ;
 #include "js_environment_impl.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "uncaught_exception_callback.h"
