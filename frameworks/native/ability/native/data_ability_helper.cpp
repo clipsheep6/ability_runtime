@@ -96,6 +96,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> context, const std::shared_ptr<Uri> &uri)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri.");
     if (!context || !uri) {
         HILOG_ERROR("Input param invalid, ability runtime context or uri is nullptr.");
