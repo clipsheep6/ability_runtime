@@ -799,7 +799,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
                 return;
             }
             OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB =
-                (OnRequestPermissionsFromUserResultCallback *)work->data;
+                static_cast<OnRequestPermissionsFromUserResultCallback *>(work->data);
             if (onRequestPermissionCB == nullptr) {
                 delete work;
                 work = nullptr;
