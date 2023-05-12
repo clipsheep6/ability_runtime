@@ -475,16 +475,21 @@ int DataAbilityHelperImpl::Delete(Uri &uri, const NativeRdb::DataAbilityPredicat
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
         HILOG_ERROR("Get data ability proxy failed.");
         return resultset;
     }
-
-    resultset = dataAbilityProxy->Query(uri, columns, predicates);
-
-    ReleaseDataAbility(dataAbilityProxy);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "dataAbilityProxy->Query");
+        resultset = dataAbilityProxy->Query(uri, columns, predicates);
+    }
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "ReleaseDataAbilityProxy");
+        ReleaseDataAbility(dataAbilityProxy);
+    }
     HILOG_INFO("Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
     return resultset;
 }
