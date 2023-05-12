@@ -20,55 +20,55 @@ import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = 'TipsDialog_Service';
 
-var winNum = 1;
-var win;
+let winNum = 1;
+let win;
 
 export default class TipsServiceExtensionAbility extends extension {
-    onCreate(want) {
-        console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
-        globalThis.tipsExtensionContext = this.context;
-    }
+  onCreate(want) {
+    console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
+    globalThis.tipsExtensionContext = this.context;
+  }
 
-    onRequest(want, startId) {
-        globalThis.abilityWant = want;
-        globalThis.params = JSON.parse(want['parameters']['params']);
-        globalThis.position = JSON.parse(want['parameters']['position']);
+  onRequest(want, startId) {
+    globalThis.abilityWant = want;
+    globalThis.params = JSON.parse(want['parameters']['params']);
+    globalThis.position = JSON.parse(want['parameters']['position']);
 
-        display.getDefaultDisplay().then(dis => {
-            let navigationBarRect = {
-                left: globalThis.position.offsetX,
-                top: globalThis.position.offsetY,
-                width: globalThis.position.width,
-                height: globalThis.position.height
-            }
-            if (winNum > 1) {
-                win.destroy();
-                winNum--;
-            }
-            if (deviceInfo.deviceType == 'phone') {
-                this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
-            } else {
-                this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
-            }
-            winNum++;
-        })
-    }
+    display.getDefaultDisplay().then(dis => {
+      let navigationBarRect = {
+        left: globalThis.position.offsetX,
+        top: globalThis.position.offsetY,
+        width: globalThis.position.width,
+        height: globalThis.position.height
+      };
+      if (winNum > 1) {
+        win.destroy();
+        winNum--;
+      }
+      if (deviceInfo.deviceType === 'phone') {
+        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+      } else {
+        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
+      }
+      winNum++;
+    })
+  }
 
-    onDestroy() {
-        console.info(TAG, 'onDestroy.');
-    }
+  onDestroy() {
+    console.info(TAG, 'onDestroy.');
+  }
 
-    private async createWindow(name: string, windowType: number, rect) {
-        console.info(TAG, 'create window');
-        try {
-            win = await window.create(globalThis.tipsExtensionContext, name, windowType);
-            await win.moveTo(rect.left, rect.top);
-            await win.resetSize(rect.width, rect.height);
-            await win.loadContent('pages/tipsDialog');
-            await win.setBackgroundColor('#00000000');
-            await win.show();
-        } catch {
-            console.error(TAG, 'window create failed!');
-        }
+  private async createWindow(name: string, windowType: number, rect) {
+    console.info(TAG, 'create window');
+    try {
+      win = await window.create(globalThis.tipsExtensionContext, name, windowType);
+      await win.moveTo(rect.left, rect.top);
+      await win.resetSize(rect.width, rect.height);
+      await win.loadContent('pages/tipsDialog');
+      await win.setBackgroundColor('#00000000');
+      await win.show();
+    } catch {
+      console.error(TAG, 'window create failed!');
     }
+  }
 };

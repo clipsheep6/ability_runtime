@@ -14,9 +14,9 @@
  */
 
 class StaticSubscriberExtensionAbility {
-    onReceiveEvent(event) {
-        console.log('onReceiveEvent, event:' + event.code);
-    }
+  onReceiveEvent(event) {
+    console.log('onReceiveEvent, event:' + event.code);
+  }
 }
 
-export default StaticSubscriberExtensionAbility
+export default StaticSubscriberExtensionAbility;

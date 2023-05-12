@@ -13,114 +13,114 @@
  * limitations under the License.
  */
 
-var ExtensionContext = requireNapi("application.ExtensionContext")
-var Caller = requireNapi("application.Caller")
+let ExtensionContext = requireNapi('application.ExtensionContext');
+let Caller = requireNapi('application.Caller');
 
 const ERROR_CODE_INVALID_PARAM = 401;
-const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
+const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 class ParamError extends Error {
-    constructor() {
-        super(ERROR_MSG_INVALID_PARAM);
-        this.code = ERROR_CODE_INVALID_PARAM;
-    }
+  constructor() {
+    super(ERROR_MSG_INVALID_PARAM);
+    this.code = ERROR_CODE_INVALID_PARAM;
+  }
 }
 
 class ServiceExtensionContext extends ExtensionContext {
-    constructor(obj) {
-        super(obj);
-    }
+  constructor(obj) {
+    super(obj);
+  }
 
-    startAbility(want, options, callback) {
-        console.log("startAbility");
-        return this.__context_impl__.startAbility(want, options, callback);
-    }
+  startAbility(want, options, callback) {
+    console.log('startAbility');
+    return this.__context_impl__.startAbility(want, options, callback);
+  }
 
-    startRecentAbility(want, options, callback) {
-        console.log("startRecentAbility");
-        return this.__context_impl__.startRecentAbility(want, options, callback);
-    }
+  startRecentAbility(want, options, callback) {
+    console.log('startRecentAbility');
+    return this.__context_impl__.startRecentAbility(want, options, callback);
+  }
 
-    connectAbility(want, options) {
-        console.log("connectAbility");
-        return this.__context_impl__.connectAbility(want, options);
-    }
+  connectAbility(want, options) {
+    console.log('connectAbility');
+    return this.__context_impl__.connectAbility(want, options);
+  }
 
-    connectServiceExtensionAbility(want, options) {
-        console.log("connectServiceExtensionAbility");
-        return this.__context_impl__.connectServiceExtensionAbility(want, options);
-    }
+  connectServiceExtensionAbility(want, options) {
+    console.log('connectServiceExtensionAbility');
+    return this.__context_impl__.connectServiceExtensionAbility(want, options);
+  }
 
-    startAbilityWithAccount(want, accountId, options, callback) {
-        console.log("startAbilityWithAccount");
-        return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback);
-    }
+  startAbilityWithAccount(want, accountId, options, callback) {
+    console.log('startAbilityWithAccount');
+    return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback);
+  }
 
-    startServiceExtensionAbility(want, callback) {
-        console.log("startServiceExtensionAbility");
-        return this.__context_impl__.startServiceExtensionAbility(want, callback)
-    }
+  startServiceExtensionAbility(want, callback) {
+    console.log('startServiceExtensionAbility');
+    return this.__context_impl__.startServiceExtensionAbility(want, callback);
+  }
 
-    startServiceExtensionAbilityWithAccount(want, accountId, callback) {
-        console.log("startServiceExtensionAbilityWithAccount");
-        return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback)
-    }
+  startServiceExtensionAbilityWithAccount(want, accountId, callback) {
+    console.log('startServiceExtensionAbilityWithAccount');
+    return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback);
+  }
 
-    stopServiceExtensionAbility(want, callback) {
-        console.log("stopServiceExtensionAbility");
-        return this.__context_impl__.stopServiceExtensionAbility(want, callback)
-    }
+  stopServiceExtensionAbility(want, callback) {
+    console.log('stopServiceExtensionAbility');
+    return this.__context_impl__.stopServiceExtensionAbility(want, callback);
+  }
 
-    stopServiceExtensionAbilityWithAccount(want, accountId, callback) {
-        console.log("stopServiceExtensionAbilityWithAccount");
-        return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback)
-    }
+  stopServiceExtensionAbilityWithAccount(want, accountId, callback) {
+    console.log('stopServiceExtensionAbilityWithAccount');
+    return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback);
+  }
 
-    connectAbilityWithAccount(want, accountId, options) {
-        console.log("connectAbilityWithAccount");
-        return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
-    }
+  connectAbilityWithAccount(want, accountId, options) {
+    console.log('connectAbilityWithAccount');
+    return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
+  }
 
-    connectServiceExtensionAbilityWithAccount(want, accountId, options) {
-        console.log("connectServiceExtensionAbilityWithAccount");
-        return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
-    }
+  connectServiceExtensionAbilityWithAccount(want, accountId, options) {
+    console.log('connectServiceExtensionAbilityWithAccount');
+    return this.__context_impl__.connectServiceExtensionAbilityWithAccount(want, accountId, options);
+  }
 
-    disconnectAbility(connection, callback) {
-        console.log("disconnectAbility");
-        return this.__context_impl__.disconnectAbility(connection, callback);
-    }
+  disconnectAbility(connection, callback) {
+    console.log('disconnectAbility');
+    return this.__context_impl__.disconnectAbility(connection, callback);
+  }
 
-    disconnectServiceExtensionAbility(connection, callback) {
-        console.log("disconnectServiceExtensionAbility");
-        return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
-    }
+  disconnectServiceExtensionAbility(connection, callback) {
+    console.log('disconnectServiceExtensionAbility');
+    return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
+  }
 
-    terminateSelf(callback) {
-        console.log("terminateSelf");
-        return this.__context_impl__.terminateSelf(callback);
-    }
+  terminateSelf(callback) {
+    console.log('terminateSelf');
+    return this.__context_impl__.terminateSelf(callback);
+  }
 
-    startAbilityByCall(want) {
-        return new Promise(async (resolve, reject) => {
-            if (typeof want !== 'object' || want == null) {
-                console.log("ServiceExtensionContext::startAbilityByCall input param error");
-                reject(new ParamError());
-                return;
-            }
+  startAbilityByCall(want) {
+    return new Promise(async (resolve, reject) => {
+      if (typeof want !== 'object' || want == null) {
+        console.log('ServiceExtensionContext::startAbilityByCall input param error');
+        reject(new ParamError());
+        return;
+      }
 
-            try{
-                var callee = await this.__context_impl__.startAbilityByCall(want);
-            } catch(error) {
-                console.log("ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed");
-                reject(error);
-                return;
-            }
+      try {
+        var callee = await this.__context_impl__.startAbilityByCall(want);
+      } catch (error) {
+        console.log('ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed');
+        reject(error);
+        return;
+      }
 
-            resolve(new Caller(callee));
-            console.log("ServiceExtensionContext::startAbilityByCall success");
-            return;
-        });
-    }
+      resolve(new Caller(callee));
+      console.log('ServiceExtensionContext::startAbilityByCall success');
+      return;
+    });
+  }
 }
 
-export default ServiceExtensionContext
+export default ServiceExtensionContext;

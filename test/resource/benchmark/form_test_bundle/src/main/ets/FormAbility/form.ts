@@ -17,12 +17,12 @@ import dataStorage from '@ohos.data.storage';
 import formBindingData from '@ohos.application.formBindingData';
 import formInfo from '@ohos.application.formInfo';
 import formProvider from '@ohos.application.formProvider';
-import Logger from '../model/Logger'
+import Logger from '../model/Logger';
 
-const DATA_STORAGE_PATH = "/data/storage/el2/base/haps/form_store";
-const FORM_PARAM_IDENTITY_KEY = "ohos.extra.param.key.form_identity";
-const FORM_PARAM_NAME_KEY = "ohos.extra.param.key.form_name";
-const FORM_PARAM_TEMPORARY_KEY = "ohos.extra.param.key.form_temporary";
+const DATA_STORAGE_PATH = '/data/storage/el2/base/haps/form_store';
+const FORM_PARAM_IDENTITY_KEY = 'ohos.extra.param.key.form_identity';
+const FORM_PARAM_NAME_KEY = 'ohos.extra.param.key.form_name';
+const FORM_PARAM_TEMPORARY_KEY = 'ohos.extra.param.key.form_temporary';
 
 function getTemperature(formId: string, count: number) {
   const DECIMAL: number = 10;
@@ -47,14 +47,14 @@ function getTime() {
   const hours = padZero(date.getHours());
   const minutes = padZero(date.getMinutes());
   const seconds = padZero(date.getSeconds());
-  return `${hours}:${minutes}:${seconds}`
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 async function storeFormInfo(formId: string, formName: string, tempFlag: boolean) {
   let formInfo = {
-    "formName": formName,
-    "tempFlag": tempFlag,
-    "updateCount": 0
+    'formName': formName,
+    'tempFlag': tempFlag,
+    'updateCount': 0
   };
   try {
     const storage = await dataStorage.getStorage(DATA_STORAGE_PATH);
@@ -69,9 +69,9 @@ async function storeFormInfo(formId: string, formName: string, tempFlag: boolean
 
 async function updateTempFormInfo(formId: string) {
   let formInfoDefault = {
-    "formName": "",
-    "tempFlag": false,
-    "updateCount": 0
+    'formName': '',
+    'tempFlag': false,
+    'updateCount': 0
   };
   try {
     const storage = await dataStorage.getStorage(DATA_STORAGE_PATH);
@@ -96,9 +96,9 @@ async function updateTempFormInfo(formId: string) {
 
 async function updateForm(formId: string) {
   let formInfoDefault = {
-    "formName": "",
-    "tempFlag": false,
-    "updateCount": 0
+    'formName': '',
+    'tempFlag': false,
+    'updateCount': 0
   };
   try {
     const storage = await dataStorage.getStorage(DATA_STORAGE_PATH);
@@ -109,8 +109,8 @@ async function updateForm(formId: string) {
     formInfo.updateCount = formInfo.updateCount + 1;
 
     let obj = {
-      "temperature": getTemperature(formId, formInfo.updateCount).toString(),
-      "time": getTime()
+      'temperature': getTemperature(formId, formInfo.updateCount).toString(),
+      'time': getTime()
     };
     let formData = formBindingData.createFormBindingData(obj);
     formProvider.updateForm(formId, formData).catch((err) => {
@@ -149,8 +149,8 @@ export default {
     storeFormInfo(formId, formName, tempFlag);
 
     let obj = {
-      "temperature": getTemperature(formId, 0).toString(),
-      "time": getTime()
+      'temperature': getTemperature(formId, 0).toString(),
+      'time': getTime()
     };
     let formData = formBindingData.createFormBindingData(obj);
     return formData;

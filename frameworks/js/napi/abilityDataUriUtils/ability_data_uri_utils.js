@@ -12,80 +12,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const URI_SPLIT = '/'
+const URI_SPLIT = '/';
 
 const ERROR_CODE_INVALID_PARAM = 401;
 const ERROR_CODE_INNER_ERROR = 16000050;
 
-const ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
-const ERROR_MSG_INNER_ERROR = "Inner Error.";
+const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
+const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
 var errMap = new Map();
 errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
 errMap.set(ERROR_CODE_INNER_ERROR, ERROR_MSG_INNER_ERROR);
 
 class DataUriError extends Error {
-    constructor(code) {
-        let msg = "";
-        if (errMap.has(code)) {
-            msg = errMap.get(code);
-        } else {
-            msg = ERROR_MSG_INNER_ERROR;
-        }
-        super(msg);
-        this.code = code;
+  constructor(code) {
+    let msg = '';
+    if (errMap.has(code)) {
+      msg = errMap.get(code);
+    } else {
+      msg = ERROR_MSG_INNER_ERROR;
     }
+    super(msg);
+    this.code = code;
+  }
 }
 
 let dataUriUtils = {
-    getId : (uri) => {
-        console.debug("DataUriUtils getId called.");
-        if (typeof uri !== 'string') {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        let index = uri.lastIndexOf(URI_SPLIT);
-        if (index === -1) {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        let ret = uri.substring(index + 1);
-        if (ret === "" || isNaN(Number(ret))) {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        return Number(ret);
-    },
-    updateId : (uri, id) => {
-        console.debug("DataUriUtils updateId called.");
-        if (typeof uri !== 'string' || typeof id !== 'number') {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        let ret = dataUriUtils.deleteId(uri);
-        if (ret === uri) {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        return ret + URI_SPLIT + id;
-    },
-    deleteId : (uri) => {
-        console.debug("DataUriUtils deleteId called.");
-        if (typeof uri !== 'string') {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        let index = uri.lastIndexOf(URI_SPLIT);
-        if (index === -1) {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        var id = uri.substring(index + 1);
-        if (id === "" || isNaN(Number(id))) {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        return uri.substring(0, index);
-    },
-    attachId : (uri, id) => {
-        console.debug("DataUriUtils attachId called.");
-        if (typeof uri !== 'string' || typeof id !== 'number') {
-            throw new DataUriError(ERROR_CODE_INVALID_PARAM);
-        }
-        return uri + URI_SPLIT + id;
+  getId: (uri) => {
+    console.debug('DataUriUtils getId called.');
+    if (typeof uri !== 'string') {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
     }
+    let index = uri.lastIndexOf(URI_SPLIT);
+    if (index === -1) {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    let ret = uri.substring(index + 1);
+    if (ret === '' || isNaN(Number(ret))) {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    return Number(ret);
+  },
+  updateId: (uri, id) => {
+    console.debug('DataUriUtils updateId called.');
+    if (typeof uri !== 'string' || typeof id !== 'number') {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    let ret = dataUriUtils.deleteId(uri);
+    if (ret === uri) {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    return ret + URI_SPLIT + id;
+  },
+  deleteId: (uri) => {
+    console.debug('DataUriUtils deleteId called.');
+    if (typeof uri !== 'string') {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    let index = uri.lastIndexOf(URI_SPLIT);
+    if (index === -1) {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    var id = uri.substring(index + 1);
+    if (id === '' || isNaN(Number(id))) {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    return uri.substring(0, index);
+  },
+  attachId: (uri, id) => {
+    console.debug('DataUriUtils attachId called.');
+    if (typeof uri !== 'string' || typeof id !== 'number') {
+      throw new DataUriError(ERROR_CODE_INVALID_PARAM);
+    }
+    return uri + URI_SPLIT + id;
+  }
 };
 
-export default dataUriUtils
+export default dataUriUtils;
