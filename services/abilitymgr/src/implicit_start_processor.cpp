@@ -23,6 +23,7 @@
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "parameters.h"
 #include "want.h"
 
 namespace OHOS {
@@ -69,7 +70,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
 
     std::vector<DialogAppInfo> dialogAppInfos;
-    auto deviceType = sysDialogScheduler->GetDeviceType();
+    auto deviceType = OHOS::system::GetDeviceType();
     auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, deviceType, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("generate ability request by action failed.");
