@@ -246,6 +246,7 @@ ohos_shared_library("abilitykit_native") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
@@ -270,7 +271,6 @@ ohos_shared_library("abilitykit_native") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
-    "window_manager:scene_session",
   ]
 
   defines = []

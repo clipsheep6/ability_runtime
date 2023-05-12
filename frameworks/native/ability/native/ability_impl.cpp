@@ -52,13 +52,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     isStageBasedModel_ = info && info->isStageBasedModel;
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            ability_->SetSceneSessionStageListener(
-                std::make_shared<SessionStateLifeCycleImpl>(token_, shared_from_this()));
-        } else {
-            ability_->SetSceneListener(
-                sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
-        }
+        ability_->SetSceneListener(sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
     }
 #endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
@@ -698,67 +692,6 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
     } else {
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
-    }
-}
-
-void AbilityImpl::SessionStateLifeCycleImpl::AfterForeground()
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Call.");
-    auto owner = owner_.lock();
-    if (owner == nullptr || !owner->IsStageBasedModel()) {
-        HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
-        return;
-    }
-    bool needNotifyAMS = false;
-    {
-        std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
-        if (owner->notifyForegroundByAbility_) {
-            owner->notifyForegroundByAbility_ = false;
-            needNotifyAMS = true;
-        } else {
-            HILOG_DEBUG("Notify foreground invalid mode by window, but client's foreground is running.");
-            owner->notifyForegroundByWindow_ = true;
-        }
-    }
-    if (needNotifyAMS) {
-        HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service.");
-        PacMap restoreData;
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
-    }
-}
-
-void AbilityImpl::SessionStateLifeCycleImpl::AfterBackground()
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Call.");
-    auto owner = owner_.lock();
-    if (owner && !owner->IsStageBasedModel()) {
-        return;
-    }
-
-    HILOG_DEBUG("new version ability, window after background.");
-    PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
-}
-
-void AbilityImpl::SessionStateLifeCycleImpl::AfterActive()
-{
-    HILOG_DEBUG("Call.");
-    auto owner = owner_.lock();
-    if (owner) {
-        owner->AfterFocused();
-    }
-}
-
-void AbilityImpl::SessionStateLifeCycleImpl::AfterInactive()
-{
-    HILOG_DEBUG("Call.");
-    auto owner = owner_.lock();
-    if (owner) {
-        owner->AfterUnFocused();
     }
 }
 

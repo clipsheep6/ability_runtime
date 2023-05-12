@@ -42,7 +42,6 @@
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
 #include "scene_board_judgement.h"
-#include "session_info.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
@@ -55,7 +54,6 @@
 #ifdef SUPPORT_GRAPHICS
 #include "display_type.h"
 #include "key_event.h"
-#include "ui_window.h"
 #endif
 
 namespace OHOS {
@@ -173,18 +171,9 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
+    sessionInfo_ = sessionInfo;
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_INFO("sessionInfo is%{public}s null", sessionInfo == nullptr ? "" : " not");
-        if (sessionInfo) {
-            uiWindow_ = Ace::NG::UIWindow::CreateWindowScene(abilityContext_, sessionInfo->sessionToken);
-            if (uiWindow_ != nullptr) {
-                uiWindow_->RegisterSessionStageStateListener(sceneSessionStageListener_);
-                uiWindow_->Connect();
-            }
-        }
-    }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
@@ -274,10 +263,6 @@ void Ability::OnStop()
     if (scene_ != nullptr) {
         scene_->GoDestroy();
         onSceneDestroyed();
-    }
-    if (uiWindow_) {
-        HILOG_DEBUG("UIWindow do disconnect.");
-        uiWindow_->Disconnect();
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -1571,10 +1556,6 @@ void Ability::OnBackground()
                 HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
                 scene_->GoBackground(sceneFlag_);
             }
-            if (uiWindow_ != nullptr) {
-                HILOG_DEBUG("%{public}s DoBackground.", abilityInfo_->bundleName.c_str());
-                uiWindow_->Background();
-            }
             if (abilityRecovery_ != nullptr) {
                 abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
             }
@@ -1750,11 +1731,6 @@ FormState Ability::OnAcquireFormState(const Want &want)
 void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 {
     sceneListener_ = listener;
-}
-
-void Ability::SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener)
-{
-    sceneSessionStageListener_ = listener;
 }
 
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)

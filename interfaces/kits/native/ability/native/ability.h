@@ -47,7 +47,7 @@
 #include "form_state_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
-#include "session/container/include/session_stage.h"
+#include "session_info.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -58,21 +58,12 @@ namespace NativeRdb {
 class AbsSharedResultSet;
 class DataAbilityPredicates;
 class ValuesBucket;
-}  // namespace NativeRdb
+} // namespace NativeRdb
 namespace AbilityRuntime {
 class Runtime;
 }
-namespace AAFwk {
-class SessionInfo;
-} // namespace AAFwk
 #ifdef SUPPORT_GRAPHICS
 class KeyEvent;
-namespace Ace::NG {
-class UIWindow;
-} // namespace Ace::NG
-namespace Rosen {
-class ISessionStageStateListener;
-} // namespace Rosen
 #endif
 namespace AppExecFwk {
 using FeatureAbilityTask = std::function<void(int, const AAFwk::Want&)>;
@@ -1089,13 +1080,6 @@ public:
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     /**
-     * @brief Set SessionStageState listener
-     *
-     * @param listener SessionStageState listener
-     */
-    void SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener);
-
-    /**
      * @brief Called back at ability context.
      *
      * @return current window mode of the ability.
@@ -1213,7 +1197,6 @@ protected:
 
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
-    std::shared_ptr<Rosen::ISessionStageStateListener> sceneSessionStageListener_ = nullptr;
     sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;
     sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
 #endif
@@ -1254,7 +1237,7 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
-    std::shared_ptr<Ace::NG::UIWindow> uiWindow_;
+    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(
