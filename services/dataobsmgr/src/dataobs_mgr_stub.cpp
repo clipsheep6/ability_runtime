@@ -42,7 +42,7 @@ DataObsManagerStub::~DataObsManagerStub() {}
 
 int DataObsManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
+    HILOG_DEBUG("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
         IPCSkeleton::GetCallingPid());
     std::u16string descriptor = DataObsManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();

@@ -29,7 +29,7 @@ FormExtension* FormExtension::Create(const std::unique_ptr<Runtime>& runtime)
     if (!runtime) {
         return new FormExtension();
     }
-    HILOG_INFO("FormExtension::Create runtime");
+    HILOG_INFO("call");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsFormExtension::Create(runtime);
@@ -44,7 +44,7 @@ void FormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<FormExtensionContext>::Init(record, application, handler, token);
-    HILOG_INFO("FormExtension begin init");
+    HILOG_DEBUG("FormExtension begin init");
 }
 
 std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
@@ -65,51 +65,51 @@ std::shared_ptr<FormExtensionContext> FormExtension::CreateAndInitContext(
 
 OHOS::AppExecFwk::FormProviderInfo FormExtension::OnCreate(const OHOS::AAFwk::Want& want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
     OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
     return formProviderInfo;
 }
 
 void FormExtension::OnDestroy(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 }
 
 void FormExtension::OnEvent(const int64_t formId, const std::string& message)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 }
 
 void FormExtension::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 }
 
 void FormExtension::OnCastToNormal(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 }
 
 void FormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formEventsMap)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 }
 
 FormState FormExtension::OnAcquireFormState(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
     return FormState::DEFAULT;
 }
 
 bool FormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("call");
     return false;
 }
 
 bool FormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("call");
     return false;
 }
 

@@ -67,10 +67,12 @@ public:
      *
      * @param want Request info for ability.
      * @param callback Indicates the callback object.
+     * @param accountId Indicates the account to start.
      *
      * @return Returns zero on success, others on failure.
      */
-    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback);
+    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback,
+        int32_t accountId = DEFAULT_INVAL_VALUE);
 
     /**
      * caller release by callback object

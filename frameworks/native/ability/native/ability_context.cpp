@@ -199,7 +199,7 @@ bool AbilityContext::StopAbility(const AAFwk::Want &want)
         return false;
     }
 
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopServiceAbility(want);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopServiceAbility(want, token_);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContext::StopAbility is failed %{public}d", err);
         return false;

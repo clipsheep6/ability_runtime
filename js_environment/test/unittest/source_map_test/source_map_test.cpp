@@ -49,9 +49,9 @@ void SourceMapTest::TearDown(void)
 {
 }
 
-bool ReadSourceMapData(const std::string& hapPath, std::string& content)
+bool ReadSourceMapData(const std::string& hapPath, const std::string& mapPath, std::string& content)
 {
-    if (hapPath.empty()) {
+    if (hapPath.empty() || mapPath.empty()) {
         return false;
     }
     content = "abc";
@@ -155,9 +155,10 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0600, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0600 start";
     auto modSourceMap = std::make_shared<SourceMap>();
-    std::string filePath = "./abc.map";
+    std::string hapPath = "/data/app/test.hap";
+    std::string mapPath = "./abc.map";
     std::string context;
-    EXPECT_FALSE(modSourceMap->ReadSourceMapData(filePath, context));
+    EXPECT_FALSE(modSourceMap->ReadSourceMapData(hapPath, mapPath, context));
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0600 end";
 }
 
@@ -172,9 +173,10 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0700, Function | MediumTest | Level1)
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0700 start";
     SourceMap::RegisterReadSourceMapCallback(ReadSourceMapData);
     auto modSourceMap = std::make_shared<SourceMap>();
-    std::string filePath = "./abc.map";
+    std::string hapPath = "/data/app/test.hap";
+    std::string mapPath = "./abc.map";
     std::string context;
-    modSourceMap->ReadSourceMapData(filePath, context);
+    modSourceMap->ReadSourceMapData(hapPath, mapPath, context);
     EXPECT_STREQ(context.c_str(), "abc");
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0700 end";
 }
@@ -385,7 +387,8 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
     std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
 
     auto mapObj = std::make_shared<SourceMap>();
-    mapObj->Init(true, sourceMaps);
+    mapObj->Init(true, "");
+    mapObj->SplitSourceMap(sourceMaps);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
     EXPECT_STREQ(stack.c_str(), "at anonymous (/ets/pages/Index.ets:85:9)\n");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,7 @@
 #include "form_state_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
+#include "session/container/include/session_stage.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -61,8 +62,17 @@ class ValuesBucket;
 namespace AbilityRuntime {
 class Runtime;
 }
+namespace AAFwk {
+class SessionInfo;
+} // namespace AAFwk
 #ifdef SUPPORT_GRAPHICS
 class KeyEvent;
+namespace Ace::NG {
+class UIWindow;
+} // namespace Ace::NG
+namespace Rosen {
+class ISessionStageStateListener;
+} // namespace Rosen
 #endif
 namespace AppExecFwk {
 using FeatureAbilityTask = std::function<void(int, const AAFwk::Want&)>;
@@ -182,8 +192,9 @@ public:
      *
      * This function can be called only once in the entire lifecycle of an ability.
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    virtual void OnStart(const Want &want);
+    virtual void OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.
@@ -1078,6 +1089,13 @@ public:
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     /**
+     * @brief Set SessionStageState listener
+     *
+     * @param listener SessionStageState listener
+     */
+    void SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener);
+
+    /**
      * @brief Called back at ability context.
      *
      * @return current window mode of the ability.
@@ -1168,12 +1186,6 @@ protected:
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
 
     /**
-     * @brief Acquire a form provider remote object.
-     * @return Returns form provider remote object.
-     */
-    sptr<IRemoteObject> GetFormRemoteObject();
-
-    /**
      * @brief process when foreground executed.
      *
      * You can override this function to implement your own processing logic
@@ -1201,6 +1213,7 @@ protected:
 
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
+    std::shared_ptr<Rosen::ISessionStageStateListener> sceneSessionStageListener_ = nullptr;
     sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;
     sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
 #endif
@@ -1241,6 +1254,7 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
+    std::shared_ptr<Ace::NG::UIWindow> uiWindow_;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(

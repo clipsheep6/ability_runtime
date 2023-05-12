@@ -2530,8 +2530,7 @@ int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::
         return ret;
     }
     std::sort(overlayModuleInfos.begin(), overlayModuleInfos.end(),
-        [](const OverlayModuleInfo& lhs, const OverlayModuleInfo& rhs) -> bool
-    {
+        [](const OverlayModuleInfo& lhs, const OverlayModuleInfo& rhs) -> bool {
         return lhs.priority > rhs.priority;
     });
     HILOG_DEBUG("GetOverlayPath end, the size of overlay is: %{public}zu", overlayModuleInfos.size());
@@ -2543,7 +2542,7 @@ std::vector<std::string> MainThread::GetAddOverlayPaths(const std::vector<Overla
     std::vector<std::string> addPaths;
     for (auto it : overlayModuleInfos) {
         auto iter = std::find_if(
-            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](OverlayModuleInfo item){
+            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](OverlayModuleInfo item) {
                 return it.moduleName == item.moduleName;
             });
         if ((iter != overlayModuleInfos_.end()) && (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
@@ -2561,7 +2560,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
     std::vector<std::string> removePaths;
     for (auto it : overlayModuleInfos) {
         auto iter = std::find_if(
-            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](OverlayModuleInfo item){
+            overlayModuleInfos_.begin(), overlayModuleInfos_.end(), [it](OverlayModuleInfo item) {
                 return it.moduleName == item.moduleName;
             });
         if ((iter != overlayModuleInfos_.end()) && (it.state != AppExecFwk::OverlayState::OVERLAY_ENABLE)) {

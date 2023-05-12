@@ -206,6 +206,16 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     /**
+     * Start ui ability with want, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param sessionInfo the session info of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions, sptr<SessionInfo> sessionInfo);
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -240,6 +250,14 @@ public:
      */
     ErrCode TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr);
+    
+    /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.
@@ -300,6 +318,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser = false);
+
+    /**
+     * MinimizeUIAbilityBySCB, minimize the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -407,9 +433,10 @@ public:
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.
+     * @param token ability's token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    ErrCode StopServiceAbility(const Want &want);
+    ErrCode StopServiceAbility(const Want &want, const sptr<IRemoteObject> &token = nullptr);
 
     /**
      * Kill the process immediately.
@@ -435,37 +462,10 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
-     * @return
+     * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ClearUpApplicationData(const std::string &bundleName);
 
-    sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
-
-    ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);
-
-    void CancelWantSender(const sptr<IWantSender> &sender);
-
-    ErrCode GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid);
-
-    ErrCode GetPendingWantUserId(const sptr<IWantSender> &target, int32_t &userId);
-
-    ErrCode GetPendingWantBundleName(const sptr<IWantSender> &target, std::string &bundleName);
-
-    ErrCode GetPendingWantCode(const sptr<IWantSender> &target, int32_t &code);
-
-    ErrCode GetPendingWantType(const sptr<IWantSender> &target, int32_t &type);
-
-    void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
-
-    void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
-
-    ErrCode GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
-
-    ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
-
-    ErrCode GetAppMemorySize();
-
-    bool IsRamConstrainedDevice();
     /**
      * ContinueMission, continue ability from mission center.
      *
@@ -659,10 +659,11 @@ public:
      *
      * @param want, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @param accountId Indicates the account to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbilityByCall(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callToken);
+    ErrCode StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callToken, int32_t accountId = DEFAULT_INVAL_VALUE);
 
     /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
@@ -680,10 +681,29 @@ public:
      */
     ErrCode ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
 
+    /**
+     * @brief Get the ability running information.
+     *
+     * @param info Ability running information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
 
+    /**
+     * @brief Get the extension running information.
+     *
+     * @param upperLimit The maximum limit of information wish to get.
+     * @param info Extension running information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info);
 
+    /**
+     * @brief Get running process information.
+     *
+     * @param info Running process information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
 
     /**
@@ -890,9 +910,29 @@ public:
      * @param token The target ability.
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief Enable recover ability.
+     *
+     * @param token Ability identify.
+     */
     void EnableRecoverAbility(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief Schedule recovery ability.
+     *
+     * @param token Ability identify.
+     * @param reason See AppExecFwk::StateReason.
+     * @param want Want information.
+     */
     void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
 
+    /**
+     * @brief Add free install observer.
+     *
+     * @param observer Free install observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
 
     /**

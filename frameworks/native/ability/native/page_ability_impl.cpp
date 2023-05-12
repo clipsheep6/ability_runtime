@@ -20,14 +20,8 @@
 namespace OHOS {
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
-/**
- * @brief Handling the life cycle switching of PageAbility.
- *
- * @param want Indicates the structure containing information about the ability.
- * @param targetState The life cycle state to switch to.
- *
- */
-void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Handle ability transaction start, sourceState:%{public}d, targetState:%{public}d, "

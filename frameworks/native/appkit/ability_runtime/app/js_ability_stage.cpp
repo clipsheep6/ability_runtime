@@ -120,10 +120,14 @@ JsAbilityStage::JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeRefer
 
 JsAbilityStage::~JsAbilityStage()
 {
+    HILOG_DEBUG("Js ability stage destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
     }
+
+    jsRuntime_.FreeNativeReference(std::move(jsAbilityStageObj_));
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }
 
 void JsAbilityStage::Init(const std::shared_ptr<Context> &context)

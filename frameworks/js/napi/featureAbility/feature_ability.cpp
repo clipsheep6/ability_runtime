@@ -149,7 +149,7 @@ NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports)
     return exports;
 }
 
-void JsFeatureAbility::SetFAContext(std::shared_ptr<NativeReference> context) 
+void JsFeatureAbility::SetFAContext(std::shared_ptr<NativeReference> context)
 {
     context_ = context;
 }

@@ -62,7 +62,8 @@ public:
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
-    MOCK_METHOD3(StartAbilityByCall, int(const Want&, const sptr<IAbilityConnection>&, const sptr<IRemoteObject>&));
+    MOCK_METHOD4(StartAbilityByCall,
+        int(const Want&, const sptr<IAbilityConnection>&, const sptr<IRemoteObject>&, int32_t));
     MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
     MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
@@ -202,7 +203,8 @@ public:
         return 0;
     }
 
-    virtual int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE)
+    virtual int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr)
     {
         return 0;
     }

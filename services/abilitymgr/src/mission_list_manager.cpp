@@ -40,7 +40,6 @@ constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr int32_t SINGLE_MAX_INSTANCE_COUNT = 128;
 constexpr int32_t MAX_INSTANCE_COUNT = 512;
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
-constexpr int64_t MAX_FOREGROUNDING_TIME = 60 * 1000; // 1 minute
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
@@ -132,16 +131,9 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
         if (state == FOREGROUNDING) {
-            auto foregroundingTime = currentTopAbility->GetForegroundingTime();
-            auto currentTime = AbilityUtil::SystemTimeMillis();
-            if (currentTime - foregroundingTime > MAX_FOREGROUNDING_TIME) {
-                HILOG_INFO("Top ability:%{public}s is foregrounding and more than one minute.", element.c_str());
-                OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, currentTopAbility->GetAbilityRecordId());
-            } else {
-                HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
-                EnqueueWaitingAbility(abilityRequest);
-                return START_ABILITY_WAITING;
-            }
+            HILOG_INFO("Top ability:%{public}s is foregrounding, so enqueue ability for waiting.", element.c_str());
+            EnqueueWaitingAbility(abilityRequest);
+            return START_ABILITY_WAITING;
         }
     }
 
@@ -316,7 +308,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
     auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
-    CHECK_POINTER_AND_RETURN(targetList, CREATE_MISSION_STACK_FAILED);
+    CHECK_POINTER_AND_RETURN(targetList, ERR_INVALID_CALLER);
 
     // 2. get target mission
     std::shared_ptr<AbilityRecord> targetAbilityRecord;
@@ -1159,6 +1151,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
             if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
                 HILOG_INFO("Window was freezed.");
                 if (abilityRecord != nullptr) {
+                    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
                     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
                     selfObj->TerminatePreviousAbility(abilityRecord);
                 }

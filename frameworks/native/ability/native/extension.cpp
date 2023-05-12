@@ -36,39 +36,34 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     application_ = application;
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void Extension::OnStart(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnStart begin, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
-    HILOG_INFO("OnStart end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnStart begin, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
     SetSessionInfo(sessionInfo);
-    HILOG_INFO("OnStart end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnStop()
 {
-    HILOG_INFO("OnStop begin, extension:%{public}s.", abilityInfo_->name.c_str());
-    HILOG_INFO("OnStop end, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnConnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
-    HILOG_INFO("OnConnect end, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
     return nullptr;
 }
 
@@ -82,8 +77,7 @@ sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want,
 void Extension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnDisconnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
-    HILOG_INFO("OnDisconnect end, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo,
@@ -95,26 +89,23 @@ void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransac
 
 void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    HILOG_INFO("%{public}s begin restart=%{public}s,startId=%{public}d.",
-        __func__,
+    HILOG_DEBUG("restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
         startId);
     SetLastRequestWant(want);
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void Extension::OnForeground(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnForeground begin, extension:%{public}s.", abilityInfo_->name.c_str());
-    HILOG_INFO("OnForeground end, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+
 }
 
 void Extension::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnBackground begin, extension:%{public}s.", abilityInfo_->name.c_str());
-    HILOG_INFO("OnBackground end, extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::SetLaunchWant(const AAFwk::Want &want)
@@ -144,17 +135,17 @@ std::shared_ptr<CallingInfo> Extension::GetCallingInfo()
 
 void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("call");
 }
 
 void Extension::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("call");
 }
 
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("call");
 }
 
 void Extension::SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo)

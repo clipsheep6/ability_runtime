@@ -44,7 +44,7 @@ public:
     void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
-    void OnStart(const Want &want) override;
+    void OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
     void OnStop() override;
     void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback) override;
     void OnStopCallback() override;

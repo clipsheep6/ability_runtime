@@ -131,7 +131,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100 beagin==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100beagin==============.";
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject>&) {});
@@ -146,12 +146,11 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function
     context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     EXPECT_NE(context_->localCallContainer_, nullptr);
 
-    std::string uri = elementName.GetURI();
-    context_->localCallContainer_->callProxyRecords_.emplace(uri, localCallRecord);
+    context_->localCallContainer_->SetCallLocalRecord(elementName, localCallRecord);
 
     ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_OK);
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100 end==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100end==============.";
 }
 
 /**
@@ -1015,6 +1014,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_CreateModuleContext_0400, 
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ClearFailedCallConnection_0100, Function | MediumTest | Level1)
 {
     context_->ClearFailedCallConnection(nullptr);
+    EXPECT_EQ(context_->localCallContainer_, nullptr);
     context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     context_->ClearFailedCallConnection(nullptr);
     EXPECT_NE(context_->localCallContainer_, nullptr);

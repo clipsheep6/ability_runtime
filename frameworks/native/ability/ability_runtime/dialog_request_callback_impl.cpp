@@ -19,12 +19,12 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void DialogRequestCallbackImpl::SendResult(int32_t resultCode)
+void DialogRequestCallbackImpl::SendResult(int32_t resultCode, const AAFwk::Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (task_) {
         HILOG_DEBUG("result code:%{public}d.", resultCode);
-        task_(resultCode);
+        task_(resultCode, want);
     }
 }
 } // namespace AbilityRuntime

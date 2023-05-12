@@ -289,5 +289,23 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_1300, Function | MediumTest | L
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_1300 end";
 }
+
+/**
+ * @tc.number: AaFwk_Form_Extension_1400
+ * @tc.name: OnAcquireData
+ * @tc.desc: Validation OnAcquireData succeeded.
+ */
+HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_1400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Form_Extension_1400 start";
+    AbilityRuntime::Runtime::Options options;
+    std::unique_ptr<AbilityRuntime::Runtime> runtime = AbilityRuntime::Runtime::Create(options);
+    auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
+    int64_t formId = 0;
+    AAFwk::WantParams params;
+    auto result = formExtension->OnAcquireData(formId, params);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "AaFwk_Form_Extension_1400 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS

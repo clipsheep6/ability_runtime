@@ -14,9 +14,9 @@
  */
 
 class TestRunner {
-    constructor() {}
-    onPrepare() {}
-    onRun() {}
+  constructor() { }
+  onPrepare() { }
+  onRun() { }
 }
 
-export default TestRunner
+export default TestRunner;

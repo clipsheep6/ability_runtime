@@ -14,7 +14,7 @@
  */
 
 export default {
-    onInitialized(abilityInfo) {
-        console.info('DataAbility onInitialized');
-    }
+  onInitialized(abilityInfo) {
+    console.info('DataAbility onInitialized');
+  }
 };

@@ -158,6 +158,17 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
     /**
+     * Start ui ability with want, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param sessionInfo the session info of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
+        sptr<SessionInfo> sessionInfo) override;
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -192,6 +203,14 @@ public:
      */
     virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
         const Want *resultWant) override;
+
+    /**
+     * CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
 
     /**
      * SendResultToAbility with want, return want from ability manager service.(Only used for dms)
@@ -241,6 +260,14 @@ public:
      */
     virtual int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         bool fromUser = false) override;
+
+    /**
+     * MinimizeUIAbilityBySCB, minimize the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -371,9 +398,11 @@ public:
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.
+     * @param token ability's token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
+    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr) override;
 
     /**
      * Get top ability.
@@ -495,10 +524,11 @@ public:
      *
      * @param want, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @param accountId Indicates the account to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbilityByCall(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
+    virtual int StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t accountId = DEFAULT_INVAL_VALUE) override;
 
     /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.

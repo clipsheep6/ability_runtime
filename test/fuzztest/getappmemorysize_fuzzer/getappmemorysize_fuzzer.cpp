@@ -18,8 +18,11 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
+#include "ability_manager_interface.h"
+#include "iservice_registry.h"
+#include "sa_mgr_client.h"
 #include "securec.h"
+#include "system_ability_definition.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -28,11 +31,22 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
-}
+} // namespace
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
+    auto saMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saMgr == nullptr) {
+        return false;
+    }
+
+    auto abilityObject = saMgr->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    if (abilityObject == nullptr) {
+        return false;
+    }
+
+    auto abilitymgr = iface_cast<AAFwk::IAbilityManager>(abilityObject);
+    if (abilityObject == nullptr) {
         return false;
     }
 

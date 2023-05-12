@@ -734,6 +734,9 @@ bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
 {
     const std::string dataAbilityScheme = "dataability";
     const std::string dataShareScheme = "datashare";
+    const std::string fileScheme = "file";
+    const std::string dataSharePrefix = "datashare:///";
+    const std::string filePrefix = "file://";
 
     Uri inputUri = uri;
     if (inputUri.GetScheme() == dataShareScheme) {
@@ -747,6 +750,15 @@ bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
         uriStr.replace(0, dataAbilityScheme.length(), dataShareScheme);
         dataShareUri = Uri(uriStr);
         HILOG_INFO("data ability uri: %{public}s transfer to data share uri: %{public}s.",
+            inputUri.ToString().c_str(), dataShareUri.ToString().c_str());
+        return true;
+    }
+
+    if (inputUri.GetScheme() == fileScheme) {
+        string uriStr = inputUri.ToString();
+        uriStr.replace(0, filePrefix.length(), dataSharePrefix);
+        dataShareUri = Uri(uriStr);
+        HILOG_DEBUG("file uri: %{public}s transfer to data share uri: %{public}s.",
             inputUri.ToString().c_str(), dataShareUri.ToString().c_str());
         return true;
     }

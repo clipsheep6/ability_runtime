@@ -32,7 +32,10 @@ libupms_sources = [
 #build so
 ohos_shared_library("libupms") {
   shlib_type = "sa"
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  configs = [
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
+    "${ability_runtime_services_path}/common:common_config",
+  ]
   public_configs = [ ":upms_config" ]
 
   sources = libupms_sources
@@ -63,7 +66,10 @@ ohos_shared_library("libupms") {
 
 # Note: Just for test
 ohos_static_library("libupms_static") {
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  configs = [
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
+    "${ability_runtime_services_path}/common:common_config",
+  ]
   public_configs = [ ":upms_config" ]
 
   sources = libupms_sources

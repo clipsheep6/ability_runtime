@@ -24,6 +24,7 @@
 #define private public
 #include "quick_fix_manager_service.h"
 #undef private
+#include "quick_fix_result_info.h"
 #include "system_ability_definition.h"
 
 using namespace testing;
@@ -203,6 +204,241 @@ HWTEST_F(QuickFixManagerApplyTaskTest, NotifyApplyStatus_0100, TestSize.Level1)
     applyTask->bundleVersionCode_ = 1;
     applyTask->patchVersionCode_ = 100;
     applyTask->NotifyApplyStatus(QUICK_FIX_OK);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RemoveTimeoutTask_0100
+ * @tc.desc: remove timeout task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->RemoveTimeoutTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RemoveTimeoutTask_0200
+ * @tc.desc: remove timeout task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->RemoveTimeoutTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SetQuickFixInfo_0100
+ * @tc.desc: set quick fix info
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    std::shared_ptr<AppExecFwk::QuickFixResult> quickFixRes = 
+        std::make_shared<AppExecFwk::DeployQuickFixResult>();
+    bool res = applyTask->SetQuickFixInfo(quickFixRes);
+    ASSERT_EQ(res, false);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SetQuickFixInfo_0200
+ * @tc.desc: set quick fix info
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>(); 
+    quickFixRes->bundleName = "bundleName";
+    quickFixRes->type = AppExecFwk::QuickFixType::PATCH;
+    bool res = applyTask->SetQuickFixInfo(quickFixRes);
+    ASSERT_EQ(res, true);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: SetQuickFixInfo_0300
+ * @tc.desc: set quick fix info
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>(); 
+    quickFixRes->bundleName = "bundleName";
+    bool res = applyTask->SetQuickFixInfo(quickFixRes);
+    ASSERT_EQ(res, false);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningState_0100
+ * @tc.desc: get running state
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, GetRunningState_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, nullptr,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    bool res = applyTask->GetRunningState();
+    ASSERT_EQ(res, false);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyLoadRepairPatchTask_0100
+ * @tc.desc: post notify load repair patch task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyLoadRepairPatchTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyLoadRepairPatchTask_0200
+ * @tc.desc: post notify load repair patch task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyLoadRepairPatchTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyUnloadRepairPatchTask_0100
+ * @tc.desc: post notify unload repair patch task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyUnloadRepairPatchTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyUnloadRepairPatchTask_0200
+ * @tc.desc: post notify unload repair patch task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyUnloadRepairPatchTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyHotReloadPageTask_0100
+ * @tc.desc: post notify hotreload page task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyHotReloadPageTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostNotifyHotReloadPageTask_0200
+ * @tc.desc: post notify hotreload page task
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostNotifyHotReloadPageTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RegAppStateObserver_0100
+ * @tc.desc: register app state observer
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->RegAppStateObserver();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RegAppStateObserver_0200
+ * @tc.desc: register app state observer
+ * @tc.type: FUNC
+ * @tc.require: 
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, nullptr,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->RegAppStateObserver();
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk

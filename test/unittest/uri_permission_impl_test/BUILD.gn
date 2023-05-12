@@ -33,8 +33,9 @@ ohos_unittest("uri_permission_impl_test") {
   ]
 
   configs = [
-    "${ability_runtime_services_path}/uripermmgr:upms_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_innerkits_path}/uri_permission:uripermkit_public_config",
+    "${ability_runtime_services_path}/uripermmgr:upms_config",
   ]
 
   deps = [

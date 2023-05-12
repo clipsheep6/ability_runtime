@@ -1178,11 +1178,11 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_001, TestS
     want1.SetElement(element1);
     auto result1 = abilityMs_->StopServiceAbility(want1, USER_ID_U100);
     WaitUntilTaskFinished();
-    EXPECT_EQ(TARGET_ABILITY_NOT_SERVICE, result1);
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, result1);
 
     auto result2 = abilityMs_->StopServiceAbility(want, USER_ID_U100);
     WaitUntilTaskFinished();
-    EXPECT_EQ(ERR_OK, result2);
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, result2);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_001 end";
 }
 
@@ -1217,11 +1217,11 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestS
     want1.SetElement(element1);
     auto result1 = abilityMs_->StopServiceAbility(want1, newUserId);
     WaitUntilTaskFinished();
-    EXPECT_EQ(TARGET_ABILITY_NOT_SERVICE, result1);
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, result1);
 
     auto result2 = abilityMs_->StopServiceAbility(want, newUserId);
     WaitUntilTaskFinished();
-    EXPECT_EQ(ERR_OK, result2);
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, result2);
     abilityMs_->StartUser(USER_ID_U100);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_002 end";
 }
@@ -1245,7 +1245,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_003, TestS
     auto result = abilityMs_->ConnectAbility(want, callback, nullptr, 0);
     EXPECT_EQ(OHOS::ERR_OK, result);
     result = abilityMs_->StopServiceAbility(want, 0);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    EXPECT_EQ(OHOS::CHECK_PERMISSION_FAILED, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_003 end";
 }
 
@@ -1268,7 +1268,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_004, TestS
     auto result = abilityMs_->ConnectAbility(want, callback, nullptr, USER_ID_U100);
     EXPECT_EQ(OHOS::ERR_OK, result);
     result = abilityMs_->StopServiceAbility(want, USER_ID_U100);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    EXPECT_EQ(OHOS::CHECK_PERMISSION_FAILED, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_004 end";
 }
 
@@ -1291,7 +1291,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_005, TestS
     auto result = abilityMs_->ConnectAbility(want, callback, nullptr, ERROR_USER_ID_U256);
     EXPECT_NE(OHOS::ERR_OK, result);
     result = abilityMs_->StopServiceAbility(want, ERROR_USER_ID_U256);
-    EXPECT_NE(OHOS::ERR_OK, result);
+    EXPECT_NE(OHOS::CHECK_PERMISSION_FAILED, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_005 end";
 }
 

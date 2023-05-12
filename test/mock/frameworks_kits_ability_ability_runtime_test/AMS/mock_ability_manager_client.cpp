@@ -116,8 +116,8 @@ ErrCode AbilityManagerClient::StartAbility(
     return abms->StartAbility(want, callerToken, userId, requestCode);
 }
 
-ErrCode AbilityManagerClient::StartAbilityByCall(
-    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
+ErrCode AbilityManagerClient::StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
+    const sptr<IRemoteObject>& callerToken, int32_t accountId)
 {
     HILOG_INFO("AbilityManagerClient::StartAbilityByCall start");
     if (g_remoteObject == nullptr) {
@@ -211,7 +211,7 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want& want)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want& want, const sptr<IRemoteObject> &token)
 {
     if (g_remoteObject == nullptr) {
         g_remoteObject =

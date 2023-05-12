@@ -43,6 +43,16 @@ public:
     AppMgrClient();
     virtual ~AppMgrClient();
 
+    /**
+     * Load ability.
+     *
+     * @param token Ability identify.
+     * @param preToken Ability identify of caller.
+     * @param abilityInfo Ability information.
+     * @param appInfo Application information.
+     * @param want Want.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
     virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want);
 
@@ -218,12 +228,34 @@ public:
      */
     virtual AppMgrResultCode GetConfiguration(Configuration& config);
 
+    /**
+     * Ability attach timeout. If start ability encounter failure, attach timeout to terminate.
+     *
+     * @param token Ability identify.
+     */
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
+    /**
+     * Prepare terminate.
+     *
+     * @param token Ability identify.
+     */
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
+    /**
+     * Get running process information by ability token.
+     *
+     * @param token Ability identify.
+     * @param info Running process info.
+     */
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
+    /**
+     * Get running process information by pid.
+     *
+     * @param token Process id.
+     * @param info Running process info.
+     */
     virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
@@ -245,8 +277,20 @@ public:
      */
     virtual AppMgrResultCode UpdateConfiguration(const Configuration &config);
 
+    /**
+     * Register configuration observer.
+     *
+     * @param observer Configuration observer. When configuration changed, observer will be called.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
     virtual AppMgrResultCode RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer);
 
+    /**
+     * Unregister configuration observer.
+     *
+     * @param observer Configuration observer.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
     virtual AppMgrResultCode UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
@@ -274,10 +318,28 @@ public:
      */
     virtual int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName);
 
+    /**
+     * Start specified ability.
+     *
+     * @param want Want contains information wish to start.
+     * @param abilityInfo Ability information.
+     */
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
 
+    /**
+     * Register response of start specified ability.
+     *
+     * @param response Response of start specified ability.
+     */
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
+    /**
+     * Schedule accept want done.
+     *
+     * @param recordId Application record.
+     * @param want Want.
+     * @param flag flag get from OnAcceptWant.
+     */
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
     /**
@@ -326,8 +388,24 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
+    /**
+     * Get application info by process id.
+     *
+     * @param pid Process id.
+     * @param application Application information got.
+     * @param debug Whether IsDebugApp.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
+    /**
+     * Get application info by process id.
+     *
+     * @param pid Process id.
+     * @param application Application information got.
+     * @param debug Whether IsDebugApp.
+     * @return Returns ERR_OK on success, others on failure.
+     */
     int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
 
     /**

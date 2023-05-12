@@ -14,14 +14,14 @@
  */
 
 class AbilityStage {
-    constructor() {}
-    onCreate() {}
-    onAcceptWant(want) {
-        console.log('onAcceptWant, want:' + want.abilityName);
-    }
-    onConfigurationUpdated(config) {}
-    onConfigurationUpdate(newConfig) {}
-    onMemoryLevel(level) {}
+  constructor() { }
+  onCreate() { }
+  onAcceptWant(want) {
+    console.log('onAcceptWant, want:' + want.abilityName);
+  }
+  onConfigurationUpdated(config) { }
+  onConfigurationUpdate(newConfig) { }
+  onMemoryLevel(level) { }
 }
 
-export default AbilityStage
+export default AbilityStage;

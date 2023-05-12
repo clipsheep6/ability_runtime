@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "ability_handler.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
+#include "session_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/i_input_event_consumer.h"
 #endif
@@ -94,7 +95,8 @@ public:
     void DispatchRestoreAbilityState(const PacMap &inState);
 
     // Page Service Ability has different AbilityTransaction
-    virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief The life cycle callback.
@@ -394,8 +396,9 @@ protected:
      * that it belongs to of the lifecycle status.
      *
      * @param want  The Want object to switch the life cycle.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void Start(const Want &want);
+    void Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
@@ -509,6 +512,20 @@ public:
     void AfterFocused() override;
     void AfterUnfocused() override;
     void ForegroundFailed(int32_t type) override;
+private:
+    sptr<IRemoteObject> token_ = nullptr;
+    std::weak_ptr<AbilityImpl> owner_;
+};
+
+class SessionStateLifeCycleImpl : public Rosen::ISessionStageStateListener {
+public:
+    SessionStateLifeCycleImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityImpl>& owner)
+        : token_(token), owner_(owner) {}
+    virtual ~SessionStateLifeCycleImpl() = default;
+    void AfterForeground() override;
+    void AfterBackground() override;
+    void AfterActive() override;
+    void AfterInactive() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;

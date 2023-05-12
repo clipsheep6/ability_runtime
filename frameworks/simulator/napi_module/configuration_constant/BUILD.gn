@@ -15,8 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("configurationconstant_napi") {
-  include_dirs =
-      [ "//base/global/resource_management/interfaces/inner_api/include" ]
+  include_dirs = [ "${resource_management_path}/interfaces/inner_api/include" ]
 
   sources = [ "${ability_runtime_napi_path}/configuration_constant/configuration_constant_module.cpp" ]
 

@@ -21,7 +21,7 @@ config("ability_manager_public_config") {
     "${ability_runtime_test_path}/moduletest/*",
     "${ability_runtime_test_path}/unittest/*",
     "${form_fwk_path}/test/fuzztest/*",
-    "//base/account/os_account/tools/test/moduletest/acm/*",
+    "${os_account_path}/tools/test/moduletest/acm/*",
   ]
   include_dirs = [
     "include/",
@@ -34,6 +34,7 @@ config("ability_manager_public_config") {
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "//third_party/jsoncpp/include",
   ]
@@ -133,6 +134,7 @@ ohos_shared_library("ability_manager") {
     external_deps += [ "dlp_permission_service:libdlpparse" ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

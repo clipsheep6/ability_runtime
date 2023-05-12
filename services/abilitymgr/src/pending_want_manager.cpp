@@ -161,18 +161,18 @@ bool PendingWantManager::CheckPendingWantRecordByKey(
     if (inputKey->GetRequestCode() != key->GetRequestCode()) {
         return false;
     }
-    if (inputKey->GetRequestWant().ToString().compare(key->GetRequestWant().ToString()) != 0) {
-        return false;
-    }
-    if (!inputKey->GetRequestWant().OperationEquals(key->GetRequestWant())) {
-        return false;
-    }
+
     if (inputKey->GetRequestResolvedType().compare(key->GetRequestResolvedType()) != 0) {
         return false;
     }
     if (inputKey->GetUserId() != key->GetUserId()) {
         return false;
     }
+
+    if (!inputKey->GetRequestWant().IsEquals(key->GetRequestWant())) {
+        return false;
+    }
+
     return true;
 }
 

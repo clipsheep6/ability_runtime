@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,6 +38,7 @@
 #include "mock_page_ability.h"
 #include "ohos_application.h"
 #include "runtime.h"
+#include "session_info.h"
 #include "uri.h"
 #include "values_bucket.h"
 
@@ -2301,7 +2302,7 @@ HWTEST_F(AbilityBaseTest, AbilityScene_0100, TestSize.Level1)
 
 /**
  * @tc.name: AbilityFormFunction_0100
- * @tc.desc: Ability GetFormRemoteObject test.
+ * @tc.desc: Ability OnAcquireFormState test.
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
@@ -2317,9 +2318,6 @@ HWTEST_F(AbilityBaseTest, AbilityFormFunction_0100, TestSize.Level1)
     Want want;
     auto ret = ability->OnAcquireFormState(want);
     EXPECT_EQ(ret, FormState::DEFAULT);
-
-    auto object = ability->GetFormRemoteObject();
-    EXPECT_NE(object, nullptr);
 
     HILOG_INFO("%{public}s end.", __func__);
 }

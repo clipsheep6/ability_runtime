@@ -114,6 +114,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsSharedBundleRunning;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
         &AppMgrStub::HandleStartNativeProcessForDebugger;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID)] =
+        &AppMgrStub::HandleJudgeSandboxByPid;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -243,6 +245,21 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
         if (!reply.WriteParcelable(&it)) {
             return ERR_INVALID_VALUE;
         }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleJudgeSandboxByPid(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t pid = data.ReadInt32();
+    bool isSandbox = false;
+    auto result = JudgeSandboxByPid(pid, isSandbox);
+    if (!reply.WriteBool(isSandbox)) {
+        return ERR_INVALID_VALUE;
     }
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;

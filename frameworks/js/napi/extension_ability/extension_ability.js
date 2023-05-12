@@ -15,13 +15,13 @@
 
 class ExtensionAbility {
 
-    onConfigurationUpdate(config) {
-        console.log('onConfigurationUpdate');
-    }
+  onConfigurationUpdate(config) {
+    console.log('onConfigurationUpdate');
+  }
 
-    onMemoryLevel(level) {
-        console.log('onMemoryLevel');
-    }
+  onMemoryLevel(level) {
+    console.log('onMemoryLevel');
+  }
 }
 
-export default ExtensionAbility
+export default ExtensionAbility;

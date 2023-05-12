@@ -15,6 +15,7 @@
 
 #include "new_ability_impl.h"
 #include "hilog_wrapper.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -27,7 +28,8 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  *
  */
 
-void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
@@ -53,7 +55,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
         ability_->SetLaunchParam(targetState.launchParam);
         if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
             ability_->SetStartAbilitySetting(targetState.setting);
-            Start(want);
+            Start(want, sessionInfo);
             CheckAndRestore();
         }
     }
@@ -96,9 +98,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
 #ifdef SUPPORT_GRAPHICS
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+            if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+                lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
                 Background();
             }
+
 #endif
             bool isAsyncCallback = false;
             Stop(isAsyncCallback);

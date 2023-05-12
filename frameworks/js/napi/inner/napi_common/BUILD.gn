@@ -58,6 +58,7 @@ ohos_shared_library("napi_common") {
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

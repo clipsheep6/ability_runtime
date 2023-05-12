@@ -35,9 +35,9 @@ config("common_config") {
     "${ability_runtime_services_path}/quickfixmgr/*",
     "${ability_runtime_services_path}/uripermmgr/*",
     "${ability_runtime_test_path}/*",
-    "//base/powermgr/power_manager/utils/*",
-    "//base/request/request/common/*",
-    "//developtools/profiler/hiebpf/*",
+    "${hiebpf_path}/*",
+    "${power_manager_path}/utils/*",
+    "${request_path}/common/*",
   ]
   include_dirs = [
     "include",
@@ -78,6 +78,7 @@ ohos_shared_library("event_report") {
     "hiviewdfx_hilog_native:libhilog",
   ]
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

@@ -15,7 +15,36 @@
         "WallpaperExtension": [],
         "StaticSubscriberExtension": [],
         "AccessibilityExtension": [],
-        "InputMethodExtension": [],
+        "InputMethodExtensionAbility": [
+            "ability.featureAbility",
+            "ability.particleAbility",
+            "account.distributedAccount",
+            "account.osAccount",
+            "backgroundTaskManager",
+            "bluetooth",
+            "bluetoothManager",
+            "connectedTag",
+            "geolocation",
+            "geoLocationManager",
+            "nfc.cardEmulation",
+            "nfc.controller",
+            "nfc.tag",
+            "nfctech",
+            "reminderAgent",
+            "reminderAgentManager",
+            "sensor",
+            "tagSession",
+            "telephony.call",
+            "telephony.data",
+            "telephony.observer",
+            "telephony.radio",
+            "telephony.sim",
+            "telephony.sms",
+            "wallpaper",
+            "wifiext",
+            "wifiManager",
+            "wifiManagerExt"
+        ],
         "WorkSchedulerExtension": [
             "backgroundTaskManager",
             "resourceschedule.backgroundTaskManager",
@@ -36,6 +65,7 @@
             "application.formHost",
             "application.formInfo",
             "application.formProvider"
-        ]
+        ],
+        "DriverExtension": []
     }
 }

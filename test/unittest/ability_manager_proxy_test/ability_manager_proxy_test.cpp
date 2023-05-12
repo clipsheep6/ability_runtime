@@ -535,7 +535,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_027, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     const Want want;
-    auto res = proxy_->StopServiceAbility(want);
+    auto res = proxy_->StopServiceAbility(want, -1, nullptr);
 
     EXPECT_EQ(IAbilityManager::STOP_SERVICE_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
