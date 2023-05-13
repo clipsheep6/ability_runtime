@@ -46,6 +46,7 @@
 #include "parameter.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
+#include "scene_board/ui_ability_lifecycle_manager.h"
 #include "user_controller.h"
 #include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
@@ -58,8 +59,8 @@
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
-const int32_t BASE_USER_RANGE = 200000;
-const int32_t U0_USER_ID = 0;
+constexpr int32_t BASE_USER_RANGE = 200000;
+constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
@@ -206,6 +207,17 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
     /**
+     * Start ui ability with want, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param sessionInfo the session info of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
+        sptr<SessionInfo> sessionInfo) override;
+
+    /**
      * Stop extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to stop.
@@ -241,6 +253,14 @@ public:
      */
     virtual int TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr) override;
+
+    /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
 
     /**
      * SendResultToAbility with want, return want from ability manager service.
@@ -290,6 +310,14 @@ public:
      */
     virtual int MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         bool fromUser = false) override;
+
+    /**
+     * MinimizeUIAbilityBySCB, minimize the special ability by scb.
+     *
+     * @param sessionInfo the extension session info of the ability to minimize.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -501,9 +529,11 @@ public:
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.
+     * @param token ability's token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
+    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr) override;
 
     /**
      * Kill the process immediately.
@@ -1316,6 +1346,8 @@ private:
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);
 
+    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1338,6 +1370,8 @@ private:
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
+
+    std::shared_ptr<UIAbilityLifecycleManager> uiAbilityLifecycleManager_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;

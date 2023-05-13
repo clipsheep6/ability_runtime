@@ -26,7 +26,7 @@ namespace OHOS {
 namespace AAFwk {
 bool SenderInfo::ReadFromParcel(Parcel &parcel)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     code = parcel.ReadInt32();
     std::unique_ptr<Want> wantResquest(parcel.ReadParcelable<Want>());
@@ -43,7 +43,7 @@ bool SenderInfo::ReadFromParcel(Parcel &parcel)
             return false;
         }
     } else {
-        HILOG_ERROR("%{public}s:finishedReceiverResquest is nullptr.", __func__);
+        HILOG_ERROR("nullptr.");
     }
 
     requiredPermission = Str16ToStr8(parcel.ReadString16());
@@ -52,16 +52,16 @@ bool SenderInfo::ReadFromParcel(Parcel &parcel)
 
 SenderInfo *SenderInfo::Unmarshalling(Parcel &parcel)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     SenderInfo *info = new (std::nothrow) SenderInfo();
     if (info == nullptr) {
-        HILOG_ERROR("%{public}s:senderInfo is nullptr.", __func__);
+        HILOG_ERROR("senderInfo is nullptr.");
         return nullptr;
     }
 
     if (!info->ReadFromParcel(parcel)) {
-        HILOG_ERROR("%{public}s:ReadFromParcel failed.", __func__);
+        HILOG_ERROR("ReadFromParcel failed.");
         delete info;
         info = nullptr;
     }
@@ -70,7 +70,7 @@ SenderInfo *SenderInfo::Unmarshalling(Parcel &parcel)
 
 bool SenderInfo::Marshalling(Parcel &parcel) const
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     parcel.WriteInt32(code);
     parcel.WriteParcelable(&want);

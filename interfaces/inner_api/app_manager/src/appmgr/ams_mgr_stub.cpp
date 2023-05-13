@@ -69,7 +69,7 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleGetApplicationInfoByProcessID;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] = 
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] =
         &AmsMgrStub::HandleSetCurrentUserId;
 }
 

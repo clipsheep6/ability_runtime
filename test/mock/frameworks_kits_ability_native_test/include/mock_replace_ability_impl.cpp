@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,7 +67,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std:
     HILOG_INFO("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want& want)
+void AbilityImpl::Start(const Want& want, sptr<AAFwk::SessionInfo> sessionInfos)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Start called";
 }
@@ -97,7 +97,8 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap& inState)
     GTEST_LOG_(INFO) << "Mock AbilityImpl::DispatchRestoreAbilityState called";
 }
 
-void AbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState)
+void AbilityImpl::HandleAbilityTransaction(const Want& want, const AAFwk::LifeCycleStateInfo& targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::HandleAbilityTransaction called";
 }

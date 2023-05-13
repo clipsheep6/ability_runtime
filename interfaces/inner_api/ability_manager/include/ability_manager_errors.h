@@ -328,6 +328,11 @@ enum {
      * Result(2097213) for URI type invalid.
      */
     ERR_CODE_INVALID_URI_TYPE,
+
+    /**
+     * Result(2097214) for start not self application.
+     */
+    ERR_NOT_SELF_APPLICATION,
 };
 
 enum {

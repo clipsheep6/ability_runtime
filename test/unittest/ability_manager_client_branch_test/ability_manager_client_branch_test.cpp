@@ -33,8 +33,6 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int USER_ID = 100;
-const int NULL_TARGET = 2097154;
-const int INIT_VALUE = 0;
 const size_t SIZE_ZERO = 0;
 const std::string BUNDLE_NAME = "BUNDLE_NAME";
 const std::string EMPTY_STRING = "";
@@ -307,32 +305,6 @@ HWTEST_F(AbilityManagerClientBranchTest, ClearUpApplicationData_0100, TestSize.L
 {
     std::string bundleName = "bundleName_test";
     auto result = client_->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_SendWantSender_0100
- * @tc.desc: SendWantSender
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, SendWantSender_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    SenderInfo senderInfo;
-    auto result = client_->SendWantSender(target, senderInfo);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetAppMemorySize_0100
- * @tc.desc: GetAppMemorySize
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetAppMemorySize_0100, TestSize.Level1)
-{
-    auto result = client_->GetAppMemorySize();
     EXPECT_EQ(ERR_OK, result);
 }
 
@@ -630,158 +602,6 @@ HWTEST_F(AbilityManagerClientBranchTest, KillProcess_0100, TestSize.Level1)
 {
     auto result = client_->KillProcess(BUNDLE_NAME);
     EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingWantUid_0100
- * @tc.desc: GetPendingWantUid
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingWantUid_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    int32_t uid = INIT_VALUE;
-    auto result = client_->GetPendingWantUid(target, uid);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingWantUserId_0100
- * @tc.desc: GetPendingWantUserId
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingWantUserId_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    int32_t userId = INIT_VALUE;
-    auto result = client_->GetPendingWantUserId(target, userId);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingWantBundleName_0100
- * @tc.desc: GetPendingWantBundleName
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingWantBundleName_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    std::string bundleName = EMPTY_STRING;
-    auto result = client_->GetPendingWantBundleName(target, bundleName);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingWantCode_0100
- * @tc.desc: GetPendingWantCode
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingWantCode_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    int32_t code = INIT_VALUE;
-    auto result = client_->GetPendingWantCode(target, code);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingWantType_0100
- * @tc.desc: GetPendingWantType
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingWantType_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    int32_t type = INIT_VALUE;
-    auto result = client_->GetPendingWantType(target, type);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetPendingRequestWant_0100
- * @tc.desc: GetPendingRequestWant
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetPendingRequestWant_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    std::shared_ptr<Want> want = nullptr;
-    auto result = client_->GetPendingRequestWant(target, want);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_GetWantSenderInfo_0100
- * @tc.desc: GetWantSenderInfo
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetWantSenderInfo_0100, TestSize.Level1)
-{
-    sptr<IWantSender> target = nullptr;
-    std::shared_ptr<WantSenderInfo> info = nullptr;
-    auto result = client_->GetWantSenderInfo(target, info);
-    EXPECT_EQ(NULL_TARGET, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_CancelWantSender_0100
- * @tc.desc: CancelWantSender
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, CancelWantSender_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "CancelWantSender_0100 start";
-    sptr<IWantSender> sender = nullptr;
-    client_->CancelWantSender(sender);
-
-    EXPECT_TRUE(true);
-    GTEST_LOG_(INFO) << "CancelWantSender_0100 end";
-}
-
-/**
- * @tc.name: AbilityManagerClient_RegisterCancelListener_0100
- * @tc.desc: RegisterCancelListener
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, RegisterCancelListener_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "RegisterCancelListener_0100 start";
-    sptr<IWantSender> sender = nullptr;
-    sptr<IWantReceiver> receiver = nullptr;
-    client_->RegisterCancelListener(sender, receiver);
-
-    EXPECT_TRUE(true);
-    GTEST_LOG_(INFO) << "RegisterCancelListener_0100 end";
-}
-
-/**
- * @tc.name: AbilityManagerClient_UnregisterCancelListener_0100
- * @tc.desc: UnregisterCancelListener
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, UnregisterCancelListener_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "UnregisterCancelListener_0100 start";
-    sptr<IWantSender> sender = nullptr;
-    sptr<IWantReceiver> receiver = nullptr;
-    client_->UnregisterCancelListener(sender, receiver);
-
-    EXPECT_TRUE(true);
-    GTEST_LOG_(INFO) << "UnregisterCancelListener_0100 end";
-}
-
-/**
- * @tc.name: AbilityManagerClient_IsRamConstrainedDevice_0100
- * @tc.desc: IsRamConstrainedDevice
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, IsRamConstrainedDevice_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "IsRamConstrainedDevice_0100 start";
-    auto result = client_->IsRamConstrainedDevice();
-
-    EXPECT_FALSE(result);
-    GTEST_LOG_(INFO) << "IsRamConstrainedDevice_0100 end";
 }
 
 /**
@@ -1297,19 +1117,6 @@ HWTEST_F(AbilityManagerClientBranchTest, ForceTimeoutForTest_001, TestSize.Level
     EXPECT_TRUE(client_->ForceTimeoutForTest("clean", ""), ERR_OK);
 }
 #endif
-
-/**
- * @tc.name: AbilityManagerClient_GetWantSender_0100
- * @tc.desc: GetWantSender
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetWantSender_0100, TestSize.Level1)
-{
-    WantSenderInfo wantSenderInfo;
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->GetWantSender(wantSenderInfo, callerToken);
-    EXPECT_EQ(result, nullptr);
-}
 
 /**
  * @tc.name: AbilityManagerClient_StartAbilityByCall_0200

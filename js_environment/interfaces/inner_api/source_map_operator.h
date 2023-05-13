@@ -18,32 +18,28 @@
 #include <memory>
 #include <string>
 
+#include "js_env_logger.h"
+#include "source_map.h"
+
 namespace OHOS {
 namespace JsEnv {
-class SourceMapOperatorImpl {
-public:
-    SourceMapOperatorImpl() = default;
-    virtual ~SourceMapOperatorImpl() = default;
-    virtual std::string TranslateBySourceMap(const std::string& stackStr) = 0;
-};
-
 class SourceMapOperator {
 public:
-    SourceMapOperator(std::shared_ptr<SourceMapOperatorImpl> impl) : impl_(impl)
-    {}
+    SourceMapOperator(const std::string hapPath, bool isModular)
+        : hapPath_(hapPath), isModular_(isModular) {}
 
     ~SourceMapOperator() = default;
 
     std::string TranslateBySourceMap(const std::string& stackStr)
     {
-        if (impl_ == nullptr) {
-            return "";
-        }
-        return impl_->TranslateBySourceMap(stackStr);
+        SourceMap sourceMapObj;
+        sourceMapObj.Init(isModular_, hapPath_);
+        return sourceMapObj.TranslateBySourceMap(stackStr);
     }
 
 private:
-    std::shared_ptr<SourceMapOperatorImpl> impl_ = nullptr;
+    const std::string hapPath_;
+    bool isModular_ = false;
 };
 } // namespace JsEnv
 } // namespace OHOS

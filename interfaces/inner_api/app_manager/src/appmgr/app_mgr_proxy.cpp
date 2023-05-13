@@ -241,6 +241,33 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("Pid write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    isSandbox = reply.ReadBool();
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
 {
     MessageParcel data;

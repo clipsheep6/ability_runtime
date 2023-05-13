@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <securec.h>
 #include <unistd.h>
+#include <sigchain.h>
 
 #include "dfx_dump_catcher.h"
 #include "dfx_dump_res.h"
@@ -44,8 +45,6 @@ static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
 static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
 static constexpr int HEADER_BUF_LEN = 512;
-static constexpr int NATIVE_DUMP = -1;
-static constexpr int MIX_DUMP = -2;
 static constexpr int NAMESPACE_MATCH_NUM = 2;
 typedef struct ProcInfo {
     int tid;
@@ -252,20 +251,17 @@ void MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *co
 void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<EventHandler> handler)
 {
-    /**
-    MixStackDumper::signalHandler_ = handler;
-    MixStackDumper::application_ = application;
-    struct sigaction newDumpAction;
-    struct sigaction oldDumpAction;
-    (void)memset_s(&newDumpAction, sizeof(newDumpAction), 0, sizeof(newDumpAction));
-    (void)memset_s(&oldDumpAction, sizeof(oldDumpAction), 0, sizeof(oldDumpAction));
-    sigfillset(&newDumpAction.sa_mask);
-    newDumpAction.sa_sigaction = Dump_SignalHandler;
-    newDumpAction.sa_flags = SA_RESTART | SA_SIGINFO | SA_ONSTACK;
-    sigaction(SIGDUMP, &newDumpAction, &oldDumpAction);
-    if (oldDumpAction.sa_sigaction != nullptr) {
-        g_dumpSignalHandlerFunc = oldDumpAction.sa_sigaction;
-    }
+    /*
+    signalHandler_ = handler;
+    application_ = application;
+
+    struct signal_chain_action sigchain = {
+        .sca_sigaction = MixStackDumper::Dump_SignalHandler,
+        .sca_mask = {},
+        .sca_flags = 0,
+    };
+
+    add_special_signal_handler(SIGDUMP, &sigchain);
     */
 }
 

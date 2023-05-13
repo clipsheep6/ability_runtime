@@ -27,6 +27,7 @@
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"
 #include "common_utils.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -222,20 +223,44 @@ Status DataObsMgrService::UnregisterObserverExt(sptr<IDataAbilityObserver> dataO
     return dataObsMgrInnerExt_->HandleUnregisterObserver(dataObserver);
 }
 
+Status DataObsMgrService::DeepCopyChangeInfo(const ChangeInfo &src, ChangeInfo &dst) const
+{
+    dst = src;
+    if (dst.size_ == 0) {
+        return SUCCESS;
+    }
+    dst.data_ = new (std::nothrow) uint8_t[dst.size_];
+    if (dst.data_ == nullptr) {
+        return DATAOBS_SERVICE_INNER_IS_NULL;
+    }
+
+    errno_t ret = memcpy_s(dst.data_, dst.size_, src.data_, src.size_);
+    if (ret != EOK) {
+        delete [] static_cast<uint8_t *>(dst.data_);
+        dst.data_ = nullptr;
+        return DATAOBS_SERVICE_INNER_IS_NULL;
+    }
+    return SUCCESS;
+}
+
 Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
 {
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
-            changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
+        HILOG_ERROR("handler is nullptr");
         return DATAOBS_SERVICE_HANDLER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr) {
-        HILOG_ERROR("dataObsMgrInner_ is nullptr, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
-            changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
+        HILOG_ERROR("dataObsMgrInner_:%{public}d or dataObsMgrInnerExt_ is nullptr", dataObsMgrInner_ == nullptr);
         return DATAOBS_SERVICE_INNER_IS_NULL;
+    }
+    ChangeInfo changes;
+    Status result = DeepCopyChangeInfo(changeInfo, changes);
+    if (result != SUCCESS) {
+        HILOG_ERROR("copy data failed, changeType:%{public}ud, num of uris:%{public}zu, data is "
+                    "nullptr:%{public}d, size:%{public}ud",
+                    changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
+        return result;
     }
 
     {
@@ -249,15 +274,17 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         ++taskCount_;
     }
 
-    bool ret = handler_->PostTask([this, changeInfo]() {
-        dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
-        for (auto &uri : changeInfo.uris_) {
+    bool ret = handler_->PostTask([this, changes]() {
+        dataObsMgrInnerExt_->HandleNotifyChange(changes);
+        for (auto &uri : changes.uris_) {
             dataObsMgrInner_->HandleNotifyChange(uri);
         }
+        delete [] static_cast<uint8_t *>(changes.data_);
         std::lock_guard<std::mutex> lck(taskCountMutex_);
         --taskCount_;
     });
     if (!ret) {
+        delete [] static_cast<uint8_t *>(changes.data_);
         HILOG_ERROR("Post NotifyChangeExt fail, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);

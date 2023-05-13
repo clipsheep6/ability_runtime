@@ -167,7 +167,7 @@ int MockServiceAbilityManagerService::TerminateAbilityByCaller(const sptr<IRemot
     return 0;
 }
 
-int MockServiceAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId)
+int MockServiceAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::StopServiceAbility";
     if (abilityScheduler_ != nullptr) {

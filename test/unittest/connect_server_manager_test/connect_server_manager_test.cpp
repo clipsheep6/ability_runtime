@@ -106,7 +106,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     const std::string instanceName = "test";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
-    char data[] = "WaitForDebugger";
+    char data[] = "WaitForConnection";
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
@@ -126,7 +126,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
     connectServerManager.RemoveInstance(ONE);
     const std::string instanceName = "test";
-    char data[] = "WaitForDebugger";
+    char data[] = "WaitForConnection";
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     connectServerManager.instanceMap_.clear();

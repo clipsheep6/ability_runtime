@@ -203,7 +203,8 @@ public:
         return 0;
     }
 
-    virtual int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE)
+    virtual int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr)
     {
         return 0;
     }

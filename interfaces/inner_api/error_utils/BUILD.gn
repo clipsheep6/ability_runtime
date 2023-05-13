@@ -38,6 +38,8 @@ ohos_shared_library("ability_runtime_error_util") {
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
   ]
+
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

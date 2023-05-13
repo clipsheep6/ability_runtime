@@ -151,7 +151,8 @@ int MockServiceAbilityManagerService::ReleaseCall(const sptr<IAbilityConnection>
     return 0;
 }
 
-int MockServiceAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId)
+int MockServiceAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId,
+    const sptr<IRemoteObject> &token)
 {
     return 0;
 }

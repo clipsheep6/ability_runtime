@@ -29,7 +29,7 @@ using namespace std::chrono_literals;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-    constexpr const char* AA_TOOL_COMMAND_CONFIG = "/system/etc/shell_command_excutor_config.json";
+    constexpr const char* AA_TOOL_COMMAND_CONFIG = "/system/etc/shell_command_executor_config.json";
 }
 
 TestObserver::TestObserver() : isFinished_(false)

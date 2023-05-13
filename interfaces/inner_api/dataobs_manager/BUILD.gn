@@ -53,6 +53,7 @@ ohos_shared_library("dataobs_manager") {
     "samgr:samgr_proxy",
   ]
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

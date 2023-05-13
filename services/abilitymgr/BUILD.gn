@@ -150,6 +150,7 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwsutils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

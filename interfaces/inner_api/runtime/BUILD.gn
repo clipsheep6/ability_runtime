@@ -58,7 +58,6 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_quickfix_callback.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
-    "${ability_runtime_native_path}/runtime/js_source_map_operator.cpp",
     "${ability_runtime_native_path}/runtime/js_timer.cpp",
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_env_logger.cpp",
@@ -118,6 +117,7 @@ ohos_shared_library("runtime") {
     ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

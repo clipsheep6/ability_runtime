@@ -82,7 +82,6 @@
       *ProcessInfo*;
       *ExtensionModuleLoader*;
       *SysMrgClient*;
-      *FormProviderClient*;
     };
   local:
     *;

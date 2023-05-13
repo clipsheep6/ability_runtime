@@ -124,7 +124,8 @@ public:
     {
         return 0;
     }
-    virtual int StopServiceAbility(const AAFwk::Want& want, const sptr<IRemoteObject>& callerToken) override
+    virtual int StopServiceAbility(const AAFwk::Want& want, const sptr<IRemoteObject>& callerToken,
+        const sptr<IRemoteObject>& token = nullptr) override
     {
         return 0;
     }

@@ -110,6 +110,9 @@ enum class AbilityErrorCode {
 
     // no such mission listener.
     ERROR_CODE_NO_MISSION_LISTENER = 16300002,
+
+    // not self application.
+    ERROR_NOT_SELF_APPLICATION = 16300003,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

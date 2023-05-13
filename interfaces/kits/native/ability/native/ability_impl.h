@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -94,7 +94,8 @@ public:
     void DispatchRestoreAbilityState(const PacMap &inState);
 
     // Page Service Ability has different AbilityTransaction
-    virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief The life cycle callback.
@@ -394,8 +395,9 @@ protected:
      * that it belongs to of the lifecycle status.
      *
      * @param want  The Want object to switch the life cycle.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void Start(const Want &want);
+    void Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application

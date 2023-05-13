@@ -137,7 +137,7 @@ ErrCode AppMgrService::Init()
 
     handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
     appMgrServiceInner_->SetEventHandler(handler_);
-    std::function<void()> initAppMgrServiceInnerTask = 
+    std::function<void()> initAppMgrServiceInnerTask =
         std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
     handler_->PostTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
 
@@ -318,6 +318,22 @@ int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &i
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAllRunningProcesses(info);
+}
+
+int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > 0) {
+        isSandbox = true;
+        HILOG_DEBUG("current app is a sandbox.");
+        return ERR_OK;
+    }
+    HILOG_DEBUG("current app is not a sandbox.");
+    return ERR_OK;
 }
 
 int32_t AppMgrService::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)

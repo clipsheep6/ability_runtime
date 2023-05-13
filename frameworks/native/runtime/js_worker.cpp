@@ -253,7 +253,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
 
     AppExecFwk::BundleInfo bundleInfo;
     auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(
-                    static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
     if (getInfoResult != 0) {
         HILOG_ERROR("GetBundleInfoForSelf failed.");
         return false;

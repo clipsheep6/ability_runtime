@@ -35,6 +35,8 @@ public:
         std::shared_ptr<EventHandler> handler);
     static std::string GetMixStack(bool onlyMainThread);
 
+    static bool Dump_SignalHandler(int sig, siginfo_t *si, void *context);
+
 private:
     void Init(pid_t pid);
     void Destroy();
