@@ -6227,7 +6227,8 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         HILOG_DEBUG("Called ability is common ability.");
     } else {
         HILOG_ERROR("Called ability is not common ability.");
