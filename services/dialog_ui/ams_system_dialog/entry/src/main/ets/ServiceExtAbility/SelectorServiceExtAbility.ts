@@ -16,7 +16,6 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
-import deviceInfo from '@ohos.deviceInfo';
 import defaultAppManager from '@ohos.bundle.defaultAppManager';
 import bundleManager from '@ohos.bundle.bundleManager';
 
@@ -121,7 +120,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (deviceInfo.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));

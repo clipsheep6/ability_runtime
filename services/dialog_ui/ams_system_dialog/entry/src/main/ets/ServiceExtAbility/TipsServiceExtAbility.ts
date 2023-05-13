@@ -16,7 +16,6 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
-import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = 'TipsDialog_Service';
 
@@ -47,7 +46,7 @@ export default class TipsServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (deviceInfo.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
