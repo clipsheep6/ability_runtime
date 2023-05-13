@@ -47,7 +47,7 @@ export default class TipsServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (deviceInfo.deviceType === 'phone') {
+      if (deviceInfo.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);

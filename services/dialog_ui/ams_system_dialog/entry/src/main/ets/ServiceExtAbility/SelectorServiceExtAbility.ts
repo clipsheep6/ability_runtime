@@ -104,7 +104,7 @@ export default class SelectorServiceExtensionAbility extends extension {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
       globalThis.action = Boolean(globalThis.params.action);
     }
-    if (globalThis.params.deviceType === 'phone') {
+    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
       await this.getPhoneShowHapList();
     } else {
       await this.getPcShowHapList();
@@ -121,7 +121,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (deviceInfo.deviceType === 'phone') {
+      if (deviceInfo.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
@@ -148,7 +148,7 @@ export default class SelectorServiceExtensionAbility extends extension {
       });
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType == 'phone') {
+      if (globalThis.params.deviceType == 'phone' || globalThis.params.deviceType === 'default') {
         await win.loadContent('pages/selectorPhoneDialog');
       } else {
         await win.loadContent('pages/selectorPcDialog');
