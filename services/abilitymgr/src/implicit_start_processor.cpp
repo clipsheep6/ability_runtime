@@ -71,6 +71,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     std::vector<DialogAppInfo> dialogAppInfos;
     auto deviceType = OHOS::system::GetDeviceType();
+    HILOG_INFO("deviceType is %{public}s", deviceType.c_str());
     auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, deviceType, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("generate ability request by action failed.");
