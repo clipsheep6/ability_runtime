@@ -139,8 +139,8 @@ HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_002, TestSize.Level1)
 HWTEST_F(UriPermissionTest, Upms_OnRemoteDied_001, TestSize.Level1)
 {
     const auto& onClearProxyCallback = [](const wptr<IRemoteObject>& remote) {};
-    sptr<UriPermissionManagerStubImpl::BMSOrSMDeathRecipient> object =
-        new UriPermissionManagerStubImpl::BMSOrSMDeathRecipient(onClearProxyCallback);
+    sptr<UriPermissionManagerStubImpl::ProxyDeathRecipient> object =
+        new UriPermissionManagerStubImpl::ProxyDeathRecipient(onClearProxyCallback);
     EXPECT_NE(object, nullptr);
     object->OnRemoteDied(nullptr);
 }
@@ -153,8 +153,8 @@ HWTEST_F(UriPermissionTest, Upms_OnRemoteDied_001, TestSize.Level1)
  */
 HWTEST_F(UriPermissionTest, Upms_OnRemoteDied_002, TestSize.Level1)
 {
-    sptr<UriPermissionManagerStubImpl::BMSOrSMDeathRecipient> object =
-        new UriPermissionManagerStubImpl::BMSOrSMDeathRecipient(nullptr);
+    sptr<UriPermissionManagerStubImpl::ProxyDeathRecipient> object =
+        new UriPermissionManagerStubImpl::ProxyDeathRecipient(nullptr);
     EXPECT_NE(object, nullptr);
     object->OnRemoteDied(nullptr);
 }

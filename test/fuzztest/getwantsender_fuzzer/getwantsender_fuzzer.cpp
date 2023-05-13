@@ -18,10 +18,10 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
 #include "ability_record.h"
 #include "parcel.h"
 #include "sender_info.h"
+#include "want_agent_client.h"
 #include "want_sender_info.h"
 
 using namespace OHOS::AAFwk;
@@ -50,12 +50,6 @@ sptr<Token> GetFuzzAbilityToken()
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilityMgr = AbilityManagerClient::GetInstance();
-    if (!abilityMgr) {
-        std::cout << "Get ability manager client failed." << std::endl;
-        return false;
-    }
-
     // get token
     sptr<Token> token = GetFuzzAbilityToken();
     if (!token) {
@@ -70,7 +64,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (wantSenderInfoParcel.WriteBuffer(data, size)) {
         wantSenderInfo = WantSenderInfo::Unmarshalling(wantSenderInfoParcel);
         if (wantSenderInfo) {
-            sender = abilityMgr->GetWantSender(*wantSenderInfo, token);
+            WantAgentClient::GetInstance().GetWantSender(*wantSenderInfo, token, sender);
         }
     }
 
@@ -80,7 +74,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (senderInfoParcel.WriteBuffer(data, size)) {
         senderInfo = SenderInfo::Unmarshalling(senderInfoParcel);
         if (sender && senderInfo) {
-            abilityMgr->SendWantSender(sender, *senderInfo);
+            WantAgentClient::GetInstance().SendWantSender(sender, *senderInfo);
         }
     }
 

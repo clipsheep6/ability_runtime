@@ -80,6 +80,7 @@ public:
      * @return Returns the created WantAgent object.
      */
     static WantAgentConstant::OperationType GetType(const std::shared_ptr<WantAgent> &agent);
+    static ErrCode GetType(const std::shared_ptr<WantAgent> &agent, int32_t &operType);
 
     /**
      * Triggers an WantAgent.
@@ -118,8 +119,22 @@ public:
      */
     static ErrCode IsEquals(const std::shared_ptr<WantAgent> &agent, const std::shared_ptr<WantAgent> &otherAgent);
 
+    /**
+     * @brief Get bundle name by want agent.
+     *
+     * @param agent The WantAgent.
+     * @param bundleName BundleName obtained.
+     * @return Returns ERR_OK if get bundle name succeed.
+     */
     static ErrCode GetBundleName(const std::shared_ptr<WantAgent> &agent, std::string &bundleName);
 
+    /**
+     * @brief Get uid by want agent.
+     *
+     * @param agent The WantAgent.
+     * @param uid Uid obtained.
+     * @return Returns ERR_OK if get bundle name succeed.
+     */
     static ErrCode GetUid(const std::shared_ptr<WantAgent> &agent, int32_t &uid);
 
     /**
@@ -129,6 +144,7 @@ public:
      * @return Returns the Want of the WantAgent.
      */
     static std::shared_ptr<AAFwk::Want> GetWant(const std::shared_ptr<WantAgent> &agent);
+    static ErrCode GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want);
 
     /**
      * Register Cancel function Listener.
@@ -163,10 +179,6 @@ public:
      * @return WantAgentInfo object.
      */
     static std::shared_ptr<WantAgent> FromString(const std::string &jsonString);
-
-    // add return error code interface
-    static ErrCode GetType(const std::shared_ptr<WantAgent> &agent, int32_t &operType);
-    static ErrCode GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want);
 
 private:
     WantAgentHelper();

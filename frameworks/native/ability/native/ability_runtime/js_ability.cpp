@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@
 #endif
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "context/context.h"
 #include "context/application_context.h"
@@ -197,11 +198,11 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         nullptr);
 }
 
-void JsAbility::OnStart(const Want &want)
+void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStart begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnStart(want);
+    Ability::OnStart(want, sessionInfo);
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found Ability.js");
@@ -583,7 +584,12 @@ void JsAbility::DoOnForeground(const Want &want)
             }
         }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+        Rosen::WMError ret = Rosen::WMError::WM_OK;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+        } else {
+            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+        }
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;

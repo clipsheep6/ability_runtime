@@ -172,7 +172,7 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want& want)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want& want, const sptr<IRemoteObject> &token)
 {
     if (remoteObject_ == nullptr) {
         remoteObject_ =

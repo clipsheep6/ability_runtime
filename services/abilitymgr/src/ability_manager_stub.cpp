@@ -83,6 +83,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
     requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
+    requestFuncMap_[MINIMIZE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
+    requestFuncMap_[CLOSE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::CloseUIAbilityBySCBInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -167,6 +169,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
+    requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -283,6 +286,17 @@ int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, Mes
     }
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = MinimizeUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -645,7 +659,11 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = StopServiceAbility(*want, userId);
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t result = StopServiceAbility(*want, userId, token);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -738,6 +756,17 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = CloseUIAbilityBySCB(sessionInfo);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -1202,7 +1231,9 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
-    int32_t result = StartAbilityByCall(*want, callback, callerToken);
+
+    int32_t accountId = data.ReadInt32();
+    int32_t result = StartAbilityByCall(*want, callback, callerToken, accountId);
 
     HILOG_DEBUG("resolve call ability ret = %d", result);
 
@@ -1211,6 +1242,27 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
     HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner end.");
 
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t result = StartUIAbilityBySCB(*want, *startOptions, sessionInfo);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

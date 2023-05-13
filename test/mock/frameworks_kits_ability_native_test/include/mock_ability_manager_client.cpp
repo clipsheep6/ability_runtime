@@ -126,7 +126,7 @@ ErrCode AbilityManagerClient::Connect()
     return -1;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want& want)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want& want, const sptr<IRemoteObject> &token)
 {
     return -1;
 }

@@ -18,10 +18,10 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
-#include "securec.h"
 #include "parcel.h"
+#include "securec.h"
 #include "sender_info.h"
+#include "want_agent_client.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -33,18 +33,13 @@ constexpr size_t U32_AT_SIZE = 4;
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
-    }
-
     Parcel parcel;
     sptr<IWantSender> sender = nullptr;
     if (parcel.WriteBuffer(data, size)) {
         sender = iface_cast<AAFwk::IWantSender>((static_cast<MessageParcel*>(&parcel))->ReadRemoteObject());
     }
     if (sender) {
-        abilitymgr->CancelWantSender(sender);
+        WantAgentClient::GetInstance().CancelWantSender(sender);
     }
 
     return true;

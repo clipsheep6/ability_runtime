@@ -447,10 +447,25 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest015, Function | MediumTest | Leve
 
 /**
  * @tc.number: MixStackDumperTest016
+ * @tc.name: Call Dump_SignalHandler Func
+ * @tc.desc: test Dump_SignalHandler Func
+ */
+HWTEST_F(MixStackDumperTest, MixStackDumperTest016, Function | MediumTest | Level1)
+{
+    MixStackDumper mixDumper;
+    siginfo_t sign;
+    sign.si_code = MIX_DUMP;
+    mixDumper.signalHandler_.reset();
+    bool ret = mixDumper.Dump_SignalHandler(ZERO, &sign, nullptr);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: MixStackDumperTest017
  * @tc.name: Call GetMixStack
  * @tc.desc: test GetMixStack Func
  */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest016, Function | MediumTest | Level1)
+HWTEST_F(MixStackDumperTest, MixStackDumperTest017, Function | MediumTest | Level1)
 {
     std::string stack0 = MixStackDumper::GetMixStack(false);
     EXPECT_TRUE(stack0.size() > ZERO);

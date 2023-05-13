@@ -52,7 +52,7 @@ public:
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject>&));
     MOCK_METHOD2(DumpState, void(const std::string& args, std::vector<std::string>& state));
     MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>&, int startId));
-    MOCK_METHOD1(StopServiceAbility, int(const Want&));
+    MOCK_METHOD3(StopServiceAbility, int(const Want&, int32_t userId, const sptr<IRemoteObject> &token));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcess, int(const std::string&));
     MOCK_METHOD2(UninstallApp, int(const std::string&, int32_t));

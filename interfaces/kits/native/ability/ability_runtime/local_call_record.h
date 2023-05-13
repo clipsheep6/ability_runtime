@@ -48,9 +48,12 @@ public:
     bool IsSingletonRemote();
     void SetConnection(const sptr<IRemoteObject> &connect);
     sptr<IRemoteObject> GetConnection();
+    void SetUserId(int32_t userId);
+    int32_t GetUserId() const;
 private:
     static int64_t callRecordId;
     int recordId_ = 0;
+    int32_t userId_ = -1;
     sptr<IRemoteObject> remoteObject_ = nullptr;
     wptr<IRemoteObject> connection_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> callRecipient_ = nullptr;

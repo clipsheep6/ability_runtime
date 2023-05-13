@@ -49,6 +49,8 @@ ohos_shared_library("ability_deps_wrapper") {
   if (os_account_part_enabled) {
     external_deps += [ "os_account:os_account_innerkits" ]
   }
+
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

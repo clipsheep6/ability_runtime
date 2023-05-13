@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,7 @@
 #include "form_state_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
+#include "session_info.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -57,7 +58,7 @@ namespace NativeRdb {
 class AbsSharedResultSet;
 class DataAbilityPredicates;
 class ValuesBucket;
-}  // namespace NativeRdb
+} // namespace NativeRdb
 namespace AbilityRuntime {
 class Runtime;
 }
@@ -182,8 +183,9 @@ public:
      *
      * This function can be called only once in the entire lifecycle of an ability.
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    virtual void OnStart(const Want &want);
+    virtual void OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.
@@ -1168,12 +1170,6 @@ protected:
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
 
     /**
-     * @brief Acquire a form provider remote object.
-     * @return Returns form provider remote object.
-     */
-    sptr<IRemoteObject> GetFormRemoteObject();
-
-    /**
      * @brief process when foreground executed.
      *
      * You can override this function to implement your own processing logic
@@ -1241,6 +1237,7 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
+    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(

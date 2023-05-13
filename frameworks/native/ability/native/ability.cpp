@@ -41,6 +41,7 @@
 #include "reverse_continuation_scheduler_replica.h"
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
+#include "scene_board_judgement.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
@@ -52,7 +53,6 @@
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_type.h"
-#include "form_provider_client.h"
 #include "key_event.h"
 #endif
 
@@ -158,7 +158,7 @@ bool Ability::IsUpdatingConfigurations()
     return AbilityContext::IsUpdatingConfigurations();
 }
 
-void Ability::OnStart(const Want &want)
+void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
@@ -171,6 +171,7 @@ void Ability::OnStart(const Want &want)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
+    sessionInfo_ = sessionInfo;
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
@@ -1551,12 +1552,10 @@ void Ability::OnBackground()
     }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
-            if (scene_ == nullptr) {
-                HILOG_ERROR("Ability::OnBackground error. scene_ == nullptr.");
-                return;
+            if (scene_ != nullptr) {
+                HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
+                scene_->GoBackground(sceneFlag_);
             }
-            HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
-            scene_->GoBackground(sceneFlag_);
             if (abilityRecovery_ != nullptr) {
                 abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
             }
@@ -1727,22 +1726,6 @@ void Ability::OnTriggerEvent(const int64_t formId, const std::string &message)
 FormState Ability::OnAcquireFormState(const Want &want)
 {
     return FormState::DEFAULT;
-}
-
-sptr<IRemoteObject> Ability::GetFormRemoteObject()
-{
-    HILOG_DEBUG("%{public}s start", __func__);
-    if (providerRemoteObject_ == nullptr) {
-        sptr<FormProviderClient> providerClient = new (std::nothrow) FormProviderClient();
-        std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-        if (thisAbility == nullptr) {
-            HILOG_ERROR("%{public}s failed, thisAbility is nullptr", __func__);
-        }
-        providerClient->SetOwner(thisAbility);
-        providerRemoteObject_ = providerClient->AsObject();
-    }
-    HILOG_DEBUG("%{public}s end", __func__);
-    return providerRemoteObject_;
 }
 
 void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)

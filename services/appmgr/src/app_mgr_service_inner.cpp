@@ -188,6 +188,12 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
+        auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
+        if (callRecord != nullptr) {
+            auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
+            HILOG_INFO("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
+                appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
+        }
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,

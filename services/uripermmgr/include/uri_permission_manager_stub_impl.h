@@ -19,6 +19,7 @@
 #include <functional>
 #include <map>
 
+#include "app_mgr_interface.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "storage_manager_proxy.h"
 #include "istorage_manager.h"
@@ -48,9 +49,11 @@ public:
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
 private:
+    sptr<AppExecFwk::IAppMgr> ConnectAppMgr();
     sptr<AppExecFwk::IBundleMgr> ConnectBundleManager();
     sptr<StorageManager::IStorageManager> ConnectStorageManager();
     int GetCurrentAccountId();
+    void ClearAppMgrProxy();
     void ClearBMSProxy();
     void ClearSMProxy();
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
@@ -58,10 +61,10 @@ private:
         Security::AccessToken::AccessTokenID targetTokenId, int autoremove);
     Security::AccessToken::AccessTokenID GetTokenIdByBundleName(const std::string bundleName);
 
-    class BMSOrSMDeathRecipient : public IRemoteObject::DeathRecipient {
+    class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        explicit BMSOrSMDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
-        ~BMSOrSMDeathRecipient() = default;
+        explicit ProxyDeathRecipient(const ClearProxyCallback &proxy) : proxy_(proxy) {}
+        ~ProxyDeathRecipient() = default;
         virtual void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote) override;
 
     private:
@@ -71,8 +74,10 @@ private:
 private:
     std::map<std::string, std::list<GrantInfo>> uriMap_;
     std::mutex mutex_;
+    std::mutex appMgrMutex_;
     std::mutex bmsMutex_;
     std::mutex storageMutex_;
+    sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
     sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
     sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
 };

@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Context = requireNapi("application.Context")
+let Context = requireNapi('application.Context');
 
 class ExtensionContext extends Context {
-    constructor(obj) {
-        super(obj);
-        this.currentHapModuleInfo = obj.currentHapModuleInfo
-        this.config = obj.config
-        this.extensionAbilityInfo = obj.extensionAbilityInfo
-    }
+  constructor(obj) {
+    super(obj);
+    this.currentHapModuleInfo = obj.currentHapModuleInfo;
+    this.config = obj.config;
+    this.extensionAbilityInfo = obj.extensionAbilityInfo;
+  }
 
-    onUpdateConfiguration(config) {
-        this.config = config
-    }
+  onUpdateConfiguration(config) {
+    this.config = config;
+  }
 }
 
-export default ExtensionContext
+export default ExtensionContext;

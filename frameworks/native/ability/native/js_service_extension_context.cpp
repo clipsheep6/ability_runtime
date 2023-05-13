@@ -332,7 +332,8 @@ private:
             return engine.CreateUndefined();
         }
         AAFwk::Want want;
-        if (!CheckStartAbilityByCallInputParam(engine, info, want)) {
+        int32_t accountId = DEFAULT_INVAL_VALUE;
+        if (!CheckStartAbilityByCallInputParam(engine, info, want, accountId)) {
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
@@ -350,7 +351,7 @@ private:
             return engine.CreateUndefined();
         }
 
-        auto ret = context->StartAbilityByCall(want, calls->callerCallBack);
+        auto ret = context->StartAbilityByCall(want, calls->callerCallBack, accountId);
         if (ret) {
             HILOG_ERROR("OnStartAbilityByCall is failed");
             ThrowErrorByNativeErr(engine, ret);
@@ -370,11 +371,25 @@ private:
         return retsult;
     }
 
-    bool CheckStartAbilityByCallInputParam(NativeEngine& engine, const NativeCallbackInfo& info, AAFwk::Want& want)
+    bool CheckStartAbilityByCallInputParam(
+        NativeEngine& engine, const NativeCallbackInfo& info, AAFwk::Want& want, int32_t& accountId)
     {
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want)) {
             return false;
         }
+
+        if (info.argc > static_cast<size_t>(INDEX_ONE)) {
+            if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_NUMBER) {
+                if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
+                    HILOG_ERROR("check input param accountId failed");
+                    return false;
+                }
+            } else {
+                HILOG_ERROR("input param type invalid");
+                return false;
+            }
+        }
+
         HILOG_INFO("Connect ability called, callee:%{public}s.%{public}s.",
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());

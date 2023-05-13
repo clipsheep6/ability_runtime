@@ -41,6 +41,7 @@ config("wantagent_innerkits_public_config") {
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "//third_party/icu/icu4c/source/common",
   ]
@@ -86,6 +87,7 @@ ohos_shared_library("wantagent_innerkits") {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

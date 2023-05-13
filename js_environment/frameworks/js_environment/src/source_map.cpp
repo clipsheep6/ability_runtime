@@ -46,6 +46,7 @@ constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
+const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
 
@@ -82,10 +83,19 @@ uint32_t Base64CharToInt(char charCode)
     return DIGIT_NUM;
 };
 
-void SourceMap::Init(bool isModular, const std::string& sourceMap)
+void SourceMap::Init(bool isModular, const std::string& hapPath)
 {
     isModular_ = isModular;
-    SplitSourceMap(sourceMap);
+    hapPath_ = hapPath;
+    if (isModular_) {
+        std::string sourceMapData;
+        ReadSourceMapData(hapPath_, MEGER_SOURCE_MAP_PATH, sourceMapData);
+        SplitSourceMap(sourceMapData);
+    } else {
+        if (!nonModularMap_) {
+            nonModularMap_ = std::make_shared<SourceMapData>();
+        }
+    }
 }
 
 std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
@@ -116,8 +126,15 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
     // collect error info first
     for (; i < res.size(); i++) {
         std::string temp = res[i];
-        size_t start = temp.find(openBrace);
-        size_t end = temp.find(":");
+        size_t start;
+        size_t end;
+        if (isModular_) {
+            start = temp.find(openBrace);
+            end = temp.find(":");
+        } else {
+            start = temp.find("/ets/");
+            end = temp.rfind("_.js");
+        }
         if (end <= start) {
             continue;
         }
@@ -138,7 +155,14 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
                 sourceInfo = GetSourceInfo(line, column, *(iter->second), key);
             }
         } else {
-            sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key);
+            std::string url = key + ".js.map";
+            std::string curSourceMap;
+            if (!ReadSourceMapData(hapPath_, url, curSourceMap)) {
+                JSENV_LOG_W("ReadSourceMapData fail");
+                continue;
+            }
+            ExtractSourceMapData(curSourceMap, nonModularMap_);
+            sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key + ".ts");
         }
         if (sourceInfo.empty()) {
             break;
@@ -542,10 +566,10 @@ void SourceMap::RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc)
     readSourceMapFunc_ = readFunc;
 }
 
-bool SourceMap::ReadSourceMapData(const std::string& hapPath, std::string& content)
+bool SourceMap::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)
 {
     if (readSourceMapFunc_) {
-        return readSourceMapFunc_(hapPath, content);
+        return readSourceMapFunc_(hapPath, sourceMapPath, content);
     }
     return false;
 }

@@ -12,34 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Callee = requireNapi("application.Callee")
+let Callee = requireNapi('application.Callee');
 
 class Ability {
-    constructor() {
-        this.callee = new Callee("rpc.application.callee");
-        console.log("Ability::constructor callee is " + typeof this.callee + " " + this.callee);
-    }
-    onCreate(want) {}
-    onDestroy() {}
-    onWindowStageCreate(windowStage) {}
-    onWindowStageDestroy() {}
-    onForeground(want) {}
-    onBackground() {}
-    onMemoryLevel(level) {}
-    onWindowStageRestore(windowStage) {}
-    onCallRequest() {
-        console.log("Ability::onCallRequest callee is " + typeof this.callee + " " + this.callee);
-        return this.callee;
-    }
-    onContinue(wantParams) {}
-    onConfigurationUpdated(config) {}
-    onConfigurationUpdate(newConfig) {}
-    onNewWant(want, param) {}
-    dump(params) {}
-    onDump(params) {}
+  constructor() {
+    this.callee = new Callee('rpc.application.callee');
+    console.log('Ability::constructor callee is ' + typeof this.callee + ' ' + this.callee);
+  }
+  onCreate(want) { }
+  onDestroy() { }
+  onWindowStageCreate(windowStage) { }
+  onWindowStageDestroy() { }
+  onForeground(want) { }
+  onBackground() { }
+  onMemoryLevel(level) { }
+  onWindowStageRestore(windowStage) { }
+  onCallRequest() {
+    console.log('Ability::onCallRequest callee is ' + typeof this.callee + ' ' + this.callee);
+    return this.callee;
+  }
+  onContinue(wantParams) { }
+  onConfigurationUpdated(config) { }
+  onConfigurationUpdate(newConfig) { }
+  onNewWant(want, param) { }
+  dump(params) { }
+  onDump(params) { }
 
-    onSaveState(state, wantParams) {}
-    onShare(wantParams) {}
+  onSaveState(state, wantParams) { }
+  onShare(wantParams) { }
 }
 
-export default Ability
+export default Ability;

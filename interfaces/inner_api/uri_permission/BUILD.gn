@@ -47,6 +47,7 @@ ohos_shared_library("uri_permission_mgr") {
     "storage_service:storage_manager_sa_proxy",
   ]
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

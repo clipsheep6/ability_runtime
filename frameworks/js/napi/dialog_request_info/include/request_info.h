@@ -26,10 +26,31 @@ public:
     explicit RequestInfo(const sptr<IRemoteObject> &token);
     ~RequestInfo();
 
+    /**
+     * @brief Wrap request info to native value.
+     *
+     * @param engine NativeEngine.
+     * @param request Request information.
+     * @return Native value wrapped from request.
+     */
     static NativeValue* WrapRequestInfo(NativeEngine &engine, RequestInfo *request);
+
+    /**
+     * @brief Unwrap native value to request information.
+     *
+     * @param engine NativeEngine.
+     * @param jsParam NativeValue.
+     * @return Request information unwrapped from native value.
+     */
     static std::shared_ptr<RequestInfo> UnwrapRequestInfo(NativeEngine &engine, NativeValue *jsParam);
 
+    /**
+     * @brief Get caller token.
+     *
+     * @return token.
+     */
     sptr<IRemoteObject> GetToken();
+
 private:
     sptr<IRemoteObject> callerToken_;
 };

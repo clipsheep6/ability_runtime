@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
+#include "scene_board_judgement.h"
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -51,8 +52,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     isStageBasedModel_ = info && info->isStageBasedModel;
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
-        ability_->SetSceneListener(
-            sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
+        ability_->SetSceneListener(sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
     }
 #endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
@@ -62,7 +62,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     HILOG_DEBUG("AbilityImpl::init end");
 }
 
-void AbilityImpl::Start(const Want &want)
+void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
@@ -81,7 +81,7 @@ void AbilityImpl::Start(const Want &want)
     }
 #endif
     HILOG_DEBUG("AbilityImpl::Start");
-    ability_->OnStart(want);
+    ability_->OnStart(want, sessionInfo);
 #ifdef SUPPORT_GRAPHICS
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
@@ -252,7 +252,8 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {}
 
 void AbilityImpl::HandleShareData(const int32_t &requestCode)

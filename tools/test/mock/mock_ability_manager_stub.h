@@ -67,7 +67,8 @@ public:
 
     MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>& token, int startId));
 
-    int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE);
+    int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
+        const sptr<IRemoteObject> &token = nullptr);
 
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
@@ -168,8 +169,8 @@ public:
         return 0;
     }
 
-    virtual int StartAbilityByCall(
-        const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
+    virtual int StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
+        const sptr<IRemoteObject>& callerToken, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }

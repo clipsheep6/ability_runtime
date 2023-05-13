@@ -49,6 +49,7 @@ struct SelectorPcDialog {
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
   public moreHapListType: string = "reserved/wildcard";
+  @State public isCheck: boolean = false;
   private selectItem;
 
   aboutToAppear(): void {
@@ -299,6 +300,7 @@ struct SelectorPcDialog {
                   this.selectItem = item;
                   this.hapListBackGround[current] = 0x1A0A59F7;
                   this.hapListPngVisibility[current] = 0;
+                  this.isCheck = true;
                 })
               }
               .backgroundColor(this.hapListBackGround[current])
@@ -384,6 +386,7 @@ struct SelectorPcDialog {
                   this.selectItem = item;
                   this.moreHapListBackGround[current] = 0x1A0A59F7;
                   this.moreHapListPngVisibility[current] = 0;
+                  this.isCheck = true;
                 })
               }
               .backgroundColor(this.moreHapListBackGround[current])
@@ -425,16 +428,28 @@ struct SelectorPcDialog {
               .borderRadius(20)
               .margin({ top : 16 , left : 16 })
               .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
-            Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule })
-              .backgroundColor('#0d000000')
-              .fontColor('#0A59F7')
-              .fontWeight(FontWeight.Medium)
-              .width(157)
-              .height(40)
-              .fontSize(16)
-              .borderRadius(20)
-              .margin({ top : 16 , left : 48 })
-              .onClick(() => { this.onSelectApp(this.selectItem) })
+              if(this.isCheck) {
+                Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                .backgroundColor('#0d000000')
+                .fontColor('#0A59F7')
+                .fontWeight(FontWeight.Medium)
+                .width(157)
+                .height(40)
+                .fontSize(16)
+                .borderRadius(20)
+                .margin({ top : 16 , left : 48 })
+                .onClick(() => { this.onSelectApp(this.selectItem) })
+              } else{
+                Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                .backgroundColor('#0d000000')
+                .fontColor('#0d000965')
+                .fontWeight(FontWeight.Medium)
+                .width(157)
+                .height(40)
+                .fontSize(16)
+                .borderRadius(20)
+                .margin({ top : 16 , left : 48 })
+              }
           }
       }
       .height(this.totalHigh)
