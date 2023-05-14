@@ -130,6 +130,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
     requestFuncMap_[ACQUIRE_SHARE_DATA] = &AbilityManagerStub::AcquireShareDataInner;
     requestFuncMap_[SHARE_DATA_DONE] = &AbilityManagerStub::ShareDataDoneInner;
+    requestFuncMap_[GET_ABILITY_TOKEN] = &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
     requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
@@ -1780,6 +1781,19 @@ int AbilityManagerStub::ShareDataDoneInner(MessageParcel &data, MessageParcel &r
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callStub = data.ReadRemoteObject();
+    if (!callStub) {
+        HILOG_ERROR("GetAbilityToken read call stub failed.");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> result;
+    GetAbilityTokenByCalleeObj(callStub, result);
+    reply.WriteRemoteObject(result);
     return NO_ERROR;
 }
 

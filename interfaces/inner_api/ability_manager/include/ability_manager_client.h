@@ -674,6 +674,14 @@ public:
     void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub);
 
     /**
+     * Get ability token by connect.
+     *
+     * @param token The token of ability.
+     * @param callStub The callee object.
+     */
+    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token);
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.

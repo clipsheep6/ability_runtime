@@ -3894,6 +3894,7 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
 
     auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
     if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+        ReleaseAbilityTokenMap(abilityRecord->GetToken());
         manager->OnAbilityDied(abilityRecord, GetUserId());
         return;
     }
@@ -3915,6 +3916,17 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
     CHECK_POINTER(callRecord);
     if (currentMissionListManager_) {
         currentMissionListManager_->OnCallConnectDied(callRecord);
+    }
+}
+
+void AbilityManagerService::ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    for (auto iter = callStubTokenMap_.begin(); iter != callStubTokenMap_.end(); iter++) {
+        if (iter->second == token) {
+            callStubTokenMap_.erase(iter);
+            break;
+        }
     }
 }
 
@@ -6407,12 +6419,27 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 
 void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
 {
+    {
+        std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+        callStubTokenMap_[callStub] = token;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER(abilityRecord);
     if (!JudgeSelfCalled(abilityRecord)) {
         return;
     }
     abilityRecord->CallRequestDone(callStub);
+}
+
+void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    auto it = callStubTokenMap_.find(callStub);
+    if (it == callStubTokenMap_.end()) {
+        token = nullptr;
+        return;
+    }
+    token = callStubTokenMap_[callStub];
 }
 
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
