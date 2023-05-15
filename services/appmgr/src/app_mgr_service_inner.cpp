@@ -87,6 +87,7 @@ const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
+const std::string SUPPORT_ISOLATION_MODE = "supportIsolationMode";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -144,6 +145,7 @@ void AppMgrServiceInner::Init()
 {
     InitGlobalConfiguration();
     AddWatchParameter();
+    supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     InitFocusListener();
 }
@@ -258,9 +260,17 @@ void AppMgrServiceInner::MakeProcessName(
         return;
     }
     // check after abilityInfo, because abilityInfo contains extension process.
-    if (hapModuleInfo.isStageBasedModel && !hapModuleInfo.process.empty()) {
+    if (hapModuleInfo.isStageBasedModel && !hapModuleInfo.process.empty()
+        && hapModuleInfo.process != appInfo->bundleName) {
         processName = hapModuleInfo.process;
         HILOG_DEBUG("Stage mode, Make processName:%{public}s", processName.c_str());
+        return;
+    }
+    bool isRunInIsolationMode = CheckIsolationMode(hapModuleInfo);
+    if (hapModuleInfo.isStageBasedModel && isRunInIsolationMode) {
+        processName = appInfo->bundleName;
+        processName.append(":");
+        processName.append(hapModuleInfo.name);
         return;
     }
     if (!appInfo->process.empty()) {
@@ -268,6 +278,22 @@ void AppMgrServiceInner::MakeProcessName(
         return;
     }
     processName = appInfo->bundleName;
+}
+
+bool AppMgrServiceInner::CheckIsolationMode(const HapModuleInfo &hapModuleInfo) const
+{
+    IsolationMode isolationMode = hapModuleInfo.isolationMode;
+    if (supportIsolationMode_.compare("true") == 0) {
+        switch (isolationMode) {
+            case IsolationMode::ISOLATION_FIRST:
+                return true;
+            case IsolationMode::ISOLATION_ONLY:
+                return true;
+            default:
+                return false;
+        }
+    }
+    return false;
 }
 
 bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,

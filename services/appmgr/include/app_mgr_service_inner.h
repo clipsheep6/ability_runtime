@@ -647,6 +647,9 @@ private:
 
     void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
         std::string &processName) const;
+
+    bool CheckIsolationMode(const HapModuleInfo &hapModuleInfo) const;
+
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process
@@ -882,6 +885,7 @@ private:
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    std::string supportIsolationMode_ {"false"};
     int32_t currentUserId_ = 0;
 };
 }  // namespace AppExecFwk
