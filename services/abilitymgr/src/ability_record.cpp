@@ -1361,8 +1361,8 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
             if (callerSystemAbilityRecord != nullptr) {
                 HILOG_INFO("Send result to system ability.");
                 callerSystemAbilityRecord->SendResultToSystemAbility(caller->GetRequestCode(),
-                    callerSystemAbilityRecord->GetResultCode(), callerSystemAbilityRecord->GetResultWant(),
-                    callerSystemAbilityRecord->GetCallerToken(), schedulerdied);
+                    callerSystemAbilityRecord, abilityinfo_.applicationInfo.uid,
+                    abilityinfo_.applicationInfo.accessTokenId, schedulerdied);
             }
         }
     }
@@ -1427,15 +1427,17 @@ void SystemAbilityCallerRecord::SetResultToSystemAbility(
     callerSystemAbilityRecord->SetResult(resultWant, resultCode);
 }
 
-void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
-    const sptr<IRemoteObject> &callerToken, bool schedulerdied)
+void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
+    const std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+    int32_t callerUid, uint32_t accessToken, bool schedulerdied)
 {
     HILOG_INFO("call");
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
-    if (schedulerdied) {
-        callerUid = AAFwk::AbilityRecord::abilityinfo_.applicationInfo.uid;
-        accessToken = AAFwk::AbilityRecord::abilityinfo_.applicationInfo.accessTokenId;
+    int resultCode = callerSystemAbilityRecord->GetResultCode();
+    Want resultWant = GetResultWant();
+    sptr<IRemoteObject> callerToken = GetCallerToken();
+    if (!schedulerdied) {
+        callerUid = IPCSkeleton::GetCallingUid();
+        accessToken = IPCSkeleton::GetCallingTokenID();
     }
     HILOG_INFO("Try to SendResult, callerUid = %{public}d, AccessTokenId = %{public}u",
         callerUid, accessToken);

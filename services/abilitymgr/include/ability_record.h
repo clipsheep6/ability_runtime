@@ -134,8 +134,9 @@ public:
      * Send result to system ability.
      *
      */
-    void SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
-        const sptr<IRemoteObject> &callerToken, bool schedulerdied);
+    SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
+        const std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+        int32_t callerUid, uint32_t accessToken, bool schedulerdied);
 
 private:
     std::string srcAbilityId_;
