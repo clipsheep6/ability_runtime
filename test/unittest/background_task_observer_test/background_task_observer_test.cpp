@@ -56,6 +56,7 @@ void BackgroundTaskObserverTest::SetUp()
 HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStart_001, TestSize.Level1)
 {
     std::shared_ptr<ContinuousTaskCallbackInfo> info = std::make_shared<ContinuousTaskCallbackInfo>();
+    EXPECT_NE(info, nullptr);
     observer_->OnContinuousTaskStart(info);
 }
 
@@ -70,6 +71,7 @@ HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStart_001, TestSize.Level1)
 HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStart_002, TestSize.Level1)
 {
     std::shared_ptr<ContinuousTaskCallbackInfo> info = std::make_shared<ContinuousTaskCallbackInfo>();
+    EXPECT_NE(info, nullptr);
     observer_->GetAppManager();
     observer_->OnContinuousTaskStart(info);
 }
@@ -85,6 +87,7 @@ HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStart_002, TestSize.Level1)
 HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStop_001, TestSize.Level1)
 {
     std::shared_ptr<ContinuousTaskCallbackInfo> info = std::make_shared<ContinuousTaskCallbackInfo>();
+    EXPECT_NE(info, nullptr);
     observer_->OnContinuousTaskStop(info);
 }
 
@@ -99,6 +102,7 @@ HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStop_001, TestSize.Level1)
 HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStop_002, TestSize.Level1)
 {
     std::shared_ptr<ContinuousTaskCallbackInfo> info = std::make_shared<ContinuousTaskCallbackInfo>();
+    EXPECT_NE(info, nullptr);
     observer_->GetAppManager();
     observer_->OnContinuousTaskStop(info);
 }
@@ -113,6 +117,7 @@ HWTEST_F(BackgroundTaskObserverTest, OnContinuousTaskStop_002, TestSize.Level1)
  */
 HWTEST_F(BackgroundTaskObserverTest, GetContinuousTaskApps_001, TestSize.Level1)
 {
+    ASSERT_NE(observer_, nullptr);
     observer_->GetContinuousTaskApps();
 }
 
