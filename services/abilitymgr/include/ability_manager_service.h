@@ -628,6 +628,8 @@ public:
 
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
+    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override;
+
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
@@ -1348,6 +1350,8 @@ private:
 
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
 
+    void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1379,6 +1383,7 @@ private:
     std::recursive_mutex globalLock_;
     std::shared_mutex managersMutex_;
     std::shared_mutex bgtaskObserverMutex_;
+    std::mutex abilityTokenLock_;
     sptr<AppExecFwk::IComponentInterception> componentInterception_ = nullptr;
 
     std::multimap<std::string, std::string> timeoutMap_;
@@ -1386,6 +1391,8 @@ private:
     static sptr<AbilityManagerService> instance_;
     int32_t uniqueId_ = 0;
     std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>>> iAcquireShareDataMap_;
+    // first is callstub, second is ability token
+    std::map<sptr<IRemoteObject>, sptr<IRemoteObject>> callStubTokenMap_;
 
     // Component StartUp rule switch
     bool startUpNewRule_ = true;

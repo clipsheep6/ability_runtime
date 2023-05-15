@@ -68,7 +68,6 @@ ErrCode WantAgentHelper::GetWantAgent(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
     const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent)
 {
-    WANT_AGENT_LOGI("WantAgentHelper::GetWantAgent begin.");
     if (context == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -80,8 +79,7 @@ ErrCode WantAgentHelper::GetWantAgent(
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    HILOG_INFO("%{public}s:bundle name = %{public}s; ability name = %{public}s",
-        __func__,
+    HILOG_INFO("bundle:%{public}s; ability:%{public}s",
         wants[0]->GetElement().GetBundleName().c_str(),
         wants[0]->GetElement().GetAbilityName().c_str());
 
@@ -123,7 +121,6 @@ ErrCode WantAgentHelper::GetWantAgent(
         return result;
     }
     wantAgent = std::make_shared<WantAgent>(pendingWant);
-    WANT_AGENT_LOGI("WantAgentHelper::GetWantAgent end.");
     return ERR_OK;
 }
 
@@ -148,8 +145,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
         wantsInfo.want.SetParams(*paramsInfo.GetExtraInfo());
     }
 
-    HILOG_INFO("%{public}s:bundle name = %{public}s; ability name = %{public}s",
-        __func__,
+    HILOG_INFO("bundle:%{public}s; ability:%{public}s",
         wantsInfo.want.GetElement().GetBundleName().c_str(),
         wantsInfo.want.GetElement().GetAbilityName().c_str());
 
@@ -182,7 +178,7 @@ WantAgentConstant::OperationType WantAgentHelper::GetType(const std::shared_ptr<
 ErrCode WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
     const std::shared_ptr<CompletedCallback> &callback, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::TriggerWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -199,7 +195,7 @@ ErrCode WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agen
 ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
     WantAgentConstant::OperationType type, const sptr<CompletedDispatcher> &callBack, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::Send invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -232,7 +228,6 @@ ErrCode WantAgentHelper::Cancel(const std::shared_ptr<WantAgent> &agent)
 ErrCode WantAgentHelper::IsEquals(
     const std::shared_ptr<WantAgent> &agent, const std::shared_ptr<WantAgent> &otherAgent)
 {
-    WANT_AGENT_LOGI("WantAgentHelper::IsEquals");
     if ((agent == nullptr) && (otherAgent == nullptr)) {
         return ERR_OK;
     }
@@ -245,7 +240,7 @@ ErrCode WantAgentHelper::IsEquals(
 
 ErrCode WantAgentHelper::GetBundleName(const std::shared_ptr<WantAgent> &agent, std::string &bundleName)
 {
-    WANT_AGENT_LOGI("WantAgentHelper::GetBundleName");
+    WANT_AGENT_LOGD("WantAgentHelper::GetBundleName");
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetBundleName WantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;

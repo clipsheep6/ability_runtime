@@ -42,9 +42,18 @@ public:
      */
     virtual int32_t GetApplyedQuickFixInfo(const std::string &bundleName, ApplicationQuickFixInfo &quickFixInfo) = 0;
 
+    /**
+     * @brief Revoke quick fix by bundle name.
+     *
+     * @param bundleName quick fix files need to revoke.
+     * @return returns QUICK_FIX_OK on success, error code on failure.
+     */
+    virtual int32_t RevokeQuickFix(const std::string &bundleName) = 0;
+
     enum QuickFixMgrCmd {
         ON_APPLY_QUICK_FIX = 0,             // ipc id for ApplyQuickFix
         ON_GET_APPLYED_QUICK_FIX_INFO = 1,  // ipc id for GetApplyedQuickFixInfo
+        ON_REVOKE_QUICK_FIX = 2,            // ipc id for RevokeQuickFix
     };
 };
 } // namespace AAFwk

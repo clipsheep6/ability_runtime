@@ -24,7 +24,6 @@
 #include "ability_handler.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
-#include "session_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/i_input_event_consumer.h"
 #endif
@@ -512,20 +511,6 @@ public:
     void AfterFocused() override;
     void AfterUnfocused() override;
     void ForegroundFailed(int32_t type) override;
-private:
-    sptr<IRemoteObject> token_ = nullptr;
-    std::weak_ptr<AbilityImpl> owner_;
-};
-
-class SessionStateLifeCycleImpl : public Rosen::ISessionStageStateListener {
-public:
-    SessionStateLifeCycleImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityImpl>& owner)
-        : token_(token), owner_(owner) {}
-    virtual ~SessionStateLifeCycleImpl() = default;
-    void AfterForeground() override;
-    void AfterBackground() override;
-    void AfterActive() override;
-    void AfterInactive() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;

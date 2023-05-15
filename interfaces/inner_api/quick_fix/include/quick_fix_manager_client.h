@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,6 +50,14 @@ public:
      * @return int32_t returns 0 on success, error code on failure.
      */
     int32_t GetApplyedQuickFixInfo(const std::string &bundleName, ApplicationQuickFixInfo &quickFixInfo);
+
+    /**
+     * @brief Revoke quick fix by bundle name.
+     *
+     * @param bundleName quick fix files need to revoke.
+     * @return returns QUICK_FIX_OK on success, error code on failure.
+     */
+    int32_t RevokeQuickFix(const std::string &bundleName);
 
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();

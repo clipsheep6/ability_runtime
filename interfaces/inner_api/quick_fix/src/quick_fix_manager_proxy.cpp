@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -113,6 +113,40 @@ int32_t QuickFixManagerProxy::GetApplyedQuickFixInfo(const std::string &bundleNa
 
     HILOG_DEBUG("function finished with %{public}d.", result);
     return result;
+}
+
+int32_t QuickFixManagerProxy::RevokeQuickFix(const std::string &bundleName)
+{
+    HILOG_DEBUG("Function called.");
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(AAFwk::IQuickFixManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return QUICK_FIX_WRITE_PARCEL_FAILED;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write quick fix files failed.");
+        return QUICK_FIX_WRITE_PARCEL_FAILED;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return QUICK_FIX_CONNECT_FAILED;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(QuickFixMgrCmd::ON_REVOKE_QUICK_FIX, data, reply, option);
+    if (ret != 0) {
+        HILOG_ERROR("Send request failed with error %{public}d.", ret);
+        return QUICK_FIX_SEND_REQUEST_FAILED;
+    }
+
+    auto retval = reply.ReadInt32();
+    HILOG_DEBUG("Finished with %{public}d.", retval);
+    return retval;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

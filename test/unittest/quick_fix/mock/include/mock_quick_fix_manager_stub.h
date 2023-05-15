@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,8 +24,9 @@ namespace AAFwk {
 class MockQuickFixManagerStub : public QuickFixManagerStub {
 public:
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
-    MOCK_METHOD1(ApplyQuickFix, int32_t(const std::vector<std::string>& quickFixFiles));
-    MOCK_METHOD2(GetApplyedQuickFixInfo, int32_t(const std::string& bundleName, ApplicationQuickFixInfo& quickFixInfo));
+    MOCK_METHOD1(ApplyQuickFix, int32_t(const std::vector<std::string>&));
+    MOCK_METHOD2(GetApplyedQuickFixInfo, int32_t(const std::string&, ApplicationQuickFixInfo&));
+    MOCK_METHOD1(RevokeQuickFix, int32_t(const std::string &));
 
     int InvokeSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {

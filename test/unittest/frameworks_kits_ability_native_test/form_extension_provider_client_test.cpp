@@ -409,7 +409,7 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1600, Func
     AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
     auto result = formExtensionProviderClient.AcquireFormData(
         formId, formSupplyCallback, requestCode);
-    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_INVALID_PARAM);
     GTEST_LOG_(INFO) << "formExtensionProviderClient_1600 end";
 }
 }  // namespace AppExecFwk

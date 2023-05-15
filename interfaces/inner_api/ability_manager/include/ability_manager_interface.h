@@ -793,6 +793,14 @@ public:
      */
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) = 0;
 
+    /**
+     * Get ability token by connect.
+     *
+     * @param token The token of ability.
+     * @param callStub The callee object.
+     */
+    virtual void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) = 0;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.
@@ -1247,6 +1255,8 @@ public:
 
         ACQUIRE_SHARE_DATA = 4001,
         SHARE_DATA_DONE = 4002,
+
+        GET_ABILITY_TOKEN = 5001,
     };
 };
 }  // namespace AAFwk
