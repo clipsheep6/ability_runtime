@@ -1801,10 +1801,10 @@ HWTEST_F(AbilityRecordTest, SystemAbilityCallerRecord_SendResultToSystemAbility_
     std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
         std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, abilityRecord->GetToken());
     int requestCode = 0;
-    int resultCode = 0;
-    Want resultWant;
-    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
-    systemAbilityRecord->SendResultToSystemAbility(requestCode, resultCode, resultWant, callerToken);
+    int32_t callerUid = 0;
+    uint32_t accessToken = 0;
+    systemAbilityRecord->SendResultToSystemAbility(requestCode, abilityRecord, int32_t callerUid,
+        uint32_t accessToken, false);
 }
 
 /*
