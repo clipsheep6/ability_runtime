@@ -134,7 +134,7 @@ public:
      * Send result to system ability.
      *
      */
-    SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
+    void SendResultToSystemAbility(int requestCode,
         const std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
         int32_t callerUid, uint32_t accessToken, bool schedulerdied);
 
