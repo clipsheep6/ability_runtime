@@ -97,7 +97,7 @@ private:
         AsyncTask::CompleteCallback complete =
         [uriStr, flag, targetBundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
             Uri uri(uriStr);
-            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance()->GrantUriPermission(uri, flag,
+            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
                 targetBundleName, 0);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
@@ -152,7 +152,7 @@ private:
         AsyncTask::CompleteCallback complete =
         [uriStr, bundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
             Uri uri(uriStr);
-            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance()->RevokeUriPermissionManually(uri,
+            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermissionManually(uri,
                 bundleName);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
