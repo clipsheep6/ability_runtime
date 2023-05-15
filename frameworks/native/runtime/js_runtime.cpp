@@ -196,6 +196,8 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
 }
 } // namespace
 
+std::atomic<bool> JsRuntime::hasInstance(false);
+
 JsRuntime::JsRuntime()
 {
     HILOG_DEBUG("JsRuntime costructor.");
@@ -236,6 +238,11 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         return;
     }
 
+    // Set instance id to tid after the first instance.
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
         eventHandler->PostTask(task);
@@ -243,14 +250,14 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     StartDebuggerInWorkerModule();
     HdcRegister::Get().StartHdcRegister(bundleName_);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
-    ConnectServerManager::Get().AddInstance(gettid());
-    debugMode_ = StartDebugger(needBreakPoint, debuggerPostTask);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    debugMode_ = StartDebugger(needBreakPoint, instanceId_, debuggerPostTask);
 }
 
 void JsRuntime::StopDebugMode()
 {
     if (debugMode_) {
-        ConnectServerManager::Get().RemoveInstance(gettid());
+        ConnectServerManager::Get().RemoveInstance(instanceId_);
         StopDebugger();
     }
 }
@@ -263,8 +270,13 @@ void JsRuntime::InitConsoleModule()
 
 bool JsRuntime::StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask)
 {
+    return StartDebugger(needBreakPoint, gettid(), debuggerPostTask);
+}
+
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask)
+{
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, gettid(), debuggerPostTask);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
 }
 
 void JsRuntime::StopDebugger()
