@@ -4184,7 +4184,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
-    if (connectManager_->GetExtensionByTokenFromSeriveMap(token)) {
+    if (connectManager_->GetExtensionByTokenFromServiceMap(token)) {
         HILOG_INFO("Verification token5.");
         return true;
     }
@@ -4232,7 +4232,7 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
         for (auto item: connectManagers_) {
-            if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+            if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
                 return true;
             }
             if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
@@ -4300,7 +4300,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 {
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto item: connectManagers_) {
-        if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+        if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
         }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
