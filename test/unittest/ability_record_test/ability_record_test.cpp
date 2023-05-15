@@ -1803,7 +1803,7 @@ HWTEST_F(AbilityRecordTest, SystemAbilityCallerRecord_SendResultToSystemAbility_
     int requestCode = 0;
     int32_t callerUid = 0;
     uint32_t accessToken = 0;
-    systemAbilityRecord->SendResultToSystemAbility(requestCode, abilityRecord, callerUid, accessToken, false);
+    systemAbilityRecord->SendResultToSystemAbility(requestCode, systemAbilityRecord, callerUid, accessToken, false);
 }
 
 /*
