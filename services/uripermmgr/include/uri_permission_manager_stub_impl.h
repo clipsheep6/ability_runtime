@@ -32,7 +32,6 @@ using ClearProxyCallback = std::function<void(const wptr<IRemoteObject>&)>;
 
 struct GrantInfo {
     unsigned int flag;
-    const unsigned int fromTokenId;
     const unsigned int targetTokenId;
     int autoremove;
 };
@@ -57,7 +56,6 @@ private:
     void ClearBMSProxy();
     void ClearSMProxy();
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-        Security::AccessToken::AccessTokenID fromTokenId,
         Security::AccessToken::AccessTokenID targetTokenId, int autoremove);
     Security::AccessToken::AccessTokenID GetTokenIdByBundleName(const std::string bundleName);
 
