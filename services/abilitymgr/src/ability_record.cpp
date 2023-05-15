@@ -1361,8 +1361,8 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
             if (callerSystemAbilityRecord != nullptr) {
                 HILOG_INFO("Send result to system ability.");
                 callerSystemAbilityRecord->SendResultToSystemAbility(caller->GetRequestCode(),
-                    callerSystemAbilityRecord, abilityinfo_.applicationInfo.uid,
-                    abilityinfo_.applicationInfo.accessTokenId, schedulerdied);
+                    callerSystemAbilityRecord, abilityInfo_.applicationInfo.uid,
+                    abilityInfo_.applicationInfo.accessTokenId, schedulerdied);
             }
         }
     }
