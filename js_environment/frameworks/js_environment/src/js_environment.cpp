@@ -155,5 +155,10 @@ void JsEnvironment::InitConsoleModule()
         impl_->InitConsoleModule(engine_);
     }
 }
+
+bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
+{
+    return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
+}
 } // namespace JsEnv
 } // namespace OHOS

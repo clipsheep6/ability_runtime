@@ -390,6 +390,13 @@ bool JsRuntime::LoadScript(const std::string& path, std::vector<uint8_t>* buffer
     return jsEnv_->LoadScript(path, buffer, isBundle);
 }
 
+bool JsRuntime::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
+{
+    HILOG_DEBUG("function called.");
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->LoadScript(path, buffer, len, isBundle);
+}
+
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
@@ -811,17 +818,14 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     }
 
     auto func = [&](std::string modulePath, const std::string abcPath) {
-        std::ostringstream outStream;
-        if (!extractor->GetFileBuffer(modulePath, outStream)) {
-            HILOG_ERROR("Get abc file failed");
+        std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+        size_t len = 0;
+        if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
+            HILOG_ERROR("Get abc file failed.");
             return false;
         }
 
-        const auto& outStr = outStream.str();
-        std::vector<uint8_t> buffer;
-        buffer.assign(outStr.begin(), outStr.end());
-
-        return LoadScript(abcPath, &buffer, isBundle_);
+        return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
     };
 
     if (useCommonChunk) {
