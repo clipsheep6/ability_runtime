@@ -23,7 +23,7 @@
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
-#include "locale_config.h"
+// #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
 #include "ui_service_mgr_client.h"
@@ -416,7 +416,7 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     }
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(icu::StringPiece()/*Global::I18n::LocaleConfig::GetSystemLanguage()*/, status);
     resConfig->SetLocaleInfo(locale);
     resourceManager->UpdateResConfig(*resConfig);
 

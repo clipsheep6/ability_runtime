@@ -53,8 +53,8 @@
 #endif
 
 #ifdef SUPPORT_GRAPHICS
-#include "display_type.h"
-#include "key_event.h"
+// #include "display_type.h"
+// #include "key_event.h"
 #endif
 
 namespace OHOS {
@@ -594,13 +594,11 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 void Ability::OnMemoryLevel(int level)
 {
     HILOG_INFO("%{public}s start.", __func__);
-#ifdef SUPPORT_GRAPHICS
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;
     }
     scene_->NotifyMemoryLevel(level);
-#endif
 }
 
 int Ability::OpenRawFile(const Uri &uri, const std::string &mode)

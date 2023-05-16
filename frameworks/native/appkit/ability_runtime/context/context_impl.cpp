@@ -29,7 +29,7 @@
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
 #ifdef SUPPORT_GRAPHICS
-#include "locale_config.h"
+// #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
 #include "overlay_event_subscriber.h"
@@ -453,7 +453,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     }
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(icu::StringPiece()/*Global::I18n::LocaleConfig::GetSystemLanguage()*/, status);
     resConfig->SetLocaleInfo(locale);
     if (resConfig->GetLocaleInfo() != nullptr) {
         HILOG_DEBUG("ContextImpl::InitResourceManager language: %{public}s, script: %{public}s, region: %{public}s,",

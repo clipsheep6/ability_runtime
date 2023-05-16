@@ -23,6 +23,8 @@
 #include <utility>
 #include <thread>
 #include <vector>
+#include <memory>
+#include <functional>
 
 namespace OHOS {
 namespace JsEnv {

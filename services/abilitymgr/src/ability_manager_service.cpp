@@ -64,8 +64,8 @@
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
-#include "input_manager.h"
-#include "png.h"
+// #include "input_manager.h"
+// #include "png.h"
 #include "ui_service_mgr_client.h"
 #endif
 
@@ -1347,14 +1347,12 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-#ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         HILOG_ERROR("UI extension ability donot support implicit start.");
         eventInfo.errCode = ERR_INVALID_VALUE;
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-#endif
     AbilityRequest abilityRequest;
     abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
@@ -2774,7 +2772,6 @@ int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
-#ifdef SUPPORT_GRAPHICS
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
         if (ret) {
@@ -2784,7 +2781,6 @@ int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& 
             return NO_ERROR;
         }
     }
-#endif
     return ERR_NO_INIT;
 }
 
@@ -2796,7 +2792,6 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
-#ifdef SUPPORT_GRAPHICS
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
         if (ret) {
@@ -2806,7 +2801,6 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
             return NO_ERROR;
         }
     }
-#endif    
     return ERR_NO_INIT;
 }
 
@@ -5275,7 +5269,6 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("SendANRProcessID error, debug mode.");
         return ERR_INVALID_VALUE;
     }
-#ifdef SUPPORT_GRAPHICS
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     if (!sysDialog) {
         HILOG_ERROR("SystemDialogScheduler is nullptr.");
@@ -5288,9 +5281,6 @@ int AbilityManagerService::SendANRProcessID(int pid)
         return ERR_INVALID_VALUE;
     }
     return StartAbility(want);
-#else
-    return ERR_OK;
-#endif
 }
 
 bool AbilityManagerService::IsRunningInStabilityTest()

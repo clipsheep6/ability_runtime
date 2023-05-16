@@ -42,7 +42,7 @@
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
-#include "locale_config.h"
+// #include "locale_config.h"
 #endif
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -957,7 +957,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(icu::StringPiece()/*Global::I18n::LocaleConfig::GetSystemLanguage()*/, status);
     resConfig->SetLocaleInfo(locale);
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
