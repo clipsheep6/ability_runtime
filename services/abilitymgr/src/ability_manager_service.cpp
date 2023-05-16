@@ -6527,6 +6527,8 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
             newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
         }
+        int32_t tokenId = IPCSkeleton::GetCallingTokenID();
+        newWant.SetParam("accessTokenId", tokenId);
 
         HILOG_DEBUG("%{public}s", __func__);
         sptr<Want> extraParam = new (std::nothrow) Want();
