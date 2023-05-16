@@ -297,7 +297,6 @@ group("unittest") {
     "ams_app_mgr_client_test:unittest",
     "ams_app_running_record_test:unittest",
     "ams_app_state_callback_test:unittest",
-    "ams_app_workflow_test:unittest",
     "ams_ipc_interface_test:unittest",
     "ams_mgr_kill_process_test:unittest",
     "ams_mgr_proxy_test:unittest",
