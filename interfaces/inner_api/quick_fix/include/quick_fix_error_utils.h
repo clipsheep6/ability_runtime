@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,7 @@ enum {
     QUICK_FIX_PROCESS_TIMEOUT = 18,
     QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED = 19,
     QUICK_FIX_NOT_SYSTEM_APP = 20,
+    QUICK_FIX_DEPLOYING_TASK = 21,
 };
 
 enum {
@@ -81,6 +82,9 @@ enum {
 
     // Internal error.
     ERR_QUICKFIX_INTERNAL_ERROR = 18500008,
+
+    // The application has a apply quick fix task that is being processed.
+    ERR_QUICKFIX_DEPLOYING_TASK = 18500009,
 };
 
 class QuickFixErrorUtil {

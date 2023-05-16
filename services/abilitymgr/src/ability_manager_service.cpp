@@ -3898,6 +3898,7 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
 
     auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
     if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+        ReleaseAbilityTokenMap(abilityRecord->GetToken());
         manager->OnAbilityDied(abilityRecord, GetUserId());
         return;
     }
@@ -3919,6 +3920,17 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
     CHECK_POINTER(callRecord);
     if (currentMissionListManager_) {
         currentMissionListManager_->OnCallConnectDied(callRecord);
+    }
+}
+
+void AbilityManagerService::ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    for (auto iter = callStubTokenMap_.begin(); iter != callStubTokenMap_.end(); iter++) {
+        if (iter->second == token) {
+            callStubTokenMap_.erase(iter);
+            break;
+        }
     }
 }
 
@@ -4176,7 +4188,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
-    if (connectManager_->GetExtensionByTokenFromSeriveMap(token)) {
+    if (connectManager_->GetExtensionByTokenFromServiceMap(token)) {
         HILOG_INFO("Verification token5.");
         return true;
     }
@@ -4224,7 +4236,7 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
         for (auto item: connectManagers_) {
-            if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+            if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
                 return true;
             }
             if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
@@ -4292,7 +4304,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 {
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto item: connectManagers_) {
-        if (item.second && item.second->GetExtensionByTokenFromSeriveMap(token)) {
+        if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
         }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
@@ -6234,7 +6246,8 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
 {
     HILOG_INFO("%{public}s begin", __func__);
     // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         HILOG_DEBUG("Called ability is common ability.");
     } else {
         HILOG_ERROR("Called ability is not common ability.");
@@ -6413,12 +6426,27 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 
 void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
 {
+    {
+        std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+        callStubTokenMap_[callStub] = token;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER(abilityRecord);
     if (!JudgeSelfCalled(abilityRecord)) {
         return;
     }
     abilityRecord->CallRequestDone(callStub);
+}
+
+void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    auto it = callStubTokenMap_.find(callStub);
+    if (it == callStubTokenMap_.end()) {
+        token = nullptr;
+        return;
+    }
+    token = callStubTokenMap_[callStub];
 }
 
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)

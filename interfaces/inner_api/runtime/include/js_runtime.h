@@ -100,8 +100,10 @@ public:
     bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
         const DebuggerPostTask& debuggerPostTask = {});
     bool StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask = {});
+    bool StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask = {});
     void StopDebugger();
     void InitConsoleModule();
+    bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
@@ -132,8 +134,10 @@ private:
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
     std::shared_ptr<JsEnv::JsEnvironment> jsEnv_ = nullptr;
-
+    uint32_t instanceId_ = 0;
     std::string bundleName_;
+
+    static std::atomic<bool> hasInstance;
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);

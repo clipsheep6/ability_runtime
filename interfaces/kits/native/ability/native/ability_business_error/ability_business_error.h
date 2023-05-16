@@ -72,6 +72,12 @@ enum class AbilityErrorCode {
     // context is invalid.
     ERROR_CODE_INVALID_CONTEXT = 16000011,
 
+    // application is controlled.
+    ERROR_CODE_CONTROLLED = 16000012,
+
+    // edm application is controlled.
+    ERROR_CODE_EDM_CONTROLLED = 16000013,
+
     // ability wait start.
     ERROR_START_ABILITY_WAITTING = 16000017,
 

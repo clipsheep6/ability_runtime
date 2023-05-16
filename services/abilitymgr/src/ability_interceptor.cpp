@@ -129,7 +129,10 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
             }
         }
 #endif
-        return ERR_DISPOSED_STATUS;
+        if (controlRule.isEdm) {
+            return ERR_EDM_APP_CONTROLLED;
+        }
+        return ERR_APP_CONTROLLED;
     }
     return ERR_OK;
 }

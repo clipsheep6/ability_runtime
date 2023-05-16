@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 const char *QUICK_FIX_MANAGER_NAME = "JsQuickFixMgr";
@@ -51,6 +52,12 @@ public:
     {
         JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
         return (me != nullptr) ? me->OnGetApplyedQuickFixInfo(*engine, *info) : nullptr;
+    }
+
+    static NativeValue *RevokeQuickFix(NativeEngine *engine, NativeCallbackInfo *info)
+    {
+        JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
+        return (me != nullptr) ? me->OnRevokeQuickFix(*engine, *info) : nullptr;
     }
 
     static bool Throw(NativeEngine &engine, int32_t errCode)
@@ -139,6 +146,54 @@ private:
         HILOG_DEBUG("function finished.");
         return result;
     }
+
+    NativeValue *OnRevokeQuickFix(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("called.");
+        if (info.argc == ARGC_ZERO) {
+            HILOG_ERROR("The number of parameter is invalid.");
+            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return engine.CreateUndefined();
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[ARGC_ZERO], bundleName)) {
+            HILOG_ERROR("The bundleName is invalid.");
+            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return engine.CreateUndefined();
+        }
+
+        std::shared_ptr<int32_t> errCode = std::make_shared<int32_t>(AAFwk::ERR_OK);
+        auto execute = [retval = errCode, bundleName] () {
+            auto quickFixMgr = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance();
+            if (quickFixMgr == nullptr) {
+                *retval = AAFwk::ERR_QUICKFIX_INTERNAL_ERROR;
+                HILOG_ERROR("Get quick fix mgr is nullptr.");
+                return;
+            }
+
+            *retval = quickFixMgr->RevokeQuickFix(bundleName);
+            HILOG_DEBUG("Revoke quick fix execute retval is {%{public}d}.", *retval);
+        };
+
+        auto complete = [retval = errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            HILOG_DEBUG("Revoke quick fix complete called.");
+            if (*retval != AAFwk::ERR_OK) {
+                HILOG_ERROR("Revoke quick fix execution failed. retval is %{public}d", *retval);
+                task.Reject(engine, CreateJsErrorByErrorCode(engine, *retval));
+                return;
+            }
+            HILOG_DEBUG("Revoke quick fix complete called ok.");
+            task.ResolveWithNoError(engine, engine.CreateUndefined());
+        };
+
+        NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
+        NativeValue *result = nullptr;
+        AsyncTask::Schedule("JsQuickFixManager::OnRevokeQuickFix", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+        HILOG_DEBUG("Function finished.");
+        return result;
+    }
 };
 
 NativeValue *CreateJsQuickFixManager(NativeEngine *engine, NativeValue *exportObj)
@@ -161,6 +216,7 @@ NativeValue *CreateJsQuickFixManager(NativeEngine *engine, NativeValue *exportOb
     BindNativeFunction(*engine, *object, "applyQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::ApplyQuickFix);
     BindNativeFunction(*engine, *object, "getApplicationQuickFixInfo", QUICK_FIX_MANAGER_NAME,
         JsQuickFixManager::GetApplyedQuickFixInfo);
+    BindNativeFunction(*engine, *object, "revokeQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::RevokeQuickFix);
     return engine->CreateUndefined();
 }
 } // namespace AbilityRuntime

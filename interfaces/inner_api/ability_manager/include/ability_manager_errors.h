@@ -282,7 +282,7 @@ enum {
     /**
      * Result(2097204) for application abnormal.
      */
-    ERR_DISPOSED_STATUS,
+    ERR_APP_CONTROLLED,
 
     /**
      * Result(2097205) for invalid caller.
@@ -333,6 +333,11 @@ enum {
      * Result(2097214) for start not self application.
      */
     ERR_NOT_SELF_APPLICATION,
+
+    /**
+     * Result(2097215) for edm application abnormal.
+     */
+    ERR_EDM_APP_CONTROLLED,
 };
 
 enum {

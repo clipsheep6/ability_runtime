@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,11 @@ public:
 
     virtual ~QuickFixManagerApplyTask();
 
+    enum TaskType {
+        QUICK_FIX_APPLY,
+        QUICK_FIX_REVOKE,
+    };
+
     void Run(const std::vector<std::string> &quickFixFiles);
     void HandlePatchDeployed();
     void HandlePatchSwitched();
@@ -42,7 +47,7 @@ public:
     bool GetRunningState();
 
     void RemoveTimeoutTask();
-    void NotifyApplyStatus(int32_t applyResult);
+    void NotifyApplyStatus(int32_t resultCode);
     void RemoveSelf();
 
     void PostSwitchQuickFixTask();
@@ -50,6 +55,14 @@ public:
 
     void UnregAppStateObserver();
 
+    void RunRevoke();
+    void InitRevokeTask(const std::string &bundleName, bool isSoContained);
+    std::string GetBundleName();
+    TaskType GetTaskType();
+    void HandleRevokePatchDeleted();
+    void HandleRevokePatchSwitched();
+    void PostRevokeQuickFixDeleteTask();
+    void PostRevokeQuickFixProcessDiedTask();
 private:
     void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles);
     void PostTimeOutTask();
@@ -57,6 +70,10 @@ private:
     void PostNotifyUnloadRepairPatchTask();
     void PostNotifyHotReloadPageTask();
     void RegAppStateObserver();
+    void PostRevokeQuickFixTask();
+    void HandleRevokeQuickFixAppRunning();
+    void PostRevokeQuickFixNotifyUnloadPatchTask();
+    void HandleRevokeQuickFixAppStop();
 
     sptr<AppExecFwk::IQuickFixManager> bundleQfMgr_ = nullptr;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
@@ -70,6 +87,7 @@ private:
     bool isSoContained_ = false;
     AppExecFwk::QuickFixType type_ = AppExecFwk::QuickFixType::UNKNOWN;
     std::vector<std::string> moduleNames_;
+    TaskType taskType_ = TaskType::QUICK_FIX_APPLY;
 };
 } // namespace AAFwk
 } // namespace OHOS

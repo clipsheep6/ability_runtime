@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -223,6 +223,32 @@ HWTEST_F(QuickFixManagerStubTest, GetApplyedQuickFixInfoInner_0100, TestSize.Lev
         .WillOnce(DoAll(SetArgReferee<1>(expectQuickFixInfo), Return(QUICK_FIX_OK)));
     auto result = mockQuickFixMgrService_->GetApplyedQuickFixInfoInner(data, reply);
     EXPECT_EQ(result, QUICK_FIX_WRITE_PARCEL_FAILED);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0100
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerStubTest, RevokeQuickFix_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    std::string bundleName = "test.bundle.name";
+    data.WriteInterfaceToken(QuickFixManagerStub::GetDescriptor());
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockQuickFixMgrService_, RevokeQuickFix(_)).Times(1);
+
+    auto result = mockQuickFixMgrService_->OnRemoteRequest(
+        IQuickFixManager::QuickFixMgrCmd::ON_REVOKE_QUICK_FIX, data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk

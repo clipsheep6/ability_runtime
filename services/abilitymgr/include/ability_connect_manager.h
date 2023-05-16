@@ -175,7 +175,7 @@ public:
      */
     std::shared_ptr<AbilityRecord> GetServiceRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 
-    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromSeriveMap(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromServiceMap(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);
     ConnectListType GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
 
@@ -461,7 +461,7 @@ private:
     /**
      * When a service is under starting, enque the request and handle it after the service starting completes
      */
-    void EnqueStartServiceReq(const AbilityRequest &abilityRequest);
+    void EnqueueStartServiceReq(const AbilityRequest &abilityRequest);
     /**
      * After the service starting completes, complete the request list
      */
@@ -469,8 +469,8 @@ private:
 
 private:
     void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord);
-    int DicconnectRecordNormal(std::shared_ptr<ConnectionRecord> connectRecord);
-    void DicconnectRecordForce(std::shared_ptr<ConnectionRecord> connectRecord);
+    int DisconnectRecordNormal(std::shared_ptr<ConnectionRecord> connectRecord);
+    void DisconnectRecordForce(std::shared_ptr<ConnectionRecord> connectRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

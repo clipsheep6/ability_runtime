@@ -60,7 +60,7 @@ ErrCode PendingWant::GetAbility(
     const std::shared_ptr<AAFwk::WantParams> &options,
     std::shared_ptr<PendingWant> &pendingWant)
 {
-    WANT_AGENT_LOGI("PendingWant::GetAbility begin.");
+    WANT_AGENT_LOGI("call");
     if (context == nullptr) {
         WANT_AGENT_LOGE("PendingWant::GetAbility invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -86,7 +86,6 @@ ErrCode PendingWant::GetAbility(
         WANT_AGENT_LOGI("PendingWant::GetWantSender failed.");
         return result;
     }
-    WANT_AGENT_LOGI("PendingWant::GetAbility end.");
     pendingWant = std::make_shared<PendingWant>(target);
     return ERR_OK;
 }
@@ -105,7 +104,7 @@ ErrCode PendingWant::GetAbilities(
     std::vector<std::shared_ptr<Want>> &wants, unsigned int flags, const std::shared_ptr<WantParams> &options,
     std::shared_ptr<PendingWant> &pendingWant)
 {
-    WANT_AGENT_LOGI("PendingWant::GetAbilitys begin.");
+    WANT_AGENT_LOGI("call");
     if (context == nullptr) {
         WANT_AGENT_LOGE("PendingWant::GetAbilities invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -275,7 +274,7 @@ ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
     int result = SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, target);
     if (result != 0) {
         WANT_AGENT_LOGE("PendingWant::SendAndReturnResult failed.");
@@ -288,7 +287,7 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
     SenderInfo senderInfo;
     senderInfo.resolvedType = want != nullptr ? want->GetType() : "";
     if (want != nullptr) {
@@ -345,7 +344,7 @@ void PendingWant::CancelReceiver::PerformReceive(const AAFwk::Want &want, int re
 
 void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     if (outerInstance_.lock() != nullptr) {
         outerInstance_.lock()->NotifyCancelListeners(resultCode);
@@ -355,7 +354,7 @@ void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 void PendingWant::RegisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     if (cancelListener == nullptr) {
         WANT_AGENT_LOGE("PendingWant::RegisterCancelListener invalid input param.");
@@ -374,7 +373,7 @@ void PendingWant::RegisterCancelListener(
 
 void PendingWant::NotifyCancelListeners(int32_t resultCode)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     std::vector<std::shared_ptr<CancelListener>> cancelListeners;
     {
@@ -391,7 +390,7 @@ void PendingWant::NotifyCancelListeners(int32_t resultCode)
 void PendingWant::UnregisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("call");
 
     if (cancelListener == nullptr) {
         WANT_AGENT_LOGE("PendingWant::UnregisterCancelListener invalid input param.");
