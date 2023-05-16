@@ -60,7 +60,10 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0100, Test
 
     ASSERT_NE(jsRuntime, nullptr);
     // Test with null object
-    UncaughtExceptionCallback callback;
+    auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
+        summary += "test";
+    };
+    UncaughtExceptionCallback callback(task, nullptr);
     ASSERT_EQ(callback.GetNativeStrFromJsTaggedObj(nullptr, "key"), "");
 
     // Test with invalid object
@@ -68,7 +71,7 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0100, Test
     EXPECT_NE(engine, nullptr);
     NativeValue* objValue = engine->CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    UncaughtExceptionCallback callback2;
+    UncaughtExceptionCallback callback2(task, nullptr);
     ASSERT_EQ(callback2.GetNativeStrFromJsTaggedObj(ConvertNativeValueTo<NativeObject>(objValue), "key"), "");
 
     // Test with valid object
@@ -82,7 +85,7 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0100, Test
     object->SetProperty("message", nativeErrorMsg);
     object->SetProperty("name", nativeErrorName);
     object->SetProperty("stack", nativeErrorStack);
-    UncaughtExceptionCallback callback3;
+    UncaughtExceptionCallback callback3(task, nullptr);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "message"), errorMsg);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "name"), errorName);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "stack"), errorStack);
@@ -103,8 +106,11 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0200, Test
 
     ASSERT_NE(jsRuntime, nullptr);
     // Test with null object
+    auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
+        summary += "test";
+    };
     NativeValue* nullValue = engine->CreateUndefined();
-    UncaughtExceptionCallback callback;
+    UncaughtExceptionCallback callback(task, nullptr);
     callback(nullValue);
 
     // Test with valid code, and errorStack is empty
@@ -116,7 +122,7 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0200, Test
     NativeValue* nativeErrorCode = engine->CreateString(errorCode.c_str(), errorCode.length());
     object->SetProperty("code", nativeErrorCode);
 
-    UncaughtExceptionCallback callback1;
+    UncaughtExceptionCallback callback1(task, nullptr);
     callback1(objValue);
 }
 
@@ -146,8 +152,10 @@ HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0300, Test
     NativeValue* nativeErrorStack = engine->CreateString(errorStack.c_str(), errorStack.length());
     object->SetProperty("code", nativeErrorCode);
     object->SetProperty("stack", nativeErrorStack);
-
-    UncaughtExceptionCallback callback;
+    auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
+        summary += "test";
+    };
+    UncaughtExceptionCallback callback(task, nullptr);
     callback(objValue);
 }
 
