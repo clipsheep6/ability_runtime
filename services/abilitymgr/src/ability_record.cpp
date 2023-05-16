@@ -1433,7 +1433,7 @@ void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
 {
     HILOG_INFO("call");
     int resultCode = callerSystemAbilityRecord->GetResultCode();
-    Want resultWant = callerSystemAbilityRecord-GetResultWant();
+    Want resultWant = callerSystemAbilityRecord->GetResultWant();
     sptr<IRemoteObject> callerToken = GetCallerToken();
     if (!schedulerdied) {
         callerUid = IPCSkeleton::GetCallingUid();
