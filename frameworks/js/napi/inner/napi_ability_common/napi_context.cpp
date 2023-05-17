@@ -3210,7 +3210,10 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     HILOG_INFO("Get Ability to start");
     NAPI_CALL_BASE(env, napi_get_global(env, &global), false);
     NAPI_CALL_BASE(env, napi_get_named_property(env, global, "ability", &abilityObj), false);
-    NAPI_CALL_BASE(env, napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability_)), false);
+    napi_status status = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability_));
+    if (status != napi_ok) {
+        HILOG_WARN("Failed to get external ability info.");
+    }
     HILOG_INFO("Get Ability to done");
 
     return true;
