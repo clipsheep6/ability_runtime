@@ -67,6 +67,8 @@ ohos_unittest("ability_manager_client_branch_test") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "window_manager:libwsutils",
+    "window_manager:scene_session",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

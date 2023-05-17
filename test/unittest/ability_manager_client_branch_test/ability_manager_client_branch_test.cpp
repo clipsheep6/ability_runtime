@@ -24,6 +24,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
+#include "session/host/include/session.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -1129,6 +1130,47 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
     EXPECT_EQ(client_->StartAbilityByCall(want, nullptr), ERR_OK);
     client_->EnableRecoverAbility(nullptr);
     EXPECT_EQ(client_->AddFreeInstallObserver(nullptr), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0100
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, nullptr), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0200
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0300
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo),
+        ERR_WRONG_INTERFACE_CALL);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
