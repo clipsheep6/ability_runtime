@@ -377,28 +377,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetApplicationInfo_0100, Func
 }
 
 /**
- * @tc.number: AaFwk_Ability_Context_GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Verify that function GetCacheDir.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetCacheDir_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetCacheDir();
-    EXPECT_TRUE(result.empty());
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetCodeCacheDir_0100
- * @tc.name: GetCodeCacheDir
- * @tc.desc: Verify that function GetCodeCacheDir.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetCodeCacheDir_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetCodeCacheDir();
-    EXPECT_TRUE(result.empty());
-}
-
-/**
  * @tc.number: AaFwk_Ability_Context_GetDatabaseDir_0100
  * @tc.name: GetDatabaseDir
  * @tc.desc: Verify that function GetDatabaseDir.
@@ -726,18 +704,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_RequestPermissionsFromUser_02
 }
 
 /**
- * @tc.number: AaFwk_Ability_Context_DeleteFile_0100
- * @tc.name: DeleteFile
- * @tc.desc: Verify that function DeleteFile.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_DeleteFile_0100, Function | MediumTest | Level1)
-{
-    std::string fileName;
-    auto result = context_->DeleteFile(fileName);
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.number: AaFwk_Ability_Context_GetCaller_0100
  * @tc.name: GetCaller
  * @tc.desc: Verify that function GetCaller.
@@ -779,28 +745,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetExternalFilesDir_0100, Fun
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetFilesDir_0100, Function | MediumTest | Level1)
 {
     auto result = context_->GetFilesDir();
-    EXPECT_EQ(result, "");
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetNoBackupFilesDir_0100
- * @tc.name: GetNoBackupFilesDir
- * @tc.desc: Verify that function GetNoBackupFilesDir.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetNoBackupFilesDir();
-    EXPECT_EQ(result, "");
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetDistributedDir_0100
- * @tc.name: GetDistributedDir
- * @tc.desc: Verify that function GetDistributedDir.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetDistributedDir_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetDistributedDir();
     EXPECT_EQ(result, "");
 }
 

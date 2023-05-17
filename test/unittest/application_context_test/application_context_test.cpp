@@ -332,35 +332,6 @@ HWTEST_F(ApplicationContextTest, GetBundleCodeDir_0200, TestSize.Level1)
 }
 
 /**
- * @tc.number: GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Get Cache Dir failed
- */
-HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetCacheDir_0100 start";
-    std::shared_ptr<ContextImpl> contextImpl = nullptr;
-    context_->AttachContextImpl(contextImpl);
-    auto ret = context_->GetCacheDir();
-    EXPECT_EQ(ret, "");
-    GTEST_LOG_(INFO) << "GetCacheDir_0100 end";
-}
-
-/**
- * @tc.number: GetCacheDir_0200
- * @tc.name: GetCacheDir
- * @tc.desc:Get Cache Dir sucess
- */
-HWTEST_F(ApplicationContextTest, GetCacheDir_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetCacheDir_0200 start";
-    context_->AttachContextImpl(mock_);
-    auto ret = context_->GetCacheDir();
-    EXPECT_EQ(ret, "/cache");
-    GTEST_LOG_(INFO) << "GetCacheDir_0200 end";
-}
-
-/**
  * @tc.number: GetTempDir_0100
  * @tc.name: GetTempDir
  * @tc.desc: Get Temp Dir failed

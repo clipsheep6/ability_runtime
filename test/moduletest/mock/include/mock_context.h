@@ -35,7 +35,6 @@ public:
     MOCK_METHOD1(StopAbility, bool(const AAFwk::Want& want));
     MOCK_METHOD0(GetCacheDir, std::string());
 
-    virtual std::string GetCodeCacheDir() = 0;
     virtual std::string GetDatabaseDir() = 0;
     virtual std::string GetDataDir() = 0;
     virtual std::string GetDir(const std::string& name, int mode) = 0;
@@ -56,7 +55,6 @@ public:
     virtual bool CanRequestPermission(const std::string& permission) = 0;
     virtual int VerifyCallingOrSelfPermission(const std::string& permission) = 0;
     virtual int VerifyPermission(const std::string& permission, int pid, int uid) = 0;
-    virtual std::string GetDistributedDir() = 0;
     virtual void SetPattern(int patternId) = 0;
     virtual std::shared_ptr<Context> GetAbilityPackageContext() = 0;
     virtual std::shared_ptr<HapModuleInfo> GetHapModuleInfo() = 0;

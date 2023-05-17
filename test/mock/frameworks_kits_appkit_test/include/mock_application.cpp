@@ -84,8 +84,6 @@ void MockApplication::OnStart()
 
     if (GetProcessInfo()->GetPid() == INMOCKAPPLICATION_THREE) {
         EXPECT_STREQ("TestProcess", GetProcessInfo()->GetProcessName().c_str());
-        EXPECT_STREQ("/hos/lib/cacheDir", GetCacheDir().c_str());
-        EXPECT_STREQ("/hos/lib/cacheDir", GetCodeCacheDir().c_str());
         EXPECT_STREQ("/hos/lib/dataBaseDir", GetDatabaseDir().c_str());
         EXPECT_STREQ("/hos/lib/dataDir", GetDataDir().c_str());
         EXPECT_STREQ("/hos/lib/dataDir", GetDir("test", 1).c_str());

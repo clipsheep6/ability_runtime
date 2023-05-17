@@ -89,8 +89,6 @@ void DemoAbility::OnSaveAbilityState(PacMap& outState)
 
     EXPECT_STREQ(abilityInfo->resourcePath.c_str(), std::string("resourcePath").c_str());
     EXPECT_STREQ(appInfo->dataDir.c_str(), std::string("dataDir").c_str());
-    EXPECT_STREQ(GetCodeCacheDir().c_str(), std::string("dataDir/code_cache").c_str());
-    EXPECT_STREQ(GetCacheDir().c_str(), std::string("cacheDir").c_str());
     EXPECT_STREQ(GetDatabaseDir().c_str(), std::string("dataBaseDir").c_str());
     EXPECT_STREQ(GetDataDir().c_str(), std::string("dataDir").c_str());
     EXPECT_STREQ(GetBundleCodePath().c_str(), std::string("codePath").c_str());

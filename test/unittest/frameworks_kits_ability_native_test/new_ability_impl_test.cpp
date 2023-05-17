@@ -91,8 +91,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
         ability.reset(newAbility);
     }
 
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    newAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    newAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -149,8 +148,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0300,
         ability.reset(newAbility);
     }
 
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    newAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    newAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;

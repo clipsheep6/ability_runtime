@@ -35,40 +35,17 @@ namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
-const std::string ContextDeal::CONTEXT_DEAL_CODE_CACHE("code_cache");
 const std::string ContextDeal::CONTEXT_DEAL_Files("files");
-const std::string ContextDeal::CONTEXT_DEAL_NO_BACKUP_Files("no_backup");
-const std::string ContextDeal::CONTEXT_DEAL_DIRNAME("preferences");
 const int64_t ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
-const std::string ContextDeal::CONTEXT_DISTRIBUTED_BASE_BEFORE("/mnt/hmdfs/");
-const std::string ContextDeal::CONTEXT_DISTRIBUTED_BASE_MIDDLE("/device_view/local/data/");
-const std::string ContextDeal::CONTEXT_DISTRIBUTED("distributedfiles");
 const std::string ContextDeal::CONTEXT_DATA_STORAGE("/data/storage/");
-const std::string ContextDeal::CONTEXT_ELS[] = {"el1", "el2"};
 const std::string ContextDeal::CONTEXT_DEAL_DATA_APP("/data/app/");
 const std::string ContextDeal::CONTEXT_DEAL_BASE("base");
 const std::string ContextDeal::CONTEXT_DEAL_DATABASE("database");
 const std::string ContextDeal::CONTEXT_DEAL_PREFERENCES("preferences");
-const std::string ContextDeal::CONTEXT_DEAL_DISTRIBUTEDFILES("distributedfiles");
-const std::string ContextDeal::CONTEXT_DEAL_CACHE("cache");
 const std::string ContextDeal::CONTEXT_DEAL_DATA("data");
 
 ContextDeal::ContextDeal(bool isCreateBySystemApp) : isCreateBySystemApp_(isCreateBySystemApp)
 {}
-
-std::shared_ptr<ProcessInfo> ContextDeal::GetProcessInfo() const
-{
-    return processInfo_;
-}
-
-void ContextDeal::SetProcessInfo(const std::shared_ptr<ProcessInfo> &info)
-{
-    if (info == nullptr) {
-        HILOG_ERROR("SetProcessInfo failed, info is empty");
-        return;
-    }
-    processInfo_ = info;
-}
 
 std::shared_ptr<ApplicationInfo> ContextDeal::GetApplicationInfo() const
 {
@@ -164,43 +141,6 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManag
     return resourceManager_;
 }
 
-void ContextDeal::SetProfile(const std::shared_ptr<Profile> &profile)
-{
-    if (profile == nullptr) {
-        HILOG_ERROR("SetProfile failed, profile is nullptr");
-        return;
-    }
-    profile_ = profile;
-}
-
-std::shared_ptr<Profile> ContextDeal::GetProfile() const
-{
-    return profile_;
-}
-
-bool ContextDeal::DeleteFile(const std::string &fileName)
-{
-    std::string path = GetDataDir() + CONTEXT_DEAL_FILE_SEPARATOR + fileName;
-    bool ret = OHOS::RemoveFile(path);
-    return ret;
-}
-
-std::string ContextDeal::GetCacheDir()
-{
-    std::string dir = GetBaseDir() + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_CACHE;
-    CreateDirIfNotExist(dir);
-    HILOG_DEBUG("GetCacheDir:%{public}s", dir.c_str());
-    return dir;
-}
-
-std::string ContextDeal::GetCodeCacheDir()
-{
-    std::string dir = GetDataDir() + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_CODE_CACHE;
-    CreateDirIfNotExist(dir);
-    HILOG_DEBUG("GetCodeCacheDir:%{public}s", dir.c_str());
-    return dir;
-}
-
 std::string ContextDeal::GetDatabaseDir()
 {
     std::string dir;
@@ -243,18 +183,6 @@ std::string ContextDeal::GetFilesDir()
     std::string dir = GetBaseDir() + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_Files;
     CreateDirIfNotExist(dir);
     HILOG_DEBUG("GetFilesDir dir = %{public}s", dir.c_str());
-    return dir;
-}
-
-std::string ContextDeal::GetNoBackupFilesDir()
-{
-    std::string dir = GetDataDir() + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_NO_BACKUP_Files;
-    if (!OHOS::FileExists(dir)) {
-        HILOG_INFO("GetDir GetNoBackupFilesDir is not exits");
-        OHOS::ForceCreateDirectory(dir);
-        OHOS::ChangeModeDirectory(dir, MODE);
-    }
-    HILOG_DEBUG("GetCodeCacheDir:%{public}s", dir.c_str());
     return dir;
 }
 
@@ -325,20 +253,6 @@ void ContextDeal::CreateDirIfNotExist(const std::string &dirPath) const
     }
 }
 
-std::string ContextDeal::GetDistributedDir()
-{
-    std::string dir;
-    if (IsCreateBySystemApp()) {
-        dir = CONTEXT_DISTRIBUTED_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
-              CONTEXT_DISTRIBUTED_BASE_MIDDLE + GetBundleName();
-    } else {
-        dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_DISTRIBUTEDFILES;
-    }
-    CreateDirIfNotExist(dir);
-    HILOG_DEBUG("GetDistributedDir:%{public}s", dir.c_str());
-    return dir;
-}
-
 void ContextDeal::SetPattern(int patternId)
 {
     if (resourceManager_ != nullptr) {
@@ -367,25 +281,9 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     return hapModuleInfoLocal_;
 }
 
-std::string ContextDeal::GetProcessName()
-{
-    return (processInfo_ != nullptr) ? processInfo_->GetProcessName() : "";
-}
-
 void ContextDeal::initResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
     resourceManager_ = resourceManager;
-}
-
-Uri ContextDeal::GetCaller()
-{
-    Uri uri(uriString_);
-    return uri;
-}
-
-void ContextDeal::SerUriString(const std::string &uri)
-{
-    uriString_ = uri;
 }
 
 std::string ContextDeal::GetString(int resId)
@@ -553,25 +451,6 @@ int ContextDeal::GetColorMode()
     return static_cast<int>(hapModInfo->colorMode);
 }
 
-void ContextDeal::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
-{
-    lifeCycleStateInfo_ = info;
-}
-
-int ContextDeal::GetMissionId()
-{
-    return lifeCycleStateInfo_.missionId;
-}
-
-AAFwk::LifeCycleStateInfo ContextDeal::GetLifeCycleStateInfo() const
-{
-    return lifeCycleStateInfo_;
-}
-
-void ContextDeal::SetRunner(const std::shared_ptr<EventRunner> &runner)
-{
-    mainEventRunner_ = runner;
-}
 
 bool ContextDeal::HapModuleInfoRequestInit()
 {

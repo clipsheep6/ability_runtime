@@ -69,13 +69,11 @@ AbilityThread::AbilityThread()
 
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<Ability> ability = AbilityTest::GetInstance();
-    std::shared_ptr<ContextDeal> contextDeal = nullptr;
-    abilityImpl_->Init(application, nullptr, ability, abilityHandler_, nullptr, contextDeal);
+    abilityImpl_->Init(application, nullptr, ability, abilityHandler_, nullptr);
 }
 
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std::shared_ptr<AbilityLocalRecord>& record,
-    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token,
-    std::shared_ptr<ContextDeal>& contextDeal)
+    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token)
 {
     ability_ = ability;
 }

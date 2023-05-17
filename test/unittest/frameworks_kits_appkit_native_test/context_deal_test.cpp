@@ -194,37 +194,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetAbilityManager_0100, Functio
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_GetCodeCacheDir_0100
- * @tc.name: GetCodeCacheDir
- * @tc.desc: Verify that the GetCodeCacheDir return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetCodeCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CodeCacheDir";
-    info->dataDir = dir;
-    context_->SetApplicationInfo(info);
-    dir = dir + "/" + "code_cache";
-
-    EXPECT_STREQ(context_->GetCodeCacheDir().c_str(), "/data/storage/el2/base/data/code_cache");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Verify that the GetCacheDir return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetCacheDir_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    std::string dir = "CacheDir";
-    info->cacheDir = dir;
-    context_->SetApplicationInfo(info);
-
-    EXPECT_STREQ(context_->GetCacheDir().c_str(), "/data/storage/el2/base/cache");
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetDatabaseDir_0100
  * @tc.name: GetDatabaseDir
  * @tc.desc: Verify that the GetDatabaseDir return value is correct.
@@ -345,49 +314,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetApplicationContext_0100, Fun
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_GetProcessInfo_0100
- * @tc.name: GetProcessInfo
- * @tc.desc: Verify that the GetProcessInfo return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetProcessInfo_0100, Function | MediumTest | Level1)
-{
-    std::string name = "OHOS";
-    pid_t id = 0;
-    ProcessInfo info(name, id);
-    std::shared_ptr<ProcessInfo> processinfo = std::make_shared<ProcessInfo>(info);
-    context_->SetProcessInfo(processinfo);
-    EXPECT_STREQ(name.c_str(), context_->GetProcessInfo()->GetProcessName().c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetProcessName_0100
- * @tc.name: GetProcessName
- * @tc.desc: Verify that the GetProcessName return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetProcessName_0100, Function | MediumTest | Level1)
-{
-    std::string name = "OHOS";
-    pid_t id = 0;
-    ProcessInfo info(name, id);
-    std::shared_ptr<ProcessInfo> processinfo = std::make_shared<ProcessInfo>(info);
-    context_->SetProcessInfo(processinfo);
-    EXPECT_STREQ(name.c_str(), context_->GetProcessName().c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetProcessInfo_0100
- * @tc.name: SetProcessInfo
- * @tc.desc: Verify that the SetProcessInfo input parameter is nullptr.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetProcessInfo_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ProcessInfo> processinfo = nullptr;
-    context_->SetProcessInfo(processinfo);
-    std::string name = "";
-    EXPECT_STREQ(name.c_str(), context_->GetProcessName().c_str());
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_SetApplicationInfo_0100
  * @tc.name: SetApplicationInfo
  * @tc.desc: Verify that the SetApplicationInfo input parameter is nullptr.
@@ -448,18 +374,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetContext_0100, Function | Med
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_SetProfile_0100
- * @tc.name: SetProfile
- * @tc.desc: Verify that the SetProfile input parameter is nullptr.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetProfile_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Profile> info = nullptr;
-    context_->SetProfile(info);
-    EXPECT_TRUE(context_->GetProfile() == nullptr);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetDir_0100
  * @tc.name: GetDir
  * @tc.desc: Verify that the GetDir return value is not empty.
@@ -490,42 +404,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDir_0200, Function | MediumT
     context_->SetApplicationInfo(info);
     auto resulft = context_->GetDir(name, mode);
     EXPECT_TRUE(resulft.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetNoBackupFilesDir_0100
- * @tc.name: GetNoBackupFilesDir
- * @tc.desc: Verify that the GetNoBackupFilesDir return value is not empty.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetNoBackupFilesDir_0100, Function | MediumTest | Level1)
-{
-    auto resulft = context_->GetNoBackupFilesDir();
-    EXPECT_FALSE(resulft.empty());
-    resulft = context_->GetNoBackupFilesDir();
-    EXPECT_FALSE(resulft.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetDistributedDir_0100
- * @tc.name: GetDistributedDir
- * @tc.desc: Verify that the GetDistributedDir return value is not empty.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDistributedDir_0100, Function | MediumTest | Level1)
-{
-    context_->flags_ = ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP;
-    auto resulft = context_->GetDistributedDir();
-    EXPECT_FALSE(resulft.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetDistributedDir_0200
- * @tc.name: GetDistributedDir
- * @tc.desc: Verify that the GetDistributedDir return value is not empty.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDistributedDir_0200, Function | MediumTest | Level1)
-{
-    auto resulft = context_->GetDistributedDir();
-    EXPECT_FALSE(resulft.empty());
 }
 
 /**
@@ -767,31 +645,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetPattern_0200, Function | Med
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_GetCaller_0100
- * @tc.name: GetCaller
- * @tc.desc: Verify that the GetCaller execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetCaller_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const Uri uri(context_->uriString_);
-    EXPECT_TRUE(context_->GetCaller() == uri);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SerUriString_0100
- * @tc.name: SerUriString
- * @tc.desc: Verify that the SerUriString execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SerUriString_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const std::string uriStr = "testUri";
-    context_->SerUriString(uriStr);
-    EXPECT_TRUE(uriStr == context_->uriString_);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetString_0100
  * @tc.name: GetString
  * @tc.desc: Verify that the GetString execute normally.
@@ -891,52 +744,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetPreferencesDir_0100, Functio
     const std::string expectationDir = "/data/storage/el2/base/preferences";
     const std::string resDir = context_->GetPreferencesDir();
     EXPECT_TRUE(expectationDir == resDir);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetLifeCycleStateInfo_0100
- * @tc.name: SetLifeCycleStateInfo
- * @tc.desc: Verify that the SetLifeCycleStateInfo execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetLifeCycleStateInfo_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const AAFwk::LifeCycleStateInfo info = {};
-    context_->SetLifeCycleStateInfo(info);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetMissionId_0100
- * @tc.name: GetMissionId
- * @tc.desc: Verify that the GetMissionId execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetMissionId_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    EXPECT_EQ(context_->GetMissionId(), context_->lifeCycleStateInfo_.missionId);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetLifeCycleStateInfo_0100
- * @tc.name: GetLifeCycleStateInfo
- * @tc.desc: Verify that the GetLifeCycleStateInfo execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetLifeCycleStateInfo_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    context_->GetLifeCycleStateInfo();
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetRunner_0100
- * @tc.name: SetRunner
- * @tc.desc: Verify that the SetRunner execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetRunner_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const std::shared_ptr<EventRunner> runner;
-    context_->SetRunner(runner);
 }
 
 /**

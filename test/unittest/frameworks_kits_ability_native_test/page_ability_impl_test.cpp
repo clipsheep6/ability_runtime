@@ -85,7 +85,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0100, Function | M
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
 
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto keyEvent = MMI::KeyEvent::Create();
     pageAbilityImpl_->DoKeyDown(keyEvent);
@@ -118,7 +118,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0200, Function | M
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
 
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto keyEvent = MMI::KeyEvent::Create();
     pageAbilityImpl_->DoKeyDown(keyEvent);
@@ -150,7 +150,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0100, Function | Med
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
 
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto keyEvent = MMI::KeyEvent::Create();
     pageAbilityImpl_->DoKeyUp(keyEvent);
@@ -183,7 +183,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0200, Function | Med
 
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto keyEvent = MMI::KeyEvent::Create();
     pageAbilityImpl_->DoKeyUp(keyEvent);
@@ -216,7 +216,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0100, Function 
 
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto pointerEvent = MMI::PointerEvent::Create();
     pageAbilityImpl_->DoPointerEvent(pointerEvent);
@@ -249,7 +249,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0200, Function 
 
     contextDeal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(contextDeal);
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     auto pointerEvent = MMI::PointerEvent::Create();
     pageAbilityImpl_->DoPointerEvent(pointerEvent);
@@ -277,8 +277,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_010
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -311,9 +310,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_020
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -343,9 +340,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_030
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -375,9 +370,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_040
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -407,9 +400,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_050
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -441,9 +432,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_060
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
 
@@ -476,9 +465,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_070
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -513,9 +500,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_080
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -549,9 +534,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_090
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -590,9 +573,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchSaveAbilityState_010
 
     std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
     application->RegisterAbilityLifecycleCallbacks(callback);
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
     pageAbilityImpl_->DispatchSaveAbilityState();
 
     GTEST_LOG_(INFO) << "AaFwk_PageAbilityImpl_DispatchSaveAbilityState_0100 end";
@@ -618,9 +599,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchRestoreAbilityState_
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     PacMap inState;
     pageAbilityImpl_->DispatchRestoreAbilityState(inState);
@@ -648,9 +627,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_SendResult_0100, Function | 
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     int requestCode = 1;
     int resultCode = 2;
@@ -680,9 +657,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_NewWant_0100, Function | Med
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     pageAbilityImpl_->NewWant(want);
@@ -708,9 +683,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_100
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -741,9 +714,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_110
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -774,9 +745,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_120
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -807,9 +776,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_130
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -840,9 +807,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_140
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -873,9 +838,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_150
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -907,9 +870,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_160
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
-
-    auto contextDeal = std::make_shared<ContextDeal>();
-    pageAbilityImpl_->Init(application, record, ability, handler, token, contextDeal);
+    pageAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;

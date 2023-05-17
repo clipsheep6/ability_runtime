@@ -73,8 +73,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_BatchInsert_001, Functio
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);
+    dataabilityimpl->Init(application, record, ability, handler, token);
 
     int ret;
     Uri uri("nullptr");
@@ -122,8 +121,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_HandleAbilityTransaction
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);
+    dataabilityimpl->Init(application, record, ability, handler, token);
 
     Want want;
     LifeCycleStateInfo targetState;
@@ -150,8 +148,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_HandleAbilityTransaction
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);
+    dataabilityimpl->Init(application, record, ability, handler, token);
 
     Want want;
     LifeCycleStateInfo targetState;

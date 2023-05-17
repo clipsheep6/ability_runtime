@@ -48,10 +48,16 @@ void ContextContainer::DetachBaseContext()
 
 std::shared_ptr<ProcessInfo> ContextContainer::GetProcessInfo() const
 {
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetProcessInfo();
+    return processInfo_;
+}
+
+void ContextContainer::SetProcessInfo(const std::shared_ptr<ProcessInfo> &info)
+{
+    if (info == nullptr) {
+        HILOG_ERROR("SetProcessInfo failed, info is empty");
+        return;
     }
-    return nullptr;
+    processInfo_ = info;
 }
 
 std::shared_ptr<ApplicationInfo> ContextContainer::GetApplicationInfo() const
@@ -124,36 +130,6 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextContainer::GetResource
     }
 }
 
-bool ContextContainer::DeleteFile(const std::string &fileName)
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->DeleteFile(fileName);
-    } else {
-        HILOG_ERROR("ContextContainer::DeleteFile baseContext_ is nullptr");
-        return false;
-    }
-}
-
-std::string ContextContainer::GetCacheDir()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetCacheDir();
-    } else {
-        HILOG_ERROR("ContextContainer::GetCacheDir baseContext_ is nullptr");
-        return "";
-    }
-}
-
-std::string ContextContainer::GetCodeCacheDir()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetCodeCacheDir();
-    } else {
-        HILOG_ERROR("ContextContainer::GetCodeCacheDir baseContext_ is nullptr");
-        return "";
-    }
-}
-
 std::string ContextContainer::GetDatabaseDir()
 {
     if (baseContext_ != nullptr) {
@@ -190,16 +166,6 @@ std::string ContextContainer::GetFilesDir()
         return baseContext_->GetFilesDir();
     } else {
         HILOG_ERROR("ContextContainer::GetFilesDir baseContext_ is nullptr");
-        return "";
-    }
-}
-
-std::string ContextContainer::GetNoBackupFilesDir()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetNoBackupFilesDir();
-    } else {
-        HILOG_ERROR("ContextContainer::GetNoBackupFilesDir baseContext_ is nullptr");
         return "";
     }
 }
@@ -244,16 +210,6 @@ std::string ContextContainer::GetAppType()
     }
 }
 
-std::string ContextContainer::GetDistributedDir()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetDistributedDir();
-    } else {
-        HILOG_ERROR("ContextContainer::GetDistributedDir baseContext_ is nullptr");
-        return "";
-    }
-}
-
 void ContextContainer::SetPattern(int patternId)
 {
     if (baseContext_ != nullptr) {
@@ -275,12 +231,7 @@ std::shared_ptr<HapModuleInfo> ContextContainer::GetHapModuleInfo()
 
 std::string ContextContainer::GetProcessName()
 {
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetProcessName();
-    } else {
-        HILOG_ERROR("ContextContainer::GetProcessName baseContext_ is nullptr");
-        return "";
-    }
+    return (processInfo_ != nullptr) ? processInfo_->GetProcessName() : "";
 }
 
 std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundleName, int flag, int accountId)
@@ -374,13 +325,13 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
 
 Uri ContextContainer::GetCaller()
 {
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetCaller();
-    } else {
-        HILOG_ERROR("ContextContainer::GetCaller baseContext_ is nullptr");
-        Uri uri("");
-        return uri;
-    }
+    Uri uri(uriString_);
+    return uri;
+}
+
+void ContextContainer::SetUriString(const std::string &uri)
+{
+    uriString_ = uri;
 }
 
 std::string ContextContainer::GetString(int resId)
@@ -505,12 +456,17 @@ int ContextContainer::GetColorMode()
 
 int ContextContainer::GetMissionId()
 {
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetMissionId();
-    } else {
-        HILOG_ERROR("ContextContainer::GetMissionId baseContext_ is nullptr");
-        return -1;
-    }
+    return lifeCycleStateInfo_.missionId;
+}
+
+void ContextContainer::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
+{
+    lifeCycleStateInfo_ = info;
+}
+
+AAFwk::LifeCycleStateInfo ContextContainer::GetLifeCycleStateInfo() const
+{
+    return lifeCycleStateInfo_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

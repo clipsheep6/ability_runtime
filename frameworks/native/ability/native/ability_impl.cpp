@@ -32,15 +32,14 @@ const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
 }
 
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
-    std::shared_ptr<ContextDeal> &contextDeal)
+    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityImpl::init begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
-        ability == nullptr || contextDeal == nullptr) {
+        ability == nullptr) {
         HILOG_ERROR("AbilityImpl::init failed, token is nullptr, application is nullptr, handler is nullptr, record is "
-                 "nullptr, ability is nullptr, contextDeal is nullptr");
+                 "nullptr, ability is nullptr");
         return;
     }
 
@@ -58,7 +57,6 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
-    contextDeal_ = contextDeal;
     HILOG_DEBUG("AbilityImpl::init end");
 }
 
@@ -403,24 +401,24 @@ int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Values
     return -1;
 }
 
-void AbilityImpl::SerUriString(const std::string &uri)
+void AbilityImpl::SetUriString(const std::string &uri)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    if (contextDeal_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::SerUriString contextDeal_ is nullptr");
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::SetUriString ability_ is nullptr");
         return;
     }
-    contextDeal_->SerUriString(uri);
+    ability_->SetUriString(uri);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
-    if (contextDeal_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::SetLifeCycleStateInfo contextDeal_ is nullptr");
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::SetLifeCycleStateInfo ability_ is nullptr");
         return;
     }
-    contextDeal_->SetLifeCycleStateInfo(info);
+    ability_->SetLifeCycleStateInfo(info);
 }
 
 bool AbilityImpl::CheckAndRestore()
@@ -562,7 +560,7 @@ void AbilityImpl::AfterFocused()
 
 void AbilityImpl::AfterFocusedCommon(bool isFocused)
 {
-    if (!ability_ || !ability_->GetAbilityInfo() || !contextDeal_ || !handler_) {
+    if (!ability_ || !ability_->GetAbilityInfo() || !handler_) {
         HILOG_WARN("AbilityImpl::%{public}s failed", isFocused ? "AfterFocused" : "AfterUnFocused");
         return;
     }
@@ -592,19 +590,26 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
         return;
     }
 
-    auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_,
-        focuseMode = isFocused]() {
-        auto info = contextDeal->GetLifeCycleStateInfo();
+    auto task = [abilityImpl = weak_from_this(), want = *(ability_->GetWant()), focuseMode = isFocused]() {
+        auto abilityImplS = abilityImpl.lock();
+        if (abilityImplS == nullptr) {
+            return;
+        }
+        auto ability = abilityImplS->ability_;
+        if (ability == nullptr) {
+            return;
+        }
+        AAFwk::LifeCycleStateInfo info = ability->GetLifeCycleStateInfo();
         if (focuseMode) {
             info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
         } else {
             info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
         }
         info.isNewWant = false;
-        abilityImpl->HandleAbilityTransaction(want, info);
+        abilityImplS->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.");
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
