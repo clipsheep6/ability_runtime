@@ -49,6 +49,8 @@ using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
 using RemoveMessage = void (*)(int32_t);
 using WaitForConnection = bool (*)();
 
+std::mutex ConnectServerManager::instanceMutex_;
+
 ConnectServerManager::~ConnectServerManager()
 {
     StopConnectServer();
@@ -56,6 +58,7 @@ ConnectServerManager::~ConnectServerManager()
 
 ConnectServerManager& ConnectServerManager::Get()
 {
+    std::lock_guard<std::mutex> lock(instanceMutex_);
     static ConnectServerManager connectServerManager;
     return connectServerManager;
 }
