@@ -153,6 +153,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
     requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
     requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
+    requestFuncMap_[UPDATE_MISSION_SNAPSHOT_FROM_WMS] = &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
     requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
     requestFuncMap_[GET_DLP_CONNECTION_INFOS] = &AbilityManagerStub::GetDlpConnectionInfosInner;
@@ -1736,6 +1737,23 @@ int AbilityManagerStub::UpdateMissionSnapShotInner(MessageParcel &data, MessageP
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (token == nullptr) {
+        HILOG_ERROR("read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    std::shared_ptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
+    if (pixelMap == nullptr) {
+        HILOG_ERROR("read pixelMap failed.");
+        return ERR_NULL_OBJECT;
+    }
+    UpdateMissionSnapShot(token, pixelMap);
     return NO_ERROR;
 }
 

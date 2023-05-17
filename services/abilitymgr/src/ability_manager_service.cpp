@@ -4912,6 +4912,14 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     currentMissionListManager_->UpdateSnapShot(token);
 }
 
+void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+    const std::shared_ptr<Media::PixelMap> &pixelMap)
+{
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        currentMissionListManager_->UpdateSnapShot(token, pixelMap);
+    }
+}
+
 void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {

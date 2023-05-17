@@ -649,6 +649,14 @@ public:
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
 
     /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+        const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap) {};
+
+    /**
      * Register the WindowManagerService handler
      *
      * @param handler Indidate handler of WindowManagerService.
@@ -1221,6 +1229,7 @@ public:
         UPDATE_MISSION_SNAPSHOT = 1116,
         MOVE_MISSIONS_TO_FOREGROUND = 1117,
         MOVE_MISSIONS_TO_BACKGROUND = 1118,
+        UPDATE_MISSION_SNAPSHOT_FROM_WMS,
 
         // ipc id for user test(1120)
         START_USER_TEST = 1120,
