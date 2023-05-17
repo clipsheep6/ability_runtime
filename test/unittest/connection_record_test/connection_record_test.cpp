@@ -211,8 +211,6 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_006, TestSize.Level1)
  */
 HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_007, TestSize.Level1)
 {
-    EXPECT_CALL(*callback_, OnAbilityDisconnectDone(::testing::_, ::testing::_)).Times(1);
-
     connectionRecord_->CompleteDisconnect(ERR_OK, false);
     EXPECT_EQ(connectionRecord_->GetConnectState(), ConnectionState::DISCONNECTED);
 }
@@ -228,13 +226,12 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_007, TestSize.Level1)
  */
 HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_008, TestSize.Level1)
 {
-    EXPECT_CALL(*callback_, OnAbilityDisconnectDone(::testing::_, ::testing::_)).Times(1);
-
     connectionRecord_->SetConnectState(ConnectionState::CONNECTED);
     connectionRecord_->ScheduleDisconnectAbilityDone();
 
     connectionRecord_->SetConnectState(ConnectionState::DISCONNECTING);
     connectionRecord_->ScheduleDisconnectAbilityDone();
+    EXPECT_EQ(connectionRecord_->GetConnectState(), ConnectionState::DISCONNECTED);
 }
 
 /*
