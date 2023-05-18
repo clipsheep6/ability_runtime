@@ -250,11 +250,6 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             continue;
         }
 
-        if ((*it).isInstalled) {
-            it = freeInstallList_.erase(it);
-            continue;
-        }
-
         if ((*it).promise == nullptr) {
             it++;
             continue;
@@ -262,14 +257,12 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         
         if (resultCode == ERR_OK) {
             HILOG_INFO("FreeInstall success.");
-            (*it).promise->set_value(resultCode);
-            (*it).isInstalled = true;
         } else {
             HILOG_INFO("FreeInstall failed.");
-            (*it).promise->set_value(resultCode);
         }
 
-        it++;
+        (*it).promise->set_value(resultCode);
+        it = freeInstallList_.erase(it);
     }
 }
 
