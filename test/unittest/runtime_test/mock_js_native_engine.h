@@ -163,9 +163,9 @@ public:
     {
         return false;
     }
-    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
+    size_t InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
     {
-        return false;
+        return 0; // 0 : default
     }
 
     NativeValue* CallFunction(
