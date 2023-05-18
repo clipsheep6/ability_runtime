@@ -39,6 +39,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "mock_ability_controller.h"
+#include "session/host/include/session.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -766,6 +767,46 @@ HWTEST_F(AbilityManagerServiceTest, MinimizeAbility_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->MinimizeAbility(nullptr, true), ERR_INVALID_VALUE);
     EXPECT_EQ(abilityMs_->MinimizeAbility(MockToken(AbilityType::PAGE), true), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest MinimizeAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIAbilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceTest, MinimizeUIAbilityBySCB_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_001 start");
+    EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+
+    Rosen::SessionInfo info;
+    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
+    EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CloseUIAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CloseUIAbilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceTest, CloseUIAbilityBySCB_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CloseUIAbilityBySCB_001 start");
+    EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+
+    Rosen::SessionInfo info;
+    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
+    EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+    HILOG_INFO("AbilityManagerServiceTest CloseUIAbilityBySCB_001 end");
 }
 
 /*
