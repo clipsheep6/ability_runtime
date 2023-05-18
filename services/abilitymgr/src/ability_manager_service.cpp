@@ -6312,11 +6312,9 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
 int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_INFO("%{public}s begin", __func__);
-    // check whether the target ability is singleton mode and page type.
-    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
-        HILOG_DEBUG("Called ability is common ability.");
-    } else {
+    // check whether the target ability is page type and not specified mode.
+    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::PAGE ||
+        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
         HILOG_ERROR("Called ability is not common ability.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
