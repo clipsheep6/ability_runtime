@@ -55,6 +55,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
         HILOG_ERROR("token is null");
         return nullptr;
     }
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     const auto &iter = abilities_.find(token);
     if (iter != abilities_.end()) {
         return iter->second;
@@ -82,6 +83,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
     if (want) {
         abilityRecord->SetOwnerUserId(want->GetIntParam(ABILITY_OWNER_USERID, -1));
     }
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     abilities_.emplace(token, abilityRecord);
     return abilityRecord;
 }
@@ -92,13 +94,14 @@ bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
         HILOG_ERROR("token is nullptr");
         return false;
     }
-
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     return ((abilities_.size() == 1) && (abilities_.find(token) != abilities_.end()));
 }
 
 int32_t ModuleRunningRecord::GetPageAbilitySize()
 {
     int pageAbilitySize = 0;
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     for (auto it : abilities_) {
         std::shared_ptr<AbilityRunningRecord> abilityRunningRecord = it.second;
         std::shared_ptr<AbilityInfo> abilityInfo = abilityRunningRecord->GetAbilityInfo();
@@ -110,9 +113,10 @@ int32_t ModuleRunningRecord::GetPageAbilitySize()
     return pageAbilitySize;
 }
 
-const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> &ModuleRunningRecord::GetAbilities()
+const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> ModuleRunningRecord::GetAbilities()
     const
 {
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     return abilities_;
 }
 
@@ -123,6 +127,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
         HILOG_ERROR("GetAbilityByTerminateLists error, token is null");
         return nullptr;
     }
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     const auto &iter = terminateAbilities_.find(token);
     if (iter != terminateAbilities_.end()) {
         return iter->second;
@@ -133,6 +138,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
     HILOG_INFO("Get ability running record by eventId.");
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
     });
@@ -174,6 +180,7 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
         HILOG_ERROR("null abilityRecord or abilityToken");
         return;
     }
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     const auto &iter = abilities_.find(ability->GetToken());
     if (iter != abilities_.end() && appLifeCycleDeal_->GetApplicationClient()) {
         HILOG_INFO("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
@@ -187,7 +194,7 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
 void ModuleRunningRecord::LaunchPendingAbilities()
 {
     HILOG_INFO("Launch pending abilities.");
-
+    std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
     if (abilities_.empty()) {
         HILOG_ERROR("abilities_ is empty");
         return;
@@ -211,8 +218,11 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
         return;
     }
 
-    terminateAbilities_.emplace(token, abilityRecord);
-    abilities_.erase(token);
+    {
+        std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
+        terminateAbilities_.emplace(token, abilityRecord);
+        abilities_.erase(token);
+    }
 
     if (!isForce) {
         auto curAbilityState = abilityRecord->GetState();
@@ -262,6 +272,7 @@ void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     }
 
     if (RemoveTerminateAbilityTimeoutTask(token)) {
+        std::lock_guard<std::recursive_mutex> lock(abilitiesMutex_);
         terminateAbilities_.erase(token);
     }
 }
